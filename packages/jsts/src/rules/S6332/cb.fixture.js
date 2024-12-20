@@ -33,10 +33,10 @@ new CfnFileSystem(this, 'unencrypted-explicit-cfn', unknownValue); //Compliant
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...unknownValue}); //Compliant
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': unknownValue}); //Compliant
 
-new CfnFileSystem(this, 'unencrypted-explicit-cfn', {encrypted: false, ...unknownValue}); //NonCompliant
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {encrypted: false, ...unknownValue}); //NonCompliant {{Make sure that using unencrypted file systems is safe here.}}
 //                                                              ^^^^^
 
-new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...unknownValue, encrypted: false}); //NonCompliant
+new CfnFileSystem(this, 'unencrypted-explicit-cfn', {...unknownValue, encrypted: false}); //NonCompliant {{Make sure that using unencrypted file systems is safe here.}}
 //                                                                               ^^^^^
 
 new CfnFileSystem(this, 'unencrypted-explicit-cfn', {'encrypted': undefined}); //Noncompliant {{Omitting "encrypted" disables EFS encryption. Make sure it is safe here.}}

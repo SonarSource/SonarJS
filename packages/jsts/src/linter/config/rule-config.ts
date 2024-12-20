@@ -14,12 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
 import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters/sonar-runtime.js';
 import { hasSonarContextOption } from '../parameters/sonar-context.js';
 import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 import { getContext } from '../../../../shared/src/helpers/context.js';
+import type { JSONSchema4 } from 'json-schema';
 
 /**
  * An input rule configuration for linting
@@ -32,7 +32,7 @@ import { getContext } from '../../../../shared/src/helpers/context.js';
  * and define what type(s) of file it should apply to during linting.
  *
  * An ESLint rule configuration can theoretically be a plain JavaScript object or a string. However, given the
- * nature of SonarQube' rule properties, it is currently used in the form of a string.
+ * nature of SonarQube's rule properties, it is currently used in the form of a string.
  */
 export interface RuleConfig {
   key: string;
@@ -50,16 +50,19 @@ export interface RuleConfig {
  *
  * _A rule extension only applies to rules whose implementation is available._
  *
- * @param ruleModule the rule definition
+ * @param schema the rule schema
  * @param inputRule the rule configuration
  * @returns the extended rule configuration
  */
-export function extendRuleConfig(ruleModule: Rule.RuleModule | undefined, inputRule: RuleConfig) {
+export function extendRuleConfig(
+  schema: JSONSchema4 | JSONSchema4[] | undefined,
+  inputRule: RuleConfig,
+) {
   const options = [...inputRule.configurations];
-  if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
+  if (hasSonarRuntimeOption(schema)) {
     options.push(SONAR_RUNTIME);
   }
-  if (hasSonarContextOption(ruleModule, inputRule.key)) {
+  if (hasSonarContextOption(schema)) {
     options.push(getContext());
   }
   return options;

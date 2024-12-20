@@ -15,38 +15,42 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Disabling content security policy fetch directives is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5728', () => {
+  it('S5728', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(
+      'Disabling content security policy fetch directives is security-sensitive',
+      rule,
+      {
+        valid: [
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet()
         );`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         const h = helmet();
         app.use(h);`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -55,9 +59,9 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             contentSecurityPolicy: true,
           })
         );`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         module.exports = function (app) {
           app.use(
@@ -66,9 +70,9 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             })
           );
         }`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         module.exports = function (foo) {
           app.use(
@@ -77,9 +81,9 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             })
           );
         }`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -87,17 +91,17 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             contentSecurityPolicy: false,
           })
         );`,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use('/endpoint', callback);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -106,29 +110,29 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             contentSecurityPolicy: false, // Noncompliant
           })
         );`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure not enabling content security policy fetch directives is safe here.`,
-            secondaryLocations: [
+            errors: [
               {
-                column: 12,
-                line: 7,
-                endColumn: 40,
-                endLine: 7,
+                message: JSON.stringify({
+                  message: `Make sure not enabling content security policy fetch directives is safe here.`,
+                  secondaryLocations: [
+                    {
+                      column: 12,
+                      line: 7,
+                      endColumn: 40,
+                      endLine: 7,
+                    },
+                  ],
+                }),
+                line: 5,
+                endLine: 9,
+                column: 9,
+                endColumn: 10,
               },
             ],
-          }),
-          line: 5,
-          endLine: 9,
-          column: 9,
-          endColumn: 10,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+            options: ['sonar-runtime'],
+          },
+          {
+            code: `
         const helmet = require('helmet');
         module.exports = function (app) {
           app.use(
@@ -137,29 +141,29 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             })
           );
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure not enabling content security policy fetch directives is safe here.`,
-            secondaryLocations: [
+            errors: [
               {
-                column: 14,
-                line: 6,
-                endColumn: 42,
-                endLine: 6,
+                message: JSON.stringify({
+                  message: `Make sure not enabling content security policy fetch directives is safe here.`,
+                  secondaryLocations: [
+                    {
+                      column: 14,
+                      line: 6,
+                      endColumn: 42,
+                      endLine: 6,
+                    },
+                  ],
+                }),
+                line: 4,
+                endLine: 8,
+                column: 11,
+                endColumn: 12,
               },
             ],
-          }),
-          line: 4,
-          endLine: 8,
-          column: 11,
-          endColumn: 12,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+            options: ['sonar-runtime'],
+          },
+          {
+            code: `
         const helmet = require('helmet');
         module.exports.sensitiveCsp = function (app) {
           app.use(
@@ -168,26 +172,29 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
             })
           );
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure not enabling content security policy fetch directives is safe here.`,
-            secondaryLocations: [
+            errors: [
               {
-                column: 14,
-                line: 6,
-                endColumn: 42,
-                endLine: 6,
+                message: JSON.stringify({
+                  message: `Make sure not enabling content security policy fetch directives is safe here.`,
+                  secondaryLocations: [
+                    {
+                      column: 14,
+                      line: 6,
+                      endColumn: 42,
+                      endLine: 6,
+                    },
+                  ],
+                }),
+                line: 4,
+                endLine: 8,
+                column: 11,
+                endColumn: 12,
               },
             ],
-          }),
-          line: 4,
-          endLine: 8,
-          column: 11,
-          endColumn: 12,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
+            options: ['sonar-runtime'],
+          },
+        ],
+      },
+    );
+  });
 });

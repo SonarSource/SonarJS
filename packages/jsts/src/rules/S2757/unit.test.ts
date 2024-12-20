@@ -15,14 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S2757', () => {
+  it('S2757', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run("Non-existent operators '=+', '=-' and '=!' should not be used", rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run("Non-existent operators '=+', '=-' and '=!' should not be used", rule, {
+      valid: [
+        {
+          code: `
         x = y;
         x += y;
         x = + y;
@@ -37,94 +40,107 @@ ruleTester.run("Non-existent operators '=+', '=-' and '=!' should not be used", 
         const z = + 1;
         other =~ 1;
         `,
-    },
-  ],
-  invalid: [
-    {
-      code: `x =+ y;`,
-      errors: [
+        },
+      ],
+      invalid: [
         {
-          messageId: `useExistingOperator`,
-          data: {
-            operator: '+',
-          },
-          line: 1,
-          endLine: 1,
-          column: 3,
-          endColumn: 5,
-          suggestions: [
+          code: `x =+ y;`,
+          errors: [
             {
-              messageId: 'suggestExistingOperator',
+              messageId: `useExistingOperator`,
               data: {
-                operator: '+=',
+                operator: '+',
               },
-              output: `x += y;`,
+              line: 1,
+              endLine: 1,
+              column: 3,
+              endColumn: 5,
+              suggestions: [
+                {
+                  messageId: 'suggestExistingOperator',
+                  data: {
+                    operator: '+=',
+                  },
+                  output: `x += y;`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `x =- y;`,
+          errors: [
+            {
+              messageId: `useExistingOperator`,
+              data: {
+                operator: '-',
+              },
+              line: 1,
+              endLine: 1,
+              column: 3,
+              endColumn: 5,
+              suggestions: [
+                {
+                  output: 'x -= y;',
+                  desc: 'Replace with "-=" operator',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `x =! y;`,
+          errors: [
+            {
+              messageId: `useExistingOperator`,
+              data: {
+                operator: '!',
+              },
+              line: 1,
+              endLine: 1,
+              column: 3,
+              endColumn: 5,
+              suggestions: [
+                {
+                  output: 'x != y;',
+                  desc: 'Replace with "!=" operator',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `const x =! y;`,
+          errors: [
+            {
+              messageId: `useExistingOperator`,
+              data: {
+                operator: '!',
+              },
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 11,
+            },
+          ],
+        },
+        {
+          code: `let x =! y;`,
+          errors: [
+            {
+              messageId: `useExistingOperator`,
+              data: {
+                operator: '!',
+              },
+              line: 1,
+              endLine: 1,
+              column: 7,
+              endColumn: 9,
+              suggestions: [],
             },
           ],
         },
       ],
-    },
-    {
-      code: `
-      x =- y;`,
-      errors: [
-        {
-          messageId: `useExistingOperator`,
-          data: {
-            operator: '-',
-          },
-          line: 2,
-          endLine: 2,
-          column: 9,
-          endColumn: 11,
-        },
-      ],
-    },
-    {
-      code: `x =! y;`,
-      errors: [
-        {
-          messageId: `useExistingOperator`,
-          data: {
-            operator: '!',
-          },
-          line: 1,
-          endLine: 1,
-          column: 3,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      code: `const x =! y;`,
-      errors: [
-        {
-          messageId: `useExistingOperator`,
-          data: {
-            operator: '!',
-          },
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 11,
-        },
-      ],
-    },
-    {
-      code: `let x =! y;`,
-      errors: [
-        {
-          messageId: `useExistingOperator`,
-          data: {
-            operator: '!',
-          },
-          line: 1,
-          endLine: 1,
-          column: 7,
-          endColumn: 9,
-          suggestions: [],
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

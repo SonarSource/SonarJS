@@ -5,7 +5,7 @@ class App extends React.Component {
     [
       <App key="unique id" />,
       <App {...props} />, // spread operator are an exception
-      <App />, // Noncompliant
+      <App />, // Noncompliant {{Missing "key" prop for element in array}}
     ];
   }
 }

@@ -14,65 +14,64 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new RuleTester();
 
 const DEFAULT_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
 const ALLOW_UPPERCASE = '^[A-Z][a-zA-Z0-9]*$';
 
-ruleTester.run('Function names should comply with a naming convention', rule, {
-  valid: [
-    {
-      code: `
+describe('S100', () => {
+  it('S100', () => {
+    ruleTester.run('Function names should comply with a naming convention', rule, {
+      valid: [
+        {
+          code: `
         function doSomething(){}
         function _doSomething(){}
         function* doSomething(){}
         
         let doSomething = function Object () {}
         `,
-      options: [{ format: DEFAULT_FORMAT }],
-    },
-    {
-      code: `
+          options: [{ format: DEFAULT_FORMAT }],
+        },
+        {
+          code: `
       class C {
         doSomething(){ }
         * doSomething (){}
      }
       `,
-      options: [{ format: DEFAULT_FORMAT }],
-    },
-    {
-      code: `
+          options: [{ format: DEFAULT_FORMAT }],
+        },
+        {
+          code: `
         function DoSomething() {}
       `,
-      options: [{ format: ALLOW_UPPERCASE }],
-    },
-    {
-      code: `
+          options: [{ format: ALLOW_UPPERCASE }],
+        },
+        {
+          code: `
       function Welcome() {
         const greeting = 'Hello, world!';
 
         return <h1>{greeting}</h1>
       }`,
-      options: [{ format: DEFAULT_FORMAT }],
-    },
-    {
-      code: `
+          options: [{ format: DEFAULT_FORMAT }],
+        },
+        {
+          code: `
       const Welcome = () => {
         const greeting = 'Hello, world!';
 
         return <h1>{greeting}</h1>
       }`,
-      options: [{ format: DEFAULT_FORMAT }],
-    },
-    {
-      code: `
+          options: [{ format: DEFAULT_FORMAT }],
+        },
+        {
+          code: `
       const Welcome = function() {
         const greeting = 'Hello, world!';
 
@@ -82,78 +81,91 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
           </>
         )
       }`,
-      options: [{ format: DEFAULT_FORMAT }],
-    },
-  ],
-  invalid: [
-    {
-      code: `
-        function DoSomething(){}
-        `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [
-        {
-          message: `Rename this 'DoSomething' function to match the regular expression '${DEFAULT_FORMAT}'.`,
-          line: 2,
-          endLine: 2,
-          column: 18,
-          endColumn: 29,
+          options: [{ format: DEFAULT_FORMAT }],
         },
       ],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `
+        function DoSomething(){}
+        `,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [
+            {
+              message: `Rename this 'DoSomething' function to match the regular expression '${DEFAULT_FORMAT}'.`,
+              line: 2,
+              endLine: 2,
+              column: 18,
+              endColumn: 29,
+            },
+          ],
+        },
+        {
+          code: `
         function do_something(){}
         function* DoSomething(){}   
         `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [
-        {
-          line: 2,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [
+            {
+              messageId: `renameFunction`,
+              line: 2,
+            },
+            {
+              messageId: `renameFunction`,
+              line: 3,
+            },
+          ],
         },
         {
-          line: 3,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
         class C {
           DoSomething(){}
           * DoSomething (){}
         }
       `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [{ line: 3 }, { line: 4 }],
-    },
-    {
-      code: `
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [
+            {
+              messageId: `renameFunction`,
+              line: 3,
+            },
+            {
+              messageId: `renameFunction`,
+              line: 4,
+            },
+          ],
+        },
+        {
+          code: `
       var MyObj1 = function Object () {
           this.a = 1;
       };
       `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [
-        {
-          line: 2,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [
+            {
+              messageId: `renameFunction`,
+              line: 2,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       var MyObj1 = () => {
           this.a = 1;
       };
       `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [
-        {
-          line: 2,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [
+            {
+              messageId: `renameFunction`,
+              line: 2,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
      var myObj = {
         Method1() {},
         Method2: function() {},
@@ -169,10 +181,15 @@ ruleTester.run('Function names should comply with a naming convention', rule, {
         }
       };
       `,
-      options: [{ format: DEFAULT_FORMAT }],
-      errors: [3, 4, 5, 6, 9, 12].map(line => {
-        return { line };
-      }),
-    },
-  ],
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [3, 4, 5, 6, 9, 12].map(line => {
+            return {
+              messageId: `renameFunction`,
+              line,
+            };
+          }),
+        },
+      ],
+    });
+  });
 });

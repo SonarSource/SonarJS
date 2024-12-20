@@ -14,41 +14,42 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+describe('S2430', () => {
+  it('S2430', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`A constructor name should not start with a lowercase letter`, rule, {
-  valid: [
-    {
-      code: `let x = new Thing();`,
-    },
-    {
-      code: `
+    ruleTester.run(`A constructor name should not start with a lowercase letter`, rule, {
+      valid: [
+        {
+          code: `let x = new Thing();`,
+        },
+        {
+          code: `
         let ctor = condition ? Foo : Bar;
         let item = new ctor();
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function thing(){}
         let x = new thing();
     `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       let obj = condition ? {ctor: Foo} : {ctor: Bar};
       let item = new obj.ctor();
     `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

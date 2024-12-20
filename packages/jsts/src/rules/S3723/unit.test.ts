@@ -14,33 +14,38 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester();
-ruleTester.run('Trailing commas should be used', rule, {
-  valid: [
-    {
-      code: `
+describe('S3723', () => {
+  it('S3723', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Trailing commas should be used', rule, {
+      valid: [
+        {
+          code: `
 obj = {
   foo: 42,
   bar: 24
 }; `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
 obj = {
   foo: 42,
   bar: 24,
 };`,
-      errors: 1,
-      output: `
+          errors: 1,
+          output: `
 obj = {
   foo: 42,
   bar: 24
 };`,
-    },
-  ],
+        },
+      ],
+    });
+  });
 });

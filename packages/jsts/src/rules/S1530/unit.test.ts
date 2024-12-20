@@ -14,17 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run(`Function declarations should not be made within blocks`, rule, {
-  valid: [
-    {
-      code: `
+describe('S1530', () => {
+  it('S1530', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(`Function declarations should not be made within blocks`, rule, {
+      valid: [
+        {
+          code: `
         if (x) {
           let foo;
           foo = function() {}      // OK
@@ -48,58 +48,57 @@ ruleTester.run(`Function declarations should not be made within blocks`, rule, {
                 function nested() { } // OK
             }
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       if (x) {
         function foo() {
         }        
       }`,
-      errors: [
-        {
-          message: `Do not use function declarations within blocks.`,
-          line: 3,
-          column: 18,
-          endLine: 3,
-          endColumn: 21,
+          errors: [
+            {
+              message: `Do not use function declarations within blocks.`,
+              line: 3,
+              column: 18,
+              endLine: 3,
+              endColumn: 21,
+            },
+          ],
         },
       ],
-    },
-  ],
-});
+    });
 
-const ruleTesterTS = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+    const ruleTesterTS = new RuleTester();
 
-ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
+      valid: [
+        {
+          code: `
         interface I {
             isOk(): boolean;
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         namespace space {
             function f() {}
             export function f2() {}
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
           namespace space {
             if (x) {
               function foo() {}        
             }
           }`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

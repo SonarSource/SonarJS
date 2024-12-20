@@ -35,7 +35,7 @@ import { type EncodedMessage } from '../../rules/helpers/index.js';
  * @returns the decoded issue (or the original one)
  */
 export function decodeSonarRuntime(ruleModule: Rule.RuleModule | undefined, issue: Issue): Issue {
-  if (hasSonarRuntimeOption(ruleModule, issue.ruleId)) {
+  if (hasSonarRuntimeOption(ruleModule?.meta?.schema || undefined)) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };

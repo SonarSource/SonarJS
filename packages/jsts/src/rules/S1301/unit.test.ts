@@ -15,46 +15,51 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S1301', () => {
+  it('S1301', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
-  valid: [
-    { code: 'switch (a) { case 1: case 2: break; default: doSomething(); break; }' },
-    { code: 'switch (a) { case 1: break; default: doSomething(); break; case 2: }' },
-    { code: 'switch (a) { case 1: break; case 2: }' },
-  ],
-  invalid: [
-    {
-      code: 'switch (a) { case 1: doSomething(); break; default: doSomething(); }',
-      errors: [
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [
+        { code: 'switch (a) { case 1: case 2: break; default: doSomething(); break; }' },
+        { code: 'switch (a) { case 1: break; default: doSomething(); break; case 2: }' },
+        { code: 'switch (a) { case 1: break; case 2: }' },
+      ],
+      invalid: [
         {
-          messageId: 'replaceSwitch',
-          column: 1,
-          endColumn: 7,
+          code: 'switch (a) { case 1: doSomething(); break; default: doSomething(); }',
+          errors: [
+            {
+              messageId: 'replaceSwitch',
+              column: 1,
+              endColumn: 7,
+            },
+          ],
+        },
+        {
+          code: 'switch (a) { case 1: break; }',
+          errors: [
+            {
+              messageId: 'replaceSwitch',
+              column: 1,
+              endColumn: 7,
+            },
+          ],
+        },
+        {
+          code: 'switch (a) {}',
+          errors: [
+            {
+              messageId: 'replaceSwitch',
+              column: 1,
+              endColumn: 7,
+            },
+          ],
         },
       ],
-    },
-    {
-      code: 'switch (a) { case 1: break; }',
-      errors: [
-        {
-          messageId: 'replaceSwitch',
-          column: 1,
-          endColumn: 7,
-        },
-      ],
-    },
-    {
-      code: 'switch (a) {}',
-      errors: [
-        {
-          messageId: 'replaceSwitch',
-          column: 1,
-          endColumn: 7,
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

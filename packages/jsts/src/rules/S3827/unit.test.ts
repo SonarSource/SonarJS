@@ -14,91 +14,92 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Variables should be defined before being used', rule, {
-  valid: [
-    {
-      code: `
+describe('S3827', () => {
+  it('S3827', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Variables should be defined before being used', rule, {
+      valid: [
+        {
+          code: `
       function foo() {}
       var a1;
       foo(a1);
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function foo() {}
       foo(a2);
       var a2;
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function foo() {}
       a3 = "";
       foo(a3);
       foo(a3.xxx);
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       {xxx: "property value"};
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       typeof x3;
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function foo() {}
       if (typeof x5 !== undefined) {
         foo(x5);
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function foo() {}
       foo(x1);
             `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message:
-              '"x1" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".',
-            secondaryLocations: [],
-          }),
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 13,
+          errors: [
+            {
+              message: JSON.stringify({
+                message:
+                  '"x1" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".',
+                secondaryLocations: [],
+              }),
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 13,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var a1 = 1;
       a1 + x2;
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       typeof x4.x;
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function foo() {}
       foo(let1);
       if (true) {
@@ -107,46 +108,48 @@ ruleTester.run('Variables should be defined before being used', rule, {
       }
       foo(let1);
             `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message:
-              '"let1" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".',
-            secondaryLocations: [{ column: 10, line: 8, endColumn: 14, endLine: 8 }],
-          }),
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 15,
+          errors: [
+            {
+              message: JSON.stringify({
+                message:
+                  '"let1" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".',
+                secondaryLocations: [{ column: 10, line: 8, endColumn: 14, endLine: 8 }],
+              }),
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 15,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       foo(let2);
       let let2 = 1;
             `,
-      errors: 1,
-    },
-    {
-      // even if we report on `_` in unit test here, in real analysis it should not happen as `_` is set as a default global
-      code: `_.foo();`,
-      errors: 1,
-    },
-  ],
-});
+          errors: 1,
+        },
+        {
+          // even if we report on `_` in unit test here, in real analysis it should not happen as `_` is set as a default global
+          code: `_.foo();`,
+          errors: 1,
+        },
+      ],
+    });
 
-const ruleTesterScript = new NodeRuleTester({ parserOptions: { sourceType: 'script' } });
-ruleTesterScript.run('No issues within with statements', rule, {
-  valid: [
-    {
-      code: `
+    const ruleTesterScript = new RuleTester();
+    ruleTesterScript.run('No issues within with statements', rule, {
+      valid: [
+        {
+          code: `
       with (something) {
         foo(bar);
       }
             `,
-    },
-  ],
-  invalid: [],
+        },
+      ],
+      invalid: [],
+    });
+  });
 });

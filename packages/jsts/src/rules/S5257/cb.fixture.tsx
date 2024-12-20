@@ -20,19 +20,19 @@ function Foo() {
         </tr>
       </table>
 
-      <table role="presentation"> { /* Noncompliant */}
+      <table role="presentation"> { /* Noncompliant {{Replace this layout table with a CSS layout.}} */}
         <tr>
           <td></td>
         </tr>
       </table>
 
-      <table role="none"> { /* Noncompliant */}
+      <table role="none"> { /* Noncompliant {{Replace this layout table with a CSS layout.}} */}
         <tr>
           <td></td>
         </tr>
       </table>
 
-      <table role="None"> { /* Noncompliant */}
+      <table role="None"> { /* Noncompliant {{Replace this layout table with a CSS layout.}} */}
         <tr>
           <td></td>
         </tr>

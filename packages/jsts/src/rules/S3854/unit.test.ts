@@ -15,15 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('"super()" should be invoked appropriately', rule, {
-  valid: [
-    {
-      code: `
+describe('S3854', () => {
+  it('S3854', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"super()" should be invoked appropriately', rule, {
+      valid: [
+        {
+          code: `
       var B1b = class extends A1 {
         constructor() {
           super();                 // OK
@@ -31,16 +32,18 @@ ruleTester.run('"super()" should be invoked appropriately', rule, {
         }
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `class A extends B { constructor() {this.bar();}}`,
-      errors: 2,
-    },
-    {
-      code: `class A extends B { constructor(a) { while (a) super(); } }`,
-      errors: 2,
-    },
-  ],
+        },
+      ],
+      invalid: [
+        {
+          code: `class A extends B { constructor() {this.bar();}}`,
+          errors: 2,
+        },
+        {
+          code: `class A extends B { constructor(a) { while (a) super(); } }`,
+          errors: 2,
+        },
+      ],
+    });
+  });
 });

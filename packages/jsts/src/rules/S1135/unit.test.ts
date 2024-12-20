@@ -14,17 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Track uses of TODO tags', rule, {
-  valid: [
-    {
-      code: `// Just a regular comment`,
-    },
-    {
-      code: `
+describe('S1135', () => {
+  it('S1135', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Track uses of TODO tags', rule, {
+      valid: [
+        {
+          code: `// Just a regular comment`,
+        },
+        {
+          code: `
         // This is not aTODO comment
 
         // notatodo comment
@@ -33,64 +36,64 @@ ruleTester.run('Track uses of TODO tags', rule, {
 
         // método
         `,
-    },
-    {
-      code: '// todos',
-    },
-    {
-      code: '// todos ',
-    },
-  ],
-  invalid: [
-    {
-      code: `// TODO`,
-      errors: [
+        },
         {
-          message: 'Complete the task associated to this "TODO" comment.',
-          line: 1,
-          endLine: 1,
-          column: 4,
-          endColumn: 8,
+          code: '// todos',
+        },
+        {
+          code: '// todos ',
         },
       ],
-    },
+      invalid: [
+        {
+          code: `// TODO`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 8,
+            },
+          ],
+        },
 
-    {
-      code: `/*TODO Multiline comment 
+        {
+          code: `/*TODO Multiline comment 
       TODO: another todo
       (this line is not highlighted)
       with three todo
       */`,
-      errors: [
-        {
-          message: 'Complete the task associated to this "TODO" comment.',
-          line: 1,
-          endLine: 1,
-          column: 3,
-          endColumn: 7,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 3,
+              endColumn: 7,
+            },
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 2,
+              endLine: 2,
+              column: 7,
+              endColumn: 11,
+            },
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 4,
+              endLine: 4,
+              column: 18,
+              endColumn: 22,
+            },
+          ],
         },
         {
-          message: 'Complete the task associated to this "TODO" comment.',
-          line: 2,
-          endLine: 2,
-          column: 7,
-          endColumn: 11,
+          code: `// TODO  TODO`,
+          errors: 1,
         },
         {
-          message: 'Complete the task associated to this "TODO" comment.',
-          line: 4,
-          endLine: 4,
-          column: 18,
-          endColumn: 22,
-        },
-      ],
-    },
-    {
-      code: `// TODO  TODO`,
-      errors: 1,
-    },
-    {
-      code: `
+          code: `
       // TODO just do it
 
       // Todo just do it
@@ -117,7 +120,9 @@ ruleTester.run('Track uses of TODO tags', rule, {
 
       // valid end of file TODO
         `,
-      errors: 11,
-    },
-  ],
+          errors: 11,
+        },
+      ],
+    });
+  });
 });

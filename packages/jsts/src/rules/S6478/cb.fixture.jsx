@@ -11,7 +11,7 @@ function Component1() {
 }
 
 function Component2() {
-    class NestedComponent2 extends React.Component { // Noncompliant
+    class NestedComponent2 extends React.Component { // Noncompliant {{Move this component definition out of the parent component and pass data as props.}}
 //        ^^^^^^^^^^^^^^^^
         render() {
             return <div />;

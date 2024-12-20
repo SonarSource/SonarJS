@@ -43,7 +43,7 @@ export class LoginStack extends cdk.Stack {
     role.addToPolicy(iam.PolicyStatement.fromJson({
         'Action': 'iam:UpdateLoginProfile',
         'Effect': 'Allow',
-        'Resource': '*'  // Noncompliant
+        'Resource': '*'  // Noncompliant {{This policy is vulnerable to the "iam:UpdateLoginProfile" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
       }));
 
     const user = new iam.User(this, "MyUser");
@@ -117,7 +117,7 @@ export class LambdaStack extends cdk.Stack {
               {
                 'Action': 'lambda:UpdateFunctionCode',
                 'Effect': 'Allow',
-                'Resource': '*'  //Noncompliant
+                'Resource': '*'  //Noncompliant {{This policy is vulnerable to the "lambda:UpdateFunctionCode" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
               }
             ],
             'Version': '2012-10-17'

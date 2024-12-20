@@ -15,36 +15,37 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
-ruleTester.run('await should only be used with promises.', rule, {
-  valid: [
-    {
-      code: `
+describe('S4123', () => {
+  it('S4123', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('await should only be used with promises.', rule, {
+      valid: [
+        {
+          code: `
       async function foo() {
         await ({then() { }});
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       async function foo() {
         await Promise.resolve(42);
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       async function foo(p: PromiseLike<any>) {
         await p;
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class MyPromiseLike implements PromiseLike<any> {
         then(){}
       }
@@ -52,9 +53,9 @@ ruleTester.run('await should only be used with promises.', rule, {
         await new MyPromiseLike();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class MyPromiseLike implements PromiseLike<any> {
         then(){}
       }
@@ -65,9 +66,9 @@ ruleTester.run('await should only be used with promises.', rule, {
         await new MyPromiseLike2();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class MyPromise implements Promise<any> {
         then(){}
       }
@@ -75,9 +76,9 @@ ruleTester.run('await should only be used with promises.', rule, {
         await new MyPromise();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       interface Thenable<T> {
         then: () => T
       }
@@ -90,17 +91,17 @@ ruleTester.run('await should only be used with promises.', rule, {
         await new MyThenable();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       import { NotExisting } from "invalid";
       async function foo() {
         await new NotExisting();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returnNumber(): number | Promise<number> {
         return 1
       }
@@ -108,9 +109,9 @@ ruleTester.run('await should only be used with promises.', rule, {
         await returnNumber();
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       interface MyQuery<T> extends Pick<Promise<T>, keyof Promise<T>> {
         toQuery(): string;
       }
@@ -119,16 +120,16 @@ ruleTester.run('await should only be used with promises.', rule, {
         console.log(result);
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       async function foo(x: unknown) {
         await x;
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       export class NoErrorThrownError extends Error {};
       export class TestUtils {
           public static getError = async (
@@ -143,108 +144,101 @@ ruleTester.run('await should only be used with promises.', rule, {
           };
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class Foo {
         then: Promise<Bar>;
       }
       function qux(): Foo {}
       const baz = await qux();`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       async function foo() {
         await bar();
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       async function foo() {
         let arr = [1, 2, 3];
         await arr;
       }
       `,
-      errors: [
-        {
-          message: "Refactor this redundant 'await' on a non-promise.",
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 18,
+          errors: [
+            {
+              message: "Refactor this redundant 'await' on a non-promise.",
+              line: 4,
+              endLine: 4,
+              column: 9,
+              endColumn: 18,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       async function foo() {
         let x: number = 1;
         await x;
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       async function foo() {
         await 1;
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       async function foo() {
         await {else: 42};
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       async function foo() {
         await {then: 42};
       }
       `,
-      errors: 1,
-    },
-  ],
-});
+          errors: 1,
+        },
+      ],
+    });
 
-const ruleTesterWithNoFullTypeInfo = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    project: [],
-  },
-});
+    const ruleTesterWithNoFullTypeInfo = new RuleTester();
 
-ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
+      valid: [
+        {
+          code: `
       async function bar() { return 42; }
       async function foo() {
         await bar();
       }
       `,
-    },
-  ],
-  invalid: [],
-});
+        },
+      ],
+      invalid: [],
+    });
 
-const javaScriptRuleTester = new JavaScriptRuleTester();
-javaScriptRuleTester.run(
-  'await should only be used with promises: ignore function calls for functions with JSdoc',
-  rule,
-  {
-    valid: [
+    const javaScriptRuleTester = new RuleTester();
+    javaScriptRuleTester.run(
+      'await should only be used with promises: ignore function calls for functions with JSdoc',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
 async function foo () {
   await bar() // Compliant: ignored because of JSDoc
 }
@@ -254,9 +248,9 @@ async function foo () {
 async function bar () {
   return 5;
 }`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
 async function foo () {
   await bar() // Compliant: ignored because of JSDoc
 }
@@ -266,9 +260,9 @@ async function foo () {
 async function bar () {
   return Promise.resolve(5);
 }`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
 async function foo () {
   await bar.baz() // Compliant: ignored because of JSDoc
 }
@@ -281,21 +275,21 @@ const bar = {
     return Promise.resolve(5);
   }
 }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
 async function foo () {
     await bar() // Noncompliant
 }
 function bar () {
     return 5;
 }`,
-        errors: 1,
-      },
-      {
-        code: `
+            errors: 1,
+          },
+          {
+            code: `
 async function foo () {
     await bar() // Noncompliant
 }
@@ -305,8 +299,10 @@ async function foo () {
 function bar () {
     return 5;
 }`,
-        errors: 1,
+            errors: 1,
+          },
+        ],
       },
-    ],
-  },
-);
+    );
+  });
+});

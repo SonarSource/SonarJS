@@ -55,6 +55,12 @@ export const rule: Rule.RuleModule = {
         functionContextStack[functionContextStack.length - 1],
       );
 
+    // tracks the segments we've traversed in the current code path
+    let currentSegments: Set<Rule.CodePathSegment>;
+
+    // tracks all current segments for all open paths
+    const allCurrentSegments: Set<Rule.CodePathSegment>[] = [];
+
     function checkFunctionLikeDeclaration(
       node: FunctionLikeDeclaration,
       functionContext?: FunctionContext,
@@ -91,7 +97,7 @@ export const rule: Rule.RuleModule = {
       // As this method is called at the exit point of a function definition, the current
       // segments are the ones leading to the exit point at the end of the function. If they
       // are reachable, it means there is an implicit return.
-      functionContext.containsImplicitReturn = functionContext.codePath.currentSegments.some(
+      functionContext.containsImplicitReturn = Array.from(currentSegments).some(
         segment => segment.reachable,
       );
     }
@@ -127,9 +133,28 @@ export const rule: Rule.RuleModule = {
           containsImplicitReturn: false,
           returnStatements: [],
         });
+        allCurrentSegments.push(currentSegments);
+        currentSegments = new Set();
       },
       onCodePathEnd() {
         functionContextStack.pop();
+        currentSegments = allCurrentSegments.pop()!;
+      },
+
+      onCodePathSegmentStart(segment) {
+        currentSegments.add(segment);
+      },
+
+      onCodePathSegmentEnd(segment) {
+        currentSegments.delete(segment);
+      },
+
+      onUnreachableCodePathSegmentStart(segment: Rule.CodePathSegment) {
+        currentSegments.add(segment);
+      },
+
+      onUnreachableCodePathSegmentEnd(segment: Rule.CodePathSegment) {
+        currentSegments.delete(segment);
       },
 
       ReturnStatement(node: estree.Node) {

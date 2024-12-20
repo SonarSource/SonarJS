@@ -17,7 +17,7 @@
 import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from '../../../src/linter/issues/message.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
 import { describe, it, Mock, mock } from 'node:test';
 import { expect } from 'expect';
@@ -28,11 +28,13 @@ describe('convertMessage', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
-    const config = { rules: { [ruleId]: 'error' } } as Linter.Config;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, S1116);
-    const [message] = linter.verify(sourceCode, config);
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: S1116 } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
 
     expect(convertMessage(sourceCode, message)).toEqual({
       ruleId,

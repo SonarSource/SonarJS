@@ -1,4 +1,6 @@
-'foo'.match(42); // Noncompliant {{Use the "RegExp.exec()" method instead.}}
+'foo'.match(42); // Noncompliant [[qf2]] {{Use the "RegExp.exec()" method instead.}}
+// fix@qf2 {{Replace with "RegExp.exec()"}}
+// edit@qf2 {{RegExp(42).exec('foo');}}
 'foo'.match(/bar/g);
 foo.match(/foo/);
 

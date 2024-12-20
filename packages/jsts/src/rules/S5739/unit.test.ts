@@ -15,24 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5739', () => {
+  it('S5739', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
           app.use(
             helmet()
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
@@ -41,18 +42,18 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               hsts: true,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
           app.use(
             helmet.hsts({})
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
@@ -61,9 +62,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               maxAge: 31536000,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
@@ -73,18 +74,18 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: true,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const hsts = require('hsts');
           const express = require('express');
           const app = express();
           app.use(
             hsts({})
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const hsts = require('hsts');
           const express = require('express');
           const app = express();
@@ -93,9 +94,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               maxAge: 31536000,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const hsts = require('hsts');
           const express = require('express');
           const app = express();
@@ -105,9 +106,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: true,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const hsts = require('hsts');
           const express = require('express');
           const app = express();
@@ -117,9 +118,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: true,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const express = require('express');
           const app = express();
           app.use(
@@ -128,9 +129,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: true,
             })
           );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           const express = require('express');
           const app = express();
           app.use(
@@ -139,11 +140,11 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: true,
             })
           );`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
@@ -152,29 +153,29 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               hsts: false,
             })
           );`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
-            secondaryLocations: [
-              {
-                column: 14,
-                line: 7,
-                endColumn: 25,
-                endLine: 7,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 9,
-          column: 11,
-          endColumn: 12,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
+                secondaryLocations: [
+                  {
+                    column: 14,
+                    line: 7,
+                    endColumn: 25,
+                    endLine: 7,
+                  },
+                ],
+              }),
+              line: 5,
+              endLine: 9,
+              column: 11,
+              endColumn: 12,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
           const helmet = require('helmet')
           const express = require('express');
           const app = express();
@@ -184,46 +185,46 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: false,
             })
           );`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
-            secondaryLocations: [
-              {
-                column: 14,
-                line: 7,
-                endColumn: 29,
-                endLine: 7,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 10,
-          column: 11,
-          endColumn: 12,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
+                secondaryLocations: [
+                  {
+                    column: 14,
+                    line: 7,
+                    endColumn: 29,
+                    endLine: 7,
+                  },
+                ],
+              }),
+              line: 5,
+              endLine: 10,
+              column: 11,
+              endColumn: 12,
+            },
+            {
+              message: JSON.stringify({
+                message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
+                secondaryLocations: [
+                  {
+                    column: 14,
+                    line: 8,
+                    endColumn: 38,
+                    endLine: 8,
+                  },
+                ],
+              }),
+              line: 5,
+              endLine: 10,
+              column: 11,
+              endColumn: 12,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
         {
-          message: JSON.stringify({
-            message: `Disabling Strict-Transport-Security policy is security-sensitive.`,
-            secondaryLocations: [
-              {
-                column: 14,
-                line: 8,
-                endColumn: 38,
-                endLine: 8,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 10,
-          column: 11,
-          endColumn: 12,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+          code: `
           const hsts = require('hsts');
           const express = require('express');
           const app = express();
@@ -233,7 +234,9 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
               includeSubDomains: false,
             })
           );`,
-      errors: 2,
-    },
-  ],
+          errors: 2,
+        },
+      ],
+    });
+  });
 });

@@ -19,12 +19,12 @@ import {
   rule as noMissingSonarRuntimeRule,
   ruleId as noMissingSonarRuntimeRuleId,
 } from './rule/no-missing-sonar-runtime.js';
-import { parseTypeScriptSourceFile } from '../helpers/index.js';
 import path from 'path';
 import { readdir } from 'fs/promises';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { fileReadable } from '../../../../shared/src/helpers/files.js';
+import { parseTypeScriptSourceFile } from '../helpers/parsing.js';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.
@@ -52,7 +52,6 @@ describe('sonar-runtime', () => {
     const misconfiguredRules = [];
 
     const linter = new Linter();
-    linter.defineRule(noMissingSonarRuntimeRuleId, noMissingSonarRuntimeRule);
 
     const rulesDir = path.join(import.meta.dirname, '/../../../src/rules/');
     const rulesList = (await readdir(rulesDir)).filter(name => /S\d{3,4}/.test(name));
@@ -66,7 +65,10 @@ describe('sonar-runtime', () => {
           const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
 
           const issues = linter.verify(ruleSourceCode, {
-            rules: { [noMissingSonarRuntimeRuleId]: 'error' },
+            plugins: {
+              sonarjs: { rules: { [noMissingSonarRuntimeRuleId]: noMissingSonarRuntimeRule } },
+            },
+            rules: { [`sonarjs/${noMissingSonarRuntimeRuleId}`]: 'error' },
           });
 
           if (issues.length > 0) {

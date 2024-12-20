@@ -15,84 +15,89 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S2737', () => {
+  it('S2737', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('no-useless-catch', rule, {
-  valid: [
-    { code: `try {} catch (e) {}` },
-    { code: `try {} catch { throw "Error"; }` },
-    {
-      code: `try {} catch (e) {
+    ruleTester.run('no-useless-catch', rule, {
+      valid: [
+        { code: `try {} catch (e) {}` },
+        { code: `try {} catch { throw "Error"; }` },
+        {
+          code: `try {} catch (e) {
               foo();
               throw e;
             }`,
-    },
-    {
-      code: `try {} catch({ message }) {
+        },
+        {
+          code: `try {} catch({ message }) {
         throw { message }; // OK, not useless, we might ignore other properties of exception
       }`,
-    },
-    {
-      code: `try {} catch (e) {
+        },
+        {
+          code: `try {} catch (e) {
               if (x) {
                 throw e;
               }
             }`,
-    },
-    {
-      code: `try {} catch(e) { throw "foo"; }`,
-    },
-    {
-      code: `try {} catch(e) { throw new Error("improve error message"); }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `try {} catch (e) { throw e; }`,
-      errors: [
+        },
         {
-          messageId: 'uselessCatch',
-          line: 1,
-          endLine: 1,
-          column: 8,
-          endColumn: 13,
+          code: `try {} catch(e) { throw "foo"; }`,
+        },
+        {
+          code: `try {} catch(e) { throw new Error("improve error message"); }`,
         },
       ],
-    },
-    {
-      code: `try {} catch(e) {
+      invalid: [
+        {
+          code: `try {} catch (e) { throw e; }`,
+          errors: [
+            {
+              messageId: 'uselessCatch',
+              line: 1,
+              endLine: 1,
+              column: 8,
+              endColumn: 13,
+            },
+          ],
+        },
+        {
+          code: `try {} catch(e) {
         // some comment
         throw e;
       }`,
-      errors: [
-        {
-          messageId: 'uselessCatch',
-          line: 1,
-          endLine: 1,
-          column: 8,
-          endColumn: 13,
+          errors: [
+            {
+              messageId: 'uselessCatch',
+              line: 1,
+              endLine: 1,
+              column: 8,
+              endColumn: 13,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `try {
+        {
+          code: `try {
         doSomething();
       } catch(e) {
         throw e;
       } finally {
         // ...
       }`,
-      errors: [
-        {
-          messageId: 'uselessCatch',
-          line: 3,
-          endLine: 3,
-          column: 9,
-          endColumn: 14,
+          errors: [
+            {
+              messageId: 'uselessCatch',
+              line: 3,
+              endLine: 3,
+              column: 9,
+              endColumn: 14,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

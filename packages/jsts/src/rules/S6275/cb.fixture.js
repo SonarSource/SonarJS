@@ -43,7 +43,7 @@ class NonCompliantStack extends Stack {
     new Volume(this, "unencrypted-explicit", {
       availability_zone: "eu-west-1a",
       size: Size.gibibytes(1),
-      encrypted: false, // Noncompliant
+      encrypted: false, // Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
 //               ^^^^^
     });
 

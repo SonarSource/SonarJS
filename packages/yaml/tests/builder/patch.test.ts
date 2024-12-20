@@ -47,7 +47,7 @@ describe('patchSourceCode', () => {
       } as EmbeddedAnalysisInput,
       parseAwsFromYaml,
     );
-    expect(patchedSourceCode).toEqual(
+    expect(patchedSourceCode.sourceCode).toEqual(
       expect.objectContaining({
         text,
         lineStartIndices: [0, 37, 48, 70, 108, 124, 152, 172, 199, 222, 232],
@@ -69,7 +69,7 @@ describe('patchSourceCode', () => {
   });
 
   ['body', 'tokens', 'comments'].forEach(property => {
-    it('should patch ast %s', async () => {
+    it(`should patch ast ${property}`, async () => {
       const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
       let filePath = `${fixture}.yaml`;
@@ -78,7 +78,7 @@ describe('patchSourceCode', () => {
         { filePath, fileContent } as EmbeddedAnalysisInput,
         parseAwsFromYaml,
       );
-      const patchedNodes = patchedSourceCode.ast[property];
+      const patchedNodes = patchedSourceCode.sourceCode.ast[property];
 
       filePath = `${fixture}.js`;
       fileContent = await readFile(filePath);

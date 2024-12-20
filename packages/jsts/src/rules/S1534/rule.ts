@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       ...noDupeClassMembersRule.meta!.messages,
       ...jsxNoDuplicatePropsRule.meta!.messages,
     },
-    schema: jsxNoDuplicatePropsRule.schema, // the other 2 rules have no options
+    schema: jsxNoDuplicatePropsRule.meta!.schema, // the other 2 rules have no options
   }),
   create(context: Rule.RuleContext) {
     const noDupeKeysListener: Rule.RuleListener = noDupeKeysRule.create(context);

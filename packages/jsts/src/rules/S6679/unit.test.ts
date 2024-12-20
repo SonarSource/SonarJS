@@ -14,65 +14,74 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester();
+describe('S6679', () => {
+  it('S6679', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('Number.isNaN() should be used to check for NaN value', rule, {
-  valid: [`x > x`, `x < x`, `x >= x`, `x <= x`],
-  invalid: [
-    {
-      code: `x === x`,
-      errors: [
+    ruleTester.run('Number.isNaN() should be used to check for NaN value', rule, {
+      valid: [{ code: `x > x` }, { code: `x < x` }, { code: `x >= x` }, { code: `x <= x` }],
+      invalid: [
         {
-          suggestions: [
+          code: `x === x`,
+          errors: [
             {
-              desc: `Replace self-compare with Number.isNaN()`,
-              output: `!Number.isNaN(x)`,
+              message: "Use 'Number.isNaN()' to check for 'NaN' value",
+              suggestions: [
+                {
+                  desc: `Replace self-compare with Number.isNaN()`,
+                  output: `!Number.isNaN(x)`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `x == x`,
+          errors: [
+            {
+              message: "Use 'Number.isNaN()' to check for 'NaN' value",
+              suggestions: [
+                {
+                  desc: `Replace self-compare with Number.isNaN()`,
+                  output: `!Number.isNaN(x)`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `x !== x`,
+          errors: [
+            {
+              message: "Use 'Number.isNaN()' to check for 'NaN' value",
+              suggestions: [
+                {
+                  desc: `Replace self-compare with Number.isNaN()`,
+                  output: `Number.isNaN(x)`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `x != x`,
+          errors: [
+            {
+              message: "Use 'Number.isNaN()' to check for 'NaN' value",
+              suggestions: [
+                {
+                  desc: `Replace self-compare with Number.isNaN()`,
+                  output: `Number.isNaN(x)`,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-    {
-      code: `x == x`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: `Replace self-compare with Number.isNaN()`,
-              output: `!Number.isNaN(x)`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `x !== x`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: `Replace self-compare with Number.isNaN()`,
-              output: `Number.isNaN(x)`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `x != x`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: `Replace self-compare with Number.isNaN()`,
-              output: `Number.isNaN(x)`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

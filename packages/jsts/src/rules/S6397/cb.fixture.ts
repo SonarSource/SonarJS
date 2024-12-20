@@ -55,19 +55,19 @@ let invalid = [
     //       ^^^
   },
   {
-    regex: /[0]/, // Noncompliant
+    regex: /[0]/, // Noncompliant {{Replace this character class by the character itself.}}
     //      ^^^
   },
   {
-    regex: /[\w]/, // Noncompliant
+    regex: /[\w]/, // Noncompliant {{Replace this character class by the character itself.}}
     //      ^^^^
   },
   {
-    regex: /[\u2028]/, // Noncompliant
+    regex: /[\u2028]/, // Noncompliant {{Replace this character class by the character itself.}}
     //      ^^^^^^^^
   },
   {
-    regex: /[\^]/, // Noncompliant
+    regex: /[\^]/, // Noncompliant {{Replace this character class by the character itself.}}
     //      ^^^^
   },
 ];

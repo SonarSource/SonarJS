@@ -16,7 +16,7 @@
  */
 import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/helpers/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

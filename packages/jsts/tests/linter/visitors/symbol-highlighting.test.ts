@@ -17,7 +17,7 @@
 import { Linter } from 'eslint';
 import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/index.js';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { SymbolHighlight, rule } from '../../../src/linter/visitors/symbol-highlighting.js';
@@ -96,12 +96,15 @@ async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';
-  const rules = { [ruleId]: 'error' } as any;
 
   const linter = new Linter();
-  linter.defineRule(ruleId, rule);
 
-  const [message] = linter.verify(sourceCode, { rules });
+  const [message] = linter.verify(sourceCode, {
+    plugins: {
+      sonarjs: { rules: { [ruleId]: rule } },
+    },
+    rules: { [`sonarjs/${ruleId}`]: 'error' },
+  });
   return JSON.parse(message.message) as SymbolHighlight[];
 }
 

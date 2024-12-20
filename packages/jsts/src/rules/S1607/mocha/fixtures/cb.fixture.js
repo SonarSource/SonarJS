@@ -22,7 +22,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@28
+// Noncompliant@28 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   context.skip('foo', function() {
@@ -32,7 +32,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@37
+// Noncompliant@37 {{Remove this unit test or explain why it is ignored.}}
 
 describe.skip('foo', function() {
   it('should do something', function(done) {

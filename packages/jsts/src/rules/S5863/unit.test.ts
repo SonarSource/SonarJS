@@ -14,28 +14,31 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+describe('S5863', () => {
+  it('S5863', () => {
+    const ruleTester = new RuleTester();
 
-// Main test cases are in the file comment-based fixture file.
-// Here we are testing that no issues are reported when no 'chai' import.
+    // Main test cases are in the file comment-based fixture file.
+    // Here we are testing that no issues are reported when no 'chai' import.
 
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `assert.equal(obj, obj);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+    ruleTester.run('Assertions should not be given twice the same argument', rule, {
+      valid: [
+        {
+          code: `assert.equal(obj, obj);`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const chai = require('chai');
       assert.equal(obj, obj);`,
-      errors: [{ line: 3 }],
-    },
-  ],
+          errors: [{ message: 'Replace this argument or its duplicate.', line: 3 }],
+        },
+      ],
+    });
+  });
 });

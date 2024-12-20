@@ -14,41 +14,46 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
-  valid: [
-    {
-      code: `foo.bar`,
-    },
-    {
-      code: `process.stdout`,
-    },
-    {
-      code: `processFoo.stdin`,
-    },
-    {
-      code: `'process.stdin'`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = process.stdin;`,
-      errors: [
+describe('S4829', () => {
+  it('S4829', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
+      valid: [
         {
-          message: 'Make sure that reading the standard input is safe here.',
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 22,
+          code: `foo.bar`,
+        },
+        {
+          code: `process.stdout`,
+        },
+        {
+          code: `processFoo.stdin`,
+        },
+        {
+          code: `'process.stdin'`,
         },
       ],
-    },
-    {
-      code: `process.stdin.on('readable', () => {});`,
-      errors: 1,
-    },
-  ],
+      invalid: [
+        {
+          code: `let x = process.stdin;`,
+          errors: [
+            {
+              message: 'Make sure that reading the standard input is safe here.',
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 22,
+            },
+          ],
+        },
+        {
+          code: `process.stdin.on('readable', () => {});`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

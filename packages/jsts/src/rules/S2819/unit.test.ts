@@ -14,105 +14,107 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const ruleTesterTs = new TypeScriptRuleTester();
+describe('S2819', () => {
+  it('S2819', () => {
+    const ruleTesterJs = new DefaultParserRuleTester();
+    const ruleTesterTs = new RuleTester();
 
-ruleTesterJs.run('No issues without types', rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterJs.run('No issues without types', rule, {
+      valid: [
+        {
+          code: `
       var someWindow1 = window.open("url", "name");
       someWindow1.postMessage("message", "*");
             `,
-    },
-  ],
-  invalid: [],
-});
+        },
+      ],
+      invalid: [],
+    });
 
-ruleTesterTs.run('Origins should be verified during cross-origin communications', rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterTs.run('Origins should be verified during cross-origin communications', rule, {
+      valid: [
+        {
+          code: `
       var someWindow1 = window.open("url", "name");
       someWindow1.postMessage("message", "receiver");
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       postMessage("message", "receiver");
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       postMessage("message");
       postMessage("message", "*", "something", "something else");
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         if (event.origin !== "http://example.org")
           return;
         console.log(event.data);
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
       window.addEventListener("message", () => {}); // missing event parameter
       window.addEventListener("message", (...not_an_identifier) => {});
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("click", function(event) { // OK: event type is not "message"
         if (event.data !== "http://example.org")
           return;
         console.log(event.data);
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const processEvent = event => {
         if (event.origin !== "http://example.org") return
       }
       window.addEventListener('message', processEvent);
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const processEvent = event => {
         if (event.origin !== "http://example.org") return
       }
       window.addEventListener('message', event => processEvent(event));
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         if (event.originalEvent.origin !== "http://example.org")
           return;
       });
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         if (event.originalEvent.origin === "http://example.org" || event.origin === "http://example.org")
           return;
       });
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         const _event = event.originalEvent || event;
         if (_event.origin !== "http://example.org")
@@ -124,9 +126,9 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
           return;
       });
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin
         if (origin !== "http://example.org")
@@ -138,77 +140,77 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
           return;
       });
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var someWindow1 = window.open("url", "name");
       someWindow1.postMessage("message", "*");
             `,
-      errors: [{ messageId: 'specifyTarget' }],
-    },
-    {
-      code: `
+          errors: [{ messageId: 'specifyTarget' }],
+        },
+        {
+          code: `
       postMessage("message", "*");
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       this.postMessage("message", "*");
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       var someWindow2 = document.getElementById("frameId").contentWindow;
       someWindow2.postMessage("message", "*");
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       var someWindow3 = window.frames[1];
       someWindow3.postMessage("message", "*");
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       getWindow().postMessage("message", "*");
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         console.log(event.data);
       });
             `,
-      errors: [{ messageId: 'verifyOrigin' }],
-    },
-    {
-      code: `
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
       function eventHandler(event) {
         console.log(event.data);
       }
       window.addEventListener("message", eventHandler);
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         if (event.data !== "http://example.org")
           return;
         console.log(event.data);
       });
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const eventType = "message";
       window.addEventListener(eventType, function(event) {
         if (event.data !== "http://example.org")
@@ -216,23 +218,25 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
         console.log(event.data);
       });
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         var origin =  event.originalEvent.origin || event.origin; // coverage: must be tested
       });
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       window.addEventListener("message", function(event) {
         event.originalEvent.origin || event.origin; // coverage: we don't assign this anywhere
       });
       `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

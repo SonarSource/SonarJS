@@ -1,14 +1,14 @@
 const http = require('http');
 
 function listener(req, res) {
-  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Noncompliant
+  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Noncompliant {{Make sure that enabling CORS is safe here.}}
   res.end('ok');
 }
 
 http.createServer(listener);
 
 http.createServer((_, res) => {
-  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Noncompliant
+  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Noncompliant {{Make sure that enabling CORS is safe here.}}
   res.end('ok');
 });
 
@@ -23,7 +23,7 @@ http.createServer((_, res) => {
 http.createServer((_, res) => {
   const access = '*';
   const header = { 'Access-Control-Allow-Origin': access };
-  res.writeHead(200, header); // Noncompliant
+  res.writeHead(200, header); // Noncompliant {{Make sure that enabling CORS is safe here.}}
   res.end('ok');
 });
 

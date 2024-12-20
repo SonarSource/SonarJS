@@ -27,7 +27,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, { ...rule.meta, schema: undefined }),
     },
     reportExempting(isReduxReducer),
   );

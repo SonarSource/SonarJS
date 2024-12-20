@@ -14,7 +14,7 @@ describe('supertest', function () { // Compliant
     return foo(app).get(`/foo/bar`).expect('Content-Type', /json/u).expect(200);
   });
 
-  it('should fail when no assertion', function () { // Noncompliant
+  it('should fail when no assertion', function () { // Noncompliant {{Add at least one assertion to this test case.}}
     return supertest(app).get(`/foo/bar`);
   });
 });

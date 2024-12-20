@@ -14,14 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester();
-ruleTester.run('Functions should not be nested too deeply', rule, {
-  valid: [
-    {
-      code: `
+describe('S2004', () => {
+  it('S2004', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Functions should not be nested too deeply', rule, {
+      valid: [
+        {
+          code: `
       function f1() {
         function f2() {
             function f3() {
@@ -29,11 +32,11 @@ ruleTester.run('Functions should not be nested too deeply', rule, {
             }
         }
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function f1() {
             function f2() {
                 function f3() {
@@ -41,8 +44,10 @@ ruleTester.run('Functions should not be nested too deeply', rule, {
                 }
             }
         }`,
-      options: [{ threshold: 2 }],
-      errors: 1,
-    },
-  ],
+          options: [{ threshold: 2 }],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -14,23 +14,26 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterTs = new TypeScriptRuleTester();
+describe('S5042', () => {
+  it('S5042', () => {
+    const ruleTesterTs = new RuleTester();
 
-/*
+    /*
  +-+-+-+
  |T|A|R|
  +-+-+-+                   
  */
-ruleTesterTs.run(
-  'Expanding archive files without controlling resource consumption is security sensitive [tar library]',
-  rule,
-  {
-    valid: [
+    ruleTesterTs.run(
+      'Expanding archive files without controlling resource consumption is security sensitive [tar library]',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         const tar = require('tar');
 
         tar.x({
@@ -41,210 +44,212 @@ ruleTesterTs.run(
         tar.x();
         tar.x({file: 'foo.tar.gz', ...other});
         tar.x({file: 'foo.tar.gz', 'filter': somePredicate});`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const tar = require('tar');
 
         tar.x({ // Sensitive
           file: 'foo.tar.gz'
         });`,
-        errors: [
-          {
-            message: 'Make sure that expanding this archive file is safe here.',
-            line: 4,
-            column: 9,
-            endLine: 4,
-            endColumn: 14,
+            errors: [
+              {
+                message: 'Make sure that expanding this archive file is safe here.',
+                line: 4,
+                column: 9,
+                endLine: 4,
+                endColumn: 14,
+              },
+            ],
           },
-        ],
-      },
-      {
-        code: `
+          {
+            code: `
         import * as tar from 'tar';
 
         tar.x({ // Sensitive
           file: 'foo.tar.gz'
         });`,
-        errors: 1,
-      },
-      {
-        code: `
+            errors: 1,
+          },
+          {
+            code: `
         import {x} from 'tar';
 
         x({ // FN
           file: 'foo.tar.gz'
         });`,
-        errors: 1,
+            errors: 1,
+          },
+        ],
       },
-    ],
-  },
-);
+    );
 
-/*
+    /*
 
  +-+-+-+-+-+-+-+
  |A|D|M|-|Z|I|P|
  +-+-+-+-+-+-+-+
  */
-ruleTesterTs.run(
-  'Expanding archive files without controlling resource consumption is security sensitive [adm-zip library]',
-  rule,
-  {
-    valid: [
+    ruleTesterTs.run(
+      'Expanding archive files without controlling resource consumption is security sensitive [adm-zip library]',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
       const AdmZip = require('adm-zip');
 
       let zip = new AdmZip("./foo.zip");
       zip.getEntries();`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const AdmZip = require('other-lib');
 
         let zip = new AdmZip("./foo.zip");
         zip.extractAllTo(".");`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const AdmZip = require('adm-zip');
 
         let zip = new AdmZip("./foo.zip");
         zip.extractAllTo("."); // Sensitive`,
-        errors: [
-          {
-            message: 'Make sure that expanding this archive file is safe here.',
-            line: 5,
-            column: 9,
-            endLine: 5,
-            endColumn: 25,
+            errors: [
+              {
+                message: 'Make sure that expanding this archive file is safe here.',
+                line: 5,
+                column: 9,
+                endLine: 5,
+                endColumn: 25,
+              },
+            ],
           },
-        ],
-      },
-      {
-        code: `
+          {
+            code: `
         import * as AdmZip from 'adm-zip';
 
         let zip = new AdmZip("./foo.zip");
         zip.extractAllTo("."); // Sensitive`,
-        errors: 1,
+            errors: 1,
+          },
+        ],
       },
-    ],
-  },
-);
+    );
 
-/**
+    /**
  +-+-+-+-+-+
  |J|S|Z|I|P|
  +-+-+-+-+-+
 */
-ruleTesterTs.run(
-  'Expanding archive files without controlling resource consumption is security sensitive [jszip library]',
-  rule,
-  {
-    valid: [
+    ruleTesterTs.run(
+      'Expanding archive files without controlling resource consumption is security sensitive [jszip library]',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         const JSZip = require("jszip");
         JSZip.other();`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const JSZip = require("jszip");
         JSZip.loadAsync(data);`,
-        errors: [
-          {
-            message: 'Make sure that expanding this archive file is safe here.',
-            line: 3,
-            column: 9,
-            endLine: 3,
-            endColumn: 24,
+            errors: [
+              {
+                message: 'Make sure that expanding this archive file is safe here.',
+                line: 3,
+                column: 9,
+                endLine: 3,
+                endColumn: 24,
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-);
+    );
 
-/**
+    /**
  +-+-+-+-+-+
  |Y|A|U|Z|L|
  +-+-+-+-+-+
 */
-ruleTesterTs.run(
-  'Expanding archive files without controlling resource consumption is security sensitive [yauzl library]',
-  rule,
-  {
-    valid: [
+    ruleTesterTs.run(
+      'Expanding archive files without controlling resource consumption is security sensitive [yauzl library]',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         const yauzl = require("yauzl");
         yauzl.other();`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const yauzl = require("yauzl");
         yauzl.open('foo.zip', cb);`,
-        errors: [
-          {
-            message: 'Make sure that expanding this archive file is safe here.',
-            line: 3,
-            column: 9,
-            endLine: 3,
-            endColumn: 19,
+            errors: [
+              {
+                message: 'Make sure that expanding this archive file is safe here.',
+                line: 3,
+                column: 9,
+                endLine: 3,
+                endColumn: 19,
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-);
-/**
+    );
+    /**
  +-+-+-+-+-+-+-+-+-+-+-+
  |E|X|T|R|A|C|T|-|Z|I|P|
  +-+-+-+-+-+-+-+-+-+-+-+
 */
-ruleTesterTs.run(
-  'Expanding archive files without controlling resource consumption is security sensitive [extract-zip library]',
-  rule,
-  {
-    valid: [
+    ruleTesterTs.run(
+      'Expanding archive files without controlling resource consumption is security sensitive [extract-zip library]',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         const extract = require('extract-zip');
         extract('foo.zip', {onEntry: cb});
         extract();
         extract('foo.zip');`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const extract = require('other');
         extract('foo.zip', {});`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const extract = require('extract-zip');
         extract('foo.zip', {});`,
-        errors: [
-          {
-            message: 'Make sure that expanding this archive file is safe here.',
-            line: 3,
-            column: 9,
-            endLine: 3,
-            endColumn: 16,
+            errors: [
+              {
+                message: 'Make sure that expanding this archive file is safe here.',
+                line: 3,
+                column: 9,
+                endLine: 3,
+                endColumn: 16,
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-);
+    );
+  });
+});

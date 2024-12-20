@@ -14,45 +14,50 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
-  valid: [
-    {
-      code: `foo(x)`,
-    },
-    {
-      code: `"Math.random()"`,
-    },
-    {
-      code: `Math.foo()`,
-    },
-    {
-      code: `Foo.random()`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = Math.random();`,
-      errors: [
+describe('S2245', () => {
+  it('S2245', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
+      valid: [
         {
-          message: 'Make sure that using this pseudorandom number generator is safe here.',
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 22,
+          code: `foo(x)`,
+        },
+        {
+          code: `"Math.random()"`,
+        },
+        {
+          code: `Math.foo()`,
+        },
+        {
+          code: `Foo.random()`,
         },
       ],
-    },
-    {
-      code: `foo(Math.random())`,
-      errors: 1,
-    },
-    {
-      code: `let random = Math.random; foo(random());`,
-      errors: 1,
-    },
-  ],
+      invalid: [
+        {
+          code: `let x = Math.random();`,
+          errors: [
+            {
+              message: 'Make sure that using this pseudorandom number generator is safe here.',
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 22,
+            },
+          ],
+        },
+        {
+          code: `foo(Math.random())`,
+          errors: 1,
+        },
+        {
+          code: `let random = Math.random; foo(random());`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -32,7 +32,7 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
   const quickFixes: QuickFix[] = [];
   if (messages.fix) {
     quickFixes.push({
-      message: getQuickFixMessage(messages.ruleId!),
+      message: getQuickFixMessage(messages.ruleId!.slice(8) /* remove "sonarjs/" prefix*/),
       edits: [fixToEdit(source, messages.fix)],
     });
   }
@@ -61,7 +61,9 @@ function hasQuickFix(message: Linter.LintMessage): boolean {
   if (!message.fix && (!message.suggestions || message.suggestions.length === 0)) {
     return false;
   }
-  return !!message.ruleId && quickFixRules.has(message.ruleId);
+  return (
+    !!message.ruleId && quickFixRules.has(message.ruleId.slice(8) /* remove "sonarjs/" prefix*/)
+  );
 }
 
 /**

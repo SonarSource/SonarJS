@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { SONAR_RUNTIME } from '../../../src/rules/index.js';
@@ -24,16 +23,13 @@ import { SONAR_CONTEXT } from '../../../src/linter/parameters/sonar-context.js';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {
-    const ruleModule = {
-      meta: { schema: [{ enum: SONAR_RUNTIME }] },
-    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
     };
 
-    const config = extendRuleConfig(ruleModule, inputRule);
+    const config = extendRuleConfig([{ enum: SONAR_RUNTIME }], inputRule);
     expect(config).toEqual([42, SONAR_RUNTIME]);
   });
 
@@ -46,16 +42,13 @@ describe('extendRuleConfig', () => {
     };
     setContext(ctx);
 
-    const ruleModule = {
-      meta: { schema: [{ title: SONAR_CONTEXT }] },
-    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
     };
 
-    const config = extendRuleConfig(ruleModule, inputRule);
+    const config = extendRuleConfig([{ title: SONAR_CONTEXT }], inputRule);
     expect(config).toEqual([42, ctx]);
   });
 
@@ -68,16 +61,13 @@ describe('extendRuleConfig', () => {
     };
     setContext(ctx);
 
-    const ruleModule = {
-      meta: { schema: [{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }] },
-    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
     };
 
-    const config = extendRuleConfig(ruleModule, inputRule);
+    const config = extendRuleConfig([{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }], inputRule);
     expect(config).toEqual([42, SONAR_RUNTIME, ctx]);
   });
 });

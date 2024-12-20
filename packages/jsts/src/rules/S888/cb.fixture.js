@@ -30,40 +30,40 @@ function non_compliant() {
 //              ^^^^
   for (i=0; i==2; i+=2){ }  // Noncompliant {{Replace '==' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 //          ^^^^
-  for (i=10; i==0; i--){ } // Noncompliant
-  for (var i=0; i===10; i++){ } // Noncompliant
+  for (i=10; i==0; i--){ } // Noncompliant  {{Replace '==' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
+  for (var i=0; i===10; i++){ } // Noncompliant {{Replace '===' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 //              ^^^^^^
 
-  for(i=from, j=0; i!=to; i+=dir, j++){} // Noncompliant
+  for(i=from, j=0; i!=to; i+=dir, j++){} // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
   //even if trivial update operation, we have equality in condition
 
   //not a trivial update
-  for (var i=0; i!==2; i+=2){ } // Noncompliant
+  for (var i=0; i!==2; i+=2){ } // Noncompliant {{Replace '!==' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 //              ^^^^^
 
   //trivial update, but init is higher than stop and update is increasing
-  for (var i=10; i!=0; i++){ } // Noncompliant
+  for (var i=10; i!=0; i++){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
   //trivial update, but init is lower than stop and update is decreasing
-  for (var i=0; i!=10; i-=1){ } // Noncompliant
+  for (var i=0; i!=10; i-=1){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
   //trivial update operation with wrong init
-  for (var i="a"; i!=0; i-=1){ } // Noncompliant
+  for (var i="a"; i!=0; i-=1){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
   //trivial update, but init is lower than stop
   var j = 20;
-  for (j=0; j!=10; j--){ } // Noncompliant
+  for (j=0; j!=10; j--){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
   //not a non-trivial condition exception, updated counter is not in the condition
-  for (i = 0, k = 0; k != null; i++, k--){ } // Noncompliant
+  for (i = 0, k = 0; k != null; i++, k--){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
 
-  for (var i=0; i!=10; i+=1){ // Noncompliant
+  for (var i=0; i!=10; i+=1){ // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
     i++ // changes to counter -> no exception
   }
 
   var iii = 0;
-  for (var i=0; iii!=10; iii+=1){ // Noncompliant
+  for (var i=0; iii!=10; iii+=1){ // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
     iii++ // changes to counter -> no exception
   }
 }

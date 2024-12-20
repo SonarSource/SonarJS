@@ -1,5 +1,5 @@
 
-let x = y * 137; // Noncompliant
+let x = y * 137; // Noncompliant {{No magic number: 137.}}
 
 <BarChart
     barsWidth={barsWidth - 1}

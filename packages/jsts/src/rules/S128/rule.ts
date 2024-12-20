@@ -29,7 +29,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
     let enteringSwitchCase = false;
     let currentSegments: Set<Rule.CodePathSegment> = new Set();
@@ -63,14 +62,12 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      onCodePathStart(codePath: Rule.CodePath) {
-        currentCodePath = codePath;
+      onCodePathStart() {
         allCurrentSegments.push(currentSegments);
         currentSegments = new Set();
       },
       onCodePathEnd() {
-        currentCodePath = currentCodePath!.upper;
-        currentSegments = allCurrentSegments.pop() as Set<Rule.CodePathSegment>;
+        currentSegments = allCurrentSegments.pop()!;
       },
       onCodePathSegmentStart(segment: Rule.CodePathSegment) {
         currentSegments.add(segment);

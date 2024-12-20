@@ -15,18 +15,21 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S1751', () => {
+  it('S1751', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('no-one-iteration-loop', rule, {
-  valid: [
-    valid(`
+    ruleTester.run('no-one-iteration-loop', rule, {
+      valid: [
+        valid(`
     while (cond) {
       1;
     }`),
 
-    valid(`
+        valid(`
     while(foo()) {
       bar();
       if (baz()) {
@@ -34,7 +37,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    valid(`
+        valid(`
     while(foo()) {
       switch (bar()) {
         case a : continue;
@@ -43,24 +46,24 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    valid(`
+        valid(`
     function foo() {
       for(x of arr) {
         doSomething(() => { return "bar";});
       }
     }`),
 
-    valid(`
+        valid(`
     while (42)
       continue
     `),
 
-    valid(`
+        valid(`
     for (;42;)
       continue
     `),
 
-    valid(`
+        valid(`
     function foo() {
       while (42) {
         continue
@@ -71,32 +74,32 @@ ruleTester.run('no-one-iteration-loop', rule, {
     }
     `),
 
-    valid(`
+        valid(`
     do {
       continue
     } while (42);
     `),
 
-    valid(`
+        valid(`
     for (p in obj) {
       foo();
       continue;
     }`),
 
-    valid(`
+        valid(`
     function foo() {
       for(p of arr) {
         return p;  // Compliant: used to return the first element of an array
       }
     }`),
 
-    valid(`
+        valid(`
     for (p in obj) {
       bar();
       break; // Compliant: often used to check whether an object is "empty"
     }`),
 
-    valid(`
+        valid(`
     while(foo()) {
       if (bar()) {
         continue;
@@ -105,7 +108,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       break; // Compliant: the loop can execute more than once
     }`),
 
-    valid(`
+        valid(`
     do {
       if(bar()) {
         continue;
@@ -114,7 +117,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       break; // Compliant: the loop can execture more than once
     } while (foo())`),
 
-    valid(`
+        valid(`
     while(foo()) {
       if (bar()) {
         continue;
@@ -123,7 +126,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       continue;
     }`),
 
-    valid(`
+        valid(`
     for (let i = 0; foo(); i++) {
       if (bar()) {
         continue;
@@ -131,13 +134,13 @@ ruleTester.run('no-one-iteration-loop', rule, {
       baz();
       break; // Compliant
     }`),
-    valid(`
+        valid(`
     for (i = 0; foo(); i++) {
       baz();
       continue;
     }`),
 
-    valid(`
+        valid(`
     function foo(){
       for (;;) {
         if (condition) {
@@ -148,7 +151,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    valid(`
+        valid(`
     function tryCatch() {
       while (cond()) {
         try {
@@ -161,7 +164,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    valid(`
+        valid(`
     function fun() {
       while(foo()) {
         bar();
@@ -170,32 +173,32 @@ ruleTester.run('no-one-iteration-loop', rule, {
         }
       }
     }`),
-  ],
+      ],
 
-  invalid: [
-    invalid(`
+      invalid: [
+        invalid(`
     while (cond) {
       break;
     }`),
 
-    invalid(`
+        invalid(`
     while(foo()) {
       bar();
       break;
     }`),
 
-    invalid(`
+        invalid(`
     while(foo()) {
       bar();
       throw x;
     }`),
 
-    invalid(`
+        invalid(`
     while(foo())
       break;
     `),
 
-    invalid(`
+        invalid(`
     function f() {
       while(foo()) {
         bar();
@@ -203,19 +206,19 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    invalid(`
+        invalid(`
     do {
       bar();
       break;
     } while (foo())`),
 
-    invalid(`
+        invalid(`
     for (i = 0; foo(); i++) {
       bar();
       break;
     }`),
 
-    invalid(`
+        invalid(`
     for (p in obj) {
       while(true) {
         bar();
@@ -223,7 +226,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    invalid(`
+        invalid(`
     while(foo()) {
       if (bar()) {
         break;
@@ -232,20 +235,20 @@ ruleTester.run('no-one-iteration-loop', rule, {
       break;
     }`),
 
-    invalid(`
+        invalid(`
     if (cond()) {
       while(foo()) {
         break;
       }
     }`),
 
-    invalid(`
+        invalid(`
     for (i = 0; foo();) {
       baz();
       break;
     }`),
 
-    invalid(`
+        invalid(`
     function foo() {
       for (;;) {
         foo();
@@ -253,7 +256,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    invalid(`
+        invalid(`
     while (foo()) {
       if (bar()) {
         doSomething();
@@ -264,7 +267,7 @@ ruleTester.run('no-one-iteration-loop', rule, {
       }
     }`),
 
-    invalid(`
+        invalid(`
     function twoReturns() {
       while (foo()) {
         if (bar()) {
@@ -274,22 +277,24 @@ ruleTester.run('no-one-iteration-loop', rule, {
         }
       }
     }`),
-  ],
+      ],
+    });
+
+    function invalid(code: string) {
+      return {
+        code,
+        errors: [
+          {
+            messageId: 'refactorLoop',
+          },
+        ],
+      };
+    }
+
+    function valid(code: string) {
+      return {
+        code,
+      };
+    }
+  });
 });
-
-function invalid(code: string) {
-  return {
-    code,
-    errors: [
-      {
-        messageId: 'refactorLoop',
-      },
-    ],
-  };
-}
-
-function valid(code: string) {
-  return {
-    code,
-  };
-}

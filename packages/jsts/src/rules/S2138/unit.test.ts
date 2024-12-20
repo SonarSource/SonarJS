@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
 const tests = {
   valid: [
@@ -58,8 +58,12 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterJs = new RuleTester();
+const ruleTesterTs = new RuleTester();
 
-ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);
-ruleTesterTs.run('"undefined" should not be assigned [ts]', rule, tests);
+describe('S2138', () => {
+  it('S2138', () => {
+    ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);
+    ruleTesterTs.run('"undefined" should not be assigned [ts]', rule, tests);
+  });
+});

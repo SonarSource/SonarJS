@@ -14,14 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5443', () => {
+  it('S5443', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
       const tmp = require('tmp');
       const tmp_promise = require('tmp-promise');
       
@@ -45,33 +48,33 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
       tmpDir = something.env.TMP;
       tmpDir = process.env.other;
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       tmpDir = process.env.TMPDIR;
       tmpFile = "/tmp/f";
       `,
-      errors: [
-        {
-          message: 'Make sure publicly writable directories are used safely here.',
-          line: 2,
-          endLine: 2,
-          column: 16,
-          endColumn: 34,
+          errors: [
+            {
+              message: 'Make sure publicly writable directories are used safely here.',
+              line: 2,
+              endLine: 2,
+              column: 16,
+              endColumn: 34,
+            },
+            {
+              message: 'Make sure publicly writable directories are used safely here.',
+              line: 3,
+              endLine: 3,
+              column: 17,
+              endColumn: 25,
+            },
+          ],
         },
         {
-          message: 'Make sure publicly writable directories are used safely here.',
-          line: 3,
-          endLine: 3,
-          column: 17,
-          endColumn: 25,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
       tmpDir = process.env.TMP;
       tmpDir = process.env.TEMPDIR;
       tmpDir = process.env.TEMP;
@@ -92,7 +95,9 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
       tmpFile = "C:\\TEMP";
       tmpFile = "C:\\TMP";
       `,
-      errors: 18,
-    },
-  ],
+          errors: 18,
+        },
+      ],
+    });
+  });
 });

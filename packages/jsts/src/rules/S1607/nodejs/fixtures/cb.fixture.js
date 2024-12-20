@@ -15,7 +15,7 @@ test('should do something', { skip: true }, function(t) { // Noncompliant {{Remo
   t.assert.ok(true);
 });
 
-test('should do something', { skip: '' }, function(t) { // Noncompliant
+test('should do something', { skip: '' }, function(t) { // Noncompliant {{Remove this unit test or explain why it is ignored.}}
   t.assert.ok(true);
 });
 
@@ -24,11 +24,11 @@ test('should do something', function(t) {
 });
 
 test('should do something', function(t) {
-  t.skip(); // Noncompliant
+  t.skip(); // Noncompliant {{Remove this unit test or explain why it is ignored.}}
 });
 
 test('should do something', function(t) {
-  t.skip(''); // Noncompliant
+  t.skip(''); // Noncompliant {{Remove this unit test or explain why it is ignored.}}
 });
 
 test('should do something');

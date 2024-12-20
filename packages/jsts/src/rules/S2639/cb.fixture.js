@@ -7,13 +7,13 @@
 /[^]/;
 /foo[]/;                    // Noncompliant {{Rework this empty character class that doesn't match anything.}}
 //  ^^
-/foo[]bar/;                 // Noncompliant
-'foo'.match(/^foo[]/);      // Noncompliant
-'foo'.search('^foo[]');     // Noncompliant
-/^foo[]/.test('foo');       // Noncompliant
-/^foo[]/.exec('foo');       // Noncompliant
-/[]]/;                      // Noncompliant
-/\[[]/;                     // Noncompliant
-/\\[\\[\\]0-9[]/;           // Noncompliant
-RegExp('foo[]');            // Noncompliant
-new RegExp('foo[]');        // Noncompliant
+/foo[]bar/;                 // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+'foo'.match(/^foo[]/);      // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+'foo'.search('^foo[]');     // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+/^foo[]/.test('foo');       // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+/^foo[]/.exec('foo');       // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+/[]]/;                      // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+/\[[]/;                     // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+/\\[\\[\\]0-9[]/;           // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+RegExp('foo[]');            // Noncompliant {{Rework this empty character class that doesn't match anything.}}
+new RegExp('foo[]');        // Noncompliant {{Rework this empty character class that doesn't match anything.}}

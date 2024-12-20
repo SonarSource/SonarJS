@@ -1,6 +1,10 @@
 const o = {
     p: "foo",
-    p: "bar" // Noncompliant {{Duplicate name 'p'.}}
+    p: "bar"
+  // Noncompliant@-1 [[qf1]] {{Duplicate name 'p'.}}
+  // fix@qf1 {{Remove this duplicate property}}
+  // edit@qf1@-1 {{    p: "foo"}}
+  // del@qf1
 };
 
 class C {

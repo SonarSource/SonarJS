@@ -1,10 +1,10 @@
 window.open('https://example.com/dangerous1'); // Noncompliant {{Make sure not using "noopener" is safe here.}}
     // ^^^^
-window.open('http://example.com/dangerous2'); // Noncompliant
+window.open('http://example.com/dangerous2'); // Noncompliant {{Make sure not using "noopener" is safe here.}}
 
-window.open('https://example.com/dangerous3', 'windowname', 'resizable'); // Noncompliant
+window.open('https://example.com/dangerous3', 'windowname', 'resizable'); // Noncompliant {{Make sure not using "noopener" is safe here.}}
 
-window.open('https://example.com/dangerous4', 'windowname', 123); // Noncompliant
+window.open('https://example.com/dangerous4', 'windowname', 123); // Noncompliant {{Make sure not using "noopener" is safe here.}}
 
 window.open('test.html');
 
@@ -29,7 +29,7 @@ const requiredOption = 'noopener';
 const missingRequiredOption = 'resizable';
 const nullVar = null;
 
-window.open(httpUrl, 'windowname', missingRequiredOption); // Noncompliant
+window.open(httpUrl, 'windowname', missingRequiredOption); // Noncompliant {{Make sure not using "noopener" is safe here.}}
 
 window.open(otherUrl, 'windowname', missingRequiredOption);
 
@@ -37,6 +37,6 @@ window.open(httpUrl, 'windowname', requiredOption);
 
 window.open(nullVar, 'windowname', nullVar);
 
-this.window.open('https://example.com/dangerous10', 'windowname', 'resizable'); // Noncompliant
+this.window.open('https://example.com/dangerous10', 'windowname', 'resizable'); // Noncompliant {{Make sure not using "noopener" is safe here.}}
 
 window.open();

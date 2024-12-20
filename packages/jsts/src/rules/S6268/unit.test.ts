@@ -14,14 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterTs = new TypeScriptRuleTester();
-ruleTesterTs.run('', rule, {
-  valid: [
-    {
-      code: `
+describe('S6268', () => {
+  it('S6268', () => {
+    const ruleTesterTs = new RuleTester();
+    ruleTesterTs.run('', rule, {
+      valid: [
+        {
+          code: `
       // without object
       bypassSecurityTrustHtml(foo);
 
@@ -39,42 +42,44 @@ ruleTesterTs.run('', rule, {
       sanitizer.bypassSecurityTrustHtml("input");
       sanitizer.bypassSecurityTrustHtml(\`input\`);
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       sanitizer.bypassSecurityTrustHtml(value);
       sanitizer.bypassSecurityTrustStyle(value);
       sanitizer.bypassSecurityTrustScript(value);
       sanitizer.bypassSecurityTrustUrl(value);
       sanitizer.bypassSecurityTrustResourceUrl(value);
       `,
-      errors: 5,
-    },
-    {
-      code: `
+          errors: 5,
+        },
+        {
+          code: `
       whatever().bypassSecurityTrustHtml(whateverElse());
       `,
-      errors: [
-        {
-          message: 'Make sure disabling Angular built-in sanitization is safe here.',
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 41,
+          errors: [
+            {
+              message: 'Make sure disabling Angular built-in sanitization is safe here.',
+              line: 2,
+              column: 18,
+              endLine: 2,
+              endColumn: 41,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       sanitizer.bypassSecurityTrustHtml(\`\${whatever()}\`);
       `,
-      errors: [
-        {
-          message: 'Make sure disabling Angular built-in sanitization is safe here.',
+          errors: [
+            {
+              message: 'Make sure disabling Angular built-in sanitization is safe here.',
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

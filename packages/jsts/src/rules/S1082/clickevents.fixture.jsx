@@ -4,5 +4,5 @@
 <button onClick={() => {}} />;
 <div onClick={() => {}} aria-hidden="true" />;
 
-<div onClick={() => {}} />;  // Noncompliant
+<div onClick={() => {}} />;  // Noncompliant {{Visible, non-interactive elements with click handlers must have at least one keyboard listener.}}
 

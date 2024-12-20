@@ -7,7 +7,7 @@ function cgiHandler(req, res) {
     return res.status(403).end('Forbidden');
   }
   if (req.headers.origin) {
-    res.setHeader('access-control-allow-origin', req.headers.origin); // Noncompliant
+    res.setHeader('access-control-allow-origin', req.headers.origin); // Noncompliant {{Make sure that enabling CORS is safe here.}}
     res.setHeader('access-control-allow-credentials', true);
   }
   // ...

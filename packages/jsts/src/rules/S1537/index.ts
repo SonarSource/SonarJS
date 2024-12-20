@@ -14,5 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/typescript-eslint/index.js';
-export const rule = rules['comma-dangle'];
+export { default as rule } from '@stylistic/eslint-plugin-ts/rules/comma-dangle';

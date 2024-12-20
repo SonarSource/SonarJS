@@ -55,7 +55,6 @@ export function interceptReport(
           settings: originalContext.settings,
           parserPath: originalContext.parserPath,
           parserOptions: originalContext.parserOptions,
-          parserServices: originalContext.sourceCode.parserServices,
           sourceCode: originalContext.sourceCode,
           cwd: originalContext.cwd,
           filename: originalContext.filename,
@@ -80,10 +79,6 @@ export function interceptReport(
 
           getFilename() {
             return originalContext.filename;
-          },
-
-          getScope() {
-            return originalContext.getScope();
           },
 
           getSourceCode() {

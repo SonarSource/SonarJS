@@ -16,25 +16,35 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools/index.js';
+import {
+  parseJavaScriptSourceFile,
+  parseTypeScriptSourceFile,
+} from '../../tools/helpers/parsing.js';
 import { transformMessages } from '../../../src/linter/issues/transform.js';
 import { rules } from '../../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'message.js');
+    const filePath = path.join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'message.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3504';
-    const config = { rules: { [ruleId]: 'error' } } as any;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, rules[ruleId]);
-    const messages = linter.verify(sourceCode, config);
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
+    const [issue] = transformMessages(messages, {
+      sourceCode,
+      rules: { [ruleId]: rules[ruleId] },
+    }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -52,14 +62,18 @@ describe('transformMessages', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1172';
-    const config = { rules: { [ruleId]: 'error' } } as any;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, rules[ruleId]);
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
 
-    const messages = linter.verify(sourceCode, config);
-
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
+    const [issue] = transformMessages(messages, {
+      sourceCode,
+      rules: { [ruleId]: rules[ruleId] },
+    }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -76,13 +90,18 @@ describe('transformMessages', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
-    const config = { rules: { [ruleId]: 'error' } } as any;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, rules[ruleId]);
-    const messages = linter.verify(sourceCode, config);
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
 
-    const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
+    const [issue] = transformMessages(messages, {
+      sourceCode,
+      rules: { [ruleId]: rules[ruleId] },
+    }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
         quickFixes: [
@@ -111,16 +130,17 @@ describe('transformMessages', () => {
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const ruleId = 'S4621';
-    const config = { rules: { [ruleId]: ['error', 'sonar-runtime'] } } as any;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, rules[ruleId]);
-
-    const messages = linter.verify(sourceCode, config);
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules },
+      },
+      rules: { [`sonarjs/${ruleId}`]: ['error', 'sonar-runtime'] },
+    });
 
     const [{ secondaryLocations }] = transformMessages(messages, {
       sourceCode,
-      rules: linter.getRules(),
+      rules: { [ruleId]: rules[ruleId] },
     }).issues;
     expect(secondaryLocations).toEqual([
       {
@@ -138,17 +158,16 @@ describe('transformMessages', () => {
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
-    const linter = new Linter();
     const messages = [
       {
-        ruleId: 'ucfg',
+        ruleId: 'sonarjs/ucfg',
         message: path.join(import.meta.dirname, 'fixtures', 'secondary.ts'),
       } as Linter.LintMessage,
     ];
 
     const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], {
       sourceCode,
-      rules: linter.getRules(),
+      rules: {},
     });
     expect(ucfgPaths.length).toEqual(1);
     expect(issues.length).toEqual(0);

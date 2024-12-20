@@ -50,20 +50,15 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isEnumWithBody(
-  enumDecl: TSESTree.TSEnumDeclaration,
-): enumDecl is TSESTree.TSEnumDeclaration & { body: { members: TSESTree.TSEnumMember[] } } {
-  return (enumDecl as any).body;
-}
-
 function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {
-  const members = isEnumWithBody(enumDecl) ? enumDecl.body.members : enumDecl.members;
+  const members = enumDecl.members ?? enumDecl.body.members;
   return members.some(m => m.initializer !== undefined);
 }
 
 function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {
-  const firstMember = enumDecl.members[0];
-  const membersRest = enumDecl.members.slice(1);
+  const members = enumDecl.members ?? enumDecl.body.members;
+  const firstMember = members[0];
+  const membersRest = members.slice(1);
   return (
     firstMember.initializer?.type === 'Literal' &&
     isNumberLiteral(firstMember.initializer as estree.Node) &&

@@ -15,39 +15,39 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTesterJs.run('Arithmetic operation returning NaN [NoParserServices]', rule, {
-  valid: [
-    {
-      code: `
+describe('S3757', () => {
+  it('S3757', () => {
+    const ruleTesterJs = new DefaultParserRuleTester();
+    ruleTesterJs.run('Arithmetic operation returning NaN [NoParserServices]', rule, {
+      valid: [
+        {
+          code: `
         let x = 42 - [1,2];
       `,
-    },
-  ],
-  invalid: [],
-});
+        },
+      ],
+      invalid: [],
+    });
 
-const ruleTester = new TypeScriptRuleTester();
-ruleTester.run('Arithmetic operation returning NaN', rule, {
-  valid: [
-    {
-      code: `
+    const ruleTester = new RuleTester();
+    ruleTester.run('Arithmetic operation returning NaN', rule, {
+      valid: [
+        {
+          code: `
         let x = 42 - 7;
       `,
-    },
-    {
-      code: ` 
+        },
+        {
+          code: ` 
           var obj1 = {}
           obj1 + 42; // concatenation 
        `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function dates() {
         var date1 = new Date();
         var date2 = new Date();
@@ -58,77 +58,79 @@ ruleTester.run('Arithmetic operation returning NaN', rule, {
         42 / new Date(); // ok
       }
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       null + 42; // ok
       true + 42; // ok
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         typeof {} == 'string';
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         function doSomething(something) {
            if ((typeof something === 'number' || something instanceof Number) && !isFinite(+something)) {
                console.log("hello");
            }
        }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         let x = 42 - [1,2];
         let y = [1,2] - 42;
       `,
-      errors: [
-        {
-          message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
-          line: 2,
-          column: 22,
-          endLine: 2,
-          endColumn: 27,
+          errors: [
+            {
+              message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
+              line: 2,
+              column: 22,
+              endLine: 2,
+              endColumn: 27,
+            },
+            {
+              message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
+              line: 3,
+              column: 17,
+              endLine: 3,
+              endColumn: 22,
+            },
+          ],
         },
         {
-          message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
-          line: 3,
-          column: 17,
-          endLine: 3,
-          endColumn: 22,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
         var array7 = [1,2];
         array7 /= 42;
       `,
-      errors: 1,
-    },
-    {
-      code: ` 
+          errors: 1,
+        },
+        {
+          code: ` 
           var obj1 = {}
           obj1 - 42; 
        `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       var array2 = [1,2];
       array2--;
     `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       foo(+[1,2]);
     `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -14,61 +14,66 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('"NOSONAR" comments should not be used', rule, {
-  valid: [
-    {
-      code: '//',
-    },
-    {
-      code: '/* */',
-    },
-    {
-      code: '// foo',
-    },
-    {
-      code: '/* foo */',
-    },
-    {
-      code: '// no sonar',
-    },
-    {
-      code: '/* no sonar */',
-    },
-  ],
-  invalid: [
-    {
-      code: '// NOSONAR',
-      errors: [
+describe('S1291', () => {
+  it('S1291', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"NOSONAR" comments should not be used', rule, {
+      valid: [
         {
-          message: '"NOSONAR" comments should not be used.',
-          line: 1,
-          column: 1,
+          code: '//',
+        },
+        {
+          code: '/* */',
+        },
+        {
+          code: '// foo',
+        },
+        {
+          code: '/* foo */',
+        },
+        {
+          code: '// no sonar',
+        },
+        {
+          code: '/* no sonar */',
         },
       ],
-    },
-    {
-      code: '// nosonar',
-      errors: 1,
-    },
-    {
-      code: '/* NOSONAR */',
-      errors: 1,
-    },
-    {
-      code: '/* nosonar */',
-      errors: 1,
-    },
-    {
-      code: '// NOSONARSOURCE',
-      errors: 1,
-    },
-    {
-      code: '/* NOSONARSOURCE */',
-      errors: 1,
-    },
-  ],
+      invalid: [
+        {
+          code: '// NOSONAR',
+          errors: [
+            {
+              message: '"NOSONAR" comments should not be used.',
+              line: 1,
+              column: 1,
+            },
+          ],
+        },
+        {
+          code: '// nosonar',
+          errors: 1,
+        },
+        {
+          code: '/* NOSONAR */',
+          errors: 1,
+        },
+        {
+          code: '/* nosonar */',
+          errors: 1,
+        },
+        {
+          code: '// NOSONARSOURCE',
+          errors: 1,
+        },
+        {
+          code: '/* NOSONARSOURCE */',
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -5,7 +5,7 @@ String.prototype.foo = function() {
 }
 
 // necessary example to have at least 1 noncompliant case
-function foo() { // Noncompliant
+function foo() { // Noncompliant {{Refactor this function to always return the same type.}}
     if (condition) {
       return 42;
     }

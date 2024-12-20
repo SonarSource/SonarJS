@@ -14,56 +14,59 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Only "while", "do", "for" and "switch" statements should be labelled', rule, {
-  valid: [
-    {
-      code: `
+describe('S1439', () => {
+  it('S1439', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Only "while", "do", "for" and "switch" statements should be labelled', rule, {
+      valid: [
+        {
+          code: `
         loop1:
         for (var i = 0; i < 5; i++) {
           continue loop1;
         }`,
-    },
-    {
-      code: `loop1: for (index in myArray) {}`,
-    },
-    {
-      code: `loop1: for (val of myArray) {}`,
-    },
-    {
-      code: `loop1: while (i < 10) {}`,
-    },
-    {
-      code: `loop1: do {} while (i < 10)`,
-    },
-    {
-      code: `mySwitch: switch(x) { default: break mySwitch; }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+        {
+          code: `loop1: for (index in myArray) {}`,
+        },
+        {
+          code: `loop1: for (val of myArray) {}`,
+        },
+        {
+          code: `loop1: while (i < 10) {}`,
+        },
+        {
+          code: `loop1: do {} while (i < 10)`,
+        },
+        {
+          code: `mySwitch: switch(x) { default: break mySwitch; }`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
         invalidLabel:
       //^^^^^^^^^^^^
         if (myBool) {}`,
-      errors: [
+          errors: [
+            {
+              message: 'Remove this "invalidLabel" label.',
+              line: 2,
+              endLine: 2,
+              column: 9,
+              endColumn: 21,
+            },
+          ],
+        },
         {
-          message: 'Remove this "invalidLabel" label.',
-          line: 2,
-          endLine: 2,
-          column: 9,
-          endColumn: 21,
+          code: `invalidLabel: var x = 0;`,
+          errors: 1,
         },
       ],
-    },
-    {
-      code: `invalidLabel: var x = 0;`,
-      errors: 1,
-    },
-  ],
+    });
+  });
 });

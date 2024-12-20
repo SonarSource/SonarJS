@@ -14,110 +14,109 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const eslintRuleTester = new NodeRuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
-});
+describe('S1528', () => {
+  it('S1528', () => {
+    const eslintRuleTester = new RuleTester();
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
-const testCases = {
-  valid: [
-    {
-      code: `
+    const typeScriptRuleTester = new RuleTester();
+    const testCases = {
+      valid: [
+        {
+          code: `
             var o = new Object();
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
             var a1 = [x1, x2, x3];;
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
             var a2 = [];
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
             let unstableArray = Array.from({length: n});
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
             var a = new Array(x1, x2, x3);
             `,
-      errors: [
-        {
-          message: 'Use either a literal or "Array.from()" instead of the "Array" constructor.',
-          line: 2,
-          endLine: 2,
-          column: 21,
-          endColumn: 42,
-          suggestions: [
+          errors: [
             {
-              desc: 'Replace with a literal',
-              output: `
+              message: 'Use either a literal or "Array.from()" instead of the "Array" constructor.',
+              line: 2,
+              endLine: 2,
+              column: 21,
+              endColumn: 42,
+              suggestions: [
+                {
+                  desc: 'Replace with a literal',
+                  output: `
             var a = [x1, x2, x3];
             `,
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
             myArray = new Array(foo + 2).join('#');
             `,
-      errors: [
-        {
-          message: 'Use either a literal or "Array.from()" instead of the "Array" constructor.',
-          line: 2,
-          endLine: 2,
-          column: 23,
-          endColumn: 41,
-          suggestions: [
+          errors: [
             {
-              desc: 'Replace with "Array.from()"',
-              output: `
+              message: 'Use either a literal or "Array.from()" instead of the "Array" constructor.',
+              line: 2,
+              endLine: 2,
+              column: 23,
+              endColumn: 41,
+              suggestions: [
+                {
+                  desc: 'Replace with "Array.from()"',
+                  output: `
             myArray = Array.from({length: foo + 2}).join('#');
             `,
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
             myArray = new Array(42).join('#');
             `,
-      errors: [
-        {
-          message: 'Use "Array.from()" instead of the "Array" constructor.',
-          line: 2,
-          endLine: 2,
-          column: 23,
-          endColumn: 36,
-          suggestions: [
+          errors: [
             {
-              desc: 'Replace with "Array.from()"',
-              output: `
+              message: 'Use "Array.from()" instead of the "Array" constructor.',
+              line: 2,
+              endLine: 2,
+              column: 23,
+              endColumn: 36,
+              suggestions: [
+                {
+                  desc: 'Replace with "Array.from()"',
+                  output: `
             myArray = Array.from({length: 42}).join('#');
             `,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-  ],
-};
+    };
 
-eslintRuleTester.run('JS: Array constructor should not be used', rule, testCases);
-typeScriptRuleTester.run('TS: Array constructor should not be used', rule, testCases);
+    eslintRuleTester.run('JS: Array constructor should not be used', rule, testCases);
+    typeScriptRuleTester.run('TS: Array constructor should not be used', rule, testCases);
+  });
+});

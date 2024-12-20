@@ -14,44 +14,43 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+describe('S1226', () => {
+  it('S1226', () => {
+    const ruleTester = new RuleTester();
 
-const NON_COMPLIANT_REGEX = /\/\/\sNoncompliant\s{{(\w+)}}/;
-function invalidTest(code: string) {
-  const errors = code.split('\n').reduce((accumulator, currentLine, index) => {
-    const res = NON_COMPLIANT_REGEX.exec(currentLine);
-    if (res && res[1]) {
-      const currentLine = index + 1;
-      accumulator.push({
-        message:
-          `Introduce a new variable or use its initial value ` + `before reassigning "${res[1]}".`,
-        line: currentLine,
-        endLine: currentLine,
-      });
+    const NON_COMPLIANT_REGEX = /\/\/\sNoncompliant\s{{(\w+)}}/;
+    function invalidTest(code: string) {
+      const errors = code.split('\n').reduce((accumulator, currentLine, index) => {
+        const res = NON_COMPLIANT_REGEX.exec(currentLine);
+        if (res && res[1]) {
+          const currentLine = index + 1;
+          accumulator.push({
+            message:
+              `Introduce a new variable or use its initial value ` +
+              `before reassigning "${res[1]}".`,
+            line: currentLine,
+            endLine: currentLine,
+          });
+        }
+        return accumulator;
+      }, []);
+      return {
+        code,
+        errors,
+      };
     }
-    return accumulator;
-  }, [] as NodeRuleTester.TestCaseError[]);
-  return {
-    code,
-    errors,
-  };
-}
 
-ruleTester.run(
-  "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
-  rule,
-  {
-    valid: [
+    ruleTester.run(
+      "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         function foo(p1, p2, p3, ... p4) {
           p1.prop1 = 42;
           foo(p2, p3);
@@ -166,9 +165,9 @@ ruleTester.run(
           MyClass.prototype.functionToCall.apply(this, arguments);
           p1 = this.position;
         }`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         function someFunction(node, param = false) {
           switch (node.type) {
               case 'ForStatement':
@@ -184,55 +183,57 @@ ruleTester.run(
           }
           node.children().forEach(child => someFunction(child, param));
         }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         function foo(p1) {
           p1 = 42;
         }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 18,
+            errors: [
+              {
+                message:
+                  'Introduce a new variable or use its initial value before reassigning "p1".',
+                line: 3,
+                endLine: 3,
+                column: 11,
+                endColumn: 18,
+              },
+            ],
           },
-        ],
-      },
-      {
-        code: `
+          {
+            code: `
         function foo(p1) {
           while (someBoolean) {
             if (p1 = doSomething()) return p1;
           }
         }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 4,
-            endLine: 4,
-            column: 17,
-            endColumn: 35,
+            errors: [
+              {
+                message:
+                  'Introduce a new variable or use its initial value before reassigning "p1".',
+                line: 4,
+                endLine: 4,
+                column: 17,
+                endColumn: 35,
+              },
+            ],
           },
-        ],
-      },
-      invalidTest(`
+          invalidTest(`
         function foo(p1) {
            if (someBoolean) {
             p1 = "defaultValue";
           }
           p1 = "newValue"; // Noncompliant {{p1}}
         }`),
-      invalidTest(`
+          invalidTest(`
         function foo(p1) {
            while (someBoolean) {
             p1 = "defaultValue"; // Noncompliant {{p1}}
           }
         }`),
-      invalidTest(`
+          invalidTest(`
         function bindingElements({a: p1 = 1, p2 = 2}, [p3 = 3, p4 = 4], p5 = 5) {
           p1 = 42; // Noncompliant {{p1}}
           p2 = 42; // Noncompliant {{p2}}
@@ -241,7 +242,7 @@ ruleTester.run(
           p5 = 42; // Noncompliant {{p5}}
           p5 = 42;
         }`),
-      invalidTest(`
+          invalidTest(`
         var arrow_function1 = (p1, p2) => {
           p2 = 42; // Noncompliant {{p2}}
           p1.prop1 = 42;
@@ -256,7 +257,7 @@ ruleTester.run(
         (function(p1) {
           p1 = 42; // Noncompliant {{p1}}
         })(1);`),
-      invalidTest(`
+          invalidTest(`
         try {
           foo();
         } catch (e) {
@@ -270,7 +271,7 @@ ruleTester.run(
           e1 = foo(); // Noncompliant {{e1}}
           foo(e2);
         }`),
-      invalidTest(`
+          invalidTest(`
         for (var x in obj) {
           for (let x in obj) {
             x = foo(); // Noncompliant {{x}}
@@ -310,7 +311,7 @@ ruleTester.run(
           a = foo(); // Noncompliant {{a}}
           b = foo(); // Noncompliant {{b}}
         }`),
-      invalidTest(`
+          invalidTest(`
         function foo(p1, p2) {
           var p1Copied = p1;
           for (var [forParam1, forParam2] in myArray) {
@@ -328,7 +329,7 @@ ruleTester.run(
             }
           }
         }`),
-      invalidTest(`
+          invalidTest(`
         function foo() {
           const argumentsIsRead = arguments[0];
         }
@@ -336,7 +337,7 @@ ruleTester.run(
         function bar(p1) {
           p1 = 3; // Noncompliant {{p1}}
         }`),
-      invalidTest(`
+          invalidTest(`
         function f1(p1) {
           function f2(p2) {
             var args = arguments[0];
@@ -347,6 +348,8 @@ ruleTester.run(
             }
           }
         }`),
-    ],
-  },
-);
+        ],
+      },
+    );
+  });
+});

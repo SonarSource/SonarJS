@@ -14,70 +14,98 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: `let x = { a: 42, b: 42 }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = { a: 42, a: 42 }`,
-      errors: [
-        { suggestions: [{ output: `let x = { a: 42 }`, desc: 'Remove this duplicate property' }] },
+describe('S1534', () => {
+  it('S1534', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+      valid: [
+        {
+          code: `let x = { a: 42, b: 42 }`,
+        },
       ],
-    },
-    {
-      code: `let x = { a: 42, a: 42, b: 42 }`,
-      errors: [{ suggestions: [{ output: `let x = { a: 42, b: 42 }` }] }],
-    },
-    {
-      code: `let x = { a: 42, b: 42, a: 42, }`,
-      errors: [{ suggestions: [{ output: `let x = { a: 42, b: 42, }` }] }],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `let x = { a: 42, a: 42 }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42 }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `let x = { a: 42, a: 42, b: 42 }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42, b: 42 }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `let x = { a: 42, b: 42, a: 42, }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42, b: 42, }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 let x = { 
   a: 42,
   a: 42
 }`,
-      errors: [
-        {
-          suggestions: [
+          errors: [
             {
-              output: `
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                {
+                  output: `
 let x = { 
   a: 42
 }`,
+                  desc: 'Remove this duplicate property',
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
 let x = { 
   a: 42,
   get a() {
     return 42;
   },
 }`,
-      errors: [
-        {
-          suggestions: [
+          errors: [
             {
-              output: `
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                {
+                  output: `
 let x = { 
   a: 42,
 }`,
+                  desc: 'Remove this duplicate property',
+                },
+              ],
             },
           ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

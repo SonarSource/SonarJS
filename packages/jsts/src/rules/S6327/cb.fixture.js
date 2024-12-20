@@ -1,5 +1,5 @@
-const { Topic, CfnTopic } = require('aws-cdk-lib/aws-sns');
-const { Key } = require('aws-cdk-lib/aws-kms');
+import { CfnTopic, Topic } from 'aws-cdk-lib/aws-sns';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 function compliant() {
 
@@ -60,28 +60,28 @@ function non_compliant() {
 
   new Topic(this, 'UnencryptedTopic'); // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
 //    ^^^^^
-  new Topic(this, 'UnencryptedTopic', undefined); // Noncompliant
+  new Topic(this, 'UnencryptedTopic', undefined); // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
 //    ^^^^^
-  new Topic(this, 'UnencryptedTopic', {}); // Noncompliant
+  new Topic(this, 'UnencryptedTopic', {}); // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
 //                                    ^^
   new Topic(this, 'UnencryptedTopic', {
-    masterKey: undefined // Noncompliant
+    masterKey: undefined // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
 //             ^^^^^^^^^
   });
   new Topic(this, 'UnencryptedTopic', {
-    'masterKey': undefined // Noncompliant
+    'masterKey': undefined // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
   });
   new Topic(this, 'UnencryptedTopic', {
-    masterKey: undefinedKey // Noncompliant
+    masterKey: undefinedKey // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
   });
 
   const masterKey = undefined;
   new Topic(this, 'UnencryptedTopic', {
-    masterKey // Noncompliant
+    masterKey // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
   });
 
   const topicProps = { masterKey: undefinedKey };
-  new Topic(this, 'UnencryptedTopic', { // Noncompliant
+  new Topic(this, 'UnencryptedTopic', { // Noncompliant {{Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.}}
     ...topicProps
   });
 
@@ -89,32 +89,32 @@ function non_compliant() {
 
   new CfnTopic(this, 'UnencryptedCfnTopic'); // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
 //    ^^^^^^^^
-  new CfnTopic(this, 'UnencryptedCfnTopic', undefined); // Noncompliant
+  new CfnTopic(this, 'UnencryptedCfnTopic', undefined); // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
 //    ^^^^^^^^
-  new CfnTopic(this, 'UnencryptedCfnTopic', {}); // Noncompliant
+  new CfnTopic(this, 'UnencryptedCfnTopic', {}); // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
 //                                          ^^
   new CfnTopic(this, 'UnencryptedCfnTopic', {
-    kmsMasterKeyId: undefined // Noncompliant
+    kmsMasterKeyId: undefined // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
 //                  ^^^^^^^^^
   });
   new CfnTopic(this, 'UnencryptedCfnTopic', {
-    'kmsMasterKeyId': undefined // Noncompliant
+    'kmsMasterKeyId': undefined // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
   });
   new CfnTopic(this, 'UnencryptedCfnTopic', {
-    kmsMasterKeyId: undefinedKeyId // Noncompliant
+    kmsMasterKeyId: undefinedKeyId // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
   });
 
   new CfnTopic(this, 'UnencryptedCfnTopic', {
-    kmsMasterKeyId: undefinedKeyId // Noncompliant
+    kmsMasterKeyId: undefinedKeyId // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
   });
 
   const kmsMasterKeyId = undefined;
   new CfnTopic(this, 'UnencryptedCfnTopic', {
-    kmsMasterKeyId // Noncompliant
+    kmsMasterKeyId // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
   });
 
   const cfnTopicProps = { kmsMasterKeyId: undefinedKeyId };
-  new CfnTopic(this, 'UnencryptedCfnTopic', { // Noncompliant
+  new CfnTopic(this, 'UnencryptedCfnTopic', { // Noncompliant {{Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
     ...cfnTopicProps
   });
 }

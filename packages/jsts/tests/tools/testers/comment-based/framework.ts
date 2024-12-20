@@ -30,14 +30,14 @@
  * @see https://github.com/SonarSource/sonar-analyzer-commons/tree/master/test-commons#noncompliant-format
  */
 
-import { NodeRuleTester } from '../rule-tester.js';
+import { RuleTester } from 'eslint';
 import { encodeContents } from '../../../../src/rules/helpers/location.js';
 import { FileIssues } from './helpers/file.js';
 import { LineIssues } from './helpers/issues.js';
 import { Change, QuickFix } from './helpers/quickfixes.js';
 
 interface ExpectationsResult {
-  errors: NodeRuleTester.TestCaseError[];
+  errors: RuleTester.TestCaseError[];
   output: string | null;
 }
 /**
@@ -67,7 +67,7 @@ export function extractExpectations(
         result,
         expectedIssues,
       );
-      const error: NodeRuleTester.TestCaseError = {
+      const error: RuleTester.TestCaseError = {
         ...suggestions,
         ...(primary?.range || { line }),
       };
@@ -100,7 +100,7 @@ export function extractExpectations(
 }
 
 interface Suggestions {
-  suggestions?: NodeRuleTester.SuggestionOutput[];
+  suggestions?: RuleTester.SuggestionOutput[];
 }
 
 /**
@@ -117,7 +117,7 @@ function applyQuickFixes(
   result: ExpectationsResult,
   issues: LineIssues[],
 ): Suggestions {
-  const suggestions: NodeRuleTester.SuggestionOutput[] = [];
+  const suggestions: RuleTester.SuggestionOutput[] = [];
   for (const quickfix of quickfixes) {
     const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
     const { description: desc, changes } = quickfix;
@@ -146,7 +146,7 @@ function applyQuickFixes(
       if (quickfix.mandatory) {
         result.output = output;
       } else {
-        const suggestion: NodeRuleTester.SuggestionOutput = { output };
+        const suggestion: RuleTester.SuggestionOutput = { output };
         if (desc) {
           suggestion.desc = desc;
         }

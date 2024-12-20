@@ -14,31 +14,32 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-const options = [
-  {
-    threshold: 2,
-  },
-];
+describe('S1541', () => {
+  it('S1541', () => {
+    const ruleTester = new RuleTester();
+    const options = [
+      {
+        threshold: 2,
+      },
+    ];
 
-ruleTester.run('Functions should not be too complex', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Functions should not be too complex', rule, {
+      valid: [
+        {
+          code: `
       if (x) {}
       if (x) {}
       if (x) {}
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {  // +1
         if (x) {       // +1
           return 0;    // +0
@@ -47,10 +48,10 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {          // OK            +1 for ok
         a = true && false;     //               +1 for ok
         b = function foo() {   // OK            +1 for foo, +0 for ok
@@ -60,28 +61,28 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {          // OK            +1 for ok
         a = true && false;     //               +1 for ok
         b = arr.map(s => s.length);   // OK     +0 for ok
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {          // OK            +1 for ok
         a = true && false;     //               +1 for ok
         b = () => 10;          // OK            +0 for ok
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function nesting() {     // OK            +1 for nesting
         function nested() {    // OK            +1 for nested
           if (x) {             //               +1 for nested
@@ -90,10 +91,10 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {           // OK           +1 for ok
         return {                //              +0 for ok
           get x() {             // OK           +1 for x
@@ -102,10 +103,10 @@ ruleTester.run('Functions should not be too complex', rule, {
         };
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       function ok() {           // OK           +1 for ok
         a = true || false;      //              +1 for ok
 
@@ -113,74 +114,74 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       (function(x) {          // OK - Immediately Invoked Function Expression
         if (x) {}
         if (x) {}
         if (x) {}
       })(34);
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       var a = function () {   // OK - Immediately Invoked Function Expression
         var a = true && false && true;
       }();
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       new (function() {       // OK - Immediately Invoked Function Expression
         var a = true && false && true;
       })();
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       define([], function(){  // AMD PATTERN - OK
         var a = true && false && true;
       });
       `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       define([], "module name", function(){  // AMD PATTERN - OK
         var a = true && false && true;
       });
       `,
-      options,
-    },
-    // TODO not supported yet
-    // {
-    //   code: `
-    //   // ANGULAR JS Exceptions
+          options,
+        },
+        // TODO not supported yet
+        // {
+        //   code: `
+        //   // ANGULAR JS Exceptions
 
-    //   var moduleX = angular.module("moduleX");
+        //   var moduleX = angular.module("moduleX");
 
-    //   moduleX
-    //     .controller("Name", function() {   // OK
-    //       var a = true && false && true;
-    //     })
-    //     .service("Name", ['$scope', function($scope) {   // OK
-    //       var a = true && false && true;
-    //     }]);
+        //   moduleX
+        //     .controller("Name", function() {   // OK
+        //       var a = true && false && true;
+        //     })
+        //     .service("Name", ['$scope', function($scope) {   // OK
+        //       var a = true && false && true;
+        //     }]);
 
-    //   moduleX.config(function() {   // OK
-    //       var a = true && false && true;
-    //   });
-    //   `,
-    //   options,
-    // },
-  ],
-  invalid: [
-    invalid(`
+        //   moduleX.config(function() {   // OK
+        //       var a = true && false && true;
+        //   });
+        //   `,
+        //   options,
+        // },
+      ],
+      invalid: [
+        invalid(`
     function ko() {
           //P^^
       if (x) {}
@@ -190,7 +191,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       else {}
     }
     `),
-    invalid(`
+        invalid(`
     function ko() {
           //P^^
       if (x) {}
@@ -203,7 +204,7 @@ ruleTester.run('Functions should not be too complex', rule, {
          //^^
     }
     `),
-    invalid(`
+        invalid(`
     function * ko() {
             //P^^
       if (x) {}
@@ -212,7 +213,7 @@ ruleTester.run('Functions should not be too complex', rule, {
          //^^
     }
     `),
-    invalid(`
+        invalid(`
     function * ko() {
             //P^^ 
       if (x) {
@@ -222,7 +223,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     function ko(x) {
           //P^^
       switch (x) {
@@ -240,7 +241,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     function ko() {
           //P^^
       a = true && false;
@@ -249,7 +250,7 @@ ruleTester.run('Functions should not be too complex', rule, {
              //^^
     }
     `),
-    invalid(`
+        invalid(`
     function nesting() {
       function nested() {
             //P^^^^^^
@@ -261,7 +262,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     function nesting1() {
       function nesting2() {
         function nested() {
@@ -274,7 +275,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     class C {
       ko() {
    //P^^
@@ -288,7 +289,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     class D {
       nesting() {
         function nested() {
@@ -302,7 +303,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     function ko() {
       return {
         get x() {
@@ -320,7 +321,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       };
     }
     `),
-    invalid(`
+        invalid(`
     function ok() {
       if (a) {}
       throw "error";
@@ -337,8 +338,8 @@ ruleTester.run('Functions should not be too complex', rule, {
       };
     }
     `),
-    invalid(
-      `
+        invalid(
+          `
     export function toCreateModule() {}
 
     function complexFunction() {
@@ -375,87 +376,91 @@ ruleTester.run('Functions should not be too complex', rule, {
       return 32;
     }
     `,
-      10,
-    ),
-  ],
-});
+          10,
+        ),
+      ],
+    });
 
-function invalid(code: string, threshold = 2) {
-  const issue = {
-    complexity: 0,
-    primaryLocation: {} as IssueLocation,
-    secondaryLocations: [] as IssueLocation[],
-  };
-  const lines = code.split('\n');
-  for (const [index, line] of lines.entries()) {
-    let found: RegExpMatchArray | null;
+    function invalid(code: string, threshold = 2) {
+      const issue = {
+        complexity: 0,
+        primaryLocation: {} as IssueLocation,
+        secondaryLocations: [] as IssueLocation[],
+      };
+      const lines = code.split('\n');
+      for (const [index, line] of lines.entries()) {
+        let found: RegExpMatchArray | null;
 
-    const primary = /\/\/P\s*(\^+)/;
-    found = line.match(primary);
-    if (found) {
-      const marker = found[1];
-      const column = line.indexOf(marker);
-      issue.primaryLocation = location(index, column, index, column + marker.length);
+        const primary = /\/\/P\s*(\^+)/;
+        found = line.match(primary);
+        if (found) {
+          const marker = found[1];
+          const column = line.indexOf(marker);
+          issue.primaryLocation = location(index, column, index, column + marker.length);
+        }
+
+        const secondary = /\/\/\s*[^\^]*(\^+)/;
+        found = line.match(secondary);
+        if (found) {
+          const marker = found[1];
+          const column = line.indexOf(marker);
+          issue.complexity += 1;
+          issue.secondaryLocations.push(
+            location(index, column, index, column + marker.length, '+1'),
+          );
+        }
+      }
+
+      return {
+        code,
+        errors: [error(issue, threshold)],
+        options: [
+          {
+            threshold,
+          },
+        ],
+      };
     }
 
-    const secondary = /\/\/\s*[^\^]*(\^+)/;
-    found = line.match(secondary);
-    if (found) {
-      const marker = found[1];
-      const column = line.indexOf(marker);
-      issue.complexity += 1;
-      issue.secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
-    }
-  }
-
-  return {
-    code,
-    errors: [error(issue, threshold)],
-    options: [
-      {
-        threshold,
+    function error(
+      issue: {
+        complexity: number;
+        primaryLocation: IssueLocation;
+        secondaryLocations: IssueLocation[];
       },
-    ],
-  };
-}
+      threshold: number,
+    ) {
+      const { line, column, endLine, endColumn } = issue.primaryLocation;
+      return {
+        message: encode(issue.complexity, threshold, issue.secondaryLocations),
+        line,
+        column: column + 1,
+        endColumn: endColumn + 1,
+        endLine,
+      };
+    }
 
-function error(
-  issue: {
-    complexity: number;
-    primaryLocation: IssueLocation;
-    secondaryLocations: IssueLocation[];
-  },
-  threshold: number,
-) {
-  const { line, column, endLine, endColumn } = issue.primaryLocation;
-  return {
-    message: encode(issue.complexity, threshold, issue.secondaryLocations),
-    line,
-    column: column + 1,
-    endColumn: endColumn + 1,
-    endLine,
-  };
-}
+    function encode(
+      complexity: number,
+      threshold: number,
+      secondaryLocations: IssueLocation[],
+    ): string {
+      const encodedMessage: EncodedMessage = {
+        message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
+        cost: complexity - threshold,
+        secondaryLocations,
+      };
+      return JSON.stringify(encodedMessage);
+    }
 
-function encode(
-  complexity: number,
-  threshold: number,
-  secondaryLocations: IssueLocation[],
-): string {
-  const encodedMessage: EncodedMessage = {
-    message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
-    cost: complexity - threshold,
-    secondaryLocations,
-  };
-  return JSON.stringify(encodedMessage);
-}
-
-function location(
-  line: number,
-  column: number,
-  endLine: number,
-  endColumn: number,
-  message?: string,
-): IssueLocation {
-  return { line, column, endLine, endColumn, message };
-}
+    function location(
+      line: number,
+      column: number,
+      endLine: number,
+      endColumn: number,
+      message?: string,
+    ): IssueLocation {
+      return { line, column, endLine, endColumn, message };
+    }
+  });
+});

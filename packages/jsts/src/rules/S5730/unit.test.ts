@@ -15,15 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5730', () => {
+  it('S5730', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -34,9 +35,9 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -47,27 +48,27 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet()
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet.contentSecurityPolicy()
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -78,9 +79,9 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -91,9 +92,9 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -103,9 +104,9 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -115,11 +116,11 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -128,29 +129,29 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             directives: {},
           })
         );`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure allowing mixed-content is safe here.`,
-            secondaryLocations: [
-              {
-                column: 12,
-                line: 7,
-                endColumn: 26,
-                endLine: 7,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 9,
-          column: 9,
-          endColumn: 10,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: `Make sure allowing mixed-content is safe here.`,
+                secondaryLocations: [
+                  {
+                    column: 12,
+                    line: 7,
+                    endColumn: 26,
+                    endLine: 7,
+                  },
+                ],
+              }),
+              line: 5,
+              endLine: 9,
+              column: 9,
+              endColumn: 10,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -161,10 +162,10 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -173,10 +174,10 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             directives: {}
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -187,7 +188,9 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
             }
           })
         );`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

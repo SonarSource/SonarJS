@@ -16,11 +16,8 @@
  */
 import { check } from '../../../tests/tools/testers/comment-based/checker.js';
 import { rule } from './index.js';
-import path from 'path';
 import { describe } from 'node:test';
 
-const sonarId = path.basename(import.meta.dirname);
-
 describe('Rule S2004', () => {
-  check(sonarId, rule, import.meta.dirname);
+  check(rule, import.meta.dirname);
 });

@@ -14,16 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Loop counter should not be updated inside loop', rule, {
-  valid: [
-    {
-      code: `
+describe('S2310', () => {
+  it('S2310', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Loop counter should not be updated inside loop', rule, {
+      valid: [
+        {
+          code: `
       let fl = false;
 
       for (; i < m && !fl; i++) {
@@ -31,46 +32,46 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
         m = 10;      // Compliant
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `  
+        },
+      ],
+      invalid: [
+        {
+          code: `  
         for (var i = 0, j = 2; i < 5; i++) {
           i = 5;      // Noncompliant 
           j = 5;      // compliant, not in update section
         }
       `,
-      errors: [
-        {
-          line: 3,
-          column: 11,
-          endColumn: 12,
-          message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
+          errors: [
+            {
+              line: 3,
+              column: 11,
+              endColumn: 12,
+              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         for (var i; i < 5; i++) {
           i = 5;     // Noncompliant
         }
       `,
-      errors: [{ line: 3 }],
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         var i;
         i = 0;
         for (; i < 5; i++) {
           i = 5;     // Noncompliant
         }
       `,
-      errors: [{ line: 5 }],
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         var k, t, l, m;
         for (k = 0, t = 6, l = 2; k < 5; k++) {
           k = 5;      // Noncompliant
@@ -81,26 +82,29 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
           m = 5;      // Noncompliant
         }
       `,
-      errors: [{ line: 4 }, { line: 9 }],
-    },
-    {
-      code: `
+          errors: [
+            { message: 'Remove this assignment of "k".', line: 4 },
+            { message: 'Remove this assignment of "m".', line: 9 },
+          ],
+        },
+        {
+          code: `
         var x = 5;
 
         for (x += 2; x < 5; x++) {
           x = 5;      // Noncompliant
         }
       `,
-      errors: [
-        {
-          line: 5,
-          message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
+          errors: [
+            {
+              line: 5,
+              message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       let i = 0, j = 0, k = 0;
       for (;; i++, --j) {
         i++;  // Noncompliant
@@ -119,18 +123,18 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
         k++;  // Noncompliant
       }
       `,
-      errors: 8,
-    },
-    {
-      code: `
+          errors: 8,
+        },
+        {
+          code: `
       for (var x = foo(); ; x=next()) {
         x = next(); // Noncompliant
       }
       `,
-      errors: [{ line: 3 }],
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function foo_of_loop(obj) {
         for (var prop1 of obj) {
           prop1 = 1      // Noncompliant
@@ -147,10 +151,10 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
 
       }
       `,
-      errors: 3,
-    },
-    {
-      code: `
+          errors: 3,
+        },
+        {
+          code: `
       function foo_in_loop(obj) {
         for (var value1 in obj) {
           value1 = 1      // Noncompliant
@@ -166,10 +170,10 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
         }
       }
       `,
-      errors: 3,
-    },
-    {
-      code: `
+          errors: 3,
+        },
+        {
+          code: `
       function description_sample_code() {
         var names = [ "Jack", "Jim", "", "John" ];
         for (var i = 0; i < names.length; i++) {
@@ -192,10 +196,10 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
 
       }
       `,
-      errors: [{ line: 6 }],
-    },
-    {
-      code: `
+          errors: [{ message: 'Remove this assignment of "i".', line: 6 }],
+        },
+        {
+          code: `
       function same_counter_in_nested_loop(obj1, obj2) {
         for (var i in obj1) {
           for (i of obj2) {      // Noncompliant
@@ -204,10 +208,10 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
         }
       }
       `,
-      errors: [{ line: 4 }],
-    },
-    {
-      code: `
+          errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
+        },
+        {
+          code: `
       function assigned_several_times(obj) {
         for (var value in obj) {
           value = 1;      // Noncompliant
@@ -216,10 +220,10 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
       }
 
       `,
-      errors: 2,
-    },
-    {
-      code: `
+          errors: 2,
+        },
+        {
+          code: `
       function used_several_times(obj) {
         for (var i = 0; i < 10; i++) {
           for (var j = 0; j < 10; j++, i++) {  // Noncompliant
@@ -228,24 +232,26 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
         }
       }
       `,
-      errors: [
-        {
-          line: 4,
-          column: 40,
-          message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
-        },
-        {
-          line: 5,
-          column: 13,
-          message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
-        },
-        {
-          line: 5,
-          column: 13,
-          message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
+          errors: [
+            {
+              line: 4,
+              column: 40,
+              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+            },
+            {
+              line: 5,
+              column: 13,
+              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+            },
+            {
+              line: 5,
+              column: 13,
+              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
       ],
-      options: ['sonar-runtime'],
-    },
-  ],
+    });
+  });
 });

@@ -15,13 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-let tests = {
-  valid: [
-    {
-      code: `
+describe('S2612', () => {
+  it('S2612', () => {
+    let tests = {
+      valid: [
+        {
+          code: `
     const fs = require('fs');
 
     // Octal
@@ -57,9 +59,9 @@ let tests = {
     // Variable
     let doChmod = (mode) => fs.chmodSync("/tmp/fs", mode); // Compliant; mode value is unknown
   `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
     process = require('process');
 
     // Octal
@@ -83,9 +85,9 @@ let tests = {
     // Variable
     let updateUmask = (mode) => process.umask(mode); // Compliant; mode value is unknown
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
     // fs.constants
     fs.chmodSync("/tmp/fs", fs.constants.S_IRUSR); // Compliant -r--------
     fs.chmodSync("/tmp/fs", fs.constants.S_IWUSR); // Compliant --w-------
@@ -106,40 +108,40 @@ let tests = {
     fs.chmodSync("/tmp/fs", fs.bla);
     fs.chmodSync("/tmp/fs", /rwx/);
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const x = y;
       const y = x;
       fs.chmodSync("/tmp/fs", x);
     `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const fs = require('fs');
       // Octal
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
-      errors: [
-        {
-          message: 'Make sure this permission is safe.',
-          line: 4,
-          column: 31,
-          endLine: 4,
-          endColumn: 37,
+          errors: [
+            {
+              message: 'Make sure this permission is safe.',
+              line: 4,
+              column: 31,
+              endLine: 4,
+              endColumn: 37,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       const fs = require('node:fs');
       // Octal
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const fs = require('fs');
 
       fs.chmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
@@ -148,10 +150,10 @@ let tests = {
       fs.fchmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fs.lchmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fs.lchmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
-      errors: 6,
-    },
-    {
-      code: `
+          errors: 6,
+        },
+        {
+          code: `
       const fsPromises = require('fs').promises;
 
       fsPromises.chmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
@@ -160,10 +162,10 @@ let tests = {
       fsPromises.fchmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fsPromises.lchmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fsPromises.lchmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
-      errors: 6,
-    },
-    {
-      code: `
+          errors: 6,
+        },
+        {
+          code: `
       const fs = require('fs');
 
       // Octal
@@ -174,10 +176,10 @@ let tests = {
       fs.chmodSync("/tmp/fs", 0o07);    // Sensitive -------rwx
       fs.chmodSync("/tmp/fs", 0o7);     // Sensitive -------rwx
   `,
-      errors: 6,
-    },
-    {
-      code: `
+          errors: 6,
+        },
+        {
+          code: `
     const fs = require('fs');
 
     // String
@@ -192,10 +194,10 @@ let tests = {
     fs.chmodSync("/tmp/fs", "007");   // Sensitive -------rwx
     fs.chmodSync("/tmp/fs", "07");    // Sensitive -------rwx
     `,
-      errors: 10,
-    },
-    {
-      code: `
+          errors: 10,
+        },
+        {
+          code: `
     const fs = require('fs');
 
     // Decimal
@@ -203,10 +205,10 @@ let tests = {
     fs.chmodSync("/tmp/fs", 4);     // Sensitive; 4 % 8 = 4     -------r--
     fs.chmodSync("/tmp/fs", 260);   // Sensitive; 260 % 8 = 4   -r-----r--
   `,
-      errors: 2,
-    },
-    {
-      code: `
+          errors: 2,
+        },
+        {
+          code: `
          // FileHandler
         async function fileHandler() {
           let filehandle;
@@ -220,35 +222,35 @@ let tests = {
           }
         }
      `,
-      errors: [
-        {
-          message: 'Make sure this permission is safe.',
-          line: 8,
-          column: 30,
-          endLine: 8,
-          endColumn: 35,
+          errors: [
+            {
+              message: 'Make sure this permission is safe.',
+              line: 8,
+              column: 30,
+              endLine: 8,
+              endColumn: 35,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
     var process = require('process');
 
     // Octal
     process.umask(0o000); // Sensitive
     `,
-      errors: [
-        {
-          message: 'Make sure this permission is safe.',
-          line: 5,
-          column: 19,
-          endLine: 5,
-          endColumn: 24,
+          errors: [
+            {
+              message: 'Make sure this permission is safe.',
+              line: 5,
+              column: 19,
+              endLine: 5,
+              endColumn: 24,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
     var process = require('process');
 
     // Octal
@@ -269,10 +271,10 @@ let tests = {
     process.umask(0);   // Sensitive 0o000
     process.umask(18);  // Sensitive 0o022
     `,
-      errors: 12,
-    },
-    {
-      code: `
+          errors: 12,
+        },
+        {
+          code: `
       // fs.constants
       fs.chmodSync("/tmp/fs", fs.constants.S_IROTH); // Sensitive -------r--
       fs.chmodSync("/tmp/fs", fs.constants.S_IWOTH); // Sensitive --------w-
@@ -281,21 +283,23 @@ let tests = {
       fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | fs.constants.S_IRWXG | fs.constants.S_IRWXO); // Sensitive -rwxrwxrwx
       fs.chmodSync("/tmp/fs", fs.constants.S_IROTH | fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Sensitive -r--r--r--
       `,
-      errors: 6,
-    },
-    {
-      code: `
+          errors: 6,
+        },
+        {
+          code: `
       const mode = fs.constants.S_IROTH;
       fs.chmodSync("/tmp/fs", mode); // Sensitive -------r--
       fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | mode); // Sensitive -------r--
       `,
-      errors: 2,
-    },
-  ],
-};
+          errors: 2,
+        },
+      ],
+    };
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
 
-const ruleTesterTs = new TypeScriptRuleTester();
-ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);
+    const ruleTesterTs = new RuleTester();
+    ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);
+  });
+});

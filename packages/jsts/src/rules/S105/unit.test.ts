@@ -14,54 +14,59 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 
-ruleTester.run('Tabulation characters should not be used', rule, {
-  valid: [
-    {
-      code: ` foo`,
-    },
-    {
-      code: `    foo`,
-    },
-  ],
-  invalid: [
-    {
-      code: `\t`,
-      errors: [
+describe('S105', () => {
+  it('S105', () => {
+    ruleTester.run('Tabulation characters should not be used', rule, {
+      valid: [
         {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 1,
-          column: 1,
+          code: ` foo`,
+        },
+        {
+          code: `    foo`,
         },
       ],
-    },
-    {
-      code: `foo(\tx);\n\t`,
-      errors: [
+      invalid: [
         {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 1,
-          column: 1,
+          code: `\t`,
+          errors: [
+            {
+              message: 'Replace all tab characters in this file by sequences of white-spaces.',
+              line: 1,
+              column: 1,
+            },
+          ],
+        },
+        {
+          code: `foo(\tx);\n\t`,
+          errors: [
+            {
+              message: 'Replace all tab characters in this file by sequences of white-spaces.',
+              line: 1,
+              column: 1,
+            },
+          ],
+        },
+        {
+          code: `foo(x)\n\t`,
+          errors: [
+            {
+              message: 'Replace all tab characters in this file by sequences of white-spaces.',
+              line: 2,
+              column: 1,
+            },
+          ],
+        },
+        {
+          code: `foo(\tx);`,
+          errors: 1,
         },
       ],
-    },
-    {
-      code: `foo(x)\n\t`,
-      errors: [
-        {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 2,
-          column: 1,
-        },
-      ],
-    },
-    {
-      code: `foo(\tx);`,
-      errors: 1,
-    },
-  ],
+    });
+  });
 });

@@ -35,7 +35,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@41
+// Noncompliant@41 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   xcontext('foo', function() {
@@ -45,7 +45,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@50
+// Noncompliant@50 {{Remove this unit test or explain why it is ignored.}}
 
 xdescribe('foo', function() {
   it('should do something', function(done) {
@@ -53,7 +53,7 @@ xdescribe('foo', function() {
   });
 });
 
-// Noncompliant@60
+// Noncompliant@60 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   //

@@ -29,7 +29,7 @@ class S6418Test {
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
     assertThat(defaultConfigAsString).isEqualTo(
-      "[{\"secretWords\":\"api[_.-]?key,auth,credential,secret,token\",\"randomnessSensibility\":\"5.0\"}]"
+      "[{\"secretWords\":\"api[_.-]?key,auth,credential,secret,token\",\"randomnessSensibility\":5.0}]"
     );
   }
 }

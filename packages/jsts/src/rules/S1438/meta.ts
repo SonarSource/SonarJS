@@ -17,4 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'semi';
-export const externalRules = [{ externalPlugin: 'typescript-eslint', externalRule: 'semi' }];
+export const externalRules = [
+  { externalPlugin: '@stylistic/eslint-plugin-ts', externalRule: 'semi' },
+];

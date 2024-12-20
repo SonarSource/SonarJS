@@ -30,5 +30,5 @@ const enforceSSLUnknown = new s3.Bucket(this, 'enforce.ssl.true', {
   enforceSSL: unknown() // Compliant
 });
 
-const missingConfiguration = new s3.Bucket(this, 'enforce.ssl.true'); // Noncompliant
+const missingConfiguration = new s3.Bucket(this, 'enforce.ssl.true'); // Noncompliant {{Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.}}
                               // ^^^^^^^^^

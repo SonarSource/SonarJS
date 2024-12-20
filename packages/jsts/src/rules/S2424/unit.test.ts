@@ -15,70 +15,71 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const tests = {
-  valid: [
-    {
-      code: `new Promise();`,
-    },
-    {
-      code: `var obj = new Object();`,
-    },
-    {
-      code: `var System = 2`,
-    },
-  ],
-  invalid: [
-    {
-      code: `var JSON = 5;`,
-      errors: [
+describe('S2424', () => {
+  it('S2424', () => {
+    const tests = {
+      valid: [
         {
-          message: 'Remove this override of "JSON".',
-          line: 1,
-          endLine: 1,
-          column: 5,
-          endColumn: 9,
+          code: `new Promise();`,
+        },
+        {
+          code: `var obj = new Object();`,
+        },
+        {
+          code: `var System = 2`,
         },
       ],
-    },
-    {
-      code: `Set = "str";`,
-      errors: 1,
-    },
-    {
-      code: `for (Math in arr) {};`,
-      errors: 1,
-    },
-    {
-      code: `function fun(Reflect) {};`,
-      errors: 1,
-    },
-    {
-      code: `JSON++;`,
-      errors: 1,
-    },
-    {
-      code: `function Date() {}`,
-      errors: 1,
-    },
-  ],
-};
+      invalid: [
+        {
+          code: `var JSON = 5;`,
+          errors: [
+            {
+              message: 'Remove this override of "JSON".',
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 9,
+            },
+          ],
+        },
+        {
+          code: `Set = "str";`,
+          errors: 1,
+        },
+        {
+          code: `for (Math in arr) {};`,
+          errors: 1,
+        },
+        {
+          code: `function fun(Reflect) {};`,
+          errors: 1,
+        },
+        {
+          code: `JSON++;`,
+          errors: 1,
+        },
+        {
+          code: `function Date() {}`,
+          errors: 1,
+        },
+      ],
+    };
 
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018 },
-  env: { es6: true },
-});
-ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
+    const ruleTesterJs = new RuleTester();
+    ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
 
-tests.valid.push({
-  code: `
+    tests.valid.push({
+      code: `
     enum Result {
       Error,
       Success
     }`,
-});
+    });
 
-const ruleTesterTs = new TypeScriptRuleTester();
-ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
+    const ruleTesterTs = new RuleTester();
+    ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
+  });
+});

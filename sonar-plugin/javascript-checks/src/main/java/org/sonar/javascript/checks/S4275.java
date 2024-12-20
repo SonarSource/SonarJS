@@ -16,7 +16,10 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -24,4 +27,28 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S4275")
-public class S4275 extends Check {}
+public class S4275 extends Check {
+
+  private static final boolean DEFAULT_ALLOW_IMPLICIT = false;
+
+  @RuleProperty(
+    key = "allowImplicit",
+    description = "Allow implicitly returning undefined with a return statement.",
+    defaultValue = "" + DEFAULT_ALLOW_IMPLICIT
+  )
+  boolean allowImplicit = DEFAULT_ALLOW_IMPLICIT;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(allowImplicit));
+  }
+
+  private static class Config {
+
+    boolean allowImplicit;
+
+    Config(boolean allowImplicit) {
+      this.allowImplicit = allowImplicit;
+    }
+  }
+}

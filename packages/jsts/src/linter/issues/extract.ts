@@ -61,7 +61,7 @@ export function extractCognitiveComplexity(issues: Issue[]) {
 /**
  * Finds the first issue matching a rule id
  *
- * The functions removes the issue from the list if it exists.
+ * The function removes the issue from the list if it exists.
  *
  * @param issues the issues to process
  * @param ruleId the rule id that is looked for

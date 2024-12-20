@@ -14,21 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { expandMessage, IssueLocation } from '../helpers/index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-});
+describe('S4144', () => {
+  it('S4144', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('no-identical-functions', rule, {
-  valid: [
-    {
-      // different body
-      code: `
+    ruleTester.run('no-identical-functions', rule, {
+      valid: [
+        {
+          // different body
+          code: `
       function foo() {
         console.log("Hello");
         console.log("World");
@@ -41,10 +40,10 @@ ruleTester.run('no-identical-functions', rule, {
         }
         return 42;
       }`,
-    },
-    {
-      // few lines
-      code: `
+        },
+        {
+          // few lines
+          code: `
       function foo() {
         console.log("Hello");
         return 42;
@@ -54,9 +53,9 @@ ruleTester.run('no-identical-functions', rule, {
         console.log("Hello");
         return 42;
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       let foo = (a, b) => {
         [
           a,
@@ -71,9 +70,9 @@ ruleTester.run('no-identical-functions', rule, {
         ]
       )
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class Foo {
         foo() {
           console.log("Hello");
@@ -86,13 +85,13 @@ ruleTester.run('no-identical-functions', rule, {
           return 42;
         }
       }`,
-      options: [4],
-    },
-  ],
-  invalid: [
-    {
-      // basic case
-      code: `
+          options: [4],
+        },
+      ],
+      invalid: [
+        {
+          // basic case
+          code: `
       function foo() {
         console.log("Hello");
         console.log("World");
@@ -104,11 +103,11 @@ ruleTester.run('no-identical-functions', rule, {
         console.log("World");
         return 42;
       }`,
-      errors: [message(2, 8)],
-    },
-    {
-      // different kinds of functions
-      code: `
+          errors: [message(2, 8)],
+        },
+        {
+          // different kinds of functions
+          code: `
       function foo() {
         console.log("Hello");
         console.log("World");
@@ -164,56 +163,56 @@ ruleTester.run('no-identical-functions', rule, {
         console.log("World");
         return 42;
       }`,
-      errors: [
-        // prettier-ignore
-        message(2, 8),
-        message(2, 14),
+          errors: [
+            // prettier-ignore
+            message(2, 8),
+            message(2, 14),
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 21,
+              column: 9,
+              endColumn: 20,
+            }, // constructor
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 27,
+              column: 9,
+              endColumn: 15,
+            }, // method
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 33,
+              column: 13,
+              endColumn: 19,
+            }, // setter
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 39,
+              column: 13,
+              endColumn: 19,
+            }, // getter
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 46,
+              column: 22,
+              endColumn: 35,
+            }, // async declaration
+            {
+              message:
+                'Update this function so that its implementation is not identical to the one on line 2.',
+              line: 52,
+              column: 35,
+              endColumn: 43,
+            }, // async expression
+          ],
+        },
         {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 21,
-          column: 9,
-          endColumn: 20,
-        }, // constructor
-        {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 27,
-          column: 9,
-          endColumn: 15,
-        }, // method
-        {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 33,
-          column: 13,
-          endColumn: 19,
-        }, // setter
-        {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 39,
-          column: 13,
-          endColumn: 19,
-        }, // getter
-        {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 46,
-          column: 22,
-          endColumn: 35,
-        }, // async declaration
-        {
-          message:
-            'Update this function so that its implementation is not identical to the one on line 2.',
-          line: 52,
-          column: 35,
-          endColumn: 43,
-        }, // async expression
-      ],
-    },
-    {
-      code: `
+          code: `
         function foo(a, b) {
           a += b; b -= a; return {
             b
@@ -225,15 +224,21 @@ ruleTester.run('no-identical-functions', rule, {
           };
         }
       `,
-      options: [3, 'sonar-runtime'],
-      errors: [
-        encodedMessage(2, 7, [
-          { message: 'Original implementation', column: 17, line: 2, endColumn: 20, endLine: 2 },
-        ]),
-      ],
-    },
-    {
-      code: `
+          options: [3, 'sonar-runtime'],
+          errors: [
+            encodedMessage(2, 7, [
+              {
+                message: 'Original implementation',
+                column: 17,
+                line: 2,
+                endColumn: 20,
+                endLine: 2,
+              },
+            ]),
+          ],
+        },
+        {
+          code: `
         function foo(a) {
           try {
             return a;
@@ -249,15 +254,21 @@ ruleTester.run('no-identical-functions', rule, {
           }
         }
       `,
-      options: [3, 'sonar-runtime'],
-      errors: [
-        encodedMessage(2, 9, [
-          { message: 'Original implementation', column: 17, line: 2, endColumn: 20, endLine: 2 },
-        ]),
-      ],
-    },
-    {
-      code: `
+          options: [3, 'sonar-runtime'],
+          errors: [
+            encodedMessage(2, 9, [
+              {
+                message: 'Original implementation',
+                column: 17,
+                line: 2,
+                endColumn: 20,
+                endLine: 2,
+              },
+            ]),
+          ],
+        },
+        {
+          code: `
         class Foo {
           foo() {
             console.log("Hello");
@@ -271,10 +282,10 @@ ruleTester.run('no-identical-functions', rule, {
           }
         }
       `,
-      errors: [message(3, 8)],
-    },
-    {
-      code: `
+          errors: [message(3, 8)],
+        },
+        {
+          code: `
         const foo = () => {
           console.log("Hello");
           console.log("World");
@@ -286,39 +297,41 @@ ruleTester.run('no-identical-functions', rule, {
           return 42;
         };
       `,
-      errors: [message(2, 7)],
-    },
-  ],
+          errors: [message(2, 7)],
+        },
+      ],
+    });
+
+    function message(originalLine: number, duplicationLine: number) {
+      return {
+        message: expandMessage(
+          'Update this function so that its implementation is not identical to the one on line {{line}}.',
+          {
+            line: originalLine,
+          },
+        ),
+        line: duplicationLine,
+        endLine: duplicationLine,
+      };
+    }
+
+    function encodedMessage(
+      originalLine: number,
+      duplicationLine: number,
+      secondaries: IssueLocation[],
+    ) {
+      return {
+        messageId: 'sonarRuntime',
+        data: {
+          line: originalLine,
+          sonarRuntimeData: JSON.stringify({
+            message: `Update this function so that its implementation is not identical to the one on line ${originalLine}.`,
+            secondaryLocations: secondaries,
+          }),
+        },
+        line: duplicationLine,
+        endLine: duplicationLine,
+      };
+    }
+  });
 });
-
-function message(originalLine: number, duplicationLine: number): NodeRuleTester.TestCaseError {
-  return {
-    message: expandMessage(
-      'Update this function so that its implementation is not identical to the one on line {{line}}.',
-      {
-        line: originalLine,
-      },
-    ),
-    line: duplicationLine,
-    endLine: duplicationLine,
-  };
-}
-
-function encodedMessage(
-  originalLine: number,
-  duplicationLine: number,
-  secondaries: IssueLocation[],
-): NodeRuleTester.TestCaseError {
-  return {
-    messageId: 'sonarRuntime',
-    data: {
-      line: originalLine,
-      sonarRuntimeData: JSON.stringify({
-        message: `Update this function so that its implementation is not identical to the one on line ${originalLine}.`,
-        secondaryLocations: secondaries,
-      }),
-    },
-    line: duplicationLine,
-    endLine: duplicationLine,
-  };
-}

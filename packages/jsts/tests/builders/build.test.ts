@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { jsTsInput } from '../tools/index.js';
+import { jsTsInput } from '../tools/helpers/input.js';
 import { describe, it, beforeEach, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';

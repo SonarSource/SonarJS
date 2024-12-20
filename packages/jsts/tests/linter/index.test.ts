@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../tools/index.js';
+import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
@@ -83,7 +83,7 @@ describe('initializeLinter', () => {
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).toContain(`DEBUG Loaded rules custom-rule from ${bundlePath}`);
+    expect(logs).toContain(`DEBUG Loaded rule custom-rule from ${bundlePath}`);
     expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');

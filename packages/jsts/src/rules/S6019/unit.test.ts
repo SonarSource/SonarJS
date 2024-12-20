@@ -14,85 +14,90 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterTs = new TypeScriptRuleTester();
-ruleTesterTs.run('Reluctant quantifiers followed by an optional', rule, {
-  valid: [
-    {
-      code: `
+describe('S6019', () => {
+  it('S6019', () => {
+    const ruleTesterTs = new RuleTester();
+    ruleTesterTs.run('Reluctant quantifiers followed by an optional', rule, {
+      valid: [
+        {
+          code: `
       /a*?x/;
       /a*?[abc]/;
       /|x|a*x/;
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `/a*?$/`,
-      errors: [
-        {
-          message: `Remove the '?' from this unnecessarily reluctant quantifier.`,
-          line: 1,
-          column: 2,
-          endLine: 1,
-          endColumn: 5,
         },
       ],
-    },
-    {
-      code: `/a*?x?/`,
-      errors: [
+      invalid: [
         {
-          message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
+          code: `/a*?$/`,
+          errors: [
+            {
+              message: `Remove the '?' from this unnecessarily reluctant quantifier.`,
+              line: 1,
+              column: 2,
+              endLine: 1,
+              endColumn: 5,
+            },
+          ],
+        },
+        {
+          code: `/a*?x?/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
+            },
+          ],
+        },
+        {
+          code: `/a*?x*/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
+            },
+          ],
+        },
+        {
+          code: `/a{5,25}?/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 5 repetitions.`,
+            },
+          ],
+        },
+        {
+          code: `/a*?|a*?x?/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
+              column: 2,
+            },
+            {
+              message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
+              column: 6,
+            },
+          ],
+        },
+        {
+          code: `/a+?(x)?/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 1 repetition.`,
+            },
+          ],
+        },
+        {
+          code: `/foo_a+?/`,
+          errors: [
+            {
+              message: `Fix this reluctant quantifier that will only ever match 1 repetition.`,
+            },
+          ],
         },
       ],
-    },
-    {
-      code: `/a*?x*/`,
-      errors: [
-        {
-          message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
-        },
-      ],
-    },
-    {
-      code: `/a{5,25}?/`,
-      errors: [
-        {
-          message: `Fix this reluctant quantifier that will only ever match 5 repetitions.`,
-        },
-      ],
-    },
-    {
-      code: `/a*?|a*?x?/`,
-      errors: [
-        {
-          message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
-          column: 2,
-        },
-        {
-          message: `Fix this reluctant quantifier that will only ever match 0 repetitions.`,
-          column: 6,
-        },
-      ],
-    },
-    {
-      code: `/a+?(x)?/`,
-      errors: [
-        {
-          message: `Fix this reluctant quantifier that will only ever match 1 repetition.`,
-        },
-      ],
-    },
-    {
-      code: `/foo_a+?/`,
-      errors: [
-        {
-          message: `Fix this reluctant quantifier that will only ever match 1 repetition.`,
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

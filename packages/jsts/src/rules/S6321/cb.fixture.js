@@ -15,14 +15,14 @@ const instance = new ec2.Instance(this, 'default-own-security-group',{
 instance.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
 instance.connections.allowFrom(
-  ec2.Peer.anyIpv4(), // Noncompliant
+  ec2.Peer.anyIpv4(), // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   ec2.Port.tcp(22),
   'description'
 );
 
 const badIpV4 = '0.0.0.0/0';
 instance.connections.allowFrom(
-  ec2.Peer.ipv4(badIpV4),// Noncompliant
+  ec2.Peer.ipv4(badIpV4),// Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
   'description'
 );
@@ -39,7 +39,7 @@ instance.connections.allowFrom(
 );
 
 instance.connections.allowFrom(
-  ec2.Peer.ipv6('::/0'),// Noncompliant
+  ec2.Peer.ipv6('::/0'),// Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
   'description'
 );
@@ -55,7 +55,7 @@ instance.connections.allowFrom(
   ec2.Port.tcpRange(/* startPort */ 1, /*endPort*/ 1024),
   'description'
 );
-instance.connections.allowFromAnyIpv4( // Noncompliant
+instance.connections.allowFromAnyIpv4( // Noncompliant {{Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.}}
   ec2.Port.tcp(3389),
   'description'
 );
@@ -67,11 +67,11 @@ instance.connections.allowFromAnyIpv4(
   ec2.Port.tcp(undefined),
   'description'
 );
-instance.connections.allowFromAnyIpv4( // Noncompliant
+instance.connections.allowFromAnyIpv4( // Noncompliant {{Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.}}
   ec2.Port.allTcp(),
   'description'
 );
-instance.connections.allowFromAnyIpv4( // Noncompliant
+instance.connections.allowFromAnyIpv4( // Noncompliant {{Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.}}
   ec2.Port.allTraffic(),
   'description'
 );
@@ -100,7 +100,7 @@ instance.connections.allowFrom(
 );
 
 instance.connections.allowFrom(
-  ec2.Peer.ipv4(badIpV4), // Noncompliant
+  ec2.Peer.ipv4(badIpV4), // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   new ec2.Port({protocol: ec2.Protocol.TCP, fromPort: 22, toPort: 22}),
   'description'
 );
@@ -125,7 +125,7 @@ instance.connections.allowFrom(
 );
 
 instance.connections.allowFrom(
-  ec2.Peer.ipv4(badIpV4), // Noncompliant
+  ec2.Peer.ipv4(badIpV4), // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   ec2.Port({protocol: ec2.Protocol.ALL, fromPort: 20, toPort: 25}),
   'description'
 );
@@ -147,8 +147,8 @@ const connection = new ec2.Connections({
   securityGroups: [securityGroup]
 });
 
-connection.allowDefaultPortFromAnyIpv4('Allows SSH from all IPv4'); // Noncompliant
-connection.allowDefaultPortFrom(ec2.Peer.anyIpv4(), 'Allows SSH from all IPv4'); // Noncompliant
+connection.allowDefaultPortFromAnyIpv4('Allows SSH from all IPv4'); // Noncompliant {{Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.}}
+connection.allowDefaultPortFrom(ec2.Peer.anyIpv4(), 'Allows SSH from all IPv4'); // Noncompliant {{Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.}}
 
 const connection2 = new ec2.Connections({
   defaultPort:ec2.Port.tcp(1234),
@@ -164,7 +164,7 @@ const securityGroup3 = new ec2.SecurityGroup(this, 'custom-security-group', {
 });
 
 securityGroup3.addIngressRule(
-  ec2.Peer.anyIpv4(), // Noncompliant
+  ec2.Peer.anyIpv4(), // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
   ec2.Port.tcpRange(1, 1024)
 );
 
@@ -173,7 +173,7 @@ securityGroup3.addIngressRule(
   ec2.Port.tcpRange(1024, 1048)
 );
 
-const badIpV4_2 = '0.0.0.0/0';// Noncompliant
+const badIpV4_2 = '0.0.0.0/0';// Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
 const nonCompliantIngress = {
   ipProtocol: '6',
   cidrIp: badIpV4_2,
@@ -218,13 +218,13 @@ new ec2.CfnSecurityGroup(
     securityGroupIngress: [
       {
         ipProtocol: '6',
-        cidrIp: '0.0.0.0/0', // Noncompliant
+        cidrIp: '0.0.0.0/0', // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
         fromPort: 22,
         toPort: 22
       },
       {
         ipProtocol: 'tcp',
-        cidrIp: '0.0.0.0/0', // Noncompliant
+        cidrIp: '0.0.0.0/0', // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
         fromPort: 3389,
         toPort: 3389
       },
@@ -238,7 +238,7 @@ new ec2.CfnSecurityGroup(
       },
       {
         ipProtocol: '-1',
-        cidrIpv6: '::/0' // Noncompliant
+        cidrIpv6: '::/0' // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
       },
       {
         ipProtocol: 'tcp',
@@ -248,7 +248,7 @@ new ec2.CfnSecurityGroup(
         ipProtocol: 'tcp',
         fromPort: 3380,
         toPort: 3390,
-        cidrIpv6: '::/0' // Noncompliant
+        cidrIpv6: '::/0' // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
       },
       {
         ipProtocol: '-1',
@@ -288,13 +288,13 @@ new ec2.CfnSecurityGroupIngress(
   this,
   'ingress-all-ip-tcp-ssh', {
     ipProtocol: 'tcp',
-    cidrIp: '0.0.0.0/0', // Noncompliant
+    cidrIp: '0.0.0.0/0', // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
     fromPort: 22,
     toPort: 22,
     groupId: securityGroup.attrGroupId
   });
 
-const badIpV6 = '::/0';// Noncompliant
+const badIpV6 = '::/0';// Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
 
 new ec2.CfnSecurityGroupIngress(
   this,
@@ -328,7 +328,7 @@ new ec2.CfnSecurityGroupIngress(
 
 const nonCompliantIngress2 = {
   ipProtocol: '-1',
-  cidrIpv6: '::/0' // Noncompliant
+  cidrIpv6: '::/0' // Noncompliant {{Change this IP range to a subset of trusted IP addresses.}}
 };
 new ec2.CfnSecurityGroupIngress(
   this,

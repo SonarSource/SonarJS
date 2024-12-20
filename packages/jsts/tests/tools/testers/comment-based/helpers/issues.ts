@@ -23,8 +23,6 @@ const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
 const NON_COMPLIANT_PATTERN = RegExp(
   ' *Noncompliant' +
     LINE_ADJUSTMENT +
-    // issue count, ex: 2
-    '(?: +(?<issueCount>\\d+))?' +
     // quickfixes, ex: [[qf1,qf2]]
     ' *(?:' +
     QUICKFIX_ID +
@@ -86,11 +84,7 @@ export function extractLineIssues(file: FileIssues, comment: Comment) {
     throw new Error(`Invalid comment format at line ${comment.line}: ${comment.value}`);
   }
   const effectiveLine = extractEffectiveLine(comment.line, matcher);
-  const messages = extractIssueCountOrMessages(
-    comment.line,
-    matcher.groups?.issueCount,
-    matcher.groups?.messages,
-  );
+  const messages = extractMessages(matcher.groups?.messages);
   const lineIssues = new LineIssues(
     effectiveLine,
     messages,
@@ -105,23 +99,12 @@ export function extractLineIssues(file: FileIssues, comment: Comment) {
   }
 }
 
-function extractIssueCountOrMessages(
-  line: number,
-  issueCountGroup: string | undefined,
-  messageGroup: string | undefined,
-) {
-  if (messageGroup) {
-    if (issueCountGroup) {
-      throw new Error(
-        `Error, you can not specify issue count and messages at line ${line}, you have to choose either:` +
-          `\n  Noncompliant ${issueCountGroup}\nor\n  Noncompliant ${messageGroup}\n`,
-      );
-    }
+function extractMessages(messageGroup: string | undefined) {
+  if (typeof messageGroup !== 'undefined') {
     const messageContent = messageGroup.trim();
     return messageContent
       .substring('{{'.length, messageContent.length - '}}'.length)
       .split(/\}\} *\{\{/);
   }
-  const issueCount = issueCountGroup ? parseInt(issueCountGroup) : 1;
-  return new Array<string>(issueCount);
+  return [''];
 }

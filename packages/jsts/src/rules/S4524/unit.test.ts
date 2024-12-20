@@ -14,19 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('"default" clauses should be last', rule, {
-  valid: [
-    {
-      code: `switch (true) {}`,
-    },
-    {
-      code: `
+describe('S4524', () => {
+  it('S4524', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"default" clauses should be last', rule, {
+      valid: [
+        {
+          code: `switch (true) {}`,
+        },
+        {
+          code: `
         switch (z) {
           case "foo":
             console.log("Hello World")
@@ -37,19 +38,19 @@ ruleTester.run('"default" clauses should be last', rule, {
           default:
             console.log("Default message");
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         switch (z) {
         case "foo":
             console.log("Hello World")
             break;
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         switch (x) {
           case 1:
             console.log("1");
@@ -58,19 +59,19 @@ ruleTester.run('"default" clauses should be last', rule, {
           case 2:
             console.log("2");
         }`,
-      errors: [
-        {
-          message: 'Move this "default" clause to the end of this "switch" statement.',
-          line: 5,
-          endLine: 5,
-          column: 11,
-          endColumn: 18,
+          errors: [
+            {
+              message: 'Move this "default" clause to the end of this "switch" statement.',
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 18,
+            },
+          ],
         },
-      ],
-    },
 
-    {
-      code: `
+        {
+          code: `
         switch (y) {
           default: //Nomcompliant
             console.log("Default message");
@@ -82,7 +83,9 @@ ruleTester.run('"default" clauses should be last', rule, {
             console.log("42");
             break;
         }`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

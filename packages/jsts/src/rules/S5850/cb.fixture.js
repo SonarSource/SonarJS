@@ -63,22 +63,22 @@ let invalid = [
     ],
   },
   {
-    regex: /^a|b|cd/,    // Noncompliant
+    regex: /^a|b|cd/,    // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
     //      ^^^^^^^
     errors: 1,
   },
   {
-    regex: /a|b|c$/,   // Noncompliant
+    regex: /a|b|c$/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
     //      ^^^^^^
     errors: 1,
   },
   {
-    regex: /^a|(b|c)/,   // Noncompliant
+    regex: /^a|(b|c)/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
     //      ^^^^^^^^
     errors: 1,
   },
   {
-    regex: /(a|b)|c$/,   // Noncompliant
+    regex: /(a|b)|c$/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
     //      ^^^^^^^^
     errors: 1,
   },

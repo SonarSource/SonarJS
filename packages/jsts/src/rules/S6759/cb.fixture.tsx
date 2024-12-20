@@ -17,7 +17,10 @@ type BarProps = {
     y: string;
 }
 
-function Bar(props: BarProps) { // Noncompliant
+function Bar(props: BarProps) { // Noncompliant [[qf2]] {{Mark the props of the component as read-only.}}
+//           ^^^^^^^^^^^^^^^
+// fix@qf2 {{Mark the props as read-only}}
+// edit@qf2 [[sc=20;ec=28]] {{Readonly<BarProps>}}
     return (
         <div>{props.x}</div>
     );

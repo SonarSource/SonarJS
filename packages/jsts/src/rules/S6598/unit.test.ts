@@ -15,25 +15,31 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
+describe('S6598', () => {
+  it('S6598', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should reword the issue message`, rule, {
-  valid: [
-    {
-      code: `type Foo = () => number;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `interface Foo { (): number; }`,
-      errors: [
+    ruleTester.run(`Decorated rule should reword the issue message`, rule, {
+      valid: [
         {
-          message: 'Interface has only a call signature, you should use a function type instead.',
+          code: `type Foo = () => number;`,
         },
       ],
-      output: 'type Foo = () => number;',
-    },
-  ],
+      invalid: [
+        {
+          code: `interface Foo { (): number; }`,
+          errors: [
+            {
+              message:
+                'Interface has only a call signature, you should use a function type instead.',
+            },
+          ],
+          output: 'type Foo = () => number;',
+        },
+      ],
+    });
+  });
 });

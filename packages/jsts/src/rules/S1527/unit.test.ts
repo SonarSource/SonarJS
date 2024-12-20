@@ -14,27 +14,31 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 3, sourceType: 'script', allowReserved: true },
-});
+describe('S1527', () => {
+  it('S1527', () => {
+    const ruleTester = new DefaultParserRuleTester({
+      sourceType: 'script',
+      parserOptions: { ecmaVersion: 3, allowReserved: true },
+    });
 
-ruleTester.run('Future reserved words', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Future reserved words', rule, {
+      valid: [
+        {
+          code: `
       var _interface = {
         implements: true
       };
       if (_interface.implements) {}
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var implements; // NOK
 
       implements = 42; // ok, usage
@@ -48,34 +52,41 @@ ruleTester.run('Future reserved words', rule, {
         var extends; // NOK
       }
       `,
-      errors: [
-        {
-          message: `Rename "implements" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
-          line: 2,
-          endLine: 2,
-          column: 11,
-          endColumn: 21,
-        },
-        {
-          message: `Rename "interface" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
-          line: 7,
-        },
-        {
-          line: 8,
-        },
-        {
-          line: 9,
-        },
-        {
-          line: 10,
-        },
-        {
-          line: 11,
-        },
-        {
-          line: 12,
+          errors: [
+            {
+              message: `Rename "implements" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
+              line: 2,
+              endLine: 2,
+              column: 11,
+              endColumn: 21,
+            },
+            {
+              message: `Rename "interface" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
+              line: 7,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 8,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 9,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 10,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 11,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 12,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

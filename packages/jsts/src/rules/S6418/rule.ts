@@ -23,8 +23,7 @@ import {
   isLogicalExpression,
   isStringLiteral,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { meta, schema } from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
@@ -40,26 +39,6 @@ function message(name: string): string {
 
 let randomnessSensibility: number;
 let secretWordRegexps: RegExp[];
-
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        secretWords: {
-          type: 'string',
-        },
-        randomnessSensibility: {
-          type: 'number',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(

@@ -54,11 +54,11 @@ public class S6418 extends Check {
   private static class Config {
 
     String secretWords;
-    String randomnessSensibility;
+    double randomnessSensibility;
 
     Config(String secretWords, String randomnessSensibility) {
       this.secretWords = secretWords;
-      this.randomnessSensibility = randomnessSensibility;
+      this.randomnessSensibility = Double.parseDouble(randomnessSensibility);
     }
   }
 }

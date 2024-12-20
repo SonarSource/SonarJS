@@ -15,108 +15,112 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S1940', () => {
+  it('S1940', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('no-inverted-boolean-check', rule, {
-  valid: [
-    {
-      code: `if (!x) {}`,
-    },
-    {
-      code: `if (x == 1) {}`,
-    },
-    {
-      code: `if (!(x + 1)) {}`,
-    },
-    {
-      code: `if (+(x == 1)) {}`,
-    },
-    {
-      code: `!x ? 2 : 3`,
-    },
-  ],
-  invalid: [
-    // `==` => `!=`
-    {
-      code: `if (!(x == 1)) {}`,
-      errors: [
+    ruleTester.run('no-inverted-boolean-check', rule, {
+      valid: [
         {
-          ...error('!=', `if (x != 1) {}`),
-          line: 1,
-          endLine: 1,
-          column: 5,
-          endColumn: 14,
+          code: `if (!x) {}`,
+        },
+        {
+          code: `if (x == 1) {}`,
+        },
+        {
+          code: `if (!(x + 1)) {}`,
+        },
+        {
+          code: `if (+(x == 1)) {}`,
+        },
+        {
+          code: `!x ? 2 : 3`,
         },
       ],
-    },
-    // `!=` => `==`
-    {
-      code: `if (!(x != 1)) {}`,
-      errors: [error('==', `if (x == 1) {}`)],
-    },
-    // `===` => `!==`
-    {
-      code: `if (!(x === 1)) {}`,
-      errors: [error('!==', `if (x !== 1) {}`)],
-    },
-    // `!==` => `===`
-    {
-      code: `if (!(x !== 1)) {}`,
-      errors: [error('===', `if (x === 1) {}`)],
-    },
-    // `>` => `<=`
-    {
-      code: `if (!(x > 1)) {}`,
-      errors: [error('<=', `if (x <= 1) {}`)],
-    },
-    // `<` => `>=`
-    {
-      code: `if (!(x < 1)) {}`,
-      errors: [error('>=', `if (x >= 1) {}`)],
-    },
-    // `>=` => `<`
-    {
-      code: `if (!(x >= 1)) {}`,
-      errors: [error('<', `if (x < 1) {}`)],
-    },
-    // `<=` => `>`
-    {
-      code: `if (!(x <= 1)) {}`,
-      errors: [error('>', `if (x > 1) {}`)],
-    },
-    // ternary operator
-    {
-      code: `!(x != 1) ? 1 : 2`,
-      errors: [error('==', `x == 1 ? 1 : 2`)],
-    },
-    // not conditional
-    {
-      code: `foo(!(x === 1))`,
-      errors: [error('!==', `foo(x !== 1)`)],
-    },
-    {
-      code: `let foo = !(x <= 4)`,
-      errors: [error('>', `let foo = x > 4`)],
-    },
-    {
-      code: `let foo = !!(a < b)`,
-      errors: [error('>=', 'let foo = !(a >= b)')],
-    },
-  ],
-});
+      invalid: [
+        // `==` => `!=`
+        {
+          code: `if (!(x == 1)) {}`,
+          errors: [
+            {
+              ...error('!=', `if (x != 1) {}`),
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 14,
+            },
+          ],
+        },
+        // `!=` => `==`
+        {
+          code: `if (!(x != 1)) {}`,
+          errors: [error('==', `if (x == 1) {}`)],
+        },
+        // `===` => `!==`
+        {
+          code: `if (!(x === 1)) {}`,
+          errors: [error('!==', `if (x !== 1) {}`)],
+        },
+        // `!==` => `===`
+        {
+          code: `if (!(x !== 1)) {}`,
+          errors: [error('===', `if (x === 1) {}`)],
+        },
+        // `>` => `<=`
+        {
+          code: `if (!(x > 1)) {}`,
+          errors: [error('<=', `if (x <= 1) {}`)],
+        },
+        // `<` => `>=`
+        {
+          code: `if (!(x < 1)) {}`,
+          errors: [error('>=', `if (x >= 1) {}`)],
+        },
+        // `>=` => `<`
+        {
+          code: `if (!(x >= 1)) {}`,
+          errors: [error('<', `if (x < 1) {}`)],
+        },
+        // `<=` => `>`
+        {
+          code: `if (!(x <= 1)) {}`,
+          errors: [error('>', `if (x > 1) {}`)],
+        },
+        // ternary operator
+        {
+          code: `!(x != 1) ? 1 : 2`,
+          errors: [error('==', `x == 1 ? 1 : 2`)],
+        },
+        // not conditional
+        {
+          code: `foo(!(x === 1))`,
+          errors: [error('!==', `foo(x !== 1)`)],
+        },
+        {
+          code: `let foo = !(x <= 4)`,
+          errors: [error('>', `let foo = x > 4`)],
+        },
+        {
+          code: `let foo = !!(a < b)`,
+          errors: [error('>=', 'let foo = !(a >= b)')],
+        },
+      ],
+    });
 
-function error(invertedOperator: string, output: string): NodeRuleTester.TestCaseError {
-  return {
-    messageId: 'useOppositeOperator',
-    data: { invertedOperator },
-    suggestions: [
-      {
-        messageId: 'suggestOperationInversion',
-        output,
-      },
-    ],
-  };
-}
+    function error(invertedOperator: string, output: string) {
+      return {
+        messageId: 'useOppositeOperator',
+        data: { invertedOperator },
+        suggestions: [
+          {
+            messageId: 'suggestOperationInversion',
+            output,
+          },
+        ],
+      };
+    }
+  });
+});

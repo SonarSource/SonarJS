@@ -50,38 +50,38 @@ function non_compliant() {
 
   new CfnReplicationGroup(this, 'UnencryptedGroup'); // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //    ^^^^^^^^^^^^^^^^^^^
-  new CfnReplicationGroup(this, 'UnencryptedGroup', undefined); // Noncompliant
+  new CfnReplicationGroup(this, 'UnencryptedGroup', undefined); // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //    ^^^^^^^^^^^^^^^^^^^
-  new CfnReplicationGroup(this, 'UnencryptedGroup', {}); // Noncompliant
+  new CfnReplicationGroup(this, 'UnencryptedGroup', {}); // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //                                                  ^^
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
-    transitEncryptionEnabled: false // Noncompliant
+    transitEncryptionEnabled: false // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //                            ^^^^^
   });
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
-    'transitEncryptionEnabled': false // Noncompliant
+    'transitEncryptionEnabled': false // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //                              ^^^^^
   });
 
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
-    'transitEncryptionEnabled': undefined // Noncompliant
+    'transitEncryptionEnabled': undefined // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
   });
 
   const unencrypt = false;
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
-    transitEncryptionEnabled: unencrypt // Noncompliant
+    transitEncryptionEnabled: unencrypt // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //                            ^^^^^^^^^
   });
 
   const transitEncryptionEnabled = false;
   new CfnReplicationGroup(this, 'UnencryptedGroup', {
-    transitEncryptionEnabled // Noncompliant
+    transitEncryptionEnabled // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^
   });
 
   const topicProps = { transitEncryptionEnabled: false };
 
-  new CfnReplicationGroup(this, 'UnencryptedGroup', { // Noncompliant
+  new CfnReplicationGroup(this, 'UnencryptedGroup', { // Noncompliant {{Make sure that disabling transit encryption is safe here.}}
     ...topicProps
   });
 }
@@ -207,20 +207,20 @@ function ELB() {
     listeners: [
       {
         externalPort:10000,
-        externalProtocol: LoadBalancingProtocol.TCP, // Noncompliant
+        externalProtocol: LoadBalancingProtocol.TCP, // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
         //                ^^^^^^^^^^^^^^^^^^^^^^^^^
         internalPort:10000
       },
-      unsafeListener, // Noncompliant
+      unsafeListener, // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
       undefined
       ]
   });
 
-  loadBalancer.addListener(unsafeListener); // Noncompliant
+  loadBalancer.addListener(unsafeListener); // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
   loadBalancer.addListener(unknownListener);
   loadBalancer.addListener({
     externalPort:10001,
-    externalProtocol:LoadBalancingProtocol.TCP, // Noncompliant
+    externalProtocol:LoadBalancingProtocol.TCP, // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     internalPort:10001
   });
   loadBalancer.addListener({
@@ -230,7 +230,7 @@ function ELB() {
   });
   loadBalancer.addListener({
     externalPort:10002,
-    externalProtocol:LoadBalancingProtocol.HTTP, // Noncompliant
+    externalProtocol:LoadBalancingProtocol.HTTP, // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     internalPort:10002
   });
 
@@ -242,7 +242,7 @@ function ELB() {
   new CfnLoadBalancer(this, 'cfn-elb-tcp', {listeners: undefined});
   new CfnLoadBalancer(this, 'cfn-elb-tcp', {listeners: [unknownListener]});
   new CfnLoadBalancer(this, 'cfn-elb-tcp', {listeners: [{protocol: undefined}]});
-  new CfnLoadBalancer(this, 'cfn-elb-tcp', {listeners: [{protocol: 'TCP'}]}); // Noncompliant
+  new CfnLoadBalancer(this, 'cfn-elb-tcp', {listeners: [{protocol: 'TCP'}]}); // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
 
   new CfnLoadBalancer(this, 'cfn-elb-tcp', {
     listeners: [{
@@ -318,10 +318,10 @@ function ELBv2() {
     port: 8080
   }
 
-  alb.addListener('listener-http-explicit', listenerParams); //NonCompliant
+  alb.addListener('listener-http-explicit', listenerParams); //NonCompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
   //                                        ^^^^^^^^^^^^^^
   alb.addListener('listener-http-explicit', listenerParams2);
-  alb.addListener('listener-http-explicit', listenerParams3); //NonCompliant
+  alb.addListener('listener-http-explicit', listenerParams3); //NonCompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
   //                                        ^^^^^^^^^^^^^^^
 
   alb.addListener('listener-https-explicit', {
@@ -332,20 +332,20 @@ function ELBv2() {
 
   new ApplicationListener(this, 'listener-http-implicit-constructor', {
     loadBalancer: alb,
-    port: 8080, //Noncompliant
+    port: 8080, //Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
 //        ^^^^
     open: true
   });
 
-  new ApplicationListener(this, 'listener-http-implicit-constructor', listenerParams); //NonCompliant
+  new ApplicationListener(this, 'listener-http-implicit-constructor', listenerParams); //NonCompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
   //                                                                  ^^^^^^^^^^^^^^
   new ApplicationListener(this, 'listener-http-implicit-constructor', listenerParams2);
-  new ApplicationListener(this, 'listener-http-implicit-constructor', listenerParams3); //NonCompliant
+  new ApplicationListener(this, 'listener-http-implicit-constructor', listenerParams3); //NonCompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
   //                                                                  ^^^^^^^^^^^^^^^
 
   new ApplicationListener(this, 'listener-http-explicit-constructor', {
     loadBalancer: alb,
-    protocol: ApplicationProtocol.HTTP, // Noncompliant
+    protocol: ApplicationProtocol.HTTP, // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
 //            ^^^^^^^^^^^^^^^^^^^^^^^^
     port: 8080,
     open: true
@@ -400,14 +400,14 @@ function ELBv2() {
     port: 1234
   });
 
-  new NetworkListener(this, 'listener-tcp-implicit', {  // Noncompliant
+  new NetworkListener(this, 'listener-tcp-implicit', {  // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     loadBalancer: nlb,
     port: 8080
   });
 
   new NetworkListener(this, 'listener-tcp-explicit', {
     loadBalancer: nlb,
-    protocol: Protocol.TCP, //Noncompliant
+    protocol: Protocol.TCP, //Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     port: 8080
   });
   new NetworkListener(this, 'listener', nlbParams);// Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
@@ -432,21 +432,21 @@ function ELBv2() {
   new CfnListener(this, 'listener-http', {
     defaultActions: defaultActions,
     loadBalancerArn: alb.loadBalancerArn,
-    protocol: "HTTP", // Noncompliant
+    protocol: "HTTP", // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     port: 80
   });
 
   new CfnListener(this, 'listener-tcp', {
     defaultActions: defaultActions,
     loadBalancerArn: alb.loadBalancerArn,
-    protocol: "TCP", // Noncompliant
+    protocol: "TCP", // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     port: 80
   });
 
   new CfnListener(this, 'listener-tcp', {
     defaultActions: defaultActions,
     loadBalancerArn: alb.loadBalancerArn,
-    protocol: "tcp", // Noncompliant
+    protocol: "tcp", // Noncompliant {{Make sure that using network protocols without an SSL/TLS underlay is safe here.}}
     port: 80
   });
 

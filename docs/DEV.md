@@ -164,9 +164,9 @@ The contents of the test code have the following structure:
 
 ```javascript
 some.clean.code();
-some.faulty.code(); // Noncompliant N [[qf1,qf2,...]] {{Optional message to assert}}
+some.faulty.code(); // Noncompliant [[qf1,qf2,...]] {{Message to assert}}
 //   ^^^^^^
-// fix@qf1 {{Optional suggestion description}}
+// fix@qf1 {{Suggestion description}}
 // edit@qf1 [[sc=1;ec=5]] {{text to replace line from [sc] column to [ec] column}}
 faulty.setFaultyParam(true);
 //     ^^^^^^^^^^^^^^< {{Optional secondary message to assert}}
@@ -196,18 +196,12 @@ You can find an example at [the bottom of this document](#examples).
 
 #### Tests syntax
 
-Given the above test snippet: the issue primary location (`// ^^^^`), issue messages (`{{...}}`), secondary location(s) (`// ^^^<`), issues count (`N`) and quick fixes are optional.
-
-`N` is an integer defining the amount of issues will be reported in the line.
-
-Only one of the methods (`{{messageN}}+` OR `N`) to define the expected issues can be used in a `Noncompliant` line. If you set both `N` and messages, the framework will throw an error.
-
-If no `N` nor messages are provided, the engine will expect one issue to be raised. Meaning, `//Noncompliant` is equivalent to `//Noncompliant 1`.
+Given the above test snippet, issue messages (`{{...}}`) and quick fixes (if the rule provides them) are mandatory. The issue primary location (`// ^^^^`) and secondary location(s) (`// ^^^<`) are optional.
 
 `Noncompliant` lines will be associated by default to the line of code where they are writen. The syntax `@line_number` allows for an issue to be associated to another line:
 
 ```javascript
-// Noncompliant@2 N [[qf1,qf2,...]] {{Optional message to assert}}
+// Noncompliant@2 [[qf1,qf2,...]] {{Optional message to assert}}
 some.faulty.code();
 ```
 

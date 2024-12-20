@@ -14,67 +14,72 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S2376', () => {
+  it('S2376', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Property getters and setters should come in pairs`, rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run(`Property getters and setters should come in pairs`, rule, {
+      valid: [
+        {
+          code: `
       class C {
         get m() { return this.a; }
         set m(a) { this.a = a; }
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       class C {
         @Input()
         set m(a) { this.a = a; }
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
 class C {
   get m() { return this.a; }
   set m(a) { this.a = a; }
 }`,
-      options: [{ getWithoutSet: true }],
-    },
-  ],
-  invalid: [
-    {
-      code: `
+          options: [{ getWithoutSet: true }],
+        },
+      ],
+      invalid: [
+        {
+          code: `
       class C {
         set m(a) { this.a = a; }
       }`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       class C {
         @Input
         set m(a) { this.a = a; }
       }`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       class C {
         @NonAngularInput()
         set m(a) { this.a = a; }
       }`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
 class C {
   get m() { return this.a; }
 }`,
-      options: [{ getWithoutSet: true }],
-      errors: 1,
-    },
-  ],
+          options: [{ getWithoutSet: true }],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

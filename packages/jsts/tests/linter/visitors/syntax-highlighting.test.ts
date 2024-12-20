@@ -20,7 +20,7 @@ import {
   TextType,
 } from '../../../src/linter/visitors/syntax-highlighting.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

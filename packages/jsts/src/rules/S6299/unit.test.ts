@@ -15,28 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const parserOptions = {
-  ecmaVersion: 2018,
-  sourceType: 'module',
-};
+import parser from 'vue-eslint-parser';
 
-const ruleTesterForVue = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('vue-eslint-parser')),
-  parserOptions,
-});
-const ruleTester = new TypeScriptRuleTester();
+describe('S6299', () => {
+  it('S6299', () => {
+    const ruleTesterForVue = new RuleTester({
+      parser,
+    });
+    const ruleTester = new RuleTester();
 
-const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
-const testName = 'Disabling Vue.js built-in escaping is security-sensitive';
+    const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
+    const testName = 'Disabling Vue.js built-in escaping is security-sensitive';
 
-ruleTesterForVue.run(testName, rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterForVue.run(testName, rule, {
+      valid: [
+        {
+          code: `
       <template>
         <p class="footer"></p>
       </template>
@@ -44,20 +41,20 @@ ruleTesterForVue.run(testName, rule, {
         alert('hello');
       </script>
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       <template>
       <div>
         <!-- normal href which is not a directive -->
         <a href="tainted">click here1</a> 
       </div>
       </template>`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       <template>
         <p v-html="innerHtml"></p>
       </template>
@@ -65,18 +62,18 @@ ruleTesterForVue.run(testName, rule, {
 
       </script>
       `,
-      errors: [
-        {
-          message,
-          line: 3,
-          column: 12,
-          endLine: 3,
-          endColumn: 30,
+          errors: [
+            {
+              message,
+              line: 3,
+              column: 12,
+              endLine: 3,
+              endColumn: 30,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       <template>
       <div>
         <a :href="tainted">click here1</a> <!-- Noncompliant -->
@@ -85,34 +82,34 @@ ruleTesterForVue.run(testName, rule, {
       </div>
       </template>
       `,
-      errors: [
-        { message, line: 4, column: 12, endLine: 4, endColumn: 27 },
-        { message, line: 6, column: 12, endLine: 6, endColumn: 33 },
+          errors: [
+            { message, line: 4, column: 12, endLine: 4, endColumn: 27 },
+            { message, line: 6, column: 12, endLine: 6, endColumn: 33 },
+          ],
+        },
       ],
-    },
-  ],
-});
+    });
 
-ruleTester.run(`${testName} JSX`, rule, {
-  valid: [{ code: `let x = <div class="bar">foo</div>` }],
-  invalid: [
-    {
-      code: `
+    ruleTester.run(`${testName} JSX`, rule, {
+      valid: [{ code: `let x = <div class="bar">foo</div>` }],
+      invalid: [
+        {
+          code: `
       let x = <div domPropsInnerHTML={this.message}></div>
       `,
-      errors: [{ message, line: 2, column: 20, endLine: 2, endColumn: 52 }],
-    },
-  ],
-});
+          errors: [{ message, line: 2, column: 20, endLine: 2, endColumn: 52 }],
+        },
+      ],
+    });
 
-ruleTester.run(`${testName} JS`, rule, {
-  valid: [
-    {
-      code: `let x = { domProps: { }} `,
-    },
-    { code: `let x = { domProps: { prop: 'foo' } } ` },
-    {
-      code: `
+    ruleTester.run(`${testName} JS`, rule, {
+      valid: [
+        {
+          code: `let x = { domProps: { }} `,
+        },
+        { code: `let x = { domProps: { prop: 'foo' } } ` },
+        {
+          code: `
        createElement({
                 attrs: {
                     href: tainted 
@@ -120,9 +117,9 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
        createElement('foo', {
                 attrs: {
                     bar: 'x' 
@@ -130,9 +127,9 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")
     `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
        foo('foo', {
                 attrs: {
                     bar: 'x' 
@@ -140,11 +137,11 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")
     `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function f (createElement) {
           return createElement(
             'div',
@@ -157,11 +154,11 @@ ruleTester.run(`${testName} JS`, rule, {
           );
         }
       `,
-      errors: [{ message, line: 7, column: 17, endLine: 7, endColumn: 36 }],
-    },
+          errors: [{ message, line: 7, column: 17, endLine: 7, endColumn: 36 }],
+        },
 
-    {
-      code: `
+        {
+          code: `
        Vue.component('custom-element2', {
           render: function (createElement) {
             return createElement('a', {
@@ -171,11 +168,11 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")}})
       `,
-      errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
-    },
+          errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
+        },
 
-    {
-      code: `
+        {
+          code: `
        Vue.component('custom-element2', {
           render: function (h) {
             return h('a', {
@@ -185,11 +182,11 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")}})
       `,
-      errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
-    },
+          errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
+        },
 
-    {
-      code: `
+        {
+          code: `
        createElement('foo',{
                 attrs: {
                     href: tainted 
@@ -197,7 +194,9 @@ ruleTester.run(`${testName} JS`, rule, {
             },
             "click here2")
     `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -136,21 +136,21 @@ function renderHello3() {
 }
 
 function renderHello4() {
-  MustacheModule.escape = text => text; // Noncompliant
+  MustacheModule.escape = text => text; // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
 }
 
 function renderHello5() {
   const invalidSanitizer = text => text;
-  MustacheModule.escape = invalidSanitizer; // Noncompliant
+  MustacheModule.escape = invalidSanitizer; // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
 }
 
 function renderHello6() {
   const invalidSanitizer = function(text) {return text;};
-  MustacheModule.escape = invalidSanitizer; // Noncompliant
+  MustacheModule.escape = invalidSanitizer; // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
 }
 
   var templateM = document.getElementById('template').innerHTML;
-  Mustache.escape = function(text) {return text;}; // Noncompliant
+  Mustache.escape = function(text) {return text;}; // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
 //^^^^^^^^^^^^^^^
   var renderedM = Mustache.render(templateM, { name: inputName });
   document.getElementById('target').innerHTML = rendered;
