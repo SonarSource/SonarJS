@@ -910,29 +910,38 @@ describe('analyzeJSTS', () => {
   it('should populate dependencies after analysis', async () => {
     const baseDir = path.join(currentPath, 'fixtures', 'dependencies');
     const linter = new Linter();
-    linter.defineRule('custom-rule-file', {
-      create(context) {
-        return {
-          CallExpression(node) {
-            // Necessarily call 'getDependencies' to populate the cache of dependencies
-            const dependencies = getDependencies(toUnixPath(context.filename), baseDir);
-            if (dependencies.size) {
-              context.report({
-                node: node.callee,
-                message: 'call',
-              });
-            }
+    const linterConfig: Linter.Config = {
+      plugins: {
+        sonarjs: {
+          rules: {
+            'custom-rule-file': {
+              create(context) {
+                return {
+                  CallExpression(node) {
+                    // Necessarily call 'getDependencies' to populate the cache of dependencies
+                    const dependencies = getDependencies(toUnixPath(context.filename), baseDir);
+                    if (dependencies.size) {
+                      context.report({
+                        node: node.callee,
+                        message: 'call',
+                      });
+                    }
+                  },
+                };
+              },
+            },
           },
-        };
+        },
       },
-    } as Rule.RuleModule);
+      rules: { 'sonarjs/custom-rule-file': 'error' },
+      files: ['**/*.js'],
+    };
     const filePath = path.join(currentPath, 'fixtures', 'dependencies', 'index.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
-    linter.verify(
-      sourceCode,
-      { rules: { 'custom-rule-file': 'error' } },
-      { filename: filePath, allowInlineConfig: false },
-    );
+    linter.verify(sourceCode, linterConfig, {
+      filename: filePath,
+      allowInlineConfig: false,
+    });
     const { dependencies } = getTelemetry();
     expect(dependencies).toStrictEqual([
       {
