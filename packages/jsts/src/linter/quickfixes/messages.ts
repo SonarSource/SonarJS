@@ -70,7 +70,7 @@ const quickFixMessages = new Map<string, string>([
 export function getQuickFixMessage(ruleKey: string): string {
   const message = quickFixMessages.get(ruleKey);
   if (!message) {
-    if (ruleKey === 'no-duplicates' || ruleKey === 'S3863') {
+    if (ruleKey === 'S3863') {
       // TODO  workaround for eslint-plugin-import/no-duplicates, rule doesn't provide message for fix
       return 'Remove this duplicate import';
     }

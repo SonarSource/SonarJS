@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadCustomRules } from './bundle-loader.js';
+import { Linter, Rule, SourceCode } from 'eslint';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -23,40 +22,55 @@ import { debug } from '../../../shared/src/helpers/logging.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { createLinterConfig } from './config/linter-config.js';
+import { customRules as internalCustomRules } from './custom-rules/rules.js';
+import { getContext } from '../../../shared/src/helpers/context.js';
+import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import path from 'path';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
- * having the option to create a Linter without any additional rules
- * loaded, aside of the preexisting ESLint core rules.
+ * having the option to create a Linter without any rules enabled
  *
- * @param inputRules the quality profile rules, enabled rules
+ * @param inputRules the enabled rules
  * @param environments the JavaScript environments
  * @param globals the global variables
- * @param ruleBundles the bundles of rules to load in the linter
- * @param customRules array of rules to load in the linter
  */
-export interface WrapperOptions {
+interface WrapperOptions {
   inputRules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
-  ruleBundles?: string[];
-  customRules?: CustomRule[];
   workingDirectory?: string;
 }
-
-/**
- * When a linter is created, by default all these bundles of rules will
- * be loaded into the linter internal rules map. This behaviour can be
- * adjusted by passing which bundles, if any, should be loaded instead.
- * The order of this array is important here. Rules from a previous bundle
- * will be overridden by the implementation of the same rule key in a
- * subsequent bundle.
- */
-const defaultRuleBundles = ['internalRules', 'contextRules', 'internalCustomRules'];
 
 interface LinterConfigurationKey {
   language: JsTsLanguage;
   fileType: FileType;
+}
+
+/**
+ * We create the ESLint plugin with all rules available.
+ *
+ * First: the internal rules, i.e. rules in the packages/jsts/src/rules folder
+ */
+export const rules: Record<string, Rule.RuleModule> = {
+  ...internalRules,
+};
+/**
+ * Second: Load internal custom rules
+ *
+ * These are rules used internally by SonarQube to have the symbol highlighting and
+ * the cognitive complexity metrics.
+ */
+internalCustomRules.forEach((rule: CustomRule) => {
+  rules[rule.ruleId] = rule.ruleModule;
+});
+
+async function loadRulesFromBundle(ruleBundle: string) {
+  const { rules: bundleRules } = await import(new URL(ruleBundle).toString());
+  bundleRules.forEach((rule: CustomRule) => {
+    rules[rule.ruleId] = rule.ruleModule;
+    debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
+  });
 }
 
 /**
@@ -101,15 +115,12 @@ export class LinterWrapper {
    * Constructs an ESLint linter wrapper
    *
    * Constructing a linter wrapper consists in building the rule database
-   * the internal ESLint linter shall consider during linting. Furthermore,
-   * it creates a linting configuration that configures which rules should
-   * be used on linting based on the active quality profile and file type.
+   * the internal ESLint linter shall consider during linting.
    *
-   * The order of defining rules is important here because internal rules
-   * and external ones might share the same name by accident, which would
-   * unexpectedly overwrite the behaviour of the internal one in favor of
-   * the external one. This is why some internal rules are named with the
-   * prefix `sonar-`, e.g., `sonar-no-fallthrough`.
+   * The working directory of the ESLint Linter needs to be configured to a path
+   * that contains all files that will be analyzed, as the linter.verify process
+   * will ignore any file external to that path:
+   * https://github.com/eslint/rewrite/blob/0e09a420009796ceb4157ebe0dcee1348fdc4b75/packages/config-array/src/config-array.js#L865
    *
    * @param options the wrapper's options
    */
@@ -120,8 +131,15 @@ export class LinterWrapper {
   }
 
   async init() {
-    await loadBundles(this.linter, this.options.ruleBundles ?? defaultRuleBundles);
-    loadCustomRules(this.linter, this.options.customRules);
+    /**
+     * Context bundles define a set of external custom rules (like the taint analysis rule)
+     * including rule keys and rule definitions that cannot be provided to the linter
+     * wrapper using the same feeding channel as rules from the active quality profile.
+     */
+    const { bundles } = getContext();
+    for (const ruleBundle of bundles) {
+      await loadRulesFromBundle(ruleBundle);
+    }
     this.config = this.createConfig();
   }
 
@@ -148,18 +166,17 @@ export class LinterWrapper {
     let linterConfig = this.getConfig(key);
     if (!linterConfig) {
       // we create default linter config with internal rules only which provide metrics, tokens, etc...
-      linterConfig = createLinterConfig(
-        [],
-        this.linter.getRules(),
-        this.options.environments,
-        this.options.globals,
-      );
+      linterConfig = createLinterConfig([], rules, this.options.environments, this.options.globals);
       this.config.set(key, linterConfig);
     }
-    const config = { ...linterConfig, settings: { ...linterConfig.settings, fileType } };
+    const config = {
+      ...linterConfig,
+      files: [`**/${path.posix.basename(toUnixPath(filePath))}`],
+      settings: { ...linterConfig.settings, fileType },
+    };
     const options = { filename: filePath, allowInlineConfig: false };
     const messages = this.linter.verify(sourceCode, config, options);
-    return transformMessages(messages, { sourceCode, rules: this.linter.getRules() });
+    return transformMessages(messages, { sourceCode, rules });
   }
 
   /**
@@ -190,11 +207,10 @@ export class LinterWrapper {
       );
     });
     const configByKey: Map<LinterConfigurationKey, Linter.Config> = new Map();
-    const linterRules = this.linter.getRules();
-    rulesByKey.forEach((rules, key) => {
+    rulesByKey.forEach((ruleConfigs, key) => {
       configByKey.set(
         key,
-        createLinterConfig(rules, linterRules, this.options.environments, this.options.globals),
+        createLinterConfig(ruleConfigs, rules, this.options.environments, this.options.globals),
       );
     });
     return configByKey;

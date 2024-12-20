@@ -67,18 +67,18 @@ export type LintingResult = {
  */
 export function transformMessages(
   messages: Linter.LintMessage[],
-  ctx: { sourceCode: SourceCode; rules: Map<string, Rule.RuleModule> },
+  ctx: { sourceCode: SourceCode; rules: Record<string, Rule.RuleModule> },
 ): LintingResult {
   const issues: Issue[] = [];
   const ucfgPaths: string[] = [];
 
   for (const message of messages) {
-    if (message.ruleId === 'ucfg') {
+    if (message.ruleId === 'sonarjs/ucfg') {
       ucfgPaths.push(message.message);
     } else {
       let issue = convertMessage(ctx.sourceCode, message);
       if (issue !== null) {
-        issue = normalizeLocation(decodeSonarRuntime(ctx.rules.get(issue.ruleId), issue));
+        issue = normalizeLocation(decodeSonarRuntime(ctx.rules[issue.ruleId], issue));
         issues.push(issue);
       }
     }

@@ -16,7 +16,7 @@
  */
 import { countStatements } from '../../../../src/linter/visitors/metrics/statements.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

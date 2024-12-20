@@ -14,5 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './helpers/index.js';
-export * from './testers/index.js';
+package org.sonar.javascript.checks;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+class S4275Test {
+
+  @Test
+  void configurations() {
+    S4275 check = new S4275();
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"allowImplicit\":false}]");
+    check.allowImplicit = true;
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"allowImplicit\":true}]");
+  }
+}
