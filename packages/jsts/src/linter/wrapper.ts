@@ -171,7 +171,7 @@ export class LinterWrapper {
     }
     const config = {
       ...linterConfig,
-      files: [`**/${path.posix.basename(toUnixPath(filePath))}`],
+      files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
     const options = { filename: filePath, allowInlineConfig: false };
