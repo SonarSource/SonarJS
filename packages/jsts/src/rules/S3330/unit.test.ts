@@ -14,37 +14,37 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-const ruleTesterTs = new TypeScriptRuleTester();
+describe('S3330', () => {
+  it('S3330', () => {
+    const ruleTesterJs = new RuleTester();
+    const ruleTesterTs = new RuleTester();
 
-const cookieSessionTestCases = {
-  valid: [
-    {
-      code: `
+    const cookieSessionTestCases = {
+      valid: [
+        {
+          code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
         httpOnly: true,
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
       }); // Compliant: by default httpOnly is set to true on https connection
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession("wrong argument");
       var session1 = cookieSession();
@@ -57,31 +57,31 @@ const cookieSessionTestCases = {
         httpOnly: httpOnlyValue,
       });
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
         httpOnly: false,
       });
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5}]}',
-          line: 3,
-          endLine: 3,
-          column: 22,
-          endColumn: 35,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5}]}',
+              line: 3,
+              endLine: 3,
+              column: 22,
+              endColumn: 35,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var cookieSession = require('cookie-session');
       const options = {
         secret: "ddfdsfd",
@@ -89,20 +89,20 @@ const cookieSessionTestCases = {
       };
       var session1 = cookieSession(options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}',
-          line: 7,
-          endLine: 7,
-          column: 22,
-          endColumn: 35,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}',
+              line: 7,
+              endLine: 7,
+              column: 22,
+              endColumn: 35,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var cookieSession = require('cookie-session');
       const ishttpOnly = false;
       const options = {
@@ -111,25 +111,25 @@ const cookieSessionTestCases = {
       };
       var session1 = cookieSession(options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":25,"line":3,"endColumn":30,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}',
-          line: 8,
-          endLine: 8,
-          column: 22,
-          endColumn: 35,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":25,"line":3,"endColumn":30,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}',
+              line: 8,
+              endLine: 8,
+              column: 22,
+              endColumn: 35,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
       ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+    };
 
-const cookiesTestCases = {
-  valid: [
-    {
-      code: `
+    const cookiesTestCases = {
+      valid: [
+        {
+          code: `
           var Cookies = require('cookies');
           var cookies = new Cookies(req, res, 
             { 
@@ -140,9 +140,9 @@ const cookiesTestCases = {
           }); // Compliant: by default httpOnly is set to true on https connection
           cookies.set('LastVisit', new Date().toISOString(), { signed: true });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           var Cookies = require('cookies')
           var cookies = new Cookies(req, res, 
             { 
@@ -154,9 +154,9 @@ const cookiesTestCases = {
             httpOnly: true 
           });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
           var Cookies = require('cookies')
           var cookies = new Cookies(req, res, 
             { 
@@ -175,11 +175,11 @@ const cookiesTestCases = {
             httpOnly: httpOnlyValue 
           });
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       cookies.set('LastVisit', new Date().toISOString(), { 
@@ -187,20 +187,20 @@ const cookiesTestCases = {
         httpOnly: false
       });
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6}]}',
-          line: 4,
-          endLine: 4,
-          column: 7,
-          endColumn: 18,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6}]}',
+              line: 4,
+              endLine: 4,
+              column: 7,
+              endColumn: 18,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       var options = { 
@@ -209,20 +209,20 @@ const cookiesTestCases = {
       };
       cookies.set('LastVisit', new Date().toISOString(), options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}',
-          line: 8,
-          endLine: 8,
-          column: 7,
-          endColumn: 18,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}',
+              line: 8,
+              endLine: 8,
+              column: 7,
+              endColumn: 18,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       var httpOnly = false;
@@ -232,31 +232,31 @@ const cookiesTestCases = {
       };
       cookies.set('LastVisit', new Date().toISOString(), options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}',
-          line: 9,
-          endLine: 9,
-          column: 7,
-          endColumn: 18,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}',
+              line: 9,
+              endLine: 9,
+              column: 7,
+              endColumn: 18,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
       ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+    };
 
-const csurfTestCases = {
-  valid: [
-    {
-      code: `
+    const csurfTestCases = {
+      valid: [
+        {
+          code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { httpOnly: true }});
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var csrf = require('csurf');
       var csrfProtection = csrf("unknown argument");
       var csrfProtection = csrf({ cookie: "unknown"});
@@ -273,68 +273,68 @@ const csurfTestCases = {
       }
       var csrfProtection = csrf({ cookie: cookieValues});
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { httpOnly: false }}); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":54,"line":3,"endColumn":59,"endLine":3}]}',
-          line: 3,
-          endLine: 3,
-          column: 28,
-          endColumn: 32,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":54,"line":3,"endColumn":59,"endLine":3}]}',
+              line: 3,
+              endLine: 3,
+              column: 28,
+              endColumn: 32,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var csrf = require('csurf');
       var cookieObject = {cookie: {httpOnly : false}};
       var csrfProtection = csrf(cookieObject); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":46,"line":3,"endColumn":51,"endLine":3},{"column":25,"line":3,"endColumn":53,"endLine":3}]}',
-          line: 4,
-          endLine: 4,
-          column: 28,
-          endColumn: 32,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":46,"line":3,"endColumn":51,"endLine":3},{"column":25,"line":3,"endColumn":53,"endLine":3}]}',
+              line: 4,
+              endLine: 4,
+              column: 28,
+              endColumn: 32,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: true}); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}',
-          line: 3,
-          endLine: 3,
-          column: 28,
-          endColumn: 32,
+          errors: [
+            {
+              message:
+                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}',
+              line: 3,
+              endLine: 3,
+              column: 28,
+              endColumn: 32,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
       ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+    };
 
-const expressSessionTestCases = {
-  valid: [
-    {
-      code: `
+    const expressSessionTestCases = {
+      valid: [
+        {
+          code: `
       var express = require('express');
       var session = require('express-session');
       
@@ -350,9 +350,9 @@ const expressSessionTestCases = {
         }
       })) // Compliant: by default httpOnly is set to true on https
            `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var express = require('express');
       var session = require('express-session');
 
@@ -369,9 +369,9 @@ const expressSessionTestCases = {
         }
       }));
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var express = require('express');
       var session = require('express-session');
 
@@ -393,11 +393,11 @@ const expressSessionTestCases = {
         cookie: cookieValue
       }));
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: ` 
+        },
+      ],
+      invalid: [
+        {
+          code: ` 
       var express = require('express');
       var session = require('express-session');
 
@@ -414,51 +414,53 @@ const expressSessionTestCases = {
         }
       }));
             `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-ruleTesterJs.run(
-  '[JS express-session] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  expressSessionTestCases,
-);
-ruleTesterTs.run(
-  '[TS express-session] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  expressSessionTestCases,
-);
+    ruleTesterJs.run(
+      '[JS express-session] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      expressSessionTestCases,
+    );
+    ruleTesterTs.run(
+      '[TS express-session] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      expressSessionTestCases,
+    );
 
-ruleTesterJs.run(
-  '[JS cookie-session] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  cookieSessionTestCases,
-);
-ruleTesterTs.run(
-  '[TS cookie-session] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  cookieSessionTestCases,
-);
+    ruleTesterJs.run(
+      '[JS cookie-session] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      cookieSessionTestCases,
+    );
+    ruleTesterTs.run(
+      '[TS cookie-session] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      cookieSessionTestCases,
+    );
 
-ruleTesterJs.run(
-  '[JS cookies] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  cookiesTestCases,
-);
-ruleTesterTs.run(
-  '[TS cookies] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  cookiesTestCases,
-);
+    ruleTesterJs.run(
+      '[JS cookies] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      cookiesTestCases,
+    );
+    ruleTesterTs.run(
+      '[TS cookies] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      cookiesTestCases,
+    );
 
-ruleTesterJs.run(
-  '[JS csurf] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  csurfTestCases,
-);
-ruleTesterTs.run(
-  '[TS csurf] Creating cookies without the "httpOnly" flag is security-sensitive',
-  rule,
-  csurfTestCases,
-);
+    ruleTesterJs.run(
+      '[JS csurf] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      csurfTestCases,
+    );
+    ruleTesterTs.run(
+      '[TS csurf] Creating cookies without the "httpOnly" flag is security-sensitive',
+      rule,
+      csurfTestCases,
+    );
+  });
+});

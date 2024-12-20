@@ -1,4 +1,4 @@
-[1, 2].forEach(async num => { // Noncompliant
+[1, 2].forEach(async num => { // Noncompliant {{Promise returned in function argument where a void return was expected.}}
   await Promise.resolve(num);
 });
 
@@ -22,6 +22,6 @@ if (Promise.resolve(42)) { // Noncompliant {{Expected non-Promise value in a boo
 import { EventEmitter } from 'events';
 
 const eventEmitter = new EventEmitter();
-eventEmitter.on('some-event', async () => { // Noncompliant
+eventEmitter.on('some-event', async () => { // Noncompliant {{Promise returned in function argument where a void return was expected.}}
   await Promise.resolve();
 });

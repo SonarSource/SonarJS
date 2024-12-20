@@ -14,7 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './babel/index.js';
-export * from './comment-based/index.js';
-export * from './javascript/index.js';
-export * from './typescript/index.js';
+class FakeWebChannel extends EventTarget {
+  /**
+   * @param {!WebChannel.MessageData} messageData
+   * @override
+   */
+  constructor(messageData) {
+    super();
+
+    /** @private {?boolean} */
+    this.open_ = null;
+
+    /** @private @const {!Array<!WebChannel.MessageData>} */
+    this.messages_ = [];
+  }
+}

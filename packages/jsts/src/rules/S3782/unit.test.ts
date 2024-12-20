@@ -15,148 +15,150 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const eslintRuleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-eslintRuleTester.run('Correct types should be used [js]', rule, {
-  valid: [
-    {
-      code: `Math.abs("42"); // not reported without type information`,
-    },
-  ],
-  invalid: [],
-});
+describe('S3782', () => {
+  it('S3782', () => {
+    const eslintRuleTester = new DefaultParserRuleTester();
+    eslintRuleTester.run('Correct types should be used [js]', rule, {
+      valid: [
+        {
+          code: `Math.abs("42"); // not reported without type information`,
+        },
+      ],
+      invalid: [],
+    });
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
-typeScriptRuleTester.run('Correct types should be used', rule, {
-  valid: [
-    {
-      code: `
+    const typeScriptRuleTester = new RuleTester();
+    typeScriptRuleTester.run('Correct types should be used', rule, {
+      valid: [
+        {
+          code: `
         var arr = [];
         arr.indexOf('x') === 7;
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var str = "str";
       str.charAt(5);
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var str = "str";
       str.charAt(unknown);
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         var slice = [].slice;
         slice.call(arguments, 1);
       `,
-    },
-    {
-      code: `Math.max(1, 2)`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `Math.max(1, 2)`,
+        },
+        {
+          code: `
         function upperToHyphenLower(match, offset, string) {
          return (offset > 0 ? '-' : '') + match.toLowerCase();
         }
         "foo".replace('dog', upperToHyphenLower);
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
        var arr = [1, 2, 3];
             var i = 0;
             arr.forEach(function (a) {
                 i += 1;                
             });
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const regex = RegExp('foo*');
         regex.test(false);
         `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var str = "str";
       str.charAt("5");
             `,
-      errors: [
-        {
-          message: `Verify that argument is of correct type: expected 'number' instead of 'string'.`,
-          line: 3,
-          column: 18,
-          endLine: 3,
-          endColumn: 21,
+          errors: [
+            {
+              message: `Verify that argument is of correct type: expected 'number' instead of 'string'.`,
+              line: 3,
+              column: 18,
+              endLine: 3,
+              endColumn: 21,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       var str = "str";
       str.charAt({x: "5"});
             `,
-      errors: [
-        {
-          message: `Verify that argument is of correct type: expected 'number' instead of '{ x: string; }'.`,
-          line: 3,
-          column: 18,
-          endLine: 3,
-          endColumn: 26,
+          errors: [
+            {
+              message: `Verify that argument is of correct type: expected 'number' instead of '{ x: string; }'.`,
+              line: 3,
+              column: 18,
+              endLine: 3,
+              endColumn: 26,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       Math.abs("42")
       `,
-      errors: [
-        {
-          message: `Verify that argument is of correct type: expected 'number' instead of 'string'.`,
-          line: 2,
-          column: 16,
-          endLine: 2,
-          endColumn: 20,
+          errors: [
+            {
+              message: `Verify that argument is of correct type: expected 'number' instead of 'string'.`,
+              line: 2,
+              column: 16,
+              endLine: 2,
+              endColumn: 20,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: ` var x = [];
+        {
+          code: ` var x = [];
         x.slice(false);
       `,
-      errors: [
-        {
-          message:
-            "Verify that argument is of correct type: expected 'number' instead of 'boolean'.",
-          line: 2,
-          column: 17,
-          endLine: 2,
-          endColumn: 22,
+          errors: [
+            {
+              message:
+                "Verify that argument is of correct type: expected 'number' instead of 'boolean'.",
+              line: 2,
+              column: 17,
+              endLine: 2,
+              endColumn: 22,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
         (5).toString("hex");
         
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         new Date().setTime("a");
         
       `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

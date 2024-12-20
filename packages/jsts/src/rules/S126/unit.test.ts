@@ -14,46 +14,47 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
-  valid: [
-    {
-      code: `
+const ruleTester = new RuleTester();
+describe('S126', () => {
+  it('S126', () => {
+    ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
+      valid: [
+        {
+          code: `
       if (x == 0) {
         x = 42;
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       if (x == 0)
         x = 42;
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       if (x == 0) {
         x = 42;
       } else {
         x = -42;
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       if (x == 0)
         x = 42;
       else
         x = -42;
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       if (x == 0) {
         x == 42;
       } else {
@@ -62,11 +63,11 @@ ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rul
         }
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       if (x == 0) {
         x = 42;
       } else if (x == 1) {
@@ -75,33 +76,35 @@ ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rul
         x = 0;
       }
       `,
-      errors: [
-        {
-          messageId: 'addMissingElseClause',
-          line: 6,
-          endLine: 6,
-          column: 9,
-          endColumn: 16,
+          errors: [
+            {
+              messageId: 'addMissingElseClause',
+              line: 6,
+              endLine: 6,
+              column: 9,
+              endColumn: 16,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       if (x == 0)
         x == 42;
       else
         if (x == 1)
           x == -42;
       `,
-      errors: [
-        {
-          messageId: 'addMissingElseClause',
-          line: 4,
-          endLine: 5,
-          column: 7,
-          endColumn: 11,
+          errors: [
+            {
+              messageId: 'addMissingElseClause',
+              line: 4,
+              endLine: 5,
+              column: 7,
+              endColumn: 11,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

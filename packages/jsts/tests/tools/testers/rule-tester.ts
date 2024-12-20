@@ -14,10 +14,89 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from 'eslint';
-import { describe, it } from 'node:test';
+import { RuleTester as ESLintRuleTester } from 'eslint';
+import type { Linter, Rule } from 'eslint';
+import path from 'path';
+import parser from '@typescript-eslint/parser';
+import globals from 'globals';
+import merge from 'lodash.merge';
 
-(RuleTester as any).describe = describe;
-(RuleTester as any).it = it;
+type Tests = {
+  valid: (string | ESLintRuleTester.ValidTestCase)[];
+  invalid: ESLintRuleTester.InvalidTestCase[];
+};
 
-export { RuleTester as NodeRuleTester };
+const baseLanguageOptions: Linter.LanguageOptions = {
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  globals: {
+    ...globals.es2025,
+  },
+  parserOptions: {
+    // The single run makes that typescript-eslint uses normal programs instead of use watch programs
+    // We need watch programs for replace contents of the placeholder file in the program
+    // https://github.com/typescript-eslint/typescript-eslint/blob/d24a82854d06089cbd2a8801f2982fd4781f3701/packages/typescript-estree/src/parseSettings/inferSingleRun.ts#L44
+    disallowAutomaticSingleRunInference: true,
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+} as const;
+
+const tsParserLanguageOptions: Linter.LanguageOptions = {
+  parser,
+};
+
+const typeCheckingLanguageOptions: Linter.LanguageOptions = {
+  parserOptions: {
+    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
+  },
+} as const;
+
+const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
+
+/**
+ * Rule tester for JavaScript, using ESLint default parser (espree).
+ */
+class DefaultParserRuleTester extends ESLintRuleTester {
+  constructor(options?: Linter.LanguageOptions) {
+    super({
+      files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+      languageOptions: merge({}, baseLanguageOptions, options),
+    });
+  }
+
+  run(name: string, rule: Rule.RuleModule, tests: Tests): void {
+    const setFilename = test => {
+      if (!test.filename) {
+        test.filename = placeHolderFilePath;
+      }
+    };
+
+    tests.valid.forEach(setFilename);
+    tests.invalid.forEach(setFilename);
+
+    super.run(name, rule, tests);
+  }
+}
+
+/**
+ * Rule tester for JS/TS, using @typescript-eslint parser.
+ */
+class NoTypeCheckingRuleTester extends DefaultParserRuleTester {
+  constructor(options?: Linter.LanguageOptions) {
+    super(merge({}, tsParserLanguageOptions, options));
+  }
+}
+
+/**
+ * Rule tester for JS/TS, using @typescript-eslint parser with type-checking.
+ */
+class RuleTester extends NoTypeCheckingRuleTester {
+  constructor(options?: Linter.LanguageOptions) {
+    super(merge({}, typeCheckingLanguageOptions, options));
+  }
+}
+
+export { RuleTester, DefaultParserRuleTester, NoTypeCheckingRuleTester };
+export type { Tests };

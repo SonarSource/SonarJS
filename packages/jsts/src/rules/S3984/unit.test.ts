@@ -14,65 +14,75 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Exception should not be created without being thrown', rule, {
-  valid: [
-    {
-      code: `foo(new Error());`,
-    },
-    {
-      code: `foo(TypeError);`,
-    },
-    {
-      code: `throw new Error();`,
-    },
-    {
-      code: `new LooksLikeAnError().doSomething();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `new Error();`,
-      errors: [
+describe('S3984', () => {
+  it('S3984', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Exception should not be created without being thrown', rule, {
+      valid: [
         {
-          message: 'Throw this error or remove this useless statement.',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 12,
-          suggestions: [
+          code: `foo(new Error());`,
+        },
+        {
+          code: `foo(TypeError);`,
+        },
+        {
+          code: `throw new Error();`,
+        },
+        {
+          code: `new LooksLikeAnError().doSomething();`,
+        },
+      ],
+      invalid: [
+        {
+          code: `new Error();`,
+          errors: [
             {
-              desc: 'Throw this error',
-              output: 'throw new Error();',
+              message: 'Throw this error or remove this useless statement.',
+              line: 1,
+              column: 1,
+              endLine: 1,
+              endColumn: 12,
+              suggestions: [
+                {
+                  desc: 'Throw this error',
+                  output: 'throw new Error();',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `new TypeError();`,
+          errors: 1,
+        },
+        {
+          code: `new MyError();`,
+          errors: 1,
+        },
+        {
+          code: `new A.MyError();`,
+          errors: 1,
+        },
+        {
+          code: `new A(function () {
+                new SomeError();
+            });`,
+          errors: 1,
+        },
+        {
+          code: `(new MyException());`,
+          errors: [
+            {
+              messageId: 'throwOrRemoveError',
+              suggestions: [{ desc: 'Throw this error', output: 'throw (new MyException());' }],
             },
           ],
         },
       ],
-    },
-    {
-      code: `new TypeError();`,
-      errors: 1,
-    },
-    {
-      code: `new MyError();`,
-      errors: 1,
-    },
-    {
-      code: `new A.MyError();`,
-      errors: 1,
-    },
-    {
-      code: `new A(function () {
-                new SomeError();
-            });`,
-      errors: 1,
-    },
-    {
-      code: `(new MyException());`,
-      errors: [{ suggestions: [{ output: 'throw (new MyException());' }] }],
-    },
-  ],
+    });
+  });
 });

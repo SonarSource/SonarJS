@@ -14,17 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { sourceType: 'module', ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+describe('S1481', () => {
+  it('S1481', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('Local variables should be used', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Local variables should be used', rule, {
+      valid: [
+        {
+          code: `
       var a = 0;                // OK, global
       export let b = 0          // OK, global
 
@@ -60,28 +61,28 @@ ruleTester.run('Local variables should be used', rule, {
         return new RegExp(\`\${foo}\`);
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function fun() {
         var a = 0;              // Noncompliant
         var b = 1;              // OK
         return b;
       }`,
-      errors: [
-        {
-          message: `Remove the declaration of the unused 'a' variable.`,
-          line: 3,
-          endLine: 3,
-          column: 13,
-          endColumn: 14,
+          errors: [
+            {
+              message: `Remove the declaration of the unused 'a' variable.`,
+              line: 3,
+              endLine: 3,
+              column: 13,
+              endColumn: 14,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       function fun1() {
         var a = 0;              // OK
         function nested() {     // Noncompliant
@@ -108,30 +109,35 @@ ruleTester.run('Local variables should be used', rule, {
           var b = 1;              // OK
           return b;
       }`,
-      errors: [
-        {
-          message: `Remove unused function 'nested'.`,
-          line: 4,
+          errors: [
+            {
+              message: `Remove unused function 'nested'.`,
+              line: 4,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 10,
+            },
+            {
+              messageId: 'unusedFunction',
+              line: 11,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 17,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 18,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 24,
+            },
+          ],
         },
         {
-          line: 10,
-        },
-        {
-          line: 11,
-        },
-        {
-          line: 17,
-        },
-        {
-          line: 18,
-        },
-        {
-          line: 24,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
       function fun1() {
         var f1 = function() { console.log("f1"); }  // Noncompliant
       }
@@ -162,35 +168,43 @@ ruleTester.run('Local variables should be used', rule, {
         class A {}      // OK, ignore anything except variables and functions
       }
       `,
-      errors: [
-        {
-          line: 3,
+          errors: [
+            {
+              messageId: 'unusedVariable',
+              line: 3,
+            },
+            {
+              messageId: 'unusedFunction',
+              line: 7,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 12,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 17,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 18,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 22,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 26,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 27,
+            },
+          ],
         },
         {
-          line: 7,
-        },
-        {
-          line: 12,
-        },
-        {
-          line: 17,
-        },
-        {
-          line: 18,
-        },
-        {
-          line: 22,
-        },
-        {
-          line: 26,
-        },
-        {
-          line: 27,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
       function objectDestructuringException(obj) {
         var {a, b, c, ...interestingProps} = obj; // OK
         foo(interestingProps);
@@ -208,26 +222,26 @@ ruleTester.run('Local variables should be used', rule, {
       
         var {} = obj;
       }`,
-      errors: [
-        {
-          message: `Remove the declaration of the unused 'b1' variable.`,
-          line: 6,
-          column: 18,
+          errors: [
+            {
+              message: `Remove the declaration of the unused 'b1' variable.`,
+              line: 6,
+              column: 18,
+            },
+            {
+              message: `Remove the declaration of the unused 'interestingProps2' variable.`,
+              line: 10,
+              column: 29,
+            },
+            {
+              message: `Remove the declaration of the unused 'b3' variable.`,
+              line: 13,
+              column: 21,
+            },
+          ],
         },
         {
-          message: `Remove the declaration of the unused 'interestingProps2' variable.`,
-          line: 10,
-          column: 29,
-        },
-        {
-          message: `Remove the declaration of the unused 'b3' variable.`,
-          line: 13,
-          column: 21,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
     const constUsed = "this is used";
     let letUsed = "this is used";
     var varUsed = "this is used";
@@ -240,10 +254,14 @@ ruleTester.run('Local variables should be used', rule, {
 
       }
     }`,
-      errors: [{ line: 6 }, { line: 7 }, { line: 10 }],
-    },
-    {
-      code: `
+          errors: [
+            { messageId: 'unusedVariable', line: 6 },
+            { messageId: 'unusedVariable', line: 7 },
+            { messageId: 'unusedFunction', line: 10 },
+          ],
+        },
+        {
+          code: `
       function used_in_jsx(icon) {
         const UsedIcon   = icon;
         const UnusedIcon = icon; // Noncompliant
@@ -257,9 +275,11 @@ ruleTester.run('Local variables should be used', rule, {
         return <UsedIcon someAttr={tagAttribute}>{tagContent}</UsedIcon>;
       }
       `,
-      errors: [
-        { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
+          errors: [
+            { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
+          ],
+        },
       ],
-    },
-  ],
+    });
+  });
 });

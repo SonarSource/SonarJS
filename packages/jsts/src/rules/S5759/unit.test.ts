@@ -14,82 +14,78 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+describe('S5759', () => {
+  it('S5759', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('ip forwarding should be avoided', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('ip forwarding should be avoided', rule, {
+      valid: [
+        {
+          code: `
       const httpProxy = require('http-proxy')
       httpProxy.createProxyServer({target: 'http://localhost:9000'})`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const httpProxy = require('http-proxy')
       httpProxy.other({target: 'http://localhost:9000'})`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const httpProxy = require('http-proxy')
       httpProxy.createProxyServer()`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const { createProxyServer } = require('other')
       createProxyServer({xfwd: true})`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const { createProxyMiddleware } = require('http-proxy-middleware');
       createProxyMiddleware({ target: 'http://localhost:9000', changeOrigin: true});`,
-    },
-    {
-      code: `
-      const { createProxyMiddleware } = require('http-proxy-middleware');
-      createProxyMiddleware({ target: 'http://localhost:9000', changeOrigin: true});`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       createProxyServer({xfwd: true});
       createProxyMiddleware({ target: 'http://localhost:9000', changeOrigin: true, xfwd: true });`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      const httpProxy = require('http-proxy')
-      httpProxy.createProxyServer({target: 'http://localhost:9000', xfwd: true})`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: 'Make sure forwarding client IP address is safe here.',
-            secondaryLocations: [{ column: 68, line: 3, endColumn: 78, endLine: 3 }],
-          }),
-          line: 3,
-          column: 7,
-          endColumn: 34,
         },
       ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `
+      const httpProxy = require('http-proxy')
+      httpProxy.createProxyServer({target: 'http://localhost:9000', xfwd: true})`,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: 'Make sure forwarding client IP address is safe here.',
+                secondaryLocations: [{ column: 68, line: 3, endColumn: 78, endLine: 3 }],
+              }),
+              line: 3,
+              column: 7,
+              endColumn: 34,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
       const { createProxyServer } = require('http-proxy')
       createProxyServer({target: 'http://localhost:9000', xfwd: true})`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const { createProxyMiddleware } = require('http-proxy-middleware');
       createProxyMiddleware({ target: 'http://localhost:9000', changeOrigin: true, xfwd: true });`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

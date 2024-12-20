@@ -14,17 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new NodeRuleTester();
+describe('S1607', () => {
+  it('S1607', () => {
+    process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
-  valid: [
-    {
-      code: `it.skip('test', function() {});`,
-    },
-  ],
-  invalid: [],
+    ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
+      valid: [
+        {
+          code: `it.skip('test', function() {});`,
+        },
+      ],
+      invalid: [],
+    });
+  });
 });

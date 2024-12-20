@@ -15,56 +15,35 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: tsParserPath,
-});
+describe('S4275', () => {
+  it('S4275', () => {
+    const ruleTester = new RuleTester();
 
-function invalid(code: string) {
-  const errors: NodeRuleTester.TestCaseError[] = [];
-  const lines = code.split('\n');
-  for (let i = 1; i <= lines.length; i++) {
-    const line = lines[i - 1];
-    if (line.includes('// Noncompliant')) {
-      errors.push({
-        line: i,
-        endLine: i,
-      });
+    function missingReturn(...codes: string[]) {
+      return codes.map(code => ({
+        code,
+        errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
+        options: [{}, 'sonar-runtime'],
+      }));
     }
-  }
-  return {
-    code: code,
-    errors,
-    options: [{}, 'sonar-runtime'],
-  };
-}
 
-function missingReturn(...codes: string[]) {
-  return codes.map(code => ({
-    code,
-    errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
-    options: [{}, 'sonar-runtime'],
-  }));
-}
+    function missingAlwaysReturn(...codes: string[]) {
+      return codes.map(code => ({
+        code,
+        errors: [
+          '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
+        ],
+        options: [{}, 'sonar-runtime'],
+      }));
+    }
 
-function missingAlwaysReturn(...codes: string[]) {
-  return codes.map(code => ({
-    code,
-    errors: [
-      '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
-    ],
-    options: [{}, 'sonar-runtime'],
-  }));
-}
-
-ruleTester.run('Getters and setters should access the expected fields', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Getters and setters should access the expected fields', rule, {
+      valid: [
+        {
+          code: `
         class OK {
           private x: string;
           private _y = "hello";
@@ -97,9 +76,9 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
             this.x = x;
           }
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         class Exceptions1 {
           private x: string;
           private y = "hello";
@@ -155,9 +134,9 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
             return \`v is \${this.z}\`;
           }
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         class Exceptions2 {
           private x: string;
           private y = "hello";
@@ -175,9 +154,9 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
             return this.x;
           }
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         export const ObjectLiteral = {
           w_: "blah",
           _x: "blah",
@@ -218,30 +197,30 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
 
           ...theRest
         };`,
-    },
-    'Object.defineProperty()',
-    'Object.defineProperty(o)',
-    'Object.defineProperty(o, "b")',
-    'Object.defineProperty(o, "b", props)',
-    'Object.defineProperty(o, "b", { get() { return a; } })',
-    'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _b; } })',
-    'Reflect.defineProperty()',
-    'Reflect.defineProperty(o)',
-    'Reflect.defineProperty(o, "b")',
-    'Reflect.defineProperty(o, "b", props)',
-    'Reflect.defineProperty(o, "b", { get() { return a; } })',
-    'Object.defineProperties()',
-    'Object.defineProperties(o)',
-    'Object.defineProperties(o, props)',
-    'Object.defineProperties(o, { b: { get() { return a; } } })',
-    'Object.create()',
-    'Object.create(o)',
-    'Object.create(o, props)',
-    'Object.create(o, { b: { get() { return a; } } })',
-  ],
-  invalid: [
-    {
-      code: `
+        },
+        { code: 'Object.defineProperty()' },
+        { code: 'Object.defineProperty(o)' },
+        { code: 'Object.defineProperty(o, "b")' },
+        { code: 'Object.defineProperty(o, "b", props)' },
+        { code: 'Object.defineProperty(o, "b", { get() { return a; } })' },
+        { code: 'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _b; } })' },
+        { code: 'Reflect.defineProperty()' },
+        { code: 'Reflect.defineProperty(o)' },
+        { code: 'Reflect.defineProperty(o, "b")' },
+        { code: 'Reflect.defineProperty(o, "b", props)' },
+        { code: 'Reflect.defineProperty(o, "b", { get() { return a; } })' },
+        { code: 'Object.defineProperties()' },
+        { code: 'Object.defineProperties(o)' },
+        { code: 'Object.defineProperties(o, props)' },
+        { code: 'Object.defineProperties(o, { b: { get() { return a; } } })' },
+        { code: 'Object.create()' },
+        { code: 'Object.create(o)' },
+        { code: 'Object.create(o, props)' },
+        { code: 'Object.create(o, { b: { get() { return a; } } })' },
+      ],
+      invalid: [
+        {
+          code: `
       class A {
         _x: number = 0;
         _y: number = 0;
@@ -251,17 +230,17 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
         }
       }
         `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       let a = 0;
       Object.defineProperty(obj, 'a', { get() {} });
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       class NOK_CheckLocation {
         private x: string;
         private _y = "hello";
@@ -272,48 +251,48 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
             return this._y;
         }
       }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the property '_y'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 4,
-                endColumn: 29,
-                endLine: 4,
-              },
-            ],
-          }),
-          line: 6,
-          column: 16,
-          endLine: 6,
-          endColumn: 20,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the property '_y'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 4,
+                    endColumn: 29,
+                    endLine: 4,
+                  },
+                ],
+              }),
+              line: 6,
+              column: 16,
+              endLine: 6,
+              endColumn: 20,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the property 'x'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 3,
+                    endColumn: 26,
+                    endLine: 3,
+                  },
+                ],
+              }),
+              line: 8,
+              column: 20,
+              endLine: 8,
+              endColumn: 21,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
         {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the property 'x'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 3,
-                endColumn: 26,
-                endLine: 3,
-              },
-            ],
-          }),
-          line: 8,
-          column: 20,
-          endLine: 8,
-          endColumn: 21,
-        },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+          code: `
       class NOK {
         static _filter: string = '';
         private _filter: string = '';
@@ -334,206 +313,206 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
 
         public get y(): number { return this._x; }  // Noncompliant
       }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the property '_y'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 9,
-                endColumn: 31,
-                endLine: 9,
-              },
-            ],
-          }),
-          line: 20,
-          column: 20,
-          endLine: 20,
-          endColumn: 21,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the property '_y'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 9,
+                    endColumn: 31,
+                    endLine: 9,
+                  },
+                ],
+              }),
+              line: 20,
+              column: 20,
+              endLine: 20,
+              endColumn: 21,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `const foo = {
+        {
+          code: `const foo = {
         _bar: 0,
         get bar() {
         }
       };`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the property '_bar'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 2,
-                endColumn: 15,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the property '_bar'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 2,
+                    endColumn: 15,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 13,
+              endLine: 3,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `class foo {
+        {
+          code: `class foo {
         _bar = 0;
         get bar() {
         }
       }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the property '_bar'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 2,
-                endColumn: 17,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the property '_bar'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 2,
+                    endColumn: 17,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 13,
+              endLine: 3,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       let bar = 0;
       Object.defineProperty(obj, 'bar', { get() {} });
       `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the variable 'bar'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 10,
-                line: 2,
-                endColumn: 17,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 3,
-          column: 43,
-          endLine: 3,
-          endColumn: 46,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the variable 'bar'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 10,
+                    line: 2,
+                    endColumn: 17,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 43,
+              endLine: 3,
+              endColumn: 46,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       function foo(bar) {
         Object.defineProperties(obj, { bar: { get() {} } });
       }
       `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the variable 'bar'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 6,
-                line: 2,
-                endColumn: 7,
-                endLine: 4,
-              },
-            ],
-          }),
-          line: 3,
-          column: 47,
-          endLine: 3,
-          endColumn: 50,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the variable 'bar'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 6,
+                    line: 2,
+                    endColumn: 7,
+                    endLine: 4,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 47,
+              endLine: 3,
+              endColumn: 50,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `class foo {
+        {
+          code: `class foo {
         #bar = 0;
         get bar() {
         }
       }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the property 'bar'.",
-            secondaryLocations: [
-              {
-                message: 'Property which should be referred.',
-                column: 8,
-                line: 2,
-                endColumn: 17,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the property 'bar'.",
+                secondaryLocations: [
+                  {
+                    message: 'Property which should be referred.',
+                    column: 8,
+                    line: 2,
+                    endColumn: 17,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 13,
+              endLine: 3,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `const foo = {
+        {
+          code: `const foo = {
         get bar() {
         }
       };`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: 'Refactor this getter to return a value.',
-            secondaryLocations: [],
-          }),
-          line: 2,
-          column: 9,
-          endLine: 2,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: 'Refactor this getter to return a value.',
+                secondaryLocations: [],
+              }),
+              line: 2,
+              column: 9,
+              endLine: 2,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `class Foo {
+        {
+          code: `class Foo {
         get bar(): string {}
       }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: 'Refactor this getter to return a value.',
-            secondaryLocations: [],
-          }),
-          line: 2,
-          column: 9,
-          endLine: 2,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: 'Refactor this getter to return a value.',
+                secondaryLocations: [],
+              }),
+              line: 2,
+              column: 9,
+              endLine: 2,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         let b = 42;
         let c = 38;
         Object.defineProperty(o, "b", {
@@ -547,48 +526,48 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           configurable: true,
         });
       `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the variable 'b'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 2,
-                endColumn: 18,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 5,
-          column: 11,
-          endLine: 5,
-          endColumn: 14,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the variable 'b'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 2,
+                    endColumn: 18,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 5,
+              column: 11,
+              endLine: 5,
+              endColumn: 14,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the variable 'b'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 2,
+                    endColumn: 18,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 8,
+              column: 11,
+              endLine: 8,
+              endColumn: 14,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
         {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the variable 'b'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 2,
-                endColumn: 18,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 8,
-          column: 11,
-          endLine: 8,
-          endColumn: 14,
-        },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+          code: `
         let b = 42;
         let c = 38;
         Reflect.defineProperty(o, "b", {
@@ -602,10 +581,10 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           configurable: true,
         });
       `,
-      errors: 2,
-    },
-    {
-      code: `
+          errors: 2,
+        },
+        {
+          code: `
         let b = 42;
         let c = 38;
         Reflect.defineProperty(o, "b", {
@@ -618,30 +597,30 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           configurable: true,
         });
       `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the variable 'b'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 2,
-                endColumn: 18,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 8,
-          column: 11,
-          endLine: 8,
-          endColumn: 14,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the variable 'b'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 2,
+                    endColumn: 18,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 8,
+              column: 11,
+              endLine: 8,
+              endColumn: 14,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         let b = 42;
         let c = 38;
         let d = 46;
@@ -678,102 +657,102 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
          }
        );
       `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the variable 'b'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 2,
-                endColumn: 18,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 7,
-          column: 13,
-          endLine: 7,
-          endColumn: 16,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the variable 'b'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 2,
+                    endColumn: 18,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 7,
+              column: 13,
+              endLine: 7,
+              endColumn: 16,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the variable 'b'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 2,
+                    endColumn: 18,
+                    endLine: 2,
+                  },
+                ],
+              }),
+              line: 10,
+              column: 13,
+              endLine: 10,
+              endColumn: 16,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the variable 'c'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 3,
+                    endColumn: 18,
+                    endLine: 3,
+                  },
+                ],
+              }),
+              line: 20,
+              column: 13,
+              endLine: 20,
+              endColumn: 16,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this getter so that it actually refers to the variable 'd'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 4,
+                    endColumn: 18,
+                    endLine: 4,
+                  },
+                ],
+              }),
+              line: 26,
+              column: 13,
+              endLine: 26,
+              endColumn: 16,
+            },
+            {
+              message: JSON.stringify({
+                message: "Refactor this setter so that it actually refers to the variable 'd'.",
+                secondaryLocations: [
+                  {
+                    message: 'Variable which should be referred.',
+                    column: 12,
+                    line: 4,
+                    endColumn: 18,
+                    endLine: 4,
+                  },
+                ],
+              }),
+              line: 29,
+              column: 13,
+              endLine: 29,
+              endColumn: 16,
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
         },
         {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the variable 'b'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 2,
-                endColumn: 18,
-                endLine: 2,
-              },
-            ],
-          }),
-          line: 10,
-          column: 13,
-          endLine: 10,
-          endColumn: 16,
-        },
-        {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the variable 'c'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 3,
-                endColumn: 18,
-                endLine: 3,
-              },
-            ],
-          }),
-          line: 20,
-          column: 13,
-          endLine: 20,
-          endColumn: 16,
-        },
-        {
-          message: JSON.stringify({
-            message: "Refactor this getter so that it actually refers to the variable 'd'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 4,
-                endColumn: 18,
-                endLine: 4,
-              },
-            ],
-          }),
-          line: 26,
-          column: 13,
-          endLine: 26,
-          endColumn: 16,
-        },
-        {
-          message: JSON.stringify({
-            message: "Refactor this setter so that it actually refers to the variable 'd'.",
-            secondaryLocations: [
-              {
-                message: 'Variable which should be referred.',
-                column: 12,
-                line: 4,
-                endColumn: 18,
-                endLine: 4,
-              },
-            ],
-          }),
-          line: 29,
-          column: 13,
-          endLine: 29,
-          endColumn: 16,
-        },
-      ],
-      options: [{}, 'sonar-runtime'],
-    },
-    {
-      code: `
+          code: `
         let b = 42;
         let c = 38;
         let d = 46;
@@ -810,27 +789,28 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
          }
        );
       `,
-      errors: 5,
-    },
-    ...missingReturn(
-      'var foo = { get bar() { return; } };',
-      'class foo { get bar(){} }',
-      'var foo = class {\n  static get\nbar(){} }',
-      "Object.defineProperty(foo, 'bar', { get: function(){}});",
-      "Object.defineProperty(foo, 'bar', { get: function getfoo (){}});",
-      "Object.defineProperty(foo, 'bar', { get(){} });",
-      "Object.defineProperty(foo, 'bar', { get: () => {}});",
-      "Reflect.defineProperty(foo, 'bar', { get: function (){}});",
-      'Object.create(foo, { bar: { get: function() {} } })',
-      'Object.create(foo, { bar: { get() {} } })',
-      'Object.create(foo, { bar: { get: () => {} } })',
-    ),
-    ...missingAlwaysReturn(
-      'var foo = { get bar(){if(baz) {return true;}} };',
-      'class foo { get bar(){ if (baz) { return true; }}}',
-      'Object.defineProperty(foo, "bar", { get: function (){if(bar) {return true;}}});',
-    ),
-    invalid(`
+          errors: 5,
+        },
+        ...missingReturn(
+          'var foo = { get bar() { return; } };',
+          'class foo { get bar(){} }',
+          'var foo = class {\n  static get\nbar(){} }',
+          "Object.defineProperty(foo, 'bar', { get: function(){}});",
+          "Object.defineProperty(foo, 'bar', { get: function getfoo (){}});",
+          "Object.defineProperty(foo, 'bar', { get(){} });",
+          "Object.defineProperty(foo, 'bar', { get: () => {}});",
+          "Reflect.defineProperty(foo, 'bar', { get: function (){}});",
+          'Object.create(foo, { bar: { get: function() {} } })',
+          'Object.create(foo, { bar: { get() {} } })',
+          'Object.create(foo, { bar: { get: () => {} } })',
+        ),
+        ...missingAlwaysReturn(
+          'var foo = { get bar(){if(baz) {return true;}} };',
+          'class foo { get bar(){ if (baz) { return true; }}}',
+          'Object.defineProperty(foo, "bar", { get: function (){if(bar) {return true;}}});',
+        ),
+        {
+          code: `
     class NOK {
       private x: string;
       private _y = "hello";
@@ -867,8 +847,45 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       public setRO(ro: number) { // Noncompliant
         this.z = ro;
       }
-    }`),
-    invalid(`
+    }`,
+          errors: [
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'x\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":3,"endColumn":24,"endLine":3}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'x\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":3,"endColumn":24,"endLine":3}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'_y\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":4,"endColumn":27,"endLine":4}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'_y\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":4,"endColumn":27,"endLine":4}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'_y\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":4,"endColumn":27,"endLine":4}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'z\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":5,"endColumn":20,"endLine":5}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'w\'.","secondaryLocations":[{"message":"Property which should be referred.","column":18,"line":7,"endColumn":35,"endLine":7}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'ro\'.","secondaryLocations":[{"message":"Property which should be referred.","column":37,"line":7,"endColumn":56,"endLine":7}]}',
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
+        },
+        {
+          code: `
     const nokObj = {
       w_: 0,
       x : 3,
@@ -899,10 +916,36 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
       get a1() { // FN - cannot determine computed field a1 existence
         return this.x;
       },
-    }`),
-    {
-      code: 'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _c; } })',
-      errors: 1,
-    },
-  ],
+    }`,
+          errors: [
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'w_\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":3,"endColumn":11,"endLine":3}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'_y\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":5,"endColumn":12,"endLine":5}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'x\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":4,"endColumn":11,"endLine":4}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this getter so that it actually refers to the property \'z\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":6,"endColumn":12,"endLine":6}]}',
+            },
+            {
+              message:
+                '{"message":"Refactor this setter so that it actually refers to the property \'z\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":6,"endColumn":12,"endLine":6}]}',
+            },
+          ],
+          options: [{}, 'sonar-runtime'],
+        },
+        {
+          code: 'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _c; } })',
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

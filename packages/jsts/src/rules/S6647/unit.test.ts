@@ -15,48 +15,68 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
+import { rules } from '../external/typescript-eslint/index.js';
+import parser from '@babel/eslint-parser';
+import { decorate } from './decorator.js';
+import { Linter } from 'eslint';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
+import { expect } from 'expect';
 
-const babelRuleTester = BabelRuleTester();
+const ruleTester = new RuleTester({
+  parser,
+  parserOptions: {
+    requireConfigFile: false,
+  },
+});
 
-babelRuleTester.run(`Unnecessary constructors should be removed (babel)`, rule, {
-  valid: [
-    {
-      code: `class Foo {}`,
-    },
-    {
-      // This test case is coming from closure library https://github.com/google/closure-library/blob/7818ff7dc0b53555a7fb3c3427e6761e88bde3a2/closure/goog/labs/net/webchannel/testing/fakewebchannel.js
-      code: `
-class FakeWebChannel extends EventTarget {
-  
-  /**
-   * @param {!WebChannel.MessageData} messageData
-   * @override
-   */
-  constructor(messageData) {
-    super();
+// This test case is coming from closure library https://github.com/google/closure-library/blob/7818ff7dc0b53555a7fb3c3427e6761e88bde3a2/closure/goog/labs/net/webchannel/testing/fakewebchannel.js
+const problemCode = ``;
 
-    /** @private {?boolean} */
-    this.open_ = null;
-
-    /** @private @const {!Array<!WebChannel.MessageData>} */
-    this.messages_ = [];
-  }
-  
-}
-      `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      class Invalid2 extends Bar {
-        constructor(){ // Noncompliant
-          super();
-        }
-      }
-      `,
-      errors: 1,
-    },
-  ],
+describe('S6647', () => {
+  it('S6647', () => {
+    ruleTester.run(`Unnecessary constructors should be removed`, rule, {
+      valid: [
+        {
+          code: problemCode,
+        },
+      ],
+      invalid: [],
+    });
+  });
+  it('should crash with decorated rule', async () => {
+    // When this test fails to pass, we can remove our implementation and go back to decorated
+    // 'no-useless-constructor' from 'typescript-eslint'
+    // https://github.com/SonarSource/SonarJS/pull/4473
+    const problemFile = join(dirname(fileURLToPath(import.meta.url)), 'problemCode.js');
+    const linter = new Linter();
+    let failed = false;
+    try {
+      linter.verify(
+        await readFile(problemFile, 'utf8'),
+        {
+          languageOptions: {
+            parser,
+            parserOptions: {
+              requireConfigFile: false,
+            },
+          },
+          files: [`**/${basename(problemFile)}`],
+          plugins: {
+            sonarjs: { rules: { S6647: decorate(rules['no-useless-constructor']) } },
+          },
+          rules: { [`sonarjs/S6647`]: 'error' },
+        },
+        { filename: problemFile, allowInlineConfig: false },
+      );
+    } catch (e) {
+      expect(e.message).toContain("Cannot read properties of undefined (reading 'length')");
+      failed = true;
+    }
+    expect(failed).toBeTruthy();
+  });
 });

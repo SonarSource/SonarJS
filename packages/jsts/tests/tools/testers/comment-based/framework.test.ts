@@ -48,18 +48,6 @@ describe('Comment-based Testing Framework', () => {
     });
   });
 
-  it('issue count', async () => {
-    expect(await assertions('count.js')).toMatchObject({ errors: [{ line: 1 }, { line: 1 }] });
-  });
-
-  it('mixing message and count', async () => {
-    const error = await assertions('mix.js').catch(err => err);
-    expect(error.message).toEqual(
-      'Error, you can not specify issue count and messages at line 1, you have to choose either:' +
-        '\n  Noncompliant 2\nor\n  Noncompliant {{Expected error message}}\n',
-    );
-  });
-
   it('primary', async () => {
     expect(await assertions('primary.js')).toMatchObject({
       errors: [

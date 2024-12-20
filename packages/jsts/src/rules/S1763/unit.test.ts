@@ -14,47 +14,51 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester();
+describe('S1763', () => {
+  it('S1763', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: `
-while (a()) {
-  b();
-  break;
-}
-`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-while (a()) {
-  break;
-  b();
-}
-`,
-      errors: [
+    ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+      valid: [
         {
-          suggestions: [
+          code: `
+while (a()) {
+  b();
+  break;
+}
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+while (a()) {
+  break;
+  b();
+}
+`,
+          errors: [
             {
-              output: `
+              messageId: 'unreachableCode',
+              suggestions: [
+                {
+                  output: `
 while (a()) {
   break;
 }
 `,
-              desc: 'Remove unreachable code',
+                  desc: 'Remove unreachable code',
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
 while (a()) {
   b();
   break;
@@ -62,21 +66,24 @@ while (a()) {
   d();
 }
 `,
-      errors: [
-        {
-          suggestions: [
+          errors: [
             {
-              output: `
+              messageId: 'unreachableCode',
+              suggestions: [
+                {
+                  output: `
 while (a()) {
   b();
   break;
 }
 `,
-              desc: 'Remove unreachable code',
+                  desc: 'Remove unreachable code',
+                },
+              ],
             },
           ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

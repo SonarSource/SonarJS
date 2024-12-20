@@ -15,93 +15,26 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018 },
-});
-ruleTester.run('"switch" statements should have "default" clauses', rule, {
-  valid: [
-    {
-      code: `
+const ruleTester = new RuleTester();
+
+describe('S131', () => {
+  it('S131', () => {
+    ruleTester.run('"switch" statements should have "default" clauses', rule, {
+      valid: [
+        {
+          code: `
         switch (x) {
           case 0:
             break;
           default:
             break;
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-        switch (x) {
-          case 0:
-            break;
-        }`,
-      errors: [
-        {
-          message: `Add a "default" clause to this "switch" statement.`,
-          line: 2,
-          endLine: 2,
-          column: 9,
-          endColumn: 15,
-          suggestions: [
-            {
-              messageId: 'addDefault',
-              output: `
-        switch (x) {
-          case 0:
-            break;
-          default: { throw new Error('Not implemented yet'); }
-        }`,
-            },
-          ],
         },
-      ],
-    },
-    {
-      code: `
-        switch (x) {
-        }`,
-      errors: [
         {
-          line: 2,
-          suggestions: [
-            {
-              output: `
-        switch (x) {
-        default: { throw new Error('Not implemented yet'); }
-        }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
-        type  T = 'foo' | 'bar'; // False negative due to missing type information
-        const x = 'foo' as T;
-        switch (x) {
-          case 'foo':
-            break;
-          case 'bar':
-            break;
-        }
-      `,
-      errors: [{ line: 4 }],
-    },
-  ],
-});
-
-const typeAwareRuleTester = new TypeScriptRuleTester();
-typeAwareRuleTester.run('"switch" statements should have "default" clauses', rule, {
-  valid: [
-    {
-      code: `
+          code: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -111,9 +44,9 @@ typeAwareRuleTester.run('"switch" statements should have "default" clauses', rul
             break;
         }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       enum Direction {
         Up,
         Down
@@ -129,11 +62,58 @@ typeAwareRuleTester.run('"switch" statements should have "default" clauses', rul
           break;
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
+        switch (x) {
+          case 0:
+            break;
+        }`,
+          errors: [
+            {
+              message: `Add a "default" clause to this "switch" statement.`,
+              line: 2,
+              endLine: 2,
+              column: 9,
+              endColumn: 15,
+              suggestions: [
+                {
+                  messageId: 'addDefault',
+                  output: `
+        switch (x) {
+          case 0:
+            break;
+          default: { throw new Error('Not implemented yet'); }
+        }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+        switch (x) {
+        }`,
+          errors: [
+            {
+              messageId: 'switchDefault',
+              line: 2,
+              suggestions: [
+                {
+                  messageId: 'addDefault',
+                  output: `
+        switch (x) {
+        default: { throw new Error('Not implemented yet'); }
+        }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -141,17 +121,17 @@ typeAwareRuleTester.run('"switch" statements should have "default" clauses', rul
             break;
         }
       `,
-      errors: [
-        {
-          message: `Switch is not exhaustive. Cases not matched: "bar"`,
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 15,
-          suggestions: [
+          errors: [
             {
-              messageId: 'addMissingCases',
-              output: `
+              message: `Switch is not exhaustive. Cases not matched: "bar"`,
+              line: 4,
+              endLine: 4,
+              column: 9,
+              endColumn: 15,
+              suggestions: [
+                {
+                  messageId: 'addMissingCases',
+                  output: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -160,10 +140,12 @@ typeAwareRuleTester.run('"switch" statements should have "default" clauses', rul
           case "bar": { throw new Error('Not implemented yet: "bar" case') }
         }
       `,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-  ],
+    });
+  });
 });
