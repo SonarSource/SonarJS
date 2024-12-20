@@ -14,26 +14,31 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S6418', () => {
+  it('S6418', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('Rule S6418 - no-hardcoded-secrets', rule, {
-  valid: [],
-  invalid: [
-    // we're verifying that given a broken RegExp, the rule still works.
-    {
-      code: `
+    ruleTester.run('Rule S6418 - no-hardcoded-secrets', rule, {
+      valid: [],
+      invalid: [
+        // we're verifying that given a broken RegExp, the rule still works.
+        {
+          code: `
       secret = '9ah9w8dha9w8hd98h';
       `,
-      options: [
-        {
-          secretWords: 'sel/\\',
-          randomnessSensibility: 0.5,
+          options: [
+            {
+              secretWords: 'sel/\\',
+              randomnessSensibility: 0.5,
+            },
+          ],
+          errors: 1,
         },
       ],
-      errors: 1,
-    },
-  ],
+    });
+  });
 });

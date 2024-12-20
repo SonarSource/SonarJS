@@ -8,15 +8,15 @@ describe('test cases', () => {
     alert('msg');
   });
 
-  it('no transitive assertion', () => { // Noncompliant
+  it('no transitive assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     nocheck();
   });
 
-  it.skip('non compliant', () => { // Noncompliant
+  it.skip('non compliant', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     alert('msg');
   });
 
-  it.only('non compliant', () => { // Noncompliant
+  it.only('non compliant', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     alert('msg');
   });
 

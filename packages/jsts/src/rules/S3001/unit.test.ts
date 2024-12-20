@@ -15,93 +15,97 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const tests = {
-  valid: [
-    {
-      code: `
+describe('S3001', () => {
+  it('S3001', () => {
+    const tests = {
+      valid: [
+        {
+          code: `
         var obj = { a: 1, b: 1};
         delete obj.a;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         var obj = { a: 1, b: 1};
         delete obj['a'];`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         var arr = [1, 2];
         delete arr[0];`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         var arr = [1, 2];
         var idx = 0;
         delete arr[idx];`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         glob = 5;
         delete glob;
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         fun = function () {};
         delete fun;
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         var obj = { a: possiblyUndefined() };
         delete obj?.a;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-        var v = 1;
-        delete v;`,
-      errors: [
-        {
-          message: `Remove this "delete" operator or pass an object property to it.`,
-          line: 3,
-          endLine: 3,
-          column: 9,
-          endColumn: 17,
         },
       ],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `
+        var v = 1;
+        delete v;`,
+          errors: [
+            {
+              message: `Remove this "delete" operator or pass an object property to it.`,
+              line: 3,
+              endLine: 3,
+              column: 9,
+              endColumn: 17,
+            },
+          ],
+        },
+        {
+          code: `
         function fun(p) {
           delete p;
         }`,
-      errors: 1,
-    },
-    {
-      code: `delete foo().bar();`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `delete foo().bar();`,
+          errors: 1,
+        },
+        {
+          code: `
         var v = 1;
         delete v + 1;`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         var obj = { a: 1, b: 2};
         delete obj;`,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2021 } });
-const ruleTesterTs = new TypeScriptRuleTester();
+    const ruleTesterJs = new RuleTester();
+    const ruleTesterTs = new RuleTester();
 
-ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);
-ruleTesterTs.run('"delete" should be used only with object properties [ts]', rule, tests);
+    ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);
+    ruleTesterTs.run('"delete" should be used only with object properties [ts]', rule, tests);
+  });
+});

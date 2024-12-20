@@ -15,14 +15,14 @@ function invalid() {
   return (
     <>
       <input type="text" />
-      <label>Surname </label> {/* Noncompliant */}
+      <label>Surname </label> {/* Noncompliant {{A form label must be associated with a control.}} */}
 {/*    ^^^^^*/}
     </>
   );
 }
 
 function invalidEmptyLabel() {
-  return <label></label>; // Noncompliant
+  return <label></label>; // Noncompliant {{A form label must have accessible text.}}
   //      ^^^^^
 }
 

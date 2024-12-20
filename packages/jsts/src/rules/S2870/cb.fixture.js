@@ -19,20 +19,20 @@ function non_compliant() {
 //^^^^^^
 
   let arr2 = ['a', 'b', 'c', 'd'];
-  delete arr2[i]; // Noncompliant
+  delete arr2[i]; // Noncompliant {{Remove this use of "delete".}}
 //^^^^^^
 
   let arr3 = ['a', 'b', 'c', 'd'];
   if (true) {
-    delete arr3[1]; // Noncompliant
+    delete arr3[1]; // Noncompliant {{Remove this use of "delete".}}
   //^^^^^^
   }
 
   let obj = { a: { b: { c: ['a', 'b', 'c', 'd'] }} }
-  delete obj.a.b.c[1]; // Noncompliant
+  delete obj.a.b.c[1]; // Noncompliant {{Remove this use of "delete".}}
 //^^^^^^
 
   function arr4() { return ['a', 'b', 'c', 'd']; }
-  delete arr4()[1]; // Noncompliant
+  delete arr4()[1]; // Noncompliant {{Remove this use of "delete".}}
 //^^^^^^
 }

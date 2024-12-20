@@ -15,34 +15,38 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new JavaScriptRuleTester();
+describe('S3626', () => {
+  it('S3626', () => {
+    const ruleTester = new RuleTester();
 
-function invalid(code: string) {
-  const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
-  return {
-    code,
-    errors: [
-      {
-        messageId: 'removeRedundantJump',
-        line,
-        endLine: line,
-      },
-    ],
-  };
-}
-
-ruleTester.run('Jump statements should not be redundant', rule, {
-  invalid: [
-    invalid(
-      `while (x == 1) {
+    ruleTester.run('Jump statements should not be redundant', rule, {
+      invalid: [
+        {
+          code: `while (x == 1) {
         console.log("x == 1");
         continue; // Noncompliant
       }`,
-    ),
-    invalid(
-      `function redundantJump(condition1, condition2) {
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 3,
+              endLine: 3,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `while (x == 1) {
+        console.log("x == 1"); // Noncompliant
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function redundantJump(condition1, condition2) {
         while (condition1) {
           if (condition2) {
             console.log("Hello");
@@ -52,9 +56,30 @@ ruleTester.run('Jump statements should not be redundant', rule, {
           }
         }
       }`,
-    ),
-    invalid(
-      `function redundantJump(condition1, condition2) {
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 5,
+              endLine: 5,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `function redundantJump(condition1, condition2) {
+        while (condition1) {
+          if (condition2) {
+            console.log("Hello");  // Noncompliant
+          } else {
+            console.log("else");
+          }
+        }
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function redundantJump(condition1, condition2) {
         while (condition1) {
           if (condition2) {
             console.log("then");
@@ -64,75 +89,160 @@ ruleTester.run('Jump statements should not be redundant', rule, {
           }
         }
       }`,
-    ),
-    invalid(
-      `function redundantJump() {
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 7,
+              endLine: 7,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `function redundantJump(condition1, condition2) {
+        while (condition1) {
+          if (condition2) {
+            console.log("then");
+          } else {
+            console.log("else");  // Noncompliant
+          }
+        }
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function redundantJump() {
         for (let i = 0; i < 10; i++) {
           console.log("Hello");
           continue; // Noncompliant
         }
       }`,
-    ),
-    invalid(
-      `function redundantJump(b) {
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 4,
+              endLine: 4,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `function redundantJump() {
+        for (let i = 0; i < 10; i++) {
+          console.log("Hello"); // Noncompliant
+        }
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function redundantJump(b) {
         if (b) {
           console.log("b");
           return; // Noncompliant
         }
       }`,
-    ),
-    invalid(
-      `function redundantJump(x) {
-          console.log("x == 1");
-          return; // Noncompliant
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 4,
+              endLine: 4,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `function redundantJump(b) {
+        if (b) {
+          console.log("b"); // Noncompliant
+        }
       }`,
-    ),
-    invalid(
-      `const redundantJump = (x) => {
-          console.log("x == 1");
-          return; // Noncompliant
-      }`,
-    ),
-    {
-      code: `function foo(x) { console.log(x); return; }`,
-      errors: [
-        {
-          messageId: 'removeRedundantJump',
-          suggestions: [
-            { messageId: 'suggestJumpRemoval', output: `function foo(x) { console.log(x); }` },
+                },
+              ],
+            },
           ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `function redundantJump(x) {
+          console.log("x == 1");
+          return; // Noncompliant
+      }`,
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 3,
+              endLine: 3,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `function redundantJump(x) {
+          console.log("x == 1"); // Noncompliant
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `const redundantJump = (x) => {
+          console.log("x == 1");
+          return; // Noncompliant
+      }`,
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              line: 3,
+              endLine: 3,
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `const redundantJump = (x) => {
+          console.log("x == 1"); // Noncompliant
+      }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function foo(x) { console.log(x); return; }`,
+          errors: [
+            {
+              messageId: 'removeRedundantJump',
+              suggestions: [
+                { messageId: 'suggestJumpRemoval', output: `function foo(x) { console.log(x); }` },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo(x) { 
   console.log(x);
   // comment1
   // comment2
   return;
 }`,
-      errors: [
-        {
-          messageId: 'removeRedundantJump',
-          suggestions: [
+          errors: [
             {
-              messageId: 'suggestJumpRemoval',
-              output: `
+              messageId: 'removeRedundantJump',
+              suggestions: [
+                {
+                  messageId: 'suggestJumpRemoval',
+                  output: `
 function foo(x) { 
   console.log(x);
   // comment1
   // comment2
 }`,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-  ],
-  valid: [
-    {
-      code: `
+      valid: [
+        {
+          code: `
       function return_with_value() {
         foo();
         return 42;
@@ -183,6 +293,8 @@ function foo(x) {
         return; // Ok, we ignore when 1 statement
       }
       `,
-    },
-  ],
+        },
+      ],
+    });
+  });
 });

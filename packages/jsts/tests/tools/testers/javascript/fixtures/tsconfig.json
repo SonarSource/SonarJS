@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true,
-    "noImplicitAny": true,
-  },
-  "files": ["placeholder.js"]
-}

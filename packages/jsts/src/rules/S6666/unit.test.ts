@@ -14,45 +14,50 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2015 },
-});
+describe('S6666', () => {
+  it('S6666', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Spread syntax should be used instead of apply()`, rule, {
-  valid: [
-    {
-      code: `foo.apply(obj, args);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `foo.apply(null, args);`,
-      errors: [
+    ruleTester.run(`Spread syntax should be used instead of apply()`, rule, {
+      valid: [
         {
-          suggestions: [
+          code: `foo.apply(obj, args);`,
+        },
+      ],
+      invalid: [
+        {
+          code: `foo.apply(null, args);`,
+          errors: [
             {
-              desc: 'Replace apply() with spread syntax',
-              output: `foo(...args);`,
+              messageId: 'preferSpread',
+              suggestions: [
+                {
+                  desc: 'Replace apply() with spread syntax',
+                  output: `foo(...args);`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.apply(obj, args);`,
+          errors: [
+            {
+              messageId: 'preferSpread',
+              suggestions: [
+                {
+                  desc: 'Replace apply() with spread syntax',
+                  output: `obj.foo(...args);`,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-    {
-      code: `obj.foo.apply(obj, args);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace apply() with spread syntax',
-              output: `obj.foo(...args);`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

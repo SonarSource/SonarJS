@@ -14,22 +14,25 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S2189', () => {
+  it('S2189', () => {
+    const ruleTester = new DefaultParserRuleTester();
 
-ruleTester.run('Loops should not be infinite', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
+        {
+          code: `
       for (var i=0;i<5;i++) {
         console.log("hello");
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var j = 0;
       while (true) { // reachable end condition added
         j++;
@@ -38,9 +41,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function * generator() {
         while(true) { // OK (yield in the loop)
             foo();
@@ -48,9 +51,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function someFunction() {
         while(true) { // OK (return in the loop)
             foo();
@@ -58,9 +61,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const sleep = time => {
         let count = 0;
         const waitTill = new Date(new Date().getTime() + time);
@@ -69,9 +72,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       };
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function do_while() {
 
         var trueValue = true;
@@ -81,9 +84,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         } while (trueValue);
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function always_true() {
 
         var trueValue = true;
@@ -93,9 +96,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function throws_interrupts_loop() {
         for(;;) {               // OK
             throw "We are leaving!";
@@ -108,16 +111,16 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       while (until === undefined) {
         until = getUntil();
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       outer:
       while (true) {
         while (true) {
@@ -126,9 +129,9 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       while (true) {  // FN
         inner:
         while (true) {
@@ -137,98 +140,98 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       let xs = [1, 2, 3];
       while (xs) {
         doSomething(xs.pop());
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       let xs = [1, 2, 3];
       while (xs) {
         doSomething(xs);
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var parent = $container.find('.list')[0];
       while (parent && parent.firstChild) {
         parent.removeChild(parent.firstChild);
       }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       let coverage = [1, 2, 3];
       while (coverage) {
         coverage.length;
         doSomething(coverage);
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var k = 0;
       var b = true;
       while (b) { // Noncompliant; b never written to in loop
         k++;
       }
             `,
-      errors: [
-        {
-          line: 4,
-          endLine: 4,
-          column: 14,
-          endColumn: 15,
-          message: "'b' is not modified in this loop.",
+          errors: [
+            {
+              line: 4,
+              endLine: 4,
+              column: 14,
+              endColumn: 15,
+              message: "'b' is not modified in this loop.",
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       while (true) {
         console.log("hello");
       }
             `,
-      errors: [
-        {
-          line: 2,
-          endLine: 2,
-          column: 7,
-          endColumn: 12,
-          message: "Correct this loop's end condition to not be invariant.",
+          errors: [
+            {
+              line: 2,
+              endLine: 2,
+              column: 7,
+              endColumn: 12,
+              message: "Correct this loop's end condition to not be invariant.",
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       for (;;) {
         console.log("hello");
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       for (var str = '';str >= '0' && '9' >= str;) {
         console.log("hello");
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       for (;true;) {
         console.log("hello");
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       while (true) { // Noncompliant
         while (true) {
           if (cond) {
@@ -237,33 +240,35 @@ ruleTester.run('Loops should not be infinite', rule, {
         }
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       do {
         console.log("hello");
       } while (true);
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       while (true) {
         function doSomething() {
           return "hello";
         }
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       while (true) {
         var a = function () {return 0;};
       }
             `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

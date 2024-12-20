@@ -14,13 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new RuleTester();
 
 const options = [
   {
@@ -28,85 +27,87 @@ const options = [
   },
 ];
 
-ruleTester.run('Expressions should not be too complex', rule, {
-  valid: [
-    {
-      code: `let b = 1 || 2 || 3 || 4`,
-      options,
-    },
-    {
-      code: `let b = 1 && 2 && 4 && 4`,
-      options,
-    },
-    {
-      code: `let b = 1 ? ( 2 ? ( 3 ? true : false ) : false ) : false;`,
-      options,
-    },
-    {
-      code: `let b = foo(1 || 2 || 3, 1 || 2 || 3);`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || foo(1 || 2);`,
-      options,
-    },
-    {
-      code: `let b = {x: 1 || 2 || 3, y: 1 || 2 || 3};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || {x: 1 || 2};`,
-      options,
-    },
-    {
-      code: `let b = function () {1 || 2 || 3 || 4};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function () {1 || 2};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function () {1 || 2 || function () {1 || 2}};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function f() {1 || 2 || function g() {1 || 2}};`,
-      options,
-    },
-    {
-      code: `let b = <div>{1 || 2 || 3 || 4}</div>;`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || <div>{1 || 2}</div>;`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
-      options: [
+describe('S1067', () => {
+  it('S1067', () => {
+    ruleTester.run('Expressions should not be too complex', rule, {
+      valid: [
         {
-          max: 10,
+          code: `let b = 1 || 2 || 3 || 4`,
+          options,
+        },
+        {
+          code: `let b = 1 && 2 && 4 && 4`,
+          options,
+        },
+        {
+          code: `let b = 1 ? ( 2 ? ( 3 ? true : false ) : false ) : false;`,
+          options,
+        },
+        {
+          code: `let b = foo(1 || 2 || 3, 1 || 2 || 3);`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || foo(1 || 2);`,
+          options,
+        },
+        {
+          code: `let b = {x: 1 || 2 || 3, y: 1 || 2 || 3};`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || {x: 1 || 2};`,
+          options,
+        },
+        {
+          code: `let b = function () {1 || 2 || 3 || 4};`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || function () {1 || 2};`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || function () {1 || 2 || function () {1 || 2}};`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || function f() {1 || 2 || function g() {1 || 2}};`,
+          options,
+        },
+        {
+          code: `let b = <div>{1 || 2 || 3 || 4}</div>;`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || <div>{1 || 2}</div>;`,
+          options,
+        },
+        {
+          code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
+          options: [
+            {
+              max: 10,
+            },
+          ],
         },
       ],
-    },
-  ],
-  invalid: [
-    invalid(`
+      invalid: [
+        invalid(`
     let b = 1 || 2 || 3 || 4 || 5;
           //--^^---^^---^^---^^--
     `),
-    invalid(`
+        invalid(`
     let b = 1 && 2 && 3 && 4 && 5;
           //--^^---^^---^^---^^--
     `),
-    invalid(`
+        invalid(`
     function f() {
       let b = 1 || 2 || 3 || 4 || 5;
             //--^^---^^---^^---^^--
     }
     `),
-    invalid(`
+        invalid(`
     function f() {
       let b = 1 || 2 || 3 ||
       function g() {
@@ -115,7 +116,7 @@ ruleTester.run('Expressions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+        invalid(`
     function f() {
       let b = 1 || 2 || 3 ||
       function g() {
@@ -127,98 +128,100 @@ ruleTester.run('Expressions should not be too complex', rule, {
       }
     }
     `),
-    invalid(
-      `
+        invalid(
+          `
     let b = 1 ? true : false;
           //--^-------------
     `,
-      0,
-    ),
-  ],
-});
+          0,
+        ),
+      ],
+    });
+  });
 
-function invalid(code: string, max = 3) {
-  const issue = {
-    complexity: 0,
-    primaryLocation: {} as IssueLocation,
-    secondaryLocations: [] as IssueLocation[],
-  };
-  const lines = code.split('\n');
-  for (const [index, line] of lines.entries()) {
-    let found: RegExpMatchArray | null;
+  function invalid(code: string, max = 3) {
+    const issue = {
+      complexity: 0,
+      primaryLocation: {} as IssueLocation,
+      secondaryLocations: [] as IssueLocation[],
+    };
+    const lines = code.split('\n');
+    for (const [index, line] of lines.entries()) {
+      let found: RegExpMatchArray | null;
 
-    const regex = /\/\/\s*([-\^]+)/;
-    found = line.match(regex);
-    if (found) {
-      let marker = found[1];
-      const column = line.indexOf(marker);
-      issue.primaryLocation = location(index, column, index, column + marker.length);
+      const regex = /\/\/\s*([-\^]+)/;
+      found = line.match(regex);
+      if (found) {
+        let marker = found[1];
+        const column = line.indexOf(marker);
+        issue.primaryLocation = location(index, column, index, column + marker.length);
 
-      marker += ' ';
-      let secondaryStart = -1;
-      for (let i = 0; i < marker.length; ++i) {
-        if (marker[i] === '^') {
-          if (secondaryStart === -1) {
-            secondaryStart = i;
-          }
-        } else {
-          if (secondaryStart !== -1) {
-            issue.complexity += 1;
-            issue.secondaryLocations.push(
-              location(index, column + secondaryStart, index, column + i, '+1'),
-            );
-            secondaryStart = -1;
+        marker += ' ';
+        let secondaryStart = -1;
+        for (let i = 0; i < marker.length; ++i) {
+          if (marker[i] === '^') {
+            if (secondaryStart === -1) {
+              secondaryStart = i;
+            }
+          } else {
+            if (secondaryStart !== -1) {
+              issue.complexity += 1;
+              issue.secondaryLocations.push(
+                location(index, column + secondaryStart, index, column + i, '+1'),
+              );
+              secondaryStart = -1;
+            }
           }
         }
       }
     }
+    issue.secondaryLocations.sort((a, b) => b.column - a.column);
+    return {
+      code,
+      errors: [error(issue, max)],
+      options: [
+        {
+          max,
+        },
+        'sonar-runtime',
+      ],
+    };
   }
-  issue.secondaryLocations.sort((a, b) => b.column - a.column);
-  return {
-    code,
-    errors: [error(issue, max)],
-    options: [
-      {
-        max,
-      },
-      'sonar-runtime',
-    ],
-  };
-}
 
-function error(
-  issue: {
-    complexity: number;
-    primaryLocation: IssueLocation;
-    secondaryLocations: IssueLocation[];
-  },
-  max: number,
-) {
-  const { line, column, endColumn, endLine } = issue.primaryLocation;
-  return {
-    message: encode(issue.complexity, max, issue.secondaryLocations),
-    line,
-    column: column + 1,
-    endColumn: endColumn + 1,
-    endLine,
-  };
-}
+  function error(
+    issue: {
+      complexity: number;
+      primaryLocation: IssueLocation;
+      secondaryLocations: IssueLocation[];
+    },
+    max: number,
+  ) {
+    const { line, column, endColumn, endLine } = issue.primaryLocation;
+    return {
+      message: encode(issue.complexity, max, issue.secondaryLocations),
+      line,
+      column: column + 1,
+      endColumn: endColumn + 1,
+      endLine,
+    };
+  }
 
-function encode(complexity: number, max: number, secondaryLocations: IssueLocation[]): string {
-  const encodedMessage: EncodedMessage = {
-    message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
-    secondaryLocations,
-    cost: complexity - max,
-  };
-  return JSON.stringify(encodedMessage);
-}
+  function encode(complexity: number, max: number, secondaryLocations: IssueLocation[]): string {
+    const encodedMessage: EncodedMessage = {
+      message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
+      secondaryLocations,
+      cost: complexity - max,
+    };
+    return JSON.stringify(encodedMessage);
+  }
 
-function location(
-  line: number,
-  column: number,
-  endLine: number,
-  endColumn: number,
-  message?: string,
-): IssueLocation {
-  return { message, column, line, endColumn, endLine };
-}
+  function location(
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number,
+    message?: string,
+  ): IssueLocation {
+    return { message, column, line, endColumn, endLine };
+  }
+});

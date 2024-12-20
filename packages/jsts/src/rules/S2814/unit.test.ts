@@ -14,35 +14,40 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
+describe('S2814', () => {
+  it('S2814', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Variables and functions should not be redeclared`, rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run(`Variables and functions should not be redeclared`, rule, {
+      valid: [
+        {
+          code: `
       export const FOO = 'FOO';
       export type FOO = typeof FOO;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       import FOO from "foo";
       export type FOO = 'F' | 'O' | 'O';
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `var a = 42; var a = 0;`,
-      errors: 1,
-    },
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `var a = 42; var a = 0;`,
+          errors: 1,
+        },
+        {
+          code: `
       export var FOO = 'FOO';
       export var FOO = typeof FOO;`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

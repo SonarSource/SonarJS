@@ -89,11 +89,11 @@ React.createClass({
   </tbody>
 </table>
 
-<table> {/* Noncompliant */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 
 </table>
 
-<table> {/* Noncompliant */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
   <th></th>
 </table>
 
@@ -115,10 +115,10 @@ React.createClass({
   <tr>
     <th></th>
   </tr>
-  <table></table> {/* Noncompliant */}
+  <table></table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 </table>
 
-<table> {/* Noncompliant */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
   <table>
     <tr>
       <th></th>
@@ -149,27 +149,27 @@ React.createClass({
 
 </table>
 
-<table role="dummy"> {/* Noncompliant */}
+<table role="dummy"> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 
 </table>
 
 <table role="presentation">
-  <table></table> {/* Noncompliant */}
+  <table></table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 </table>
 
 <table aria-hidden="true">
 
 </table>
 
-<table aria-hidden="false"> {/* Noncompliant */}
+<table aria-hidden="false"> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
   
 </table>
 
 <table aria-hidden="true">
-  <table></table> {/* Noncompliant */}
+  <table></table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 </table>
 
-<table> {/* Noncompliant */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
   <tbody>
     <tr><td></td><td></td></tr>
     <tr>
@@ -195,7 +195,7 @@ React.createClass({
   </tbody>
 </table>
 
-<table> {/* Noncompliant */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
   <tr>
     <th colspan={2} rowspan="2"></th>
     <td rowspan="2"></td>

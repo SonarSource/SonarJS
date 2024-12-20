@@ -14,49 +14,54 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
-ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
-  valid: [
-    {
-      code: `a.indexOf("str", 1) > 0;`,
-    },
-    {
-      code: `a.indexOf("str") > -1;`,
-    },
-    {
-      code: `"str".indexOf("str") > 0;`,
-    },
-    {
-      code: `[].indexOf(a) >= 0;`,
-    },
-    {
-      code: `(new Array()).indexOf(a) >= 0;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `[].indexOf("str") > 0;`,
-      errors: [
+describe('S2692', () => {
+  it('S2692', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
+      valid: [
         {
-          message:
-            "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 22,
+          code: `a.indexOf("str", 1) > 0;`,
+        },
+        {
+          code: `a.indexOf("str") > -1;`,
+        },
+        {
+          code: `"str".indexOf("str") > 0;`,
+        },
+        {
+          code: `[].indexOf(a) >= 0;`,
+        },
+        {
+          code: `(new Array()).indexOf(a) >= 0;`,
         },
       ],
-    },
-    {
-      code: `[].indexOf(a) > 0;`,
-      errors: 1,
-    },
-    {
-      code: `(new Array()).indexOf(a) > 0;`,
-      errors: 1,
-    },
-  ],
+      invalid: [
+        {
+          code: `[].indexOf("str") > 0;`,
+          errors: [
+            {
+              message:
+                "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",
+              line: 1,
+              endLine: 1,
+              column: 1,
+              endColumn: 22,
+            },
+          ],
+        },
+        {
+          code: `[].indexOf(a) > 0;`,
+          errors: 1,
+        },
+        {
+          code: `(new Array()).indexOf(a) > 0;`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -14,14 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
-ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
-  valid: [
-    {
-      code: `
+describe('S4822', () => {
+  it('S4822', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
+      valid: [
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       async function okWithAwait() {
         try {
@@ -31,9 +34,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function okWithAnotherCall() {
         try {
@@ -44,9 +47,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function okWithoutCatch() {
         try {
@@ -56,9 +59,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function okWithNestedFunc() {
         try {
@@ -68,9 +71,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       async function okWithAwaitAndPromise() {
         try {
@@ -81,9 +84,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       async function * okWithYield() {
         try {
@@ -93,11 +96,11 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function singlePromise() {
         try {
@@ -107,19 +110,19 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: [
-        {
-          message: `{"message":"Consider using 'await' for the promise inside this 'try' or replace it with 'Promise.prototype.catch(...)' usage.","secondaryLocations":[{"message":"Promise","column":10,"line":5,"endColumn":28,"endLine":5}]}`,
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 12,
+          errors: [
+            {
+              message: `{"message":"Consider using 'await' for the promise inside this 'try' or replace it with 'Promise.prototype.catch(...)' usage.","secondaryLocations":[{"message":"Promise","column":10,"line":5,"endColumn":28,"endLine":5}]}`,
+              line: 4,
+              endLine: 4,
+              column: 9,
+              endColumn: 12,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function uselessTry() {
         try {
@@ -129,19 +132,19 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: [
-        {
-          message: `{"message":"Consider removing this 'try' statement as promise rejection is already captured by '.catch()' method.","secondaryLocations":[{"message":"Caught promise","column":10,"line":5,"endColumn":28,"endLine":5}]}`,
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 12,
+          errors: [
+            {
+              message: `{"message":"Consider removing this 'try' statement as promise rejection is already captured by '.catch()' method.","secondaryLocations":[{"message":"Caught promise","column":10,"line":5,"endColumn":28,"endLine":5}]}`,
+              line: 4,
+              endLine: 4,
+              column: 9,
+              endColumn: 12,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function conditionalPromise(cond: boolean) {
         try {
@@ -156,10 +159,10 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       async function severalTry() {
         try {
@@ -175,10 +178,10 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function newPromise() {
         try {
@@ -188,10 +191,10 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function returningPromiseAndThrowing(cond: boolean) {
         if (cond) {
           return new Promise((res, rej) => {});
@@ -209,10 +212,10 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function uselessTryThenCatch() {
         try {
@@ -222,10 +225,10 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       function returningPromise() { return Promise.reject(); }
       function onlyOnePromiseWhenChainedPromise() {
         try {
@@ -235,7 +238,9 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
         }
       }
       `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

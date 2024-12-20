@@ -26,7 +26,7 @@ function ShowLanguageInvalid() {
 function ShowLanguagePrefixedInvalid() {
     const [language, setLanguage] = React.useState(navigator.language);
 
-    setLanguage(navigator.language); // Noncompliant
+    setLanguage(navigator.language); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //  ^^^^^^^^^^^
 
     return (
@@ -42,7 +42,7 @@ function ShowLanguagePrefixedInvalid() {
 const ShowLanguageInvalidArrow = () => {
   const [language, setLanguage] = useState("fr-FR");
 
-  setLanguage(navigator.language); // Noncompliant
+  setLanguage(navigator.language); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //^^^^^^^^^^^
 
   return (
@@ -58,7 +58,7 @@ const ShowLanguageInvalidArrow = () => {
 const ShowLanguageInvalidExpression = function() {
   const [language, setLanguage] = useState("fr-FR");
 
-  setLanguage(navigator.language); // Noncompliant
+  setLanguage(navigator.language); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //^^^^^^^^^^^
 
   return (
@@ -74,7 +74,7 @@ const ShowLanguageInvalidExpression = function() {
 exports.MemberInvalid = () => {
     const [language, setLanguage] = useState("fr-FR");
 
-    setLanguage(navigator.language); // Noncompliant
+    setLanguage(navigator.language); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //  ^^^^^^^^^^^
 
     return (
@@ -95,9 +95,9 @@ function MultipleHookInvalid() {
     MultipleHookInvalid.c = c;
   }
 
-  setA("A"); // Noncompliant
+  setA("A"); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //^^^^
-  setB("B"); // Noncompliant
+  setB("B"); // Noncompliant {{Remove this state setter call, perhaps move it to an event handler or JSX attribute}}
 //^^^^
   setC("C");
 

@@ -19,7 +19,7 @@ class S6330NonCompliantStack extends Stack {
 //                ^^^^^^^^^
     });
     const queue5 = new Queue(this, 'UnencryptedQueue4', {
-      encryption: QueueEncryption.UNENCRYPTED // Noncompliant {{Setting "encryption" to QueueEncryption.UNENCRYPTED disables SQS queues encryption. Make sure it is safe here.})
+      encryption: QueueEncryption.UNENCRYPTED // Noncompliant {{Setting "encryption" to "QueueEncryption.UNENCRYPTED" disables SQS queues encryption. Make sure it is safe here.}}
 //                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     });
 

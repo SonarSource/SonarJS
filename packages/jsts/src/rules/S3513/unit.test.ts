@@ -14,21 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    ecmaFeatures: { impliedStrict: false },
-    sourceType: 'script',
-  },
-});
+describe('S3513', () => {
+  it('S3513', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`"arguments" should not be accessed directly`, rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run(`"arguments" should not be accessed directly`, rule, {
+      valid: [
+        {
+          code: `
 function foo_ok1(a, b) {
   return a + b;
 }
@@ -55,11 +52,11 @@ function foo_ok5(a) {
 var arguments = 1;  // OK, global
 foo(arguments);
 `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
 function foo1() {
   foo(arguments);  // Noncompliant
 }
@@ -69,37 +66,39 @@ const foo2 = function() {
   foo(arguments[1]);
 }
 `,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          message: JSON.stringify({
-            message: "Use the rest syntax to declare this function's arguments.",
-            secondaryLocations: [],
-          }),
-          line: 3,
-          endLine: 3,
-          column: 7,
-          endColumn: 16,
-        },
-        {
-          message: JSON.stringify({
-            message: "Use the rest syntax to declare this function's arguments.",
-            secondaryLocations: [
-              {
-                message: 'Replace this reference to "arguments".',
-                column: 6,
-                line: 8,
-                endColumn: 15,
-                endLine: 8,
-              },
-            ],
-          }),
-          line: 7,
-          endLine: 7,
-          column: 7,
-          endColumn: 16,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              message: JSON.stringify({
+                message: "Use the rest syntax to declare this function's arguments.",
+                secondaryLocations: [],
+              }),
+              line: 3,
+              endLine: 3,
+              column: 7,
+              endColumn: 16,
+            },
+            {
+              message: JSON.stringify({
+                message: "Use the rest syntax to declare this function's arguments.",
+                secondaryLocations: [
+                  {
+                    message: 'Replace this reference to "arguments".',
+                    column: 6,
+                    line: 8,
+                    endColumn: 15,
+                    endLine: 8,
+                  },
+                ],
+              }),
+              line: 7,
+              endLine: 7,
+              column: 7,
+              endColumn: 16,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

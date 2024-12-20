@@ -41,7 +41,7 @@ const otherParamValid = new s3.Bucket(this, 'id', {
 });
 const otherInvalidParam = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
-  publicReadAccess: true // Noncompliant
+  publicReadAccess: true // Noncompliant {{Make sure allowing unrestricted access to objects from this bucket is safe here.}}
 });
 
 //// 1.2.1 secondary
@@ -49,7 +49,7 @@ const otherInvalidParam = new s3.Bucket(this, 'id', {
 const publicReadAccess = true; // Secondary Location
 const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
-  publicReadAccess, // Noncompliant
+  publicReadAccess, // Noncompliant {{Make sure allowing unrestricted access to objects from this bucket is safe here.}}
 });
 
 // 2.1 s3Bucket.grantPublicAccess()
@@ -91,7 +91,7 @@ const invalidBucketDeploymentParam3 = new s3deploy.BucketDeployment(this, 'id', 
 const falseNegative = new s3deploy.BucketDeployment(this, 'upload', {
   sources: [s3deploy.Source.asset(path.join(import.meta.dirname, '../lib'))],
   destinationBucket: bucketNoncompliant4,
-  accessControl: s3.BucketAccessControl.PUBLIC_READ_WRITE // Noncompliant
+  accessControl: s3.BucketAccessControl.PUBLIC_READ_WRITE // Noncompliant {{Make sure granting PUBLIC_READ_WRITE access is safe here.}}
 });
 
 //// 3.1.1 secondary
