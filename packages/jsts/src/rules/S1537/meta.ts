@@ -17,4 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'comma-dangle';
-export const externalPlugin = 'typescript-eslint';
+export const externalPlugin = '@stylistic/eslint-plugin-ts';

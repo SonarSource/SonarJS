@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import originalRule from '@stylistic/eslint-plugin-ts/rules/semi';
 import { decorate } from './decorator.js';
 
-export const rule = decorate(tsEslintRules['semi']);
+export const rule = decorate(originalRule);
