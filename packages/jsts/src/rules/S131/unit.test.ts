@@ -47,6 +47,18 @@ describe('S131', () => {
         },
         {
           code: `
+        type  T = 'foo' | 'bar';
+        const x = 'foo' as T;
+        switch (x) {
+          case 'foo':
+            break;
+          default:
+            break;
+        }
+      `,
+        },
+        {
+          code: `
       enum Direction {
         Up,
         Down
