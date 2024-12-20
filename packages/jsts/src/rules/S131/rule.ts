@@ -140,6 +140,11 @@ export const rule: Rule.RuleModule = {
       ...decoratedSwitchExhaustivenessRule.meta?.messages,
     },
     schema: switchExhaustivenessRule.meta!.schema,
+    defaultOptions: [
+      {
+        considerDefaultExhaustiveForUnions: true,
+      },
+    ],
   }),
   create(context: Rule.RuleContext) {
     return mergeRules(
