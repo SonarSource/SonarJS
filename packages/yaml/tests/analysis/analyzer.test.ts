@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import type { Rule } from 'eslint';
 import { describe, it, before } from 'node:test';
 import { expect } from 'expect';
@@ -23,8 +22,10 @@ import { setContext } from '../../../shared/src/helpers/context.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { rules } from '../../../jsts/src/linter/wrapper.js';
 import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
+import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
@@ -197,8 +198,8 @@ describe('analyzeYAML', () => {
         },
       },
     };
+    rules[rule.key] = rule.module;
     await initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
-    getLinter().linter.defineRule(rule.key, rule.module);
     analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
   });
 });

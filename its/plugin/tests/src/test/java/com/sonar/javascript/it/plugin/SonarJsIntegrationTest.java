@@ -82,7 +82,10 @@ class SonarJsIntegrationTest {
       extractArchive(fileToExtract, temp);
       bridge.start(temp);
       assertStatus(bridge);
-      bridge.request(gson.toJson(InitLinter.build("S1481")), "init-linter");
+      bridge.request(
+        gson.toJson(InitLinter.build("S1481", temp.toAbsolutePath().toString())),
+        "init-linter"
+      );
       assertAnalyzeJs(bridge);
     } finally {
       bridge.stop();
@@ -91,8 +94,7 @@ class SonarJsIntegrationTest {
 
   private void assertAnalyzeJs(Bridge bridge) throws IOException, InterruptedException {
     AnalysisRequest r = new AnalysisRequest();
-    r.fileContent =
-      "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n";
+    r.fileContent = "function foo() { \n  var a; \n  var c; // NOSONAR\n  var b = 42; \n} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
     String response = bridge.request(gson.toJson(r), "analyze-js");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
@@ -231,12 +233,14 @@ class SonarJsIntegrationTest {
     List<Rule> rules = new ArrayList<>();
     List<String> environments = new ArrayList<>();
     List<String> globals = new ArrayList<>();
+    String baseDir;
 
-    static InitLinter build(String rule) {
+    static InitLinter build(String rule, String baseDir) {
       InitLinter initLinter = new InitLinter();
       Rule rule1 = new Rule();
       rule1.key = rule;
       initLinter.rules.add(rule1);
+      initLinter.baseDir = baseDir;
       return initLinter;
     }
   }

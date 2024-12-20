@@ -16,9 +16,8 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { rule as noExclusiveTests } from '../../../src/rules/S6426/index.js';
 import { transformFixes } from '../../../src/linter/quickfixes/transform.js';
-import { parseJavaScriptSourceFile } from '../../tools/helpers/index.js';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rules as allRules } from '../../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
@@ -29,12 +28,15 @@ describe('transformFixes', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
-    const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, allRules[ruleId]);
-    const [message] = linter.verify(sourceCode, { rules });
-    expect(message).toEqual(expect.objectContaining({ ruleId }));
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
 
     const quickFixes = transformFixes(sourceCode, message);
     expect(quickFixes).toEqual([
@@ -55,14 +57,15 @@ describe('transformFixes', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S6426';
-    const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, allRules[ruleId]);
-    linter.defineRule(ruleId, noExclusiveTests);
-
-    const [message] = linter.verify(sourceCode, { rules });
-    expect(message).toEqual(expect.objectContaining({ ruleId }));
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
 
     const quickFixes = transformFixes(sourceCode, message);
     expect(quickFixes).toEqual([
@@ -83,13 +86,15 @@ describe('transformFixes', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1186';
-    const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, allRules[ruleId]);
-
-    const [message] = linter.verify(sourceCode, { rules });
-    expect(message).toEqual(expect.objectContaining({ ruleId }));
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
 
     const quickFixes = transformFixes(sourceCode, message);
     expect(quickFixes).toEqual([
@@ -110,11 +115,15 @@ describe('transformFixes', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1440';
-    const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, allRules[ruleId]);
-    const [message] = linter.verify(sourceCode, { rules });
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
     expect(message.fix).toBeDefined();
 
     const quickFixes = transformFixes(sourceCode, message);
@@ -126,12 +135,15 @@ describe('transformFixes', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1119';
-    const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, allRules[ruleId]);
-
-    const [message] = linter.verify(sourceCode, { rules });
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
     expect(message.fix).toBeUndefined();
 
     const quickFixes = transformFixes(sourceCode, message);

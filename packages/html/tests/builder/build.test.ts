@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools/index.js';
+import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseHTML } from '../../src/parser/parse.js';
@@ -27,7 +27,7 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'multiple.html');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);
     expect(sourceCodes).toHaveLength(2);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
-    expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });
+    expect(sourceCodes[0].sourceCode.ast.loc.start).toEqual({ line: 4, column: 8 });
+    expect(sourceCodes[1].sourceCode.ast.loc.start).toEqual({ line: 8, column: 8 });
   });
 });

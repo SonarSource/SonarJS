@@ -22,9 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonar.orchestrator.Orchestrator;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -33,12 +30,12 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues.Issue;
 
 @ExtendWith(OrchestratorStarter.class)
-public class HtmlAnalysisTest {
+class HtmlAnalysisTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void should_raise_issues_in_html_files() throws IOException {
+  void should_raise_issues_in_html_files() {
     var projectKey = "html-project";
     var uniqueProjectKey = projectKey + UUID.randomUUID();
     var build = getSonarScanner()

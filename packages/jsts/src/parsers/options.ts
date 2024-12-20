@@ -41,6 +41,11 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
     range: true,
     ecmaVersion: 2018,
     sourceType: 'module',
+    // The single run makes that typescript-eslint uses normal programs instead of use watch programs
+    // In CI this automatic detection sets singleRun to true
+    // https://github.com/typescript-eslint/typescript-eslint/blob/d24a82854d06089cbd2a8801f2982fd4781f3701/packages/typescript-estree/src/parseSettings/inferSingleRun.ts#L44
+    // We need watch programs for replace contents of the files (for example in Vue files)
+    disallowAutomaticSingleRunInference: true,
     codeFrame: false,
     ecmaFeatures: {
       jsx: true,

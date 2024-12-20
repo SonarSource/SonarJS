@@ -16,14 +16,16 @@
  */
 import { SourceCode } from 'eslint';
 import { patchParsingError, patchSourceCode } from './patch.js';
-import clone from 'lodash.clone';
 import path from 'path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { JsTsAnalysisInput } from '../../analysis/analysis.js';
 import { buildSourceCode } from '../../builders/build.js';
 
-export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
+export type ExtendedSourceCode = {
+  sourceCode: SourceCode;
+  syntheticFilePath: string;
+};
 export type LanguageParser = (text: string) => EmbeddedJS[];
 
 /**
@@ -60,12 +62,10 @@ export function buildSourceCodes(
       fileType: 'MAIN',
     } as JsTsAnalysisInput;
     try {
-      const sourceCode = buildSourceCode(jsTsAnalysisInput, 'js');
-      const patchedSourceCode: SourceCode = patchSourceCode(sourceCode, embeddedJS);
-      // We use lodash.clone here to remove the effects of Object.preventExtensions()
-      const extendedSourceCode: ExtendedSourceCode = Object.assign(clone(patchedSourceCode), {
+      const extendedSourceCode = {
+        sourceCode: patchSourceCode(buildSourceCode(jsTsAnalysisInput, 'js'), embeddedJS),
         syntheticFilePath,
-      });
+      };
       extendedSourceCodes.push(extendedSourceCode);
     } catch (error) {
       throw patchParsingError(error, embeddedJS);

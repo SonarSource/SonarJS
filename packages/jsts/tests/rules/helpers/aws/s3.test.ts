@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tools/testers/rule-tester.js';
 import { S3BucketTemplate } from '../../../../src/rules/index.js';
 
 const rule = S3BucketTemplate((node, context) => {
@@ -26,7 +26,7 @@ const rule = S3BucketTemplate((node, context) => {
   }
 });
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run('S3 Bucket Template', rule, {
   valid: [
     {

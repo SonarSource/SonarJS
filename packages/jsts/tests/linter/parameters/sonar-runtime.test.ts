@@ -21,18 +21,14 @@ import { SONAR_RUNTIME } from '../../../src/rules/index.js';
 
 describe('hasSonarRuntimeOption', () => {
   it('should return true for a rule that has `sonar-runtime` option', () => {
-    expect(
-      hasSonarRuntimeOption({ meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any, 'fake'),
-    ).toEqual(true);
+    expect(hasSonarRuntimeOption([{ enum: [SONAR_RUNTIME] }])).toEqual(true);
   });
 
   it('should return false for a rule that has not `sonar-runtime` option', () => {
-    expect(hasSonarRuntimeOption({ meta: { schema: [{ enum: [42] }] } } as any, 'fake')).toEqual(
-      false,
-    );
+    expect(hasSonarRuntimeOption([{ enum: [42] }])).toEqual(false);
   });
 
   it('should return false for a rule without any schema', () => {
-    expect(hasSonarRuntimeOption({ meta: {} } as any, 'fake')).toEqual(false);
+    expect(hasSonarRuntimeOption({})).toEqual(false);
   });
 });

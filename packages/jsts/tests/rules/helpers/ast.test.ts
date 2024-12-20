@@ -19,9 +19,9 @@ import path from 'path';
 import { Linter, Rule } from 'eslint';
 import { getProperty } from '../../../src/rules/index.js';
 
-import { parseJavaScriptSourceFile } from '../../tools/index.js';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 
 describe('getProperty', () => {
   (
@@ -56,23 +56,31 @@ describe('getProperty', () => {
       const baseDir = path.join(import.meta.dirname, 'fixtures');
 
       const linter = new Linter();
-      linter.defineRule('custom-rule-file', {
-        create(context: Rule.RuleContext) {
-          return {
-            'ExpressionStatement ObjectExpression': node => {
-              const property = getProperty(node, key, context);
-              verifier(property);
-            },
-          };
-        },
-      } as Rule.RuleModule);
 
       const filePath = path.join(baseDir, fixtureFile);
       const sourceCode = await parseJavaScriptSourceFile(filePath);
 
       linter.verify(
         sourceCode,
-        { rules: { 'custom-rule-file': 'error' } },
+        {
+          plugins: {
+            sonarjs: {
+              rules: {
+                'custom-rule-file': {
+                  create(context: Rule.RuleContext) {
+                    return {
+                      'ExpressionStatement ObjectExpression': node => {
+                        const property = getProperty(node, key, context);
+                        verifier(property);
+                      },
+                    };
+                  },
+                } as Rule.RuleModule,
+              },
+            },
+          },
+          rules: { 'sonarjs/custom-rule-file': 'error' },
+        },
         { filename: filePath, allowInlineConfig: false },
       );
     });

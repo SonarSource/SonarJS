@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, Tests } from '../../../tools/testers/rule-tester.js';
 import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
@@ -23,7 +23,6 @@ import { rule as noParameterReassignment } from '../../../../src/rules/S1226/ind
 import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
 import path from 'path';
 import { describe } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(
@@ -49,15 +48,9 @@ describe('interceptReport', () => {
 function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
-  tests: {
-    valid?: NodeRuleTester.ValidTestCase[];
-    invalid?: NodeRuleTester.InvalidTestCase[];
-  },
+  tests: Tests,
 ) {
-  const ruleTester = new NodeRuleTester({
-    parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-    parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  });
+  const ruleTester = new NoTypeCheckingRuleTester();
 
   ruleTester.run(name + ' (without decorator)', rule, tests);
   ruleTester.run(

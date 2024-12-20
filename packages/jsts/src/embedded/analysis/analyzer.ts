@@ -69,7 +69,7 @@ function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceC
   for (const extendedSourceCode of extendedSourceCodes) {
     const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(linter, extendedSourceCode);
     ncloc = ncloc.concat(singleNcLoc);
-    const filteredIssues = removeNonJsIssues(extendedSourceCode, issues);
+    const filteredIssues = removeNonJsIssues(extendedSourceCode.sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
     aggregatedUcfgPaths.push(...ucfgPaths);
   }
@@ -81,11 +81,11 @@ function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceC
 
   function analyzeSnippet(linter: LinterWrapper, extendedSourceCode: ExtendedSourceCode) {
     const { issues, ucfgPaths } = linter.lint(
-      extendedSourceCode,
+      extendedSourceCode.sourceCode,
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );
-    const ncloc = findNcloc(extendedSourceCode);
+    const ncloc = findNcloc(extendedSourceCode.sourceCode);
     return { issues, ucfgPaths, ncloc };
   }
 
