@@ -14,15 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Sanitized prefer-optional-chain should not raise a runtime error', rule, {
-  valid: [
-    {
-      code: `foo && foo.a;`,
-    },
-  ],
-  invalid: [],
+describe('S6582', () => {
+  it('S6582', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Sanitized prefer-optional-chain should not raise a runtime error', rule, {
+      valid: [
+        {
+          code: `foo && foo.a;`,
+        },
+      ],
+      invalid: [],
+    });
+  });
 });

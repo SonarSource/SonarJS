@@ -14,15 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S1994', () => {
+  it('S1994', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('Loop counter', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Loop counter', rule, {
+      valid: [
+        {
+          code: `
       var i, j, k;
       for (i = 0; i < 3; i++) {}
       for (i = 0; i < 3; i+=1) {}
@@ -42,25 +45,25 @@ ruleTester.run('Loop counter', rule, {
       for (i = 0; i < 3; ) {}
       for (i = 0; ; i++) {}      
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      var i, j; 
-      for (i = 0; i < 3; j++) {} // Noncompliant`,
-      errors: [
-        {
-          message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
-          line: 3,
-          endLine: 3,
-          column: 7,
-          endColumn: 10,
         },
       ],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `
+      var i, j; 
+      for (i = 0; i < 3; j++) {} // Noncompliant`,
+          errors: [
+            {
+              message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
+              line: 3,
+              endLine: 3,
+              column: 7,
+              endColumn: 10,
+            },
+          ],
+        },
+        {
+          code: `
       var i, j, k;
       for (i = 0; i < 3; j+=1) {}
       for (i = 0; i < 3 && j < 4; k++) {}
@@ -73,52 +76,54 @@ ruleTester.run('Loop counter', rule, {
       for (i = 0; i < 3; {y: x = 42 } = obj) {}
       for (i = 0; i < 3; { x = 42 } = obj) {}
       for (i = 0; i < 3; [x] = obj) {}`,
-      errors: [
-        {
-          line: 3,
-          message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
-        },
-        {
-          line: 4,
-          message: `This loop's stop condition tests "i, j" but the incrementer updates "k".`,
-        },
-        {
-          line: 5,
-          message: `This loop's stop condition tests "condition" but the incrementer updates "i".`,
-        },
-        {
-          line: 6,
-          message: `This loop's stop condition tests "x" but the incrementer updates "z".`,
-        },
-        {
-          line: 7,
-          message: `This loop's stop condition tests "this.i" but the incrementer updates "this.j".`,
-        },
-        {
-          line: 8,
-          message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
-        },
-        {
-          line: 9,
-          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
-        },
-        {
-          line: 10,
-          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
-        },
-        {
-          line: 11,
-          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
-        },
-        {
-          line: 12,
-          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
-        },
-        {
-          line: 13,
-          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+          errors: [
+            {
+              line: 3,
+              message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
+            },
+            {
+              line: 4,
+              message: `This loop's stop condition tests "i, j" but the incrementer updates "k".`,
+            },
+            {
+              line: 5,
+              message: `This loop's stop condition tests "condition" but the incrementer updates "i".`,
+            },
+            {
+              line: 6,
+              message: `This loop's stop condition tests "x" but the incrementer updates "z".`,
+            },
+            {
+              line: 7,
+              message: `This loop's stop condition tests "this.i" but the incrementer updates "this.j".`,
+            },
+            {
+              line: 8,
+              message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
+            },
+            {
+              line: 9,
+              message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+            },
+            {
+              line: 10,
+              message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+            },
+            {
+              line: 11,
+              message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+            },
+            {
+              line: 12,
+              message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+            },
+            {
+              line: 13,
+              message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

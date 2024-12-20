@@ -1,4 +1,4 @@
-let that = this; // Noncompliant
+let that = this; // Noncompliant {{Unexpected aliasing of 'this' to local variable.}}
 function foo() {
   while (true) {
     return that;
@@ -6,14 +6,14 @@ function foo() {
 }
 
 function bar() {
-  let that = this; // Noncompliant
+  let that = this; // Noncompliant {{Unexpected aliasing of 'this' to local variable.}}
   while (true) {
     return that;
   }
 }
 
 function* baz() {
-  let thizz = this; // Noncompliant
+  let thizz = this; // Noncompliant {{Unexpected aliasing of 'this' to local variable.}}
   while (true) {
     yield thizz;
   }

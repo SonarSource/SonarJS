@@ -14,36 +14,39 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run(
-  'The return value of "useState" should be destructured and named symmetrically',
-  rule,
-  {
-    valid: [
+describe('S6754', () => {
+  it('S6754', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(
+      'The return value of "useState" should be destructured and named symmetrically',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
       import { useState } from 'react';
       function useFoo() {
         const [foo] = useState();
         return [foo];
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
       import { useState } from 'react';
       function useFoo() {
         const [foo, bar] = useState();
         return [foo, bar];
       }`,
-        errors: 1,
+            errors: 1,
+          },
+        ],
       },
-    ],
-  },
-);
+    );
+  });
+});

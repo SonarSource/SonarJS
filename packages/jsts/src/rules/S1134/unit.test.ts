@@ -14,76 +14,79 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S1134', () => {
+  it('S1134', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('Track uses of FIXME tags', rule, {
-  valid: [
-    {
-      code: `// Just a regular comment`,
-    },
-    {
-      code: `
+    ruleTester.run('Track uses of FIXME tags', rule, {
+      valid: [
+        {
+          code: `// Just a regular comment`,
+        },
+        {
+          code: `
         // This is not aFIXME comment
 
         // notafixme comment
 
         // a fixmeal
         `,
-    },
-  ],
-  invalid: [
-    {
-      code: `// FIXME`,
-      errors: [
-        {
-          message: 'Take the required action to fix the issue indicated by this comment.',
-          line: 1,
-          endLine: 1,
-          column: 4,
-          endColumn: 9,
         },
       ],
-    },
+      invalid: [
+        {
+          code: `// FIXME`,
+          errors: [
+            {
+              message: 'Take the required action to fix the issue indicated by this comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 9,
+            },
+          ],
+        },
 
-    {
-      code: `/*FIXME Multiline comment 
+        {
+          code: `/*FIXME Multiline comment 
       FIXME: another fixme
       (this line is not highlighted)
       with three fixme
       */`,
-      errors: [
-        {
-          message: 'Take the required action to fix the issue indicated by this comment.',
-          line: 1,
-          endLine: 1,
-          column: 3,
-          endColumn: 8,
+          errors: [
+            {
+              message: 'Take the required action to fix the issue indicated by this comment.',
+              line: 1,
+              endLine: 1,
+              column: 3,
+              endColumn: 8,
+            },
+            {
+              message: 'Take the required action to fix the issue indicated by this comment.',
+              line: 2,
+              endLine: 2,
+              column: 7,
+              endColumn: 12,
+            },
+            {
+              message: 'Take the required action to fix the issue indicated by this comment.',
+              line: 4,
+              endLine: 4,
+              column: 18,
+              endColumn: 23,
+            },
+          ],
         },
         {
-          message: 'Take the required action to fix the issue indicated by this comment.',
-          line: 2,
-          endLine: 2,
-          column: 7,
-          endColumn: 12,
+          code: `// FIXME  FIXME`,
+          errors: 1,
         },
         {
-          message: 'Take the required action to fix the issue indicated by this comment.',
-          line: 4,
-          endLine: 4,
-          column: 18,
-          endColumn: 23,
-        },
-      ],
-    },
-    {
-      code: `// FIXME  FIXME`,
-      errors: 1,
-    },
-    {
-      code: `
+          code: `
       // FIXME just fix me 
 
       // FixMe just fix me 
@@ -110,7 +113,9 @@ ruleTester.run('Track uses of FIXME tags', rule, {
 
       // valid end of file FIXME
         `,
-      errors: 11,
-    },
-  ],
+          errors: 11,
+        },
+      ],
+    });
+  });
 });

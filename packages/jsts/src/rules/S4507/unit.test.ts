@@ -14,23 +14,24 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+describe('S4507', () => {
+  it('S4507', () => {
+    const ruleTester = new RuleTester();
 
-const message =
-  'Make sure this debug feature is deactivated before delivering the code in production.';
+    const message =
+      'Make sure this debug feature is deactivated before delivering the code in production.';
 
-ruleTester.run(
-  'Delivering code in production with debug features activated is security-sensitive',
-  rule,
-  {
-    valid: [
+    ruleTester.run(
+      'Delivering code in production with debug features activated is security-sensitive',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
       Debug.write("hello, world");
 
       // we report only on trivial (and mostly used) usages without object access
@@ -44,38 +45,38 @@ ruleTester.run(
       import { confirm } from './confirm';
       confirm("Are you sure?");
       `,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
       alert("here!");
       confirm("Are you sure?");
       prompt("What's your name?", "John Doe");
       `,
-      },
-      {
-        code: `debugger;`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+          {
+            code: `debugger;`,
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const errorhandler = require('errorhandler');
         if (process.env.NODE_ENV === 'development') {
           app1.use(errorhandler()); // Compliant
         }
         app2.use(errorhandler()); // Noncompliant  
         `,
-        errors: [
-          {
-            message,
-            line: 6,
-            column: 18,
-            endColumn: 32,
+            errors: [
+              {
+                message,
+                line: 6,
+                column: 18,
+                endColumn: 32,
+              },
+            ],
           },
-        ],
-      },
-      {
-        code: `
+          {
+            code: `
         import errorhandler from 'errorhandler';
         const handler = errorhandler();
         app1.use(handler); // Noncompliant  
@@ -86,17 +87,17 @@ ruleTester.run(
         }
         app4.use();
         `,
-        errors: [
-          {
-            message,
-            line: 3,
-            column: 25,
-            endColumn: 39,
+            errors: [
+              {
+                message,
+                line: 3,
+                column: 25,
+                endColumn: 39,
+              },
+            ],
           },
-        ],
-      },
-      {
-        code: `
+          {
+            code: `
         const errorhandler = require('errorhandler');
         const middlewares = [
           helmet(),
@@ -104,15 +105,17 @@ ruleTester.run(
         ];
         app2.use(sth, middlewares, sthElse); // Noncompliant  
         `,
-        errors: [
-          {
-            message,
-            line: 5,
-            column: 11,
-            endColumn: 25,
+            errors: [
+              {
+                message,
+                line: 5,
+                column: 11,
+                endColumn: 25,
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-);
+    );
+  });
+});

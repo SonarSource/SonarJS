@@ -14,15 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S5527', () => {
+  it('S5527', () => {
+    const ruleTesterJs = new RuleTester();
 
-const testCasesHttps = {
-  valid: [
-    {
-      code: `
+    const testCasesHttps = {
+      valid: [
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       var options = {
@@ -44,9 +47,9 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Compliant: rejectUnauthorized to true and some checks inside checkServerIdentity
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       var options = {
@@ -66,9 +69,9 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Compliant: rejectUnauthorized is true by default and some checks inside checkServerIdentity
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       var options = {
@@ -83,15 +86,15 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Compliant: rejectUnauthorized is true by default and default checkServerIdentity
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       var req = https.request();
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       var options = {hostname: 'wrong.host.badssl.com',}
       if (x) {
@@ -99,9 +102,9 @@ const testCasesHttps = {
       }
       var req = https.request(options, (res) => {});
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       rejectUnauthorized = false;
       if (x) {
@@ -110,15 +113,15 @@ const testCasesHttps = {
       var options = {rejectUnauthorized};
       var req = https.request(options, (res) => {});
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       https.unknown();
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
 
@@ -135,9 +138,9 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
 
@@ -158,11 +161,11 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       });
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       
@@ -185,36 +188,36 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Noncompliant: rejectUnauthorized is false
             `,
-      errors: [
-        {
-          line: 20,
-          endLine: 20,
-          column: 17,
-          endColumn: 30,
-          message: JSON.stringify({
-            message: 'Enable server hostname verification on this SSL/TLS connection.',
-            secondaryLocations: [
-              {
-                column: 20,
-                line: 5,
-                endColumn: 7,
-                endLine: 18,
-              },
-              {
-                message: 'Set "rejectUnauthorized" to "true".',
-                column: 8,
-                line: 11,
-                endColumn: 33,
-                endLine: 11,
-              },
-            ],
-          }),
+          errors: [
+            {
+              line: 20,
+              endLine: 20,
+              column: 17,
+              endColumn: 30,
+              message: JSON.stringify({
+                message: 'Enable server hostname verification on this SSL/TLS connection.',
+                secondaryLocations: [
+                  {
+                    column: 20,
+                    line: 5,
+                    endColumn: 7,
+                    endLine: 18,
+                  },
+                  {
+                    message: 'Set "rejectUnauthorized" to "true".',
+                    column: 8,
+                    line: 11,
+                    endColumn: 33,
+                    endLine: 11,
+                  },
+                ],
+              }),
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       const https = require('node:https');
       const constants = require('node:constants');
 
@@ -237,10 +240,10 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Noncompliant: rejectUnauthorized is false
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
 
@@ -257,35 +260,35 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Noncompliant
             `,
-      errors: [
-        {
-          line: 14,
-          endLine: 14,
-          column: 17,
-          endColumn: 30,
-          message: JSON.stringify({
-            message: 'Enable server hostname verification on this SSL/TLS connection.',
-            secondaryLocations: [
-              {
-                column: 20,
-                line: 5,
-                endColumn: 7,
-                endLine: 12,
-              },
-              {
-                column: 8,
-                line: 11,
-                endColumn: 42,
-                endLine: 11,
-              },
-            ],
-          }),
+          errors: [
+            {
+              line: 14,
+              endLine: 14,
+              column: 17,
+              endColumn: 30,
+              message: JSON.stringify({
+                message: 'Enable server hostname verification on this SSL/TLS connection.',
+                secondaryLocations: [
+                  {
+                    column: 20,
+                    line: 5,
+                    endColumn: 7,
+                    endLine: 12,
+                  },
+                  {
+                    column: 8,
+                    line: 11,
+                    endColumn: 42,
+                    endLine: 11,
+                  },
+                ],
+              }),
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
 
@@ -306,15 +309,15 @@ const testCasesHttps = {
         res.on('data', (d) => {});
       }); // Noncompliant
             `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-const testCasesRequest = {
-  valid: [
-    {
-      code: `
+    const testCasesRequest = {
+      valid: [
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -329,9 +332,9 @@ const testCasesRequest = {
         }
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -345,9 +348,9 @@ const testCasesRequest = {
         }
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const request = require('request');
       
       var socket = request.get({
@@ -355,17 +358,17 @@ const testCasesRequest = {
         secureProtocol: 'TLSv1_2_method'
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const request = require('request');
       request.unknown();
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -380,30 +383,30 @@ const testCasesRequest = {
         }
       });  // Noncompliant: rejectUnauthorized to true
             `,
-      errors: [
-        {
-          line: 4,
-          endLine: 4,
-          column: 20,
-          endColumn: 31,
-          message: JSON.stringify({
-            message: 'Enable server hostname verification on this SSL/TLS connection.',
-            secondaryLocations: [
-              {
-                message: 'Set "rejectUnauthorized" to "true".',
-                column: 8,
-                line: 7,
-                endColumn: 33,
-                endLine: 7,
-              },
-            ],
-          }),
+          errors: [
+            {
+              line: 4,
+              endLine: 4,
+              column: 20,
+              endColumn: 31,
+              message: JSON.stringify({
+                message: 'Enable server hostname verification on this SSL/TLS connection.',
+                secondaryLocations: [
+                  {
+                    message: 'Set "rejectUnauthorized" to "true".',
+                    column: 8,
+                    line: 7,
+                    endColumn: 33,
+                    endLine: 7,
+                  },
+                ],
+              }),
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -412,10 +415,10 @@ const testCasesRequest = {
         checkServerIdentity: function() {}  // Noncompliant: there is no test cases
       });
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -426,15 +429,15 @@ const testCasesRequest = {
         }  // Noncompliant: there is no test cases
       });
             `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-const testCasesTls = {
-  valid: [
-    {
-      code: `
+    const testCasesTls = {
+      valid: [
+        {
+          code: `
       const tls = require('tls');
 
       var options = {
@@ -452,9 +455,9 @@ const testCasesTls = {
         process.stdin.resume();
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const tls = require('tls');
 
       var options = {
@@ -471,17 +474,17 @@ const testCasesTls = {
         process.stdin.resume();
       });
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const tls = require('tls');
       tls.unknown();
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const tls = require('tls');
 
       var options = {
@@ -499,10 +502,10 @@ const testCasesTls = {
         process.stdin.resume();
       });
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const tls = require('node:tls');
 
       var options = {
@@ -520,10 +523,10 @@ const testCasesTls = {
         process.stdin.resume();
       });
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const tls = require('tls');
 
       var options = {
@@ -535,25 +538,27 @@ const testCasesTls = {
         process.stdin.resume();
       });
             `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-ruleTesterJs.run(
-  '[JS-https] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesHttps,
-);
+    ruleTesterJs.run(
+      '[JS-https] Server hostnames should be verified during SSL/TLS connections',
+      rule,
+      testCasesHttps,
+    );
 
-ruleTesterJs.run(
-  '[JS-request] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesRequest,
-);
+    ruleTesterJs.run(
+      '[JS-request] Server hostnames should be verified during SSL/TLS connections',
+      rule,
+      testCasesRequest,
+    );
 
-ruleTesterJs.run(
-  '[JS-tls] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesTls,
-);
+    ruleTesterJs.run(
+      '[JS-tls] Server hostnames should be verified during SSL/TLS connections',
+      rule,
+      testCasesTls,
+    );
+  });
+});

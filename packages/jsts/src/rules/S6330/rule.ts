@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
         'Omitting "encryption" disables SQS queues encryption. Make sure it is safe here.',
       DisabledQueue:
         'Setting "encryption" to "QueueEncryption.UNENCRYPTED" disables SQS queues encryption.' +
-        'Make sure it is safe here.',
+        ' Make sure it is safe here.',
     },
   }),
 );

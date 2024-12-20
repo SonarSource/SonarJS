@@ -15,24 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5736', () => {
+  it('S5736', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet()
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -41,18 +42,18 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             referrerPolicy: true,
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet.referrerPolicy()
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -61,9 +62,9 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: 'strict-origin'
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -72,9 +73,9 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: ['strict-origin']
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -82,9 +83,9 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             referrerPolicy: false,
           })
         );`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -92,11 +93,11 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: ''
           })
         );`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -105,29 +106,29 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             referrerPolicy: false,
           })
         );`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure disabling strict HTTP no-referrer policy is safe here.`,
-            secondaryLocations: [
-              {
-                column: 12,
-                line: 7,
-                endColumn: 33,
-                endLine: 7,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 9,
-          column: 9,
-          endColumn: 10,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: `Make sure disabling strict HTTP no-referrer policy is safe here.`,
+                secondaryLocations: [
+                  {
+                    column: 12,
+                    line: 7,
+                    endColumn: 33,
+                    endLine: 7,
+                  },
+                ],
+              }),
+              line: 5,
+              endLine: 9,
+              column: 9,
+              endColumn: 10,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -136,10 +137,10 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: ''
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -148,10 +149,10 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: 'unsafe-url'
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -160,10 +161,10 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: 'no-referrer-when-downgrade'
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -172,10 +173,10 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: ['unsafe-url']
           })
         );`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -184,7 +185,9 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
             policy: ['strict-origin', 'unsafe-url']
           })
         );`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

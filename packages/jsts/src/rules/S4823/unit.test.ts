@@ -14,41 +14,46 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Using command line arguments is security-sensitive', rule, {
-  valid: [
-    {
-      code: `foo.bar`,
-    },
-    {
-      code: `process.argvFoo`,
-    },
-    {
-      code: `processFoo.argv`,
-    },
-    {
-      code: `'process.argv'`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = process.argv;`,
-      errors: [
+describe('S4823', () => {
+  it('S4823', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using command line arguments is security-sensitive', rule, {
+      valid: [
         {
-          message: 'Make sure that command line arguments are used safely here.',
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 21,
+          code: `foo.bar`,
+        },
+        {
+          code: `process.argvFoo`,
+        },
+        {
+          code: `processFoo.argv`,
+        },
+        {
+          code: `'process.argv'`,
         },
       ],
-    },
-    {
-      code: `\`argument 0: \${process.argv[0]}\``,
-      errors: 1,
-    },
-  ],
+      invalid: [
+        {
+          code: `let x = process.argv;`,
+          errors: [
+            {
+              message: 'Make sure that command line arguments are used safely here.',
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 21,
+            },
+          ],
+        },
+        {
+          code: `\`argument 0: \${process.argv[0]}\``,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

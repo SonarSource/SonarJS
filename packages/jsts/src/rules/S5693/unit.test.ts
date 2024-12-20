@@ -14,25 +14,26 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-const options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
+describe('S5693', () => {
+  it('S5693', () => {
+    const ruleTester = new RuleTester();
+    const options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
 
-ruleTester.run('Allowing requests with excessive content length is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run('Allowing requests with excessive content length is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
       const formidable = require('formidable');
       const form = formidable(options);
         `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       const multer = require('multer');
       const upload = multer(options);
       const storage = multer.diskStorage({
@@ -44,19 +45,19 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
         }
       });
         `,
-      options,
-    },
-    {
-      code: `
+          options,
+        },
+        {
+          code: `
       import { formidable } from 'formidable';
       const form = formidable({}); // Ok, default is used which is less than parameter
       `,
-      options: [{ fileUploadSizeLimit: 250_000_000, standardSizeLimit: 2_000_000 }],
-    },
-  ],
-  invalid: [
-    {
-      code: `
+          options: [{ fileUploadSizeLimit: 250_000_000, standardSizeLimit: 2_000_000 }],
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const formidableModule = require('formidable');
       const { formidable } = require('formidable');
       const { formidable: formidableAlias } = require('formidable');
@@ -68,11 +69,11 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const form4 = new IncomingForm(); // Noncompliant
       const form5 = new Formidable(); // Noncompliant
         `,
-      errors: 5,
-      options,
-    },
-    {
-      code: `
+          errors: 5,
+          options,
+        },
+        {
+          code: `
       import * as formidableModule from 'formidable';
       import { formidable } from 'formidable';
       import { IncomingForm } from 'formidable';
@@ -83,11 +84,11 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const form4 = new IncomingForm(); // Noncompliant
       const form5 = new Formidable(); // Noncompliant
         `,
-      errors: 4,
-      options,
-    },
-    {
-      code: `
+          errors: 4,
+          options,
+        },
+        {
+          code: `
       import { formidable } from 'formidable';
       const form0 = formidable();
       form0.maxFileSize = 42; // OK
@@ -102,23 +103,23 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const form3 = formidable();
       form3.maxFileSize = unknown; // OK
         `,
-      errors: [
-        {
-          message: 'Make sure the content length limit is safe here.',
-          line: 7,
-          endLine: 7,
-          column: 7,
-          endColumn: 35,
+          errors: [
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 7,
+              endLine: 7,
+              column: 7,
+              endColumn: 35,
+            },
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 11,
+            },
+          ],
+          options,
         },
         {
-          message: 'Make sure the content length limit is safe here.',
-          line: 11,
-        },
-      ],
-      options,
-    },
-    {
-      code: `
+          code: `
       import { formidable } from 'formidable';
       const form0 = formidable({ maxFileSize: 42000000 }); // Noncompliant
       const options = { maxFileSize: 42000000 }; // Noncompliant
@@ -133,31 +134,31 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const notLiteral = foo();
       const formOk3 = formidable({ maxFileSize: notLiteral });
         `,
-      errors: [
-        {
-          message: 'Make sure the content length limit is safe here.',
-          line: 3,
-          endLine: 3,
-          column: 34,
-          endColumn: 55,
+          errors: [
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 3,
+              endLine: 3,
+              column: 34,
+              endColumn: 55,
+            },
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 4,
+            },
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 6,
+            },
+            {
+              message: 'Make sure the content length limit is safe here.',
+              line: 8,
+            },
+          ],
+          options,
         },
         {
-          message: 'Make sure the content length limit is safe here.',
-          line: 4,
-        },
-        {
-          message: 'Make sure the content length limit is safe here.',
-          line: 6,
-        },
-        {
-          message: 'Make sure the content length limit is safe here.',
-          line: 8,
-        },
-      ],
-      options,
-    },
-    {
-      code: `
+          code: `
       import * as multer from 'multer';
       multer({ limits: { fileSize: 42000000 } }); // Noncompliant
 
@@ -169,11 +170,17 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       multer({ storage }); // Noncompliant
       multer({ limits: {} }); // Noncompliant
       `,
-      errors: [{ line: 3 }, { line: 5 }, { line: 9 }, { line: 10 }, { line: 11 }],
-      options,
-    },
-    {
-      code: `
+          errors: [
+            { messageId: 'safeLimit', line: 3 },
+            { messageId: 'safeLimit', line: 5 },
+            { messageId: 'safeLimit', line: 9 },
+            { messageId: 'safeLimit', line: 10 },
+            { messageId: 'safeLimit', line: 11 },
+          ],
+          options,
+        },
+        {
+          code: `
       import { json } from 'body-parser';
       import * as bodyParser from 'body-parser';
       bodyParser.json({ limits: 4000000}); // Noncompliant
@@ -182,24 +189,15 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       json({ limits: 2000000}); // 2mb is ok
       json(); // ok, default 100kb
       `,
-      errors: [
-        {
-          line: 4,
+          errors: [
+            { messageId: 'safeLimit', line: 4 },
+            { messageId: 'safeLimit', line: 5, endLine: 5, column: 14, endColumn: 29 },
+            { messageId: 'safeLimit', line: 6 },
+          ],
+          options,
         },
         {
-          line: 5,
-          endLine: 5,
-          column: 14,
-          endColumn: 29,
-        },
-        {
-          line: 6,
-        },
-      ],
-      options,
-    },
-    {
-      code: `
+          code: `
       import * as bodyParser from 'body-parser'
 
       bodyParser.text({ limits: '4mb'}); // Noncompliant, second option parameter is used
@@ -208,36 +206,28 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       bodyParser.urlencoded({ limits: '1mb'}); // 1mb is ok
       bodyParser.urlencoded({ limits: 'invalid'});
       `,
-      errors: [
-        {
-          line: 4,
+          errors: [
+            { messageId: 'safeLimit', line: 4 },
+            { messageId: 'safeLimit', line: 5 },
+            { messageId: 'safeLimit', line: 6 },
+          ],
+          options,
         },
         {
-          line: 5,
-        },
-        {
-          line: 6,
-        },
-      ],
-      options,
-    },
-    {
-      code: `
+          code: `
       const bodyParser = require('body-parser');
 
       bodyParser.json(); // Noncompliant, default 100kb
       bodyParser.json({ notLimits: 10}); // Noncompliant
       bodyParser.json(unknown);
       `,
-      errors: [
-        {
-          line: 4,
-        },
-        {
-          line: 5,
+          errors: [
+            { messageId: 'safeLimit', line: 4 },
+            { messageId: 'safeLimit', line: 5 },
+          ],
+          options: [{ fileUploadSizeLimit: 0, standardSizeLimit: 1000 }],
         },
       ],
-      options: [{ fileUploadSizeLimit: 0, standardSizeLimit: 1000 }],
-    },
-  ],
+    });
+  });
 });

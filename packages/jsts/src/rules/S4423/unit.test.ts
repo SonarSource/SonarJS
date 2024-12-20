@@ -14,15 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S4423', () => {
+  it('S4423', () => {
+    const ruleTesterJs = new RuleTester();
 
-const minMaxVersion = {
-  valid: [
-    {
-      code: `
+    const minMaxVersion = {
+      valid: [
+        {
+          code: `
       const tls = require('tls');
       const constants = require('constants');
       tls.connect({
@@ -40,21 +43,21 @@ const minMaxVersion = {
         maxVersion: 'TLSv1.3'
       });
     `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const tls = require('node:tls');
       const constants = require('constants');
       tls.connect({
         minVersion: 'TLSv1.1',
       });
       `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       const tls = require('tls');
       const constants = require('constants');
       tls.connect({
@@ -62,18 +65,18 @@ const minMaxVersion = {
         maxVersion: 'TLSv1.2'
       });
       `,
-      errors: [
-        {
-          message: "Change 'minVersion' to use at least TLS v1.2.",
-          line: 5,
-          column: 21,
-          endLine: 5,
-          endColumn: 30,
+          errors: [
+            {
+              message: "Change 'minVersion' to use at least TLS v1.2.",
+              line: 5,
+              column: 21,
+              endLine: 5,
+              endColumn: 30,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       const tls = require('tls');
       const constants = require('constants');
       tls.connect({
@@ -89,10 +92,10 @@ const minMaxVersion = {
         maxVersion: 'TLSv1.1'
       });
     `,
-      errors: 4,
-    },
-    {
-      code: `
+          errors: 4,
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       
@@ -103,25 +106,25 @@ const minMaxVersion = {
       
       var req23 = https.request(options23);
       `,
-      errors: [
-        {
-          message: "Change 'minVersion' to use at least TLS v1.2.",
-          line: 6,
-          column: 21,
-          endLine: 6,
-          endColumn: 30,
+          errors: [
+            {
+              message: "Change 'minVersion' to use at least TLS v1.2.",
+              line: 6,
+              column: 21,
+              endLine: 6,
+              endColumn: 30,
+            },
+            {
+              message: "Change 'maxVersion' to use at least TLS v1.2.",
+              line: 7,
+              column: 21,
+              endLine: 7,
+              endColumn: 30,
+            },
+          ],
         },
         {
-          message: "Change 'maxVersion' to use at least TLS v1.2.",
-          line: 7,
-          column: 21,
-          endLine: 7,
-          endColumn: 30,
-        },
-      ],
-    },
-    {
-      code: `
+          code: `
       const https = require('node:https');
       const constants = require('node:constants');
 
@@ -132,10 +135,10 @@ const minMaxVersion = {
 
       var req23 = https.request(options23);
       `,
-      errors: 2,
-    },
-    {
-      code: `
+          errors: 2,
+        },
+        {
+          code: `
         const request = require('request');
         const constants = require('constants');
 
@@ -145,15 +148,15 @@ const minMaxVersion = {
             maxVersion: 'TLSv1.1' // Noncompliant
         }); // Noncompliant
       `,
-      errors: 2,
-    },
-  ],
-};
+          errors: 2,
+        },
+      ],
+    };
 
-const secureProtocol = {
-  valid: [
-    {
-      code: `
+    const secureProtocol = {
+      valid: [
+        {
+          code: `
       const request = require('request');
       const constants = require('constants');
       
@@ -163,9 +166,9 @@ const secureProtocol = {
           secureProtocol: 'TLSv1_2_method' // Compliant
       });
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
     const https = require('https');
     
     var options17 = {
@@ -184,11 +187,11 @@ const secureProtocol = {
         process.stdout.write(d);
       });
     }); `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       var options5 = {
@@ -197,18 +200,18 @@ const secureProtocol = {
 
       var req5 = https.request(options5);      
       `,
-      errors: [
-        {
-          message: "Change 'secureProtocol' to use at least TLS v1.2.",
-          line: 5,
-          column: 25,
-          endLine: 5,
-          endColumn: 39,
+          errors: [
+            {
+              message: "Change 'secureProtocol' to use at least TLS v1.2.",
+              line: 5,
+              column: 25,
+              endLine: 5,
+              endColumn: 39,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       const request = require('request');
       const constants = require('constants');
       
@@ -217,15 +220,15 @@ const secureProtocol = {
           secureProtocol: 'DTLSv1_client_method' // Noncompliant
       });
       `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-const secureOptions = {
-  valid: [
-    {
-      code: `
+    const secureOptions = {
+      valid: [
+        {
+          code: `
         var options3 = {
           hostname: 'www.google.com',
           port: 443,
@@ -243,9 +246,9 @@ const secureOptions = {
           });
         }); // Compliant
       `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       
@@ -266,11 +269,11 @@ const secureOptions = {
         });
       });
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const https = require('https');
       const constants = require('constants');
       
@@ -291,18 +294,18 @@ const secureOptions = {
         });
       });
             `,
-      errors: [
-        {
-          line: 10,
-          column: 9,
-          endLine: 10,
-          endColumn: 105,
-          message: "Change 'secureOptions' to allow only secure TLS versions.",
+          errors: [
+            {
+              line: 10,
+              column: 9,
+              endLine: 10,
+              endColumn: 105,
+              message: "Change 'secureOptions' to allow only secure TLS versions.",
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `        
+        {
+          code: `        
         const tls = require('tls');
         const constants = require('constants');
         var options1 = {
@@ -311,10 +314,10 @@ const secureOptions = {
         
         tls.createSecureContext(options1);    
       `,
-      errors: 1,
-    },
-    {
-      code: `        
+          errors: 1,
+        },
+        {
+          code: `        
         const tls = require('tls');
         const c = require('constants');
         var options1 = {
@@ -323,11 +326,13 @@ const secureOptions = {
         
         tls.createSecureContext(options1);    
       `,
-      errors: 1,
-    },
-  ],
-};
+          errors: 1,
+        },
+      ],
+    };
 
-ruleTesterJs.run('Should use strong TLS: minMaxVersion', rule, minMaxVersion);
-ruleTesterJs.run('Should use strong TLS: secureProtocol', rule, secureProtocol);
-ruleTesterJs.run('Should use strong TLS: secureOptions', rule, secureOptions);
+    ruleTesterJs.run('Should use strong TLS: minMaxVersion', rule, minMaxVersion);
+    ruleTesterJs.run('Should use strong TLS: secureProtocol', rule, secureProtocol);
+    ruleTesterJs.run('Should use strong TLS: secureOptions', rule, secureOptions);
+  });
+});

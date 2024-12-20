@@ -1,9 +1,9 @@
 function Foo() {
   return (
     <>
-      <object></object> { /* Noncompliant */ }
+      <object></object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
 
-      <object></object> { /* Noncompliant */ }
+      <object></object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
 
       <object>
         Hello, world!
@@ -14,11 +14,11 @@ function Foo() {
       </object>
 
       <object>
-        <object></object> { /* Noncompliant */ }
+        <object></object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
       </object>
 
       <object>
-        <object></object> { /* Noncompliant */ }
+        <object></object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
       </object>
 
       <object>
@@ -32,7 +32,7 @@ function Foo() {
         { id }
       </object>
 
-      <object> { /* Noncompliant */ }
+      <object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
         { undefined }
       </object>
 
@@ -42,7 +42,7 @@ function Foo() {
         </>
       </object>
 
-      <object> { /* Noncompliant */ }
+      <object> { /* Noncompliant {{Add an accessible content to this "<object>" tag.}} */ }
         <>
 
         </>

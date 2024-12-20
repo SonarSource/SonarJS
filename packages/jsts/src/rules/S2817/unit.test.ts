@@ -14,90 +14,88 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const ruleTesterTs = new TypeScriptRuleTester();
+describe('S2817', () => {
+  it('S2817', () => {
+    const ruleTesterJs = new DefaultParserRuleTester();
+    const ruleTesterTs = new RuleTester();
 
-ruleTesterJs.run('No issues without types', rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterJs.run('No issues without types', rule, {
+      valid: [
+        {
+          code: `
       var db2 = openDatabase("myDb", "1.0", "P", 2*1024*1024);
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var db3 = this.openDatabase("myDb", "1.0", "P", 2*1024*1024, callback);
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var win = window;
       win.openDatabase("db","1.0","stuff",2*1024*1024);
             `,
-    },
-  ],
-  invalid: [],
-});
+        },
+      ],
+      invalid: [],
+    });
 
-ruleTesterTs.run('Web SQL databases should not be used', rule, {
-  valid: [
-    {
-      code: `
+    ruleTesterTs.run('Web SQL databases should not be used', rule, {
+      valid: [
+        {
+          code: `
       var deb = getDb();
       var db4 = db.openDatabase("myDb", "1.0", "P", 2*1024*1024);
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function openDatabase() {
       }
       openDatabase();
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       var win = window;
       win.somethingElse(); // OK
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var win = window;
       win.openDatabase("db","1.0","stuff",2*1024*1024);
             `,
-      errors: [
-        {
-          line: 3,
-          column: 7,
-          endLine: 3,
-          endColumn: 23,
-          message: 'Convert this use of a Web SQL database to another technology.',
+          errors: [
+            {
+              line: 3,
+              column: 7,
+              endLine: 3,
+              endColumn: 23,
+              message: 'Convert this use of a Web SQL database to another technology.',
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       var db2 = openDatabase("myDb", "1.0", "P", 2*1024*1024);
             `,
-      errors: 1,
-    },
-    {
-      code: `
-      var db2 = openDatabase("myDb", "1.0", "P", 2*1024*1024);
-            `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       var db3 = this.openDatabase("myDb", "1.0", "P", 2*1024*1024, callback);
             `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

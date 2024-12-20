@@ -22,7 +22,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@28
+// Noncompliant@28 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   test.skip('should do something', function(done) {
@@ -30,7 +30,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@35
+// Noncompliant@35 {{Remove this unit test or explain why it is ignored.}}
 
 describe.skip('foo', function() {
   it('should do something', function(done) {
@@ -38,7 +38,7 @@ describe.skip('foo', function() {
   });
 });
 
-// Noncompliant@44
+// Noncompliant@44 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   xit('should do something', function(done) {
@@ -46,7 +46,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@52
+// Noncompliant@52 {{Remove this unit test or explain why it is ignored.}}
 
 describe('foo', function() {
   xtest('should do something', function(done) {
@@ -54,7 +54,7 @@ describe('foo', function() {
   });
 });
 
-// Noncompliant@59
+// Noncompliant@59 {{Remove this unit test or explain why it is ignored.}}
 
 xdescribe('foo', function() {
   it('should do something', function(done) {

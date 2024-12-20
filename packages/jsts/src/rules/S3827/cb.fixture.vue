@@ -35,14 +35,14 @@
 
 <script>
 
-const props = defineProps({ foo: String }); // Noncompliant
+const props = defineProps({ foo: String }); // Noncompliant {{"defineProps" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".}}
 
-const emit = defineEmits(['change', 'delete']); // Noncompliant
+const emit = defineEmits(['change', 'delete']); // Noncompliant {{"defineEmits" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".}}
 
 let foo = 1;
-defineExpose({foo}); // Noncompliant
+defineExpose({foo}); // Noncompliant {{"defineExpose" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".}}
 
-defineOptions({ inheritAttrs: false }); // Noncompliant
+defineOptions({ inheritAttrs: false }); // Noncompliant {{"defineOptions" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".}}
 
 export default {
   customOptions: {}

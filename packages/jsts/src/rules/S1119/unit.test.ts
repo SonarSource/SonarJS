@@ -15,22 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Labels should not be used', rule, {
-  valid: [
-    {
-      code: `
+const ruleTester = new RuleTester();
+describe('S1119', () => {
+  it('S1119', () => {
+    ruleTester.run('Labels should not be used', rule, {
+      valid: [
+        {
+          code: `
       let x = doSomething();
       if (x <= 0) {
         doSomethingElse();
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       myLabel: {
         let x = doSomething();
         if (x > 0) {
@@ -39,15 +42,17 @@ ruleTester.run('Labels should not be used', rule, {
         doSomethingElse();
       }
 `,
-      errors: [
-        {
-          message: `Refactor the code to remove this label and the need for it.`,
-          line: 2,
-          endLine: 2,
-          column: 7,
-          endColumn: 14,
+          errors: [
+            {
+              message: `Refactor the code to remove this label and the need for it.`,
+              line: 2,
+              endLine: 2,
+              column: 7,
+              endColumn: 14,
+            },
+          ],
         },
       ],
-    },
-  ],
+    });
+  });
 });

@@ -15,16 +15,18 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule as S2301 } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
+describe('S2301', () => {
+  it('S2301', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run('S2301:TypeScript', S2301, {
-  invalid: [
-    {
-      name: 'RSPEC non-compliant code example',
-      code: `function tempt1(name: string, ofAge: boolean) {
+    ruleTester.run('S2301:TypeScript', S2301, {
+      invalid: [
+        {
+          name: 'RSPEC non-compliant code example',
+          code: `function tempt1(name: string, ofAge: boolean) {
   if (ofAge) {
     offerLiquor(name);
   } else {
@@ -40,85 +42,85 @@ function tempt3(name: string, ofAge: boolean) {
   return ofAge ? offerLiquor(name) : offerCandy(name);
 }
 `,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          line: 2,
-          column: 7,
-          endLine: 2,
-          endColumn: 12,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "ofAge" was declared here',
-                  column: 30,
-                  line: 1,
-                  endColumn: 44,
-                  endLine: 1,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 10,
-          column: 3,
-          endLine: 10,
-          endColumn: 8,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "ofAge" was declared here',
-                  column: 30,
-                  line: 9,
-                  endColumn: 44,
-                  endLine: 9,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 14,
-          column: 10,
-          endLine: 14,
-          endColumn: 15,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "ofAge" was declared here',
-                  column: 30,
-                  line: 13,
-                  endColumn: 44,
-                  endLine: 13,
-                },
-              ],
-            }),
-          },
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              line: 2,
+              column: 7,
+              endLine: 2,
+              endColumn: 12,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 1,
+                      endColumn: 44,
+                      endLine: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              line: 10,
+              column: 3,
+              endLine: 10,
+              endColumn: 8,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 9,
+                      endColumn: 44,
+                      endLine: 9,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              line: 14,
+              column: 10,
+              endLine: 14,
+              endColumn: 15,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 13,
+                      endColumn: 44,
+                      endLine: 13,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
         },
       ],
-    },
-  ],
-  valid: [
-    {
-      name: `RSPEC compliant code example`,
-      options: ['sonar-runtime'],
-      code: `function temptAdult(name: string) {
+      valid: [
+        {
+          name: `RSPEC compliant code example`,
+          options: ['sonar-runtime'],
+          code: `function temptAdult(name: string) {
   offerLiquor(name);
 }
 
@@ -182,23 +184,19 @@ function tempt8(name: string, ofAge: boolean) {
   }
 }
 `,
-    },
-  ],
-});
+        },
+      ],
+    });
 
-const javaScriptRuleTester = new NodeRuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-  },
-});
+    const javaScriptRuleTester = new RuleTester();
 
-javaScriptRuleTester.run('S2301:JavaScript', S2301, {
-  invalid: [],
-  valid: [
-    {
-      name: `RSPEC compliant code example`,
-      options: ['sonar-runtime'],
-      code: `function temptAdult(name) {
+    javaScriptRuleTester.run('S2301:JavaScript', S2301, {
+      invalid: [],
+      valid: [
+        {
+          name: `RSPEC compliant code example`,
+          options: ['sonar-runtime'],
+          code: `function temptAdult(name) {
   offerLiquor(name);
 }
 
@@ -272,6 +270,8 @@ function tempt10(name, ofAge) {
   return ofAge ? offerLiquor(name) : offerCandy(name);
 }
 `,
-    },
-  ],
+        },
+      ],
+    });
+  });
 });

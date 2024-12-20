@@ -15,12 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import path from 'path';
-import { check } from '../../../tests/tools/index.js';
+import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { describe } from 'node:test';
 
-const sonarId = path.basename(import.meta.dirname);
-
 describe('Rule S888', () => {
-  check(sonarId, rule, import.meta.dirname);
+  check(rule, import.meta.dirname);
 });

@@ -139,7 +139,7 @@ export const rule: Rule.RuleModule = {
       ...switchWithoutDefaultRule.meta?.messages,
       ...decoratedSwitchExhaustivenessRule.meta?.messages,
     },
-    schema: switchExhaustivenessRule.schema,
+    schema: switchExhaustivenessRule.meta!.schema,
   }),
   create(context: Rule.RuleContext) {
     return mergeRules(

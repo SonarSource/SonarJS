@@ -7,7 +7,7 @@ describe('global expect', () => { // Compliant
 });
 
 describe('global non-supported symbol', () => { // Compliant
-  it('is not recognized as an assertion', () => { // Noncompliant
+  it('is not recognized as an assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     foo(5).toEqual(5);
   });
 });

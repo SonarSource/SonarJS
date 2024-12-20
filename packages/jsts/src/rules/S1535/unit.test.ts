@@ -14,84 +14,89 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('"for...in" loops should filter properties before acting on them', rule, {
-  valid: [
-    {
-      code: `
+describe('S1535', () => {
+  it('S1535', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"for...in" loops should filter properties before acting on them', rule, {
+      valid: [
+        {
+          code: `
       for (name in object) {
         if (object.hasOwnProperty(name)) {
           print(object[name]);
         }
       }
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       for (name in object) { // OK
       }
             `,
-    },
+        },
 
-    {
-      code: `
+        {
+          code: `
       for (key in obj)   // OK
       a[key] = b[key];
             `,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       for (key in obj) {   // OK
         a[key] = b[key];
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       for (key in arr) { // Noncompliant {{Restrict what this loop acts on by testing each property.}}
         print(arr[key]);
         print(arr[key]);
       }
             `,
-      errors: [
-        {
-          message: 'Restrict what this loop acts on by testing each property.',
-          line: 2,
-          endLine: 5,
-          column: 7,
-          endColumn: 8,
+          errors: [
+            {
+              message: 'Restrict what this loop acts on by testing each property.',
+              line: 2,
+              endLine: 5,
+              column: 7,
+              endColumn: 8,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `
       for (key in arr) { // Noncompliant
         function f() {}
         print(arr[key]);
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       for (key in obj) {   // Noncompliant
         val = b[key];
       }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
       for (key in obj) {      // Noncompliant
         a.b = key;
       }
             `,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

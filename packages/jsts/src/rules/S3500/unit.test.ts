@@ -14,34 +14,39 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Attempts should not be made to update "const" variables', rule, {
-  valid: [],
-  invalid: [
-    {
-      code: `
+describe('S3500', () => {
+  it('S3500', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Attempts should not be made to update "const" variables', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
         const c = 1;
         c = 2;`,
-      errors: [
-        {
-          message:
-            '{"message":"Correct this attempt to modify \\"c\\" or use \\"let\\" in its declaration.","secondaryLocations":[{"message":"Const declaration","column":8,"line":2,"endColumn":20,"endLine":2}]}',
-          line: 3,
-          column: 9,
-          endLine: 3,
-          endColumn: 10,
+          errors: [
+            {
+              message:
+                '{"message":"Correct this attempt to modify \\"c\\" or use \\"let\\" in its declaration.","secondaryLocations":[{"message":"Const declaration","column":8,"line":2,"endColumn":20,"endLine":2}]}',
+              line: 3,
+              column: 9,
+              endLine: 3,
+              endColumn: 10,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         const c = 1;
         var x = c++;`,
-      errors: 1,
-    },
-  ],
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

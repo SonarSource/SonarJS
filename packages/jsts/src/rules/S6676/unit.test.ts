@@ -14,123 +14,134 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2015 },
-});
+describe('S6676', () => {
+  it('S6676', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Calls to .call() and .apply() methods should not be redundant`, rule, {
-  valid: [
-    {
-      code: `foo.apply(obj, args);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `foo.call(null);`,
-      errors: [
+    ruleTester.run(`Calls to .call() and .apply() methods should not be redundant`, rule, {
+      valid: [
         {
-          suggestions: [
+          code: `foo.apply(obj, args);`,
+        },
+      ],
+      invalid: [
+        {
+          code: `foo.call(null);`,
+          errors: [
             {
-              desc: 'Remove redundant call()',
-              output: `foo();`,
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant call()',
+                  output: `foo();`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `foo.call(null, a, b, c);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant call()',
+                  output: `foo(a, b, c);`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.call(obj);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant call()',
+                  output: `obj.foo();`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.call(obj, x, y, z);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant call()',
+                  output: `obj.foo(x, y, z);`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `foo.apply(null, []);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant apply()',
+                  output: `foo();`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `foo.apply(null, [1, 2, 3]);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant apply()',
+                  output: `foo(1, 2, 3);`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.apply(obj, []);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant apply()',
+                  output: `obj.foo();`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.apply(obj, [1, 2, 3]);`,
+          errors: [
+            {
+              messageId: 'unnecessaryCall',
+              suggestions: [
+                {
+                  desc: 'Remove redundant apply()',
+                  output: `obj.foo(1, 2, 3);`,
+                },
+              ],
             },
           ],
         },
       ],
-    },
-    {
-      code: `foo.call(null, a, b, c);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant call()',
-              output: `foo(a, b, c);`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `obj.foo.call(obj);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant call()',
-              output: `obj.foo();`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `obj.foo.call(obj, x, y, z);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant call()',
-              output: `obj.foo(x, y, z);`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `foo.apply(null, []);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant apply()',
-              output: `foo();`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `foo.apply(null, [1, 2, 3]);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant apply()',
-              output: `foo(1, 2, 3);`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `obj.foo.apply(obj, []);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant apply()',
-              output: `obj.foo();`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `obj.foo.apply(obj, [1, 2, 3]);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove redundant apply()',
-              output: `obj.foo(1, 2, 3);`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+    });
+  });
 });

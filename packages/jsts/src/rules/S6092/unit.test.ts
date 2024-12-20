@@ -14,27 +14,35 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
 // Main test cases are in the file comment-based fixture file.
 // Here we are testing that no issues are reported when no 'chai' import.
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `expect(foo).to.not.throw(ReferenceError);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+describe('S6092', () => {
+  it('S6092', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Assertions should not be given twice the same argument', rule, {
+      valid: [
+        {
+          code: `expect(foo).to.not.throw(ReferenceError);`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const chai = require('chai');
       expect(foo).to.not.throw(ReferenceError);`,
-      errors: [{ line: 3 }],
-    },
-  ],
+          errors: [
+            {
+              message: 'Refactor this uncertain assertion; it can succeed for multiple reasons.',
+              line: 3,
+            },
+          ],
+        },
+      ],
+    });
+  });
 });

@@ -15,27 +15,28 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run(
-  'Disabling content security policy frame-ancestors directive is security-sensitive',
-  rule,
-  {
-    valid: [
+describe('S5732', () => {
+  it('S5732', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(
+      'Disabling content security policy frame-ancestors directive is security-sensitive',
+      rule,
       {
-        code: `
+        valid: [
+          {
+            code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
         app.use(
           csp({}) // frame-ancestors set to 'self' if no directives are supplied
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -46,9 +47,9 @@ ruleTester.run(
             }
           })
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -59,27 +60,27 @@ ruleTester.run(
             }
           })
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet()
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
         app.use(
           helmet.contentSecurityPolicy()
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -90,9 +91,9 @@ ruleTester.run(
             }
           })
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -103,9 +104,9 @@ ruleTester.run(
             }
           })
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -115,9 +116,9 @@ ruleTester.run(
             }
           })
         );`,
-      },
-      {
-        code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(
@@ -127,11 +128,11 @@ ruleTester.run(
             }
           })
         );`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -140,29 +141,29 @@ ruleTester.run(
             directives: {},
           })
         );`,
-        errors: [
-          {
-            message: JSON.stringify({
-              message: `Make sure disabling content security policy frame-ancestors directive is safe here.`,
-              secondaryLocations: [
-                {
-                  column: 12,
-                  line: 7,
-                  endColumn: 26,
-                  endLine: 7,
-                },
-              ],
-            }),
-            line: 5,
-            endLine: 9,
-            column: 9,
-            endColumn: 10,
+            errors: [
+              {
+                message: JSON.stringify({
+                  message: `Make sure disabling content security policy frame-ancestors directive is safe here.`,
+                  secondaryLocations: [
+                    {
+                      column: 12,
+                      line: 7,
+                      endColumn: 26,
+                      endLine: 7,
+                    },
+                  ],
+                }),
+                line: 5,
+                endLine: 9,
+                column: 9,
+                endColumn: 10,
+              },
+            ],
+            options: ['sonar-runtime'],
           },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          {
+            code: `
         const csp = require('helmet-csp')
         const express = require('express');
         const app = express();
@@ -173,29 +174,29 @@ ruleTester.run(
             },
           })
         );`,
-        errors: [
-          {
-            message: JSON.stringify({
-              message: `Make sure disabling content security policy frame-ancestors directive is safe here.`,
-              secondaryLocations: [
-                {
-                  column: 14,
-                  line: 8,
-                  endColumn: 40,
-                  endLine: 8,
-                },
-              ],
-            }),
-            line: 5,
-            endLine: 11,
-            column: 9,
-            endColumn: 10,
+            errors: [
+              {
+                message: JSON.stringify({
+                  message: `Make sure disabling content security policy frame-ancestors directive is safe here.`,
+                  secondaryLocations: [
+                    {
+                      column: 14,
+                      line: 8,
+                      endColumn: 40,
+                      endLine: 8,
+                    },
+                  ],
+                }),
+                line: 5,
+                endLine: 11,
+                column: 9,
+                endColumn: 10,
+              },
+            ],
+            options: ['sonar-runtime'],
           },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -204,10 +205,10 @@ ruleTester.run(
             directives: {}
           })
         );`,
-        errors: 1,
-      },
-      {
-        code: `
+            errors: 1,
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -218,10 +219,10 @@ ruleTester.run(
             }
           })
         );`,
-        errors: 1,
-      },
-      {
-        code: `
+            errors: 1,
+          },
+          {
+            code: `
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
@@ -232,8 +233,10 @@ ruleTester.run(
             }
           })
         );`,
-        errors: 1,
+            errors: 1,
+          },
+        ],
       },
-    ],
-  },
-);
+    );
+  });
+});

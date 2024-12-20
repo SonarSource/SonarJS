@@ -14,13 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { check } from '../../../tests/tools/index.js';
+import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { rule } from './index.js';
-import path from 'path';
 import { describe } from 'node:test';
 
-const sonarId = path.basename(import.meta.dirname);
-
 describe('Rule S6571', () => {
-  check(sonarId, rule, import.meta.dirname);
+  check(rule, import.meta.dirname);
 });

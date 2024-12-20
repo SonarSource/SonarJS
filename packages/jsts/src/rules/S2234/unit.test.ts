@@ -14,15 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const eslintRuleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
-eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
-  valid: [
-    {
-      code: `
+describe('S2234', () => {
+  it('S2234', () => {
+    const eslintRuleTester = new DefaultParserRuleTester({ sourceType: 'script' });
+    eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
+      valid: [
+        {
+          code: `
         function f1(p1, p2, p3) {}
         function f2(p1, p2, p3) {}
         function f2() {}
@@ -47,9 +49,9 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
           withInitializer(p1, p2);
           arrayBindingPattern(p2, p1);
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       function f(p1, p2) {}
       if (p1 < p2) {
         f(p2, p1);
@@ -61,53 +63,53 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
         f(p2, p1);
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function f1(p1, p2, p3) {}
         f1(p2, p1, p3);`,
-      errors: [
-        {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":20,"line":2,"endColumn":30,"endLine":2}]}`,
-          line: 3,
-          endLine: 3,
-          column: 12,
-          endColumn: 22,
+          errors: [
+            {
+              message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":20,"line":2,"endColumn":30,"endLine":2}]}`,
+              line: 3,
+              endLine: 3,
+              column: 12,
+              endColumn: 22,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         (function(p1, p2) {})(p2, p1);`,
-      errors: [
-        {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":18,"line":2,"endColumn":24,"endLine":2}]}`,
-          line: 2,
-          endLine: 2,
-          column: 31,
-          endColumn: 37,
+          errors: [
+            {
+              message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":18,"line":2,"endColumn":24,"endLine":2}]}`,
+              line: 2,
+              endLine: 2,
+              column: 31,
+              endColumn: 37,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         function withInitializer(p1="", p2="") {}
         withInitializer(p2, p1);`,
-      errors: [
-        {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":33,"line":2,"endColumn":45,"endLine":2}]}`,
-          line: 3,
-          endLine: 3,
+          errors: [
+            {
+              message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":33,"line":2,"endColumn":45,"endLine":2}]}`,
+              line: 3,
+              endLine: 3,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
       function f(p1, p2) {}
       if (p1 = p2) {
         f(p2, p1);
@@ -125,16 +127,16 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
         f(p2, p1);
       }
       `,
-      errors: 5,
-    },
-  ],
-});
+          errors: 5,
+        },
+      ],
+    });
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
-typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
-  valid: [
-    {
-      code: `
+    const typeScriptRuleTester = new RuleTester();
+    typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
+      valid: [
+        {
+          code: `
         const a = 1, b = 2, c = 3, d = 4, x = "", y = 5;
         
         export function sameType(a: number, b: number, c = 3) {}
@@ -180,28 +182,28 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
         new A().sameType(42, a, c);
         new A().sameType(a, d, b);
         new A().differentTypes(y, x);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function differentTypes(x: string, y: number, z = 42) {}
         function nokForSameType(z: number, y: number) {
           differentTypes("hello", z, y); // Noncompliant
         }`,
-      errors: [
-        {
-          message: `{"message":"Arguments 'z' and 'y' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":32,"line":2,"endColumn":60,"endLine":2}]}`,
-          line: 4,
-          endLine: 4,
-          column: 26,
-          endColumn: 39,
+          errors: [
+            {
+              message: `{"message":"Arguments 'z' and 'y' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":32,"line":2,"endColumn":60,"endLine":2}]}`,
+              line: 4,
+              endLine: 4,
+              column: 26,
+              endColumn: 39,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        {
+          code: `
         interface A {
           prop1: number
         }
@@ -209,22 +211,22 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
           ((a1: A, a2: A) => {})
                                 (a2, a1); // Noncompliant
         }`,
-      errors: [
-        {
-          message: `{"message":"Arguments 'a2' and 'a1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":12,"line":6,"endColumn":24,"endLine":6}]}`,
-          line: 7,
-          endLine: 7,
-          column: 34,
-          endColumn: 40,
+          errors: [
+            {
+              message: `{"message":"Arguments 'a2' and 'a1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":12,"line":6,"endColumn":24,"endLine":6}]}`,
+              line: 7,
+              endLine: 7,
+              column: 34,
+              endColumn: 40,
+            },
+          ],
+          options: ['sonar-runtime'],
         },
-      ],
-      options: ['sonar-runtime'],
-    },
-    invalid(`
+        invalid(`
         const from = 1, length = 2;
         const standardMethod = "str".substr(length, from); // Noncompliant
         `),
-    invalid(`
+        invalid(`
         export function sameType(a: Number, b: number, c = 3) {}
         const a = 1, c = 3, d = 4;
         const b: Number = 2;
@@ -235,7 +237,7 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
         sameType(b, a); // Noncompliant
         sameType(42, c, b); // Noncompliant
         `),
-    invalid(`
+        invalid(`
       /**
        * @param a number
        * @param b string
@@ -243,7 +245,7 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
       function withJsDoc(a, b){}
       withJsDoc(b, a); // Noncompliant
       `),
-    invalid(`
+        invalid(`
         class A {
             constructor(x: string, y: number, z = 42) {};
             sameType(a: number, b: number, c = 3) {};
@@ -265,24 +267,27 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
         new A().sameType(42, c, b) // Noncompliant
         new A().differentTypes("hello", z, y); // Noncompliant
         `),
-  ],
-});
+      ],
+    });
 
-function invalid(code: string) {
-  const errors: NodeRuleTester.TestCaseError[] = [];
-  const lines = code.split('\n');
-  for (let i = 1; i <= lines.length; i++) {
-    const line = lines[i - 1];
-    if (line.includes('// Noncompliant')) {
-      errors.push({
-        line: i,
-        endLine: i,
-      });
+    function invalid(code: string) {
+      const errors = [];
+      const lines = code.split('\n');
+      for (let i = 1; i <= lines.length; i++) {
+        const line = lines[i - 1];
+        if (line.includes('// Noncompliant')) {
+          errors.push({
+            messageId: 'sonarRuntime',
+            line: i,
+            endLine: i,
+          });
+        }
+      }
+      return {
+        code: code,
+        errors,
+        options: ['sonar-runtime'],
+      };
     }
-  }
-  return {
-    code: code,
-    errors,
-    options: ['sonar-runtime'],
-  };
-}
+  });
+});

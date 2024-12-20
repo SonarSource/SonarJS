@@ -14,63 +14,69 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new TypeScriptRuleTester();
+describe('S1848', () => {
+  it('S1848', () => {
+    const ruleTester = new RuleTester();
 
-ruleTester.run(`Objects should not be created to be dropped immediately without being used`, rule, {
-  valid: [
-    {
-      code: `
+    ruleTester.run(
+      `Objects should not be created to be dropped immediately without being used`,
+      rule,
+      {
+        valid: [
+          {
+            code: `
       export default new MyConstructor();  // OK
       var something = new MyConstructor(); // OK
       something = new MyConstructor();     // OK
       callMethod(new MyConstructor());     // OK
       new MyConstructor().doSomething();   // OK
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
       try { new MyConstructor(); } catch (e) {}
       try { if (cond()) { new MyConstructor(); } } catch (e) {}
       `,
-    },
-    {
-      code: `new MyConstructor();`,
-      settings: { fileType: 'TEST' },
-    },
-    {
-      code: `
+          },
+          {
+            code: `new MyConstructor();`,
+            settings: { fileType: 'TEST' },
+          },
+          {
+            code: `
       new Notification("hello there");
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         import Vue from 'vue';
         new Vue();
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const SomeAlias = require('vue');
         new SomeAlias();
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         import { Grid } from '@ag-grid-community/core';
         new Grid();
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
         const { Grid } = require('@ag-grid-community/core');
         new Grid();
       `,
-    },
-    {
-      code: `
+          },
+          {
+            code: `
 import * as s3 from 'aws-cdk-lib/aws-s3';
 export class Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -79,66 +85,69 @@ export class Stack extends cdk.Stack {
     new s3.Bucket(this, 'TempBucket', {});
   }
 }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `new MyConstructor();
+          },
+        ],
+        invalid: [
+          {
+            code: `new MyConstructor();
              new c.MyConstructor(123);`,
-      errors: [
-        {
-          message: `Either remove this useless object instantiation of "MyConstructor" or use it.`,
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 18,
-        },
-        {
-          message: `Either remove this useless object instantiation of "c.MyConstructor" or use it.`,
-          line: 2,
-          column: 14,
-          endLine: 2,
-          endColumn: 33,
-        },
-      ],
-    },
-    {
-      code: `
+            errors: [
+              {
+                message: `Either remove this useless object instantiation of "MyConstructor" or use it.`,
+                line: 1,
+                column: 1,
+                endLine: 1,
+                endColumn: 18,
+              },
+              {
+                message: `Either remove this useless object instantiation of "c.MyConstructor" or use it.`,
+                line: 2,
+                column: 14,
+                endLine: 2,
+                endColumn: 33,
+              },
+            ],
+          },
+          {
+            code: `
       new function() {
         //...
         // A lot of code...
       }`,
-      errors: [
-        {
-          message: `Either remove this useless object instantiation or use it.`,
-          line: 2,
-          column: 7,
-          endLine: 2,
-          endColumn: 10,
-        },
-      ],
-    },
-    {
-      code: `
+            errors: [
+              {
+                message: `Either remove this useless object instantiation or use it.`,
+                line: 2,
+                column: 7,
+                endLine: 2,
+                endColumn: 10,
+              },
+            ],
+          },
+          {
+            code: `
       try {} catch (e) { new MyConstructor(); }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+            errors: 1,
+          },
+          {
+            code: `
         import Vue from 'not-vue';
         import { Grid } from 'not-ag-grid';
         new Vue();
         new Grid();
       `,
-      errors: 2,
-    },
-    {
-      code: `
+            errors: 2,
+          },
+          {
+            code: `
         import Grid from '@ag-grid-community/core';
         new Grid();
       `,
-      errors: 1,
-    },
-  ],
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
 });

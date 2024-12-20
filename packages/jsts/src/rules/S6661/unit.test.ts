@@ -14,75 +14,83 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
+import { describe, it } from 'node:test';
 
-process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+describe('S6661', () => {
+  it('S6661', () => {
+    process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
+    const ruleTester = new NoTypeCheckingRuleTester();
 
-ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
-  valid: [
-    {
-      code: `Object.assign(foo, bar);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `const a = Object.assign({}, foo);`,
-      output: `const a = { ...foo};`,
-      errors: [
+    ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
+      valid: [
         {
-          line: 1,
-          endLine: 1,
-          column: 11,
-          endColumn: 24,
+          code: `Object.assign(foo, bar);`,
         },
       ],
-    },
-    {
-      code: `const b = Object.assign({}, foo, bar);`,
-      output: `const b = { ...foo, ...bar};`,
-      errors: [
+      invalid: [
         {
-          line: 1,
-          endLine: 1,
-          column: 11,
-          endColumn: 24,
+          code: `const a = Object.assign({}, foo);`,
+          output: `const a = { ...foo};`,
+          errors: [
+            {
+              messageId: 'useSpreadMessage',
+              line: 1,
+              endLine: 1,
+              column: 11,
+              endColumn: 24,
+            },
+          ],
         },
-      ],
-    },
-    {
-      code: `
+        {
+          code: `const b = Object.assign({}, foo, bar);`,
+          output: `const b = { ...foo, ...bar};`,
+          errors: [
+            {
+              messageId: 'useSpreadMessage',
+              line: 1,
+              endLine: 1,
+              column: 11,
+              endColumn: 24,
+            },
+          ],
+        },
+        {
+          code: `
 var assign = Object.assign;
 const b = assign({}, foo, bar);`,
-      output: `
+          output: `
 var assign = Object.assign;
 const b = { ...foo, ...bar};`,
-      errors: [
-        {
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 17,
+          errors: [
+            {
+              messageId: 'useSpreadMessage',
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 17,
+            },
+          ],
         },
       ],
-    },
-  ],
-});
+    });
 
-const filename = path.join(import.meta.dirname, 'fixtures', 'unsupported-node', 'file.js');
+    const filename = path.join(import.meta.dirname, 'fixtures', 'unsupported-node', 'file.js');
 
-ruleTester.run(
-  'When the project does not support the object spread syntax, the rule should be ignored',
-  rule,
-  {
-    valid: [
+    ruleTester.run(
+      'When the project does not support the object spread syntax, the rule should be ignored',
+      rule,
       {
-        code: `Object.assign({}, bar);`,
-        filename,
+        valid: [
+          {
+            code: `Object.assign({}, bar);`,
+            filename,
+          },
+        ],
+        invalid: [],
       },
-    ],
-    invalid: [],
-  },
-);
+    );
+  });
+});
