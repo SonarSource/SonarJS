@@ -139,7 +139,7 @@
     "tmp": "0.2.3",
     "typescript": "5.7.2",
     "vue-eslint-parser": "9.4.3",
-    "yaml": "2.6.1"
+    "yaml": "2.7.0"
   },
   "prettier": {
     "printWidth": 100,
