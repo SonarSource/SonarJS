@@ -20,6 +20,7 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -71,6 +72,13 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
+  ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException;
+
+  record ProjectAnalysisOutput(
+    Map<String, AnalysisResponse> files,
+    ProjectAnalysisMetaResponse meta
+  ) {}
+
   record JsAnalysisRequest(
     String filePath,
     String fileType,
@@ -82,6 +90,32 @@ public interface BridgeServer extends Startable {
     String linterId,
     boolean skipAst,
     boolean shouldClearDependenciesCache
+  ) {}
+
+  record JsTsFile(
+    @Nullable String fileContent,
+    @Nullable Boolean ignoreHeaderComments,
+    String fileType,
+    @Nullable String language
+  ) {}
+
+  record ProjectAnalysisRequest(
+    Map<String, JsTsFile> files,
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals,
+    String baseDir,
+    List<String> exclusions,
+    boolean isSonarlint,
+    @Nullable Integer maxFilesForTypeChecking,
+    @Nullable Boolean skipAst
+  ) {}
+
+  record ProjectAnalysisMetaResponse(
+    boolean withProgram,
+    boolean withWatchProgram,
+    List<String> filesWithoutTypeChecking,
+    List<String> programsCreated
   ) {}
 
   record CssAnalysisRequest(

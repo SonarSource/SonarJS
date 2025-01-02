@@ -544,6 +544,12 @@ public class BridgeServerImpl implements BridgeServer {
     );
   }
 
+  @Override
+  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException {
+    var response = request(GSON.toJson(request), "analyze-project");
+    return GSON.fromJson(response.json(), ProjectAnalysisOutput.class);
+  }
+
   private TelemetryEslintBridgeResponse getTelemetryEslintBridgeResponse() {
     try {
       var result = http.get(url("get-telemetry"));

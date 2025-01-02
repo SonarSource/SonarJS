@@ -78,7 +78,15 @@ public class JsTsSensor extends AbstractBridgeSensor {
       exclusions
     );
 
-    analysis.initialize(context, checks, analysisMode, consumers);
+    analysis.initialize(
+      context,
+      checks,
+      analysisMode,
+      consumers,
+      environments,
+      globals,
+      exclusions
+    );
     analysis.analyzeFiles(inputFiles);
     consumers.doneAnalysis();
   }
