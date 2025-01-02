@@ -55,7 +55,10 @@ public abstract class AbstractAnalysis {
   ProgressReport progressReport;
   AnalysisMode analysisMode;
   protected final AnalysisWarningsWrapper analysisWarnings;
-  private AnalysisConsumers consumers;
+  protected AnalysisConsumers consumers;
+  protected List<String> exclusions;
+  List<String> environments;
+  List<String> globals;
 
   AbstractAnalysis(
     BridgeServer bridgeServer,
@@ -77,7 +80,10 @@ public abstract class AbstractAnalysis {
     SensorContext context,
     JsTsChecks checks,
     AnalysisMode analysisMode,
-    AnalysisConsumers consumers
+    AnalysisConsumers consumers,
+    List<String> environments,
+    List<String> globals,
+    List<String> exclusions
   ) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
@@ -85,6 +91,9 @@ public abstract class AbstractAnalysis {
     this.checks = checks;
     this.analysisMode = analysisMode;
     this.consumers = consumers;
+    this.environments = environments;
+    this.globals = globals;
+    this.exclusions = exclusions;
   }
 
   protected boolean isJavaScript(InputFile file) {
@@ -149,7 +158,7 @@ public abstract class AbstractAnalysis {
     return issues;
   }
 
-  private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
+  protected void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
     Node responseAst = response.ast();
     if (responseAst != null) {
       // When we haven't serialized the AST:
