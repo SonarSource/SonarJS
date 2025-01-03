@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
@@ -45,6 +46,11 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   @Override
   public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    if (context.isCancelled()) {
+      throw new CancellationException(
+        "Analysis interrupted because the SensorContext is in cancelled state"
+      );
+    }
     var filesToAnalyze = new ArrayList<InputFile>();
     var fileToInputFile = new HashMap<String, InputFile>();
     var fileToCacheStrategy = new HashMap<String, CacheStrategy>();
@@ -103,6 +109,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         );
         acceptAstResponse(response, file);
       }
+      new PluginTelemetry(context, bridgeServer).reportTelemetry();
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
