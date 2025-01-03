@@ -47,6 +47,7 @@ export type ProjectAnalysisInput = {
   exclusions?: string[];
   isSonarlint?: boolean;
   maxFilesForTypeChecking?: number;
+  skipAst?: boolean;
 };
 
 export const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';

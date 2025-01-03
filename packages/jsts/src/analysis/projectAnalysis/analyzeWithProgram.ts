@@ -35,9 +35,10 @@ export async function analyzeWithProgram(
   tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  skipAst: boolean,
 ) {
   for await (const tsConfig of tsConfigs) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles);
+    await analyzeProgram(files, tsConfig, results, pendingFiles, skipAst);
     if (!pendingFiles.size) {
       break;
     }
@@ -49,6 +50,7 @@ async function analyzeProgram(
   tsConfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  skipAst: boolean,
 ) {
   let filenames, programId, projectReferences;
   try {
@@ -67,6 +69,7 @@ async function analyzeProgram(
         fileType: files[filename].fileType,
         language: files[filename].language ?? DEFAULT_LANGUAGE,
         programId,
+        skipAst,
       });
       pendingFiles.delete(filename);
     }
@@ -74,6 +77,6 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles);
+    await analyzeProgram(files, reference, results, pendingFiles, skipAst);
   }
 }
