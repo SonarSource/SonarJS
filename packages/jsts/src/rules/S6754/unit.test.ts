@@ -33,6 +33,20 @@ ruleTester.run(
         return [foo];
       }`,
       },
+      {
+        code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const [foo, setFoo] = useState();
+      }`,
+      },
+      {
+        code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const [Foo, setFoo] = useState();
+      }`,
+      },
     ],
     invalid: [
       {
@@ -41,6 +55,22 @@ ruleTester.run(
       function useFoo() {
         const [foo, bar] = useState();
         return [foo, bar];
+      }`,
+        errors: 1,
+      },
+      {
+        code: `import { useState } from 'react';
+        
+        function foo() {
+  [client.searchState, client.setSearchState] = useState(baseState);
+}`,
+        errors: 1,
+      },
+      {
+        code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const getterAndSetter = useState();
       }`,
         errors: 1,
       },

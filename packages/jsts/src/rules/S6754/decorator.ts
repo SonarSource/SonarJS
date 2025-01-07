@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import { meta } from './meta.js';
+import { Node } from 'estree';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -27,10 +28,31 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     (context, descriptor) => {
-      const { node } = descriptor as any;
-      if (node.type === 'ArrayPattern' && node.elements.length === 1) {
-        return;
+      const { node } = descriptor as {
+        node: Node;
+      };
+
+      if (node.type === 'ArrayPattern') {
+        if (node.elements.length === 1) {
+          return;
+        }
+
+        const [getter, setter] = node.elements;
+
+        if (getter?.type === 'Identifier' && setter?.type === 'Identifier') {
+          const getterName = getter.name;
+          const setterName = setter.name;
+          const setterPrefix = 'set';
+
+          if (
+            setterName.startsWith(setterPrefix) &&
+            setterName.substring(setterPrefix.length) === getterName
+          ) {
+            return;
+          }
+        }
       }
+
       context.report(descriptor);
     },
   );
