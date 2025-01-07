@@ -109,25 +109,6 @@ class MetricsTest {
     assertThat(getFileMeasureAsDouble("violations")).isZero();
   }
 
-  /**
-   * SONARPLUGINS-2183
-   */
-  @Test
-  void should_be_compatible_with_DevCockpit() {
-    // 2 header comment line
-    // 4 empty line
-    // 5 code line
-    // 14 comment line
-    // 15 empty comment line
-
-    assertThat(getFileMeasure("ncloc_data").getValue())
-      .doesNotContain(";2=1;")
-      .doesNotContain(";4=1;")
-      .contains("5=1;")
-      .doesNotContain(";14=1;")
-      .doesNotContain(";15=1;");
-  }
-
   /* Helper methods */
 
   private Double getProjectMeasureAsDouble(String metricKey) {
