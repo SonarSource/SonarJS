@@ -14,7 +14,7 @@
   <name>SonarQube JavaScript :: Bridge</name>
 
   <properties>
-    <protobuf.version>4.29.2</protobuf.version>
+    <protobuf.version>4.29.3</protobuf.version>
   </properties>
 
   <dependencies>
