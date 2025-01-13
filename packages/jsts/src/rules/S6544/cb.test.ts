@@ -22,4 +22,5 @@ import path from 'path';
 describe('Rule S6544', () => {
   check(rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
   check(rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'));
+  check(rule, path.join(import.meta.dirname, 'fixtures', 'voidReturnProperty'));
 });

@@ -20,8 +20,8 @@ var B1b = class extends A1 {
 
 class A2 {
   constructor() {
-    super();                 // Noncompliant {{super() can only be invoked in a derived class constructor.}}
-//  ^^^^^
+    super();                 // This is a syntax error
+
     this.f = function() {
       super();               // FN
     }

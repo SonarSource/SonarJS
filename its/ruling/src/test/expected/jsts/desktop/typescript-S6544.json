@@ -10,6 +10,12 @@
 "desktop:app/src/lib/git/spawn.ts": [
 63
 ],
+"desktop:app/src/lib/stats/stats-store.ts": [
+1090,
+1117,
+1162,
+1169
+],
 "desktop:app/src/lib/stores/app-store.ts": [
 6525
 ],

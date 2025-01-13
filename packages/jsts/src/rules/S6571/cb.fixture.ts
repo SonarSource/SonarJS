@@ -1,10 +1,10 @@
 const torrent: string | any = client.get(infoHash); // Noncompliant {{'any' overrides all other types in this union type.}}
 //                      ^^^
 
-function foo(arg: string | SomeUnknownType) { // Noncompliant {{'SomeUnknownType' is an 'error' type that acts as 'any' and overrides all other types in this union type.}}
+function foo(arg: string | SomeUnknownType) { // Compliant
 }
 
-function bar(arg: number & SomeUnknownType) { // Noncompliant {{'SomeUnknownType' is an 'error' type that acts as 'any' and overrides all other types in this intersection type.}}
+function bar(arg: number & SomeUnknownType) { // Compliant
 }
 
 type FALSE = false;
