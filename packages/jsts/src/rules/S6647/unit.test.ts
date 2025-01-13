@@ -52,7 +52,7 @@ describe('S6647', () => {
     // When this test fails to pass, we can remove our implementation and go back to decorated
     // 'no-useless-constructor' from 'typescript-eslint'
     // https://github.com/SonarSource/SonarJS/pull/4473
-    const problemFile = join(dirname(fileURLToPath(import.meta.url)), 'problemCode.js');
+    const problemFile = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'problemCode.js');
     const linter = new Linter();
     let failed = false;
     try {

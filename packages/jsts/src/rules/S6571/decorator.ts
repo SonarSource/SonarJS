@@ -47,6 +47,7 @@ function exemptionCondition(node: TSESTree.Node, descriptor: Rule.ReportDescript
   const data = descriptor.data;
   return (
     (data?.['typeName'] === 'any' && node.type !== 'TSAnyKeyword') ||
-    (data?.['typeName'] === 'unknown' && node.type !== 'TSUnknownKeyword')
+    (data?.['typeName'] === 'unknown' && node.type !== 'TSUnknownKeyword') ||
+    ('messageId' in descriptor && descriptor.messageId === 'errorTypeOverrides')
   );
 }

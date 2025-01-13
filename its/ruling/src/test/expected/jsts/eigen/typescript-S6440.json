@@ -33,7 +33,11 @@
 ],
 "eigen:src/app/Components/FancyModal/FancyModalContext.tsx": [
 77,
-86
+86,
+124,
+125,
+127,
+129
 ],
 "eigen:src/app/Components/LoadFailureView.tsx": [
 36
@@ -111,6 +115,9 @@
 "eigen:src/app/Scenes/Sale/Components/SaleHeader.tsx": [
 127
 ],
+"eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx": [
+28
+],
 "eigen:src/app/Scenes/Search/components/SearchInput.tsx": [
 28
 ],
@@ -153,5 +160,8 @@
 ],
 "eigen:src/palette/elements/Tabs/NavigationalTabs.tsx": [
 23
+],
+"eigen:src/palette/elements/Tabs/TabBarContainer.tsx": [
+94
 ]
 }

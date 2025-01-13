@@ -61,6 +61,15 @@ const decoratedNoMisusedPromisesRule = interceptReport(
           context.report(descriptor);
         }
       }
+    } else if ('loc' in descriptor) {
+      const start =
+        'line' in descriptor.loc
+          ? context.sourceCode.getIndexFromLoc(descriptor.loc)
+          : descriptor.loc.start;
+      if (!flaggedNodeStarts.get(start)) {
+        flaggedNodeStarts.set(start, true);
+        context.report(descriptor);
+      }
     }
   },
 );
