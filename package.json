@@ -103,7 +103,7 @@
     "@babel/preset-flow": "7.25.9",
     "@babel/preset-react": "7.26.3",
     "@eslint-community/regexpp": "4.12.1",
-    "@stylistic/eslint-plugin-ts": "2.12.0",
+    "@stylistic/eslint-plugin-ts": "2.13.0",
     "@types/lodash.merge": "^4.6.9",
     "@typescript-eslint/eslint-plugin": "8.18.0",
     "@typescript-eslint/parser": "8.18.0",
