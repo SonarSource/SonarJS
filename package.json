@@ -110,7 +110,7 @@
     "@typescript-eslint/utils": "8.18.0",
     "builtin-modules": "3.3.0",
     "bytes": "3.1.2",
-    "eslint": "9.17.0",
+    "eslint": "9.18.0",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.4",
