@@ -47,6 +47,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     exclusions = [],
     isSonarlint = false,
     maxFilesForTypeChecking,
+    skipAst = true,
   } = input;
   const inputFilenames = Object.keys(input.files);
   const results: ProjectAnalysisOutput = {
@@ -76,7 +77,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
   } else {
     results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
+    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles, skipAst);
   }
 
   await analyzeWithoutProgram(pendingFiles, input.files, results);
