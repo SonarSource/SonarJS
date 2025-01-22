@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule, SourceCode } from 'eslint';
+import { Linter, Rule, SourceCode, getDirectiveComments, applyDisableDirectives } from 'eslint';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -174,8 +174,28 @@ export class LinterWrapper {
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
+    const commentDirectives = getDirectiveComments(
+      sourceCode,
+      ruleId => config.plugins!.sonarjs.rules![ruleId],
+      null,
+      config,
+    );
     const options = { filename: filePath, allowInlineConfig: false };
-    const messages = this.linter.verify(sourceCode, config, options);
+    const messages = applyDisableDirectives({
+      language: config.language,
+      sourceCode,
+      directives: commentDirectives.disableDirectives,
+      disableFixes: options.disableFixes,
+      problems: this.linter
+        .verify(sourceCode, config, options)
+        .sort(
+          (problemA, problemB) =>
+            problemA.line - problemB.line || problemA.column - problemB.column,
+        ),
+      reportUnusedDisableDirectives: options.reportUnusedDisableDirectives,
+      ruleFilter: options.ruleFilter,
+      configuredRules,
+    });
     return transformMessages(messages, { sourceCode, rules });
   }
 
