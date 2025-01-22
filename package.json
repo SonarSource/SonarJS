@@ -30,6 +30,7 @@
     "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky && npm run generate-meta",
     "precommit": "pretty-quick --staged",
+    "postinstall": "patch-package",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",
