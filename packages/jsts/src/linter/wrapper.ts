@@ -176,25 +176,24 @@ export class LinterWrapper {
     };
     const commentDirectives = getDirectiveComments(
       sourceCode,
-      ruleId => config.plugins!.sonarjs.rules![ruleId],
+      (ruleId: string) => config.plugins!.sonarjs.rules![ruleId],
       null,
       config,
     );
     const options = { filename: filePath, allowInlineConfig: false };
     const messages = applyDisableDirectives({
-      language: config.language,
+      language: {
+        lineStart: 1,
+        columnStart: 0,
+      },
       sourceCode,
       directives: commentDirectives.disableDirectives,
-      disableFixes: options.disableFixes,
       problems: this.linter
         .verify(sourceCode, config, options)
         .sort(
           (problemA, problemB) =>
             problemA.line - problemB.line || problemA.column - problemB.column,
         ),
-      reportUnusedDisableDirectives: options.reportUnusedDisableDirectives,
-      ruleFilter: options.ruleFilter,
-      configuredRules,
     });
     return transformMessages(messages, { sourceCode, rules });
   }
