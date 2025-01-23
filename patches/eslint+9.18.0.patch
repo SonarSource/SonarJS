@@ -1,0 +1,22 @@
+diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
+index 007fcf4..71cb226 100755
+--- a/node_modules/eslint/lib/linter/linter.js
++++ b/node_modules/eslint/lib/linter/linter.js
+@@ -1896,7 +1896,7 @@ class Linter {
+         const commentDirectives = options.allowInlineConfig && !options.warnInlineConfig
+             ? getDirectiveCommentsForFlatConfig(
+                 sourceCode,
+-                ruleId => getRuleFromConfig(ruleId, config),
++                providedOptions.ruleMapper || (ruleId => getRuleFromConfig(ruleId, config)),
+                 config.language
+             )
+             : { problems: [], disableDirectives: [] };
+@@ -1911,7 +1911,7 @@ class Linter {
+             lintingProblems = runRules(
+                 sourceCode,
+                 configuredRules,
+-                ruleId => getRuleFromConfig(ruleId, config),
++                providedOptions.ruleMapper || (ruleId => getRuleFromConfig(ruleId, config)),
+                 void 0,
+                 config.language,
+                 languageOptions,

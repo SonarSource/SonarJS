@@ -25,7 +25,34 @@ import { createLinterConfig } from './config/linter-config.js';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import * as ruleMetas from '../rules/metas.js';
 import path from 'path';
+
+const eslintMapping: { [key: string]: Rule.RuleModule } = {};
+
+internalCustomRules.forEach(rule => {
+  eslintMapping[rule.ruleId] = rule.ruleModule;
+});
+
+Object.entries(ruleMetas).forEach(([ruleId, meta]) => {
+  const rule = internalRules[ruleId as keyof typeof internalRules];
+  eslintMapping[ruleId] = rule;
+  eslintMapping[meta.eslintId] = rule;
+  if (meta.implementation === 'decorated') {
+    meta.externalRules.forEach(externalRule => {
+      eslintMapping[externalRule.externalRule] = rule;
+    });
+  }
+});
+
+/**
+ * Extracts the rule part from a ruleId containing plugin and rule parts.
+ * @param {string} ruleId The rule ID to parse.
+ * @returns {string) The rule part of the ruleId;
+ */
+function getRuleId(ruleId: string) {
+  return ruleId.includes('/') ? ruleId.slice(ruleId.lastIndexOf('/') + 1) : ruleId;
+}
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -174,7 +201,13 @@ export class LinterWrapper {
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
-    const options = { filename: filePath, allowInlineConfig: false };
+    const options = {
+      filename: filePath,
+      ruleMapper: (ruleId: string) => {
+        const rule = eslintMapping[getRuleId(ruleId)];
+        return rule;
+      },
+    };
     const messages = this.linter.verify(sourceCode, config, options);
     return transformMessages(messages, { sourceCode, rules });
   }
