@@ -138,8 +138,8 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   return false;
 }
 
-function containsCode(value: string) {
-  if (!couldBeJsCode(value)) {
+function containsCode(value: string, context: Rule.RuleContext) {
+  if (!couldBeJsCode(value) || !context.languageOptions.parser) {
     return false;
   }
 
