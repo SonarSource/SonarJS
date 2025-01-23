@@ -1,2 +1,2 @@
-/* eslint-disable no-alert, no-console, no-var, S3504 */
+/* eslint-disable no-alert, no-console, no-var */
 var foo = 42;;
