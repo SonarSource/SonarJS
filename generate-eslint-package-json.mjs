@@ -19,12 +19,6 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'node:url';
 
 const eslintPluginDependencies = [
-  '@babel/core',
-  '@babel/eslint-parser',
-  '@babel/plugin-proposal-decorators',
-  '@babel/preset-env',
-  '@babel/preset-flow',
-  '@babel/preset-react',
   '@eslint-community/regexpp',
   'builtin-modules',
   'bytes',
