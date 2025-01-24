@@ -14,7 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule, SourceCode, getDirectiveComments, applyDisableDirectives } from 'eslint';
+import {
+  Linter,
+  Rule,
+  SourceCode,
+  getDirectiveCommentsForFlatConfig,
+  applyDisableDirectives,
+} from 'eslint';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -26,6 +32,33 @@ import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import path from 'path';
+import * as ruleMetas from '../rules/metas.js';
+
+const eslintMapping: { [key: string]: Rule.RuleModule } = {};
+
+internalCustomRules.forEach(rule => {
+  eslintMapping[rule.ruleId] = rule.ruleModule;
+});
+
+Object.entries(ruleMetas).forEach(([ruleId, meta]) => {
+  const rule = internalRules[ruleId as keyof typeof internalRules];
+  eslintMapping[ruleId] = rule;
+  eslintMapping[meta.eslintId] = rule;
+  if (meta.implementation === 'decorated') {
+    meta.externalRules.forEach(externalRule => {
+      eslintMapping[externalRule.externalRule] = rule;
+    });
+  }
+});
+
+/**
+ * Extracts the rule part from a ruleId containing plugin and rule parts.
+ * @param {string} ruleId The rule ID to parse.
+ * @returns {string) The rule part of the ruleId;
+ */
+function getRuleId(ruleId: string) {
+  return ruleId.includes('/') ? ruleId.slice(ruleId.lastIndexOf('/') + 1) : ruleId;
+}
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -174,11 +207,13 @@ export class LinterWrapper {
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
-    const commentDirectives = getDirectiveComments(
+    const commentDirectives = getDirectiveCommentsForFlatConfig(
       sourceCode,
-      (ruleId: string) => config.plugins!.sonarjs.rules![ruleId],
-      null,
-      config,
+      (ruleId: string) => eslintMapping[getRuleId(ruleId)],
+      {
+        lineStart: 1,
+        columnStart: 0,
+      },
     );
     const options = { filename: filePath, allowInlineConfig: false };
     const messages = applyDisableDirectives({
