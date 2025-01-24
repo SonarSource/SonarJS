@@ -16,18 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S125/javascript
 
-import { Rule, SourceCode } from 'eslint';
+import { AST, Rule, SourceCode } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import babel from '@babel/eslint-parser';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
-
-import babelPresetReact from '@babel/preset-react';
-import babelPresetFlow from '@babel/preset-flow';
-import babelPresetEnv from '@babel/preset-env';
-import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -93,7 +87,10 @@ export const rule: Rule.RuleModule = {
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
+          if (
+            rawTextTrimmed !== '}' &&
+            containsCode(injectMissingBraces(rawTextTrimmed), context)
+          ) {
             context.report({
               messageId: 'commentedCode',
               loc: getCommentLocation(groupComment.nodes),
@@ -143,39 +140,18 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   return false;
 }
 
-function containsCode(value: string) {
-  if (!couldBeJsCode(value)) {
+function containsCode(value: string, context: Rule.RuleContext) {
+  if (!couldBeJsCode(value) || !context.languageOptions.parser) {
     return false;
   }
 
   try {
-    const result = babel.parse(value, {
-      filename: 'some/filePath',
-      tokens: true,
-      comment: true,
-      loc: true,
-      range: true,
-      ecmaVersion: 2018,
-      sourceType: 'module',
-      codeFrame: false,
-      ecmaFeatures: {
-        jsx: true,
-        globalReturn: false,
-        legacyDecorators: true,
-      },
-      requireConfigFile: false,
-      babelOptions: {
-        targets: 'defaults',
-        presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
-        plugins: [[babelPluginDecorators, { version: '2022-03' }]],
-        babelrc: false,
-        configFile: false,
-        parserOpts: {
-          allowReturnOutsideFunction: true,
-        },
-      },
-    });
-    const parseResult = new SourceCode(value, result);
+    const options = { filePath: context.filename, ...context.languageOptions.parserOptions };
+    const result =
+      'parse' in context.languageOptions.parser
+        ? context.languageOptions.parser.parse(value, options)
+        : context.languageOptions.parser.parseForESLint(value, options).ast;
+    const parseResult = new SourceCode(value, result as AST.Program);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {
     return false;
