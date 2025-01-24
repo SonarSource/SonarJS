@@ -31,7 +31,7 @@ maven_cache_definition: &MAVEN_CACHE
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: |
       if [ "$CIRRUS_OS" = "windows" ]; then
-        powershell.exe -NoLogo -Command "Get-ChildItem -Recurse -Filter pom.xml | ForEach-Object { Get-Content $_.FullName }"
+        powershell.exe -NoLogo -Command "& { Get-ChildItem -Recurse -Filter pom.xml | ForEach-Object { Get-Content -Path $_.FullName } }"
       fi
       if [ "$CIRRUS_OS" = "linux" ]; then
         find . -name pom.xml -exec cat {} \+
