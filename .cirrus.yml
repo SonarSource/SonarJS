@@ -336,6 +336,8 @@ eslint_plugin_test_task:
     - npm run test
 
 eslint8_node16_plugin_test_task:
+  depends_on:
+    - build
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs16.Dockerfile
