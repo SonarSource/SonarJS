@@ -29,7 +29,7 @@ container_definition: &CONTAINER_DEFINITION
 maven_cache_definition: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-    fingerprint_script: cat **/pom.xml
+    fingerprint_script: find . -name pom.xml -exec cat {} \+
 
 orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
   set_orchestrator_home_script: |
