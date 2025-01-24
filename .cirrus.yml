@@ -29,7 +29,13 @@ container_definition: &CONTAINER_DEFINITION
 maven_cache_definition: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-    fingerprint_script: cat **/pom.xml
+    fingerprint_script: |
+      if [ "$CIRRUS_OS" = "windows" ]; then
+        powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
+      fi
+      if [ "$CIRRUS_OS" = "linux" ]; then
+        find . -name pom.xml -exec cat {} \+
+      fi
 
 orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
   set_orchestrator_home_script: |
@@ -300,6 +306,8 @@ js_ts_ruling_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 eslint_plugin_test_task:
+  depends_on:
+    - build
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs.Dockerfile
@@ -328,6 +336,8 @@ eslint_plugin_test_task:
     - npm run test
 
 eslint8_node16_plugin_test_task:
+  depends_on:
+    - build
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs16.Dockerfile
