@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.lcov;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -52,17 +53,27 @@ class LCOVParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
-  private LCOVParser(List<String> lines, SensorContext context, FileLocator fileLocator) {
+  private static record Line(String content, File reportFile) {}
+
+  private LCOVParser(List<Line> lines, SensorContext context, FileLocator fileLocator) {
     this.context = context;
     this.fileLocator = fileLocator;
     this.coverageByFile = parse(lines);
   }
 
   static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
-    final List<String> lines = new LinkedList<>();
+    final List<Line> lines = new LinkedList<>();
     for (File file : files) {
       try (Stream<String> fileLines = Files.lines(file.toPath())) {
-        lines.addAll(fileLines.toList());
+        lines.addAll(
+          fileLines
+            .toList()
+            .stream()
+            .map(content -> {
+              return new Line(content, file);
+            })
+            .toList()
+        );
       } catch (IOException e) {
         throw new IllegalArgumentException("Could not read content from file: " + file, e);
       }
@@ -82,21 +93,21 @@ class LCOVParser {
     return inconsistenciesCounter;
   }
 
-  private Map<InputFile, NewCoverage> parse(List<String> lines) {
+  private Map<InputFile, NewCoverage> parse(List<Line> lines) {
     final Map<InputFile, FileData> files = new HashMap<>();
     FileData fileData = null;
     int reportLineNum = 0;
 
-    for (String line : lines) {
+    for (Line line : lines) {
       reportLineNum++;
-      if (line.startsWith(SF)) {
+      if (line.content.startsWith(SF)) {
         fileData = files.computeIfAbsent(inputFileForSourceFile(line), inputFile ->
           inputFile == null ? null : new FileData(inputFile)
         );
       } else if (fileData != null) {
-        if (line.startsWith(DA)) {
+        if (line.content.startsWith(DA)) {
           parseLineCoverage(fileData, reportLineNum, line);
-        } else if (line.startsWith(BRDA)) {
+        } else if (line.content.startsWith(BRDA)) {
           parseBranchCoverage(fileData, reportLineNum, line);
         }
       }
@@ -112,10 +123,10 @@ class LCOVParser {
     return coveredFiles;
   }
 
-  private void parseBranchCoverage(FileData fileData, int reportLineNum, String line) {
+  private void parseBranchCoverage(FileData fileData, int reportLineNum, Line line) {
     try {
       // BRDA:<line number>,<block number>,<branch number>,<taken>
-      String[] tokens = line.substring(BRDA.length()).trim().split(",");
+      String[] tokens = line.content.substring(BRDA.length()).trim().split(",");
       String lineNumber = tokens[0];
       String branchNumber = tokens[1] + tokens[2];
       String taken = tokens[3];
@@ -130,10 +141,10 @@ class LCOVParser {
     }
   }
 
-  private void parseLineCoverage(FileData fileData, int reportLineNum, String line) {
+  private void parseLineCoverage(FileData fileData, int reportLineNum, Line line) {
     try {
       // DA:<line number>,<execution count>[,<checksum>]
-      String execution = line.substring(DA.length());
+      String execution = line.content.substring(DA.length());
       String executionCount = execution.substring(execution.indexOf(',') + 1);
       String lineNumber = execution.substring(0, execution.indexOf(','));
 
@@ -154,18 +165,34 @@ class LCOVParser {
   }
 
   @CheckForNull
-  private InputFile inputFileForSourceFile(String line) {
-    // SF:<absolute path to the source file>
-    String filePath = line.substring(SF.length());
-    // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = context
+  private InputFile inputFileForSourceFile(Line line) {
+    // SF:<path to the source file>
+    var reportFilePath = Path.of(line.content.substring(SF.length()));
+    var actualFilePath = reportFilePath;
+
+    // if the path is relative, we try to locate it relatively to the project root
+    if (!actualFilePath.isAbsolute()) {
+      var exists = context
+        .fileSystem()
+        .hasFiles(context.fileSystem().predicates().hasPath(actualFilePath.toString()));
+
+      // if it does not exist, we try to locate it relatively to the report parent directory
+      if (!exists) {
+        actualFilePath = line.reportFile.getParentFile().toPath().resolve(actualFilePath);
+      }
+    }
+
+    var filePathAsString = actualFilePath.toString();
+
+    var inputFile = context
       .fileSystem()
-      .inputFile(context.fileSystem().predicates().hasPath(filePath));
+      .inputFile(context.fileSystem().predicates().hasPath(filePathAsString));
+
     if (inputFile == null) {
-      inputFile = fileLocator.getInputFile(filePath);
+      inputFile = fileLocator.getInputFile(filePathAsString);
     }
     if (inputFile == null) {
-      unresolvedPaths.add(filePath);
+      unresolvedPaths.add(reportFilePath.toString());
     }
     return inputFile;
   }

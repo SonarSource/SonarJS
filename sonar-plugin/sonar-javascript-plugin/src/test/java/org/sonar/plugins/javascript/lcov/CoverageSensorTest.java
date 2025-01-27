@@ -183,13 +183,31 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
     String fileName =
       File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
-    assertThat(logTester.logs(Level.WARN))
+    var logs = logTester.logs(Level.WARN);
+
+    assertThat(logs)
       .contains(
         "Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]"
       )
       .contains(
         "First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)"
       );
+  }
+
+  @Test
+  void test_relative_path() {
+    logTester.setLevel(Level.INFO);
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      "reports/report_with_relative_path.lcov"
+    );
+    coverageSensor.execute(context);
+    var logs = logTester.logs(Level.WARN);
+
+    assertThat(logs).isEmpty();
+    assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(1);
+    assertThat(context.lineHits("moduleKey:file1.js", 2)).isEqualTo(1);
+    assertThat(context.lineHits("moduleKey:file1.js", 3)).isEqualTo(0);
   }
 
   @Test
