@@ -1,5 +1,5 @@
 diff --git a/node_modules/eslint/lib/api.js b/node_modules/eslint/lib/api.js
-index a134ecd..9312689 100644
+index a134ecd..9312689 100755
 --- a/node_modules/eslint/lib/api.js
 +++ b/node_modules/eslint/lib/api.js
 @@ -11,7 +11,7 @@
@@ -21,7 +21,7 @@ index a134ecd..9312689 100644
      ESLint,
      RuleTester,
 diff --git a/node_modules/eslint/lib/config/flat-config-helpers.js b/node_modules/eslint/lib/config/flat-config-helpers.js
-index a904a0d..195264c 100644
+index a904a0d..195264c 100755
 --- a/node_modules/eslint/lib/config/flat-config-helpers.js
 +++ b/node_modules/eslint/lib/config/flat-config-helpers.js
 @@ -32,6 +32,8 @@ const noOptionsSchema = Object.freeze({
@@ -34,7 +34,7 @@ index a904a0d..195264c 100644
      let pluginName, ruleName;
  
 diff --git a/node_modules/eslint/lib/linter/index.js b/node_modules/eslint/lib/linter/index.js
-index 9e53977..b21c6cd 100644
+index 9e53977..b21c6cd 100755
 --- a/node_modules/eslint/lib/linter/index.js
 +++ b/node_modules/eslint/lib/linter/index.js
 @@ -1,11 +1,11 @@
@@ -53,7 +53,7 @@ index 9e53977..b21c6cd 100644
      SourceCodeFixer
  };
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index 007fcf4..16cfb41 100644
+index 007fcf4..16cfb41 100755
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
 @@ -2395,7 +2395,8 @@ class Linter {
@@ -67,7 +67,7 @@ index 007fcf4..16cfb41 100644
       * Get the internal slots of a given Linter instance for tests.
       * @param {Linter} instance The Linter instance to get.
 diff --git a/node_modules/eslint/lib/types/index.d.ts b/node_modules/eslint/lib/types/index.d.ts
-index b86ac2c..d9fac92 100644
+index b86ac2c..3a057f9 100755
 --- a/node_modules/eslint/lib/types/index.d.ts
 +++ b/node_modules/eslint/lib/types/index.d.ts
 @@ -29,6 +29,8 @@ import * as ESTree from "estree";
@@ -79,11 +79,18 @@ index b86ac2c..d9fac92 100644
  
  export namespace AST {
      type TokenType =
-@@ -853,6 +855,31 @@ export namespace Rule {
+@@ -852,6 +854,37 @@ export namespace Rule {
+ }
  
  // #region Linter
- 
++type ParentDirective = {
++  node: ESTree.Comment,
++  value: string,
++  ruleIds: string[],
++}
++
 +type Directives = {
++  parentDirective: ParentDirective;
 +  type: 'disable' | 'enable' | 'disable-line' | 'disable-next-line',
 +  line: number,
 +  column: number,
@@ -91,7 +98,7 @@ index b86ac2c..d9fac92 100644
 +  justification: string
 +};
 +
-+export function getDirectiveCommentsForFlatConfig(sourceCode: SourceCode, ruleMapper: (string) => Rule.RuleModule, language = {
++export function getDirectiveCommentsForFlatConfig(sourceCode: SourceCode, ruleMapper: (string) => string, language = {
 +  columnStart: 0,
 +  lineStart: 1
 +}): {
@@ -107,7 +114,6 @@ index b86ac2c..d9fac92 100644
 +  directives: Directives[],
 +  problems: LintMessage[],
 +}): Linter.LintMessage[];
-+
+ 
  export class Linter {
      static readonly version: string;
- 
