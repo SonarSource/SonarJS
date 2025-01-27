@@ -34,14 +34,14 @@ import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import path from 'path';
 import * as ruleMetas from '../rules/metas.js';
 
-const eslintMapping: { [key: string]: Rule.RuleModule } = {};
+const eslintMapping: { [key: string]: string } = {};
 
 internalCustomRules.forEach(rule => {
-  eslintMapping[rule.ruleId] = rule.ruleModule;
+  eslintMapping[rule.ruleId] = `sonarjs/${rule.ruleId}`;
 });
 
 Object.entries(ruleMetas).forEach(([ruleId, meta]) => {
-  const rule = internalRules[ruleId as keyof typeof internalRules];
+  const rule = `sonarjs/${ruleId}`;
   eslintMapping[ruleId] = rule;
   eslintMapping[meta.eslintId] = rule;
   if (meta.implementation === 'decorated') {
@@ -215,7 +215,22 @@ export class LinterWrapper {
         columnStart: 0,
       },
     );
-    const options = { filename: filePath, allowInlineConfig: false };
+    const mappedParentDirectives = new Set();
+    commentDirectives.disableDirectives.forEach(directive => {
+      const sonarRuleId = eslintMapping[getRuleId(directive.ruleId!)];
+      directive.ruleId = sonarRuleId;
+      if (!mappedParentDirectives.has(directive.parentDirective)) {
+        directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
+          directive.parentDirective.value = directive.parentDirective.value.replaceAll(
+            ruleId,
+            eslintMapping[getRuleId(ruleId)],
+          );
+          return eslintMapping[getRuleId(ruleId)];
+        });
+        mappedParentDirectives.add(directive.parentDirective);
+      }
+    });
+    const options = { filename: filePath, allowInlineConfig: true };
     const messages = applyDisableDirectives({
       language: {
         lineStart: 1,
@@ -230,7 +245,10 @@ export class LinterWrapper {
             problemA.line - problemB.line || problemA.column - problemB.column,
         ),
     });
-    return transformMessages(messages, { sourceCode, rules });
+    return transformMessages(
+      messages.filter(issue => !('suppressions' in issue)),
+      { sourceCode, rules },
+    );
   }
 
   /**
