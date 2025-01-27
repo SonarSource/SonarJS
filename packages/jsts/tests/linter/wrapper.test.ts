@@ -74,19 +74,6 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should not report issues if rule is disabled with ESLint', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-directive.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-    const rules = [{ key: 'S3504', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules });
-    await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath, 'MAIN');
-
-    expect(issues).toHaveLength(0);
-  });
-
   it('should report issues based on the file type', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'file-type.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
@@ -180,7 +167,20 @@ describe('LinterWrapper', () => {
     expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
   });
 
-  it('should not take into account comment-based eslint configurations', async () => {
+  it('should not report issues if rule is disabled with ESLint', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-directive.js');
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
+
+    const rules = [{ key: 'S3504', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+
+    const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
+    const { issues } = linter.lint(sourceCode, filePath, 'MAIN');
+
+    expect(issues).toHaveLength(0);
+  });
+
+  it('should take into account comment-based eslint configurations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 

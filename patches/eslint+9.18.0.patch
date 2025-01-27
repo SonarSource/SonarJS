@@ -1,22 +1,25 @@
 diff --git a/node_modules/eslint/lib/api.js b/node_modules/eslint/lib/api.js
-index a134ecd..9312689 100755
+index a134ecd..d6220b0 100755
 --- a/node_modules/eslint/lib/api.js
 +++ b/node_modules/eslint/lib/api.js
-@@ -11,7 +11,7 @@
+@@ -10,8 +10,9 @@
+ //-----------------------------------------------------------------------------
  
  const { ESLint, shouldUseFlatConfig } = require("./eslint/eslint");
++const { RuleValidator } = require("./config/rule-validator");
  const { LegacyESLint } = require("./eslint/legacy-eslint");
 -const { Linter } = require("./linter");
 +const { Linter, getDirectiveCommentsForFlatConfig, applyDisableDirectives } = require("./linter");
  const { RuleTester } = require("./rule-tester");
  const { SourceCode } = require("./languages/js/source-code");
  
-@@ -43,6 +43,8 @@ async function loadESLint({ useFlatConfig } = {}) {
+@@ -43,6 +44,9 @@ async function loadESLint({ useFlatConfig } = {}) {
  
  module.exports = {
      Linter,
 +    getDirectiveCommentsForFlatConfig,
 +    applyDisableDirectives,
++    RuleValidator,
      loadESLint,
      ESLint,
      RuleTester,
@@ -67,7 +70,7 @@ index 007fcf4..16cfb41 100755
       * Get the internal slots of a given Linter instance for tests.
       * @param {Linter} instance The Linter instance to get.
 diff --git a/node_modules/eslint/lib/types/index.d.ts b/node_modules/eslint/lib/types/index.d.ts
-index b86ac2c..3a057f9 100755
+index b86ac2c..ef57164 100755
 --- a/node_modules/eslint/lib/types/index.d.ts
 +++ b/node_modules/eslint/lib/types/index.d.ts
 @@ -29,6 +29,8 @@ import * as ESTree from "estree";
@@ -79,7 +82,19 @@ index b86ac2c..3a057f9 100755
  
  export namespace AST {
      type TokenType =
-@@ -852,6 +854,37 @@ export namespace Rule {
+@@ -238,6 +240,11 @@ export class SourceCode {
+     ): boolean;
+ 
+     markVariableAsUsed(name: string, refNode?: ESTree.Node): boolean;
++  applyInlineConfig(): {problems: LintMessage[],configs:{config:Linter.Config,loc:AST.SourceLocation}[]};
++}
++
++export class RuleValidator {
++  validate(params: { rules:  Linter.Config<Linter.RulesRecord>, plugins: Record<string, ESLint.Plugin>}): void;
+ }
+ 
+ export namespace SourceCode {
+@@ -852,6 +859,37 @@ export namespace Rule {
  }
  
  // #region Linter

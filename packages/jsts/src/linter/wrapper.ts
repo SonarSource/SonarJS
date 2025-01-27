@@ -16,6 +16,7 @@
  */
 import {
   Linter,
+  RuleValidator,
   Rule,
   SourceCode,
   getDirectiveCommentsForFlatConfig,
@@ -33,20 +34,34 @@ import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import path from 'path';
 import * as ruleMetas from '../rules/metas.js';
+// @ts-ignore
+import { deepMergeArrays } from '../../../../node_modules/eslint/lib/shared/deep-merge-arrays.js';
 
-const eslintMapping: { [key: string]: string } = {};
+const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
+
+const ruleSeveritiesValues: [string | number, number][] = [
+  [0, 0],
+  ['off', 0],
+  [1, 1],
+  ['warn', 1],
+  [2, 2],
+  ['error', 2],
+];
+
+const ruleSeverities: Map<string | number | undefined, number> = new Map(ruleSeveritiesValues);
 
 internalCustomRules.forEach(rule => {
-  eslintMapping[rule.ruleId] = `sonarjs/${rule.ruleId}`;
+  eslintMapping[rule.ruleId] = { ruleId: `sonarjs/${rule.ruleId}`, ruleModule: rule.ruleModule };
 });
 
-Object.entries(ruleMetas).forEach(([ruleId, meta]) => {
-  const rule = `sonarjs/${ruleId}`;
-  eslintMapping[ruleId] = rule;
-  eslintMapping[meta.eslintId] = rule;
+Object.entries(ruleMetas).forEach(([sonarKey, meta]) => {
+  const ruleId = `sonarjs/${sonarKey}`;
+  const ruleModule = internalRules[sonarKey as keyof typeof internalRules];
+  eslintMapping[sonarKey] = { ruleId, ruleModule };
+  eslintMapping[meta.eslintId] = { ruleId, ruleModule };
   if (meta.implementation === 'decorated') {
     meta.externalRules.forEach(externalRule => {
-      eslintMapping[externalRule.externalRule] = rule;
+      eslintMapping[externalRule.externalRule] = { ruleId, ruleModule };
     });
   }
 });
@@ -209,28 +224,102 @@ export class LinterWrapper {
     };
     const commentDirectives = getDirectiveCommentsForFlatConfig(
       sourceCode,
-      (ruleId: string) => eslintMapping[getRuleId(ruleId)],
+      (ruleId: string) => eslintMapping[getRuleId(ruleId)].ruleId,
       {
         lineStart: 1,
         columnStart: 0,
       },
     );
+
+    const inlineConfigResult = sourceCode.applyInlineConfig?.();
+
+    if (inlineConfigResult) {
+      // next we need to verify information about the specified rules
+      const ruleValidator = new RuleValidator();
+
+      for (const { config: inlineConfig } of inlineConfigResult.configs) {
+        Object.keys(inlineConfig.rules ?? {}).forEach(rule => {
+          const { ruleId, ruleModule } = eslintMapping[getRuleId(rule)];
+
+          if (!ruleModule) {
+            return;
+          }
+
+          try {
+            const ruleValue = inlineConfig.rules?.[rule];
+            if (typeof ruleValue === 'undefined') {
+              return;
+            }
+            let ruleOptions: [Linter.RuleSeverity, ...any[]] = Array.isArray(ruleValue)
+              ? ruleValue
+              : [ruleValue];
+            const severity = ruleSeverities.get(ruleOptions[0]);
+
+            if (typeof severity === 'undefined') {
+              return;
+            }
+
+            let shouldValidateOptions = true;
+            // If inline config for the rule has only severity and the rule was already configured
+            if (
+              ruleOptions.length === 1 &&
+              Array.isArray(config.rules?.[ruleId]) &&
+              config.rules?.[ruleId]
+            ) {
+              /*
+               * Then use severity from the inline config and options from the provided config
+               */
+              ruleOptions = [
+                ruleOptions[0], // severity from the inline config
+                ...config.rules[ruleId].slice(1), // options from the provided config
+              ];
+
+              // if the rule was enabled, the options have already been validated
+              if (ruleSeverities.get(config.rules[ruleId][0])! > 0) {
+                shouldValidateOptions = false;
+              }
+            } else {
+              /**
+               * Since we know the user provided options, apply defaults on top of them
+               */
+              const slicedOptions = ruleOptions.slice(1);
+              const mergedOptions = deepMergeArrays(ruleModule.meta?.defaultOptions, slicedOptions);
+
+              if (mergedOptions.length) {
+                ruleOptions = [ruleOptions[0], ...mergedOptions];
+              }
+            }
+
+            if (shouldValidateOptions) {
+              ruleValidator.validate({
+                plugins: config.plugins!,
+                rules: {
+                  [ruleId]: ruleOptions,
+                },
+              });
+            }
+
+            config.rules![ruleId] = ruleOptions;
+          } catch (e) {}
+        });
+      }
+    }
+
     const mappedParentDirectives = new Set();
     commentDirectives.disableDirectives.forEach(directive => {
-      const sonarRuleId = eslintMapping[getRuleId(directive.ruleId!)];
-      directive.ruleId = sonarRuleId;
+      directive.ruleId = eslintMapping[getRuleId(directive.ruleId!)].ruleId;
       if (!mappedParentDirectives.has(directive.parentDirective)) {
         directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
           directive.parentDirective.value = directive.parentDirective.value.replaceAll(
             ruleId,
-            eslintMapping[getRuleId(ruleId)],
+            eslintMapping[getRuleId(ruleId)].ruleId,
           );
-          return eslintMapping[getRuleId(ruleId)];
+          return eslintMapping[getRuleId(ruleId)].ruleId;
         });
         mappedParentDirectives.add(directive.parentDirective);
       }
     });
-    const options = { filename: filePath, allowInlineConfig: true };
+    const options = { filename: filePath, allowInlineConfig: false };
     const messages = applyDisableDirectives({
       language: {
         lineStart: 1,
