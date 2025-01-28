@@ -188,7 +188,15 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
-    expect(issues).toHaveLength(0);
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S107',
+        line: 2,
+        column: 0,
+        endLine: 2,
+        endColumn: 12,
+      }),
+    ]);
   });
 
   it('should not report on globals provided by environments configuration', async () => {
