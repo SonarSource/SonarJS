@@ -72,7 +72,7 @@ Object.entries(ruleMetas).forEach(([sonarKey, meta]) => {
  * @returns {string) The rule part of the ruleId;
  */
 function getRuleId(ruleId: string) {
-  return ruleId.includes('/') ? ruleId.slice(ruleId.lastIndexOf('/') + 1) : ruleId;
+  return ruleId.split('/').at(-1)!;
 }
 
 /**

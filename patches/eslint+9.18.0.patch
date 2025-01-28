@@ -23,19 +23,6 @@ index a134ecd..d6220b0 100755
      loadESLint,
      ESLint,
      RuleTester,
-diff --git a/node_modules/eslint/lib/config/flat-config-helpers.js b/node_modules/eslint/lib/config/flat-config-helpers.js
-index a904a0d..195264c 100755
---- a/node_modules/eslint/lib/config/flat-config-helpers.js
-+++ b/node_modules/eslint/lib/config/flat-config-helpers.js
-@@ -32,6 +32,8 @@ const noOptionsSchema = Object.freeze({
-  * @returns {{pluginName:string,ruleName:string}} The plugin and rule
-  *      parts of the ruleId;
-  */
-+
-+// interesting
- function parseRuleId(ruleId) {
-     let pluginName, ruleName;
- 
 diff --git a/node_modules/eslint/lib/linter/index.js b/node_modules/eslint/lib/linter/index.js
 index 9e53977..b21c6cd 100755
 --- a/node_modules/eslint/lib/linter/index.js
