@@ -55,7 +55,7 @@ class TypeScriptAnalysisTest {
 
     String sampleFileKey = projectKey + ":sample.lint.ts";
     List<Issue> issuesList = getIssues(sampleFileKey);
-    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList).hasSize(2);
     assertThat(issuesList.get(0).getLine()).isEqualTo(4);
 
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
