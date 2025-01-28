@@ -233,6 +233,9 @@ export class LinterWrapper {
 
     const inlineConfigResult = sourceCode.applyInlineConfig?.();
 
+    const mergedInlineConfig: { rules: Linter.RulesRecord } = {
+      rules: {},
+    };
     if (inlineConfigResult) {
       // next we need to verify information about the specified rules
       const ruleValidator = new RuleValidator();
@@ -242,6 +245,10 @@ export class LinterWrapper {
           const { ruleId, ruleModule } = eslintMapping[getRuleId(rule)];
 
           if (!ruleModule) {
+            return;
+          }
+
+          if (Object.hasOwn(mergedInlineConfig.rules, ruleId)) {
             return;
           }
 
@@ -299,7 +306,7 @@ export class LinterWrapper {
               });
             }
 
-            config.rules![ruleId] = ruleOptions;
+            mergedInlineConfig.rules[ruleId] = ruleOptions;
           } catch (e) {}
         });
       }
@@ -328,7 +335,14 @@ export class LinterWrapper {
       sourceCode,
       directives: commentDirectives.disableDirectives,
       problems: this.linter
-        .verify(sourceCode, config, options)
+        .verify(
+          sourceCode,
+          {
+            ...config,
+            rules: { ...config.rules, ...mergedInlineConfig.rules },
+          },
+          options,
+        )
         .sort(
           (problemA, problemB) =>
             problemA.line - problemB.line || problemA.column - problemB.column,
