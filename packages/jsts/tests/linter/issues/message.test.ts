@@ -19,7 +19,7 @@ import { convertMessage } from '../../../src/linter/issues/message.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
-import { describe, it, Mock, mock } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
 describe('convertMessage', () => {
