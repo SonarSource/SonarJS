@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter, Rule, SourceCode } from 'eslint';
-import type estree from 'estree';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -26,48 +25,8 @@ import { createLinterConfig } from './config/linter-config.js';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import { createOptions } from './pragmas.js';
 import path from 'path';
-import * as ruleMetas from '../rules/metas.js';
-
-const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
-
-type Directive = {
-  parentDirective: {
-    node: estree.Comment;
-    value: string;
-    ruleIds: string[];
-  };
-  type: 'disable' | 'enable' | 'disable-line' | 'disable-next-line';
-  line: number;
-  column: number;
-  ruleId: string | null;
-  justification: string;
-};
-
-internalCustomRules.forEach(rule => {
-  eslintMapping[rule.ruleId] = { ruleId: `sonarjs/${rule.ruleId}`, ruleModule: rule.ruleModule };
-});
-
-Object.entries(ruleMetas).forEach(([sonarKey, meta]) => {
-  const ruleId = `sonarjs/${sonarKey}`;
-  const ruleModule = internalRules[sonarKey as keyof typeof internalRules];
-  eslintMapping[sonarKey] = { ruleId, ruleModule };
-  eslintMapping[meta.eslintId] = { ruleId, ruleModule };
-  if (meta.implementation === 'decorated') {
-    meta.externalRules.forEach(externalRule => {
-      eslintMapping[externalRule.externalRule] = { ruleId, ruleModule };
-    });
-  }
-});
-
-/**
- * Extracts the rule part from a ruleId containing plugin and rule parts.
- * @param {string} ruleId The rule ID to parse.
- * @returns {string) The rule part of the ruleId;
- */
-function getRuleId(ruleId: string) {
-  return ruleId.split('/').at(-1)!;
-}
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -217,38 +176,7 @@ export class LinterWrapper {
       settings: { ...linterConfig.settings, fileType },
     };
 
-    const mappedParentDirectives = new Set();
-
-    const options = {
-      filename: filePath,
-      allowInlineConfig: true,
-      getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.ruleId,
-      patchDirectives: (directives: Directive[]) =>
-        directives.forEach(directive => {
-          directive.ruleId = eslintMapping[getRuleId(directive.ruleId!)].ruleId;
-          if (!mappedParentDirectives.has(directive.parentDirective)) {
-            directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
-              directive.parentDirective.value = directive.parentDirective.value.replaceAll(
-                ruleId,
-                eslintMapping[getRuleId(ruleId)].ruleId,
-              );
-              return eslintMapping[getRuleId(ruleId)].ruleId;
-            });
-            mappedParentDirectives.add(directive.parentDirective);
-          }
-        }),
-      patchInlineOptions: (rules: Linter.RulesRecord) => {
-        const patchedOptions: Linter.RulesRecord = {};
-        for (const [ruleId, options] of Object.entries(rules)) {
-          const sonarKey = eslintMapping[getRuleId(ruleId)]?.ruleId;
-          if (sonarKey) {
-            patchedOptions[sonarKey] = options;
-          }
-        }
-        return patchedOptions;
-      },
-    };
-    const messages = this.linter.verify(sourceCode, config, options);
+    const messages = this.linter.verify(sourceCode, config, createOptions(filePath));
     return transformMessages(messages, { sourceCode, rules });
   }
 

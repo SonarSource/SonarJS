@@ -17,7 +17,6 @@
 import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Converts an ESLint message into a SonarQube issue
@@ -34,11 +33,11 @@ import { error } from '../../../../shared/src/helpers/logging.js';
  */
 export function convertMessage(source: SourceCode, message: Linter.LintMessage): Issue | null {
   /**
-   * The property `ruleId` equals `null` on parsing errors, but it should not
-   * happen because we lint ready SourceCode instances and not file contents.
+   * The property `ruleId` equals `null` on parsing errors and not applied directives.
+   * The first should not happen because we lint ready SourceCode instances and not file contents.
+   * The second we can ignore.
    */
   if (!message.ruleId) {
-    error("Illegal 'null' ruleId for eslint issue");
     return null;
   }
   return {
