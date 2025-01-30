@@ -37,7 +37,7 @@ export function convertMessage(source: SourceCode, message: Linter.LintMessage):
    * The first should not happen because we lint ready SourceCode instances and not file contents.
    * The second we can ignore.
    */
-  if (!message.ruleId) {
+  if (!message.ruleId?.startsWith('sonarjs/')) {
     return null;
   }
   return {
