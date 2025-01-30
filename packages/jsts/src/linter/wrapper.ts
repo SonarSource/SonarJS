@@ -14,14 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  Linter,
-  RuleValidator,
-  Rule,
-  SourceCode,
-  getDirectiveCommentsForFlatConfig,
-  applyDisableDirectives,
-} from 'eslint';
+import { Linter, Rule, SourceCode } from 'eslint';
+import type estree from 'estree';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -34,21 +28,21 @@ import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import path from 'path';
 import * as ruleMetas from '../rules/metas.js';
-// @ts-ignore
-import { deepMergeArrays } from '../../../../node_modules/eslint/lib/shared/deep-merge-arrays.js';
 
 const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
 
-const ruleSeveritiesValues: [string | number, number][] = [
-  [0, 0],
-  ['off', 0],
-  [1, 1],
-  ['warn', 1],
-  [2, 2],
-  ['error', 2],
-];
-
-const ruleSeverities: Map<string | number | undefined, number> = new Map(ruleSeveritiesValues);
+type Directive = {
+  parentDirective: {
+    node: estree.Comment;
+    value: string;
+    ruleIds: string[];
+  };
+  type: 'disable' | 'enable' | 'disable-line' | 'disable-next-line';
+  line: number;
+  column: number;
+  ruleId: string | null;
+  justification: string;
+};
 
 internalCustomRules.forEach(rule => {
   eslintMapping[rule.ruleId] = { ruleId: `sonarjs/${rule.ruleId}`, ruleModule: rule.ruleModule };
@@ -222,136 +216,40 @@ export class LinterWrapper {
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
-    const commentDirectives = getDirectiveCommentsForFlatConfig(
-      sourceCode,
-      (ruleId: string) => eslintMapping[getRuleId(ruleId)].ruleId,
-      {
-        lineStart: 1,
-        columnStart: 0,
-      },
-    );
-
-    const inlineConfigResult = sourceCode.applyInlineConfig?.();
-
-    const mergedInlineConfig: { rules: Linter.RulesRecord } = {
-      rules: {},
-    };
-    if (inlineConfigResult) {
-      // next we need to verify information about the specified rules
-      const ruleValidator = new RuleValidator();
-
-      for (const { config: inlineConfig } of inlineConfigResult.configs) {
-        Object.keys(inlineConfig.rules ?? {}).forEach(rule => {
-          const { ruleId, ruleModule } = eslintMapping[getRuleId(rule)];
-
-          if (!ruleModule) {
-            return;
-          }
-
-          if (Object.hasOwn(mergedInlineConfig.rules, ruleId)) {
-            return;
-          }
-
-          try {
-            const ruleValue = inlineConfig.rules?.[rule];
-            if (typeof ruleValue === 'undefined') {
-              return;
-            }
-            let ruleOptions: [Linter.RuleSeverity, ...any[]] = Array.isArray(ruleValue)
-              ? ruleValue
-              : [ruleValue];
-            const severity = ruleSeverities.get(ruleOptions[0]);
-
-            if (typeof severity === 'undefined') {
-              return;
-            }
-
-            let shouldValidateOptions = true;
-            // If inline config for the rule has only severity and the rule was already configured
-            if (
-              ruleOptions.length === 1 &&
-              Array.isArray(config.rules?.[ruleId]) &&
-              config.rules?.[ruleId]
-            ) {
-              /*
-               * Then use severity from the inline config and options from the provided config
-               */
-              ruleOptions = [
-                ruleOptions[0], // severity from the inline config
-                ...config.rules[ruleId].slice(1), // options from the provided config
-              ];
-
-              // if the rule was enabled, the options have already been validated
-              if (ruleSeverities.get(config.rules[ruleId][0])! > 0) {
-                shouldValidateOptions = false;
-              }
-            } else {
-              /**
-               * Since we know the user provided options, apply defaults on top of them
-               */
-              const slicedOptions = ruleOptions.slice(1);
-              const mergedOptions = deepMergeArrays(ruleModule.meta?.defaultOptions, slicedOptions);
-
-              if (mergedOptions.length) {
-                ruleOptions = [ruleOptions[0], ...mergedOptions];
-              }
-            }
-
-            if (shouldValidateOptions) {
-              ruleValidator.validate({
-                plugins: config.plugins!,
-                rules: {
-                  [ruleId]: ruleOptions,
-                },
-              });
-            }
-
-            mergedInlineConfig.rules[ruleId] = ruleOptions;
-          } catch (e) {}
-        });
-      }
-    }
 
     const mappedParentDirectives = new Set();
-    commentDirectives.disableDirectives.forEach(directive => {
-      directive.ruleId = eslintMapping[getRuleId(directive.ruleId!)].ruleId;
-      if (!mappedParentDirectives.has(directive.parentDirective)) {
-        directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
-          directive.parentDirective.value = directive.parentDirective.value.replaceAll(
-            ruleId,
-            eslintMapping[getRuleId(ruleId)].ruleId,
-          );
-          return eslintMapping[getRuleId(ruleId)].ruleId;
-        });
-        mappedParentDirectives.add(directive.parentDirective);
-      }
-    });
-    const options = { filename: filePath, allowInlineConfig: false };
-    const messages = applyDisableDirectives({
-      language: {
-        lineStart: 1,
-        columnStart: 0,
+
+    const options = {
+      filename: filePath,
+      allowInlineConfig: true,
+      getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.ruleId,
+      patchDirectives: (directives: Directive[]) =>
+        directives.forEach(directive => {
+          directive.ruleId = eslintMapping[getRuleId(directive.ruleId!)].ruleId;
+          if (!mappedParentDirectives.has(directive.parentDirective)) {
+            directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
+              directive.parentDirective.value = directive.parentDirective.value.replaceAll(
+                ruleId,
+                eslintMapping[getRuleId(ruleId)].ruleId,
+              );
+              return eslintMapping[getRuleId(ruleId)].ruleId;
+            });
+            mappedParentDirectives.add(directive.parentDirective);
+          }
+        }),
+      patchInlineOptions: (rules: Linter.RulesRecord) => {
+        const patchedOptions: Linter.RulesRecord = {};
+        for (const [ruleId, options] of Object.entries(rules)) {
+          const sonarKey = eslintMapping[getRuleId(ruleId)]?.ruleId;
+          if (sonarKey) {
+            patchedOptions[sonarKey] = options;
+          }
+        }
+        return patchedOptions;
       },
-      sourceCode,
-      directives: commentDirectives.disableDirectives,
-      problems: this.linter
-        .verify(
-          sourceCode,
-          {
-            ...config,
-            rules: { ...config.rules, ...mergedInlineConfig.rules },
-          },
-          options,
-        )
-        .sort(
-          (problemA, problemB) =>
-            problemA.line - problemB.line || problemA.column - problemB.column,
-        ),
-    });
-    return transformMessages(
-      messages.filter(issue => !('suppressions' in issue)),
-      { sourceCode, rules },
-    );
+    };
+    const messages = this.linter.verify(sourceCode, config, options);
+    return transformMessages(messages, { sourceCode, rules });
   }
 
   /**

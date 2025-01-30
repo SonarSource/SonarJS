@@ -1,121 +1,34 @@
-diff --git a/node_modules/eslint/lib/api.js b/node_modules/eslint/lib/api.js
-index a134ecd..d6220b0 100755
---- a/node_modules/eslint/lib/api.js
-+++ b/node_modules/eslint/lib/api.js
-@@ -10,8 +10,9 @@
- //-----------------------------------------------------------------------------
- 
- const { ESLint, shouldUseFlatConfig } = require("./eslint/eslint");
-+const { RuleValidator } = require("./config/rule-validator");
- const { LegacyESLint } = require("./eslint/legacy-eslint");
--const { Linter } = require("./linter");
-+const { Linter, getDirectiveCommentsForFlatConfig, applyDisableDirectives } = require("./linter");
- const { RuleTester } = require("./rule-tester");
- const { SourceCode } = require("./languages/js/source-code");
- 
-@@ -43,6 +44,9 @@ async function loadESLint({ useFlatConfig } = {}) {
- 
- module.exports = {
-     Linter,
-+    getDirectiveCommentsForFlatConfig,
-+    applyDisableDirectives,
-+    RuleValidator,
-     loadESLint,
-     ESLint,
-     RuleTester,
-diff --git a/node_modules/eslint/lib/linter/index.js b/node_modules/eslint/lib/linter/index.js
-index 9e53977..b21c6cd 100755
---- a/node_modules/eslint/lib/linter/index.js
-+++ b/node_modules/eslint/lib/linter/index.js
-@@ -1,11 +1,11 @@
- "use strict";
- 
--const { Linter } = require("./linter");
-+const { Linter, getDirectiveCommentsForFlatConfig, applyDisableDirectives } = require("./linter");
- const SourceCodeFixer = require("./source-code-fixer");
--
- module.exports = {
-     Linter,
--
-+    getDirectiveCommentsForFlatConfig,
-+    applyDisableDirectives,
-     // For testers.
-     SourceCodeFixer
- };
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index 007fcf4..16cfb41 100755
+index 007fcf4..af07559 100755
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
-@@ -2395,7 +2395,8 @@ class Linter {
+@@ -1764,7 +1764,7 @@ class Linter {
+                     for (const { config: inlineConfig, loc } of inlineConfigResult.configs) {
  
- module.exports = {
-     Linter,
--
-+    getDirectiveCommentsForFlatConfig,
-+    applyDisableDirectives,
-     /**
-      * Get the internal slots of a given Linter instance for tests.
-      * @param {Linter} instance The Linter instance to get.
-diff --git a/node_modules/eslint/lib/types/index.d.ts b/node_modules/eslint/lib/types/index.d.ts
-index b86ac2c..ef57164 100755
---- a/node_modules/eslint/lib/types/index.d.ts
-+++ b/node_modules/eslint/lib/types/index.d.ts
-@@ -29,6 +29,8 @@ import * as ESTree from "estree";
- import { Language } from "@eslint/core";
- import { JSONSchema4 } from "json-schema";
- import { LegacyESLint } from "./use-at-your-own-risk.js";
-+import { ESLint } from 'eslint';
-+import ConfigData = ESLint.ConfigData;
+                         Object.keys(inlineConfig.rules).forEach(ruleId => {
+-                            const rule = getRuleFromConfig(ruleId, config);
++                            const rule = (providedOptions.getRule ?? getRuleFromConfig)(ruleId, config);
+                             const ruleValue = inlineConfig.rules[ruleId];
  
- export namespace AST {
-     type TokenType =
-@@ -238,6 +240,11 @@ export class SourceCode {
-     ): boolean;
+                             if (!rule) {
+@@ -1896,11 +1896,19 @@ class Linter {
+         const commentDirectives = options.allowInlineConfig && !options.warnInlineConfig
+             ? getDirectiveCommentsForFlatConfig(
+                 sourceCode,
+-                ruleId => getRuleFromConfig(ruleId, config),
++                ruleId => (providedOptions.getRule ?? getRuleFromConfig)(ruleId, config),
+                 config.language
+             )
+             : { problems: [], disableDirectives: [] };
  
-     markVariableAsUsed(name: string, refNode?: ESTree.Node): boolean;
-+  applyInlineConfig(): {problems: LintMessage[],configs:{config:Linter.Config,loc:AST.SourceLocation}[]};
-+}
++        if (typeof providedOptions.patchInlineOptions === "function") {
++            mergedInlineConfig.rules = providedOptions.patchInlineOptions(mergedInlineConfig.rules);
++        }
 +
-+export class RuleValidator {
-+  validate(params: { rules:  Linter.Config<Linter.RulesRecord>, plugins: Record<string, ESLint.Plugin>}): void;
- }
- 
- export namespace SourceCode {
-@@ -852,6 +859,37 @@ export namespace Rule {
- }
- 
- // #region Linter
-+type ParentDirective = {
-+  node: ESTree.Comment,
-+  value: string,
-+  ruleIds: string[],
-+}
++        if (typeof providedOptions.patchDirectives === "function") {
++            providedOptions.patchDirectives(commentDirectives.disableDirectives);
++        }
 +
-+type Directives = {
-+  parentDirective: ParentDirective;
-+  type: 'disable' | 'enable' | 'disable-line' | 'disable-next-line',
-+  line: number,
-+  column: number,
-+  ruleId: string | null
-+  justification: string
-+};
-+
-+export function getDirectiveCommentsForFlatConfig(sourceCode: SourceCode, ruleMapper: (string) => string, language = {
-+  columnStart: 0,
-+  lineStart: 1
-+}): {
-+  problems: LintMessage[], disableDirectives: Directives[]
-+};
-+
-+export function applyDisableDirectives(params: {
-+  language: {
-+    lineStart: 1,
-+    columnStart: 0,
-+  },
-+  sourceCode: SourceCode,
-+  directives: Directives[],
-+  problems: LintMessage[],
-+}): Linter.LintMessage[];
+         const configuredRules = Object.assign({}, config.rules, mergedInlineConfig.rules);
  
- export class Linter {
-     static readonly version: string;
+         let lintingProblems;
