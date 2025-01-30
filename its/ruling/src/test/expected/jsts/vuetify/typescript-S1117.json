@@ -70,10 +70,6 @@
 "vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
 28
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
-136,
-160
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 126
 ],
@@ -94,15 +90,6 @@
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 188,
 290
-],
-"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
-184
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-316
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-81
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 191,
@@ -131,11 +118,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
 95
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-257,
-370,
-381
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 160

@@ -1,18 +1,14 @@
 {
 "p5.js:bench/math/random-fe-off.bench.js": [
-2,
-10
+2
 ],
 "p5.js:bench/math/random-fe-on.bench.js": [
-2,
-10
+2
 ],
 "p5.js:bench/math/sin.bench.js": [
-2,
-10
+2
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
-425,
 4217,
 4248
 ],

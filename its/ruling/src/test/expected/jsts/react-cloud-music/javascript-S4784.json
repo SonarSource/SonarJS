@@ -2,9 +2,6 @@
 "react-cloud-music:config/webpack.config.js": [
 580
 ],
-"react-cloud-music:src/api/lyric-parser.js": [
-10
-],
 "react-cloud-music:src/api/utils.js": [
 133
 ],

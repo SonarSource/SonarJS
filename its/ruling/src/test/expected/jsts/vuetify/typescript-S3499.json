@@ -11,22 +11,6 @@
 "vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
 12
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-251,
-283
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-229
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-122
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-142
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
-87
-],
 "vuetify:packages/vuetify/src/components/VItemGroup/VItem.tsx": [
 22
 ],
@@ -53,15 +37,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
 105
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
-590
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-213
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
-310
 ],
 "vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
 18
@@ -136,10 +111,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
 99
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts": [
-669,
-702
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 64

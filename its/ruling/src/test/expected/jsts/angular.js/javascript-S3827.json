@@ -14,9 +14,6 @@
 "angular.js:benchmarks/ng-class-bp/app.js": [
 48
 ],
-"angular.js:benchmarks/ng-options-bp/app.js": [
-34
-],
 "angular.js:benchmarks/orderby-bp/app.js": [
 23
 ],
@@ -25,12 +22,6 @@
 ],
 "angular.js:benchmarks/repeat-animate-bp/common.js": [
 40
-],
-"angular.js:benchmarks/select-ng-value-bp/app.js": [
-43
-],
-"angular.js:docs/app/assets/js/search-worker.js": [
-11
 ],
 "angular.js:docs/app/src/search.js": [
 104
@@ -43,9 +34,6 @@
 ],
 "angular.js:docs/app/test/errorsSpec.js": [
 16
-],
-"angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
-41
 ],
 "angular.js:src/Angular.js": [
 158,
@@ -87,95 +75,7 @@
 163,
 164,
 165,
-168,
-174,
-176,
-178,
-179,
-181,
-182,
-183,
-184,
-185,
-186,
-187,
-188,
-189,
-190,
-191,
-192,
-193,
-194,
-195,
-196,
-197,
-198,
-199,
-200,
-201,
-202,
-203,
-204,
-205,
-206,
-207,
-208,
-209,
-210,
-211,
-212,
-214,
-216,
-218,
-220,
-221,
-224,
-225,
-227,
-228,
-230,
-231,
-232,
-233,
-234,
-235,
-236,
-237,
-238,
-239,
-240,
-241,
-242,
-243,
-244,
-245,
-246,
-247,
-248,
-249,
-250,
-251,
-252,
-253,
-254,
-255,
-256,
-257,
-258,
-259,
-260,
-261,
-262,
-263,
-264,
-265,
-266,
-267,
-268,
-269,
-270,
-271,
-272
+168
 ],
 "angular.js:src/angular.bind.js": [
 11
@@ -277,7 +177,6 @@
 64,
 99,
 112,
-120,
 188,
 206,
 240
@@ -393,7 +292,6 @@
 1412,
 1416,
 1426,
-1525,
 1533,
 1544,
 1591,
@@ -445,8 +343,6 @@
 "angular.js:src/ng/directive/ngModel.js": [
 25,
 273,
-274,
-299,
 311,
 325,
 350,
@@ -454,8 +350,7 @@
 567,
 624,
 660,
-853,
-1124
+853
 ],
 "angular.js:src/ng/directive/ngModelOptions.js": [
 41,
@@ -478,7 +373,6 @@
 542,
 561,
 644,
-645,
 695,
 712
 ],
@@ -543,16 +437,7 @@
 ],
 "angular.js:src/ng/filter.js": [
 130,
-132,
-162,
-163,
-164,
-165,
-166,
-167,
-168,
-169,
-170
+132
 ],
 "angular.js:src/ng/filter/filter.js": [
 142,
@@ -896,54 +781,17 @@
 171,
 217
 ],
-"angular.js:src/ngMessageFormat/messageFormatCommon.js": [
-35
-],
-"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
-82,
-85
-],
-"angular.js:src/ngMessageFormat/messageFormatParser.js": [
-127,
-143,
-228,
-245,
-258,
-281
-],
-"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
-21,
-55
-],
-"angular.js:src/ngMessageFormat/messageFormatService.js": [
-191
-],
 "angular.js:src/ngMock/angular-mocks.js": [
-2091,
 2273
-],
-"angular.js:src/ngParseExt/module.js": [
-34,
-42
 ],
 "angular.js:src/ngRoute/directive/ngView.js": [
 3
-],
-"angular.js:src/ngRoute/route.js": [
-216,
-229
 ],
 "angular.js:src/ngRoute/routeParams.js": [
 3
 ],
 "angular.js:src/ngSanitize/filter/linky.js": [
 174
-],
-"angular.js:src/ngTouch/directive/ngSwipe.js": [
-85
-],
-"angular.js:src/ngTouch/swipe.js": [
-28
 ],
 "angular.js:src/publishExternalApis.js": [
 3

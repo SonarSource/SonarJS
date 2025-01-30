@@ -31,12 +31,6 @@
 "vuetify:packages/docs/vite.config.ts": [
 151
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-7
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-221
-],
 "vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
 12
 ],

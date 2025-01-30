@@ -54,10 +54,6 @@
 "ace:src/snippets.js": [
 109
 ],
-"ace:src/snippets_test.js": [
-228,
-244
-],
 "ace:src/test/asyncjs/async.js": [
 272,
 277

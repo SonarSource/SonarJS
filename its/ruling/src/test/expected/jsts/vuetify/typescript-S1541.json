@@ -21,19 +21,6 @@
 "vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
 132
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-78,
-207
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-48
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-220
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-117
-],
 "vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
 110
 ],
@@ -45,16 +32,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 205
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-196
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-89
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-130,
-167
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 199
@@ -97,15 +74,6 @@
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 64
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-144,
-246,
-288
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-204,
-350
-],
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 112
 ],
@@ -132,9 +100,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
 99
-],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-19
 ],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 22

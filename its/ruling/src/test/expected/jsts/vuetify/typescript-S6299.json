@@ -37,14 +37,5 @@
 ],
 "vuetify:packages/docs/src/layouts/404.vue": [
 23
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
-81
-],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
-140
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
-143
 ]
 }

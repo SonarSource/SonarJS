@@ -39,21 +39,6 @@
 267,
 286
 ],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-149,
-152
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-290
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-191,
-191,
-192
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-48
-],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 60,
 92,
@@ -84,10 +69,6 @@
 107,
 108
 ],
-"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
-66,
-67
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 181,
 257
@@ -102,26 +83,9 @@
 78,
 79
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/helpers/path.ts": [
-11
-],
-"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
-71,
-72
-],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
 179
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-137,
-170,
-170,
-194,
-206
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-430
 ],
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 35,
@@ -156,9 +120,6 @@
 108,
 108,
 114
-],
-"vuetify:packages/vuetify/src/directives/color/index.ts": [
-79
 ],
 "vuetify:packages/vuetify/src/directives/intersect/index.ts": [
 36,
@@ -222,11 +183,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 98
-],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-48,
-50,
-58
 ],
 "vuetify:packages/vuetify/src/util/defineComponent.tsx": [
 64,

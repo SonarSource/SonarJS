@@ -7,31 +7,8 @@
 18,
 20
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-75
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
-34,
-38
-],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
-199
-],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
-126,
-191
-],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 75
-],
-"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
-60
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-286
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
-91
 ],
 "vuetify:packages/vuetify/src/composables/group.ts": [
 332
