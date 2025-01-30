@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -190,6 +191,79 @@ class JsTsSensorTest {
     createSensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("JavaScript/TypeScript analysis");
     assertThat(descriptor.languages()).containsOnly("js", "ts");
+  }
+
+  @Test
+  void should_de_duplicate_issues() throws Exception {
+    JsTsSensor sensor = createSensor();
+
+    Path baseDir = Paths.get("src/test/resources/de-duplicate-issues");
+
+    var context = createSensorContext(baseDir);
+
+    context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, "eslint-report.json");
+
+    var content =
+      "function addOne(i) {\n" +
+      "    if (i != NaN) {\n" +
+      "        return i ++\n" +
+      "    } else {\n" +
+      "      return\n" +
+      "    }\n" +
+      "};";
+
+    var inputFile = createInputFile(
+      context,
+      "file.js",
+      StandardCharsets.ISO_8859_1,
+      baseDir,
+      content
+    );
+
+    var program = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
+    var issueFilePath = Path.of(baseDir.toString(), "file.js").toAbsolutePath().toString();
+
+    AnalysisResponse expectedResponse = createResponse(
+      List.of(
+        new BridgeServer.Issue(
+          1,
+          1,
+          2,
+          1,
+          "foo",
+          "S3923",
+          List.of(),
+          1.0,
+          List.of(),
+          List.of("foo-bar"),
+          issueFilePath
+        ),
+        new BridgeServer.Issue(
+          2,
+          8,
+          2,
+          16,
+          "foo",
+          "S3923",
+          List.of(),
+          1.0,
+          List.of(),
+          List.of("use-isnan"),
+          issueFilePath
+        )
+      )
+    );
+
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.createProgram(any())).thenReturn(program);
+
+    sensor.execute(context);
+
+    var issues = context.allIssues();
+    var externalIssues = context.allExternalIssues();
+
+    assertThat(issues).hasSize(2);
+    assertThat(externalIssues).hasSize(2);
   }
 
   @Test
@@ -1059,6 +1133,21 @@ class JsTsSensorTest {
     );
   }
 
+  private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {
+    var analysisResponse = new AnalysisResponse(
+      null,
+      issues,
+      List.of(),
+      List.of(),
+      new BridgeServer.Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
+
+    return analysisResponse;
+  }
+
   private AnalysisResponse createResponse() {
     return new Gson()
       .fromJson(
@@ -1079,10 +1168,10 @@ class JsTsSensorTest {
 
   private String createIssues() {
     return (
-      "issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
-      "}]"
+      "issues: [" +
+      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": [], \"ruleESLintKeys\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": [], \"ruleESLintKeys\": []}" +
+      "]"
     );
   }
 

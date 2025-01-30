@@ -86,6 +86,10 @@ class EslintReportTest {
     List<Issue> jsIssuesList = getIssues(projectKey + ":src/file.js");
     List<Issue> tsIssuesList = getIssues(projectKey + ":src/file.ts");
 
+    jsIssuesList.forEach(i -> {
+      System.out.println(i.toString());
+    });
+
     assertThat(jsIssuesList)
       .extracting(Issue::getLine, Issue::getRule)
       .containsExactlyInAnyOrder(

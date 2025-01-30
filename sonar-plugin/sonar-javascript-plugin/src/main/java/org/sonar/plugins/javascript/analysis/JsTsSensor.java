@@ -67,7 +67,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var analysisMode = AnalysisMode.getMode(context);
     bridgeServer.initLinter(
       checks.eslintRules(),
@@ -79,7 +79,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     analysis.initialize(context, checks, analysisMode, consumers);
-    analysis.analyzeFiles(inputFiles);
+    var issues = analysis.analyzeFiles(inputFiles);
     consumers.doneAnalysis();
+
+    return issues;
   }
 }

@@ -44,6 +44,7 @@ describe('transformMessages', () => {
     const [issue] = transformMessages(messages, {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
+      filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -73,6 +74,7 @@ describe('transformMessages', () => {
     const [issue] = transformMessages(messages, {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
+      filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -101,6 +103,7 @@ describe('transformMessages', () => {
     const [issue] = transformMessages(messages, {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
+      filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -141,6 +144,7 @@ describe('transformMessages', () => {
     const [{ secondaryLocations }] = transformMessages(messages, {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
+      filePath: 'foo.js',
     }).issues;
     expect(secondaryLocations).toEqual([
       {
@@ -168,6 +172,7 @@ describe('transformMessages', () => {
     const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], {
       sourceCode,
       rules: {},
+      filePath: 'foo.js',
     });
     expect(ucfgPaths.length).toEqual(1);
     expect(issues.length).toEqual(0);

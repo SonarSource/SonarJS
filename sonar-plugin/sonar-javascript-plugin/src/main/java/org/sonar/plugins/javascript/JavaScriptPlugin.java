@@ -45,7 +45,6 @@ import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
-import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
@@ -277,7 +276,6 @@ public class JavaScriptPlugin implements Plugin {
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtensions(
         CoverageSensor.class,
-        EslintReportSensor.class,
         EslintRulesDefinition.class,
         TslintReportSensor.class,
         TslintRulesDefinition.class,

@@ -161,7 +161,9 @@ public interface BridgeServer extends Startable {
     String ruleId,
     List<IssueLocation> secondaryLocations,
     Double cost,
-    List<QuickFix> quickFixes
+    List<QuickFix> quickFixes,
+    List<String> ruleESLintKeys,
+    String filePath
   ) {}
 
   record QuickFix(String message, List<QuickFixEdit> edits) {}

@@ -25,6 +25,7 @@ import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,12 +84,14 @@ public class AnalysisProcessor {
     this.uniqueParsingErrors = new HashSet<>();
   }
 
-  void processResponse(
+  List<Issue> processResponse(
     SensorContext context,
     JsTsChecks checks,
     InputFile file,
     AnalysisResponse response
   ) {
+    List<Issue> issues;
+
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
@@ -96,8 +99,10 @@ public class AnalysisProcessor {
     if (response.parsingError() != null) {
       uniqueParsingErrors.add(file.absolutePath());
       processParsingError(response.parsingError());
-      return;
+      return new ArrayList<>();
     }
+
+    issues = response.issues();
 
     if (
       YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
@@ -106,16 +111,18 @@ public class AnalysisProcessor {
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
-      saveIssues(response.issues());
+      saveIssues(issues);
     } else {
       // it's important to have an order here:
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
       saveMetrics(response.metrics());
-      saveIssues(response.issues());
+      saveIssues(issues);
       saveHighlights(response.highlights());
       saveHighlightedSymbols(response.highlightedSymbols());
       saveCpd(response.cpdTokens());
     }
+
+    return issues;
   }
 
   public int parsingErrorFilesCount() {

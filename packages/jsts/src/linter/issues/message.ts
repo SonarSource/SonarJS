@@ -29,9 +29,14 @@ import { Issue } from './issue.js';
  *
  * @param source the source code
  * @param message the ESLint message to convert
+ * @param filePath the path to the file where the issue was found
  * @returns the converted SonarQube issue
  */
-export function convertMessage(source: SourceCode, message: Linter.LintMessage): Issue | null {
+export function convertMessage(
+  source: SourceCode,
+  message: Linter.LintMessage,
+  filePath: string,
+): Issue | null {
   /**
    * The property `ruleId` equals `null` on parsing errors and not applied directives.
    * The first should not happen because we lint ready SourceCode instances and not file contents.
@@ -49,5 +54,7 @@ export function convertMessage(source: SourceCode, message: Linter.LintMessage):
     message: message.message,
     quickFixes: transformFixes(source, message),
     secondaryLocations: [],
+    ruleESLintKeys: [message.ruleId],
+    filePath,
   };
 }

@@ -37,7 +37,7 @@ import org.sonar.api.utils.Version;
 class JavaScriptPluginTest {
 
   private static final int BASE_EXTENSIONS = 35;
-  private static final int SCANNER_EXTENSIONS = 11;
+  private static final int SCANNER_EXTENSIONS = 10;
   private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 2;
 
   public static final Version LTS_VERSION = Version.create(7, 9);

@@ -21,21 +21,19 @@ import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-class EslintReportSensorTest {
+class EslintReportImporterTest {
 
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -54,40 +52,37 @@ class EslintReportSensorTest {
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
-  private EslintReportSensor eslintReportSensor = new EslintReportSensor();
+  private EslintReportImporter eslintReportImporter = new EslintReportImporter();
   private DefaultInputFile jsInputFile = createInputFile(context, CONTENT, "file.js");
   private DefaultInputFile tsInputFile = createInputFile(context, CONTENT, "file-ts.ts");
   private DefaultInputFile parseErrorInputFile = createInputFile(context, CONTENT, "parseError.js");
 
   @Test
-  void should_add_issues_from_report() throws Exception {
+  void should_create_issues_from_report() throws Exception {
     logTester.setLevel(Level.DEBUG);
     setEslintReport("eslint-report.json");
-    eslintReportSensor.execute(context);
+    var issues = eslintReportImporter.execute(context);
 
-    Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(4);
-    Iterator<ExternalIssue> iterator = externalIssues.iterator();
-    ExternalIssue first = iterator.next();
-    ExternalIssue second = iterator.next();
-    ExternalIssue third = iterator.next();
-    ExternalIssue fourth = iterator.next();
+    assertThat(issues).hasSize(4);
+    var iterator = issues.iterator();
+    var first = iterator.next();
+    var second = iterator.next();
+    var third = iterator.next();
+    var fourth = iterator.next();
 
     assertThat(first.type()).isEqualTo(RuleType.BUG);
     assertThat(second.type()).isEqualTo(RuleType.CODE_SMELL);
 
-    assertThat(first.primaryLocation().message()).isEqualTo(
-      "Use the isNaN function to compare with NaN."
-    );
-    assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(2);
-    assertThat(first.primaryLocation().inputComponent()).isEqualTo(jsInputFile);
+    assertThat(first.message()).isEqualTo("Use the isNaN function to compare with NaN.");
+    assertThat(first.location().start().line()).isEqualTo(2);
+    assertThat(first.file()).isEqualTo(jsInputFile);
     assertThat(jsInputFile.language()).isEqualTo("js");
 
-    assertThat(third.primaryLocation().textRange()).isEqualTo(
+    assertThat(third.location()).isEqualTo(
       new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 19))
     );
 
-    assertThat(fourth.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
+    assertThat(fourth.file()).isEqualTo(tsInputFile);
     assertThat(tsInputFile.language()).isEqualTo("ts");
 
     assertThat(logTester.logs(Level.WARN)).contains(
@@ -96,19 +91,19 @@ class EslintReportSensorTest {
     assertThat(logTester.logs(Level.WARN)).contains(
       "Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri()
     );
-
-    assertThat(logTester.logs(Level.DEBUG)).containsExactlyInAnyOrder(
-      "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
-      "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-      "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-      "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }"
-    );
+    // todo: move to the Analysis sensor test
+    //    assertThat(logTester.logs(Level.DEBUG)).containsExactlyInAnyOrder(
+    //      "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
+    //      "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+    //      "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+    //      "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }"
+    //    );
   }
 
   @Test
   void should_log_invalid_report() throws Exception {
     setEslintReport("invalid-eslint-report.json");
-    eslintReportSensor.execute(context);
+    eslintReportImporter.execute(context);
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
@@ -121,7 +116,7 @@ class EslintReportSensorTest {
   @Test
   void should_log_not_existing_report() throws Exception {
     setEslintReport("not-existing-eslint-report.json");
-    eslintReportSensor.execute(context);
+    eslintReportImporter.execute(context);
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
@@ -129,14 +124,6 @@ class EslintReportSensorTest {
     assertThat(logTester.logs(Level.WARN)).contains(
       "No issues information will be saved as the report file can't be read."
     );
-  }
-
-  @Test
-  void test_descriptor() throws Exception {
-    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
-    eslintReportSensor.describe(sensorDescriptor);
-    assertThat(sensorDescriptor.name()).isEqualTo("Import of ESLint issues");
-    assertThat(sensorDescriptor.languages()).isEmpty();
   }
 
   private void setEslintReport(String reportFileName) {

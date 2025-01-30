@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -41,7 +42,9 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   }
 
   @Override
-  public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  public List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var issues = new ArrayList<BridgeServer.Issue>();
+
     TsConfigProvider.initializeTsConfigCache(contextUtils, this::createTsConfigFile, tsConfigCache);
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
@@ -49,11 +52,13 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
-        analyzeFile(
-          inputFile,
-          tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()),
-          null,
-          this.tsConfigCache.getAndResetShouldClearDependenciesCache()
+        issues.addAll(
+          analyzeFile(
+            inputFile,
+            tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()),
+            null,
+            this.tsConfigCache.getAndResetShouldClearDependenciesCache()
+          )
         );
       }
       success = true;
@@ -72,5 +77,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         progressReport.cancel();
       }
     }
+
+    return issues;
   }
 }

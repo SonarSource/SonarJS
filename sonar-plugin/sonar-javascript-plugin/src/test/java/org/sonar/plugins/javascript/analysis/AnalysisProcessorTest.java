@@ -155,7 +155,19 @@ class AnalysisProcessorTest {
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
-    var issue = new Issue(2, 1, 1, 2, "message", "ruleId", List.of(), 3.14, List.of()); // invalid location startLine > endLine
+    var issue = new Issue(
+      2,
+      1,
+      1,
+      2,
+      "message",
+      "ruleId",
+      List.of(),
+      3.14,
+      List.of(),
+      List.of("foo"),
+      "file.js"
+    ); // invalid location startLine > endLine
     var response = new AnalysisResponse(
       null,
       List.of(issue),
