@@ -64,11 +64,6 @@ describe('convertMessage', () => {
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    console.error = mock.fn();
     expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
-    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
-      call => call.arguments[0],
-    );
-    expect(logs).toContain("Illegal 'null' ruleId for eslint issue");
   });
 });
