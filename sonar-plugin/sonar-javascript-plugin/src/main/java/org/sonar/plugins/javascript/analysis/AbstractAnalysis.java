@@ -109,17 +109,12 @@ public abstract class AbstractAnalysis {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var skipAst =
-          !consumers.hasConsumers() ||
-          !(contextUtils.isSonarArmorEnabled() ||
-            contextUtils.isSonarJasminEnabled() ||
-            contextUtils.isSonarJaredEnabled());
         var request = getJsAnalysisRequest(
           file,
           fileContent,
           tsProgram,
           tsConfigs,
-          skipAst,
+          shouldSkipAstProduction(),
           dirtyPackageJSONCache
         );
 
@@ -142,6 +137,11 @@ public abstract class AbstractAnalysis {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
+  }
+
+  private boolean shouldSkipAstProduction() {
+    // we don't need to produce AST if there are no consumers
+    return !consumers.hasConsumers();
   }
 
   private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
