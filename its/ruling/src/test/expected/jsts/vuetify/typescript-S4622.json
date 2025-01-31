@@ -33,12 +33,6 @@
 "vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
 37
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-89
-],
-"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
-28
-],
 "vuetify:packages/vuetify/src/components/VTabs/VTabs.tsx": [
 40
 ],

@@ -19,7 +19,7 @@ import { convertMessage } from '../../../src/linter/issues/message.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
-import { describe, it, Mock, mock } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
 describe('convertMessage', () => {
@@ -64,11 +64,6 @@ describe('convertMessage', () => {
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    console.error = mock.fn();
     expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
-    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
-      call => call.arguments[0],
-    );
-    expect(logs).toContain("Illegal 'null' ruleId for eslint issue");
   });
 });

@@ -159,47 +159,6 @@
 "vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
 35
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-80,
-256,
-265,
-274,
-283,
-299,
-299
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-52,
-60
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts": [
-283,
-285,
-287,
-295,
-297,
-299,
-307,
-309,
-311
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
-112
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
-6,
-17
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-148,
-195,
-216
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-78,
-84,
-109
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 50,
 56
@@ -244,84 +203,6 @@
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 56,
 102
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-29,
-150,
-159,
-172,
-266,
-342,
-351,
-351,
-367,
-367,
-370,
-370,
-382
-],
-"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
-184
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-73
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-38,
-43,
-71,
-73,
-80,
-83,
-85,
-88,
-95,
-109,
-190,
-193,
-196,
-222,
-233,
-236,
-246,
-290,
-308,
-319,
-342,
-342,
-343,
-344,
-345,
-346,
-347,
-348,
-349,
-349,
-350
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-131,
-389
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts": [
-663,
-663,
-664,
-664
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.month.spec.ts": [
-303,
-303,
-304,
-304
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-73
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/eventHelpers.ts": [
-6,
-6,
-16
 ],
 "vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanels.tsx": [
 32
@@ -399,10 +280,6 @@
 32,
 122
 ],
-"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
-57,
-85
-],
 "vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
 78,
 319
@@ -465,9 +342,6 @@
 "vuetify:packages/vuetify/src/components/VSheet/VSheet.tsx": [
 79
 ],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
-124
-],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 63,
 79
@@ -479,11 +353,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
 24
-],
-"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
-53,
-128,
-131
 ],
 "vuetify:packages/vuetify/src/components/VSystemBar/__tests__/VSystemBar.spec.cy.tsx": [
 9
@@ -508,14 +377,6 @@
 "vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.tsx": [
 11
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-46,
-55,
-55
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerClock.spec.ts": [
-13
-],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 29,
 34,
@@ -526,28 +387,6 @@
 "vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 38,
 213
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-45,
-71,
-147,
-150,
-153,
-192,
-192,
-204,
-213,
-216,
-284
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
-67,
-135,
-137,
-307
-],
-"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
-15
 ],
 "vuetify:packages/vuetify/src/components/VValidation/VValidation.tsx": [
 15
@@ -793,19 +632,6 @@
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
 60
-],
-"vuetify:packages/vuetify/src/services/goto/__tests__/goto.spec.ts": [
-19,
-55
-],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-37
-],
-"vuetify:packages/vuetify/src/services/goto/util.ts": [
-7,
-28,
-38,
-42
 ],
 "vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
 112

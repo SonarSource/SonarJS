@@ -11,33 +11,11 @@
 "vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
 138
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-413
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
-10
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-79,
-110
-],
 "vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
 123
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 342
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-283
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
-81
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-209
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
-7
 ],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 55
@@ -70,11 +48,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 89
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-138,
-171,
-276
 ],
 "vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
 67

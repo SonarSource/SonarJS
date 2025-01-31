@@ -19,38 +19,6 @@
 "vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
 9
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-events.spec.ts": [
-116,
-130,
-131,
-132,
-133
-],
-"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox-multiple.spec.ts": [
-106
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-374
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-172
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-30
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-131
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-48
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts": [
-573
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts": [
-54,
-70
-],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 14
 ],
@@ -60,31 +28,12 @@
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 87
 ],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
-151
-],
-"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
-55
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 43,
 44
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-306
-],
 "vuetify:packages/vuetify/src/components/VTabs/__tests__/VTabs.spec.cy.tsx": [
 25
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-80,
-430
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
-118,
-119,
-121,
-122
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindowItem.tsx": [
 86

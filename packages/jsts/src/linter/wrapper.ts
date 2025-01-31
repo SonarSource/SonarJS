@@ -25,6 +25,7 @@ import { createLinterConfig } from './config/linter-config.js';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import { createOptions } from './pragmas.js';
 import path from 'path';
 
 /**
@@ -174,8 +175,8 @@ export class LinterWrapper {
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };
-    const options = { filename: filePath, allowInlineConfig: false };
-    const messages = this.linter.verify(sourceCode, config, options);
+
+    const messages = this.linter.verify(sourceCode, config, createOptions(filePath));
     return transformMessages(messages, { sourceCode, rules });
   }
 

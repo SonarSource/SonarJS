@@ -438,9 +438,6 @@
 "sonar-web:src/main/js/widgets/old/treemap.js": [
 315
 ],
-"sonar-web:src/main/js/widgets/old/widget.js": [
-48
-],
 "sonar-web:tests/application-test.js": [
 4
 ]

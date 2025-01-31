@@ -57,21 +57,6 @@
 "vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
 120
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-46,
-64,
-92,
-134
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-events.spec.ts": [
-20
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/mouse.spec.ts": [
-21
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/times.spec.ts": [
-21
-],
 "vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
 51
 ],
@@ -81,9 +66,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VCounter/VCounter.tsx": [
 33
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerTitle.spec.ts": [
-15
 ],
 "vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
 73
@@ -110,18 +92,6 @@
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 332,
 336
-],
-"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
-30
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
-23
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerTitle.spec.ts": [
-23
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-422
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 121
@@ -174,21 +144,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
 95
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/MobileRow.spec.ts": [
-16
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/Row.spec.ts": [
-16
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/RowGroup.spec.ts": [
-15
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VSimpleTable.spec.ts": [
-15
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VVirtualTable.spec.ts": [
-16
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
 37,

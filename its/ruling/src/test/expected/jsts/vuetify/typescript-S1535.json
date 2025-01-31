@@ -9,20 +9,11 @@
 "vuetify:packages/docs/src/util/metadata.ts": [
 95
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-167
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
-45
-],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 112
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VRow.ts": [
 112
-],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/__tests__/VSkeletonLoader.spec.ts": [
-36
 ],
 "vuetify:packages/vuetify/src/framework.ts": [
 53,

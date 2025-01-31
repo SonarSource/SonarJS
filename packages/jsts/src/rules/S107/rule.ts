@@ -47,6 +47,16 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+function getMax(options: FromSchema<typeof schema>[0]) {
+  if (options) {
+    if (typeof options === 'number') {
+      return options;
+    } else if (typeof options.max === 'number') {
+      return options.max;
+    }
+  }
+  return DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+}
 /**
  * Decorates ESLint `max-params` to ignore TypeScript constructor when its parameters
  * are all parameter properties, e.g., `constructor(private a: any, public b: any) {}`.
@@ -54,8 +64,7 @@ export const rule: Rule.RuleModule = {
 const ruleDecoration: Rule.RuleModule = interceptReport(
   eslintMaxParams,
   function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-    const max =
-      (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+    const max = getMax(context.options[0]);
     if ('node' in descriptor) {
       const functionLike = descriptor.node as TSESTree.FunctionLike;
       if (!isException(functionLike)) {
@@ -124,9 +133,7 @@ const ruleExtension: Rule.RuleModule = {
 
     function checkFunction(node: estree.Node) {
       const functionLike = node as unknown as TSESTree.FunctionLike;
-      const max =
-        (context.options as FromSchema<typeof schema>)[0]?.max ??
-        DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+      const max = getMax(context.options[0]);
       const numParams = functionLike.params.length;
       if (numParams > max) {
         context.report({

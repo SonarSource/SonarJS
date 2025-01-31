@@ -66,6 +66,17 @@ export async function updateIndexes() {
   );
 
   await inflateTemplateToFile(
+    join(TS_TEMPLATES_FOLDER, 'rules.template'),
+    join(RULES_FOLDER, './metas.ts'),
+    {
+      ___EXPORTS___: allRules
+        .map(id => `export * as ${id} from './${id}/meta.js'; // ${eslintIds[id]}\n`)
+        .join(''),
+      ___HEADER___: header,
+    },
+  );
+
+  await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'plugin-rules.template'),
     join(RULES_FOLDER, './plugin-rules.ts'),
     {

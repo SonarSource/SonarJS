@@ -130,9 +130,6 @@
 71,
 82
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableHeader.spec.ts": [
-50
-],
 "vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
 19
 ]

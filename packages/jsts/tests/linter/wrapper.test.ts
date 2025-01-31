@@ -167,7 +167,20 @@ describe('LinterWrapper', () => {
     expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
   });
 
-  it('should not take into account comment-based eslint configurations', async () => {
+  it('should not report issues if rule is disabled with ESLint', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-directive.js');
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
+
+    const rules = [{ key: 'S3504', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+
+    const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
+    const { issues } = linter.lint(sourceCode, filePath, 'MAIN');
+
+    expect(issues).toHaveLength(0);
+  });
+
+  it('should take into account comment-based eslint configurations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
@@ -175,7 +188,15 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
-    expect(issues).toHaveLength(0);
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S107',
+        line: 2,
+        column: 0,
+        endLine: 2,
+        endColumn: 12,
+      }),
+    ]);
   });
 
   it('should not report on globals provided by environments configuration', async () => {

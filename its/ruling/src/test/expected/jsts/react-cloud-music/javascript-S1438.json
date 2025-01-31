@@ -15,7 +15,6 @@
 254
 ],
 "react-cloud-music:src/api/lyric-parser.js": [
-10,
 12,
 13,
 21,
@@ -345,7 +344,6 @@
 ],
 "react-cloud-music:src/baseUI/progress-bar/index.jsx": [
 37,
-59,
 64,
 70,
 77,

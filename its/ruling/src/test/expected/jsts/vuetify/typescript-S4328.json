@@ -452,12 +452,6 @@
 11,
 15
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-15
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
-4
-],
 "vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
 10,
 11,
@@ -1375,9 +1369,6 @@
 4,
 5
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerClock.spec.ts": [
-7
-],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 5,
 6,
@@ -1706,9 +1697,6 @@
 "vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
 1
 ],
-"vuetify:packages/vuetify/src/directives/color/index.ts": [
-13
-],
 "vuetify:packages/vuetify/src/directives/intersect/__tests__/intersect.spec.ts": [
 1
 ],
@@ -1905,9 +1893,6 @@
 3,
 4,
 7
-],
-"vuetify:packages/vuetify/src/services/goto/__tests__/goto.spec.ts": [
-6
 ],
 "vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
 1

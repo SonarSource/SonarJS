@@ -11,26 +11,11 @@
 "vuetify:packages/docs/src/util/helpers.ts": [
 46
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
-42
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
-58
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-48
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-220
-],
 "vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
 150
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 205
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-89
 ],
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 194
@@ -56,13 +41,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 64
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-288
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-204,
-350
 ],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 163

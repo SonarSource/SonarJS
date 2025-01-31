@@ -4,13 +4,26 @@
   "maxItems": 1,
   "items": [
     {
-      "type": "object",
-      "properties": {
-        "max": {
-          "type": "integer"
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "object",
+          "properties": {
+            "maximum": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
         }
-      },
-      "additionalProperties": false
+      ]
     }
   ]
 }

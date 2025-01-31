@@ -8,9 +8,6 @@
 "searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
 34
 ],
-"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
-114
-],
 "searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts": [
 10
 ]

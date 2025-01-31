@@ -118,12 +118,6 @@
 "vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/services/goto/__tests__/easing-patterns.spec.ts": [
-4
-],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-8
-],
 "vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
 10,
 11
