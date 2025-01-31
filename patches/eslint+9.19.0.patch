@@ -1,8 +1,8 @@
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index 007fcf4..2922ff1 100755
+index 1baa0b8..4a2347c 100644
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
-@@ -1764,7 +1764,7 @@ class Linter {
+@@ -1826,7 +1826,7 @@ class Linter {
                      for (const { config: inlineConfig, loc } of inlineConfigResult.configs) {
  
                          Object.keys(inlineConfig.rules).forEach(ruleId => {
@@ -11,7 +11,7 @@ index 007fcf4..2922ff1 100755
                              const ruleValue = inlineConfig.rules[ruleId];
  
                              if (!rule) {
-@@ -1896,11 +1896,19 @@ class Linter {
+@@ -1965,11 +1965,19 @@ class Linter {
          const commentDirectives = options.allowInlineConfig && !options.warnInlineConfig
              ? getDirectiveCommentsForFlatConfig(
                  sourceCode,
@@ -22,11 +22,11 @@ index 007fcf4..2922ff1 100755
              : { problems: [], disableDirectives: [] };
  
 +        if (typeof providedOptions.patchInlineOptions === "function") {
-+            providedOptions.patchInlineOptions(mergedInlineConfig);
++          providedOptions.patchInlineOptions(mergedInlineConfig);
 +        }
 +
 +        if (typeof providedOptions.patchDirectives === "function") {
-+            providedOptions.patchDirectives(commentDirectives);
++          providedOptions.patchDirectives(commentDirectives);
 +        }
 +
          const configuredRules = Object.assign({}, config.rules, mergedInlineConfig.rules);
