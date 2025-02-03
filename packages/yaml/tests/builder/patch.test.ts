@@ -84,7 +84,7 @@ describe('patchSourceCode', () => {
       fileContent = await readFile(filePath);
       const input = { filePath, fileContent } as JsTsAnalysisInput;
       const referenceSourceCode = buildSourceCode(input, 'js');
-      const referenceNodes = referenceSourceCode.ast[property];
+      const referenceNodes = referenceSourceCode.sourceCode.ast[property];
 
       expect(patchedNodes).toEqual(referenceNodes);
     });

@@ -36,7 +36,7 @@ export function parseForESLint(
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),
-  );
+  ).sourceCode;
 
   /**
    * ESLint expects the parser services (including the type checker) to be available in a field

@@ -38,7 +38,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(stmt.type).toEqual('VariableDeclaration');
   });
@@ -56,7 +56,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(stmt.type).toEqual('VariableDeclaration');
   });
@@ -68,7 +68,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
 
@@ -79,7 +79,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts').sourceCode;
 
     expect(stmt.type).toEqual('TSTypeAliasDeclaration');
   });
@@ -91,7 +91,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts').sourceCode;
 
     expect(stmt.type).toEqual('ExportDefaultDeclaration');
   });
@@ -108,7 +108,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
@@ -135,7 +135,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
@@ -147,7 +147,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'js')).toThrow(Error('Unexpected token (3:0)'));
 
-    const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
+    const log = `DEBUG Failed to parse ${filePath} with typescript-eslint/parser: '}' expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
@@ -162,7 +162,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('module');
   });
@@ -175,7 +175,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
@@ -192,7 +192,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath }), 'js');
+    } = buildSourceCode(await jsTsInput({ filePath }), 'js').sourceCode;
 
     expect((stmt as any).decorators).toHaveLength(1);
     expect((stmt as any).decorators[0].expression.name).toEqual('annotation');
@@ -207,7 +207,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
+    } = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts').sourceCode;
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
@@ -223,7 +223,7 @@ describe('buildSourceCode', () => {
   it('should build TypeScript Vue.js code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'file.vue');
     const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts').sourceCode;
 
     const {
       ast: {
@@ -243,7 +243,7 @@ describe('buildSourceCode', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts').sourceCode;
 
     const {
       ast: {
@@ -272,7 +272,7 @@ describe('buildSourceCode', () => {
 
   it('should build Vue.js code with TypeScript ESLint parser', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'ts.vue');
-    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
+    const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts').sourceCode;
 
     expect(sourceCode.ast).toBeDefined();
   });
@@ -284,7 +284,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(Error('Expression expected.'));
 
-    const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
+    const log = `DEBUG Failed to parse ${filePath} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );

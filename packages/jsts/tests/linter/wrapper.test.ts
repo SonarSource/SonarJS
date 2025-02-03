@@ -44,7 +44,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -65,7 +65,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -85,7 +85,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath, 'TEST');
+    const { issues } = linter.lint({ sourceCode }, filePath, 'TEST');
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -103,7 +103,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toHaveLength(0);
   });
@@ -115,7 +115,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: 'S2933', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toHaveLength(0);
   });
@@ -129,7 +129,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -161,7 +161,7 @@ describe('LinterWrapper', () => {
     ] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toHaveLength(4);
     expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
@@ -175,7 +175,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath, 'MAIN');
+    const { issues } = linter.lint({ sourceCode }, filePath, 'MAIN');
 
     expect(issues).toHaveLength(0);
   });
@@ -186,7 +186,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper();
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -213,7 +213,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
     const config = linter.getConfig({ language, fileType });
     expect(config.languageOptions.globals).toHaveProperty('alert');
     expect(issues).toHaveLength(0);
@@ -233,7 +233,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, globals });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(linter.getConfig({ language, fileType }).languageOptions.globals['angular']).toEqual(
       true,
@@ -247,7 +247,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper();
     await linter.init();
-    const { cognitiveComplexity, highlightedSymbols } = linter.lint(sourceCode, filePath);
+    const { cognitiveComplexity, highlightedSymbols } = linter.lint({ sourceCode }, filePath);
 
     expect(cognitiveComplexity).toEqual(6);
     expect(highlightedSymbols).toEqual([
@@ -298,7 +298,7 @@ describe('LinterWrapper', () => {
       await linter.init();
       const {
         issues: [issue],
-      } = linter.lint(sourceCode, filePath);
+      } = linter.lint({ sourceCode }, filePath);
 
       expect(issue).toEqual(
         expect.objectContaining({
@@ -324,7 +324,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint(sourceCode, filePath);
+    const { issues } = linter.lint({ sourceCode }, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({

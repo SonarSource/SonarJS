@@ -16,24 +16,34 @@
  */
 import { APIError } from '../../../shared/src/errors/error.js';
 import { SourceCode } from 'eslint';
-import { ParseFunction } from './eslint.js';
+import type { Parser } from './eslint.js';
+
+export type ParseResult = {
+  sourceCode: SourceCode;
+  parser?: Parser;
+  parserOptions?: any;
+};
 
 /**
  * Parses a JavaScript / TypeScript analysis input with an ESLint-based parser
  * @param code the JavaScript / TypeScript code to parse
- * @param parse the ESLint parsing function to use for parsing
- * @param options the ESLint parser options
+ * @param parser the ESLint parser to use
+ * @param parserOptions the ESLint parser options
  * @returns the parsed source code
  */
-export function parseForESLint(code: string, parse: ParseFunction, options: {}): SourceCode {
+export function parse(code: string, parser: Parser, parserOptions: {}): ParseResult {
   try {
-    const result = parse(code, options);
-    const parserServices = result.services || {};
-    return new SourceCode({
-      ...result,
-      text: code,
-      parserServices,
-    });
+    const result = parser.parseForESLint(code, parserOptions);
+    const parserServices = 'services' in result ? result.services : {};
+    return {
+      parser,
+      parserOptions,
+      sourceCode: new SourceCode({
+        ...result,
+        text: code,
+        parserServices,
+      } as SourceCode.Config),
+    };
   } catch ({ lineNumber, message }) {
     if (message.startsWith('Debug Failure')) {
       throw APIError.failingTypeScriptError(message);

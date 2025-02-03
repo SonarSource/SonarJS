@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parsers } from '../../src/parsers/eslint.js';
-import { parseForESLint } from '../../src/parsers/parse.js';
+import { parsersMap } from '../../src/parsers/eslint.js';
+import { parse } from '../../src/parsers/parse.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import path from 'path';
 import { describe, it } from 'node:test';
@@ -26,11 +26,15 @@ import { APIError } from '../../../shared/src/errors/error.js';
 
 const parseFunctions = [
   {
-    parser: parsers.javascript,
+    parser: parsersMap.javascript,
     usingBabel: true,
     errorMessage: 'Unterminated string constant. (1:0)',
   },
-  { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
+  {
+    parser: parsersMap.typescript,
+    usingBabel: false,
+    errorMessage: 'Unterminated string literal.',
+  },
 ];
 
 describe('parseForESLint', () => {
@@ -43,38 +47,38 @@ describe('parseForESLint', () => {
     const options = buildParserOptions(input, true);
     options.babelOptions.presets.shift();
 
-    expect(() => parseForESLint(fileContent, parseFunctions[0].parser.parse, options)).toThrow(
+    expect(() => parse(fileContent, parseFunctions[0].parser, options)).toThrow(
       APIError.parsingError('Unexpected token (2:15)', { line: 2 }),
     );
   });
 
   parseFunctions.forEach(({ parser, usingBabel, errorMessage }) => {
-    it(`should parse a valid input with ${parser.parser}`, async () => {
+    it(`should parse a valid input with ${parser.meta.name}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(fileContent, parser.parse, options);
+      const sourceCode = parse(fileContent, parser, options).sourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
     });
 
-    it(`should parse a valid input with ${parser.parser}`, () => {
+    it(`should parse a valid input with ${parser.meta.name}`, () => {
       const fileContent = 'if (foo()) bar();';
       const fileType = 'MAIN';
 
       const input = { fileContent, fileType } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
-      const sourceCode = parseForESLint(fileContent, parser.parse, options);
+      const sourceCode = parse(fileContent, parser, options).sourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
     });
 
-    it(`should fail parsing an invalid input with ${parser.parser}`, async () => {
+    it(`should fail parsing an invalid input with ${parser.meta.name}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
@@ -82,7 +86,7 @@ describe('parseForESLint', () => {
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
       const options = buildParserOptions(input, usingBabel);
 
-      expect(() => parseForESLint(fileContent, parser.parse, options)).toThrow(
+      expect(() => parse(fileContent, parser, options)).toThrow(
         APIError.parsingError(errorMessage, { line: 1 }),
       );
     });

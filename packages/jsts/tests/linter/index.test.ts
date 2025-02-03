@@ -52,7 +52,7 @@ describe('initializeLinter', () => {
 
     const {
       issues: [issue],
-    } = linter.lint(sourceCode, filePath);
+    } = linter.lint({ sourceCode }, filePath);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S1116',
@@ -91,7 +91,7 @@ describe('initializeLinter', () => {
 
     const {
       issues: [issue],
-    } = linter.lint(sourceCode, filePath);
+    } = linter.lint({ sourceCode }, filePath);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'custom-rule',

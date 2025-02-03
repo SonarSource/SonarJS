@@ -31,6 +31,7 @@ import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
+import { ParseResult } from '../parsers/parse.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -63,26 +64,26 @@ export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): J
  *
  * @param linter the linter to use for the analysis
  * @param input the JavaScript / TypeScript analysis input to analyze
- * @param sourceCode the corresponding parsed ESLint SourceCode instance
+ * @param parseResult the corresponding parsed ESLint SourceCode instance
  * @returns the JavaScript / TypeScript analysis output
  */
 function analyzeFile(
   linter: LinterWrapper,
   input: JsTsAnalysisInput,
-  sourceCode: SourceCode,
+  parseResult: ParseResult,
 ): JsTsAnalysisOutput {
   try {
     const { filePath, fileType, language, shouldClearDependenciesCache } = input;
     shouldClearDependenciesCache && clearDependenciesCache();
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
-      sourceCode,
+      parseResult,
       filePath,
       fileType,
       language,
     );
     const extendedMetrics = computeExtendedMetrics(
       input,
-      sourceCode,
+      parseResult.sourceCode,
       highlightedSymbols,
       cognitiveComplexity,
     );
@@ -94,7 +95,7 @@ function analyzeFile(
     };
 
     if (!input.skipAst) {
-      const ast = serializeAst(sourceCode, filePath);
+      const ast = serializeAst(parseResult.sourceCode, filePath);
       if (ast) {
         result.ast = ast;
       }

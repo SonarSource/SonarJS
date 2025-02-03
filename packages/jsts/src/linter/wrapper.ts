@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule, SourceCode } from 'eslint';
+import { Linter, Rule } from 'eslint';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -27,6 +27,7 @@ import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
+import { ParseResult } from '../parsers/parse.js';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -151,14 +152,14 @@ export class LinterWrapper {
    * problems in the code. It selects which linting configuration needs to be
    * considered during linting based on the file type.
    *
-   * @param sourceCode the ESLint source code
+   * @param parseResult the ESLint source code
    * @param filePath the path of the source file
    * @param fileType the type of the source file
    * @param language language of the source file
    * @returns the linting result
    */
   lint(
-    sourceCode: SourceCode,
+    { sourceCode, parserOptions, parser }: ParseResult,
     filePath: string,
     fileType: FileType = 'MAIN',
     language: JsTsLanguage = 'js',
@@ -172,6 +173,11 @@ export class LinterWrapper {
     }
     const config = {
       ...linterConfig,
+      languageOptions: {
+        ...linterConfig.languageOptions,
+        parser,
+        parserOptions,
+      },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
       settings: { ...linterConfig.settings, fileType },
     };

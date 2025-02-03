@@ -81,7 +81,7 @@ function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceC
 
   function analyzeSnippet(linter: LinterWrapper, extendedSourceCode: ExtendedSourceCode) {
     const { issues, ucfgPaths } = linter.lint(
-      extendedSourceCode.sourceCode,
+      extendedSourceCode,
       extendedSourceCode.syntheticFilePath,
       'MAIN',
     );

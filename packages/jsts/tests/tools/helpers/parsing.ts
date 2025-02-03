@@ -23,7 +23,7 @@ export async function parseTypeScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts').sourceCode;
 }
 
 export async function parseJavaScriptSourceFile(
@@ -32,5 +32,5 @@ export async function parseJavaScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js').sourceCode;
 }

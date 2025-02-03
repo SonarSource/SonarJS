@@ -14,16 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { SourceCode } from 'eslint';
 import { patchParsingError, patchSourceCode } from './patch.js';
 import path from 'path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { JsTsAnalysisInput } from '../../analysis/analysis.js';
 import { buildSourceCode } from '../../builders/build.js';
+import { ParseResult } from '../../parsers/parse.js';
 
-export type ExtendedSourceCode = {
-  sourceCode: SourceCode;
+export type ExtendedSourceCode = ParseResult & {
   syntheticFilePath: string;
 };
 export type LanguageParser = (text: string) => EmbeddedJS[];
@@ -62,8 +61,11 @@ export function buildSourceCodes(
       fileType: 'MAIN',
     } as JsTsAnalysisInput;
     try {
+      const parseResult = buildSourceCode(jsTsAnalysisInput, 'js');
       const extendedSourceCode = {
-        sourceCode: patchSourceCode(buildSourceCode(jsTsAnalysisInput, 'js'), embeddedJS),
+        sourceCode: patchSourceCode(parseResult.sourceCode, embeddedJS),
+        parser: parseResult.parser,
+        parserOptions: parseResult.parserOptions,
         syntheticFilePath,
       };
       extendedSourceCodes.push(extendedSourceCode);
