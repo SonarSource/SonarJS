@@ -13496,7 +13496,6 @@
 ],
 "eigen:src/palette/elements/Select/Select.tsx": [
 12,
-46,
 64,
 149,
 219,
@@ -13510,10 +13509,6 @@
 89,
 204,
 302
-],
-"eigen:src/palette/elements/Select/index.tsx": [
-18,
-22
 ],
 "eigen:src/palette/elements/Separator/Separator.tsx": [
 21

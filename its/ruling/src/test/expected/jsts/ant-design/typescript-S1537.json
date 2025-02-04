@@ -1163,7 +1163,6 @@
 269
 ],
 "ant-design:components/locale-provider/LocaleReceiver.tsx": [
-15,
 19,
 33,
 54,
@@ -3198,7 +3197,6 @@
 ],
 "ant-design:components/transfer/list.tsx": [
 15,
-81,
 87,
 99,
 121,
