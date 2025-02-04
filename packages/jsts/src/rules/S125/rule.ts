@@ -148,15 +148,16 @@ function containsCode(value: string, context: Rule.RuleContext) {
 
   try {
     const options = {
-      ...context.languageOptions.parserOptions,
+      ...context.languageOptions?.parserOptions,
       filePath: `placeholder${path.extname(context.filename)}`,
       programs: undefined,
       project: undefined,
     };
+    //In case of Vue parser: we will use the JS/TS parser instead of the Vue parser
+    const parser =
+      context.languageOptions?.parserOptions?.parser ?? context.languageOptions?.parser;
     const result =
-      'parse' in context.languageOptions.parser
-        ? context.languageOptions.parser.parse(value, options)
-        : context.languageOptions.parser.parseForESLint(value, options).ast;
+      'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
     const parseResult = new SourceCode(value, result as AST.Program);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {

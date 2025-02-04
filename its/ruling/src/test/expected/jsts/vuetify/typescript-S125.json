@@ -27,6 +27,13 @@
 111,
 115
 ],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+140,
+219
+],
+"vuetify:packages/docs/src/components/app/search/Search.vue": [
+165
+],
 "vuetify:packages/docs/src/main.ts": [
 7
 ],
