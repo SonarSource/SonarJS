@@ -37,7 +37,7 @@ describe('computeCyclomaticComplexity', () => {
         'cyclomatic-complexity',
         `${fixture}.js`,
       );
-      const sourceCode = await parseJavaScriptSourceFile(filePath);
+      const { sourceCode } = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
     }),

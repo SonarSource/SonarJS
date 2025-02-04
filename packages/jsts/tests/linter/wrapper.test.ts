@@ -37,14 +37,14 @@ describe('LinterWrapper', () => {
 
   it('should report issues from internal rules', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'internal.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S2251';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -58,14 +58,14 @@ describe('LinterWrapper', () => {
     const filePath = path.join(fixtures, 'file.js');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-    const sourceCode = await parseJavaScriptSourceFile(filePath, [tsConfig]);
+    const parseResult = await parseJavaScriptSourceFile(filePath, [tsConfig]);
 
     const ruleId = 'S3403';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -76,7 +76,7 @@ describe('LinterWrapper', () => {
 
   it('should report issues based on the file type', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'file-type.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
       { key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -85,7 +85,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath, 'TEST');
+    const { issues } = linter.lint(parseResult, filePath, 'TEST');
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -96,40 +96,40 @@ describe('LinterWrapper', () => {
 
   it('should not report issues from decorated rules', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'decorated.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3512';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
   });
 
   it('should not report issues from sanitized rules', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'sanitized.ts');
-    const sourceCode = await parseTypeScriptSourceFile(filePath, [], 'MAIN');
+    const parseResult = await parseTypeScriptSourceFile(filePath, [], 'MAIN');
 
     const rules = [{ key: 'S2933', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
   });
 
   it('should report issues with secondary locations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'secondary-location.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1110';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -154,14 +154,14 @@ describe('LinterWrapper', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'constructor-super.js');
     const fileType = 'MAIN';
 
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
       { key: 'S3854', configurations: [], fileTypeTarget: [fileType] },
     ] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(4);
     expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
@@ -169,24 +169,24 @@ describe('LinterWrapper', () => {
 
   it('should not report issues if rule is disabled with ESLint', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-directive.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const rules = [{ key: 'S3504', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath, 'MAIN');
+    const { issues } = linter.lint(parseResult, filePath, 'MAIN');
 
     expect(issues).toHaveLength(0);
   });
 
   it('should take into account comment-based eslint configurations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const linter = new LinterWrapper();
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -204,7 +204,7 @@ describe('LinterWrapper', () => {
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
 
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
       { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
@@ -213,7 +213,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
     const config = linter.getConfig({ language, fileType });
     expect(config.languageOptions.globals).toHaveProperty('alert');
     expect(issues).toHaveLength(0);
@@ -224,7 +224,7 @@ describe('LinterWrapper', () => {
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
 
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
       { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
@@ -233,7 +233,7 @@ describe('LinterWrapper', () => {
 
     const linter = new LinterWrapper({ inputRules: rules, globals });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(linter.getConfig({ language, fileType }).languageOptions.globals['angular']).toEqual(
       true,
@@ -243,11 +243,11 @@ describe('LinterWrapper', () => {
 
   it('should compute cognitive complexity and symbol highlighting', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const linter = new LinterWrapper();
     await linter.init();
-    const { cognitiveComplexity, highlightedSymbols } = linter.lint({ sourceCode }, filePath);
+    const { cognitiveComplexity, highlightedSymbols } = linter.lint(parseResult, filePath);
 
     expect(cognitiveComplexity).toEqual(6);
     expect(highlightedSymbols).toEqual([
@@ -291,14 +291,14 @@ describe('LinterWrapper', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
       const filePath = path.join(fixtures, fixture);
       const parser = language === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
-      const sourceCode = await parser(filePath, [tsConfig]);
+      const parseResult = await parser(filePath, [tsConfig]);
 
       const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
       const linter = new LinterWrapper({ inputRules: rules });
       await linter.init();
       const {
         issues: [issue],
-      } = linter.lint({ sourceCode }, filePath);
+      } = linter.lint(parseResult, filePath);
 
       expect(issue).toEqual(
         expect.objectContaining({
@@ -317,14 +317,14 @@ describe('LinterWrapper', () => {
       'quickfixes',
       'disabled.js',
     );
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1105';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
-    const { issues } = linter.lint({ sourceCode }, filePath);
+    const { issues } = linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({

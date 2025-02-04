@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
     const filePath = path.join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'message.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3504';
     const linter = new Linter();
@@ -59,7 +59,7 @@ describe('transformMessages', () => {
 
   it('should normalize ESLint locations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'location.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1172';
     const linter = new Linter();
@@ -87,7 +87,7 @@ describe('transformMessages', () => {
 
   it('should transform ESLint fixes', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'fix.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
     const linter = new Linter();
@@ -127,7 +127,7 @@ describe('transformMessages', () => {
   it('should decode secondary locations', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
-    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
+    const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const ruleId = 'S4621';
     const linter = new Linter();
@@ -156,7 +156,7 @@ describe('transformMessages', () => {
   it('should remove ucfg issues', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
-    const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
+    const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const messages = [
       {

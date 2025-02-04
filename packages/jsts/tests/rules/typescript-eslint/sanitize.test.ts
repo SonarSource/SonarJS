@@ -44,7 +44,7 @@ describe('sanitize', () => {
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
-      const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
+      const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
       const messages = new Linter().verify(sourceCode, {
         plugins: {
