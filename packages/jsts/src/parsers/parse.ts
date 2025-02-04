@@ -20,8 +20,8 @@ import type { Parser } from './eslint.js';
 
 export type ParseResult = {
   sourceCode: SourceCode;
-  parser: Parser;
-  parserOptions: any;
+  parser?: Parser;
+  parserOptions?: any;
 };
 
 /**
