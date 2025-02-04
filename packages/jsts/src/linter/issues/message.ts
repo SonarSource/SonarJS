@@ -17,6 +17,22 @@
 import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
+import * as ruleMetas from '../../rules/metas.js';
+
+function getESLintKeys(sonarKey: string) {
+  const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas];
+  if (!ruleMeta?.eslintId) {
+    return [];
+  }
+  const keys = new Set<string>();
+  keys.add(ruleMeta.eslintId);
+  if (ruleMeta.implementation === 'decorated') {
+    ruleMeta.externalRules.forEach(externalRule => {
+      keys.add(externalRule.externalRule);
+    });
+  }
+  return Array.from(keys);
+}
 
 /**
  * Converts an ESLint message into a SonarQube issue
@@ -45,8 +61,9 @@ export function convertMessage(
   if (!message.ruleId?.startsWith('sonarjs/')) {
     return null;
   }
+  const ruleId = message.ruleId.slice(8); // remove "sonarjs/" prefix
   return {
-    ruleId: message.ruleId.slice(8), // remove "sonarjs/" prefix
+    ruleId,
     line: message.line,
     column: message.column,
     endLine: message.endLine,
@@ -54,7 +71,7 @@ export function convertMessage(
     message: message.message,
     quickFixes: transformFixes(source, message),
     secondaryLocations: [],
-    ruleESLintKeys: [message.ruleId],
+    ruleESLintKeys: getESLintKeys(ruleId),
     filePath,
   };
 }

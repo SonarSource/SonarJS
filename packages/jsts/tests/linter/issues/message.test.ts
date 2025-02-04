@@ -60,7 +60,7 @@ describe('convertMessage', () => {
         },
       ],
       secondaryLocations: [],
-      ruleESLintKeys: ['sonarjs/S1116'],
+      ruleESLintKeys: ['no-extra-semi'],
       filePath: 'foo.bar',
     });
   });
