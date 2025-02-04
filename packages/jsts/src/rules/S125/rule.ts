@@ -88,7 +88,10 @@ export const rule: Rule.RuleModule = {
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
+          if (
+            rawTextTrimmed !== '}' &&
+            containsCode(injectMissingBraces(rawTextTrimmed), context)
+          ) {
             context.report({
               messageId: 'commentedCode',
               loc: getCommentLocation(groupComment.nodes),

@@ -13,23 +13,35 @@
 "TypeScript:src/compiler/checker.ts": [
 1063,
 2774,
+21568,
 22486
 ],
 "TypeScript:src/compiler/factory.ts": [
+4151,
+4170,
 4208,
 4215,
 4229,
 4236
 ],
+"TypeScript:src/compiler/parser.ts": [
+4135,
+4146
+],
 "TypeScript:src/compiler/transformers/es2015.ts": [
+664,
 716,
 735,
 1356,
 1376
 ],
+"TypeScript:src/compiler/transformers/generators.ts": [
+1682
+],
 "TypeScript:src/compiler/transformers/module/module.ts": [
 507,
 513,
+523,
 561,
 694,
 730

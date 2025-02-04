@@ -20,18 +20,12 @@
 71,
 78,
 81,
+89,
 96,
 101,
 106,
 111,
 115
-],
-"vuetify:packages/docs/src/components/app/Toc.vue": [
-140,
-219
-],
-"vuetify:packages/docs/src/components/app/search/Search.vue": [
-165
 ],
 "vuetify:packages/docs/src/main.ts": [
 7
@@ -43,7 +37,11 @@
 130
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+120,
 140
+],
+"vuetify:packages/vuetify/src/composables/__tests__/theme.spec.ts": [
+147
 ],
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 26
