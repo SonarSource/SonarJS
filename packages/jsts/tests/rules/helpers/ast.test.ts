@@ -58,7 +58,7 @@ describe('getProperty', () => {
       const linter = new Linter();
 
       const filePath = path.join(baseDir, fixtureFile);
-      const sourceCode = await parseJavaScriptSourceFile(filePath);
+      const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
       linter.verify(
         sourceCode,

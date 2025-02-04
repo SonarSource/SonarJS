@@ -23,7 +23,7 @@ import { expect } from 'expect';
 describe('countStatements', () => {
   it('should count the number of statements', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'statements.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
     const statements = countStatements(sourceCode);
     expect(statements).toEqual(10);
   });

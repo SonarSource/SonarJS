@@ -21,7 +21,7 @@ import { getLinter } from '../../linter/linters.js';
 import type { LinterWrapper } from '../../linter/wrapper.js';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
-import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder/build.js';
+import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 
 /**
@@ -51,25 +51,25 @@ export function analyzeEmbedded(
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const extendedSourceCodes = buildSourceCodes(input, languageParser);
-  return analyzeFile(linter, extendedSourceCodes);
+  const extendedParseResults = build(input, languageParser);
+  return analyzeFile(linter, extendedParseResults);
 }
 
 /**
  * Extracted logic from analyzeEmbedded() so we can compute metrics
  *
  * @param linter
- * @param extendedSourceCodes
+ * @param extendedParseResults
  * @returns
  */
-function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceCode[]) {
+function analyzeFile(linter: LinterWrapper, extendedParseResults: ExtendedParseResult[]) {
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   let ncloc: number[] = [];
-  for (const extendedSourceCode of extendedSourceCodes) {
-    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(linter, extendedSourceCode);
+  for (const extendedParseResult of extendedParseResults) {
+    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(linter, extendedParseResult);
     ncloc = ncloc.concat(singleNcLoc);
-    const filteredIssues = removeNonJsIssues(extendedSourceCode.sourceCode, issues);
+    const filteredIssues = removeNonJsIssues(extendedParseResult.sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
     aggregatedUcfgPaths.push(...ucfgPaths);
   }
@@ -79,13 +79,13 @@ function analyzeFile(linter: LinterWrapper, extendedSourceCodes: ExtendedSourceC
     metrics: { ncloc },
   };
 
-  function analyzeSnippet(linter: LinterWrapper, extendedSourceCode: ExtendedSourceCode) {
+  function analyzeSnippet(linter: LinterWrapper, extendedParseResult: ExtendedParseResult) {
     const { issues, ucfgPaths } = linter.lint(
-      extendedSourceCode.sourceCode,
-      extendedSourceCode.syntheticFilePath,
+      extendedParseResult,
+      extendedParseResult.syntheticFilePath,
       'MAIN',
     );
-    const ncloc = findNcloc(extendedSourceCode.sourceCode);
+    const ncloc = findNcloc(extendedParseResult.sourceCode);
     return { issues, ucfgPaths, ncloc };
   }
 

@@ -18,7 +18,7 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { FileType } from '../../../../../shared/src/helpers/files.js';
-import { buildSourceCode } from '../../../../src/builders/build.js';
+import { build } from '../../../../src/builders/build.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/language.js';
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
@@ -33,10 +33,10 @@ export function parseForESLint(
   const tsConfigs = [
     path.join(dirname(fileURLToPath(import.meta.url)), '../../../../src/rules', 'tsconfig.cb.json'),
   ];
-  const sourceCode = buildSourceCode(
+  const sourceCode = build(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),
-  );
+  ).sourceCode;
 
   /**
    * ESLint expects the parser services (including the type checker) to be available in a field

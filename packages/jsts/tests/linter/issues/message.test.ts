@@ -25,7 +25,7 @@ import { expect } from 'expect';
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'convert.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
     const linter = new Linter();

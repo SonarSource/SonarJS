@@ -48,11 +48,10 @@ describe('initializeLinter', () => {
     expect(logs).toContain('DEBUG Initializing linter "default" with S1116');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
       issues: [issue],
-    } = linter.lint(sourceCode, filePath);
+    } = linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S1116',
@@ -87,11 +86,10 @@ describe('initializeLinter', () => {
     expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
       issues: [issue],
-    } = linter.lint(sourceCode, filePath);
+    } = linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'custom-rule',

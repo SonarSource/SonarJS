@@ -887,7 +887,7 @@ describe('analyzeJSTS', () => {
       files: ['**/*.vue', '**/*.js'],
     };
     const filePath = path.join(baseDir, 'custom.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const issues = linter.verify(sourceCode, linterConfig, {
       filename: filePath,
@@ -897,7 +897,7 @@ describe('analyzeJSTS', () => {
     expect(issues[0].message).toEqual('call');
 
     const vueFilePath = path.join(baseDir, 'code.vue');
-    const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
+    const { sourceCode: vueSourceCode } = await parseJavaScriptSourceFile(vueFilePath);
 
     const vueIssues = linter.verify(vueSourceCode, linterConfig, {
       filename: vueFilePath,
@@ -937,7 +937,7 @@ describe('analyzeJSTS', () => {
       files: ['**/*.js'],
     };
     const filePath = path.join(currentPath, 'fixtures', 'dependencies', 'index.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
     linter.verify(sourceCode, linterConfig, {
       filename: filePath,
       allowInlineConfig: false,

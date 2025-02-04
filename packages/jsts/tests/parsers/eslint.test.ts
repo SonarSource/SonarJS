@@ -20,7 +20,7 @@ import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
-import { buildSourceCode } from '../../src/builders/build.js';
+import { build } from '../../src/builders/build.js';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -45,7 +45,7 @@ describe('ESLint-based parsers', () => {
       const fileType = 'MAIN';
 
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-      const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+      const sourceCode = build(input, language as JsTsLanguage).sourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();

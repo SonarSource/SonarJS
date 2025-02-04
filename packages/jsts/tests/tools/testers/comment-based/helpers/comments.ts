@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { buildSourceCode } from '../../../../../src/builders/build.js';
+import { build } from '../../../../../src/builders/build.js';
 import estree from 'estree';
 import { SourceCode } from 'eslint';
 
@@ -33,7 +33,10 @@ export interface Comment {
  * @returns
  */
 export function extractComments(fileContent: string, filePath: string): Comment[] {
-  const parsed = buildSourceCode({ fileContent, filePath, fileType: null, tsConfigs: [] }, null);
+  const { sourceCode: parsed } = build(
+    { fileContent, filePath, fileType: null, tsConfigs: [] },
+    null,
+  );
   let esTreeComments: estree.Comment[];
   if (parsed instanceof SourceCode) {
     esTreeComments = parsed.getAllComments();

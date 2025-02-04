@@ -36,7 +36,7 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
    *    SourceCode include only those from the embedded JavaScript code snippet and these
    *    lines are used internally by the SourceCode for various purposes.
    */
-  const lines = computeLines();
+  const lines = computeLines(embeddedJS);
 
   /**
    * 2. Overrides the values `lineStartIndices`, `text` and `lines` of the original SourceCode
@@ -66,56 +66,56 @@ export function patchSourceCode(originalSourceCode: SourceCode, embeddedJS: Embe
     scopeManager: patchedSourceCode.scopeManager,
     visitorKeys: patchedSourceCode.visitorKeys,
   });
+}
 
-  /* Taken from eslint/lib/source-code/source-code.js#constructor */
-  function computeLines(): string[] {
-    const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
-    const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
-    const lines = [];
+/* Taken from eslint/lib/source-code/source-code.js#constructor */
+function computeLines(embeddedJS: EmbeddedJS): string[] {
+  const lineBreakPattern = /\r\n|[\r\n\u2028\u2029]/u;
+  const lineEndingPattern = new RegExp(lineBreakPattern.source, 'gu');
+  const lines = [];
 
-    let i = 0;
-    let match;
-    while ((match = lineEndingPattern.exec(embeddedJS.text))) {
-      lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[i], match.index));
-      i++;
-    }
-    lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[embeddedJS.lineStarts.length - 1]));
+  let i = 0;
+  let match;
+  while ((match = lineEndingPattern.exec(embeddedJS.text))) {
+    lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[i], match.index));
+    i++;
+  }
+  lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[embeddedJS.lineStarts.length - 1]));
 
-    return lines;
+  return lines;
+}
+
+/**
+ * Patches the location in the abstract syntax tree from the embedded JavaScript snippet
+ *
+ * The patching involves any kind of nodes with locations and ranges, that is, regular
+ * nodes, comments, and tokens.
+ */
+function patchASTLocations(sourceCode: SourceCode, offset: number) {
+  visit(sourceCode, node => {
+    fixNodeLocation(node);
+  });
+
+  const { comments } = sourceCode.ast;
+  for (const comment of comments) {
+    fixNodeLocation(comment);
   }
 
-  /**
-   * Patches the location in the abstract syntax tree from the embedded JavaScript snippet
-   *
-   * The patching involves any kind of nodes with locations and ranges, that is, regular
-   * nodes, comments, and tokens.
-   */
-  function patchASTLocations(sourceCode: SourceCode, offset: number) {
-    visit(sourceCode, node => {
-      fixNodeLocation(node);
-    });
+  const { tokens } = sourceCode.ast;
+  for (const token of tokens) {
+    fixNodeLocation(token);
+  }
 
-    const { comments } = sourceCode.ast;
-    for (const comment of comments) {
-      fixNodeLocation(comment);
+  function fixNodeLocation(node: Node | Comment | AST.Token) {
+    if (node.loc != null && node.range != null) {
+      node.loc = {
+        start: sourceCode.getLocFromIndex(node.range[0] + offset),
+        end: sourceCode.getLocFromIndex(node.range[1] + offset),
+      };
     }
-
-    const { tokens } = sourceCode.ast;
-    for (const token of tokens) {
-      fixNodeLocation(token);
-    }
-
-    function fixNodeLocation(node: Node | Comment | AST.Token) {
-      if (node.loc != null && node.range != null) {
-        node.loc = {
-          start: sourceCode.getLocFromIndex(node.range[0] + offset),
-          end: sourceCode.getLocFromIndex(node.range[1] + offset),
-        };
-      }
-      if (node.range) {
-        const [sRange, eRange] = node.range;
-        node.range = [sRange + offset, eRange + offset];
-      }
+    if (node.range) {
+      const [sRange, eRange] = node.range;
+      node.range = [sRange + offset, eRange + offset];
     }
   }
 }

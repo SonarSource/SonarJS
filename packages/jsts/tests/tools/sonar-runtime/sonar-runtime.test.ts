@@ -62,9 +62,9 @@ describe('sonar-runtime', () => {
       rulesList.map(async rule => {
         const ruleFilePath = path.join(rulesDir, `${rule}/rule.ts`);
         if (await fileReadable(ruleFilePath)) {
-          const ruleSourceCode = await parseTypeScriptSourceFile(ruleFilePath, []);
+          const { sourceCode } = await parseTypeScriptSourceFile(ruleFilePath, []);
 
-          const issues = linter.verify(ruleSourceCode, {
+          const issues = linter.verify(sourceCode, {
             plugins: {
               sonarjs: { rules: { [noMissingSonarRuntimeRuleId]: noMissingSonarRuntimeRule } },
             },

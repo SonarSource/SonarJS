@@ -17,8 +17,8 @@
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { JsTsAnalysisInput } from '../analysis/analysis.js';
 import { buildParserOptions } from '../parsers/options.js';
-import { parseForESLint } from '../parsers/parse.js';
-import { parsers } from '../parsers/eslint.js';
+import { parse } from '../parsers/parse.js';
+import { Parser, parsersMap } from '../parsers/eslint.js';
 import { getProgramById } from '../program/program.js';
 import { Linter } from 'eslint';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -34,26 +34,26 @@ import { getContext } from '../../../shared/src/helpers/context.js';
  * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function build(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
 
+  let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      parser: vueFile ? parsers.typescript : undefined,
+      parser: vueFile ? parsersMap.typescript : undefined,
     };
-    const parser = vueFile ? parsers.vuejs : parsers.typescript;
     if (!vueFile) {
       options.programs = input.programId && [getProgramById(input.programId)];
       options.project = input.tsConfigs;
     }
     try {
-      debug(`Parsing ${input.filePath} with ${parser.parser}`);
-      return parseForESLint(input.fileContent, parser.parse, buildParserOptions(options, false));
+      debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
+      return parse(input.fileContent, parser, buildParserOptions(options, false));
     } catch (error) {
-      debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
+      debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
       if (language === 'ts') {
         throw error;
       }
@@ -61,16 +61,16 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
   }
 
   let moduleError;
+  parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
   try {
-    const parser = vueFile ? parsers.vuejs : parsers.javascript;
-    debug(`Parsing ${input.filePath} with ${parser.parser}`);
-    return parseForESLint(
+    debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
+    return parse(
       input.fileContent,
-      parser.parse,
-      buildParserOptions({ parser: vueFile ? parsers.javascript : undefined }, true),
+      parser,
+      buildParserOptions({ parser: vueFile ? parsersMap.javascript : undefined }, true),
     );
   } catch (error) {
-    debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);
+    debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
     if (vueFile) {
       throw error;
     }
@@ -78,15 +78,15 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
   }
 
   try {
-    debug(`Parsing ${input.filePath} with Javascript parser in 'script' mode`);
-    return parseForESLint(
+    debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
+    return parse(
       input.fileContent,
-      parsers.javascript.parse,
+      parsersMap.javascript,
       buildParserOptions({ sourceType: 'script' }, true),
     );
   } catch (error) {
     debug(
-      `Failed to parse ${input.filePath} with Javascript parser in 'script' mode: ${error.message}`,
+      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
     );
     /**
      * We prefer displaying parsing error as module if parsing as script also failed,

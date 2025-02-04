@@ -16,7 +16,7 @@
  */
 import path from 'path';
 
-import { parsers, type ParseFunction } from '../../src/parsers/eslint.js';
+import { Parser, parsersMap } from '../../src/parsers/eslint.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
@@ -24,7 +24,7 @@ import { readFile } from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import { visitNode } from '../../src/parsers/ast.js';
-import { parseForESLint } from '../../src/parsers/parse.js';
+import { parse } from '../../src/parsers/parse.js';
 import {
   deserializeProtobuf,
   NODE_TYPE_ENUM,
@@ -34,29 +34,33 @@ import {
 
 const parseFunctions = [
   {
-    parser: parsers.javascript,
+    parser: parsersMap.javascript,
     usingBabel: true,
     errorMessage: 'Unterminated string constant. (1:0)',
   },
-  { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
+  {
+    parser: parsersMap.typescript,
+    usingBabel: false,
+    errorMessage: 'Unterminated string literal.',
+  },
 ];
 
-async function parseSourceFile(filePath, parser, usingBabel = false) {
+async function parseSourceFile(filePath: string, parser: Parser, usingBabel = false) {
   const fileContent = await readFile(filePath);
   const fileType = 'MAIN';
 
   const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
   const options = buildParserOptions(input, usingBabel);
-  return parseForESLint(fileContent, parser.parse, options);
+  return parse(fileContent, parser, options);
 }
 
-async function parseSourceCode(code: string, parser: { parse: ParseFunction }) {
-  return parseForESLint(code, parser.parse, {
+async function parseSourceCode(code: string, parser: Parser) {
+  return parse(code, parser, {
     comment: true,
     loc: true,
     range: true,
     tokens: true,
-  }).ast;
+  }).sourceCode.ast;
 }
 
 describe('ast', () => {
@@ -65,8 +69,8 @@ describe('ast', () => {
       test('should not lose information between serialize and deserializing JavaScript', async () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
-        const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
-        const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
+        const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
+        const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       }),
@@ -74,15 +78,15 @@ describe('ast', () => {
   });
   test('should encode unknown nodes', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'unknownNode.ts');
-    const sc = await parseSourceFile(filePath, parsers.typescript);
-    const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
+    const sc = await parseSourceFile(filePath, parsersMap.typescript);
+    const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
     expect((protoMessage as any).program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['UnknownNodeType'],
     );
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
     // we are only interested in checking that the serialized AST only contains nodes relevant at runtime
@@ -104,7 +108,7 @@ describe('ast', () => {
 
   test('should support TSSatisfiesExpression nodes', async () => {
     const code = `42 satisfies Bar;`;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
     const literalNode = serializedAST.program.body[0].expressionStatement.expression.literal;
     expect(literalNode.type).toEqual(NODE_TYPE_ENUM.values['Literal']);
@@ -113,7 +117,7 @@ describe('ast', () => {
 
   test('should support TSNonNullExpression nodes', async () => {
     const code = `foo!;`;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
@@ -123,7 +127,7 @@ describe('ast', () => {
 
   test('should support TSTypeAssertion nodes', async () => {
     const code = `<Foo>foo;`;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
@@ -137,7 +141,7 @@ describe('ast', () => {
       constructor(public foo: number) {}
     }
     `;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
     const classDeclaration = serializedAST.program.body[0].classDeclaration;
@@ -149,7 +153,7 @@ describe('ast', () => {
 
   test('should support TSExportAssignment nodes', async () => {
     const code = `export = foo();`;
-    const ast = await parseSourceCode(code, parsers.typescript);
+    const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
     const expression = serializedAST.program.body[0].tSExportAssignment.expression;

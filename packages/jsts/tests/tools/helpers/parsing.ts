@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { FileType, readFile } from '../../../../shared/src/helpers/files.js';
-import { buildSourceCode } from '../../../src/builders/build.js';
+import { build } from '../../../src/builders/build.js';
 
 export async function parseTypeScriptSourceFile(
   filePath: string,
@@ -23,7 +23,7 @@ export async function parseTypeScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+  return build({ fileContent, filePath, tsConfigs, fileType }, 'ts');
 }
 
 export async function parseJavaScriptSourceFile(
@@ -32,5 +32,5 @@ export async function parseJavaScriptSourceFile(
   fileType: FileType = 'MAIN',
 ) {
   const fileContent = await readFile(filePath);
-  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
+  return build({ fileContent, filePath, tsConfigs, fileType }, 'js');
 }

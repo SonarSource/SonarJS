@@ -23,7 +23,7 @@ import { expect } from 'expect';
 describe('countClasses', () => {
   it('should count the number of classes', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'classes.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
     const classes = countClasses(sourceCode);
     expect(classes).toEqual(2);
   });
