@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
@@ -35,8 +36,8 @@ public class ExternalIssuerRepositoryTest {
    * We check that `ExternalIssueRepository.save` call every `NewExternalIssue` method that is required to register an external issue to SonarQube
    */
   @Test
-  void foo() {
-    var context = mock(ExternalIssueRepository.Context.class);
+  void external_issue_api_is_used_as_expected() {
+    var context = mock(SensorContext.class);
     var newExternalIssue = mock(NewExternalIssue.class);
     var newIssueLocation = mock(NewIssueLocation.class);
 
