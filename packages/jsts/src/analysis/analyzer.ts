@@ -20,7 +20,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { getLinter } from '../linter/linters.js';
-import { buildSourceCode } from '../builders/build.js';
+import { build } from '../builders/build.js';
 import { LinterWrapper } from '../linter/wrapper.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
@@ -52,7 +52,7 @@ import { ParseResult } from '../parsers/parse.js';
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  return analyzeFile(linter, input, buildSourceCode(input, language));
+  return analyzeFile(linter, input, build(input, language));
 }
 
 /**
@@ -64,7 +64,7 @@ export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): J
  *
  * @param linter the linter to use for the analysis
  * @param input the JavaScript / TypeScript analysis input to analyze
- * @param parseResult the corresponding parsed ESLint SourceCode instance
+ * @param parseResult the corresponding parsing result containing the SourceCode instance
  * @returns the JavaScript / TypeScript analysis output
  */
 function analyzeFile(

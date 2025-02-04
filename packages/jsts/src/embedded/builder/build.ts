@@ -19,10 +19,10 @@ import path from 'path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { JsTsAnalysisInput } from '../../analysis/analysis.js';
-import { buildSourceCode } from '../../builders/build.js';
+import { build as buildJsTs } from '../../builders/build.js';
 import { ParseResult } from '../../parsers/parse.js';
 
-export type ExtendedSourceCode = ParseResult & {
+export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: string;
 };
 export type LanguageParser = (text: string) => EmbeddedJS[];
@@ -36,12 +36,12 @@ export type LanguageParser = (text: string) => EmbeddedJS[];
  * If there is at least one parsing error in any snippet, we return only the first error and
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
-export function buildSourceCodes(
+export function build(
   input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
-): ExtendedSourceCode[] {
+): ExtendedParseResult[] {
   const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);
-  const extendedSourceCodes: ExtendedSourceCode[] = [];
+  const extendedParseResults: ExtendedParseResult[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
 
@@ -61,25 +61,24 @@ export function buildSourceCodes(
       fileType: 'MAIN',
     } as JsTsAnalysisInput;
     try {
-      const parseResult = buildSourceCode(jsTsAnalysisInput, 'js');
-      const extendedSourceCode = {
+      const parseResult = buildJsTs(jsTsAnalysisInput, 'js');
+      extendedParseResults.push({
         sourceCode: patchSourceCode(parseResult.sourceCode, embeddedJS),
         parser: parseResult.parser,
         parserOptions: parseResult.parserOptions,
         syntheticFilePath,
-      };
-      extendedSourceCodes.push(extendedSourceCode);
+      });
     } catch (error) {
       throw patchParsingError(error, embeddedJS);
     }
   }
-  return extendedSourceCodes;
+  return extendedParseResults;
 }
 
 /**
  * Returns the filename composed as following:
  *
- * {filepath-without-extention}-{resourceName}{filepath-extension}
+ * {filepath-without-extension}-{resourceName}{filepath-extension}
  */
 export function composeSyntheticFilePath(filePath: string, resourceName: string): string {
   const { dir, name, ext } = path.parse(filePath);

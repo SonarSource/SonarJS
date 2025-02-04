@@ -34,7 +34,7 @@ import { getContext } from '../../../shared/src/helpers/context.js';
  * @param language the language of the input
  * @returns the parsed source code
  */
-export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function build(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
