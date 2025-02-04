@@ -94,7 +94,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
           .findFirst();
 
         if (persistedIssue.isEmpty()) {
-          ExternalIssueRepository.save(externalIssue, context);
+          ExternalIssueRepository.save(externalIssue, (ExternalIssueRepository.Context) context);
         }
       }
     } catch (CancellationException e) {

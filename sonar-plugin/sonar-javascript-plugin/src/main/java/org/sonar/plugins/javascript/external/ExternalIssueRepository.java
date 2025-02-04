@@ -18,7 +18,7 @@ package org.sonar.plugins.javascript.external;
 
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 
 /**
  * This is the application of the Repository Pattern.
@@ -32,23 +32,26 @@ import org.sonar.api.batch.sensor.SensorContext;
  */
 public class ExternalIssueRepository {
 
-  private ExternalIssueRepository() {}
+  public interface Context {
+    NewExternalIssue newExternalIssue();
+  }
 
   /**
    * Persist the passed issue into the passed context, using the passed rule repository key to resolve the belonging rule.
    */
-  public static void save(Issue issue, SensorContext context) {
+  public static void save(Issue issue, Context context) {
     var file = issue.file();
     var newIssue = context.newExternalIssue();
+    var newLocation = newIssue.newLocation();
 
-    var location = newIssue.newLocation().on(file);
+    newLocation.on(file);
 
     if (issue.message() != null) {
       var escapedMsg = unicodeEscape(issue.message());
-      location.message(escapedMsg);
+      newLocation.message(escapedMsg);
     }
 
-    location.at(
+    newLocation.at(
       file.newRange(
         issue.location().start().line(),
         issue.location().start().lineOffset(),
@@ -60,7 +63,7 @@ public class ExternalIssueRepository {
     newIssue
       .severity(issue.severity())
       .remediationEffortMinutes(issue.effort())
-      .at(location)
+      .at(newLocation)
       .engineId(issue.engineId())
       .ruleId(issue.name())
       .type(issue.type())
