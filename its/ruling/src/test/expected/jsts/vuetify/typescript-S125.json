@@ -20,6 +20,7 @@
 71,
 78,
 81,
+89,
 96,
 101,
 106,
@@ -43,7 +44,11 @@
 130
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+120,
 140
+],
+"vuetify:packages/vuetify/src/composables/__tests__/theme.spec.ts": [
+147
 ],
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 26
