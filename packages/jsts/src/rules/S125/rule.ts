@@ -16,18 +16,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S125/javascript
 
-import { Rule, SourceCode } from 'eslint';
+import { AST, Rule, SourceCode } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import babel from '@babel/eslint-parser';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
-
-import babelPresetReact from '@babel/preset-react';
-import babelPresetFlow from '@babel/preset-flow';
-import babelPresetEnv from '@babel/preset-env';
-import babelPluginDecorators from '@babel/plugin-proposal-decorators';
+import path from 'path';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -149,33 +144,17 @@ function containsCode(value: string) {
   }
 
   try {
-    const result = babel.parse(value, {
-      filename: 'some/filePath',
-      tokens: true,
-      comment: true,
-      loc: true,
-      range: true,
-      ecmaVersion: 2018,
-      sourceType: 'module',
-      codeFrame: false,
-      ecmaFeatures: {
-        jsx: true,
-        globalReturn: false,
-        legacyDecorators: true,
-      },
-      requireConfigFile: false,
-      babelOptions: {
-        targets: 'defaults',
-        presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
-        plugins: [[babelPluginDecorators, { version: '2022-03' }]],
-        babelrc: false,
-        configFile: false,
-        parserOpts: {
-          allowReturnOutsideFunction: true,
-        },
-      },
-    });
-    const parseResult = new SourceCode(value, result);
+    const options = {
+      ...context.languageOptions.parserOptions,
+      filePath: `placeholder${path.extname(context.filename)}`,
+      programs: undefined,
+      project: undefined,
+    };
+    const result =
+      'parse' in context.languageOptions.parser
+        ? context.languageOptions.parser.parse(value, options)
+        : context.languageOptions.parser.parseForESLint(value, options).ast;
+    const parseResult = new SourceCode(value, result as AST.Program);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {
     return false;
