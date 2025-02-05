@@ -72,9 +72,7 @@ public class EslintReportImporter {
     var results = new ArrayList<Issue>();
 
     List<File> reportFiles = ExternalReportProvider.getReportFiles(context, reportsPropertyName());
-    reportFiles.forEach(report -> {
-      results.addAll(importReport(report, context));
-    });
+    reportFiles.forEach(report -> results.addAll(importReport(report, context)));
 
     return results;
   }

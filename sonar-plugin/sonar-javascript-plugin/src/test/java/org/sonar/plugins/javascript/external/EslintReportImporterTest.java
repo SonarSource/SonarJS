@@ -91,13 +91,6 @@ class EslintReportImporterTest {
     assertThat(logTester.logs(Level.WARN)).contains(
       "Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri()
     );
-    // todo: move to the Analysis sensor test
-    //    assertThat(logTester.logs(Level.DEBUG)).containsExactlyInAnyOrder(
-    //      "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
-    //      "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-    //      "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-    //      "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }"
-    //    );
   }
 
   @Test

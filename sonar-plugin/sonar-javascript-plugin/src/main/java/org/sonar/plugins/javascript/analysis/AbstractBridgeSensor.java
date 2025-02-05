@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,24 +82,20 @@ public abstract class AbstractBridgeSensor implements Sensor {
       // at that point, we have the list of issues that were persisted
       // we can now persist the ESLint issues that match none of the persisted issues
       for (var externalIssue : esLintIssues) {
-        var persistedIssue = issues
-          .stream()
-          .filter(issue -> {
-            return (
-              issue.ruleESLintKeys().contains(externalIssue.name()) &&
-              issue
-                .filePath()
-                .replaceAll(Pattern.quote(File.separator), "/")
-                .equals(
-                  externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/")
-                ) &&
-              issue.line() == externalIssue.location().start().line() &&
-              issue.column() == externalIssue.location().start().lineOffset() &&
-              issue.endLine() == externalIssue.location().end().line() &&
-              issue.endColumn() == externalIssue.location().end().lineOffset()
-            );
-          })
-          .findFirst();
+        Predicate<BridgeServer.Issue> predicate = issue ->
+          (issue.ruleESLintKeys().contains(externalIssue.name()) &&
+            issue
+              .filePath()
+              .replaceAll(Pattern.quote(File.separator), "/")
+              .equals(
+                externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/")
+              ) &&
+            issue.line() == externalIssue.location().start().line() &&
+            issue.column() == externalIssue.location().start().lineOffset() &&
+            issue.endLine() == externalIssue.location().end().line() &&
+            issue.endColumn() == externalIssue.location().end().lineOffset());
+
+        var persistedIssue = issues.stream().filter(predicate).findFirst();
 
         if (persistedIssue.isEmpty()) {
           ExternalIssueRepository.save(externalIssue, context);

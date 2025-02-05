@@ -32,6 +32,8 @@ import org.sonar.api.batch.sensor.SensorContext;
  */
 public class ExternalIssueRepository {
 
+  private ExternalIssueRepository() {}
+
   /**
    * Persist the passed issue into the passed context, using the passed rule repository key to resolve the belonging rule.
    */
