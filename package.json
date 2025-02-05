@@ -136,7 +136,7 @@
     "postcss-value-parser": "4.2.0",
     "protobufjs": "7.4.0",
     "scslre": "0.3.0",
-    "semver": "7.7.0",
+    "semver": "7.7.1",
     "stylelint": "15.11.0",
     "tar": "7.4.3",
     "tmp": "0.2.3",
