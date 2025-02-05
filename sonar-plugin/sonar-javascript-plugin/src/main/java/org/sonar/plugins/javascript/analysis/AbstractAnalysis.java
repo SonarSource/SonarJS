@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -90,14 +91,16 @@ public abstract class AbstractAnalysis {
     return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+  abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
-  protected void analyzeFile(
+  protected List<BridgeServer.Issue> analyzeFile(
     InputFile file,
     @Nullable List<String> tsConfigs,
     @Nullable TsProgram tsProgram,
     boolean dirtyPackageJSONCache
   ) throws IOException {
+    List<BridgeServer.Issue> issues = new ArrayList<>();
+
     if (context.isCancelled()) {
       throw new CancellationException(
         "Analysis interrupted because the SensorContext is in cancelled state"
@@ -127,7 +130,7 @@ public abstract class AbstractAnalysis {
           ? bridgeServer.analyzeJavaScript(request)
           : bridgeServer.analyzeTypeScript(request);
 
-        analysisProcessor.processResponse(context, checks, file, response);
+        issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
           file
@@ -142,6 +145,8 @@ public abstract class AbstractAnalysis {
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
     }
+
+    return issues;
   }
 
   private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {

@@ -36,6 +36,8 @@ describe('extract', () => {
           references: [{ startLine: 10, startCol: 20, endLine: 30, endCol: 40 }],
         }),
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
     ];
     expect(extractHighlightedSymbols(issues)).toEqual({
@@ -56,6 +58,8 @@ describe('extract', () => {
         column: 2,
         message: '42',
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
     ];
     expect(extractCognitiveComplexity(issues)).toEqual(42);
@@ -69,6 +73,8 @@ describe('extract', () => {
         column: 2,
         message: 'nan',
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
     ];
     expect(extractCognitiveComplexity(issues)).toEqual(undefined);
@@ -89,6 +95,8 @@ describe('extract', () => {
           references: [{ startLine: 10, startCol: 20, endLine: 30, endCol: 40 }],
         }),
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
       {
         ruleId: 'non-extracted-rule',
@@ -96,6 +104,8 @@ describe('extract', () => {
         column: 2,
         message: 'non-extract-message',
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
       {
         ruleId: cognitiveComplexityRule.ruleId,
@@ -103,6 +113,8 @@ describe('extract', () => {
         column: 2,
         message: '42',
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
     ];
     extractHighlightedSymbols(issues);
@@ -114,6 +126,8 @@ describe('extract', () => {
         column: 2,
         message: 'non-extract-message',
         secondaryLocations: [],
+        ruleESLintKeys: [],
+        filePath: 'foo.js',
       },
     ]);
   });

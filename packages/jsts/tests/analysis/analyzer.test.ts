@@ -457,6 +457,8 @@ describe('analyzeJSTS', () => {
         message: 'Octal literals should not be used.',
         quickFixes: [],
         secondaryLocations: [],
+        ruleESLintKeys: ['no-octal'],
+        filePath,
       },
     ]);
   });

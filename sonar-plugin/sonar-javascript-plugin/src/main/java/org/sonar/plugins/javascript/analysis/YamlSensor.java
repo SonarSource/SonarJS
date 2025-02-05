@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.analysis;
 import static org.sonar.plugins.javascript.JavaScriptFilePredicate.getYamlPredicate;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +71,9 @@ public class YamlSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var issues = new ArrayList<BridgeServer.Issue>();
+
     analysisMode = AnalysisMode.getMode(context);
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
@@ -91,7 +94,7 @@ public class YamlSensor extends AbstractBridgeSensor {
           );
         }
         progressReport.nextFile(inputFile.toString());
-        analyze(inputFile);
+        issues.addAll(analyze(inputFile));
       }
       success = true;
     } finally {
@@ -101,6 +104,8 @@ public class YamlSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
+
+    return issues;
   }
 
   @Override
@@ -145,7 +150,9 @@ public class YamlSensor extends AbstractBridgeSensor {
     return false;
   }
 
-  private void analyze(InputFile file) throws IOException {
+  private List<BridgeServer.Issue> analyze(InputFile file) throws IOException {
+    List<BridgeServer.Issue> issues = new ArrayList<>();
+
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
     // See AnalysisProcessor for more details.
@@ -166,7 +173,7 @@ public class YamlSensor extends AbstractBridgeSensor {
           false
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
-        analysisProcessor.processResponse(context, checks, file, response);
+        issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
           file
@@ -176,5 +183,7 @@ public class YamlSensor extends AbstractBridgeSensor {
         throw e;
       }
     }
+
+    return issues;
   }
 }

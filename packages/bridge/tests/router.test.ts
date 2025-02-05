@@ -200,6 +200,7 @@ describe('router', () => {
       { key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.yaml');
+    const filePathWithLambda = path.join(fixtures, 'file-SomeLambdaFunction.yaml');
     const data = { filePath };
     const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
     const {
@@ -215,6 +216,8 @@ describe('router', () => {
         "Remove this conditional structure or edit its code blocks so that they're not all the same.",
       quickFixes: [],
       secondaryLocations: [],
+      ruleESLintKeys: ['no-all-duplicated-branches'],
+      filePath: filePathWithLambda,
     });
   });
 
@@ -238,6 +241,8 @@ describe('router', () => {
         "Remove this conditional structure or edit its code blocks so that they're not all the same.",
       quickFixes: [],
       secondaryLocations: [],
+      ruleESLintKeys: ['no-all-duplicated-branches'],
+      filePath,
     });
   });
 

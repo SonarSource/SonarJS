@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
@@ -63,7 +64,9 @@ public class HtmlSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var issues = new ArrayList<BridgeServer.Issue>();
+
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     analysisMode = AnalysisMode.getMode(context);
     var success = false;
@@ -86,7 +89,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         progressReport.nextFile(inputFile.toString());
         var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
         if (cacheStrategy.isAnalysisRequired()) {
-          analyze(inputFile, cacheStrategy);
+          issues.addAll(analyze(inputFile, cacheStrategy));
         }
       }
       success = true;
@@ -97,6 +100,8 @@ public class HtmlSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
+
+    return issues;
   }
 
   @Override
@@ -116,7 +121,10 @@ public class HtmlSensor extends AbstractBridgeSensor {
     return StreamSupport.stream(inputFiles.spliterator(), false).toList();
   }
 
-  private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
+  private List<BridgeServer.Issue> analyze(InputFile file, CacheStrategy cacheStrategy)
+    throws IOException {
+    List<BridgeServer.Issue> issues;
+
     try {
       LOG.debug("Analyzing file: {}", file.uri());
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
@@ -133,7 +141,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         false
       );
       var response = bridgeServer.analyzeHtml(jsAnalysisRequest);
-      analysisProcessor.processResponse(context, checks, file, response);
+      issues = analysisProcessor.processResponse(context, checks, file, response);
       cacheStrategy.writeAnalysisToCache(
         CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
         file
@@ -142,5 +150,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
     }
+
+    return issues;
   }
 }

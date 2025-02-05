@@ -36,7 +36,7 @@ describe('convertMessage', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    expect(convertMessage(sourceCode, message)).toEqual({
+    expect(convertMessage(sourceCode, message, 'foo.bar')).toEqual({
       ruleId,
       line: 1,
       column: 9,
@@ -60,10 +60,12 @@ describe('convertMessage', () => {
         },
       ],
       secondaryLocations: [],
+      ruleESLintKeys: ['no-extra-semi'],
+      filePath: 'foo.bar',
     });
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
+    expect(convertMessage({} as SourceCode, {} as Linter.LintMessage, '')).toEqual(null);
   });
 });

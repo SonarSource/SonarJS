@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -94,7 +95,9 @@ public class CssRuleSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected List<Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var issues = new ArrayList<Issue>();
+
     ProgressReport progressReport = new ProgressReport(
       "Analysis progress",
       TimeUnit.SECONDS.toMillis(10)
@@ -110,7 +113,10 @@ public class CssRuleSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        analyzeFile(inputFile, context, rules);
+        var fileIssues = analyzeFile(inputFile, context, rules);
+
+        issues.addAll(fileIssues);
+
         progressReport.nextFile(inputFile.toString());
       }
       success = true;
@@ -121,14 +127,18 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
+
+    return issues;
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, List<StylelintRule> rules) {
+  List<Issue> analyzeFile(InputFile inputFile, SensorContext context, List<StylelintRule> rules) {
+    List<Issue> issues;
+
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
         LOG.debug("Skipping {} as it has not 'file' scheme", uri);
-        return;
+        return new ArrayList<>();
       }
       LOG.debug("Analyzing file: {}", uri);
       String fileContent = contextUtils.shouldSendFileContent(inputFile)
@@ -140,11 +150,16 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         rules
       );
       var analysisResponse = bridgeServer.analyzeCss(request);
-      LOG.debug("Found {} issue(s)", analysisResponse.issues().size());
-      saveIssues(context, inputFile, analysisResponse.issues());
+
+      issues = analysisResponse.issues();
+
+      LOG.debug("Found {} issue(s)", issues.size());
+      saveIssues(context, inputFile, issues);
     } catch (IOException | RuntimeException e) {
       throw new IllegalStateException("Failure during analysis of " + inputFile.uri(), e);
     }
+
+    return issues;
   }
 
   private void saveIssues(SensorContext context, InputFile inputFile, List<Issue> issues) {
