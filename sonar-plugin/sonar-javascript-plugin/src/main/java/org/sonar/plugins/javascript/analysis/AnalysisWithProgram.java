@@ -87,7 +87,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }
-        analyzeProgram(program, analyzedFiles);
+        issues.addAll(analyzeProgram(program, analyzedFiles));
         workList.addAll(program.projectReferences());
         bridgeServer.deleteProgram(program);
       }
@@ -126,10 +126,13 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     return issues;
   }
 
-  private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles) throws IOException {
+  private List<BridgeServer.Issue> analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles)
+    throws IOException {
     LOG.info("Starting analysis with current program");
     var fs = context.fileSystem();
     var counter = 0;
+    List<BridgeServer.Issue> issues = new ArrayList<>();
+
     for (var file : program.files()) {
       var inputFile = fs.inputFile(fs.predicates().hasAbsolutePath(file));
       if (inputFile == null) {
@@ -137,7 +140,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        analyzeFile(inputFile, null, program, false);
+        issues.addAll(analyzeFile(inputFile, null, program, false));
         counter++;
       } else {
         LOG.debug(
@@ -146,7 +149,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         );
       }
     }
-
     LOG.info("Analyzed {} file(s) with current program", counter);
+    return issues;
   }
 }

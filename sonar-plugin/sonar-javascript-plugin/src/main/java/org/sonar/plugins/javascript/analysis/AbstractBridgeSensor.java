@@ -18,9 +18,11 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -84,7 +86,12 @@ public abstract class AbstractBridgeSensor implements Sensor {
           .filter(issue -> {
             return (
               issue.ruleESLintKeys().contains(externalIssue.name()) &&
-              issue.filePath().equals(externalIssue.file().uri().getPath()) &&
+              issue
+                .filePath()
+                .replaceAll(Pattern.quote(File.separator), "/")
+                .equals(
+                  externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/")
+                ) &&
               issue.line() == externalIssue.location().start().line() &&
               issue.column() == externalIssue.location().start().lineOffset() &&
               issue.endLine() == externalIssue.location().end().line() &&
