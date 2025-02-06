@@ -779,7 +779,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     sensor.execute(context);
     assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Telemetry saved: {javascript.runtime.node-executable-origin=embedded, javascript.runtime.major-version=22, javascript.dependency.pkg1=1.1.0, javascript.runtime.version=22.9}"
+      "Telemetry saved: {javascript.runtime.major-version=22, javascript.runtime.version=22.9, javascript.runtime.node-executable-origin=embedded}"
     );
   }
 

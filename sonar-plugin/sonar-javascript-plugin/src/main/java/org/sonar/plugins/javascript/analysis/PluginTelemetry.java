@@ -17,19 +17,16 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.util.HashMap;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 
 public class PluginTelemetry {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginTelemetry.class);
   private static final String KEY_PREFIX = "javascript.";
-  private static final String DEPENDENCY_PREFIX = KEY_PREFIX + "dependency.";
   private static final String RUNTIME_PREFIX = KEY_PREFIX + "runtime.";
 
   private final BridgeServer server;
@@ -51,14 +48,7 @@ public class PluginTelemetry {
       return;
     }
     var telemetry = server.getTelemetry();
-    var keyMapToSave = new HashMap<>(
-      telemetry
-        .dependencies()
-        .stream()
-        .collect(
-          Collectors.toMap(dependency -> DEPENDENCY_PREFIX + dependency.name(), Dependency::version)
-        )
-    );
+    var keyMapToSave = new HashMap<String, String>();
     keyMapToSave.put(
       RUNTIME_PREFIX + "node-executable-origin",
       telemetry.runtimeTelemetry().nodeExecutableOrigin()
