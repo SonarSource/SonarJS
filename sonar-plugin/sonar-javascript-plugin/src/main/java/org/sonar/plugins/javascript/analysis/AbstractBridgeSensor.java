@@ -20,6 +20,7 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -35,8 +36,8 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
+import org.sonar.plugins.javascript.external.Issue;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.Exclusions;
 
@@ -67,8 +68,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
 
-    var eslintReportImporter = new EslintReportImporter();
-    var esLintIssues = eslintReportImporter.execute(context);
+    var esLintIssues = this.getESLintIssues(context);
 
     try {
       List<InputFile> inputFiles = getInputFiles();
@@ -142,4 +142,8 @@ public abstract class AbstractBridgeSensor implements Sensor {
     throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
+
+  protected List<Issue> getESLintIssues(SensorContext context) {
+    return new ArrayList<>();
+  }
 }
