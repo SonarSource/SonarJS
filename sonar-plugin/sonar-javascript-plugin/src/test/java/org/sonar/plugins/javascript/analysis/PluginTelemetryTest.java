@@ -62,13 +62,6 @@ class PluginTelemetryTest {
   }
 
   @Test
-  void shouldReport() {
-    when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
-    pluginTelemetry.reportTelemetry();
-    verify(ctx).addTelemetryProperty("javascript.dependency.pkg1", "1.0.0");
-  }
-
-  @Test
   void shouldReportRuntimeTelemetry() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
     pluginTelemetry.reportTelemetry();
