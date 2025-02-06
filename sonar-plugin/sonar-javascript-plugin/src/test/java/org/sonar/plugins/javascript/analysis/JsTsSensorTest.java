@@ -193,6 +193,12 @@ class JsTsSensorTest {
     assertThat(descriptor.languages()).containsOnly("js", "ts");
   }
 
+  /**
+   * todo
+   *
+   * this test should belong to the test suite of the component that actually does the deduplication - namely `AbstractBridgeSensor`;
+   * but there is no test suite for this component.
+   */
   @Test
   void should_de_duplicate_issues() throws Exception {
     JsTsSensor sensor = createSensor();

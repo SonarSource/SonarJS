@@ -23,12 +23,15 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.external.EslintReportImporter;
+import org.sonar.plugins.javascript.external.Issue;
 
 @DependedUpon("js-analysis")
 public class JsTsSensor extends AbstractBridgeSensor {
@@ -83,5 +86,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
     consumers.doneAnalysis();
 
     return issues;
+  }
+
+  @Override
+  protected List<Issue> getESLintIssues(SensorContext context) {
+    var importer = new EslintReportImporter();
+
+    return importer.execute(context);
   }
 }
