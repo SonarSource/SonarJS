@@ -33,23 +33,6 @@ describe('worker', () => {
     await worker.terminate();
   });
 
-  it('should post back results', async () => {
-    let resolver: (value?: unknown) => void;
-    const p = new Promise(resolve => {
-      resolver = resolve;
-    });
-    worker.once('message', message => {
-      expect(message).toEqual({
-        type: 'success',
-        result: 'OK!',
-      });
-      resolver();
-    });
-
-    worker.postMessage({ type: 'on-new-tsconfig' });
-    await p;
-  });
-
   it('should post back stringified results', async () => {
     let resolver: (value?: unknown) => void;
     const p = new Promise(resolve => {

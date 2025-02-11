@@ -73,11 +73,6 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         const tsConfigFile = await writeTSConfigFile(tsConfigContent);
         return { type: 'success', result: tsConfigFile };
       }
-      // Clean typescript-eslint cache in SonarLint. not used currently
-      case 'on-new-tsconfig': {
-        clearTypeScriptESLintParserCaches();
-        return { type: 'success', result: 'OK!' };
-      }
       case 'on-tsconfig-files': {
         const options = createProgramOptions(request.data.tsConfig);
         return {

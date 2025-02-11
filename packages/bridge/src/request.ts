@@ -65,7 +65,6 @@ export type BridgeRequest =
   | CreateTsConfigFileRequest
   | DeleteProgramRequest
   | InitLinterRequest
-  | NewTsConfigRequest
   | TsConfigFilesRequest
   | GetTelemetryRequest;
 
@@ -113,9 +112,6 @@ type InitLinterRequest = {
     baseDir: string;
     rules: RuleConfig[];
   };
-};
-type NewTsConfigRequest = {
-  type: 'on-new-tsconfig';
 };
 type TsConfigFilesRequest = {
   type: 'on-tsconfig-files';

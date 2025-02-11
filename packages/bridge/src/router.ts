@@ -34,7 +34,6 @@ export default function (worker?: Worker): express.Router {
   router.post('/create-tsconfig-file', delegate('on-create-tsconfig-file'));
   router.post('/delete-program', delegate('on-delete-program'));
   router.post('/init-linter', delegate('on-init-linter'));
-  router.post('/new-tsconfig', delegate('on-new-tsconfig'));
   router.post('/tsconfig-files', delegate('on-tsconfig-files'));
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 

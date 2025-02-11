@@ -60,8 +60,6 @@ public interface BridgeServer extends Startable {
 
   boolean isAlive();
 
-  boolean newTsConfig();
-
   TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
   TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;

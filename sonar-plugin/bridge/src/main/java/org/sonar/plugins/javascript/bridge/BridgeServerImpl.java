@@ -477,12 +477,6 @@ public class BridgeServerImpl implements BridgeServer {
     );
   }
 
-  @Override
-  public boolean newTsConfig() {
-    var response = request("", "new-tsconfig").json();
-    return "OK!".equals(response);
-  }
-
   TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
     String result = null;
     try {

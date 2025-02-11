@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -38,16 +37,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -92,11 +88,10 @@ import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
+import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisMetaResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisOutput;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
@@ -143,7 +138,7 @@ class JsTsSensorTest {
   @TempDir
   Path workDir;
 
-  private AnalysisProcessor processAnalysis;
+  private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -184,7 +179,7 @@ class JsTsSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
   }
 
@@ -1014,8 +1009,9 @@ class JsTsSensorTest {
     var sensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
-      new AnalysisConsumers(List.of(consumer))
+      new AnalysisConsumers(List.of(consumer)),
+      analysisProcessor,
+      new AnalysisWarningsWrapper()
     );
 
     var inputFile = createInputFile(context);
@@ -1130,8 +1126,9 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
-      new AnalysisConsumers(List.of(consumer))
+      new AnalysisConsumers(List.of(consumer)),
+      analysisProcessor,
+      new AnalysisWarningsWrapper()
     );
   }
 
@@ -1139,8 +1136,9 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
-      new AnalysisConsumers()
+      new AnalysisConsumers(),
+      analysisProcessor,
+      new AnalysisWarningsWrapper()
     );
   }
 
@@ -1148,26 +1146,14 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithWatchProgram(),
-      new AnalysisConsumers()
-    );
-  }
-
-  private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(bridgeServerMock, processAnalysis, analysisWarnings);
-  }
-
-  private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(
-      bridgeServerMock,
-      processAnalysis,
-      analysisWarnings,
-      tsConfigCache
+      new AnalysisConsumers(),
+      analysisProcessor,
+      new AnalysisWarningsWrapper()
     );
   }
 
   private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {
-    var analysisResponse = new AnalysisResponse(
+    return new AnalysisResponse(
       null,
       issues,
       List.of(),
@@ -1177,8 +1163,6 @@ class JsTsSensorTest {
       List.of(),
       null
     );
-
-    return analysisResponse;
   }
 
   private AnalysisResponse createResponse() {

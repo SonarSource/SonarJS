@@ -279,12 +279,6 @@ describe('router', () => {
     expect(response).toEqual('OK!');
   });
 
-  it('should route /new-tsconfig requests', async () => {
-    const data = {};
-    const response = await request(server, '/new-tsconfig', 'POST', data);
-    expect(response).toEqual('OK!');
-  });
-
   it('should route /status requests', async () => {
     const response = await request(server, '/status', 'GET');
     expect(response).toEqual('OK!');

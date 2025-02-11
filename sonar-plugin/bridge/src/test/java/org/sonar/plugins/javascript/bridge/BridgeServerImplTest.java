@@ -540,13 +540,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_reload_tsconfig() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
-    assertThat(bridgeServer.newTsConfig()).isTrue();
-  }
-
-  @Test
   void should_return_files_for_tsconfig() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
