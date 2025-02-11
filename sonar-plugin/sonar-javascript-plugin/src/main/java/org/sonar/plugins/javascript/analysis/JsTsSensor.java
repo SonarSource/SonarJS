@@ -28,7 +28,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.Issue;
@@ -71,17 +70,15 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var analysisMode = AnalysisMode.getMode(context);
     bridgeServer.initLinter(
       checks.eslintRules(),
       environments,
       globals,
-      analysisMode,
       context.fileSystem().baseDir().getAbsolutePath(),
       exclusions
     );
 
-    analysis.initialize(context, checks, analysisMode, consumers);
+    analysis.initialize(context, checks, consumers);
     var issues = analysis.analyzeFiles(inputFiles);
     consumers.doneAnalysis();
 

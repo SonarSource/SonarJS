@@ -21,6 +21,7 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class ContextUtils {
 
@@ -85,5 +86,14 @@ public class ContextUtils {
 
   boolean isSonarJaredEnabled() {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
+  }
+
+  AnalysisMode getAnalysisMode() {
+    var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
+    if (!canSkipUnchangedFiles) {
+      return AnalysisMode.DEFAULT;
+    }
+
+    return AnalysisMode.SKIP_UNCHANGED;
   }
 }

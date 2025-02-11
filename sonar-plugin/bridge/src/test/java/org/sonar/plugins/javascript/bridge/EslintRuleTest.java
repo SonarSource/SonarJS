@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.bridge.EslintRule.findFirstRuleWithKey;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 
 class EslintRuleTest {
 
@@ -43,20 +45,35 @@ class EslintRuleTest {
   @Test
   void should_throw_when_invalid_lang() {
     assertThatThrownBy(() ->
-      new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "invalid")
+      new EslintRule(
+        "key",
+        List.of(),
+        List.of(InputFile.Type.MAIN),
+        singletonList(AnalysisMode.DEFAULT),
+        "invalid"
+      )
     ).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void getters() {
-    var rule = new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "js");
+    var rule = new EslintRule(
+      "key",
+      List.of(),
+      List.of(InputFile.Type.MAIN),
+      singletonList(AnalysisMode.DEFAULT),
+      "js"
+    );
     assertThat(rule.getKey()).isEqualTo("key");
     assertThat(rule.getConfigurations()).isEmpty();
+    assertThat(rule.getAnalysisModes()).containsExactly(AnalysisMode.DEFAULT);
   }
 
   private static List<EslintRule> rules(String... keys) {
     return Arrays.stream(keys)
-      .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
+      .map(key ->
+        new EslintRule(key, emptyList(), emptyList(), singletonList(AnalysisMode.DEFAULT), "js")
+      )
       .toList();
   }
 }

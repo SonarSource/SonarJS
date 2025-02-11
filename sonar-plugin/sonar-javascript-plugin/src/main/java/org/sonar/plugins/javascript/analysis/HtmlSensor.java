@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class HtmlSensor extends AbstractBridgeSensor {
@@ -44,7 +45,6 @@ public class HtmlSensor extends AbstractBridgeSensor {
   private static final Logger LOG = LoggerFactory.getLogger(HtmlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
-  private AnalysisMode analysisMode;
 
   public HtmlSensor(
     JsTsChecks checks,
@@ -68,15 +68,13 @@ public class HtmlSensor extends AbstractBridgeSensor {
     var issues = new ArrayList<BridgeServer.Issue>();
 
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
-    analysisMode = AnalysisMode.getMode(context);
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
-        AnalysisMode.getHtmlFileRules(checks.eslintRules()),
+        EslintRule.findAllBut(checks.eslintRules(), Set.of("S3504", "ucfg")),
         environments,
         globals,
-        analysisMode,
         context.fileSystem().baseDir().getAbsolutePath(),
         exclusions
       );
@@ -136,7 +134,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         contextUtils.ignoreHeaderComments(),
         null,
         null,
-        analysisMode.getLinterIdFor(file),
+        file.status(),
         false,
         false
       );

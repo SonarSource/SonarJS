@@ -33,7 +33,6 @@ import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
@@ -53,7 +52,6 @@ public abstract class AbstractAnalysis {
   ContextUtils contextUtils;
   JsTsChecks checks;
   ProgressReport progressReport;
-  AnalysisMode analysisMode;
   protected final AnalysisWarningsWrapper analysisWarnings;
   private AnalysisConsumers consumers;
 
@@ -73,17 +71,11 @@ public abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(
-    SensorContext context,
-    JsTsChecks checks,
-    AnalysisMode analysisMode,
-    AnalysisConsumers consumers
-  ) {
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
-    this.analysisMode = analysisMode;
     this.consumers = consumers;
   }
 
@@ -180,7 +172,8 @@ public abstract class AbstractAnalysis {
       contextUtils.ignoreHeaderComments(),
       tsConfigs,
       tsProgram != null ? tsProgram.programId() : null,
-      analysisMode.getLinterIdFor(file),
+      file.status(),
+      contextUtils.getAnalysisMode(),
       skipAst,
       shouldClearDependenciesCache
     );

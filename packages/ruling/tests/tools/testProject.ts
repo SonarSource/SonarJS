@@ -122,19 +122,18 @@ async function initializeRules(rules: RuleConfig[], project: RulingInput) {
     HTML_LINTER_ID,
   );
 }
-function getProjectName(testFilePath: string) {
-  const SUFFIX = '.ruling.test.ts';
-  const filename = path.basename(testFilePath);
-  return filename.substring(0, filename.length - SUFFIX.length);
-}
 function extractParameters(projectFile: string) {
   const settingsPath = process.env[SETTINGS_KEY];
   let params;
   if (settingsPath) {
-    params = extractSettingsFromFile(settingsPath);
+    params = require(settingsPath);
   }
-  const projectName = getProjectName(toUnixPath(projectFile));
-  const project = projects.find(p => p.name === projectName);
+
+  const filename = path.basename(toUnixPath(projectFile));
+
+  const project = projects.find(
+    p => p.name === filename.substring(0, filename.length - '.ruling.test.ts'.length),
+  );
 
   return {
     project,
@@ -147,10 +146,6 @@ function extractParameters(projectFile: string) {
       : path.join(actualPath, project.name),
   };
 }
-function extractSettingsFromFile(pathToSettings: string) {
-  return require(pathToSettings);
-}
-
 /**
  * Load files and analyze project
  */
@@ -160,9 +155,20 @@ export async function testProject(
   rules: RuleConfig[],
 ) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
-  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
+  const exclusionsArray = rulingInput.exclusions?.split(',') || [];
+  if (rulingInput.testDir) {
+    exclusionsArray.push(...rulingInput.testDir.split(',').map(dir => `${dir}/**/*`));
+  }
+  const exclusions = exclusionsArray.map(
+    pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true }),
+  );
 
-  const { jsTsFiles, htmlFiles, yamlFiles } = getProjectFiles(rulingInput, projectPath, exclusions);
+  const { jsTsFiles, htmlFiles, yamlFiles } = getFiles(projectPath, exclusions);
+
+  if (rulingInput.testDir != null) {
+    const testFolder = path.join(projectPath, rulingInput.testDir);
+    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
+  }
 
   const payload: ProjectAnalysisInput = {
     rules,
@@ -182,35 +188,6 @@ export async function testProject(
     [jsTsFiles, htmlFiles, yamlFiles],
     actualPath,
   );
-}
-
-/**
- * Creates the exclusions object
- */
-function setExclusions(exclusions: string, testDir?: string) {
-  const exclusionsArray = exclusions ? exclusions.split(',') : [];
-  if (testDir && testDir !== '') {
-    exclusionsArray.push(...testDir.split(',').map(dir => `${dir}/**/*`));
-  }
-  const exclusionsGlob = stringToGlob(exclusionsArray.map(pattern => pattern.trim()));
-  return exclusionsGlob;
-
-  function stringToGlob(patterns: string[]): Minimatch[] {
-    return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
-  }
-}
-
-/**
- * Gathers all the files that should be analyzed for the given project
- */
-function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: Minimatch[]) {
-  const { jsTsFiles, htmlFiles, yamlFiles } = getFiles(projectPath, exclusions);
-
-  if (rulingInput.testDir != null) {
-    const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
-  }
-  return { jsTsFiles, htmlFiles, yamlFiles };
 }
 
 /**

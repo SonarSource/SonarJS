@@ -22,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -85,7 +86,7 @@ public class StandaloneParser implements AutoCloseable {
       true,
       null,
       null,
-      AnalysisMode.DEFAULT_LINTER_ID,
+      InputFile.Status.ADDED,
       false,
       false
     );

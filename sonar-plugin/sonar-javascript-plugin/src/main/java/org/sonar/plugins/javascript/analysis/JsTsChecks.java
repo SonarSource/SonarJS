@@ -161,6 +161,7 @@ public class JsTsChecks {
               check.eslintKey(),
               check.configurations(),
               check.targets(),
+              check.analysisModes(),
               e.getKey().language
             )
           )

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class EslintRule {
 
@@ -28,17 +29,20 @@ public class EslintRule {
   final String key;
   final List<String> fileTypeTarget;
   final List<Object> configurations;
+  final List<AnalysisMode> analysisModes;
   final String language;
 
   public EslintRule(
     String key,
     List<Object> configurations,
     List<InputFile.Type> fileTypeTarget,
+    List<AnalysisMode> analysisModes,
     String language
   ) {
     this.key = key;
     this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).toList();
     this.configurations = configurations;
+    this.analysisModes = analysisModes;
     // unfortunately we can't check this using types, so it's enforced at runtime
     if (!"js".equals(language) && !"ts".equals(language)) {
       throw new IllegalArgumentException("Invalid language " + language);
@@ -59,11 +63,15 @@ public class EslintRule {
     return configurations;
   }
 
+  public List<AnalysisMode> getAnalysisModes() {
+    return analysisModes;
+  }
+
   static EslintRule findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
     return rules.stream().filter(ruleMatcher(eslintKey)).findFirst().orElse(null);
   }
 
-  static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
+  public static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
     return rules.stream().filter(rule -> !blackListRuleKeys.contains(rule.key)).toList();
   }
 
