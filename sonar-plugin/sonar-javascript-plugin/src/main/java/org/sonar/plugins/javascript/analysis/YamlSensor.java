@@ -165,6 +165,7 @@ public class YamlSensor extends AbstractBridgeSensor {
           null,
           null,
           file.status(),
+          contextUtils.getAnalysisMode(),
           false,
           false
         );

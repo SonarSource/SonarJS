@@ -135,6 +135,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         null,
         null,
         file.status(),
+        contextUtils.getAnalysisMode(),
         false,
         false
       );

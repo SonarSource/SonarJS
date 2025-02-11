@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -87,6 +88,7 @@ public class StandaloneParser implements AutoCloseable {
       null,
       null,
       InputFile.Status.ADDED,
+      AnalysisMode.DEFAULT,
       false,
       false
     );

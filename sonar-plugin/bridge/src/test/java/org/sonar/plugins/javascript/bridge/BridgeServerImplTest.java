@@ -234,6 +234,7 @@ class BridgeServerImplTest {
       singletonList(tsConfig.absolutePath()),
       null,
       inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -263,6 +264,7 @@ class BridgeServerImplTest {
       null,
       null,
       inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -291,6 +293,7 @@ class BridgeServerImplTest {
       null,
       programCreated.programId(),
       InputFile.Status.ADDED,
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -519,6 +522,7 @@ class BridgeServerImplTest {
       null,
       null,
       inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -798,6 +802,7 @@ class BridgeServerImplTest {
       null,
       null,
       inputFile.status(),
+      AnalysisMode.DEFAULT,
       true,
       false
     );
