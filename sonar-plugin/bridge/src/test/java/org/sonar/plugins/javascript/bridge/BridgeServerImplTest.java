@@ -197,7 +197,7 @@ class BridgeServerImplTest {
         "key",
         singletonList("config"),
         Collections.singletonList(InputFile.Type.MAIN),
-        singletonList(AnalysisMode.SKIP_UNCHANGED),
+        singletonList(AnalysisMode.DEFAULT),
         "js"
       )
     );
