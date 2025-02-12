@@ -178,7 +178,15 @@ async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<
 
 function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
   const config = {
-    rules: [{ key: ruleId, configurations: [], fileTypeTarget: fileType }],
+    rules: [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: [fileType],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ],
   };
 
   return request(server, '/init-linter', 'POST', config);
