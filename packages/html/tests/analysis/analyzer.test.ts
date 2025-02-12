@@ -36,7 +36,15 @@ describe('analyzeHTML', () => {
   });
 
   it('should analyze HTML file', async () => {
-    await initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'S3923',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
     const {
       issues: [issue],
     } = analyzeEmbedded(
@@ -55,7 +63,15 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,
@@ -87,6 +103,8 @@ describe('analyzeHTML', () => {
         key: 'S3723',
         configurations: ['always-multiline'],
         fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
       },
     ]);
     const { issues } = analyzeEmbedded(
@@ -113,7 +131,15 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    await initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'S2251',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
       parseHTML,
@@ -134,7 +160,15 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    await initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'S6326',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
       parseHTML,

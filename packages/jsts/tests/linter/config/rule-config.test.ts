@@ -27,6 +27,8 @@ describe('extendRuleConfig', () => {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
+      language: 'js',
+      analysisModes: ['DEFAULT'],
     };
 
     const config = extendRuleConfig([{ enum: SONAR_RUNTIME }], inputRule);
@@ -46,6 +48,8 @@ describe('extendRuleConfig', () => {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
+      language: 'js',
+      analysisModes: ['DEFAULT'],
     };
 
     const config = extendRuleConfig([{ title: SONAR_CONTEXT }], inputRule);
@@ -65,6 +69,8 @@ describe('extendRuleConfig', () => {
       key: 'some-rule',
       configurations: [42],
       fileTypeTarget: ['MAIN'],
+      language: 'js',
+      analysisModes: ['DEFAULT'],
     };
 
     const config = extendRuleConfig([{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }], inputRule);

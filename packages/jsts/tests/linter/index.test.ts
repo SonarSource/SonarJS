@@ -36,7 +36,15 @@ describe('initializeLinter', () => {
 
     expect(getLinter).toThrow();
 
-    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
 
     const linter = getLinter();
 
@@ -74,7 +82,15 @@ describe('initializeLinter', () => {
 
     console.log = mock.fn();
 
-    await initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([
+      {
+        key: 'custom-rule',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
 
     const linter = getLinter();
 

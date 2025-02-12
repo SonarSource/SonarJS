@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter, Rule } from 'eslint';
-import { RuleConfig } from './config/rule-config.js';
+import { AnalysisMode, RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { debug } from '../../../shared/src/helpers/logging.js';
@@ -42,11 +42,6 @@ interface WrapperOptions {
   environments?: string[];
   globals?: string[];
   workingDirectory?: string;
-}
-
-interface LinterConfigurationKey {
-  language: JsTsLanguage;
-  fileType: FileType;
 }
 
 /**
@@ -97,21 +92,7 @@ export class LinterWrapper {
   readonly linter: Linter;
 
   /** The wrapper's linting configuration */
-  config: Map<LinterConfigurationKey, Linter.Config> = new Map();
-
-  readonly configurationKeys: LinterConfigurationKey[] = [];
-
-  private linterConfigurationKey(key: LinterConfigurationKey): LinterConfigurationKey {
-    const r = this.configurationKeys.find(
-      v => v.language === key.language && v.fileType === key.fileType,
-    );
-    if (r) {
-      return r;
-    } else {
-      this.configurationKeys.push(key);
-      return key;
-    }
-  }
+  config: Map<string, Linter.Config> = new Map();
 
   /**
    * Constructs an ESLint linter wrapper
@@ -142,7 +123,37 @@ export class LinterWrapper {
     for (const ruleBundle of bundles) {
       await loadRulesFromBundle(ruleBundle);
     }
-    this.config = this.createConfig();
+
+    /**
+     * Creates the wrapper's linting configurations
+     * The wrapper's linting configuration actually includes many
+     * ESLint configurations: one per fileType/language/analysisMode.
+     */
+    const rulesByKey: Map<string, RuleConfig[]> = new Map();
+    this.options.inputRules?.forEach(ruleConfig => {
+      const fileTypes = ruleConfig.fileTypeTarget;
+      const analysisModes = ruleConfig.analysisModes;
+      const language = ruleConfig.language ?? 'js';
+      fileTypes.forEach(fileType => {
+        analysisModes.forEach(analysisMode => {
+          const key = `${fileType}-${language}-${analysisMode}`;
+          const rules = rulesByKey.get(key) ?? [];
+          rules.push(ruleConfig);
+          rulesByKey.set(key, rules);
+        });
+      });
+    });
+    rulesByKey.forEach((ruleConfigs, key) => {
+      debug(
+        `Linter config: ${key} with ${ruleConfigs
+          .map(r => r.key)
+          .sort((a, b) => a.localeCompare(b))}`,
+      );
+      this.config.set(
+        key,
+        createLinterConfig(ruleConfigs, rules, this.options.environments, this.options.globals),
+      );
+    });
   }
 
   /**
@@ -155,6 +166,7 @@ export class LinterWrapper {
    * @param parseResult the ESLint source code
    * @param filePath the path of the source file
    * @param fileType the type of the source file
+   * @param analysisMode whether we are analyzing a changed file or not
    * @param language language of the source file
    * @returns the linting result
    */
@@ -162,10 +174,11 @@ export class LinterWrapper {
     { sourceCode, parserOptions, parser }: ParseResult,
     filePath: string,
     fileType: FileType = 'MAIN',
+    analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
   ): LintingResult {
-    const key: LinterConfigurationKey = { fileType, language };
-    let linterConfig = this.getConfig(key);
+    const key = `${fileType}-${language}-${analysisMode}`;
+    let linterConfig = this.config.get(key);
     if (!linterConfig) {
       // we create default linter config with internal rules only which provide metrics, tokens, etc...
       linterConfig = createLinterConfig([], rules, this.options.environments, this.options.globals);
@@ -184,47 +197,5 @@ export class LinterWrapper {
 
     const messages = this.linter.verify(sourceCode, config, createOptions(filePath));
     return transformMessages(messages, { sourceCode, rules, filePath });
-  }
-
-  /**
-   * Creates the wrapper's linting configuration
-   *
-   * The wrapper's linting configuration actually includes two
-   * ESLint configurations: one per file type.
-   *
-   * @returns the wrapper's linting configuration
-   */
-  private createConfig() {
-    debug('Creating linter config');
-    const rulesByKey: Map<LinterConfigurationKey, RuleConfig[]> = new Map();
-    this.options.inputRules?.forEach(r => {
-      const target = Array.isArray(r.fileTypeTarget) ? r.fileTypeTarget : [r.fileTypeTarget];
-      target.forEach(fileType => {
-        const key = this.linterConfigurationKey({ language: r.language ?? 'js', fileType });
-        const rules = rulesByKey.get(key) ?? [];
-        rules.push(r);
-        rulesByKey.set(key, rules);
-      });
-    });
-    rulesByKey.forEach((rules, key) => {
-      debug(
-        `Linter config: ${JSON.stringify(key)} with ${rules
-          .map(r => r.key)
-          .sort((a, b) => a.localeCompare(b))}`,
-      );
-    });
-    const configByKey: Map<LinterConfigurationKey, Linter.Config> = new Map();
-    rulesByKey.forEach((ruleConfigs, key) => {
-      configByKey.set(
-        key,
-        createLinterConfig(ruleConfigs, rules, this.options.environments, this.options.globals),
-      );
-    });
-    return configByKey;
-  }
-
-  getConfig(key: LinterConfigurationKey) {
-    const k = this.linterConfigurationKey(key);
-    return this.config.get(k);
   }
 }

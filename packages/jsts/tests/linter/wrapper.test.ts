@@ -21,7 +21,7 @@ import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';
 import { LinterWrapper } from '../../src/linter/wrapper.js';
-import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import { AnalysisMode, RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 
@@ -40,7 +40,15 @@ describe('LinterWrapper', () => {
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S2251';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -61,7 +69,15 @@ describe('LinterWrapper', () => {
     const parseResult = await parseJavaScriptSourceFile(filePath, [tsConfig]);
 
     const ruleId = 'S3403';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -78,10 +94,22 @@ describe('LinterWrapper', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'file-type.js');
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
-    const rules = [
-      { key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'S3504', configurations: [], fileTypeTarget: ['TEST'] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S3504',
+        configurations: [],
+        fileTypeTarget: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -99,7 +127,15 @@ describe('LinterWrapper', () => {
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3512';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -111,8 +147,16 @@ describe('LinterWrapper', () => {
   it('should not report issues from sanitized rules', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'sanitized.ts');
     const parseResult = await parseTypeScriptSourceFile(filePath, [], 'MAIN');
-
-    const rules = [{ key: 'S2933', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const ruleId = 'S2933';
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
@@ -125,7 +169,15 @@ describe('LinterWrapper', () => {
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1110';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -153,12 +205,20 @@ describe('LinterWrapper', () => {
   it('should merge "constructor-super" with "no-this-before-super" issues', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'constructor-super.js');
     const fileType = 'MAIN';
+    const ruleId = 'S3854';
 
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
-    const rules = [
-      { key: 'S3854', configurations: [], fileTypeTarget: [fileType] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: [fileType],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
@@ -170,8 +230,16 @@ describe('LinterWrapper', () => {
   it('should not report issues if rule is disabled with ESLint', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-directive.js');
     const parseResult = await parseJavaScriptSourceFile(filePath);
-
-    const rules = [{ key: 'S3504', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const ruleId = 'S3504';
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();
@@ -203,18 +271,25 @@ describe('LinterWrapper', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'env.js');
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
+    const analysisMode: AnalysisMode = 'SKIP_UNCHANGED';
 
     const parseResult = await parseJavaScriptSourceFile(filePath);
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3798',
+        configurations: [],
+        fileTypeTarget: [fileType],
+        language: 'js',
+        analysisModes: [analysisMode],
+      },
+    ];
 
-    const rules = [
-      { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
-    ] as RuleConfig[];
     const env = ['browser'];
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
-    const config = linter.getConfig({ language, fileType });
+    const config = linter.config.get(`${fileType}-${language}-${analysisMode}`);
     expect(config.languageOptions.globals).toHaveProperty('alert');
     expect(issues).toHaveLength(0);
   });
@@ -223,21 +298,30 @@ describe('LinterWrapper', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'global.js');
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
+    const analysisMode: AnalysisMode = 'DEFAULT';
 
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
-    const rules = [
-      { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3798',
+        configurations: [],
+        fileTypeTarget: [fileType],
+        language: 'js',
+        analysisModes: [analysisMode],
+      },
+    ];
     const globals = ['angular'];
 
     const linter = new LinterWrapper({ inputRules: rules, globals });
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
 
-    expect(linter.getConfig({ language, fileType }).languageOptions.globals['angular']).toEqual(
-      true,
-    );
+    expect(
+      linter.config.get(`${fileType}-${language}-${analysisMode}`).languageOptions.globals[
+        'angular'
+      ],
+    ).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
@@ -292,8 +376,16 @@ describe('LinterWrapper', () => {
       const filePath = path.join(fixtures, fixture);
       const parser = language === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
       const parseResult = await parser(filePath, [tsConfig]);
+      const rules: RuleConfig[] = [
+        {
+          key: ruleId,
+          configurations: [],
+          fileTypeTarget: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ];
 
-      const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
       const linter = new LinterWrapper({ inputRules: rules });
       await linter.init();
       const {
@@ -320,7 +412,15 @@ describe('LinterWrapper', () => {
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1105';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
 
     const linter = new LinterWrapper({ inputRules: rules });
     await linter.init();

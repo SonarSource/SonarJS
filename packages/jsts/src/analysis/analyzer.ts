@@ -73,12 +73,13 @@ function analyzeFile(
   parseResult: ParseResult,
 ): JsTsAnalysisOutput {
   try {
-    const { filePath, fileType, language, shouldClearDependenciesCache } = input;
+    const { filePath, fileType, analysisMode, language, shouldClearDependenciesCache } = input;
     shouldClearDependenciesCache && clearDependenciesCache();
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
       parseResult,
       filePath,
       fileType,
+      analysisMode,
       language,
     );
     const extendedMetrics = computeExtendedMetrics(

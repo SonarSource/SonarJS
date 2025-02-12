@@ -37,9 +37,12 @@ import type { JSONSchema4 } from 'json-schema';
 export interface RuleConfig {
   key: string;
   configurations: any[];
-  fileTypeTarget: FileType[] | FileType;
-  language?: JsTsLanguage;
+  fileTypeTarget: FileType[];
+  language: JsTsLanguage;
+  analysisModes: AnalysisMode[];
 }
+
+export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
 
 /**
  * Extends an input rule configuration

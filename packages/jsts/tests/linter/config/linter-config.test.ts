@@ -44,7 +44,15 @@ describe('createLinterConfig', () => {
   });
 
   it('should enable rules', () => {
-    const inputRules: RuleConfig[] = [{ key: 'foo', configurations: [], fileTypeTarget: ['MAIN'] }];
+    const inputRules: RuleConfig[] = [
+      {
+        key: 'foo',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     const linterRules = {
       foo: { module: 42 } as unknown as Rule.RuleModule,
       bar: { module: 24 } as unknown as Rule.RuleModule,

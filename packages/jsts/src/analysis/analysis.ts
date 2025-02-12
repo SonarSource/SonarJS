@@ -23,6 +23,7 @@ import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
 import { CpdToken } from '../linter/visitors/cpd.js';
 import { Issue } from '../linter/issues/issue.js';
+import { AnalysisMode } from '../linter/config/rule-config.js';
 
 /**
  *
@@ -49,6 +50,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs?: string[];
   programId?: string;
   skipAst?: boolean;
+  analysisMode?: AnalysisMode;
   shouldClearDependenciesCache?: boolean;
 }
 
