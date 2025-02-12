@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -284,7 +283,7 @@ class JsTsSensorTest {
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues().size());
     assertThat(logTester.logs(Level.DEBUG)).contains(
       String.format("Saving issue for rule S3923 on file %s at line 1", inputFile)
