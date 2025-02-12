@@ -51,7 +51,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze JavaScript code with the given linter', async () => {
-    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4524',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
     await initializeLinter([], [], [], undefined, 'empty');
 
@@ -77,7 +85,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze TypeScript code with the given linter', async () => {
-    const rules = [{ key: 'S4798', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4798',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
     await initializeLinter([], [], [], undefined, 'empty');
 
@@ -102,7 +118,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze Vue.js code', async () => {
-    const rules = [{ key: 'S1534', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1534',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.vue');
@@ -119,7 +143,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should not analyze Vue.js with type checking', async () => {
-    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3003',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'vue_ts', 'file.vue');
@@ -146,10 +178,22 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze main files', async () => {
-    const rules = [
-      { key: 'S4634', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'S5863', configurations: [], fileTypeTarget: ['TEST'] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4634',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S5863',
+        configurations: [],
+        fileTypeTarget: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'main.js');
@@ -165,10 +209,22 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze test files', async () => {
-    const rules = [
-      { key: 'S1321', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'S5863', configurations: [], fileTypeTarget: ['TEST'] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1321',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S5863',
+        configurations: [],
+        fileTypeTarget: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'test.js');
@@ -189,10 +245,22 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze main and test files', async () => {
-    const rules = [
-      { key: 'S3696', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
-      { key: 'S6426', configurations: [], fileTypeTarget: ['TEST'] },
-    ] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3696',
+        configurations: [],
+        fileTypeTarget: ['MAIN', 'TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S6426',
+        configurations: [],
+        fileTypeTarget: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'mixed.js');
@@ -208,7 +276,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze shebang files', async () => {
-    const rules = [{ key: 'S3498', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3498',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'shebang.js');
@@ -225,7 +301,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze BOM files', async () => {
-    const rules = [{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'bom.js');
@@ -242,7 +326,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze file contents', async () => {
-    const rules = [{ key: 'S3512', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3512',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'foo.js');
@@ -260,7 +352,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze using TSConfig', async () => {
-    const rules = [{ key: 'S4335', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4335',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'tsconfig.ts');
@@ -278,7 +378,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze using TypeScript program', async () => {
-    const rules = [{ key: 'S2870', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S2870',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'program.ts');
@@ -298,7 +406,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should succeed with types using tsconfig with path aliases', async () => {
-    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3003',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
@@ -318,7 +434,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should fail with types using tsconfig without paths aliases', async () => {
-    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3003',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
@@ -338,7 +462,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('different tsconfig module resolution affects files included in program', async () => {
-    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3003',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const language = 'ts';
@@ -422,7 +554,15 @@ describe('analyzeJSTS', () => {
       sonarlint: false,
       bundles: [],
     });
-    const rules = [{ key: 'S3403', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3403',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'type.js');
@@ -440,7 +580,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should report issues', async () => {
-    const rules = [{ key: 'S1314', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1314',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'issue.js');
@@ -464,7 +612,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should report secondary locations', async () => {
-    const rules = [{ key: 'S3514', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S3514',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'secondary.js');
@@ -485,7 +641,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should report quick fixes', async () => {
-    const rules = [{ key: 'S1172', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1172',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'quickfix.js');
@@ -527,7 +691,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should compute metrics on main files', async () => {
-    const rules = [] as RuleConfig[];
+    const rules: RuleConfig[] = [];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
@@ -771,7 +935,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should compute metrics on test files', async () => {
-    const rules = [] as RuleConfig[];
+    const rules: RuleConfig[] = [];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
@@ -825,7 +989,7 @@ describe('analyzeJSTS', () => {
       bundles: [],
     });
 
-    const rules = [] as RuleConfig[];
+    const rules: RuleConfig[] = [];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
@@ -845,7 +1009,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should return parsing errors', async () => {
-    const rules = [];
+    const rules: RuleConfig[] = [];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'parsing-error.js');
@@ -962,7 +1126,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should return the AST along with the issues', async () => {
-    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4524',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
@@ -976,7 +1148,15 @@ describe('analyzeJSTS', () => {
   });
 
   it('should not return the AST if the skipAst flag is set', async () => {
-    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
+    const rules: RuleConfig[] = [
+      {
+        key: 'S4524',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     await initializeLinter(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
