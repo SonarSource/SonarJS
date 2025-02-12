@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter, Rule } from 'eslint';
-import { AnalysisMode, RuleConfig } from './config/rule-config.js';
+import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { debug } from '../../../shared/src/helpers/logging.js';
@@ -28,6 +28,7 @@ import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
 import { ParseResult } from '../parsers/parse.js';
+import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -70,6 +71,13 @@ async function loadRulesFromBundle(ruleBundle: string) {
   });
 }
 
+export function createLinterConfigKey(
+  fileType: FileType,
+  language: JsTsLanguage,
+  analysisMode: AnalysisMode,
+) {
+  return `${fileType}-${language}-${analysisMode}`;
+}
 /**
  * A wrapper of ESLint linter
  *
@@ -123,7 +131,6 @@ export class LinterWrapper {
     for (const ruleBundle of bundles) {
       await loadRulesFromBundle(ruleBundle);
     }
-
     /**
      * Creates the wrapper's linting configurations
      * The wrapper's linting configuration actually includes many
@@ -132,11 +139,13 @@ export class LinterWrapper {
     const rulesByKey: Map<string, RuleConfig[]> = new Map();
     this.options.inputRules?.forEach(ruleConfig => {
       const fileTypes = ruleConfig.fileTypeTarget;
-      const analysisModes = ruleConfig.analysisModes;
+      // TODO: change when sonar-security rules override the analysisModes method
+      const analysisModes: AnalysisMode[] =
+        ruleConfig.key === 'ucfg' ? ['DEFAULT', 'SKIP_UNCHANGED'] : ruleConfig.analysisModes;
       const language = ruleConfig.language ?? 'js';
       fileTypes.forEach(fileType => {
         analysisModes.forEach(analysisMode => {
-          const key = `${fileType}-${language}-${analysisMode}`;
+          const key = createLinterConfigKey(fileType, language, analysisMode);
           const rules = rulesByKey.get(key) ?? [];
           rules.push(ruleConfig);
           rulesByKey.set(key, rules);
@@ -166,6 +175,7 @@ export class LinterWrapper {
    * @param parseResult the ESLint source code
    * @param filePath the path of the source file
    * @param fileType the type of the source file
+   * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing a changed file or not
    * @param language language of the source file
    * @returns the linting result
@@ -174,10 +184,15 @@ export class LinterWrapper {
     { sourceCode, parserOptions, parser }: ParseResult,
     filePath: string,
     fileType: FileType = 'MAIN',
+    fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
   ): LintingResult {
-    const key = `${fileType}-${language}-${analysisMode}`;
+    const key = createLinterConfigKey(
+      fileType,
+      language,
+      fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
+    );
     let linterConfig = this.config.get(key);
     if (!linterConfig) {
       // we create default linter config with internal rules only which provide metrics, tokens, etc...

@@ -83,11 +83,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     analysis.initialize(context, checks, consumers);
-    if (contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED) {
-      LOG.debug(
-        "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
-      );
-    }
+    var msg = contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
+      ? "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+      : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
+    LOG.debug(msg);
     var issues = analysis.analyzeFiles(inputFiles);
     consumers.doneAnalysis();
 

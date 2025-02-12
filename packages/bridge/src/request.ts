@@ -107,7 +107,6 @@ type DeleteProgramRequest = {
 type InitLinterRequest = {
   type: 'on-init-linter';
   data: {
-    linterId: string;
     environments: string[];
     globals: string[];
     baseDir: string;

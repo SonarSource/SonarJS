@@ -50,9 +50,8 @@ import { ParseResult } from '../parsers/parse.js';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
-  debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
-  const linter = getLinter(input.linterId);
-  return analyzeFile(linter, input, build(input, language));
+  debug(`Analyzing file "${input.filePath}"`);
+  return analyzeFile(getLinter(), input, build(input, language));
 }
 
 /**
@@ -73,12 +72,14 @@ function analyzeFile(
   parseResult: ParseResult,
 ): JsTsAnalysisOutput {
   try {
-    const { filePath, fileType, analysisMode, language, shouldClearDependenciesCache } = input;
+    const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
+      input;
     shouldClearDependenciesCache && clearDependenciesCache();
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
       parseResult,
       filePath,
       fileType,
+      fileStatus,
       analysisMode,
       language,
     );

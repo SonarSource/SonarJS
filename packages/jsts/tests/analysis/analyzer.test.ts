@@ -61,7 +61,7 @@ describe('analyzeJSTS', () => {
       },
     ];
     await initializeLinter(rules);
-    await initializeLinter([], [], [], undefined, 'empty');
+    await initializeLinter([], [], [], undefined);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
@@ -70,10 +70,7 @@ describe('analyzeJSTS', () => {
       issues: [issue],
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
 
-    const { issues } = analyzeJSTS(
-      await jsTsInput({ filePath, linterId: 'empty' }),
-      language,
-    ) as JsTsAnalysisOutput;
+    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -81,39 +78,6 @@ describe('analyzeJSTS', () => {
       }),
     );
 
-    expect(issues).toHaveLength(0);
-  });
-
-  it('should analyze TypeScript code with the given linter', async () => {
-    const rules: RuleConfig[] = [
-      {
-        key: 'S4798',
-        configurations: [],
-        fileTypeTarget: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ];
-    await initializeLinter(rules);
-    await initializeLinter([], [], [], undefined, 'empty');
-
-    const filePath = path.join(currentPath, 'fixtures', 'code.ts');
-    const tsConfigs = [path.join(currentPath, 'fixtures', 'tsconfig.json')];
-    const language = 'ts';
-
-    const {
-      issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
-    const { issues } = analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs, linterId: 'empty' }),
-      language,
-    ) as JsTsAnalysisOutput;
-
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'S4798',
-      }),
-    );
     expect(issues).toHaveLength(0);
   });
 

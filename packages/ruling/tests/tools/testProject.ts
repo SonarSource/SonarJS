@@ -25,7 +25,7 @@ import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { before } from 'node:test';
-import { initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -66,7 +66,6 @@ const expectedPath = path.join(
 const actualPath = path.join(import.meta.dirname, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
-const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
   name: string;
@@ -96,7 +95,6 @@ export function setupBeforeAll(projectFile: string) {
       sonarlint: false,
       bundles: [],
     });
-    await initializeRules(rules, project);
   });
 
   return {
@@ -106,22 +104,7 @@ export function setupBeforeAll(projectFile: string) {
     rules,
   };
 }
-async function initializeRules(rules: RuleConfig[], project: RulingInput) {
-  await initializeLinter(
-    rules,
-    DEFAULT_ENVIRONMENTS,
-    DEFAULT_GLOBALS,
-    path.join(jsTsProjectsPath, project.folder ?? project.name),
-  );
-  const htmlRules = rules.filter(rule => rule.key !== 'S3504');
-  await initializeLinter(
-    htmlRules,
-    DEFAULT_ENVIRONMENTS,
-    DEFAULT_GLOBALS,
-    path.join(jsTsProjectsPath, project.folder ?? project.name),
-    HTML_LINTER_ID,
-  );
-}
+
 function extractParameters(projectFile: string) {
   const settingsPath = process.env[SETTINGS_KEY];
   let params;
@@ -176,9 +159,19 @@ export async function testProject(
     files: jsTsFiles,
   };
 
+  await initializeLinter(
+    rules,
+    DEFAULT_ENVIRONMENTS,
+    DEFAULT_GLOBALS,
+    path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
+  );
   const jsTsResults = await analyzeProject(payload);
-  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
+
+  getLinter().config.forEach(linterConfig => {
+    linterConfig.rules['sonarjs/S3504'] = undefined;
+  });
+  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
   const results = mergeResults(jsTsResults, htmlResults, yamlResults);
 
   writeResults(
@@ -247,14 +240,12 @@ function isExcluded(filePath: string, exclusions: Minimatch[]) {
 async function analyzeFiles(
   files: JsTsFiles,
   analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
-  linterId?: string,
 ) {
   const results = { files: {} };
   for (const [filePath, fileData] of Object.entries(files)) {
     const payload: AnalysisInput = {
       filePath,
       fileContent: fileData.fileContent,
-      linterId,
     };
     try {
       const result = await analyzer(payload);

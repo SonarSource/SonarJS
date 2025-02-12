@@ -24,8 +24,6 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class EslintRule {
 
-  static final String UCFG_ESLINT_KEY = "ucfg";
-
   final String key;
   final List<String> fileTypeTarget;
   final List<Object> configurations;

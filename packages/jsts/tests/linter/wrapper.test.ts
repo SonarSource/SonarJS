@@ -20,10 +20,11 @@ import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/h
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';
-import { LinterWrapper } from '../../src/linter/wrapper.js';
-import { AnalysisMode, RuleConfig } from '../../src/linter/config/rule-config.js';
+import { createLinterConfigKey, LinterWrapper } from '../../src/linter/wrapper.js';
+import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
+import { AnalysisMode } from '../../src/analysis/analysis.js';
 
 describe('LinterWrapper', () => {
   before(() => {
@@ -289,7 +290,8 @@ describe('LinterWrapper', () => {
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
-    const config = linter.config.get(`${fileType}-${language}-${analysisMode}`);
+    const configKey = createLinterConfigKey(fileType, language, analysisMode);
+    const config = linter.config.get(configKey);
     expect(config.languageOptions.globals).toHaveProperty('alert');
     expect(issues).toHaveLength(0);
   });
@@ -317,11 +319,9 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(parseResult, filePath);
 
-    expect(
-      linter.config.get(`${fileType}-${language}-${analysisMode}`).languageOptions.globals[
-        'angular'
-      ],
-    ).toEqual(true);
+    const configKey = createLinterConfigKey(fileType, language, analysisMode);
+    const config = linter.config.get(configKey);
+    expect(config.languageOptions.globals['angular']).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 

@@ -53,7 +53,7 @@ describe('initializeLinter', () => {
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).toContain('DEBUG Initializing linter "default" with S1116');
+    expect(logs).toContain('DEBUG Initializing linter with S1116');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js');
 
@@ -99,7 +99,7 @@ describe('initializeLinter', () => {
       call => call.arguments[0],
     );
     expect(logs).toContain(`DEBUG Loaded rule custom-rule from ${bundlePath}`);
-    expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
+    expect(logs).toContain('DEBUG Initializing linter with custom-rule');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');
 

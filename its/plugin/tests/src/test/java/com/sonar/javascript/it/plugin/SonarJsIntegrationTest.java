@@ -249,6 +249,8 @@ class SonarJsIntegrationTest {
 
     String key;
     List<Object> configurations = Collections.emptyList();
-    String fileTypeTarget = "MAIN";
+    List<String> analysisModes = Collections.singletonList("DEFAULT");
+    List<String> fileTypeTarget = Collections.singletonList("MAIN");
+    String language = "js";
   }
 }

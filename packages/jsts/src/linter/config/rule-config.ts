@@ -20,6 +20,7 @@ import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 import { getContext } from '../../../../shared/src/helpers/context.js';
 import type { JSONSchema4 } from 'json-schema';
+import { AnalysisMode } from '../../analysis/analysis.js';
 
 /**
  * An input rule configuration for linting
@@ -41,8 +42,6 @@ export interface RuleConfig {
   language: JsTsLanguage;
   analysisModes: AnalysisMode[];
 }
-
-export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
 
 /**
  * Extends an input rule configuration

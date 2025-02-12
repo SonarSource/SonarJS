@@ -49,10 +49,9 @@ export function analyzeEmbedded(
   input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): EmbeddedAnalysisOutput {
-  debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
-  const linter = getLinter(input.linterId);
+  debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
-  return analyzeFile(linter, extendedParseResults);
+  return analyzeFile(getLinter(), extendedParseResults);
 }
 
 /**

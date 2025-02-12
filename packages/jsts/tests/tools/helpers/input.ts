@@ -24,7 +24,6 @@ type allOptional = {
   fileType?: FileType;
   tsConfigs?: string[];
   programId?: string;
-  linterId?: string;
   skipAst?: boolean;
 };
 
@@ -34,7 +33,6 @@ export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> 
     fileContent: input.fileContent ?? (await readFile(input.filePath)),
     fileType: input.fileType ?? 'MAIN',
     programId: input.programId,
-    linterId: input.linterId ?? 'default',
     tsConfigs: input.tsConfigs ?? [],
     skipAst: input.skipAst ?? false,
   };
@@ -44,6 +42,5 @@ export async function embeddedInput(input: allOptional): Promise<EmbeddedAnalysi
   return {
     filePath: input.filePath,
     fileContent: input.fileContent ?? (await readFile(input.filePath)),
-    linterId: input.linterId ?? 'default',
   };
 }

@@ -34,8 +34,8 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        const { rules, environments, globals, linterId, baseDir } = request.data;
-        await initializeLinter(rules, environments, globals, baseDir, linterId);
+        const { rules, environments, globals, baseDir } = request.data;
+        await initializeLinter(rules, environments, globals, baseDir);
         return { type: 'success', result: 'OK!' };
       }
       case 'on-analyze-js': {

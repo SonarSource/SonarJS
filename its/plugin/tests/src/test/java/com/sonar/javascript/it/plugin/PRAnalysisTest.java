@@ -19,7 +19,6 @@ package com.sonar.javascript.it.plugin;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -81,16 +80,12 @@ class PRAnalysisTest {
         .logsAtLeastOnce(
           "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
         )
-        .logsOnce("DEBUG: Initializing linter \"default\"")
-        .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
         .withReason("current analysis requires all files to be analyzed")
         .forFiles(indexFile, helloFile)
         .withCachedFilesCounts(1, 1)
         .isUsed()
-        .logsOnce(format("%s\" with linterId \"default\"", indexFile))
         .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
-        .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsOnce(
           "INFO: Hit the cache for 0 out of 2",
           "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
@@ -107,19 +102,15 @@ class PRAnalysisTest {
         .logsAtLeastOnce(
           "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
         )
-        .logsOnce("DEBUG: Initializing linter \"default\"")
-        .logsOnce("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("READ_AND_WRITE")
         .forFiles(indexFile)
         .withCachedFilesCounts(1)
         .isUsed()
-        .doesNotLog(format("%s\" with linterId \"unchanged\"", indexFile))
         .cacheFileStrategy("WRITE_ONLY")
         .withReason("the current file is changed")
         .forFiles(helloFile)
         .withCachedFilesCounts(1)
         .isUsed()
-        .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 1 out of 2",
@@ -152,15 +143,11 @@ class PRAnalysisTest {
         .logsAtLeastOnce(
           "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
         )
-        .logsOnce("DEBUG: Initializing linter \"default\"")
-        .doesNotLog("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
         .withReason("current analysis requires all files to be analyzed")
         .forFiles("file1.yaml", "file2.yaml")
         .withCachedFilesCounts(1, 1)
         .isUsed()
-        .logsOnce("file1.yaml\" with linterId \"default\"")
-        .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsOnce(
           "INFO: Hit the cache for 0 out of 2",
           "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
@@ -178,19 +165,15 @@ class PRAnalysisTest {
         .logsAtLeastOnce(
           "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
         )
-        .logsOnce("DEBUG: Initializing linter \"default\"")
-        .logsOnce("DEBUG: Initializing linter \"unchanged\"")
         .cacheFileStrategy("READ_AND_WRITE")
         .forFiles("file1.yaml")
         .withCachedFilesCounts(1)
         .isUsed()
-        .doesNotLog("file1.yaml\" with linterId \"unchanged\"")
         .cacheFileStrategy("WRITE_ONLY")
         .withReason("the current file is changed")
         .forFiles("file2.yaml")
         .withCachedFilesCounts(1)
         .isUsed()
-        .logsOnce("file2.yaml\" with linterId \"default\"")
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 1 out of 2",
