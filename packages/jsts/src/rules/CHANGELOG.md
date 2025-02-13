@@ -1,3 +1,8 @@
+## 2025-02-13, Version 3.0.2
+
+- [[ESLINTJS-70](https://sonarsource.atlassian.net/browse/ESLINTJS-70)] - Adapt ESLint plugin to new ESLint 9 types
+- [[ESLINTJS-60](https://sonarsource.atlassian.net/browse/ESLINTJS-60)] - Use context.parser instead of Babel for rule S125
+
 ## 2024-12-05, Version 3.0.1
 
 - [[ESLINTJS-64](https://sonarsource.atlassian.net/browse/ESLINTJS-64)] - Fix `Usage` section of the documentation
