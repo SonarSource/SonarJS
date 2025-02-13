@@ -19,8 +19,6 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -30,7 +28,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.Issue;
@@ -41,7 +38,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AbstractAnalysis analysis;
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
-  private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -83,10 +79,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     analysis.initialize(context, checks, consumers);
-    var msg = contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
-      ? "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
-      : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
-    LOG.debug(msg);
     var issues = analysis.analyzeFiles(inputFiles);
     consumers.doneAnalysis();
 

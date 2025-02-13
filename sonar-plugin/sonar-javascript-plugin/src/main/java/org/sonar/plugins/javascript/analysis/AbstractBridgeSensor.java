@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
@@ -76,6 +77,10 @@ public abstract class AbstractBridgeSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
+      var msg = contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
+        ? "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+        : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
+      LOG.debug(msg);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       var issues = analyzeFiles(inputFiles);
 
