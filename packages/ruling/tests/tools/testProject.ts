@@ -169,7 +169,7 @@ export async function testProject(
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
 
   getLinter().config.forEach(linterConfig => {
-    linterConfig.rules['sonarjs/S3504'] = undefined;
+    linterConfig.rules['sonarjs/S3504'] = ['off'];
   });
   const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
   const results = mergeResults(jsTsResults, htmlResults, yamlResults);
