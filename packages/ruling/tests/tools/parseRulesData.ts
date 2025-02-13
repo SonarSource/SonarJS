@@ -45,6 +45,7 @@ type RuleData = {
   fileTypeTarget: string[];
   configurations: { [key: string]: unknown }[];
   language: 'js' | 'ts';
+  analysisModes: 'DEFAULT'[];
 };
 
 extractRulesData();
@@ -61,6 +62,7 @@ function extractRulesData() {
       fileTypeTarget: parseType(scope),
       configurations: defaultParams,
       language: parseLanguage(ruleKey),
+      analysisModes: ['DEFAULT'],
     });
     rulesData.push(rule);
   });
