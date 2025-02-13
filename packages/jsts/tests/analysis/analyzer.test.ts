@@ -46,11 +46,11 @@ describe('analyzeJSTS', () => {
     const input = {} as any;
     const language = 'js';
     expect(() => analyzeJSTS(input, language)).toThrow(
-      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
+      APIError.linterError('Linter does not exist. Did you call /init-linter?'),
     );
   });
 
-  it('should analyze JavaScript code with the given linter', async () => {
+  it('should analyze JavaScript code', async () => {
     const rules: RuleConfig[] = [
       {
         key: 'S4524',
@@ -61,7 +61,6 @@ describe('analyzeJSTS', () => {
       },
     ];
     await initializeLinter(rules);
-    await initializeLinter([], [], [], undefined);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
@@ -70,15 +69,11 @@ describe('analyzeJSTS', () => {
       issues: [issue],
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
-
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4524',
       }),
     );
-
-    expect(issues).toHaveLength(0);
   });
 
   it('should analyze Vue.js code', async () => {

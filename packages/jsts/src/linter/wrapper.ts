@@ -139,9 +139,12 @@ export class LinterWrapper {
     const rulesByKey: Map<string, RuleConfig[]> = new Map();
     this.options.inputRules?.forEach(ruleConfig => {
       const fileTypes = ruleConfig.fileTypeTarget;
-      // TODO: change when sonar-security rules override the analysisModes method
-      const analysisModes: AnalysisMode[] =
-        ruleConfig.key === 'ucfg' ? ['DEFAULT', 'SKIP_UNCHANGED'] : ruleConfig.analysisModes;
+      // TODO: change when sonar-security  and sonar-architecture rules override the analysisModes method
+      const analysisModes: AnalysisMode[] = ['ucfg', 'sonar-architecture-ir'].includes(
+        ruleConfig.key,
+      )
+        ? ['DEFAULT', 'SKIP_UNCHANGED']
+        : ruleConfig.analysisModes;
       const language = ruleConfig.language ?? 'js';
       fileTypes.forEach(fileType => {
         analysisModes.forEach(analysisMode => {
