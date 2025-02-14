@@ -19,9 +19,8 @@ import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
-import { getLinter } from '../linter/linters.js';
+import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
-import { LinterWrapper } from '../linter/wrapper.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
@@ -51,7 +50,7 @@ import { ParseResult } from '../parsers/parse.js';
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
-  return analyzeFile(getLinter(), input, build(input, language));
+  return analyzeFile(input, build(input, language));
 }
 
 /**
@@ -66,16 +65,12 @@ export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): J
  * @param parseResult the corresponding parsing result containing the SourceCode instance
  * @returns the JavaScript / TypeScript analysis output
  */
-function analyzeFile(
-  linter: LinterWrapper,
-  input: JsTsAnalysisInput,
-  parseResult: ParseResult,
-): JsTsAnalysisOutput {
+function analyzeFile(input: JsTsAnalysisInput, parseResult: ParseResult): JsTsAnalysisOutput {
   try {
     const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
       input;
     shouldClearDependenciesCache && clearDependenciesCache();
-    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
+    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
       parseResult,
       filePath,
       fileType,

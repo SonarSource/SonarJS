@@ -19,6 +19,7 @@ import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../../shared/src/helpers/context.js';
 import { createLinterConfig } from '../../../src/linter/config/linter-config.js';
+import { Linter } from '../../../src/linter/linter.js';
 import { RuleConfig } from '../../../src/linter/config/rule-config.js';
 
 describe('createLinterConfig', () => {
@@ -32,13 +33,21 @@ describe('createLinterConfig', () => {
   });
 
   it('should enable environments', () => {
-    const { globals } = createLinterConfig([], {}, ['node', 'jquery']).languageOptions;
+    const { globals } = createLinterConfig(
+      [],
+      {},
+      Linter.getGlobals(['node', 'jquery']),
+    ).languageOptions;
     expect(globals).toHaveProperty('__dirname');
     expect(globals).toHaveProperty('$');
   });
 
   it('should enable globals', () => {
-    const { globals } = createLinterConfig([], {}, [], ['_', '$']).languageOptions;
+    const { globals } = createLinterConfig(
+      [],
+      {},
+      Linter.getGlobals([], ['_', '$']),
+    ).languageOptions;
     expect(globals).toHaveProperty('_');
     expect(globals).toHaveProperty('$');
   });

@@ -22,8 +22,7 @@ import { setContext } from '../../../shared/src/helpers/context.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { initializeLinter } from '../../../jsts/src/linter/linters.js';
-import { rules } from '../../../jsts/src/linter/wrapper.js';
+import { Linter } from '../../../jsts/src/linter/linter.js';
 import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 
@@ -47,7 +46,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should analyze YAML file', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S3923',
         configurations: [],
@@ -74,7 +73,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should return an empty issues list on parsing error', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S3923',
         configurations: [],
@@ -90,7 +89,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S1116',
         configurations: [],
@@ -124,7 +123,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using "S3723" rule', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S3723',
         configurations: ['always-multiline'],
@@ -157,7 +156,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S2251',
         configurations: [],
@@ -186,7 +185,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S6326',
         configurations: [],
@@ -213,7 +212,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not return issues outside of the embedded JS', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S1131',
         configurations: [],
@@ -252,8 +251,8 @@ describe('analyzeYAML', () => {
         },
       },
     };
-    rules[rule.key] = rule.module;
-    await initializeLinter([
+    Linter.rules[rule.key] = rule.module;
+    await Linter.initialize([
       {
         key: rule.key,
         configurations: [],

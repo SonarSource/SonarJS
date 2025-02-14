@@ -23,7 +23,7 @@ import {
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
-import { initializeLinter } from '../../linter/linters.js';
+import { Linter } from '../../linter/linter.js';
 import {
   getTSConfigsIterator,
   setTSConfigs,
@@ -63,7 +63,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint;
-  await initializeLinter(rules, environments, globals, baseDir);
+  await Linter.initialize(rules, environments, globals, baseDir);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,

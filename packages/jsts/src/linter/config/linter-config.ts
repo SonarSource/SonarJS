@@ -16,9 +16,8 @@
  */
 import { Linter, Rule } from 'eslint';
 import { getContext } from '../../../../shared/src/helpers/context.js';
-import { customRules as internalCustomRules } from '../custom-rules/rules.js';
+import { customRules } from '../custom-rules/rules.js';
 import { extendRuleConfig, RuleConfig } from './rule-config.js';
-import globals from 'globals';
 
 /**
  * Creates an ESLint linting configuration
@@ -33,110 +32,51 @@ import globals from 'globals';
  *
  * @param inputRules the rules from the active quality profile
  * @param allRules all RuleModules that have been loaded
- * @param environments the JavaScript execution environments
- * @param globs the global variables
+ * @param globals the global variables
  * @returns the created ESLint linting configuration
  */
 export function createLinterConfig(
   inputRules: RuleConfig[],
   allRules: Record<string, Rule.RuleModule>,
-  environments: string[] = [],
-  globs: string[] = [],
+  globals: Linter.Globals = {},
 ) {
   const config: Linter.Config = {
     languageOptions: {
-      globals: {
-        ...createGlobals(globs),
-        ...createEnv(environments),
-      },
+      globals,
     },
     plugins: {
       sonarjs: { rules: allRules },
     },
-    rules: {},
+    rules: {
+      ...inputRules.reduce((rules, rule) => {
+        rules[`sonarjs/${rule.key}`] = [
+          'error',
+          /**
+           * the rule configuration can be decorated with special markers
+           * to activate internal features: a rule that reports secondary
+           * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
+           * is a marker for a post-linting processing to decode such locations.
+           */
+          ...extendRuleConfig(allRules[rule.key].meta?.schema || undefined, rule),
+        ];
+        return rules;
+      }, {} as Linter.RulesRecord),
+      /**
+       * Custom rules like cognitive complexity and symbol highlighting
+       * are always enabled as part of metrics computation. Such rules
+       * are, therefore, added in the linting configuration by default.
+       *
+       * _Internal custom rules are not enabled in SonarLint context._
+       */
+      ...(getContext().sonarlint
+        ? customRules.reduce((rules, rule) => {
+            rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
+            return rules;
+          }, {} as Linter.RulesRecord)
+        : {}),
+    },
     /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
     settings: { react: { version: '999.999.999' } },
   };
-  enableRules(config, inputRules, allRules);
-  enableInternalCustomRules(config);
   return config;
-}
-
-/**
- * Creates an ESLint execution environments configuration
- * @param environments the JavaScript execution environments to enable
- * @returns a configuration of JavaScript execution environments
- */
-function createEnv(environments: string[]) {
-  return environments.reduce(
-    (globalsAcc, env) => ({
-      ...globalsAcc,
-      ...globals[env as keyof typeof globals],
-    }),
-    {},
-  );
-}
-
-/**
- * Creates an ESLint global variables configuration
- * @param globs the global variables to enable
- * @returns a configuration of global variables
- */
-function createGlobals(globs: string[]) {
-  const globals: { [name: string]: boolean } = {};
-  for (const key of globs) {
-    globals[key] = true;
-  }
-  return globals;
-}
-
-/**
- * Enables input rules
- *
- * Enabling an input rule is similar to how rule enabling works with ESLint.
- * However, in the particular case of internal rules, the rule configuration
- * can be decorated with special markers to activate internal features.
- *
- * For example, an ESLint rule configuration for a rule that reports secondary
- * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
- * is a marker for a post-linting processing to decode such locations.
- *
- * @param config the configuration to augment with rule enabling
- * @param inputRules the input rules to enable
- * @param allRules all RuleModules that have been loaded
- */
-function enableRules(
-  config: Linter.Config,
-  inputRules: RuleConfig[],
-  allRules: Record<string, Rule.RuleModule>,
-) {
-  for (const inputRule of inputRules) {
-    const ruleModule = allRules[inputRule.key];
-    config.rules![`sonarjs/${inputRule.key}`] = [
-      'error',
-      ...extendRuleConfig(ruleModule.meta?.schema || undefined, inputRule),
-    ];
-  }
-}
-
-/**
- * Enables internal custom rules in the provided configuration
- *
- * Custom rules like cognitive complexity and symbol highlighting
- * are always enabled as part of metrics computation. Such rules
- * are, therefore, added in the linting configuration by default.
- *
- * _Internal custom rules are not enabled in SonarLint context._
- *
- * @param config the configuration to augment with custom rule enabling
- */
-function enableInternalCustomRules(config: Linter.Config) {
-  if (!getContext().sonarlint) {
-    for (const internalCustomRule of internalCustomRules) {
-      config.rules![`sonarjs/${internalCustomRule.ruleId}`] = [
-        'error',
-        ...internalCustomRule.ruleConfig,
-      ];
-    }
-  }
 }
