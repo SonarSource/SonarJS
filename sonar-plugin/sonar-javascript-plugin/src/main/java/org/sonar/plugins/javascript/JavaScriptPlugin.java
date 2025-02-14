@@ -120,6 +120,7 @@ public class JavaScriptPlugin implements Plugin {
     "**/dist/**",
     "**/vendor/**",
     "**/external/**",
+    "**/contrib/**",
     "**/*.d.ts",
   };
 
