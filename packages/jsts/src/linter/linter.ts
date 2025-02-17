@@ -16,8 +16,6 @@
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { Rule, Linter as ESLintLinter } from 'eslint';
-// @ts-ignore
-import { getLinterInternalSlots } from '../../../../node_modules/eslint/lib/linter/linter.js';
 import { extendRuleConfig, RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -31,6 +29,7 @@ import path from 'path';
 import { ParseResult } from '../parsers/parse.js';
 import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -64,7 +63,7 @@ export class Linter {
   /**
    * The ESLint linter
    */
-  public static readonly linter = new ESLintLinter();
+  public static linter: ESLintLinter;
   /**
    * internal rules: rules in the packages/jsts/src/rules folder
    * custom rules: used internally by SonarQube to have the symbol highlighting and
@@ -112,7 +111,7 @@ export class Linter {
     workingDirectory?: string,
   ) {
     debug(`Initializing linter with ${inputRules?.map(rule => rule.key)}`);
-    getLinterInternalSlots(Linter.linter).cwd = workingDirectory;
+    Linter.linter = new ESLintLinter({ cwd: workingDirectory });
     Linter.setGlobals(globals, environments);
     Linter.rulesConfig.clear();
     /**
@@ -186,6 +185,9 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
   ): LintingResult {
+    if (!Linter.linter) {
+      throw APIError.linterError(`Linter does not exist. Did you call /init-linter?`);
+    }
     const key = createLinterConfigKey(
       fileType,
       language,

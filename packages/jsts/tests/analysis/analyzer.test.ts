@@ -42,6 +42,16 @@ describe('analyzeJSTS', () => {
     });
   });
 
+  it('should fail on uninitialized linter', async () => {
+    const filePath = path.join(currentPath, 'fixtures', 'code.js');
+    const language = 'js';
+    const input = await jsTsInput({ filePath });
+
+    expect(() => analyzeJSTS(input, language)).toThrow(
+      APIError.linterError('Linter does not exist. Did you call /init-linter?'),
+    );
+  });
+
   it('should analyze JavaScript code', async () => {
     const rules: RuleConfig[] = [
       {
