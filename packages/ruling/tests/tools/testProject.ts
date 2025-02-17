@@ -25,7 +25,7 @@ import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { before } from 'node:test';
-import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { Linter } from '../../../jsts/src/linter/linter.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -159,7 +159,7 @@ export async function testProject(
     files: jsTsFiles,
   };
 
-  await initializeLinter(
+  await Linter.initialize(
     rules,
     DEFAULT_ENVIRONMENTS,
     DEFAULT_GLOBALS,
@@ -168,8 +168,8 @@ export async function testProject(
   const jsTsResults = await analyzeProject(payload);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
 
-  getLinter().config.forEach(linterConfig => {
-    linterConfig.rules['sonarjs/S3504'] = ['off'];
+  Linter.rulesConfig.forEach(rules => {
+    rules['sonarjs/S3504'] = ['off'];
   });
   const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
   const results = mergeResults(jsTsResults, htmlResults, yamlResults);

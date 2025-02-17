@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path/posix';
-import { Linter } from 'eslint';
+import { Linter as ESLintLinter } from 'eslint';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
 import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
@@ -23,7 +23,7 @@ import { setContext } from '../../../shared/src/helpers/context.js';
 import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
-import { initializeLinter } from '../../src/linter/linters.js';
+import { Linter } from '../../src/linter/linter.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
@@ -43,8 +43,10 @@ describe('analyzeJSTS', () => {
   });
 
   it('should fail on uninitialized linter', async () => {
-    const input = {} as any;
+    const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
+    const input = await jsTsInput({ filePath });
+
     expect(() => analyzeJSTS(input, language)).toThrow(
       APIError.linterError('Linter does not exist. Did you call /init-linter?'),
     );
@@ -55,12 +57,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
@@ -81,12 +83,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1534',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.vue');
     const language = 'js';
@@ -106,12 +108,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'vue_ts', 'file.vue');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'vue_ts', 'tsconfig.json')];
@@ -141,19 +143,19 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4634',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S5863',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'main.js');
     const language = 'js';
@@ -172,19 +174,19 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1321',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S5863',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'test.js');
     const fileType = 'TEST';
@@ -208,19 +210,19 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3696',
         configurations: [],
-        fileTypeTarget: ['MAIN', 'TEST'],
+        fileTypeTargets: ['MAIN', 'TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S6426',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'mixed.js');
     const fileType = 'TEST';
@@ -239,12 +241,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3498',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'shebang.js');
     const language = 'js';
@@ -264,12 +266,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'bom.js');
     const language = 'js';
@@ -289,12 +291,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3512',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'foo.js');
     const fileContent = `'foo' + bar + 'baz'`;
@@ -315,12 +317,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4335',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'tsconfig.ts');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'tsconfig.json')];
@@ -341,12 +343,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S2870',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'program.ts');
 
@@ -369,12 +371,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
 
@@ -397,12 +399,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
 
@@ -425,12 +427,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const language = 'ts';
 
@@ -517,12 +519,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3403',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'type.js');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'tsconfig.json')];
@@ -543,12 +545,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1314',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'issue.js');
     const language = 'js';
@@ -575,12 +577,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3514',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'secondary.js');
     const language = 'js';
@@ -604,12 +606,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1172',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'quickfix.js');
     const language = 'js';
@@ -651,7 +653,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on main files', async () => {
     const rules: RuleConfig[] = [];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
     const language = 'js';
@@ -895,7 +897,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on test files', async () => {
     const rules: RuleConfig[] = [];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
     const fileType = 'TEST';
@@ -949,7 +951,7 @@ describe('analyzeJSTS', () => {
     });
 
     const rules: RuleConfig[] = [];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
     const language = 'js';
@@ -969,7 +971,7 @@ describe('analyzeJSTS', () => {
 
   it('should return parsing errors', async () => {
     const rules: RuleConfig[] = [];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'parsing-error.js');
     const language = 'js';
@@ -982,8 +984,8 @@ describe('analyzeJSTS', () => {
   it('package.json should be available in rule context', async () => {
     const baseDir = path.join(currentPath, 'fixtures', 'package-json');
 
-    const linter = new Linter();
-    const linterConfig: Linter.Config = {
+    const linter = new ESLintLinter();
+    const linterConfig: ESLintLinter.Config = {
       plugins: {
         sonarjs: {
           rules: {
@@ -1034,8 +1036,8 @@ describe('analyzeJSTS', () => {
 
   it('should populate dependencies after analysis', async () => {
     const baseDir = path.join(currentPath, 'fixtures', 'dependencies');
-    const linter = new Linter();
-    const linterConfig: Linter.Config = {
+    const linter = new ESLintLinter();
+    const linterConfig: ESLintLinter.Config = {
       plugins: {
         sonarjs: {
           rules: {
@@ -1089,12 +1091,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
@@ -1111,12 +1113,12 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
-    await initializeLinter(rules);
+    await Linter.initialize(rules);
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';

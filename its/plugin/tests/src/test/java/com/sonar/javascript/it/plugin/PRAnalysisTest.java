@@ -100,7 +100,7 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
-          "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+          "DEBUG: Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         )
         .cacheFileStrategy("READ_AND_WRITE")
         .forFiles(indexFile)
@@ -163,7 +163,7 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
-          "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+          "DEBUG: Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         )
         .cacheFileStrategy("READ_AND_WRITE")
         .forFiles("file1.yaml")

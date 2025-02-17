@@ -26,7 +26,7 @@ import {
   deleteProgram,
   writeTSConfigFile,
 } from '../../jsts/src/program/program.js';
-import { initializeLinter } from '../../jsts/src/linter/linters.js';
+import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
 import { BridgeRequest, readFileLazily, RequestResult, serializeError } from './request.js';
 
@@ -35,7 +35,7 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
     switch (request.type) {
       case 'on-init-linter': {
         const { rules, environments, globals, baseDir } = request.data;
-        await initializeLinter(rules, environments, globals, baseDir);
+        await Linter.initialize(rules, environments, globals, baseDir);
         return { type: 'success', result: 'OK!' };
       }
       case 'on-analyze-js': {

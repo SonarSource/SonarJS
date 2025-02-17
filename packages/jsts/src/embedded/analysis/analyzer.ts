@@ -17,8 +17,7 @@
 import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
 import { Issue } from '../../linter/issues/issue.js';
-import { getLinter } from '../../linter/linters.js';
-import type { LinterWrapper } from '../../linter/wrapper.js';
+import { Linter } from '../../linter/linter.js';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
@@ -51,22 +50,11 @@ export function analyzeEmbedded(
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
-  return analyzeFile(getLinter(), extendedParseResults);
-}
-
-/**
- * Extracted logic from analyzeEmbedded() so we can compute metrics
- *
- * @param linter
- * @param extendedParseResults
- * @returns
- */
-function analyzeFile(linter: LinterWrapper, extendedParseResults: ExtendedParseResult[]) {
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   let ncloc: number[] = [];
   for (const extendedParseResult of extendedParseResults) {
-    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(linter, extendedParseResult);
+    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(extendedParseResult);
     ncloc = ncloc.concat(singleNcLoc);
     const filteredIssues = removeNonJsIssues(extendedParseResult.sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
@@ -77,39 +65,39 @@ function analyzeFile(linter: LinterWrapper, extendedParseResults: ExtendedParseR
     ucfgPaths: aggregatedUcfgPaths,
     metrics: { ncloc },
   };
+}
 
-  function analyzeSnippet(linter: LinterWrapper, extendedParseResult: ExtendedParseResult) {
-    const { issues, ucfgPaths } = linter.lint(
-      extendedParseResult,
-      extendedParseResult.syntheticFilePath,
-      'MAIN',
-    );
-    const ncloc = findNcloc(extendedParseResult.sourceCode);
-    return { issues, ucfgPaths, ncloc };
-  }
+function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
+  const { issues, ucfgPaths } = Linter.lint(
+    extendedParseResult,
+    extendedParseResult.syntheticFilePath,
+    'MAIN',
+  );
+  const ncloc = findNcloc(extendedParseResult.sourceCode);
+  return { issues, ucfgPaths, ncloc };
+}
 
-  /**
-   * Filters out issues outside of JS code.
-   *
-   * This is necessary because we patch the SourceCode object
-   * to include the whole file in its properties outside its AST.
-   * So rules that operate on SourceCode.text get flagged.
-   */
-  function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
-    const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
-    return issues.filter(issue => {
-      const issueStart = { line: issue.line, column: issue.column };
-      return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
-    });
+/**
+ * Filters out issues outside of JS code.
+ *
+ * This is necessary because we patch the SourceCode object
+ * to include the whole file in its properties outside its AST.
+ * So rules that operate on SourceCode.text get flagged.
+ */
+function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
+  const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
+  return issues.filter(issue => {
+    const issueStart = { line: issue.line, column: issue.column };
+    return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
+  });
 
-    function isBeforeOrEqual(a: Position, b: Position) {
-      if (a.line < b.line) {
-        return true;
-      } else if (a.line > b.line) {
-        return false;
-      } else {
-        return a.column <= b.column;
-      }
+  function isBeforeOrEqual(a: Position, b: Position) {
+    if (a.line < b.line) {
+      return true;
+    } else if (a.line > b.line) {
+      return false;
+    } else {
+      return a.column <= b.column;
     }
   }
 }

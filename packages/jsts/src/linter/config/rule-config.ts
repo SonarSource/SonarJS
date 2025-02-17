@@ -27,7 +27,7 @@ import { AnalysisMode } from '../../analysis/analysis.js';
  *
  * @param key an ESLint rule key that maps a SonarQube rule identifier (SXXX) to the rule implementation
  * @param configurations an ESLint rule configuration provided from the anaylzer if the rule behaviour is customizable
- * @param fileTypeTarget a list of file type targets to filter issues in case the rule applies to main files, test files, or both
+ * @param fileTypeTargets a list of file type targets to filter issues in case the rule applies to main files, test files, or both
  *
  * The configuration of a rule is used to uniquely identify a rule, customize its behaviour,
  * and define what type(s) of file it should apply to during linting.
@@ -38,7 +38,7 @@ import { AnalysisMode } from '../../analysis/analysis.js';
 export interface RuleConfig {
   key: string;
   configurations: any[];
-  fileTypeTarget: FileType[];
+  fileTypeTargets: FileType[];
   language: JsTsLanguage;
   analysisModes: AnalysisMode[];
 }

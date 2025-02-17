@@ -19,7 +19,7 @@ import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';
-import { initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from '../../src/parser/parse.js';
 
@@ -36,11 +36,11 @@ describe('analyzeHTML', () => {
   });
 
   it('should analyze HTML file', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -63,11 +63,11 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -98,11 +98,11 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using "S3723" rule', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S3723',
         configurations: ['always-multiline'],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -131,11 +131,11 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S2251',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -160,11 +160,11 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    await initializeLinter([
+    await Linter.initialize([
       {
         key: 'S6326',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

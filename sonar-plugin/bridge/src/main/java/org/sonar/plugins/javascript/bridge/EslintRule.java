@@ -25,7 +25,7 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 public class EslintRule {
 
   final String key;
-  final List<String> fileTypeTarget;
+  final List<String> fileTypeTargets;
   final List<Object> configurations;
   final List<AnalysisMode> analysisModes;
   final String language;
@@ -33,12 +33,12 @@ public class EslintRule {
   public EslintRule(
     String key,
     List<Object> configurations,
-    List<InputFile.Type> fileTypeTarget,
+    List<InputFile.Type> fileTypeTargets,
     List<AnalysisMode> analysisModes,
     String language
   ) {
     this.key = key;
-    this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).toList();
+    this.fileTypeTargets = fileTypeTargets.stream().map(InputFile.Type::name).toList();
     this.configurations = configurations;
     this.analysisModes = analysisModes;
     // unfortunately we can't check this using types, so it's enforced at runtime

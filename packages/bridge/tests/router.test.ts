@@ -66,7 +66,7 @@ describe('router', () => {
         {
           key: 'S4621',
           configurations: [],
-          fileTypeTarget: ['MAIN'],
+          fileTypeTargets: ['MAIN'],
           language: 'ts',
           analysisModes: ['DEFAULT'],
         },
@@ -119,7 +119,7 @@ describe('router', () => {
       {
         key: 'S6325',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -156,7 +156,7 @@ describe('router', () => {
       {
         key: 'S4621',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -186,7 +186,7 @@ describe('router', () => {
       {
         key: 'S4621',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -219,7 +219,7 @@ describe('router', () => {
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -251,7 +251,7 @@ describe('router', () => {
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
