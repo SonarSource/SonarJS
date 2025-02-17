@@ -30,7 +30,6 @@ import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
-import { ParseResult } from '../parsers/parse.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -50,21 +49,7 @@ import { ParseResult } from '../parsers/parse.js';
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
-  return analyzeFile(input, build(input, language));
-}
-
-/**
- * Analyzes a parsed ESLint SourceCode instance
- *
- * Analyzing a parsed ESLint SourceCode instance consists in linting the source code
- * and computing extended metrics about the code. At this point, the linting results
- * are already SonarQube-compatible and can be consumed back as such by the sensor.
- *
- * @param input the JavaScript / TypeScript analysis input to analyze
- * @param parseResult the corresponding parsing result containing the SourceCode instance
- * @returns the JavaScript / TypeScript analysis output
- */
-function analyzeFile(input: JsTsAnalysisInput, parseResult: ParseResult): JsTsAnalysisOutput {
+  const parseResult = build(input, language);
   try {
     const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
       input;

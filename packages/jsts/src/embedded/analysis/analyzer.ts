@@ -50,17 +50,6 @@ export function analyzeEmbedded(
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
-  return analyzeFile(extendedParseResults);
-}
-
-/**
- * Extracted logic from analyzeEmbedded() so we can compute metrics
- *
- * @param linter
- * @param extendedParseResults
- * @returns
- */
-function analyzeFile(extendedParseResults: ExtendedParseResult[]) {
   const aggregatedIssues: Issue[] = [];
   const aggregatedUcfgPaths: string[] = [];
   let ncloc: number[] = [];
@@ -76,39 +65,39 @@ function analyzeFile(extendedParseResults: ExtendedParseResult[]) {
     ucfgPaths: aggregatedUcfgPaths,
     metrics: { ncloc },
   };
+}
 
-  function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-    const { issues, ucfgPaths } = Linter.lint(
-      extendedParseResult,
-      extendedParseResult.syntheticFilePath,
-      'MAIN',
-    );
-    const ncloc = findNcloc(extendedParseResult.sourceCode);
-    return { issues, ucfgPaths, ncloc };
-  }
+function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
+  const { issues, ucfgPaths } = Linter.lint(
+    extendedParseResult,
+    extendedParseResult.syntheticFilePath,
+    'MAIN',
+  );
+  const ncloc = findNcloc(extendedParseResult.sourceCode);
+  return { issues, ucfgPaths, ncloc };
+}
 
-  /**
-   * Filters out issues outside of JS code.
-   *
-   * This is necessary because we patch the SourceCode object
-   * to include the whole file in its properties outside its AST.
-   * So rules that operate on SourceCode.text get flagged.
-   */
-  function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
-    const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
-    return issues.filter(issue => {
-      const issueStart = { line: issue.line, column: issue.column };
-      return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
-    });
+/**
+ * Filters out issues outside of JS code.
+ *
+ * This is necessary because we patch the SourceCode object
+ * to include the whole file in its properties outside its AST.
+ * So rules that operate on SourceCode.text get flagged.
+ */
+function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
+  const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
+  return issues.filter(issue => {
+    const issueStart = { line: issue.line, column: issue.column };
+    return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
+  });
 
-    function isBeforeOrEqual(a: Position, b: Position) {
-      if (a.line < b.line) {
-        return true;
-      } else if (a.line > b.line) {
-        return false;
-      } else {
-        return a.column <= b.column;
-      }
+  function isBeforeOrEqual(a: Position, b: Position) {
+    if (a.line < b.line) {
+      return true;
+    } else if (a.line > b.line) {
+      return false;
+    } else {
+      return a.column <= b.column;
     }
   }
 }

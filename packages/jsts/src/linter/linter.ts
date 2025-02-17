@@ -40,10 +40,9 @@ export function createLinterConfigKey(
 }
 
 /**
- * A wrapper of ESLint linter
+ * A singleton ESLint linter
  *
  * The linter is expected to be initialized before use.
- * Otherwise, only metrics and symbol highlighting will be reported.
  *
  * The purpose of the wrapper is to configure the behaviour of ESLint linter,
  * which includes:
@@ -63,7 +62,7 @@ export class Linter {
   /**
    * The ESLint linter
    */
-  public static linter: ESLintLinter;
+  private static linter: ESLintLinter;
   /**
    * internal rules: rules in the packages/jsts/src/rules folder
    * custom rules: used internally by SonarQube to have the symbol highlighting and
@@ -150,7 +149,7 @@ export class Linter {
           .map(r => r.key)
           .sort((a, b) => a.localeCompare(b))}`,
       );
-      this.rulesConfig.set(key, createRulesRecord(ruleConfigs));
+      this.rulesConfig.set(key, Linter.createRulesRecord(ruleConfigs));
     });
   }
 
@@ -202,7 +201,7 @@ export class Linter {
       plugins: {
         sonarjs: { rules: Linter.rules },
       },
-      rules: this.rulesConfig.get(key) || createInternalRulesRecord(),
+      rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: { react: { version: '999.999.999' }, fileType },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
@@ -228,52 +227,52 @@ export class Linter {
       });
     });
   }
-}
 
-/**
- * Creates an ESLint linting configuration
- *
- * A linter configuration is created based on the input rules enabled by
- * the user through the active quality profile and the rules provided by
- * the linter.  The configuration includes the rules with their configuration
- * that are used during linting.
- *
- * @param rules the rules from the active quality profile
- */
-function createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-  return {
-    ...rules.reduce((rules, rule) => {
-      rules[`sonarjs/${rule.key}`] = [
-        'error',
-        /**
-         * the rule configuration can be decorated with special markers
-         * to activate internal features: a rule that reports secondary
-         * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
-         * is a marker for a post-linting processing to decode such locations.
-         */
-        ...extendRuleConfig(Linter.rules[rule.key].meta?.schema || undefined, rule),
-      ];
-      return rules;
-    }, {} as ESLintLinter.RulesRecord),
-    ...createInternalRulesRecord(),
-  };
-}
-
-/**
- * Custom rules like cognitive complexity and symbol highlighting
- * are always enabled as part of metrics computation. Such rules
- * are, therefore, added in the linting configuration by default.
- *
- * _Internal custom rules are not enabled in SonarLint context._
- */
-function createInternalRulesRecord(): ESLintLinter.RulesRecord {
-  if (getContext().sonarlint) {
-    return {};
+  /**
+   * Creates an ESLint linting configuration
+   *
+   * A linter configuration is created based on the input rules enabled by
+   * the user through the active quality profile and the rules provided by
+   * the linter.  The configuration includes the rules with their configuration
+   * that are used during linting.
+   *
+   * @param rules the rules from the active quality profile
+   */
+  private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
+    return {
+      ...rules.reduce((rules, rule) => {
+        rules[`sonarjs/${rule.key}`] = [
+          'error',
+          /**
+           * the rule configuration can be decorated with special markers
+           * to activate internal features: a rule that reports secondary
+           * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
+           * is a marker for a post-linting processing to decode such locations.
+           */
+          ...extendRuleConfig(Linter.rules[rule.key].meta?.schema || undefined, rule),
+        ];
+        return rules;
+      }, {} as ESLintLinter.RulesRecord),
+      ...Linter.createInternalRulesRecord(),
+    };
   }
-  return {
-    ...customRules.reduce((rules, rule) => {
-      rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
-      return rules;
-    }, {} as ESLintLinter.RulesRecord),
-  };
+
+  /**
+   * Custom rules like cognitive complexity and symbol highlighting
+   * are always enabled as part of metrics computation. Such rules
+   * are, therefore, added in the linting configuration by default.
+   *
+   * _Internal custom rules are not enabled in SonarLint context._
+   */
+  private static createInternalRulesRecord(): ESLintLinter.RulesRecord {
+    if (getContext().sonarlint) {
+      return {};
+    }
+    return {
+      ...customRules.reduce((rules, rule) => {
+        rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
+        return rules;
+      }, {} as ESLintLinter.RulesRecord),
+    };
+  }
 }
