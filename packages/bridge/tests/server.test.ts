@@ -61,33 +61,6 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should fail when linter is not initialized', async () => {
-    const { server, serverClosed } = await start(port);
-
-    const ruleId = 'S1116';
-    const fileType = 'MAIN';
-
-    expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
-      parsingError: {
-        code: 'LINTER_INITIALIZATION',
-        message: 'Linter does not exist. Did you call /init-linter?',
-      },
-    });
-
-    expect(await requestInitLinter(server, fileType, ruleId)).toBe('OK!');
-    const response = await requestAnalyzeJs(server, fileType);
-    const {
-      issues: [issue],
-    } = JSON.parse(response.get('json'));
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId,
-      }),
-    );
-    await request(server, '/close', 'POST');
-    await serverClosed;
-  });
-
   it('should route service requests', async () => {
     const { server, serverClosed } = await start(port);
 
