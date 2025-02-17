@@ -42,14 +42,6 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should fail on uninitialized linter', async () => {
-    const input = {} as any;
-    const language = 'js';
-    expect(() => analyzeJSTS(input, language)).toThrow(
-      APIError.linterError('Linter does not exist. Did you call /init-linter?'),
-    );
-  });
-
   it('should analyze JavaScript code', async () => {
     const rules: RuleConfig[] = [
       {

@@ -18,12 +18,11 @@ import { debug } from '../../../shared/src/helpers/logging.js';
 import { Rule, Linter as ESLintLinter } from 'eslint';
 // @ts-ignore
 import { getLinterInternalSlots } from '../../../../node_modules/eslint/lib/linter/linter.js';
-import { RuleConfig } from './config/rule-config.js';
+import { extendRuleConfig, RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
-import { createLinterConfig } from './config/linter-config.js';
 import { customRules } from './custom-rules/rules.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
@@ -84,9 +83,9 @@ export class Linter {
   };
 
   /** The wrapper's linting configuration */
-  public static config: Map<string, ESLintLinter.Config> = new Map();
+  public static readonly config: Map<string, ESLintLinter.RulesRecord> = new Map();
   /** the global variables */
-  private static globals: ESLintLinter.Globals = {};
+  public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -108,15 +107,15 @@ export class Linter {
    * @param workingDirectory the working directory
    */
   static async initialize(
-    inputRules: RuleConfig[],
+    inputRules?: RuleConfig[],
     environments: string[] = [],
     globals: string[] = [],
     workingDirectory?: string,
   ) {
-    debug(`Initializing linter with ${inputRules.map(rule => rule.key)}`);
+    debug(`Initializing linter with ${inputRules?.map(rule => rule.key)}`);
     getLinterInternalSlots(Linter.linter).cwd = workingDirectory;
-    Linter.globals = Linter.getGlobals(globals, environments);
-
+    Linter.setGlobals(globals, environments);
+    Linter.config.clear();
     /**
      * Context bundles define a set of external custom rules (like the taint analysis rule)
      * including rule keys and rule definitions that cannot be provided to the linter
@@ -156,7 +155,7 @@ export class Linter {
           .map(r => r.key)
           .sort((a, b) => a.localeCompare(b))}`,
       );
-      this.config.set(key, createLinterConfig(ruleConfigs, Linter.rules, Linter.globals));
+      this.config.set(key, createRulesRecord(ruleConfigs));
     });
   }
 
@@ -196,21 +195,19 @@ export class Linter {
       language,
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
     );
-    let linterConfig = this.config.get(key);
-    if (!linterConfig) {
-      // we create default linter config with internal rules only which provide metrics, tokens, etc...
-      linterConfig = createLinterConfig([], Linter.rules, Linter.globals);
-      this.config.set(key, linterConfig);
-    }
     const config = {
-      ...linterConfig,
       languageOptions: {
-        ...linterConfig.languageOptions,
+        globals: Object.fromEntries(Linter.globals),
         parser,
         parserOptions,
       },
+      plugins: {
+        sonarjs: { rules: Linter.rules },
+      },
+      rules: this.config.get(key) || createInternalRulesRecord(),
+      /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
+      settings: { react: { version: '999.999.999' }, fileType },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
-      settings: { ...linterConfig.settings, fileType },
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
@@ -218,27 +215,67 @@ export class Linter {
   }
 
   /**
-   * Creates an ESLint global variables configuration
+   * Sets the ESLint global variables configuration
    * @param globals the global variables to enable
    * @param environments the JavaScript execution environments to enable
-   * @returns a globals object
    */
-  static getGlobals(globals: string[] = [], environments: string[] = []): ESLintLinter.Globals {
-    return {
-      ...globals.reduce(
-        (globalsAcc, global) => ({
-          ...globalsAcc,
-          [global]: true,
-        }),
-        {},
-      ),
-      ...environments.reduce(
-        (globalsAcc, env) => ({
-          ...globalsAcc,
-          ...globalsPkg[env as keyof typeof globalsPkg],
-        }),
-        {},
-      ),
-    };
+  static setGlobals(globals: string[] = [], environments: string[] = []) {
+    Linter.globals.clear();
+    globals.forEach(global => {
+      Linter.globals.set(global, true);
+    });
+    environments.forEach(env => {
+      Object.entries(globalsPkg[env as keyof typeof globalsPkg]).forEach(([global, value]) => {
+        Linter.globals.set(global, value);
+      });
+    });
   }
+}
+
+/**
+ * Creates an ESLint linting configuration
+ *
+ * A linter configuration is created based on the input rules enabled by
+ * the user through the active quality profile and the rules provided by
+ * the linter.  The configuration includes the rules with their configuration
+ * that are used during linting.
+ *
+ * @param rules the rules from the active quality profile
+ */
+function createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
+  return {
+    ...rules.reduce((rules, rule) => {
+      rules[`sonarjs/${rule.key}`] = [
+        'error',
+        /**
+         * the rule configuration can be decorated with special markers
+         * to activate internal features: a rule that reports secondary
+         * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
+         * is a marker for a post-linting processing to decode such locations.
+         */
+        ...extendRuleConfig(Linter.rules[rule.key].meta?.schema || undefined, rule),
+      ];
+      return rules;
+    }, {} as ESLintLinter.RulesRecord),
+    ...createInternalRulesRecord(),
+  };
+}
+
+/**
+ * Custom rules like cognitive complexity and symbol highlighting
+ * are always enabled as part of metrics computation. Such rules
+ * are, therefore, added in the linting configuration by default.
+ *
+ * _Internal custom rules are not enabled in SonarLint context._
+ */
+function createInternalRulesRecord(): ESLintLinter.RulesRecord {
+  if (getContext().sonarlint) {
+    return {};
+  }
+  return {
+    ...customRules.reduce((rules, rule) => {
+      rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
+      return rules;
+    }, {} as ESLintLinter.RulesRecord),
+  };
 }

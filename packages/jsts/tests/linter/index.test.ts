@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
-import { before, describe, it, mock, Mock } from 'node:test';
+import { beforeEach, describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
 import { setContext } from '../../../shared/src/helpers/context.js';
@@ -28,7 +28,7 @@ import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 import fs from 'fs';
 
 describe('Linter', () => {
-  before(() => {
+  beforeEach(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
@@ -113,6 +113,73 @@ describe('Linter', () => {
         message: 'call',
       }),
     );
+  });
+
+  it('should enable environments', async () => {
+    await Linter.initialize([], ['node', 'jquery']);
+    expect(Linter.globals.has('__dirname')).toBeTruthy();
+    expect(Linter.globals.has('$')).toBeTruthy();
+  });
+
+  it('should enable globals', async () => {
+    await Linter.initialize([], [], ['_', '$']);
+    expect(Linter.globals.has('_')).toBeTruthy();
+    expect(Linter.globals.has('$')).toBeTruthy();
+  });
+
+  it('should enable rules', async () => {
+    await Linter.initialize([
+      {
+        key: 'S100',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
+    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
+      expect.objectContaining({
+        'sonarjs/S100': ['error'],
+      }),
+    );
+  });
+
+  it('should enable internal custom rules by default', async () => {
+    await Linter.initialize([
+      {
+        key: 'S100',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
+    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+      'sonarjs/S100': ['error'],
+      'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
+      'sonarjs/internal-symbol-highlighting': ['error'],
+    });
+  });
+
+  it('should not enable internal custom rules in SonarLint context', async () => {
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: true,
+      bundles: [],
+    });
+    await Linter.initialize([
+      {
+        key: 'S100',
+        configurations: [],
+        fileTypeTarget: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
+    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+      'sonarjs/S100': ['error'],
+    });
   });
 
   it('should report issues from internal rules', async () => {
@@ -350,7 +417,7 @@ describe('Linter', () => {
         key: 'S3798',
         configurations: [],
         fileTypeTarget: [fileType],
-        language: 'js',
+        language,
         analysisModes: [analysisMode],
       },
     ];
@@ -359,9 +426,7 @@ describe('Linter', () => {
 
     await Linter.initialize(rules, env);
     const { issues } = Linter.lint(parseResult, filePath);
-    const configKey = createLinterConfigKey(fileType, language, analysisMode);
-    const config = Linter.config.get(configKey);
-    expect(config.languageOptions.globals).toHaveProperty('alert');
+    expect(Linter.globals.has('alert')).toBeTruthy();
     expect(issues).toHaveLength(0);
   });
 
@@ -378,7 +443,7 @@ describe('Linter', () => {
         key: 'S3798',
         configurations: [],
         fileTypeTarget: [fileType],
-        language: 'js',
+        language,
         analysisModes: [analysisMode],
       },
     ];
@@ -387,9 +452,7 @@ describe('Linter', () => {
     await Linter.initialize(rules, [], globals);
     const { issues } = Linter.lint(parseResult, filePath);
 
-    const configKey = createLinterConfigKey(fileType, language, analysisMode);
-    const config = Linter.config.get(configKey);
-    expect(config.languageOptions.globals['angular']).toEqual(true);
+    expect(Linter.globals.has('angular')).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
