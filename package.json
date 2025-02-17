@@ -118,7 +118,7 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-scope": "8.2.0",
     "express": "4.21.2",
-    "form-data": "4.0.1",
+    "form-data": "4.0.2",
     "functional-red-black-tree": "1.0.1",
     "globals": "15.15.0",
     "htmlparser2": "10.0.0",
