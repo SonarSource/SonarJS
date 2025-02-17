@@ -155,7 +155,7 @@ function requestInitLinter(server: http.Server, fileType: string, ruleId: string
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: [fileType],
+        fileTypeTargets: [fileType],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

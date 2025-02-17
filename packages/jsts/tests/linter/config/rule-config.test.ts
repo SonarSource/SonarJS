@@ -26,7 +26,7 @@ describe('extendRuleConfig', () => {
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
-      fileTypeTarget: ['MAIN'],
+      fileTypeTargets: ['MAIN'],
       language: 'js',
       analysisModes: ['DEFAULT'],
     };
@@ -47,7 +47,7 @@ describe('extendRuleConfig', () => {
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
-      fileTypeTarget: ['MAIN'],
+      fileTypeTargets: ['MAIN'],
       language: 'js',
       analysisModes: ['DEFAULT'],
     };
@@ -68,7 +68,7 @@ describe('extendRuleConfig', () => {
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
-      fileTypeTarget: ['MAIN'],
+      fileTypeTargets: ['MAIN'],
       language: 'js',
       analysisModes: ['DEFAULT'],
     };

@@ -44,7 +44,7 @@ describe('Linter', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -86,7 +86,7 @@ describe('Linter', () => {
       {
         key: 'custom-rule',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -132,12 +132,12 @@ describe('Linter', () => {
       {
         key: 'S100',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ]);
-    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
+    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
       expect.objectContaining({
         'sonarjs/S100': ['error'],
       }),
@@ -149,12 +149,12 @@ describe('Linter', () => {
       {
         key: 'S100',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ]);
-    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
       'sonarjs/S100': ['error'],
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
@@ -172,12 +172,12 @@ describe('Linter', () => {
       {
         key: 'S100',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ]);
-    expect(Linter.config.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
       'sonarjs/S100': ['error'],
     });
   });
@@ -191,7 +191,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -219,7 +219,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -243,14 +243,14 @@ describe('Linter', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S3504',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -275,7 +275,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -295,7 +295,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -315,7 +315,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -354,7 +354,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: [fileType],
+        fileTypeTargets: [fileType],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -375,7 +375,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -416,7 +416,7 @@ describe('Linter', () => {
       {
         key: 'S3798',
         configurations: [],
-        fileTypeTarget: [fileType],
+        fileTypeTargets: [fileType],
         language,
         analysisModes: [analysisMode],
       },
@@ -442,7 +442,7 @@ describe('Linter', () => {
       {
         key: 'S3798',
         configurations: [],
-        fileTypeTarget: [fileType],
+        fileTypeTargets: [fileType],
         language,
         analysisModes: [analysisMode],
       },
@@ -510,7 +510,7 @@ describe('Linter', () => {
         {
           key: ruleId,
           configurations: [],
-          fileTypeTarget: ['MAIN'],
+          fileTypeTargets: ['MAIN'],
           language: 'js',
           analysisModes: ['DEFAULT'],
         },
@@ -545,7 +545,7 @@ describe('Linter', () => {
       {
         key: ruleId,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

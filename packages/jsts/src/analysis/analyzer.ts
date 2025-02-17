@@ -60,7 +60,6 @@ export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): J
  * and computing extended metrics about the code. At this point, the linting results
  * are already SonarQube-compatible and can be consumed back as such by the sensor.
  *
- * @param linter the linter to use for the analysis
  * @param input the JavaScript / TypeScript analysis input to analyze
  * @param parseResult the corresponding parsing result containing the SourceCode instance
  * @returns the JavaScript / TypeScript analysis output

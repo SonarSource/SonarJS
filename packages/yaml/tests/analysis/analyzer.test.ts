@@ -50,7 +50,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -77,7 +77,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -93,7 +93,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -127,7 +127,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S3723',
         configurations: ['always-multiline'],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -160,7 +160,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S2251',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -189,7 +189,7 @@ describe('analyzeYAML', () => {
       {
         key: 'S6326',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -216,14 +216,14 @@ describe('analyzeYAML', () => {
       {
         key: 'S1131',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S1451',
         configurations: [{ headerFormat: '' }],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -256,7 +256,7 @@ describe('analyzeYAML', () => {
       {
         key: rule.key,
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

@@ -40,7 +40,7 @@ describe('analyzeHTML', () => {
       {
         key: 'S3923',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -67,7 +67,7 @@ describe('analyzeHTML', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -102,7 +102,7 @@ describe('analyzeHTML', () => {
       {
         key: 'S3723',
         configurations: ['always-multiline'],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -135,7 +135,7 @@ describe('analyzeHTML', () => {
       {
         key: 'S2251',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -164,7 +164,7 @@ describe('analyzeHTML', () => {
       {
         key: 'S6326',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

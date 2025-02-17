@@ -168,8 +168,8 @@ export async function testProject(
   const jsTsResults = await analyzeProject(payload);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
 
-  Linter.config.forEach(linterConfig => {
-    linterConfig.rules['sonarjs/S3504'] = ['off'];
+  Linter.rulesConfig.forEach(rules => {
+    rules['sonarjs/S3504'] = ['off'];
   });
   const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
   const results = mergeResults(jsTsResults, htmlResults, yamlResults);

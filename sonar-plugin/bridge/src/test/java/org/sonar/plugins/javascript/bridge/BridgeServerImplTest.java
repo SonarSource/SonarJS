@@ -210,7 +210,7 @@ class BridgeServerImplTest {
     );
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
-      "{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
+      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
     );
   }
 

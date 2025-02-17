@@ -47,7 +47,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -73,7 +73,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1534',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -98,7 +98,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -133,14 +133,14 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4634',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S5863',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -164,14 +164,14 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1321',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S5863',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -200,14 +200,14 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3696',
         configurations: [],
-        fileTypeTarget: ['MAIN', 'TEST'],
+        fileTypeTargets: ['MAIN', 'TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
       {
         key: 'S6426',
         configurations: [],
-        fileTypeTarget: ['TEST'],
+        fileTypeTargets: ['TEST'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -231,7 +231,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3498',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -256,7 +256,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -281,7 +281,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3512',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -307,7 +307,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4335',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -333,7 +333,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S2870',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -361,7 +361,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -389,7 +389,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -417,7 +417,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3003',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -509,7 +509,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3403',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -535,7 +535,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1314',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -567,7 +567,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S3514',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -596,7 +596,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S1172',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -1081,7 +1081,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
@@ -1103,7 +1103,7 @@ describe('analyzeJSTS', () => {
       {
         key: 'S4524',
         configurations: [],
-        fileTypeTarget: ['MAIN'],
+        fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },

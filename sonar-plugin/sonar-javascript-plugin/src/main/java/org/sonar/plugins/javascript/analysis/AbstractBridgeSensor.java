@@ -78,7 +78,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         return;
       }
       var msg = contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
-        ? "Files which didn't change will be part of UCFG generation only, other rules will not be executed"
+        ? "Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
