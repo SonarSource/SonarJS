@@ -16,9 +16,13 @@
  */
 package org.sonar.plugins.javascript.api;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -32,8 +36,31 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @Deprecated(since = "6.0")
 public interface CustomRuleRepository {
   enum Language {
-    JAVASCRIPT,
-    TYPESCRIPT,
+    JAVASCRIPT("js"),
+    TYPESCRIPT("ts");
+
+    private final String language;
+
+    Language(String language) {
+      this.language = language;
+    }
+
+    @Override
+    public String toString() {
+      return language;
+    }
+
+    private static final Map<String, Language> stringMap = Arrays.stream(values()).collect(
+      Collectors.toMap(Enum::toString, Function.identity())
+    );
+
+    public static Language of(String value) {
+      return stringMap.get(value);
+    }
+
+    public String getLanguage() {
+      return language;
+    }
   }
 
   default Set<Language> languages() {

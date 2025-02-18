@@ -45,7 +45,8 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     environments = DEFAULT_ENVIRONMENTS,
     globals = DEFAULT_GLOBALS,
     exclusions = [],
-    isSonarlint = false,
+    bundles = [],
+    sonarlint = false,
     maxFilesForTypeChecking,
   } = input;
   const inputFilenames = Object.keys(input.files);
@@ -62,13 +63,20 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     return results;
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
-  const watchProgram = input.isSonarlint;
-  await Linter.initialize(rules, environments, globals, baseDir);
+  const watchProgram = input.sonarlint;
+  await Linter.initialize({
+    rules,
+    environments,
+    globals,
+    sonarlint,
+    bundles,
+    baseDir,
+  });
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,
     toUnixPath(baseDir),
-    isSonarlint,
+    sonarlint,
     maxFilesForTypeChecking,
   );
   if (watchProgram) {

@@ -30,7 +30,8 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.TsConfigOrigin;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
@@ -224,8 +225,8 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       shouldClearDependenciesCache = true;
     } else if (
       moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED &&
-      (JavaScriptFilePredicate.isJavaScriptFile(file) ||
-        JavaScriptFilePredicate.isTypeScriptFile(file))
+      (TypeScriptLanguage.KEY.equals(file.language()) ||
+        JavaScriptLanguage.KEY.equals(file.language()))
     ) {
       // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
       // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.

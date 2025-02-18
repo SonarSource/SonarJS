@@ -96,7 +96,7 @@ class SonarJsIntegrationTest {
     AnalysisRequest r = new AnalysisRequest();
     r.fileContent = "function foo() { \n  var a; \n  var c; // NOSONAR\n  var b = 42; \n} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
-    String response = bridge.request(gson.toJson(r), "analyze-js");
+    String response = bridge.request(gson.toJson(r), "analyze-jsts");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
     JsonArray issues = jsonObject.getAsJsonArray("issues");
     assertThat(issues).hasSize(3);
@@ -176,9 +176,6 @@ class SonarJsIntegrationTest {
         dest.resolve("package/bin/server.cjs").toString(),
         String.valueOf(port),
         "127.0.0.1",
-        temp.toString(),
-        "true",
-        "true",
       };
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.inheritIO();
@@ -224,7 +221,7 @@ class SonarJsIntegrationTest {
     String filePath;
     String fileContent;
     String fileType = "MAIN";
-
+    boolean sonarlint = true;
     boolean skipAst = true;
   }
 

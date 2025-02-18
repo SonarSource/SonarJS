@@ -18,6 +18,7 @@ import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 
 function getESLintKeys(sonarKey: string) {
   const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas];
@@ -46,12 +47,14 @@ function getESLintKeys(sonarKey: string) {
  * @param source the source code
  * @param message the ESLint message to convert
  * @param filePath the path to the file where the issue was found
+ * @param language the file language
  * @returns the converted SonarQube issue
  */
 export function convertMessage(
   source: SourceCode,
   message: Linter.LintMessage,
   filePath: string,
+  language: JsTsLanguage,
 ): Issue | null {
   /**
    * The property `ruleId` equals `null` on parsing errors and not applied directives.
@@ -64,6 +67,7 @@ export function convertMessage(
   const ruleId = message.ruleId.slice(8); // remove "sonarjs/" prefix
   return {
     ruleId,
+    language,
     line: message.line,
     column: message.column,
     endLine: message.endLine,

@@ -24,7 +24,6 @@ import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import assert from 'node:assert';
-import { getContext, setContext } from '../../shared/src/helpers/context.js';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
@@ -41,13 +40,7 @@ describe('router', () => {
   let server: http.Server;
 
   before(async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-    const worker = createWorker(workerPath, getContext());
+    const worker = createWorker(workerPath);
     const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', worker);
     server = serverInstance;
     closePromise = serverClosed;
@@ -114,7 +107,7 @@ describe('router', () => {
     });
   });
 
-  it('should route /analyze-js requests', async () => {
+  it('should route /analyze-jsts requests', async () => {
     await requestInitLinter(server, [
       {
         key: 'S6325',
@@ -123,15 +116,21 @@ describe('router', () => {
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
+      {
+        key: 'S4621',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
-    const filePath = path.join(fixtures, 'file.js');
-    const fileType = 'MAIN';
-    const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as FormData;
-    const responseData = JSON.parse(response.get('json') as string);
-    const {
+    let filePath = path.join(fixtures, 'file.js');
+    let fileType = 'MAIN';
+    let data: any = { filePath, fileType, tsConfigs: [] };
+    let response: any = await request(server, '/analyze-jsts', 'POST', data);
+    let {
       issues: [issue],
-    } = responseData;
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S6325',
@@ -149,26 +148,14 @@ describe('router', () => {
     expect(protoMessage.type).toEqual(0);
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
-  });
 
-  it('should route /analyze-ts requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S4621',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    const filePath = path.join(fixtures, 'file.ts');
-    const fileType = 'MAIN';
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const data = { filePath, fileType, tsConfigs: [tsConfig], skipAst: true };
-    const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
-    const {
+    filePath = path.join(fixtures, 'file.ts');
+    fileType = 'MAIN';
+    data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
+    response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    ({
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4621',
@@ -187,7 +174,7 @@ describe('router', () => {
         key: 'S4621',
         configurations: [],
         fileTypeTargets: ['MAIN'],
-        language: 'js',
+        language: 'ts',
         analysisModes: ['DEFAULT'],
       },
     ]);
@@ -198,7 +185,7 @@ describe('router', () => {
       (await request(server, '/create-program', 'POST', { tsConfig })) as string,
     );
     const data = { filePath, fileType, programId, skipAst: true };
-    const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
@@ -233,6 +220,7 @@ describe('router', () => {
     } = JSON.parse(response);
     expect(issue).toEqual({
       ruleId: 'S3923',
+      language: 'js',
       line: 8,
       column: 17,
       endLine: 8,
@@ -264,6 +252,7 @@ describe('router', () => {
     } = JSON.parse(response);
     expect(issue).toEqual({
       ruleId: 'S3923',
+      language: 'js',
       line: 10,
       column: 2,
       endLine: 10,

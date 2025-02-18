@@ -15,12 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SHARE_ENV, Worker } from 'node:worker_threads';
-import { Context } from './context.js';
 import { debug } from './logging.js';
 
-export function createWorker(url: string, context: Context) {
+export function createWorker(url: string) {
   const worker = new Worker(url, {
-    workerData: { context },
     env: SHARE_ENV,
   });
 

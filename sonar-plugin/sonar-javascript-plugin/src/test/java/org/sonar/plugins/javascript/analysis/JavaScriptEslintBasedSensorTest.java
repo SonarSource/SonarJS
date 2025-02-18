@@ -140,8 +140,8 @@ class JavaScriptEslintBasedSensorTest {
     tempDir = tempDir.getCanonicalFile();
     tempFolder = new DefaultTempFolder(tempDir, true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
       new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
@@ -184,18 +184,18 @@ class JavaScriptEslintBasedSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"language\":\"js\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseIssues);
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -234,12 +234,12 @@ class JavaScriptEslintBasedSensorTest {
   void should_set_quickfixavailable() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
       "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
       "}" +
       "]}"
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseIssues);
 
     var sensor = createSensor();
     createInputFile(context);
@@ -268,9 +268,9 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_report_secondary_issue_locations() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       response(
-        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
@@ -310,9 +310,9 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_not_report_secondary_when_location_are_null() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       response(
-        "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
         "]}]}"
@@ -333,9 +333,9 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_report_cost() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       response(
-        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
         "\"cost\": 42," +
         "\"secondaryLocations\": []}]}"
       )
@@ -367,7 +367,7 @@ class JavaScriptEslintBasedSensorTest {
     AnalysisResponse responseMetrics = response(
       "{ metrics: {\"ncloc\":[1, 2, 3],\"commentLines\":[4, 5, 6],\"nosonarLines\":[7, 8, 9],\"executableLines\":[10, 11, 12],\"functions\":1,\"statements\":2,\"classes\":3,\"complexity\":4,\"cognitiveComplexity\":5} }"
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseMetrics);
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -394,7 +394,7 @@ class JavaScriptEslintBasedSensorTest {
       List.of(inputFile.absolutePath()),
       emptyList()
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseMetrics);
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(tsConfigFile);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
@@ -412,7 +412,7 @@ class JavaScriptEslintBasedSensorTest {
     AnalysisResponse responseMetrics = response(
       "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }"
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseMetrics);
 
     var sensor = createSensor();
 
@@ -434,7 +434,7 @@ class JavaScriptEslintBasedSensorTest {
     AnalysisResponse responseCpdTokens = response(
       "{ highlights: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}] }"
     );
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseCpdTokens);
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -455,7 +455,7 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_save_cpd() throws Exception {
     AnalysisResponse responseCpdTokens = response(CacheTestUtils.CPD_TOKENS);
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseCpdTokens);
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -484,7 +484,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_explode_if_no_response() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IOException("error"));
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
@@ -595,7 +595,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new Gson()
         .fromJson(
           "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
@@ -617,7 +617,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_not_create_parsing_issue_when_no_rule() throws IOException {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new Gson()
         .fromJson(
           "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
@@ -653,11 +653,11 @@ class JavaScriptEslintBasedSensorTest {
     );
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(tsConfigFile);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
 
     createSonarLintSensor().execute(ctx);
-    verify(bridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isEqualTo(
       "if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();"
     );
@@ -670,7 +670,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(ctx);
 
     createSonarLintSensor().execute(ctx);
-    verify(bridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isNull();
   }
 
@@ -694,13 +694,13 @@ class JavaScriptEslintBasedSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
-    verify(bridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isEqualTo(content);
   }
 
   @Test
   void should_fail_fast() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IOException("error"));
     var sensor = createSensor();
     createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
@@ -751,7 +751,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void log_debug_analyzed_filename() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     var sensor = createSensor();
     InputFile file = createInputFile(context);
     sensor.execute(context);
@@ -760,7 +760,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_add_telemetry_for_scanner_analysis() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new TelemetryData(
         List.of(new Dependency("pkg1", "1.1.0")),

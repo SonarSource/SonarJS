@@ -18,7 +18,6 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { SONAR_RUNTIME } from '../../../src/rules/index.js';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/rule-config.js';
-import { setContext } from '../../../../shared/src/helpers/context.js';
 import { SONAR_CONTEXT } from '../../../src/linter/parameters/sonar-context.js';
 
 describe('extendRuleConfig', () => {
@@ -36,14 +35,6 @@ describe('extendRuleConfig', () => {
   });
 
   it('should include the context', () => {
-    const ctx = {
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    };
-    setContext(ctx);
-
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
@@ -52,19 +43,11 @@ describe('extendRuleConfig', () => {
       analysisModes: ['DEFAULT'],
     };
 
-    const config = extendRuleConfig([{ title: SONAR_CONTEXT }], inputRule);
-    expect(config).toEqual([42, ctx]);
+    const config = extendRuleConfig([{ title: SONAR_CONTEXT }], inputRule, '/tmp/dir');
+    expect(config).toEqual([42, { workDir: '/tmp/dir' }]);
   });
 
   it('should include the context and `sonar-runtime`', () => {
-    const ctx = {
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    };
-    setContext(ctx);
-
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
@@ -73,7 +56,11 @@ describe('extendRuleConfig', () => {
       analysisModes: ['DEFAULT'],
     };
 
-    const config = extendRuleConfig([{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }], inputRule);
-    expect(config).toEqual([42, SONAR_RUNTIME, ctx]);
+    const config = extendRuleConfig(
+      [{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }],
+      inputRule,
+      '/tmp/dir',
+    );
+    expect(config).toEqual([42, SONAR_RUNTIME, { workDir: '/tmp/dir' }]);
   });
 });

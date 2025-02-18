@@ -39,13 +39,10 @@ public interface BridgeServer extends Startable {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    String baseDir,
-    List<String> exclusions
+    String baseDir
   ) throws IOException;
 
-  AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 
@@ -71,10 +68,19 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
+  record InitLinterRequest(
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals,
+    String baseDir,
+    boolean sonarlint,
+    List<String> bundles,
+    String rulesWorkdir
+  ) {}
+
   record JsAnalysisRequest(
     String filePath,
     String fileType,
-    String language,
     @Nullable String fileContent,
     boolean ignoreHeaderComments,
     @Nullable List<String> tsConfigs,
@@ -82,7 +88,9 @@ public interface BridgeServer extends Startable {
     InputFile.Status fileStatus,
     AnalysisMode analysisMode,
     boolean skipAst,
-    boolean shouldClearDependenciesCache
+    boolean shouldClearDependenciesCache,
+    boolean sonarlint,
+    boolean allowTsParserJsFiles
   ) {}
 
   record CssAnalysisRequest(
@@ -160,6 +168,7 @@ public interface BridgeServer extends Startable {
     Integer endColumn,
     String message,
     String ruleId,
+    String language,
     List<IssueLocation> secondaryLocations,
     Double cost,
     List<QuickFix> quickFixes,

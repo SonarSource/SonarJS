@@ -16,6 +16,7 @@
  */
 import { QuickFix } from '../quickfixes/quickfix.js';
 import { Location } from './location.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 
 /**
  * A SonarQube-compatible source code issue
@@ -36,6 +37,7 @@ import { Location } from './location.js';
 export interface Issue {
   ruleId: string;
   line: number;
+  language: JsTsLanguage;
   column: number;
   endLine?: number;
   endColumn?: number;

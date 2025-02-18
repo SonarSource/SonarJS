@@ -22,7 +22,6 @@ import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
-import { getContext } from '../../../shared/src/helpers/context.js';
 import { rules as internalRules, toUnixPath } from '../rules/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
@@ -30,6 +29,7 @@ import { ParseResult } from '../parsers/parse.js';
 import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
+import { pathToFileURL } from 'node:url';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -37,6 +37,16 @@ export function createLinterConfigKey(
   analysisMode: AnalysisMode,
 ) {
   return `${fileType}-${language}-${analysisMode}`;
+}
+
+interface InitializeParams {
+  rules?: RuleConfig[];
+  environments?: string[];
+  globals?: string[];
+  baseDir?: string;
+  sonarlint?: boolean;
+  bundles?: string[];
+  rulesWorkdir?: string;
 }
 
 /**
@@ -83,6 +93,8 @@ export class Linter {
   public static readonly rulesConfig: Map<string, ESLintLinter.RulesRecord> = new Map();
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
+  /** The rules working directory (used for ucfg, architecture, dbd...) */
+  private static rulesWorkdir?: string;
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -98,19 +110,26 @@ export class Linter {
    * will ignore any file external to that path:
    * https://github.com/eslint/rewrite/blob/0e09a420009796ceb4157ebe0dcee1348fdc4b75/packages/config-array/src/config-array.js#L865
    *
-   * @param inputRules the rules from the active quality profiles
+   * @param rules the rules from the active quality profiles
    * @param environments the JavaScript execution environments
    * @param globals the global variables
-   * @param workingDirectory the working directory
+   * @param sonarlint whether we are running in sonarlint context
+   * @param bundles external rule bundles to import
+   * @param baseDir the working directory
+   * @param rulesWorkdir the working directory for rules accessing FS (ucfg, architecture, dbd)
    */
-  static async initialize(
-    inputRules?: RuleConfig[],
-    environments: string[] = [],
-    globals: string[] = [],
-    workingDirectory?: string,
-  ) {
-    debug(`Initializing linter with ${inputRules?.map(rule => rule.key)}`);
-    Linter.linter = new ESLintLinter({ cwd: workingDirectory });
+  static async initialize({
+    rules,
+    environments = [],
+    globals = [],
+    sonarlint = false,
+    bundles = [],
+    baseDir,
+    rulesWorkdir,
+  }: InitializeParams) {
+    debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
+    Linter.linter = new ESLintLinter({ cwd: baseDir });
+    Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
     Linter.rulesConfig.clear();
     /**
@@ -118,7 +137,6 @@ export class Linter {
      * including rule keys and rule definitions that cannot be provided to the linter
      * using the same feeding channel as rules from the active quality profile.
      */
-    const { bundles } = getContext();
     for (const ruleBundle of bundles) {
       await Linter.loadRulesFromBundle(ruleBundle);
     }
@@ -128,7 +146,7 @@ export class Linter {
      * configurations: one per fileType/language/analysisMode combination.
      */
     const rulesByKey: Map<string, RuleConfig[]> = new Map();
-    inputRules?.forEach(ruleConfig => {
+    rules?.forEach(ruleConfig => {
       const { key, fileTypeTargets, analysisModes, language = 'js' } = ruleConfig;
       // TODO: remove when sonar-security and sonar-architecture rules override the analysisModes method
       const effectiveAnalysisModes = ['ucfg', 'sonar-architecture-ir'].includes(key)
@@ -149,12 +167,12 @@ export class Linter {
           .map(r => r.key)
           .sort((a, b) => a.localeCompare(b))}`,
       );
-      this.rulesConfig.set(key, Linter.createRulesRecord(ruleConfigs));
+      this.rulesConfig.set(key, Linter.createRulesRecord(ruleConfigs, sonarlint));
     });
   }
 
   private static async loadRulesFromBundle(ruleBundle: string) {
-    const { rules: bundleRules } = await import(new URL(ruleBundle).toString());
+    const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
     bundleRules.forEach((rule: CustomRule) => {
       Linter.rules[rule.ruleId] = rule.ruleModule;
       debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
@@ -174,6 +192,7 @@ export class Linter {
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
+   * @param sonarlint whether we are running in sonarlint context
    * @returns the linting result
    */
   static lint(
@@ -183,6 +202,7 @@ export class Linter {
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
+    sonarlint = false,
   ): LintingResult {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist. Did you call /init-linter?`);
@@ -201,14 +221,14 @@ export class Linter {
       plugins: {
         sonarjs: { rules: Linter.rules },
       },
-      rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(),
+      rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(sonarlint),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: { react: { version: '999.999.999' }, fileType },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    return transformMessages(messages, { sourceCode, rules: Linter.rules, filePath });
+    return transformMessages(messages, language, { sourceCode, rules: Linter.rules, filePath });
   }
 
   /**
@@ -243,7 +263,10 @@ export class Linter {
    *
    * @param rules the rules from the active quality profile
    */
-  private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
+  private static createRulesRecord(
+    rules: RuleConfig[],
+    sonarlint: boolean,
+  ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
         rules[`sonarjs/${rule.key}`] = [
@@ -254,11 +277,15 @@ export class Linter {
            * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
            * is a marker for a post-linting processing to decode such locations.
            */
-          ...extendRuleConfig(Linter.rules[rule.key].meta?.schema || undefined, rule),
+          ...extendRuleConfig(
+            Linter.rules[rule.key].meta?.schema || undefined,
+            rule,
+            Linter.rulesWorkdir,
+          ),
         ];
         return rules;
       }, {} as ESLintLinter.RulesRecord),
-      ...Linter.createInternalRulesRecord(),
+      ...Linter.createInternalRulesRecord(sonarlint),
     };
   }
 
@@ -269,8 +296,8 @@ export class Linter {
    *
    * _Internal custom rules are not enabled in SonarLint context._
    */
-  private static createInternalRulesRecord(): ESLintLinter.RulesRecord {
-    if (getContext().sonarlint) {
+  private static createInternalRulesRecord(sonarlint: boolean): ESLintLinter.RulesRecord {
+    if (sonarlint) {
       return {};
     }
     return {

@@ -41,7 +41,7 @@ describe('transformMessages', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    const [issue] = transformMessages(messages, {
+    const [issue] = transformMessages(messages, 'js', {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
       filePath: 'foo.js',
@@ -71,7 +71,7 @@ describe('transformMessages', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    const [issue] = transformMessages(messages, {
+    const [issue] = transformMessages(messages, 'js', {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
       filePath: 'foo.js',
@@ -100,7 +100,7 @@ describe('transformMessages', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    const [issue] = transformMessages(messages, {
+    const [issue] = transformMessages(messages, 'js', {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
       filePath: 'foo.js',
@@ -141,7 +141,7 @@ describe('transformMessages', () => {
       rules: { [`sonarjs/${ruleId}`]: ['error', 'sonar-runtime'] },
     });
 
-    const [{ secondaryLocations }] = transformMessages(messages, {
+    const [{ secondaryLocations }] = transformMessages(messages, 'ts', {
       sourceCode,
       rules: { [ruleId]: rules[ruleId] },
       filePath: 'foo.js',
@@ -169,7 +169,7 @@ describe('transformMessages', () => {
       } as Linter.LintMessage,
     ];
 
-    const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], {
+    const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], 'ts', {
       sourceCode,
       rules: {},
       filePath: 'foo.js',

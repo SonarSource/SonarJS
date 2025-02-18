@@ -24,6 +24,6 @@ import { parseAwsFromYaml } from './aws/parser.js';
 
 export { YamlAnalysisInput, YamlAnalysisOutput };
 
-export async function analyzeYAML(input: YamlAnalysisInput): Promise<YamlAnalysisOutput> {
-  return Promise.resolve(analyzeEmbedded(input, parseAwsFromYaml));
+export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
+  return analyzeEmbedded(input, parseAwsFromYaml);
 }

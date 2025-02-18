@@ -30,8 +30,8 @@ import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
+  logHeapStatistics,
 } from './memory.js';
-import { getContext } from '../../shared/src/helpers/context.js';
 
 /**
  * The maximum request body size
@@ -63,6 +63,7 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * @param port the port to listen to
  * @param host only for usage from outside of Node.js - Java plugin, SonarLint, ...
  * @param worker Worker thread to handle analysis requests
+ * @param debugMemory print memory usage for debugging purposes
  * @param timeout timeout in ms to shut down the server if unresponsive
  * @returns an http server
  */
@@ -70,6 +71,7 @@ export function start(
   port = 0,
   host = '127.0.0.1',
   worker?: Worker,
+  debugMemory = false,
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   const pendingCloseRequests: express.Response[] = [];
@@ -79,9 +81,10 @@ export function start(
   });
 
   logMemoryConfiguration();
-  if (getContext().debugMemory) {
+  if (debugMemory) {
     registerGarbageCollectionObserver();
   }
+  logHeapStatistics();
   return new Promise(resolve => {
     debug('Starting the bridge server');
 

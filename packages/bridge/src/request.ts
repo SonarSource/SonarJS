@@ -24,6 +24,7 @@ import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { readFile } from '../../shared/src/helpers/files.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
 import { NamedDependency } from '../../jsts/src/rules/index.js';
+import { JsTsLanguage, isJsFile, isTsFile } from '../../shared/src/helpers/language.js';
 
 export type RequestResult =
   | {
@@ -44,8 +45,9 @@ export type RequestType = BridgeRequest['type'];
 type MaybeIncompleteCssAnalysisInput = Omit<CssAnalysisInput, 'fileContent'> & {
   fileContent?: string;
 };
-type MaybeIncompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'fileContent'> & {
+type MaybeIncompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'fileContent' | 'language'> & {
   fileContent?: string;
+  language?: JsTsLanguage;
 };
 type MaybeIncompleteEmbeddedAnalysisInput = Omit<EmbeddedAnalysisInput, 'fileContent'> & {
   fileContent?: string;
@@ -80,7 +82,7 @@ type EmbeddedRequest = {
 };
 
 type JsTsRequest = {
-  type: 'on-analyze-ts' | 'on-analyze-with-program' | 'on-analyze-js';
+  type: 'on-analyze-jsts';
   data: MaybeIncompleteJsTsAnalysisInput;
 };
 
@@ -107,10 +109,13 @@ type DeleteProgramRequest = {
 type InitLinterRequest = {
   type: 'on-init-linter';
   data: {
+    rules: RuleConfig[];
     environments: string[];
     globals: string[];
     baseDir: string;
-    rules: RuleConfig[];
+    sonarlint: boolean;
+    bundles: string[];
+    rulesWorkdir: string;
   };
 };
 type NewTsConfigRequest = {
@@ -139,6 +144,28 @@ export async function readFileLazily<T extends MaybeIncompleteAnalysisInput>(
     };
   }
   return input;
+}
+
+/**
+ * In SonarQube context, an analysis input includes both path and content of a file
+ * to analyze. However, in SonarLint, we might only get the file path. As a result,
+ * we read the file if the content is missing in the input.
+ */
+export function fillLanguage<T extends MaybeIncompleteJsTsAnalysisInput & { fileContent: string }>(
+  input: T,
+): JsTsAnalysisInput {
+  if (isTsFile(input.filePath, input.fileContent)) {
+    return {
+      ...input,
+      language: 'ts',
+    };
+  } else if (isJsFile(input.filePath)) {
+    return {
+      ...input,
+      language: 'js',
+    };
+  }
+  throw new Error(`Unable to find language for file ${input.filePath}`);
 }
 
 export function isCompleteAnalysisInput<T extends MaybeIncompleteAnalysisInput>(
