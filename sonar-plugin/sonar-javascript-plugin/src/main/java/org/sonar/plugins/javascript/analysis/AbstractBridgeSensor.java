@@ -108,7 +108,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
           externalIssue.location().end().lineOffset()
         );
 
-        if (normalizedIssues.contains(issueKey)) {
+        if (!normalizedIssues.contains(issueKey)) {
           ExternalIssueRepository.save(externalIssue, context);
         }
       }
