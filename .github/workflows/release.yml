@@ -16,4 +16,4 @@ jobs:
     with:
       publishToBinaries: true
       mavenCentralSync: true
-      slackChannel:  squad-js
+      slackChannel:  squad-web
