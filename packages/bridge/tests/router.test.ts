@@ -107,7 +107,7 @@ describe('router', () => {
     });
   });
 
-  it('should route /analyze-js requests', async () => {
+  it('should route /analyze-jsts requests', async () => {
     await requestInitLinter(server, [
       {
         key: 'S6325',
@@ -116,15 +116,21 @@ describe('router', () => {
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
+      {
+        key: 'S4621',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
-    const filePath = path.join(fixtures, 'file.js');
-    const fileType = 'MAIN';
-    const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as FormData;
-    const responseData = JSON.parse(response.get('json') as string);
-    const {
+    let filePath = path.join(fixtures, 'file.js');
+    let fileType = 'MAIN';
+    let data: any = { filePath, fileType, tsConfigs: [] };
+    let response: any = await request(server, '/analyze-jsts', 'POST', data);
+    let {
       issues: [issue],
-    } = responseData;
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S6325',
@@ -142,26 +148,14 @@ describe('router', () => {
     expect(protoMessage.type).toEqual(0);
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
-  });
 
-  it('should route /analyze-ts requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S4621',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    const filePath = path.join(fixtures, 'file.ts');
-    const fileType = 'MAIN';
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const data = { filePath, fileType, tsConfigs: [tsConfig], skipAst: true };
-    const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
-    const {
+    filePath = path.join(fixtures, 'file.ts');
+    fileType = 'MAIN';
+    data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
+    response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    ({
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4621',
@@ -180,7 +174,7 @@ describe('router', () => {
         key: 'S4621',
         configurations: [],
         fileTypeTargets: ['MAIN'],
-        language: 'js',
+        language: 'ts',
         analysisModes: ['DEFAULT'],
       },
     ]);
@@ -191,7 +185,7 @@ describe('router', () => {
       (await request(server, '/create-program', 'POST', { tsConfig })) as string,
     );
     const data = { filePath, fileType, programId, skipAst: true };
-    const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
     const {
       issues: [issue],
     } = JSON.parse(response);
