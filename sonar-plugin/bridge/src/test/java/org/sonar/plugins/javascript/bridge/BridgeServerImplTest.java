@@ -37,8 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -199,13 +197,7 @@ class BridgeServerImplTest {
         "js"
       )
     );
-    bridgeServer.initLinter(
-      rules,
-      Collections.emptyList(),
-      Collections.emptyList(),
-      "",
-      Collections.emptyList()
-    );
+    bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "");
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
       "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
@@ -226,7 +218,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       singletonList(tsConfig.absolutePath()),
@@ -256,7 +247,6 @@ class BridgeServerImplTest {
     return new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,
@@ -285,7 +275,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       "/absolute/path/file.ts",
       "MAIN",
-      "js",
       null,
       true,
       null,
@@ -513,7 +502,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,
@@ -622,28 +610,11 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_load_custom_rules() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(
-      serverConfig,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains(
-      "additional rules: [bundle1" + File.pathSeparator + "bundle2]"
-    );
-  }
-
-  @Test
   void should_skip_metrics_on_sonarlint() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
     BridgeServerConfig serverConfigFor79 = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(
-      serverConfigFor79,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
+    bridgeServer.startServer(serverConfigFor79);
     bridgeServer.stop();
 
     assertThat(logTester.logs()).contains("sonarlint: true");
@@ -654,10 +625,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.debugMemory", "true"));
     BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(
-      serverConfigForDebugMemory,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
+    bridgeServer.startServer(serverConfigForDebugMemory);
     bridgeServer.stop();
 
     assertThat(logTester.logs()).contains("debugMemory: true");
@@ -793,7 +761,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,

@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.api.JsFile;
@@ -63,12 +60,6 @@ public abstract class AbstractAnalysis {
     this.bridgeServer = bridgeServer;
     this.analysisProcessor = analysisProcessor;
     this.analysisWarnings = analysisWarnings;
-  }
-
-  protected static String inputFileLanguage(InputFile file) {
-    return JavaScriptFilePredicate.isTypeScriptFile(file)
-      ? TypeScriptLanguage.KEY
-      : JavaScriptLanguage.KEY;
   }
 
   void initialize(SensorContext context, JsTsChecks checks, AnalysisConsumers consumers) {
@@ -161,7 +152,6 @@ public abstract class AbstractAnalysis {
     return new BridgeServer.JsAnalysisRequest(
       file.absolutePath(),
       file.type().toString(),
-      inputFileLanguage(file),
       fileContent,
       contextUtils.ignoreHeaderComments(),
       tsConfigs,

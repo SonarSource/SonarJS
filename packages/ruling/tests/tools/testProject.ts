@@ -149,12 +149,12 @@ export async function testProject(
   };
 
   await Linter.initialize({
-    inputRules: rules,
+    rules,
     environments: DEFAULT_ENVIRONMENTS,
     globals: DEFAULT_GLOBALS,
     sonarlint: false,
     bundles: [],
-    workingDirectory: path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
+    baseDir: path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
   });
   const jsTsResults = await analyzeProject(payload);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
@@ -228,10 +228,7 @@ function isExcluded(filePath: string, exclusions: Minimatch[]) {
  * Analyze files the old school way.
  * Used for HTML and YAML
  */
-async function analyzeFiles(
-  files: JsTsFiles,
-  analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
-) {
+function analyzeFiles(files: JsTsFiles, analyzer: (payload: AnalysisInput) => AnalysisOutput) {
   const results = { files: {} };
   for (const [filePath, fileData] of Object.entries(files)) {
     const payload: AnalysisInput = {
@@ -239,8 +236,7 @@ async function analyzeFiles(
       fileContent: fileData.fileContent,
     };
     try {
-      const result = await analyzer(payload);
-      results.files[filePath] = result;
+      results.files[filePath] = analyzer(payload);
     } catch (err) {
       results.files[filePath] = createParsingIssue(err);
     }

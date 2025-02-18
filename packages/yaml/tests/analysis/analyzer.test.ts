@@ -37,7 +37,7 @@ describe('analyzeYAML', () => {
 
   it('should analyze YAML file', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S3923',
           configurations: [],
@@ -66,7 +66,7 @@ describe('analyzeYAML', () => {
 
   it('should return an empty issues list on parsing error', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S3923',
           configurations: [],
@@ -84,7 +84,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S1116',
           configurations: [],
@@ -120,7 +120,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using "S3723" rule', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S3723',
           configurations: ['always-multiline'],
@@ -155,7 +155,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S2251',
           configurations: [],
@@ -186,7 +186,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a regex rule', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S6326',
           configurations: [],
@@ -215,7 +215,7 @@ describe('analyzeYAML', () => {
 
   it('should not return issues outside of the embedded JS', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S1131',
           configurations: [],
@@ -257,7 +257,7 @@ describe('analyzeYAML', () => {
     };
     Linter.rules[rule.key] = rule.module;
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: rule.key,
           configurations: [],

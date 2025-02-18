@@ -22,6 +22,6 @@ import type {
 } from '../../jsts/src/embedded/analysis/analysis.js';
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 
-export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
-  return Promise.resolve(analyzeEmbedded(input, parseHTML));
+export function analyzeHTML(input: HtmlAnalysisInput): HtmlAnalysisOutput {
+  return analyzeEmbedded(input, parseHTML);
 }

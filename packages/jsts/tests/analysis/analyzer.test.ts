@@ -50,7 +50,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
@@ -75,7 +75,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'code.vue');
 
@@ -99,7 +99,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'vue_ts', 'file.vue');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'vue_ts', 'tsconfig.json')];
@@ -130,7 +130,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'main.js');
 
@@ -160,7 +160,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'test.js');
     const fileType = 'TEST';
@@ -191,7 +191,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'mixed.js');
     const fileType = 'TEST';
@@ -211,7 +211,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'shebang.js');
 
@@ -235,7 +235,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'bom.js');
 
@@ -259,7 +259,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'foo.js');
     const fileContent = `'foo' + bar + 'baz'`;
@@ -284,7 +284,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'tsconfig.ts');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'tsconfig.json')];
@@ -310,7 +310,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'program.ts');
 
@@ -338,7 +338,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
 
@@ -366,7 +366,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'paths', 'file.ts');
 
@@ -394,7 +394,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const language = 'ts';
 
@@ -471,7 +471,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'type.js');
     const tsConfigs = [path.join(currentPath, 'fixtures', 'tsconfig.json')];
@@ -496,7 +496,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'issue.js');
 
@@ -527,7 +527,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'secondary.js');
 
@@ -555,7 +555,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'quickfix.js');
 
@@ -596,7 +596,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on main files', async () => {
     const rules: RuleConfig[] = [];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
 
@@ -838,7 +838,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics on test files', async () => {
     const rules: RuleConfig[] = [];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
     const fileType = 'TEST';
@@ -883,7 +883,7 @@ describe('analyzeJSTS', () => {
 
   it('should compute metrics in SonarLint context', async () => {
     const rules: RuleConfig[] = [];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
 
@@ -901,7 +901,7 @@ describe('analyzeJSTS', () => {
 
   it('should return parsing errors', async () => {
     const rules: RuleConfig[] = [];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'parsing-error.js');
     const analysisInput = await jsTsInput({ filePath });
@@ -1025,7 +1025,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
@@ -1046,7 +1046,7 @@ describe('analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 

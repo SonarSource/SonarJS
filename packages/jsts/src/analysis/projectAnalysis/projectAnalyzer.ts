@@ -65,12 +65,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.sonarlint;
   await Linter.initialize({
-    inputRules: rules,
+    rules: rules,
     environments: environments,
     globals: globals,
     sonarlint: sonarlint,
     bundles: bundles,
-    workingDirectory: baseDir,
+    baseDir: baseDir,
   });
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(

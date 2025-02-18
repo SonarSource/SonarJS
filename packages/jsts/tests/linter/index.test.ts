@@ -31,7 +31,7 @@ describe('Linter', () => {
     console.log = mock.fn();
 
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S1116',
           configurations: [],
@@ -69,7 +69,7 @@ describe('Linter', () => {
     console.log = mock.fn();
 
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'custom-rule',
           configurations: [],
@@ -108,20 +108,20 @@ describe('Linter', () => {
   });
 
   it('should enable environments', async () => {
-    await Linter.initialize({ inputRules: [], environments: ['node', 'jquery'] });
+    await Linter.initialize({ rules: [], environments: ['node', 'jquery'] });
     expect(Linter.globals.has('__dirname')).toBeTruthy();
     expect(Linter.globals.has('$')).toBeTruthy();
   });
 
   it('should enable globals', async () => {
-    await Linter.initialize({ inputRules: [], environments: [], globals: ['_', '$'] });
+    await Linter.initialize({ rules: [], environments: [], globals: ['_', '$'] });
     expect(Linter.globals.has('_')).toBeTruthy();
     expect(Linter.globals.has('$')).toBeTruthy();
   });
 
   it('should enable rules', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S100',
           configurations: [],
@@ -140,7 +140,7 @@ describe('Linter', () => {
 
   it('should enable internal custom rules by default', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S100',
           configurations: [],
@@ -159,7 +159,7 @@ describe('Linter', () => {
 
   it('should not enable internal custom rules in SonarLint context', async () => {
     await Linter.initialize({
-      inputRules: [
+      rules: [
         {
           key: 'S100',
           configurations: [],
@@ -192,7 +192,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
@@ -220,7 +220,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
@@ -251,7 +251,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath, 'TEST');
 
     expect(issues).toEqual([
@@ -276,7 +276,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
@@ -295,7 +295,7 @@ describe('Linter', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
@@ -316,7 +316,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
@@ -355,7 +355,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(4);
@@ -376,7 +376,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
@@ -386,7 +386,7 @@ describe('Linter', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js');
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
-    await Linter.initialize({ inputRules: [] });
+    await Linter.initialize({ rules: [] });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
@@ -419,7 +419,7 @@ describe('Linter', () => {
 
     const env = ['browser'];
 
-    await Linter.initialize({ inputRules: rules, environments: env });
+    await Linter.initialize({ rules, environments: env });
     const { issues } = Linter.lint(parseResult, filePath);
     expect(Linter.globals.has('alert')).toBeTruthy();
     expect(issues).toHaveLength(0);
@@ -444,7 +444,7 @@ describe('Linter', () => {
     ];
     const globals = ['angular'];
 
-    await Linter.initialize({ inputRules: rules, environments: [], globals: globals });
+    await Linter.initialize({ rules, environments: [], globals: globals });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(Linter.globals.has('angular')).toEqual(true);
@@ -455,7 +455,7 @@ describe('Linter', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js');
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
-    await Linter.initialize({ inputRules: [] });
+    await Linter.initialize({ rules: [] });
     const { cognitiveComplexity, highlightedSymbols } = Linter.lint(parseResult, filePath);
 
     expect(cognitiveComplexity).toEqual(6);
@@ -511,7 +511,7 @@ describe('Linter', () => {
         },
       ];
 
-      await Linter.initialize({ inputRules: rules });
+      await Linter.initialize({ rules });
       const {
         issues: [issue],
       } = Linter.lint(parseResult, filePath);
@@ -546,7 +546,7 @@ describe('Linter', () => {
       },
     ];
 
-    await Linter.initialize({ inputRules: rules });
+    await Linter.initialize({ rules });
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([

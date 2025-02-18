@@ -39,12 +39,12 @@ export function createLinterConfigKey(
 }
 
 interface InitializeParams {
-  inputRules?: RuleConfig[];
+  rules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
+  baseDir?: string;
   sonarlint?: boolean;
   bundles?: string[];
-  workingDirectory?: string;
   rulesWorkdir?: string;
 }
 
@@ -109,25 +109,25 @@ export class Linter {
    * will ignore any file external to that path:
    * https://github.com/eslint/rewrite/blob/0e09a420009796ceb4157ebe0dcee1348fdc4b75/packages/config-array/src/config-array.js#L865
    *
-   * @param inputRules the rules from the active quality profiles
+   * @param rules the rules from the active quality profiles
    * @param environments the JavaScript execution environments
    * @param globals the global variables
    * @param sonarlint whether we are running in sonarlint context
    * @param bundles external rule bundles to import
-   * @param workingDirectory the working directory
+   * @param baseDir the working directory
    * @param rulesWorkdir the working directory for rules accessing FS (ucfg, architecture, dbd)
    */
   static async initialize({
-    inputRules,
+    rules,
     environments = [],
     globals = [],
     sonarlint = false,
     bundles = [],
-    workingDirectory,
+    baseDir,
     rulesWorkdir,
   }: InitializeParams) {
-    debug(`Initializing linter with ${inputRules?.map(rule => rule.key)}`);
-    Linter.linter = new ESLintLinter({ cwd: workingDirectory });
+    debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
+    Linter.linter = new ESLintLinter({ cwd: baseDir });
     Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
     Linter.rulesConfig.clear();
@@ -145,7 +145,7 @@ export class Linter {
      * configurations: one per fileType/language/analysisMode combination.
      */
     const rulesByKey: Map<string, RuleConfig[]> = new Map();
-    inputRules?.forEach(ruleConfig => {
+    rules?.forEach(ruleConfig => {
       const { key, fileTypeTargets, analysisModes, language = 'js' } = ruleConfig;
       // TODO: remove when sonar-security and sonar-architecture rules override the analysisModes method
       const effectiveAnalysisModes = ['ucfg', 'sonar-architecture-ir'].includes(key)

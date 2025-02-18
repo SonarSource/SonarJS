@@ -79,7 +79,11 @@ public class BridgeServerImpl implements BridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private Status status = Status.NOT_STARTED;
+  private boolean isSonarLint;
   private final RulesBundles rulesBundles;
+  private List<Path> deployedBundles;
+  private String workdir;
+  private boolean allowTsParserJsFiles;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path temporaryDeployLocation;
   private final EmbeddedNode embeddedNode;
@@ -254,7 +258,6 @@ public class BridgeServerImpl implements BridgeServer {
   private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
     throws IOException {
     var config = serverConfig.config();
-    var isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
@@ -300,6 +303,7 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
     }
+    isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     var providedPort = nodeAlreadyRunningPort();
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
     if (providedPort != 0) {
@@ -317,7 +321,12 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
       deploy(serverConfig.config());
-      List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
+      workdir = serverConfig.workDirAbsolutePath();
+      allowTsParserJsFiles = serverConfig
+        .config()
+        .getBoolean(ALLOW_TS_PARSER_JS_FILES)
+        .orElse(true);
+      deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
@@ -333,15 +342,16 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    String baseDir,
-    List<String> exclusions
+    String baseDir
   ) {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       rules,
       environments,
       globals,
       baseDir,
-      exclusions
+      isSonarLint,
+      deployedBundles.stream().map(Path::toString).toList(),
+      workdir
     );
     String request = GSON.toJson(initLinterRequest);
 
@@ -585,29 +595,6 @@ public class BridgeServerImpl implements BridgeServer {
 
     TsConfigRequest(String tsconfig) {
       this.tsConfig = tsconfig;
-    }
-  }
-
-  static class InitLinterRequest {
-
-    List<EslintRule> rules;
-    List<String> environments;
-    List<String> globals;
-    String baseDir;
-    List<String> exclusions;
-
-    InitLinterRequest(
-      List<EslintRule> rules,
-      List<String> environments,
-      List<String> globals,
-      String baseDir,
-      List<String> exclusions
-    ) {
-      this.rules = rules;
-      this.environments = environments;
-      this.globals = globals;
-      this.baseDir = baseDir;
-      this.exclusions = exclusions;
     }
   }
 

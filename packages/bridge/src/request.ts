@@ -25,7 +25,7 @@ import { readFile } from '../../shared/src/helpers/files.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
 import { NamedDependency } from '../../jsts/src/rules/index.js';
 import { JsTsLanguage } from '../../shared/src/helpers/language.js';
-import { isJsFile, isTsFile } from '../../ruling/tests/tools/languages.js';
+import { isJsFile, isTsFile } from '../../shared/src/helpers/language.js';
 
 export type RequestResult =
   | {
@@ -110,10 +110,10 @@ type DeleteProgramRequest = {
 type InitLinterRequest = {
   type: 'on-init-linter';
   data: {
+    rules: RuleConfig[];
     environments: string[];
     globals: string[];
     baseDir: string;
-    rules: RuleConfig[];
     sonarlint: boolean;
     bundles: string[];
     rulesWorkdir: string;
@@ -152,18 +152,21 @@ export async function readFileLazily<T extends MaybeIncompleteAnalysisInput>(
  * to analyze. However, in SonarLint, we might only get the file path. As a result,
  * we read the file if the content is missing in the input.
  */
-export async function fillLanguage<
-  T extends MaybeIncompleteJsTsAnalysisInput & { fileContent: string },
->(input: T): Promise<T & { language: JsTsLanguage }> {
+export function fillLanguage<T extends MaybeIncompleteJsTsAnalysisInput & { fileContent: string }>(
+  input: T,
+): JsTsAnalysisInput {
   if (isTsFile(input.filePath, input.fileContent)) {
-    input.language = 'ts';
+    return {
+      ...input,
+      language: 'ts',
+    };
   } else if (isJsFile(input.filePath)) {
-    input.language = 'js';
-  } else {
-    throw new Error('Unable to find language');
+    return {
+      ...input,
+      language: 'js',
+    };
   }
-
-  return input;
+  throw new Error(`Unable to find language for file ${input.filePath}`);
 }
 
 export function isCompleteAnalysisInput<T extends MaybeIncompleteAnalysisInput>(
