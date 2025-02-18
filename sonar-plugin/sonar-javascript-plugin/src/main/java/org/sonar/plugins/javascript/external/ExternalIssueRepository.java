@@ -37,7 +37,7 @@ public class ExternalIssueRepository {
   /**
    * Persist the passed issue into the passed context, using the passed rule repository key to resolve the belonging rule.
    */
-  public static void save(Issue issue, SensorContext context) {
+  public static void save(ExternalIssue issue, SensorContext context) {
     var file = issue.file();
     var newIssue = context.newExternalIssue();
     var newLocation = newIssue.newLocation();

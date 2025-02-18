@@ -36,8 +36,8 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
+import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
-import org.sonar.plugins.javascript.external.Issue;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.Exclusions;
 
@@ -68,7 +68,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
 
-    var esLintIssues = this.getESLintIssues(context);
+    var externalIssues = this.getESLintIssues(context);
 
     try {
       List<InputFile> inputFiles = getInputFiles();
@@ -78,40 +78,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       }
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       var issues = analyzeFiles(inputFiles);
-
-      // normalize issues of JS/TS analyzer into set of strigs
-      var normalizedIssues = new HashSet<>();
-      for (BridgeServer.Issue issue : issues) {
-        for (String ruleKey : issue.ruleESLintKeys()) {
-          String issueKey = String.format(
-            "%s-%s-%d-%d-%d-%d",
-            ruleKey,
-            issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
-            issue.line(),
-            issue.column(),
-            issue.endLine(),
-            issue.endColumn()
-          );
-          normalizedIssues.add(issueKey);
-        }
-      }
-      // at that point, we have the list of issues that were persisted
-      // we can now persist the ESLint issues that match none of the persisted issues
-      for (var externalIssue : esLintIssues) {
-        var issueKey = String.format(
-          "%s-%s-%d-%d-%d-%d",
-          externalIssue.name(),
-          externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
-          externalIssue.location().start().line(),
-          externalIssue.location().start().lineOffset(),
-          externalIssue.location().end().line(),
-          externalIssue.location().end().lineOffset()
-        );
-
-        if (!normalizedIssues.contains(issueKey)) {
-          ExternalIssueRepository.save(externalIssue, context);
-        }
-      }
+      this.saveESLintIssues(context, externalIssues, issues);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -154,7 +121,49 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected abstract List<InputFile> getInputFiles();
 
-  protected List<Issue> getESLintIssues(SensorContext context) {
+  protected List<ExternalIssue> getESLintIssues(SensorContext context) {
     return new ArrayList<>();
+  }
+
+  protected void saveESLintIssues(
+    SensorContext context,
+    List<ExternalIssue> externalIssues,
+    List<BridgeServer.Issue> issues
+  ) {
+    if (!externalIssues.isEmpty()) {
+      // normalize issues of JS/TS analyzer into set of strigs
+      var normalizedIssues = new HashSet<>();
+      for (BridgeServer.Issue issue : issues) {
+        for (String ruleKey : issue.ruleESLintKeys()) {
+          String issueKey = String.format(
+            "%s-%s-%d-%d-%d-%d",
+            ruleKey,
+            issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
+            issue.line(),
+            issue.column(),
+            issue.endLine(),
+            issue.endColumn()
+          );
+          normalizedIssues.add(issueKey);
+        }
+      }
+      // at that point, we have the list of issues that were persisted
+      // we can now persist the ESLint issues that match none of the persisted issues
+      for (var externalIssue : externalIssues) {
+        var issueKey = String.format(
+          "%s-%s-%d-%d-%d-%d",
+          externalIssue.name(),
+          externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
+          externalIssue.location().start().line(),
+          externalIssue.location().start().lineOffset(),
+          externalIssue.location().end().line(),
+          externalIssue.location().end().lineOffset()
+        );
+
+        if (!normalizedIssues.contains(issueKey)) {
+          ExternalIssueRepository.save(externalIssue, context);
+        }
+      }
+    }
   }
 }

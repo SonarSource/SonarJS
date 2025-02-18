@@ -21,7 +21,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.rules.RuleType;
 
-public record Issue(
+public record ExternalIssue(
   String name,
   InputFile file,
   TextRange location,
