@@ -74,6 +74,22 @@ public class ExternalIssueRepository {
       .save();
   }
 
+  public static void saveESLintIssues(
+    SensorContext context,
+    List<ExternalIssue> externalIssues,
+    List<BridgeServer.Issue> issues
+  ) {
+    if (!externalIssues.isEmpty()) {
+      var deduplicatedExternalIssues = ExternalIssueRepository.deduplicateIssues(
+        externalIssues,
+        issues
+      );
+      for (var issue : deduplicatedExternalIssues) {
+        ExternalIssueRepository.save(issue, context);
+      }
+    }
+  }
+
   public static List<ExternalIssue> deduplicateIssues(
     List<ExternalIssue> externalIssues,
     List<BridgeServer.Issue> issues

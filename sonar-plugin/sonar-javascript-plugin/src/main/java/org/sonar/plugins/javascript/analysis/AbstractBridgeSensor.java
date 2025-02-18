@@ -75,7 +75,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       }
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       var issues = analyzeFiles(inputFiles);
-      this.saveESLintIssues(context, externalIssues, issues);
+      ExternalIssueRepository.saveESLintIssues(context, externalIssues, issues);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -120,21 +120,5 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected List<ExternalIssue> getESLintIssues(SensorContext context) {
     return new ArrayList<>();
-  }
-
-  protected void saveESLintIssues(
-    SensorContext context,
-    List<ExternalIssue> externalIssues,
-    List<BridgeServer.Issue> issues
-  ) {
-    if (!externalIssues.isEmpty()) {
-      var deduplicatedExternalIssues = ExternalIssueRepository.deduplicateIssues(
-        externalIssues,
-        issues
-      );
-      for (var issue : deduplicatedExternalIssues) {
-        ExternalIssueRepository.save(issue, context);
-      }
-    }
   }
 }
