@@ -79,10 +79,6 @@ public abstract class AbstractAnalysis {
     this.consumers = consumers;
   }
 
-  protected boolean isJavaScript(InputFile file) {
-    return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
-  }
-
   abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected List<BridgeServer.Issue> analyzeFile(
@@ -118,9 +114,7 @@ public abstract class AbstractAnalysis {
           dirtyPackageJSONCache
         );
 
-        var response = isJavaScript(file)
-          ? bridgeServer.analyzeJavaScript(request)
-          : bridgeServer.analyzeTypeScript(request);
+        var response = bridgeServer.analyzeJsTs(request);
 
         issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(

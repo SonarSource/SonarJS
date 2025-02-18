@@ -18,7 +18,6 @@ import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters/sonar-runtim
 import { hasSonarContextOption } from '../parameters/sonar-context.js';
 import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
-import { getContext } from '../../../../shared/src/helpers/context.js';
 import type { JSONSchema4 } from 'json-schema';
 import { AnalysisMode } from '../../analysis/analysis.js';
 
@@ -54,18 +53,20 @@ export interface RuleConfig {
  *
  * @param schema the rule schema
  * @param inputRule the rule configuration
+ * @param workDir the working directory used by rules using the 'sonar-context' flag
  * @returns the extended rule configuration
  */
 export function extendRuleConfig(
   schema: JSONSchema4 | JSONSchema4[] | undefined,
   inputRule: RuleConfig,
+  workDir?: string,
 ) {
   const options = [...inputRule.configurations];
   if (hasSonarRuntimeOption(schema)) {
     options.push(SONAR_RUNTIME);
   }
   if (hasSonarContextOption(schema)) {
-    options.push(getContext());
+    options.push({ workDir });
   }
   return options;
 }

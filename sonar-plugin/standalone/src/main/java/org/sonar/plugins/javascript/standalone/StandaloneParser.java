@@ -92,7 +92,7 @@ public class StandaloneParser implements AutoCloseable {
       false
     );
     try {
-      BridgeServer.AnalysisResponse result = bridge.analyzeJavaScript(request);
+      BridgeServer.AnalysisResponse result = bridge.analyzeJsTs(request);
       Node ast = result.ast();
       if (ast == null) {
         throw new IllegalArgumentException("Failed to parse the code");

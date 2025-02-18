@@ -33,10 +33,13 @@ export interface Comment {
  * @returns
  */
 export function extractComments(fileContent: string, filePath: string): Comment[] {
-  const { sourceCode: parsed } = build(
-    { fileContent, filePath, fileType: null, tsConfigs: [] },
-    null,
-  );
+  const { sourceCode: parsed } = build({
+    fileContent,
+    filePath,
+    fileType: null,
+    tsConfigs: [],
+    language: 'js',
+  });
   let esTreeComments: estree.Comment[];
   if (parsed instanceof SourceCode) {
     esTreeComments = parsed.getAllComments();

@@ -19,7 +19,6 @@ import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
-import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { build } from '../../src/builders/build.js';
 
 const cases = [
@@ -44,8 +43,8 @@ describe('ESLint-based parsers', () => {
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
-      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-      const sourceCode = build(input, language as JsTsLanguage).sourceCode;
+      const input = { filePath, fileType, fileContent, language } as JsTsAnalysisInput;
+      const sourceCode = build(input).sourceCode;
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();

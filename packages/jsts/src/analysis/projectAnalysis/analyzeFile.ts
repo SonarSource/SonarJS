@@ -24,7 +24,7 @@ import { analyzeJSTS } from '../analyzer.js';
  */
 export function analyzeFile(input: JsTsAnalysisInput) {
   try {
-    return analyzeJSTS(input, input.language!);
+    return analyzeJSTS(input);
   } catch (e) {
     return parseParsingError(e);
   }

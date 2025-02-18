@@ -34,20 +34,21 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        const { rules, environments, globals, baseDir } = request.data;
-        await Linter.initialize(rules, environments, globals, baseDir);
+        const { rules, environments, globals, baseDir, bundles, sonarlint, rulesWorkdir } =
+          request.data;
+        await Linter.initialize({
+          inputRules: rules,
+          environments: environments,
+          globals: globals,
+          sonarlint: sonarlint,
+          bundles: bundles,
+          workingDirectory: baseDir,
+          rulesWorkdir,
+        });
         return { type: 'success', result: 'OK!' };
       }
-      case 'on-analyze-js': {
-        const output = analyzeJSTS(await readFileLazily(request.data), 'js');
-        return {
-          type: 'success',
-          result: output,
-        };
-      }
-      case 'on-analyze-ts':
-      case 'on-analyze-with-program': {
-        const output = analyzeJSTS(await readFileLazily(request.data), 'ts');
+      case 'on-analyze-jsts': {
+        const output = analyzeJSTS(await readFileLazily(request.data));
         return {
           type: 'success',
           result: output,

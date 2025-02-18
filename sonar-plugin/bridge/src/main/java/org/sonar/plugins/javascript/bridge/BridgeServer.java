@@ -43,9 +43,7 @@ public interface BridgeServer extends Startable {
     List<String> exclusions
   ) throws IOException;
 
-  AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
 

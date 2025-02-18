@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
-import { describe, it, before } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
 import { EmbeddedAnalysisInput } from '../../../jsts/src/embedded/analysis/analysis.js';
@@ -23,20 +23,10 @@ import { JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
 import { build as buildJsTs } from '../../../jsts/src/builders/build.js';
 import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
 import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
-import { setContext } from '../../../shared/src/helpers/context.js';
 import { readFile } from '../../../shared/src/helpers/files.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 
 describe('patchSourceCode', () => {
-  before(() => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-  });
-
   it('should patch source code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'patch', 'source-code.yaml');
     const text = await readFile(filePath);
@@ -82,8 +72,8 @@ describe('patchSourceCode', () => {
 
       filePath = `${fixture}.js`;
       fileContent = await readFile(filePath);
-      const input = { filePath, fileContent } as JsTsAnalysisInput;
-      const referenceSourceCode = buildJsTs(input, 'js');
+      const input = { filePath, fileContent, language: 'js' } as JsTsAnalysisInput;
+      const referenceSourceCode = buildJsTs(input);
       const referenceNodes = referenceSourceCode.sourceCode.ast[property];
 
       expect(patchedNodes).toEqual(referenceNodes);
@@ -104,8 +94,8 @@ describe('patchSourceCode', () => {
 
     filePath = `${fixture}.js`;
     fileContent = await readFile(filePath);
-    const input = { filePath, fileContent } as JsTsAnalysisInput;
-    expect(() => buildJsTs(input, 'js')).toThrow(patchedParsingError);
+    const input = { filePath, fileContent, language: 'js' } as JsTsAnalysisInput;
+    expect(() => buildJsTs(input)).toThrow(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {

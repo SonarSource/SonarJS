@@ -24,7 +24,6 @@ import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import assert from 'node:assert';
-import { getContext, setContext } from '../../shared/src/helpers/context.js';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
@@ -41,14 +40,8 @@ describe('router', () => {
   let server: http.Server;
 
   before(async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-    const worker = createWorker(workerPath, getContext());
-    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', worker);
+    const worker = createWorker(workerPath);
+    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', false, worker);
     server = serverInstance;
     closePromise = serverClosed;
   });

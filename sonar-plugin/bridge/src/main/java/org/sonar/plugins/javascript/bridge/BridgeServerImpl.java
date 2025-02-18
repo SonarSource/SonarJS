@@ -40,7 +40,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,7 +205,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(BridgeServerConfig serverConfig, List<Path> deployedBundles) throws IOException {
+  void startServer(BridgeServerConfig serverConfig) throws IOException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
@@ -219,11 +218,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
 
     LOG.debug("Creating Node.js process to start the bridge server on port {} ", port);
-    String bundles = deployedBundles
-      .stream()
-      .map(Path::toString)
-      .collect(Collectors.joining(File.pathSeparator));
-    nodeCommand = initNodeCommand(serverConfig, scriptFile, bundles);
+    nodeCommand = initNodeCommand(serverConfig, scriptFile);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
@@ -256,14 +251,9 @@ public class BridgeServerImpl implements BridgeServer {
     return true;
   }
 
-  private NodeCommand initNodeCommand(
-    BridgeServerConfig serverConfig,
-    File scriptFile,
-    String bundles
-  ) throws IOException {
-    var workdir = serverConfig.workDirAbsolutePath();
+  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
+    throws IOException {
     var config = serverConfig.config();
-    var allowTsParserJsFiles = config.getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
     var isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
@@ -278,15 +268,7 @@ public class BridgeServerImpl implements BridgeServer {
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(serverConfig.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(
-        String.valueOf(port),
-        hostAddress,
-        workdir,
-        String.valueOf(allowTsParserJsFiles),
-        String.valueOf(isSonarLint),
-        String.valueOf(debugMemory),
-        bundles
-      )
+      .scriptArgs(String.valueOf(port), hostAddress, String.valueOf(debugMemory))
       .env(getEnv());
 
     serverConfig
@@ -339,7 +321,7 @@ public class BridgeServerImpl implements BridgeServer {
       rulesBundles
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
-      startServer(serverConfig, deployedBundles);
+      startServer(serverConfig);
     } catch (NodeCommandException e) {
       status = Status.FAILED;
       throw e;
@@ -370,15 +352,9 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js"), request.filePath());
-  }
-
-  @Override
-  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts"), request.filePath());
+    return response(request(json, "analyze-jsts"), request.filePath());
   }
 
   @Override

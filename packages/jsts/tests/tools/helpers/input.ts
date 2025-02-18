@@ -14,18 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileType, readFile } from '../../../../shared/src/helpers/files.js';
+import { readFile } from '../../../../shared/src/helpers/files.js';
 import { EmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
 import { JsTsAnalysisInput } from '../../../src/analysis/analysis.js';
 
-type allOptional = {
-  filePath: string;
-  fileContent?: string;
-  fileType?: FileType;
-  tsConfigs?: string[];
-  programId?: string;
-  skipAst?: boolean;
-};
+type allOptional = Partial<JsTsAnalysisInput>;
 
 export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> {
   return {
@@ -35,6 +28,9 @@ export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> 
     programId: input.programId,
     tsConfigs: input.tsConfigs ?? [],
     skipAst: input.skipAst ?? false,
+    language: input.language ?? 'js',
+    shouldUseTypeScriptParserForJS: input.shouldUseTypeScriptParserForJS ?? true,
+    sonarlint: input.sonarlint ?? false,
   };
 }
 

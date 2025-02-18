@@ -20,7 +20,6 @@ import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { ProjectAnalysisInput } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
-import { getContext, setContext } from '../../../shared/src/helpers/context.js';
 import { clearTSConfigs } from '../../src/program/tsconfigs/index.js';
 import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
 
@@ -173,12 +172,15 @@ function filesDBtoFilesInput(filesDB: Record<string, File<void>[]>) {
   return allFiles;
 }
 
-function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput {
+function prepareInput(
+  files: Record<string, File<void>[]>,
+  sonarlint = false,
+): ProjectAnalysisInput {
   return {
     rules: defaultRules,
     baseDir: fixtures,
     files: filesDBtoFilesInput(files),
-    isSonarlint: getContext().sonarlint,
+    sonarlint,
   };
 }
 
@@ -187,12 +189,6 @@ const fixtures = path.join(import.meta.dirname, 'fixtures');
 describe('analyzeProject', () => {
   beforeEach(() => {
     clearTSConfigs();
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
   });
 
   it('should analyze the whole project with program', async () => {
@@ -209,14 +205,8 @@ describe('analyzeProject', () => {
   });
 
   it('should analyze the whole project with watch program', async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: true,
-      bundles: [],
-    });
     const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts,*.vue' } }, []);
-    const result = await analyzeProject(prepareInput(files as Record<string, File<void>[]>));
+    const result = await analyzeProject(prepareInput(files as Record<string, File<void>[]>, true));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
