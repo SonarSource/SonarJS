@@ -18,7 +18,13 @@ package org.sonar.plugins.javascript.external;
 
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.bridge.BridgeServer;
 
 /**
  * This is the application of the Repository Pattern.
@@ -66,5 +72,46 @@ public class ExternalIssueRepository {
       .ruleId(issue.name())
       .type(issue.type())
       .save();
+  }
+
+  public static List<ExternalIssue> deduplicateIssues(
+    List<ExternalIssue> externalIssues,
+    List<BridgeServer.Issue> issues
+  ) {
+    var deduplicatedIssues = new ArrayList<ExternalIssue>();
+    // normalize issues of JS/TS analyzer into set of strigs
+    var normalizedIssues = new HashSet<>();
+    for (BridgeServer.Issue issue : issues) {
+      for (String ruleKey : issue.ruleESLintKeys()) {
+        String issueKey = String.format(
+          "%s-%s-%d-%d-%d-%d",
+          ruleKey,
+          issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
+          issue.line(),
+          issue.column(),
+          issue.endLine(),
+          issue.endColumn()
+        );
+        normalizedIssues.add(issueKey);
+      }
+    }
+    // at that point, we have the list of issues that were persisted
+    // we can now persist the ESLint issues that match none of the persisted issues
+    for (var externalIssue : externalIssues) {
+      var issueKey = String.format(
+        "%s-%s-%d-%d-%d-%d",
+        externalIssue.name(),
+        externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
+        externalIssue.location().start().line(),
+        externalIssue.location().start().lineOffset(),
+        externalIssue.location().end().line(),
+        externalIssue.location().end().lineOffset()
+      );
+
+      if (!normalizedIssues.contains(issueKey)) {
+        deduplicatedIssues.add(externalIssue);
+      }
+    }
+    return deduplicatedIssues;
   }
 }

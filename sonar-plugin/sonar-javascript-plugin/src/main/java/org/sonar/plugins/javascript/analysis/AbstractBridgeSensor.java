@@ -18,13 +18,10 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -131,38 +128,12 @@ public abstract class AbstractBridgeSensor implements Sensor {
     List<BridgeServer.Issue> issues
   ) {
     if (!externalIssues.isEmpty()) {
-      // normalize issues of JS/TS analyzer into set of strigs
-      var normalizedIssues = new HashSet<>();
-      for (BridgeServer.Issue issue : issues) {
-        for (String ruleKey : issue.ruleESLintKeys()) {
-          String issueKey = String.format(
-            "%s-%s-%d-%d-%d-%d",
-            ruleKey,
-            issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
-            issue.line(),
-            issue.column(),
-            issue.endLine(),
-            issue.endColumn()
-          );
-          normalizedIssues.add(issueKey);
-        }
-      }
-      // at that point, we have the list of issues that were persisted
-      // we can now persist the ESLint issues that match none of the persisted issues
-      for (var externalIssue : externalIssues) {
-        var issueKey = String.format(
-          "%s-%s-%d-%d-%d-%d",
-          externalIssue.name(),
-          externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
-          externalIssue.location().start().line(),
-          externalIssue.location().start().lineOffset(),
-          externalIssue.location().end().line(),
-          externalIssue.location().end().lineOffset()
-        );
-
-        if (!normalizedIssues.contains(issueKey)) {
-          ExternalIssueRepository.save(externalIssue, context);
-        }
+      var deduplicatedExternalIssues = ExternalIssueRepository.deduplicateIssues(
+        externalIssues,
+        issues
+      );
+      for (var issue : deduplicatedExternalIssues) {
+        ExternalIssueRepository.save(issue, context);
       }
     }
   }
