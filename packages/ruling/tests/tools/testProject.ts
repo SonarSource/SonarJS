@@ -16,7 +16,6 @@
  */
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { Minimatch } from 'minimatch';
 import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
@@ -24,7 +23,6 @@ import { analyzeHTML } from '../../../html/src/index.js';
 import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
-import { before } from 'node:test';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import {
   DEFAULT_ENVIRONMENTS,
@@ -34,7 +32,6 @@ import {
   ProjectAnalysisOutput,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
-import { setContext } from '../../../shared/src/helpers/context.js';
 import { toUnixPath, FileType } from '../../../shared/src/helpers/files.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
@@ -88,15 +85,6 @@ const DEFAULT_EXCLUSIONS = [
 
 export function setupBeforeAll(projectFile: string) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
-
-  before(async () => {
-    setContext({
-      workDir: path.join(os.tmpdir(), 'sonarjs'),
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-  });
 
   return {
     project,
@@ -160,12 +148,14 @@ export async function testProject(
     files: jsTsFiles,
   };
 
-  await Linter.initialize(
+  await Linter.initialize({
     rules,
-    DEFAULT_ENVIRONMENTS,
-    DEFAULT_GLOBALS,
-    path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
-  );
+    environments: DEFAULT_ENVIRONMENTS,
+    globals: DEFAULT_GLOBALS,
+    sonarlint: false,
+    bundles: [],
+    baseDir: path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
+  });
   const jsTsResults = await analyzeProject(payload);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
 
@@ -238,10 +228,7 @@ function isExcluded(filePath: string, exclusions: Minimatch[]) {
  * Analyze files the old school way.
  * Used for HTML and YAML
  */
-async function analyzeFiles(
-  files: JsTsFiles,
-  analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
-) {
+function analyzeFiles(files: JsTsFiles, analyzer: (payload: AnalysisInput) => AnalysisOutput) {
   const results = { files: {} };
   for (const [filePath, fileData] of Object.entries(files)) {
     const payload: AnalysisInput = {
@@ -249,8 +236,7 @@ async function analyzeFiles(
       fileContent: fileData.fileContent,
     };
     try {
-      const result = await analyzer(payload);
-      results.files[filePath] = result;
+      results.files[filePath] = analyzer(payload);
     } catch (err) {
       results.files[filePath] = createParsingIssue(err);
     }

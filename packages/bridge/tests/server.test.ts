@@ -19,25 +19,15 @@ import * as path from 'path';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
 import * as http from 'http';
-import { describe, before, it, mock, Mock } from 'node:test';
+import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
-import { getContext, setContext } from '../../shared/src/helpers/context.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 
 const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
 describe('server', () => {
   const port = 0;
-
-  before(() => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: false,
-      sonarlint: false,
-      bundles: [],
-    });
-  });
 
   it('should start', async () => {
     console.log = mock.fn();
@@ -103,7 +93,7 @@ describe('server', () => {
   it('should shut down', async () => {
     console.log = mock.fn();
 
-    const worker = createWorker(workerPath, getContext());
+    const worker = createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 
@@ -120,7 +110,7 @@ describe('server', () => {
   it('worker crashing should close server', async () => {
     console.log = mock.fn();
 
-    const worker = createWorker(workerPath, getContext());
+    const worker = createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 
@@ -138,7 +128,13 @@ describe('server', () => {
   it('should timeout', async () => {
     console.log = mock.fn();
 
-    const { server, serverClosed } = await start(port, '127.0.0.1', undefined, 500);
+    const { server, serverClosed } = await start(
+      port,
+      '127.0.0.1',
+      /* worker */ undefined,
+      /* debugMemory */ false,
+      500,
+    );
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
@@ -161,7 +157,7 @@ async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<
   const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 
-  return await request(server, '/analyze-js', 'POST', analysisInput);
+  return await request(server, '/analyze-jsts', 'POST', analysisInput);
 }
 
 function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {

@@ -19,9 +19,9 @@ import os from 'os';
 import fs from 'fs';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
-import { getContext } from '../../shared/src/helpers/context.js';
 
 const MB = 1024 * 1024;
+let debugMemory = false;
 
 export function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
@@ -83,6 +83,7 @@ export function logMemoryError(err: any) {
 }
 
 export function registerGarbageCollectionObserver() {
+  debugMemory = true;
   const obs = new PerformanceObserver(items => {
     items
       .getEntries()
@@ -100,7 +101,7 @@ export function registerGarbageCollectionObserver() {
 }
 
 export function logHeapStatistics() {
-  if (getContext().debugMemory) {
+  if (debugMemory) {
     debug(JSON.stringify(v8.getHeapStatistics()));
   }
 }

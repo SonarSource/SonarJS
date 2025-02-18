@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,6 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
-  private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
@@ -80,7 +79,10 @@ public class BridgeServerImpl implements BridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private Status status = Status.NOT_STARTED;
+  private boolean isSonarLint;
   private final RulesBundles rulesBundles;
+  private List<Path> deployedBundles = Collections.emptyList();
+  private String workdir;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path temporaryDeployLocation;
   private final EmbeddedNode embeddedNode;
@@ -206,7 +208,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(BridgeServerConfig serverConfig, List<Path> deployedBundles) throws IOException {
+  void startServer(BridgeServerConfig serverConfig) throws IOException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
@@ -219,11 +221,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
 
     LOG.debug("Creating Node.js process to start the bridge server on port {} ", port);
-    String bundles = deployedBundles
-      .stream()
-      .map(Path::toString)
-      .collect(Collectors.joining(File.pathSeparator));
-    nodeCommand = initNodeCommand(serverConfig, scriptFile, bundles);
+    nodeCommand = initNodeCommand(serverConfig, scriptFile);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
@@ -256,15 +254,9 @@ public class BridgeServerImpl implements BridgeServer {
     return true;
   }
 
-  private NodeCommand initNodeCommand(
-    BridgeServerConfig serverConfig,
-    File scriptFile,
-    String bundles
-  ) throws IOException {
-    var workdir = serverConfig.workDirAbsolutePath();
+  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
+    throws IOException {
     var config = serverConfig.config();
-    var allowTsParserJsFiles = config.getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
-    var isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
@@ -278,15 +270,7 @@ public class BridgeServerImpl implements BridgeServer {
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(serverConfig.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(
-        String.valueOf(port),
-        hostAddress,
-        workdir,
-        String.valueOf(allowTsParserJsFiles),
-        String.valueOf(isSonarLint),
-        String.valueOf(debugMemory),
-        bundles
-      )
+      .scriptArgs(String.valueOf(port), hostAddress, String.valueOf(debugMemory))
       .env(getEnv());
 
     serverConfig
@@ -318,6 +302,7 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
     }
+    isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     var providedPort = nodeAlreadyRunningPort();
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
     if (providedPort != 0) {
@@ -335,11 +320,12 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
       deploy(serverConfig.config());
-      List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
+      workdir = serverConfig.workDirAbsolutePath();
+      deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
-      startServer(serverConfig, deployedBundles);
+      startServer(serverConfig);
     } catch (NodeCommandException e) {
       status = Status.FAILED;
       throw e;
@@ -351,15 +337,16 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    String baseDir,
-    List<String> exclusions
+    String baseDir
   ) {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       rules,
       environments,
       globals,
       baseDir,
-      exclusions
+      isSonarLint,
+      deployedBundles.stream().map(Path::toString).toList(),
+      workdir
     );
     String request = GSON.toJson(initLinterRequest);
 
@@ -370,15 +357,9 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js"), request.filePath());
-  }
-
-  @Override
-  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts"), request.filePath());
+    return response(request(json, "analyze-jsts"), request.filePath());
   }
 
   @Override
@@ -609,29 +590,6 @@ public class BridgeServerImpl implements BridgeServer {
 
     TsConfigRequest(String tsconfig) {
       this.tsConfig = tsconfig;
-    }
-  }
-
-  static class InitLinterRequest {
-
-    List<EslintRule> rules;
-    List<String> environments;
-    List<String> globals;
-    String baseDir;
-    List<String> exclusions;
-
-    InitLinterRequest(
-      List<EslintRule> rules,
-      List<String> environments,
-      List<String> globals,
-      String baseDir,
-      List<String> exclusions
-    ) {
-      this.rules = rules;
-      this.environments = environments;
-      this.globals = globals;
-      this.baseDir = baseDir;
-      this.exclusions = exclusions;
     }
   }
 

@@ -38,6 +38,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
     ];
     expect(extractHighlightedSymbols(issues)).toEqual({
@@ -60,6 +61,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
     ];
     expect(extractCognitiveComplexity(issues)).toEqual(42);
@@ -75,6 +77,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
     ];
     expect(extractCognitiveComplexity(issues)).toEqual(undefined);
@@ -97,6 +100,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
       {
         ruleId: 'non-extracted-rule',
@@ -106,6 +110,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
       {
         ruleId: cognitiveComplexityRule.ruleId,
@@ -115,6 +120,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
     ];
     extractHighlightedSymbols(issues);
@@ -128,6 +134,7 @@ describe('extract', () => {
         secondaryLocations: [],
         ruleESLintKeys: [],
         filePath: 'foo.js',
+        language: 'js',
       },
     ]);
   });

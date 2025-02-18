@@ -17,27 +17,13 @@
 package org.sonar.plugins.javascript;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Scanner;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 public class JavaScriptFilePredicate {
-
-  private static final String regex = "\\<script[^>]+lang=['\"]ts['\"][^>]*>";
-  private static final Pattern pattern = Pattern.compile(regex);
-  private static final Predicate<String> predicate = pattern.asPredicate();
-  private static final FilePredicate hasScriptTagWithLangTS = file -> {
-    try {
-      return predicate.test(file.contents());
-    } catch (IOException e) {
-      return false;
-    }
-  };
 
   // Helm template directives - for YAML files
   private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
@@ -81,20 +67,5 @@ public class JavaScriptFilePredicate {
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
     return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
-  }
-
-  private static boolean isVueTsFile(InputFile file) {
-    return (
-      file.filename().toLowerCase(Locale.ROOT).endsWith(".vue") &&
-      hasScriptTagWithLangTS.apply(file)
-    );
-  }
-
-  public static boolean isTypeScriptFile(InputFile file) {
-    return (TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
-  }
-
-  public static boolean isJavaScriptFile(InputFile file) {
-    return JavaScriptLanguage.KEY.equals(file.language());
   }
 }

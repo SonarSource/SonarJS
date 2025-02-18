@@ -20,6 +20,7 @@ import { Issue } from './issue.js';
 import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 
 /**
  * The result of linting a source code
@@ -62,11 +63,13 @@ export type LintingResult = {
  * - normalizing issue locations
  *
  * @param messages ESLint messages to transform
+ * @param language the file language
  * @param ctx contextual information
  * @returns the linting result
  */
 export function transformMessages(
   messages: Linter.LintMessage[],
+  language: JsTsLanguage,
   ctx: { sourceCode: SourceCode; rules: Record<string, Rule.RuleModule>; filePath: string },
 ): LintingResult {
   const issues: Issue[] = [];
@@ -76,7 +79,7 @@ export function transformMessages(
     if (message.ruleId === 'sonarjs/ucfg') {
       ucfgPaths.push(message.message);
     } else {
-      let issue = convertMessage(ctx.sourceCode, message, ctx.filePath);
+      let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
       if (issue !== null) {
         issue = normalizeLocation(decodeSonarRuntime(ctx.rules[issue.ruleId], issue));
         issues.push(issue);

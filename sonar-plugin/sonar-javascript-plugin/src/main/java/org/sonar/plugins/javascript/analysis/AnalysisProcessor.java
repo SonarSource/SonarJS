@@ -16,10 +16,7 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 import static org.sonar.plugins.javascript.analysis.QuickFixSupport.addQuickFixes;
-import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
-import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
@@ -49,6 +46,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
@@ -355,7 +353,7 @@ public class AnalysisProcessor {
   private RuleKey findRuleKey(Issue issue) {
     return checks.ruleKeyByEslintKey(
       issue.ruleId(),
-      isTypeScriptFile(file) ? TYPESCRIPT : JAVASCRIPT
+      CustomRuleRepository.Language.of(issue.language())
     );
   }
 

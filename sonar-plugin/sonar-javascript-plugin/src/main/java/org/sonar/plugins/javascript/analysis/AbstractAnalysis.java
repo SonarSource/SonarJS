@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.api.JsFile;
@@ -65,22 +62,12 @@ public abstract class AbstractAnalysis {
     this.analysisWarnings = analysisWarnings;
   }
 
-  protected static String inputFileLanguage(InputFile file) {
-    return JavaScriptFilePredicate.isTypeScriptFile(file)
-      ? TypeScriptLanguage.KEY
-      : JavaScriptLanguage.KEY;
-  }
-
   void initialize(SensorContext context, JsTsChecks checks, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.consumers = consumers;
-  }
-
-  protected boolean isJavaScript(InputFile file) {
-    return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
   }
 
   abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException;
@@ -118,9 +105,7 @@ public abstract class AbstractAnalysis {
           dirtyPackageJSONCache
         );
 
-        var response = isJavaScript(file)
-          ? bridgeServer.analyzeJavaScript(request)
-          : bridgeServer.analyzeTypeScript(request);
+        var response = bridgeServer.analyzeJsTs(request);
 
         issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
@@ -167,7 +152,6 @@ public abstract class AbstractAnalysis {
     return new BridgeServer.JsAnalysisRequest(
       file.absolutePath(),
       file.type().toString(),
-      inputFileLanguage(file),
       fileContent,
       contextUtils.ignoreHeaderComments(),
       tsConfigs,
@@ -175,7 +159,9 @@ public abstract class AbstractAnalysis {
       file.status(),
       contextUtils.getAnalysisMode(),
       skipAst,
-      shouldClearDependenciesCache
+      shouldClearDependenciesCache,
+      contextUtils.isSonarLint(),
+      contextUtils.allowTsParserJsFiles()
     );
   }
 

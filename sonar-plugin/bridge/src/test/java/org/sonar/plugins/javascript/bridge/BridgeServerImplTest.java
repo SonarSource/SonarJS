@@ -37,8 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +54,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -130,9 +127,8 @@ class BridgeServerImplTest {
   @Test
   void should_throw_when_not_existing_script() {
     bridgeServer = createBridgeServer("NOT_EXISTING.js");
-    List<Path> deployedBundles = emptyList();
 
-    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig, deployedBundles))
+    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig))
       .isInstanceOf(NodeCommandException.class)
       .hasMessageStartingWith("Node.js script to start the bridge server doesn't exist:");
   }
@@ -156,9 +152,8 @@ class BridgeServerImplTest {
       tempFolder,
       unsupportedEmbeddedRuntime
     );
-    List<Path> deployedBundles = emptyList();
 
-    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig, deployedBundles))
+    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("msg");
   }
@@ -166,7 +161,7 @@ class BridgeServerImplTest {
   @Test
   void should_forward_process_streams() throws Exception {
     bridgeServer = createBridgeServer("logging.js");
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     assertThat(logTester.logs(DEBUG)).contains("testing debug log");
     assertThat(logTester.logs(WARN)).contains("testing warn log");
@@ -177,20 +172,20 @@ class BridgeServerImplTest {
   @Test
   void should_get_answer_from_server() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
-    var response = bridgeServer.analyzeJavaScript(request);
+    var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.issues()).hasSize(1);
   }
 
   @Test
   void test_init() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     List<EslintRule> rules = Collections.singletonList(
       new EslintRule(
@@ -201,23 +196,17 @@ class BridgeServerImplTest {
         "js"
       )
     );
-    bridgeServer.initLinter(
-      rules,
-      Collections.emptyList(),
-      Collections.emptyList(),
-      "",
-      Collections.emptyList()
-    );
+    bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "");
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
-      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
+      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"
     );
   }
 
   @Test
   void should_get_answer_from_server_for_ts_request() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
       .setContents("alert('Fly, you fools!')")
@@ -228,7 +217,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       singletonList(tsConfig.absolutePath()),
@@ -236,15 +224,17 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
-    assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
+    assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
   }
 
   @Test
   void should_get_answer_from_server_for_yaml_request() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
@@ -258,7 +248,6 @@ class BridgeServerImplTest {
     return new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,
@@ -266,14 +255,16 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
   }
 
   @Test
   void should_get_answer_from_server_for_program_based_requests() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     TsProgram programCreated = bridgeServer.createProgram(
       new TsProgramRequest("/absolute/path/tsconfig.json")
@@ -287,7 +278,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       "/absolute/path/file.ts",
       "MAIN",
-      "js",
       null,
       true,
       null,
@@ -295,9 +285,11 @@ class BridgeServerImplTest {
       InputFile.Status.ADDED,
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
-    assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
+    assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
 
     assertThat(bridgeServer.deleteProgram(programCreated)).isTrue();
   }
@@ -305,7 +297,7 @@ class BridgeServerImplTest {
   @Test
   void should_create_tsconfig_files() throws IOException {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     var tsConfig = bridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
     assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
@@ -314,7 +306,7 @@ class BridgeServerImplTest {
   @Test
   void should_not_fail_when_error_during_create_program() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     TsProgram programCreated = bridgeServer.createProgram(
       new TsProgramRequest("/absolute/path/invalid.json")
@@ -327,7 +319,7 @@ class BridgeServerImplTest {
   @Test
   void should_get_answer_from_server_for_css_request() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
       .setContents("a { }")
@@ -343,9 +335,8 @@ class BridgeServerImplTest {
   @Test
   void should_throw_if_failed_to_start() {
     bridgeServer = createBridgeServer("throw.js");
-    List<Path> deployedBundles = emptyList();
 
-    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig, deployedBundles))
+    assertThatThrownBy(() -> bridgeServer.startServer(serverConfig))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
   }
@@ -357,7 +348,7 @@ class BridgeServerImplTest {
       "Node.js command to start the bridge server was not built yet."
     );
 
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     assertThat(bridgeServer.getCommandInfo()).contains(
       "Node.js command to start the bridge server was: ",
@@ -376,31 +367,9 @@ class BridgeServerImplTest {
 
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.maxspace", 2048));
     BridgeServerConfig serverConfigForMaxSpace = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigForMaxSpace, emptyList());
+    bridgeServer.startServer(serverConfigForMaxSpace);
 
     assertThat(bridgeServer.getCommandInfo()).contains("--max-old-space-size=2048");
-  }
-
-  @Test
-  void should_set_allowTsParserJsFiles_to_false() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    context.setSettings(
-      new MapSettings().setProperty("sonar.javascript.allowTsParserJsFiles", "false")
-    );
-    BridgeServerConfig serverConfigForAllowTs = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigForAllowTs, emptyList());
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("allowTsParserJsFiles: false");
-  }
-
-  @Test
-  void allowTsParserJsFiles_default_value_is_true() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("allowTsParserJsFiles: true");
   }
 
   @Test
@@ -516,7 +485,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,
@@ -524,9 +492,11 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
-    assertThatThrownBy(() -> bridgeServer.analyzeJavaScript(request)).isInstanceOf(
+    assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request)).isInstanceOf(
       IllegalStateException.class
     );
     assertThat(context.allIssues()).isEmpty();
@@ -539,21 +509,21 @@ class BridgeServerImplTest {
     ctx.fileSystem().setWorkDir(workDir);
     Path tsDir = moduleBase.resolve("dir/node_modules/typescript");
     Files.createDirectories(tsDir);
-    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(ctx), emptyList());
+    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(ctx));
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
   }
 
   @Test
   void should_reload_tsconfig() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
     assertThat(bridgeServer.newTsConfig()).isTrue();
   }
 
   @Test
   void should_return_files_for_tsconfig() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
     String tsconfig = "path/to/tsconfig.json";
     BridgeServerImpl.TsConfigResponse tsConfigResponse = bridgeServer.tsConfigFiles(tsconfig);
     assertThat(tsConfigResponse.files).contains(
@@ -575,7 +545,7 @@ class BridgeServerImplTest {
   @Test
   void should_return_no_files_for_tsconfig_bad_response() throws Exception {
     bridgeServer = createBridgeServer("badResponse.js");
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
     BridgeServerImpl.TsConfigResponse response = bridgeServer.tsConfigFiles(
       "path/to/tsconfig.json"
     );
@@ -586,7 +556,7 @@ class BridgeServerImplTest {
   @Test
   void should_return_no_files_for_tsconfig_no_response() throws Exception {
     bridgeServer = createBridgeServer("badResponse.js");
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
     assertThat(bridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
     TsConfigFile tsConfigFile = bridgeServer.loadTsConfig("path/to/tsconfig.json");
     assertThat(tsConfigFile.getFiles()).isEmpty();
@@ -595,7 +565,7 @@ class BridgeServerImplTest {
   @Test
   void should_return_no_files_for_tsconfig_on_error() throws Exception {
     bridgeServer = createBridgeServer("tsConfigError.js");
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     TsConfigFile tsConfigFile = bridgeServer.loadTsConfig("path/to/tsconfig.json");
     assertThat(tsConfigFile.getFiles()).isEmpty();
@@ -605,7 +575,7 @@ class BridgeServerImplTest {
   @Test
   void log_error_when_timeout() throws Exception {
     bridgeServer = createBridgeServer("timeout.js");
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     assertThatThrownBy(() -> bridgeServer.loadTsConfig("any.ts"))
       .isInstanceOf(IllegalStateException.class)
@@ -625,42 +595,11 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_load_custom_rules() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(
-      serverConfig,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains(
-      "additional rules: [bundle1" + File.pathSeparator + "bundle2]"
-    );
-  }
-
-  @Test
-  void should_skip_metrics_on_sonarlint() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
-    BridgeServerConfig serverConfigFor79 = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(
-      serverConfigFor79,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("sonarlint: true");
-  }
-
-  @Test
   void should_pass_debug_memory_option() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.debugMemory", "true"));
     BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(
-      serverConfigForDebugMemory,
-      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
-    );
+    bridgeServer.startServer(serverConfigForDebugMemory);
     bridgeServer.stop();
 
     assertThat(logTester.logs()).contains("debugMemory: true");
@@ -761,7 +700,7 @@ class BridgeServerImplTest {
   @Test
   void should_return_telemetry() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
     var telemetry = bridgeServer.getTelemetry();
     assertThat(telemetry.dependencies()).isEqualTo(List.of(new Dependency("pkg1", "1.0.0")));
     var runtimeTelemetry = telemetry.runtimeTelemetry();
@@ -772,13 +711,13 @@ class BridgeServerImplTest {
   @Test
   void should_return_an_ast() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, emptyList());
+    bridgeServer.startServer(serverConfig);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
-    var response = bridgeServer.analyzeJavaScript(request);
+    var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.ast()).isNotNull();
     Node node = response.ast();
     assertThat(node.getProgram()).isNotNull();
@@ -788,7 +727,7 @@ class BridgeServerImplTest {
   @Test
   void should_omit_an_ast_if_skipAst_flag_is_set() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context), emptyList());
+    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
@@ -796,7 +735,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      "js",
       null,
       true,
       null,
@@ -804,9 +742,11 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       true,
-      false
+      false,
+      false,
+      true
     );
-    var response = bridgeServer.analyzeJavaScript(request);
+    var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.ast()).isNull();
   }
 

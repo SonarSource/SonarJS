@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parentPort, workerData } from 'worker_threads';
-import { setContext } from '../../shared/src/helpers/context.js';
+import { parentPort } from 'worker_threads';
 import { handleRequest } from './handle-request.js';
 import { BridgeRequest } from './request.js';
 
@@ -23,7 +22,6 @@ import { BridgeRequest } from './request.js';
  * Code executed by the worker thread
  */
 if (parentPort) {
-  setContext(workerData.context);
   const parentThread = parentPort;
   parentThread.on('message', async (message: BridgeRequest | { type: 'close' }) => {
     const { type } = message;
