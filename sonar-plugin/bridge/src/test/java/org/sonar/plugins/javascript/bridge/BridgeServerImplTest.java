@@ -29,7 +29,6 @@ import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
-import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
@@ -61,6 +60,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -197,6 +197,7 @@ class BridgeServerImplTest {
         "key",
         singletonList("config"),
         Collections.singletonList(InputFile.Type.MAIN),
+        singletonList(AnalysisMode.DEFAULT),
         "js"
       )
     );
@@ -204,13 +205,12 @@ class BridgeServerImplTest {
       rules,
       Collections.emptyList(),
       Collections.emptyList(),
-      AnalysisMode.DEFAULT,
       "",
       Collections.emptyList()
     );
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
-      "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
+      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
     );
   }
 
@@ -233,7 +233,8 @@ class BridgeServerImplTest {
       true,
       singletonList(tsConfig.absolutePath()),
       null,
-      DEFAULT_LINTER_ID,
+      inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -262,7 +263,8 @@ class BridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID,
+      inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -290,7 +292,8 @@ class BridgeServerImplTest {
       true,
       null,
       programCreated.programId(),
-      DEFAULT_LINTER_ID,
+      InputFile.Status.ADDED,
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -518,7 +521,8 @@ class BridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID,
+      inputFile.status(),
+      AnalysisMode.DEFAULT,
       false,
       false
     );
@@ -614,6 +618,7 @@ class BridgeServerImplTest {
       "key",
       emptyList(),
       Collections.singletonList(InputFile.Type.MAIN),
+      singletonList(AnalysisMode.DEFAULT),
       "js"
     );
     assertThat(rule).hasToString("key");
@@ -796,7 +801,8 @@ class BridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID,
+      inputFile.status(),
+      AnalysisMode.DEFAULT,
       true,
       false
     );

@@ -19,9 +19,8 @@ import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
-import { getLinter } from '../linter/linters.js';
+import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
-import { LinterWrapper } from '../linter/wrapper.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
@@ -31,7 +30,6 @@ import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
-import { ParseResult } from '../parsers/parse.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -50,35 +48,18 @@ import { ParseResult } from '../parsers/parse.js';
  * @returns the JavaScript / TypeScript analysis output
  */
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
-  debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
-  const linter = getLinter(input.linterId);
-  return analyzeFile(linter, input, build(input, language));
-}
-
-/**
- * Analyzes a parsed ESLint SourceCode instance
- *
- * Analyzing a parsed ESLint SourceCode instance consists in linting the source code
- * and computing extended metrics about the code. At this point, the linting results
- * are already SonarQube-compatible and can be consumed back as such by the sensor.
- *
- * @param linter the linter to use for the analysis
- * @param input the JavaScript / TypeScript analysis input to analyze
- * @param parseResult the corresponding parsing result containing the SourceCode instance
- * @returns the JavaScript / TypeScript analysis output
- */
-function analyzeFile(
-  linter: LinterWrapper,
-  input: JsTsAnalysisInput,
-  parseResult: ParseResult,
-): JsTsAnalysisOutput {
+  debug(`Analyzing file "${input.filePath}"`);
+  const parseResult = build(input, language);
   try {
-    const { filePath, fileType, language, shouldClearDependenciesCache } = input;
+    const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
+      input;
     shouldClearDependenciesCache && clearDependenciesCache();
-    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
+    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
       parseResult,
       filePath,
       fileType,
+      fileStatus,
+      analysisMode,
       language,
     );
     const extendedMetrics = computeExtendedMetrics(

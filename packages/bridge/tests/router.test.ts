@@ -66,8 +66,9 @@ describe('router', () => {
         {
           key: 'S4621',
           configurations: [],
-          fileTypeTarget: ['MAIN'],
+          fileTypeTargets: ['MAIN'],
           language: 'ts',
+          analysisModes: ['DEFAULT'],
         },
       ],
       baseDir: fixtures,
@@ -115,7 +116,13 @@ describe('router', () => {
 
   it('should route /analyze-js requests', async () => {
     await requestInitLinter(server, [
-      { key: 'S6325', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'S6325',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
     const filePath = path.join(fixtures, 'file.js');
     const fileType = 'MAIN';
@@ -146,7 +153,13 @@ describe('router', () => {
 
   it('should route /analyze-ts requests', async () => {
     await requestInitLinter(server, [
-      { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'S4621',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
@@ -170,7 +183,13 @@ describe('router', () => {
 
   it('should route /analyze-with-program requests', async () => {
     await requestInitLinter(server, [
-      { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'S4621',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
@@ -197,7 +216,13 @@ describe('router', () => {
 
   it('should route /analyze-yaml requests', async () => {
     await requestInitLinter(server, [
-      { key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'S3923',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
     const filePath = path.join(fixtures, 'file.yaml');
     const filePathWithLambda = path.join(fixtures, 'file-SomeLambdaFunction.yaml');
@@ -223,7 +248,13 @@ describe('router', () => {
 
   it('should route /analyze-html requests', async () => {
     await requestInitLinter(server, [
-      { key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] },
+      {
+        key: 'S3923',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
     ]);
     const filePath = path.join(fixtures, 'file.html');
     const data = { filePath };

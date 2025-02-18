@@ -22,8 +22,9 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.estree.ESTree;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
@@ -70,7 +71,7 @@ public class StandaloneParser implements AutoCloseable {
           SonarProduct.SONARLINT
         )
       );
-      bridge.initLinter(List.of(), List.of(), List.of(), AnalysisMode.DEFAULT, null, List.of());
+      bridge.initLinter(List.of(), List.of(), List.of(), null, List.of());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -85,7 +86,8 @@ public class StandaloneParser implements AutoCloseable {
       true,
       null,
       null,
-      AnalysisMode.DEFAULT_LINTER_ID,
+      InputFile.Status.ADDED,
+      AnalysisMode.DEFAULT,
       false,
       false
     );

@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -38,7 +39,6 @@ public interface BridgeServer extends Startable {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    AnalysisMode analysisMode,
     String baseDir,
     List<String> exclusions
   ) throws IOException;
@@ -79,7 +79,8 @@ public interface BridgeServer extends Startable {
     boolean ignoreHeaderComments,
     @Nullable List<String> tsConfigs,
     @Nullable String programId,
-    String linterId,
+    InputFile.Status fileStatus,
+    AnalysisMode analysisMode,
     boolean skipAst,
     boolean shouldClearDependenciesCache
   ) {}

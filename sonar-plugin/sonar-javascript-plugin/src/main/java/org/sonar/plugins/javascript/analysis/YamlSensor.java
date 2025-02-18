@@ -35,7 +35,6 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -50,7 +49,6 @@ public class YamlSensor extends AbstractBridgeSensor {
   private static final Logger LOG = LoggerFactory.getLogger(YamlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
-  private AnalysisMode analysisMode;
 
   public YamlSensor(
     JsTsChecks checks,
@@ -74,7 +72,6 @@ public class YamlSensor extends AbstractBridgeSensor {
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var issues = new ArrayList<BridgeServer.Issue>();
 
-    analysisMode = AnalysisMode.getMode(context);
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
@@ -83,7 +80,6 @@ public class YamlSensor extends AbstractBridgeSensor {
         checks.eslintRules(),
         environments,
         globals,
-        analysisMode,
         context.fileSystem().baseDir().getAbsolutePath(),
         exclusions
       );
@@ -168,7 +164,8 @@ public class YamlSensor extends AbstractBridgeSensor {
           contextUtils.ignoreHeaderComments(),
           null,
           null,
-          analysisMode.getLinterIdFor(file),
+          file.status(),
+          contextUtils.getAnalysisMode(),
           false,
           false
         );

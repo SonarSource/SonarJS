@@ -42,9 +42,10 @@ type RuleMetadata = {
 };
 type RuleData = {
   key: string;
-  fileTypeTarget: string[];
+  fileTypeTargets: string[];
   configurations: { [key: string]: unknown }[];
   language: 'js' | 'ts';
+  analysisModes: 'DEFAULT'[];
 };
 
 extractRulesData();
@@ -58,9 +59,10 @@ function extractRulesData() {
     }
     const rule = applyRulingConfig({
       key: eslintKey,
-      fileTypeTarget: parseType(scope),
+      fileTypeTargets: parseType(scope),
       configurations: defaultParams,
       language: parseLanguage(ruleKey),
+      analysisModes: ['DEFAULT'],
     });
     rulesData.push(rule);
   });
@@ -78,12 +80,12 @@ function applyRulingConfig(rule: RuleData) {
   switch (rule.key) {
     case 'S2486': {
       // for some reason the scope is different
-      rule.fileTypeTarget = ['TEST'];
+      rule.fileTypeTargets = ['TEST'];
       break;
     }
     case 'S6426': {
       // for some reason the scope is different
-      rule.fileTypeTarget = ['TEST'];
+      rule.fileTypeTargets = ['TEST'];
       break;
     }
     case 'S1451': {

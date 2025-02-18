@@ -25,7 +25,7 @@ import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { before } from 'node:test';
-import { initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { Linter } from '../../../jsts/src/linter/linter.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -66,7 +66,6 @@ const expectedPath = path.join(
 const actualPath = path.join(import.meta.dirname, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
-const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
   name: string;
@@ -97,7 +96,6 @@ export function setupBeforeAll(projectFile: string) {
       sonarlint: false,
       bundles: [],
     });
-    await initializeRules(rules, project);
   });
 
   return {
@@ -107,35 +105,19 @@ export function setupBeforeAll(projectFile: string) {
     rules,
   };
 }
-async function initializeRules(rules: RuleConfig[], project: RulingInput) {
-  await initializeLinter(
-    rules,
-    DEFAULT_ENVIRONMENTS,
-    DEFAULT_GLOBALS,
-    path.join(jsTsProjectsPath, project.folder ?? project.name),
-  );
-  const htmlRules = rules.filter(rule => rule.key !== 'S3504');
-  await initializeLinter(
-    htmlRules,
-    DEFAULT_ENVIRONMENTS,
-    DEFAULT_GLOBALS,
-    path.join(jsTsProjectsPath, project.folder ?? project.name),
-    HTML_LINTER_ID,
-  );
-}
-function getProjectName(testFilePath: string) {
-  const SUFFIX = '.ruling.test.ts';
-  const filename = path.basename(testFilePath);
-  return filename.substring(0, filename.length - SUFFIX.length);
-}
+
 function extractParameters(projectFile: string) {
   const settingsPath = process.env[SETTINGS_KEY];
   let params;
   if (settingsPath) {
-    params = extractSettingsFromFile(settingsPath);
+    params = require(settingsPath);
   }
-  const projectName = getProjectName(toUnixPath(projectFile));
-  const project = projects.find(p => p.name === projectName);
+
+  const filename = path.basename(toUnixPath(projectFile));
+
+  const project = projects.find(
+    p => p.name === filename.substring(0, filename.length - '.ruling.test.ts'.length),
+  );
 
   return {
     project,
@@ -148,10 +130,6 @@ function extractParameters(projectFile: string) {
       : path.join(actualPath, project.name),
   };
 }
-function extractSettingsFromFile(pathToSettings: string) {
-  return require(pathToSettings);
-}
-
 /**
  * Load files and analyze project
  */
@@ -161,9 +139,20 @@ export async function testProject(
   rules: RuleConfig[],
 ) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
-  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
+  const exclusionsArray = rulingInput.exclusions?.split(',') || [];
+  if (rulingInput.testDir) {
+    exclusionsArray.push(...rulingInput.testDir.split(',').map(dir => `${dir}/**/*`));
+  }
+  const exclusions = exclusionsArray.map(
+    pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true }),
+  );
 
-  const { jsTsFiles, htmlFiles, yamlFiles } = getProjectFiles(rulingInput, projectPath, exclusions);
+  const { jsTsFiles, htmlFiles, yamlFiles } = getFiles(projectPath, exclusions);
+
+  if (rulingInput.testDir != null) {
+    const testFolder = path.join(projectPath, rulingInput.testDir);
+    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
+  }
 
   const payload: ProjectAnalysisInput = {
     rules,
@@ -171,9 +160,19 @@ export async function testProject(
     files: jsTsFiles,
   };
 
+  await Linter.initialize(
+    rules,
+    DEFAULT_ENVIRONMENTS,
+    DEFAULT_GLOBALS,
+    path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
+  );
   const jsTsResults = await analyzeProject(payload);
-  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
+
+  Linter.rulesConfig.forEach(rules => {
+    rules['sonarjs/S3504'] = ['off'];
+  });
+  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
   const results = mergeResults(jsTsResults, htmlResults, yamlResults);
 
   writeResults(
@@ -183,35 +182,6 @@ export async function testProject(
     [jsTsFiles, htmlFiles, yamlFiles],
     actualPath,
   );
-}
-
-/**
- * Creates the exclusions object
- */
-function setExclusions(exclusions: string, testDir?: string) {
-  const exclusionsArray = exclusions ? exclusions.split(',') : [];
-  if (testDir && testDir !== '') {
-    exclusionsArray.push(...testDir.split(',').map(dir => `${dir}/**/*`));
-  }
-  const exclusionsGlob = stringToGlob(exclusionsArray.map(pattern => pattern.trim()));
-  return exclusionsGlob;
-
-  function stringToGlob(patterns: string[]): Minimatch[] {
-    return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
-  }
-}
-
-/**
- * Gathers all the files that should be analyzed for the given project
- */
-function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: Minimatch[]) {
-  const { jsTsFiles, htmlFiles, yamlFiles } = getFiles(projectPath, exclusions);
-
-  if (rulingInput.testDir != null) {
-    const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
-  }
-  return { jsTsFiles, htmlFiles, yamlFiles };
 }
 
 /**
@@ -271,14 +241,12 @@ function isExcluded(filePath: string, exclusions: Minimatch[]) {
 async function analyzeFiles(
   files: JsTsFiles,
   analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
-  linterId?: string,
 ) {
   const results = { files: {} };
   for (const [filePath, fileData] of Object.entries(files)) {
     const payload: AnalysisInput = {
       filePath,
       fileContent: fileData.fileContent,
-      linterId,
     };
     try {
       const result = await analyzer(payload);
