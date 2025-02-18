@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,25 +79,36 @@ public abstract class AbstractBridgeSensor implements Sensor {
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       var issues = analyzeFiles(inputFiles);
 
+      // normalize issues of JS/TS analyzer into set of strigs
+      var normalizedIssues = new HashSet<>();
+      for (BridgeServer.Issue issue : issues) {
+        for (String ruleKey : issue.ruleESLintKeys()) {
+          String issueKey = String.format(
+            "%s-%s-%d-%d-%d-%d",
+            ruleKey,
+            issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
+            issue.line(),
+            issue.column(),
+            issue.endLine(),
+            issue.endColumn()
+          );
+          normalizedIssues.add(issueKey);
+        }
+      }
       // at that point, we have the list of issues that were persisted
       // we can now persist the ESLint issues that match none of the persisted issues
       for (var externalIssue : esLintIssues) {
-        Predicate<BridgeServer.Issue> predicate = issue ->
-          (issue.ruleESLintKeys().contains(externalIssue.name()) &&
-            issue
-              .filePath()
-              .replaceAll(Pattern.quote(File.separator), "/")
-              .equals(
-                externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/")
-              ) &&
-            issue.line() == externalIssue.location().start().line() &&
-            issue.column() == externalIssue.location().start().lineOffset() &&
-            issue.endLine() == externalIssue.location().end().line() &&
-            issue.endColumn() == externalIssue.location().end().lineOffset());
+        var issueKey = String.format(
+          "%s-%s-%d-%d-%d-%d",
+          externalIssue.name(),
+          externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
+          externalIssue.location().start().line(),
+          externalIssue.location().start().lineOffset(),
+          externalIssue.location().end().line(),
+          externalIssue.location().end().lineOffset()
+        );
 
-        var persistedIssue = issues.stream().filter(predicate).findFirst();
-
-        if (persistedIssue.isEmpty()) {
+        if (normalizedIssues.contains(issueKey)) {
           ExternalIssueRepository.save(externalIssue, context);
         }
       }
