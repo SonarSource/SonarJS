@@ -71,7 +71,7 @@ public class StandaloneParser implements AutoCloseable {
           SonarProduct.SONARLINT
         )
       );
-      bridge.initLinter(List.of(), List.of(), List.of(), null, List.of());
+      bridge.initLinter(List.of(), List.of(), List.of(), null);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -81,7 +81,6 @@ public class StandaloneParser implements AutoCloseable {
     BridgeServer.JsAnalysisRequest request = new BridgeServer.JsAnalysisRequest(
       "file.js",
       "MAIN",
-      "js",
       code,
       true,
       null,
@@ -89,10 +88,12 @@ public class StandaloneParser implements AutoCloseable {
       InputFile.Status.ADDED,
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      true,
+      true
     );
     try {
-      BridgeServer.AnalysisResponse result = bridge.analyzeJavaScript(request);
+      BridgeServer.AnalysisResponse result = bridge.analyzeJsTs(request);
       Node ast = result.ast();
       if (ast == null) {
         throw new IllegalArgumentException("Failed to parse the code");

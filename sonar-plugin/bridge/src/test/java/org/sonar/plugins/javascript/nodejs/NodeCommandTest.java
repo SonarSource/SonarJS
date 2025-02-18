@@ -454,9 +454,9 @@ class NodeCommandTest {
 
   @Test
   void test_skipping_nodejs_provisioning_property() throws Exception {
-    var skipNodePropvisioning = "sonar.scanner.skipNodeProvisioning";
+    var skipNodeProvisioning = "sonar.scanner.skipNodeProvisioning";
     var settings = new MapSettings();
-    settings.setProperty(skipNodePropvisioning, true);
+    settings.setProperty(skipNodeProvisioning, true);
 
     var nodeCommand = builder()
       .configuration(settings.asConfig())

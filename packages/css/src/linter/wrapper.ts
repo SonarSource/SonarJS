@@ -40,7 +40,7 @@ export class LinterWrapper {
    * @param options the linting options
    * @returns the found issues
    */
-  lint(filePath: string, options: stylelint.LinterOptions) {
+  async lint(filePath: string, options: stylelint.LinterOptions) {
     return stylelint
       .lint(options)
       .then(result => ({ issues: transform(result.results, filePath) }));

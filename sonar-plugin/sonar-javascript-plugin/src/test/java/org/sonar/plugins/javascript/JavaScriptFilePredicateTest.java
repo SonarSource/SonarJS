@@ -17,7 +17,6 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -38,175 +37,6 @@ class JavaScriptFilePredicateTest {
   public static Path baseDir;
 
   private static final String newLine = System.lineSeparator();
-
-  @Test
-  void testJavaScriptPredicate() {
-    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    fs.add(createInputFile(baseDir, "a.js"));
-    fs.add(createInputFile(baseDir, "b.ts"));
-    fs.add(createInputFile(baseDir, "c.vue"));
-    fs.add(
-      createInputFile(
-        baseDir,
-        "d.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("<script>foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "e.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("<script lang=\"js\">foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "f.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <script  ")
-          .concat(newLine)
-          .concat("   lang='js'   ")
-          .concat(newLine)
-          .concat(">foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "g.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <script  ")
-          .concat(newLine)
-          .concat("   lang=\"ts\"   ")
-          .concat(newLine)
-          .concat(">foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "h.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <script setup awesomeAttribute  AnnoYingAtTribute42-666='à$'>foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(createInputFile(baseDir, "i.java"));
-    fs.add(createInputFile(baseDir, "j.jsx"));
-    fs.add(createInputFile(baseDir, "k.tsx"));
-
-    FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
-    var files = new ArrayList<InputFile>();
-    fs.inputFiles(predicate).forEach(files::add);
-
-    List<String> filenames = files
-      .stream()
-      .filter(f -> !isTypeScriptFile(f))
-      .map(InputFile::filename)
-      .toList();
-    assertThat(filenames).containsExactlyInAnyOrder(
-      "a.js",
-      "c.vue",
-      "d.vue",
-      "e.vue",
-      "f.vue",
-      "h.vue",
-      "j.jsx"
-    );
-  }
-
-  @Test
-  void testTypeScriptPredicate() {
-    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    fs.add(createInputFile(baseDir, "a.js"));
-    fs.add(createInputFile(baseDir, "b.ts"));
-    fs.add(createInputFile(baseDir, "c.vue"));
-    fs.add(
-      createInputFile(
-        baseDir,
-        "d.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <script  ")
-          .concat(newLine)
-          .concat("   lang=\"js\"   ")
-          .concat(newLine)
-          .concat(">foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "e.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <script  ")
-          .concat(newLine)
-          .concat("   lang=\"ts\"   ")
-          .concat(newLine)
-          .concat(">foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "f.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat(
-            "   <script someAttribute=9000  setup lang='ts' otherAttribute=\"hello\"   wazzzAAAA='waaaaaaa'  >foo()</script>"
-          )
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(
-      createInputFile(
-        baseDir,
-        "g.vue",
-        "".concat("<template><p>Hello, world!</p></template>")
-          .concat(newLine)
-          .concat("   <scriptlang='ts'>foo()</script>")
-          .concat(newLine)
-          .concat("<style>p{}</style>")
-      )
-    );
-    fs.add(createInputFile(baseDir, "h.java"));
-    fs.add(createInputFile(baseDir, "i.jsx"));
-    fs.add(createInputFile(baseDir, "j.tsx"));
-
-    FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
-    var files = new ArrayList<InputFile>();
-    fs.inputFiles(predicate).forEach(files::add);
-
-    List<String> filenames = files
-      .stream()
-      .filter(JavaScriptFilePredicate::isTypeScriptFile)
-      .map(InputFile::filename)
-      .toList();
-    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
-  }
 
   @Test
   void testYamlPredicate() {
@@ -249,27 +79,6 @@ class JavaScriptFilePredicateTest {
   }
 
   @Test
-  void testIsTypeScriptFile() {
-    var tsFile = TestInputFileBuilder.create("", "file.ts")
-      .setLanguage(TypeScriptLanguage.KEY)
-      .build();
-    assertThat(isTypeScriptFile(tsFile)).isTrue();
-    var jsFile = TestInputFileBuilder.create("", "file.js")
-      .setLanguage(JavaScriptLanguage.KEY)
-      .build();
-    assertThat(isTypeScriptFile(jsFile)).isFalse();
-    var vueFile = TestInputFileBuilder.create("", "file.vue")
-      .setLanguage(JavaScriptLanguage.KEY)
-      .build();
-    assertThat(isTypeScriptFile(vueFile)).isFalse();
-    var tsVueFile = TestInputFileBuilder.create("", "file.vue")
-      .setLanguage(JavaScriptLanguage.KEY)
-      .setContents("<script lang='ts'>")
-      .build();
-    assertThat(isTypeScriptFile(tsVueFile)).isTrue();
-  }
-
-  @Test
   void testJsTsPredicate() {
     var fs = new DefaultFileSystem(baseDir);
     var tsFile = TestInputFileBuilder.create("", "file.ts")
@@ -283,10 +92,6 @@ class JavaScriptFilePredicateTest {
     assertThat(predicate.apply(jsFile)).isTrue();
     assertThat(predicate.apply(tsFile)).isTrue();
     assertThat(predicate.apply(f)).isFalse();
-  }
-
-  private static InputFile createInputFile(Path baseDir, String relativePath) {
-    return createInputFile(baseDir, relativePath, "");
   }
 
   private static InputFile createInputFile(Path baseDir, String relativePath, String content) {

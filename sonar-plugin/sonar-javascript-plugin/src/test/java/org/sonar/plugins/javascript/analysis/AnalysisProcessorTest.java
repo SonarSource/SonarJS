@@ -162,6 +162,7 @@ class AnalysisProcessorTest {
       2,
       "message",
       "ruleId",
+      "js",
       List.of(),
       3.14,
       List.of(),

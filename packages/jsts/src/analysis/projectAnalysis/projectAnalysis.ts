@@ -45,7 +45,8 @@ export type ProjectAnalysisInput = {
   globals?: string[];
   baseDir: string;
   exclusions?: string[];
-  isSonarlint?: boolean;
+  sonarlint?: boolean;
+  bundles?: string[];
   maxFilesForTypeChecking?: number;
 };
 
