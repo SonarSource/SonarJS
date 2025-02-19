@@ -68,8 +68,8 @@ public class EslintReportImporter {
   /**
    * Execute the importer, and return the list of external issues found.
    */
-  public List<Issue> execute(SensorContext context) {
-    var results = new ArrayList<Issue>();
+  public List<ExternalIssue> execute(SensorContext context) {
+    var results = new ArrayList<ExternalIssue>();
 
     List<File> reportFiles = ExternalReportProvider.getReportFiles(context, reportsPropertyName());
     reportFiles.forEach(report -> results.addAll(importReport(report, context)));
@@ -80,10 +80,10 @@ public class EslintReportImporter {
   /**
    * Import the passed report, and return the list of external issues found.
    */
-  List<Issue> importReport(File report, SensorContext context) {
+  List<ExternalIssue> importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
-    var results = new ArrayList<Issue>();
+    var results = new ArrayList<ExternalIssue>();
     var serializer = new Gson();
 
     try (
@@ -119,7 +119,7 @@ public class EslintReportImporter {
     return results;
   }
 
-  private static Issue createIssue(EslintError eslintError, InputFile inputFile) {
+  private static ExternalIssue createIssue(EslintError eslintError, InputFile inputFile) {
     String eslintKey = eslintError.ruleId;
     TextRange location = getLocation(eslintError, inputFile);
     ExternalRuleLoader ruleLoader = EslintRulesDefinition.loader(eslintKey);
@@ -127,7 +127,7 @@ public class EslintReportImporter {
     Severity severity = ruleLoader.ruleSeverity(eslintKey);
     Long effortInMinutes = ruleLoader.ruleConstantDebtMinutes(eslintKey);
 
-    return new Issue(
+    return new ExternalIssue(
       eslintKey,
       inputFile,
       location,

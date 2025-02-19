@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
-import org.sonar.plugins.javascript.external.Issue;
+import org.sonar.plugins.javascript.external.ExternalIssue;
 
 @DependedUpon("js-analysis")
 public class JsTsSensor extends AbstractBridgeSensor {
@@ -86,7 +86,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<Issue> getESLintIssues(SensorContext context) {
+  protected List<ExternalIssue> getESLintIssues(SensorContext context) {
     var importer = new EslintReportImporter();
 
     return importer.execute(context);

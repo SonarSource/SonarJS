@@ -57,7 +57,7 @@ public class ExternalIssuerRepositoryTest {
     when(textRange.start()).thenReturn(mock(TextPointer.class));
     when(textRange.end()).thenReturn(mock(TextPointer.class));
 
-    var issue = new Issue(
+    var issue = new ExternalIssue(
       "name",
       inputFile,
       textRange,

@@ -18,13 +18,10 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,8 +34,8 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
+import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
-import org.sonar.plugins.javascript.external.Issue;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.Exclusions;
 
@@ -69,7 +66,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
 
-    var esLintIssues = this.getESLintIssues(context);
+    var externalIssues = this.getESLintIssues(context);
 
     try {
       List<InputFile> inputFiles = getInputFiles();
@@ -83,29 +80,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       LOG.debug(msg);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       var issues = analyzeFiles(inputFiles);
-
-      // at that point, we have the list of issues that were persisted
-      // we can now persist the ESLint issues that match none of the persisted issues
-      for (var externalIssue : esLintIssues) {
-        Predicate<BridgeServer.Issue> predicate = issue ->
-          (issue.ruleESLintKeys().contains(externalIssue.name()) &&
-            issue
-              .filePath()
-              .replaceAll(Pattern.quote(File.separator), "/")
-              .equals(
-                externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/")
-              ) &&
-            issue.line() == externalIssue.location().start().line() &&
-            issue.column() == externalIssue.location().start().lineOffset() &&
-            issue.endLine() == externalIssue.location().end().line() &&
-            issue.endColumn() == externalIssue.location().end().lineOffset());
-
-        var persistedIssue = issues.stream().filter(predicate).findFirst();
-
-        if (persistedIssue.isEmpty()) {
-          ExternalIssueRepository.save(externalIssue, context);
-        }
-      }
+      ExternalIssueRepository.saveESLintIssues(context, externalIssues, issues);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -148,7 +123,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected abstract List<InputFile> getInputFiles();
 
-  protected List<Issue> getESLintIssues(SensorContext context) {
+  protected List<ExternalIssue> getESLintIssues(SensorContext context) {
     return new ArrayList<>();
   }
 }
