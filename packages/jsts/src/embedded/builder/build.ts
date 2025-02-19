@@ -18,7 +18,6 @@ import { patchParsingError, patchSourceCode } from './patch.js';
 import path from 'path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
-import { JsTsAnalysisInput } from '../../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
 import { ParseResult } from '../../parsers/parse.js';
 
@@ -59,9 +58,10 @@ export function build(
       filePath: '',
       fileContent: code,
       fileType: 'MAIN',
-    } as JsTsAnalysisInput;
+      language: 'js',
+    } as const;
     try {
-      const parseResult = buildJsTs(jsTsAnalysisInput, 'js');
+      const parseResult = buildJsTs(jsTsAnalysisInput);
       extendedParseResults.push({
         sourceCode: patchSourceCode(parseResult.sourceCode, embeddedJS),
         parser: parseResult.parser,

@@ -32,7 +32,6 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -80,8 +79,7 @@ public class YamlSensor extends AbstractBridgeSensor {
         checks.eslintRules(),
         environments,
         globals,
-        context.fileSystem().baseDir().getAbsolutePath(),
-        exclusions
+        context.fileSystem().baseDir().getAbsolutePath()
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
@@ -159,7 +157,6 @@ public class YamlSensor extends AbstractBridgeSensor {
         var jsAnalysisRequest = new JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
-          JavaScriptLanguage.KEY,
           fileContent,
           contextUtils.ignoreHeaderComments(),
           null,
@@ -167,7 +164,9 @@ public class YamlSensor extends AbstractBridgeSensor {
           file.status(),
           contextUtils.getAnalysisMode(),
           false,
-          false
+          false,
+          contextUtils.isSonarLint(),
+          contextUtils.allowTsParserJsFiles()
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         issues = analysisProcessor.processResponse(context, checks, file, response);

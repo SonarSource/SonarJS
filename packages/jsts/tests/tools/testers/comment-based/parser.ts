@@ -33,10 +33,13 @@ export function parseForESLint(
   const tsConfigs = [
     path.join(dirname(fileURLToPath(import.meta.url)), '../../../../src/rules', 'tsconfig.cb.json'),
   ];
-  const sourceCode = build(
-    { filePath, fileContent, fileType, tsConfigs },
-    languageFromFile(fileContent, filePath),
-  ).sourceCode;
+  const { sourceCode } = build({
+    filePath,
+    fileContent,
+    fileType,
+    tsConfigs,
+    language: languageFromFile(fileContent, filePath),
+  });
 
   /**
    * ESLint expects the parser services (including the type checker) to be available in a field

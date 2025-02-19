@@ -28,26 +28,23 @@ import {
 } from '../../jsts/src/program/program.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import { BridgeRequest, readFileLazily, RequestResult, serializeError } from './request.js';
+import {
+  BridgeRequest,
+  fillLanguage,
+  readFileLazily,
+  RequestResult,
+  serializeError,
+} from './request.js';
 
 export async function handleRequest(request: BridgeRequest): Promise<RequestResult> {
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        const { rules, environments, globals, baseDir } = request.data;
-        await Linter.initialize(rules, environments, globals, baseDir);
+        await Linter.initialize(request.data);
         return { type: 'success', result: 'OK!' };
       }
-      case 'on-analyze-js': {
-        const output = analyzeJSTS(await readFileLazily(request.data), 'js');
-        return {
-          type: 'success',
-          result: output,
-        };
-      }
-      case 'on-analyze-ts':
-      case 'on-analyze-with-program': {
-        const output = analyzeJSTS(await readFileLazily(request.data), 'ts');
+      case 'on-analyze-jsts': {
+        const output = analyzeJSTS(fillLanguage(await readFileLazily(request.data)));
         return {
           type: 'success',
           result: output,
@@ -95,12 +92,12 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const output = await analyzeYAML(await readFileLazily(request.data));
+        const output = analyzeYAML(await readFileLazily(request.data));
         return { type: 'success', result: output };
       }
 
       case 'on-analyze-html': {
-        const output = await analyzeHTML(await readFileLazily(request.data));
+        const output = analyzeHTML(await readFileLazily(request.data));
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {

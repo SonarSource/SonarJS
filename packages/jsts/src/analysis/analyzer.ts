@@ -18,13 +18,11 @@ import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
-import { getContext } from '../../../shared/src/helpers/context.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
@@ -44,12 +42,11 @@ import { Telemetry } from '../../../bridge/src/request.js';
  * The analysis requires that global linter wrapper is initialized.
  *
  * @param input the JavaScript / TypeScript analysis input to analyze
- * @param language the language of the analysis input
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
+export function analyzeJSTS(input: JsTsAnalysisInput): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
-  const parseResult = build(input, language);
+  const parseResult = build(input);
   try {
     const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
       input;
@@ -124,7 +121,7 @@ function computeExtendedMetrics(
   highlightedSymbols: SymbolHighlight[],
   cognitiveComplexity?: number,
 ) {
-  if (getContext().sonarlint) {
+  if (input.sonarlint) {
     return { metrics: findNoSonarLines(sourceCode) };
   }
   const { fileType, ignoreHeaderComments } = input;

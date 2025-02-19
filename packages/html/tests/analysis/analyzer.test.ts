@@ -16,9 +16,8 @@
  */
 import { join } from 'path';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
-import { describe, before, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { setContext } from '../../../shared/src/helpers/context.js';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from '../../src/parser/parse.js';
@@ -26,25 +25,18 @@ import { parseHTML } from '../../src/parser/parse.js';
 describe('analyzeHTML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
 
-  before(() => {
-    setContext({
-      workDir: '/tmp/workdir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-  });
-
   it('should analyze HTML file', async () => {
-    await Linter.initialize([
-      {
-        key: 'S3923',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
+    await Linter.initialize({
+      rules: [
+        {
+          key: 'S3923',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
     const {
       issues: [issue],
     } = analyzeEmbedded(
@@ -63,15 +55,17 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    await Linter.initialize([
-      {
-        key: 'S1116',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
+    await Linter.initialize({
+      rules: [
+        {
+          key: 'S1116',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,
@@ -98,15 +92,17 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using "S3723" rule', async () => {
-    await Linter.initialize([
-      {
-        key: 'S3723',
-        configurations: ['always-multiline'],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
+    await Linter.initialize({
+      rules: [
+        {
+          key: 'S3723',
+          configurations: ['always-multiline'],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
     const { issues } = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
       parseHTML,
@@ -131,15 +127,17 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    await Linter.initialize([
-      {
-        key: 'S2251',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
+    await Linter.initialize({
+      rules: [
+        {
+          key: 'S2251',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
       parseHTML,
@@ -160,15 +158,17 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    await Linter.initialize([
-      {
-        key: 'S6326',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
+    await Linter.initialize({
+      rules: [
+        {
+          key: 'S6326',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
       parseHTML,

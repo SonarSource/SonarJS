@@ -150,7 +150,7 @@ class JsTsSensorTest {
     PluginInfo.setVersion(PLUGIN_VERSION);
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
@@ -259,7 +259,7 @@ class JsTsSensorTest {
       )
     );
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
     when(bridgeServerMock.createProgram(any())).thenReturn(program);
 
     sensor.execute(context);
@@ -278,12 +278,12 @@ class JsTsSensorTest {
     createTsConfigFile();
 
     AnalysisResponse expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues().size());
     assertThat(logTester.logs(Level.DEBUG)).contains(
       String.format("Saving issue for rule S3923 on file %s at line 1", inputFile)
@@ -342,7 +342,7 @@ class JsTsSensorTest {
   @Test
   void should_explode_if_no_response() throws Exception {
     createVueInputFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IllegalStateException("error"));
+    when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IllegalStateException("error"));
 
     var tsProgram = new TsProgram("1", List.of(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
@@ -379,7 +379,7 @@ class JsTsSensorTest {
   void should_raise_a_parsing_error() throws IOException {
     setSonarLintRuntime(context);
     createTsConfigFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new Gson()
         .fromJson(
           "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
@@ -402,7 +402,7 @@ class JsTsSensorTest {
   @Test
   void should_raise_a_parsing_error_without_line() throws IOException {
     createVueInputFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new Gson()
         .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
     );
@@ -433,7 +433,7 @@ class JsTsSensorTest {
     );
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSonarLintSensor().execute(ctx);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isEqualTo(
       "if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();"
     );
@@ -445,11 +445,11 @@ class JsTsSensorTest {
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     createTsConfigFile();
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isNull();
 
     var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
@@ -463,10 +463,10 @@ class JsTsSensorTest {
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().skipAst()).isTrue();
   }
 
@@ -479,12 +479,12 @@ class JsTsSensorTest {
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
     createSensor().execute(context);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().skipAst()).isFalse();
   }
 
@@ -497,12 +497,12 @@ class JsTsSensorTest {
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
     createSensor().execute(context);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().skipAst()).isFalse();
   }
 
@@ -520,12 +520,12 @@ class JsTsSensorTest {
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
     createSensor().execute(context);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().skipAst()).isTrue();
   }
 
@@ -539,12 +539,12 @@ class JsTsSensorTest {
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
     createSensor().execute(context);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().skipAst()).isTrue();
   }
 
@@ -567,7 +567,7 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
-    verify(bridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(2)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues()).extracting(c -> c.fileContent()).contains(content);
   }
 
@@ -579,7 +579,7 @@ class JsTsSensorTest {
       ParsingErrorCode.FAILING_TYPESCRIPT
     );
     var parseError = new AnalysisResponse(err, null, null, null, null, null, null, null);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(parseError);
     var file1 = createInputFile(context, "dir/file1.ts");
     var file2 = createInputFile(context, "dir/file2.ts");
     var tsProgram = new TsProgram(
@@ -624,7 +624,7 @@ class JsTsSensorTest {
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSonarLintSensor().execute(context);
-    verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(
@@ -653,11 +653,11 @@ class JsTsSensorTest {
       )
     );
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
-    verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(file1.absolutePath());
@@ -702,14 +702,14 @@ class JsTsSensorTest {
       )
     );
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
       TsProgramRequest.class
     );
     createSensor().execute(context);
-    verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
     verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
@@ -764,7 +764,7 @@ class JsTsSensorTest {
       )
     );
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
       TsProgramRequest.class
@@ -840,7 +840,7 @@ class JsTsSensorTest {
 
     // Only 2 calls, as we already find the necessary tsconfig (src/tsconfig.app.json) on the 2nd call
     verify(bridgeServerMock, times(2)).loadTsConfig(anyString());
-    verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(file1.absolutePath());
@@ -860,7 +860,7 @@ class JsTsSensorTest {
   @Test
   void should_fail_fast() throws Exception {
     createTsConfigFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IllegalStateException("error"));
+    when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IllegalStateException("error"));
     JsTsSensor sensor = createSensor();
     createInputFile(context);
 
@@ -872,7 +872,7 @@ class JsTsSensorTest {
   @Test
   void should_fail_fast_with_parsing_error_without_line() throws IOException {
     createVueInputFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new Gson()
         .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
     );
@@ -909,7 +909,7 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
 
     sensor.execute(context);
     assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
@@ -918,7 +918,7 @@ class JsTsSensorTest {
   @Test
   void log_debug_analyzed_filename_with_tsconfig() throws Exception {
     AnalysisResponse expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
     var inputFile = createVueInputFile();
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
@@ -1014,7 +1014,7 @@ class JsTsSensorTest {
       )
       .build();
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new AnalysisResponse(
         null,
         List.of(),
@@ -1041,7 +1041,7 @@ class JsTsSensorTest {
 
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
 
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       new AnalysisResponse(
         null,
         List.of(),

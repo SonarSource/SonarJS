@@ -21,8 +21,6 @@ import { parse } from '../parsers/parse.js';
 import { Parser, parsersMap } from '../parsers/eslint.js';
 import { getProgramById } from '../program/program.js';
 import { Linter } from 'eslint';
-import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
-import { getContext } from '../../../shared/src/helpers/context.js';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -31,14 +29,13 @@ import { getContext } from '../../../shared/src/helpers/context.js';
  * the file extension, and some contextual information.
  *
  * @param input the JavaScript / TypeScript analysis input
- * @param language the language of the input
  * @returns the parsed source code
  */
-export function build(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function build(input: JsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
-  if (shouldUseTypescriptParser(language)) {
+  if (shouldUseTypescriptParser(input)) {
     const options: Linter.ParserOptions = {
       // enable logs for @typescript-eslint
       // debugLevel: true,
@@ -54,7 +51,7 @@ export function build(input: JsTsAnalysisInput, language: JsTsLanguage) {
       return parse(input.fileContent, parser, buildParserOptions(options, false));
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
-      if (language === 'ts') {
+      if (input.language === 'ts') {
         throw error;
       }
     }
@@ -96,8 +93,11 @@ export function build(input: JsTsAnalysisInput, language: JsTsLanguage) {
   }
 }
 
-function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
-  return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
+function shouldUseTypescriptParser({
+  shouldUseTypeScriptParserForJS,
+  language,
+}: JsTsAnalysisInput): boolean {
+  return shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 
 function isVueFile(file: string) {

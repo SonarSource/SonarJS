@@ -37,6 +37,7 @@ export type Analysis = (input: AnalysisInput) => Promise<AnalysisOutput>;
 export interface AnalysisInput {
   filePath: string;
   fileContent: string;
+  sonarlint?: boolean;
 }
 
 /**

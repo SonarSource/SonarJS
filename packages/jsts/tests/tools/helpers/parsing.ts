@@ -21,16 +21,27 @@ export async function parseTypeScriptSourceFile(
   filePath: string,
   tsConfigs: string[],
   fileType: FileType = 'MAIN',
+  sonarlint = false,
 ) {
   const fileContent = await readFile(filePath);
-  return build({ fileContent, filePath, tsConfigs, fileType }, 'ts');
+  return build({ fileContent, filePath, tsConfigs, fileType, language: 'ts', sonarlint });
 }
 
 export async function parseJavaScriptSourceFile(
   filePath: string,
   tsConfigs: string[] = [],
   fileType: FileType = 'MAIN',
+  sonarlint = false,
+  shouldUseTypeScriptParserForJS = true,
 ) {
   const fileContent = await readFile(filePath);
-  return build({ fileContent, filePath, tsConfigs, fileType }, 'js');
+  return build({
+    fileContent,
+    filePath,
+    tsConfigs,
+    fileType,
+    language: 'js',
+    sonarlint,
+    shouldUseTypeScriptParserForJS,
+  });
 }
