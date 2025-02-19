@@ -29,6 +29,7 @@ import { ParseResult } from '../parsers/parse.js';
 import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
+import { pathToFileURL } from 'node:url';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -171,7 +172,7 @@ export class Linter {
   }
 
   private static async loadRulesFromBundle(ruleBundle: string) {
-    const { rules: bundleRules } = await import(new URL(ruleBundle).toString());
+    const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
     bundleRules.forEach((rule: CustomRule) => {
       Linter.rules[rule.ruleId] = rule.ruleModule;
       debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
