@@ -159,7 +159,9 @@ public abstract class AbstractAnalysis {
       file.status(),
       contextUtils.getAnalysisMode(),
       skipAst,
-      shouldClearDependenciesCache
+      shouldClearDependenciesCache,
+      contextUtils.isSonarLint(),
+      contextUtils.allowTsParserJsFiles()
     );
   }
 

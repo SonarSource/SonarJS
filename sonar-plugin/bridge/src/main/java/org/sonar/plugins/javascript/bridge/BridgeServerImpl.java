@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,6 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
-  private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
@@ -81,9 +81,8 @@ public class BridgeServerImpl implements BridgeServer {
   private Status status = Status.NOT_STARTED;
   private boolean isSonarLint;
   private final RulesBundles rulesBundles;
-  private List<Path> deployedBundles;
+  private List<Path> deployedBundles = Collections.emptyList();
   private String workdir;
-  private boolean allowTsParserJsFiles;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path temporaryDeployLocation;
   private final EmbeddedNode embeddedNode;
@@ -322,10 +321,6 @@ public class BridgeServerImpl implements BridgeServer {
       }
       deploy(serverConfig.config());
       workdir = serverConfig.workDirAbsolutePath();
-      allowTsParserJsFiles = serverConfig
-        .config()
-        .getBoolean(ALLOW_TS_PARSER_JS_FILES)
-        .orElse(true);
       deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()

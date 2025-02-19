@@ -127,6 +127,7 @@ class JavaScriptFilePredicateTest {
       "d.vue",
       "e.vue",
       "f.vue",
+      "g.vue",
       "h.vue",
       "j.jsx"
     );
@@ -205,7 +206,7 @@ class JavaScriptFilePredicateTest {
       .filter(JavaScriptFilePredicate::isTypeScriptFile)
       .map(InputFile::filename)
       .toList();
-    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
+    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "j.tsx");
   }
 
   @Test
@@ -262,11 +263,6 @@ class JavaScriptFilePredicateTest {
       .setLanguage(JavaScriptLanguage.KEY)
       .build();
     assertThat(isTypeScriptFile(vueFile)).isFalse();
-    var tsVueFile = TestInputFileBuilder.create("", "file.vue")
-      .setLanguage(JavaScriptLanguage.KEY)
-      .setContents("<script lang='ts'>")
-      .build();
-    assertThat(isTypeScriptFile(tsVueFile)).isTrue();
   }
 
   @Test

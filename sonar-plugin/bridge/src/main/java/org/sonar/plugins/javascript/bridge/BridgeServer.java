@@ -88,7 +88,9 @@ public interface BridgeServer extends Startable {
     InputFile.Status fileStatus,
     AnalysisMode analysisMode,
     boolean skipAst,
-    boolean shouldClearDependenciesCache
+    boolean shouldClearDependenciesCache,
+    boolean sonarlint,
+    boolean allowTsParserJsFiles
   ) {}
 
   record CssAnalysisRequest(

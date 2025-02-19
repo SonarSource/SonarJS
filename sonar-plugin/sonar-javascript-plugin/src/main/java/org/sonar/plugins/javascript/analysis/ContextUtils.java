@@ -42,6 +42,8 @@ public class ContextUtils {
   /* Internal property to enable JaRED (disabled by default) */
   private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
 
+  private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
+
   private final SensorContext context;
 
   ContextUtils(SensorContext context) {
@@ -86,6 +88,10 @@ public class ContextUtils {
 
   boolean isSonarJaredEnabled() {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
+  }
+
+  boolean allowTsParserJsFiles() {
+    return context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
   }
 
   AnalysisMode getAnalysisMode() {

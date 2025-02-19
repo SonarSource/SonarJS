@@ -88,7 +88,9 @@ public class StandaloneParser implements AutoCloseable {
       InputFile.Status.ADDED,
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      true,
+      true
     );
     try {
       BridgeServer.AnalysisResponse result = bridge.analyzeJsTs(request);

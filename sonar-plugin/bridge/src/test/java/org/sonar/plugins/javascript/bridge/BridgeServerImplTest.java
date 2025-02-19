@@ -54,7 +54,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -200,7 +199,7 @@ class BridgeServerImplTest {
     bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "");
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
-      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
+      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"
     );
   }
 
@@ -225,7 +224,9 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
     assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
   }
@@ -254,7 +255,9 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
   }
 
@@ -282,7 +285,9 @@ class BridgeServerImplTest {
       InputFile.Status.ADDED,
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
     assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
 
@@ -365,28 +370,6 @@ class BridgeServerImplTest {
     bridgeServer.startServer(serverConfigForMaxSpace);
 
     assertThat(bridgeServer.getCommandInfo()).contains("--max-old-space-size=2048");
-  }
-
-  @Test
-  void should_set_allowTsParserJsFiles_to_false() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    context.setSettings(
-      new MapSettings().setProperty("sonar.javascript.allowTsParserJsFiles", "false")
-    );
-    BridgeServerConfig serverConfigForAllowTs = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigForAllowTs);
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("allowTsParserJsFiles: false");
-  }
-
-  @Test
-  void allowTsParserJsFiles_default_value_is_true() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("allowTsParserJsFiles: true");
   }
 
   @Test
@@ -509,7 +492,9 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       false,
-      false
+      false,
+      false,
+      true
     );
     assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request)).isInstanceOf(
       IllegalStateException.class
@@ -607,17 +592,6 @@ class BridgeServerImplTest {
       "js"
     );
     assertThat(rule).hasToString("key");
-  }
-
-  @Test
-  void should_skip_metrics_on_sonarlint() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
-    BridgeServerConfig serverConfigFor79 = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigFor79);
-    bridgeServer.stop();
-
-    assertThat(logTester.logs()).contains("sonarlint: true");
   }
 
   @Test
@@ -768,7 +742,9 @@ class BridgeServerImplTest {
       inputFile.status(),
       AnalysisMode.DEFAULT,
       true,
-      false
+      false,
+      false,
+      true
     );
     var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.ast()).isNull();

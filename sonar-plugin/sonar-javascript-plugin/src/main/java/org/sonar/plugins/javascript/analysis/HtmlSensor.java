@@ -134,7 +134,9 @@ public class HtmlSensor extends AbstractBridgeSensor {
         file.status(),
         contextUtils.getAnalysisMode(),
         false,
-        false
+        false,
+        contextUtils.isSonarLint(),
+        contextUtils.allowTsParserJsFiles()
       );
       var response = bridgeServer.analyzeHtml(jsAnalysisRequest);
       issues = analysisProcessor.processResponse(context, checks, file, response);
