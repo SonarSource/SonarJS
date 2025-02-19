@@ -18,7 +18,6 @@ import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
 import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
-import { pathToFileURL } from 'node:url';
 import { createLinterConfigKey, Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -62,9 +61,13 @@ describe('Linter', () => {
   });
 
   it('should load rule bundles', async () => {
-    const bundlePath = pathToFileURL(
-      path.join(import.meta.dirname, 'fixtures', 'index', 'custom-rule-bundle', 'rules.js'),
-    ).href;
+    const bundlePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'index',
+      'custom-rule-bundle',
+      'rules.js',
+    );
 
     console.log = mock.fn();
 
