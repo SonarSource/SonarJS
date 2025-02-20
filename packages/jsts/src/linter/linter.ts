@@ -222,9 +222,14 @@ export class Linter {
       Linter.globals.set(global, true);
     });
     environments.forEach(env => {
-      Object.entries(globalsPkg[env as keyof typeof globalsPkg]).forEach(([global, value]) => {
-        Linter.globals.set(global, value);
-      });
+      const envGlobals = globalsPkg[env as keyof typeof globalsPkg];
+      if (envGlobals) {
+        Object.entries(envGlobals).forEach(([global, value]) => {
+          Linter.globals.set(global, value);
+        });
+      } else {
+        debug(`Unknown environment "${env}".`);
+      }
     });
   }
 
