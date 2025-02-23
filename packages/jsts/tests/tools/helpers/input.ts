@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile } from '../../../../shared/src/helpers/files.js';
-import { EmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
-import { JsTsAnalysisInput } from '../../../src/analysis/analysis.js';
+import { CompleteEmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
+import { CompleteJsTsAnalysisInput, JsTsAnalysisInput } from '../../../src/analysis/analysis.js';
 
 type allOptional = Partial<JsTsAnalysisInput>;
 
-export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> {
+export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysisInput> {
   return {
     filePath: input.filePath,
     fileContent: input.fileContent ?? (await readFile(input.filePath)),
@@ -29,12 +29,12 @@ export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> 
     tsConfigs: input.tsConfigs ?? [],
     skipAst: input.skipAst ?? false,
     language: input.language ?? 'js',
-    shouldUseTypeScriptParserForJS: input.shouldUseTypeScriptParserForJS ?? true,
+    allowTsParserJsFiles: input.allowTsParserJsFiles ?? true,
     sonarlint: input.sonarlint ?? false,
   };
 }
 
-export async function embeddedInput(input: allOptional): Promise<EmbeddedAnalysisInput> {
+export async function embeddedInput(input: allOptional): Promise<CompleteEmbeddedAnalysisInput> {
   return {
     filePath: input.filePath,
     fileContent: input.fileContent ?? (await readFile(input.filePath)),

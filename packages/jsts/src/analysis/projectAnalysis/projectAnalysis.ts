@@ -14,13 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsAnalysisOutput } from '../analysis.js';
-import { FileType } from '../../../../shared/src/helpers/files.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { JsTsAnalysisInput } from '../analysis.js';
 import { RuleConfig } from '../../linter/config/rule-config.js';
+import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
 
 export type ProjectAnalysisOutput = {
-  files: { [key: string]: JsTsAnalysisOutput };
+  files: { [key: string]: AnalysisOutput };
   meta?: {
     withProgram: boolean;
     withWatchProgram: boolean;
@@ -29,14 +28,7 @@ export type ProjectAnalysisOutput = {
   };
 };
 
-export type JsTsFile = {
-  fileContent?: string;
-  ignoreHeaderComments?: boolean;
-  fileType: FileType;
-  language?: JsTsLanguage;
-};
-
-export type JsTsFiles = { [key: string]: JsTsFile };
+export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
 
 export type ProjectAnalysisInput = {
   files: JsTsFiles;
@@ -49,8 +41,6 @@ export type ProjectAnalysisInput = {
   bundles?: string[];
   maxFilesForTypeChecking?: number;
 };
-
-export const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
 
 export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 

@@ -17,11 +17,11 @@
 import path from 'path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../shared/src/helpers/files.js';
-import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
+import { type FileType, readFile } from '../../../shared/src/helpers/files.js';
 import { build } from '../../src/builders/build.js';
+import type { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 
-const cases = [
+const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
   { syntax: 'ECMAScript 2016', fixture: 'es2016.js', language: 'js' },
   { syntax: 'ECMAScript 2017', fixture: 'es2017.js', language: 'js' },
@@ -41,9 +41,9 @@ describe('ESLint-based parsers', () => {
     test(`should parse ${syntax} syntax`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
       const fileContent = await readFile(filePath);
-      const fileType = 'MAIN';
+      const fileType: FileType = 'MAIN';
 
-      const input = { filePath, fileType, fileContent, language } as JsTsAnalysisInput;
+      const input = { filePath, fileType, fileContent, language };
       const sourceCode = build(input).sourceCode;
 
       expect(sourceCode).toBeDefined();

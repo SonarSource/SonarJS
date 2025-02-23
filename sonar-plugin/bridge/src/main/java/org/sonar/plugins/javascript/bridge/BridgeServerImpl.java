@@ -79,7 +79,6 @@ public class BridgeServerImpl implements BridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private Status status = Status.NOT_STARTED;
-  private boolean isSonarLint;
   private final RulesBundles rulesBundles;
   private List<Path> deployedBundles = Collections.emptyList();
   private String workdir;
@@ -257,7 +256,7 @@ public class BridgeServerImpl implements BridgeServer {
   private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
     throws IOException {
     var config = serverConfig.config();
-    if (isSonarLint) {
+    if (serverConfig.product() == SonarProduct.SONARLINT) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
@@ -302,7 +301,6 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
     }
-    isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     var providedPort = nodeAlreadyRunningPort();
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
     if (providedPort != 0) {
@@ -337,14 +335,15 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    String baseDir
+    String baseDir,
+    boolean sonarlint
   ) {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       rules,
       environments,
       globals,
       baseDir,
-      isSonarLint,
+      sonarlint,
       deployedBundles.stream().map(Path::toString).toList(),
       workdir
     );

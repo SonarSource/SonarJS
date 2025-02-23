@@ -17,6 +17,7 @@
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
+import { fillFileContent } from '../../../shared/src/types/analysis.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -29,9 +30,9 @@ import { createStylelintConfig } from '../linter/config.js';
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent: code, rules } = input;
+  const { filePath, fileContent, rules } = await fillFileContent(input);
   const config = createStylelintConfig(rules);
-  const sanitizedCode = code.replace(/[\u2000-\u200F]/g, ' ');
+  const sanitizedCode = fileContent.replace(/[\u2000-\u200F]/g, ' ');
 
   const options = {
     code: sanitizedCode,

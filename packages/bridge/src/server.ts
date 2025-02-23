@@ -30,7 +30,6 @@ import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
-  logHeapStatistics,
 } from './memory.js';
 
 /**
@@ -84,7 +83,6 @@ export function start(
   if (debugMemory) {
     registerGarbageCollectionObserver();
   }
-  logHeapStatistics();
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
@@ -113,7 +111,7 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
-    app.use(router(worker));
+    app.use(router(worker, { debugMemory }));
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {

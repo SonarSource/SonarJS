@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parentPort } from 'worker_threads';
+import { parentPort, workerData } from 'worker_threads';
 import { handleRequest } from './handle-request.js';
 import { BridgeRequest } from './request.js';
 
@@ -28,7 +28,7 @@ if (parentPort) {
     if (type === 'close') {
       parentThread.close();
     } else {
-      parentThread.postMessage(await handleRequest(message));
+      parentThread.postMessage(await handleRequest(message, workerData));
     }
   });
 }

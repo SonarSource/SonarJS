@@ -17,7 +17,7 @@
 import { patchParsingError, patchSourceCode } from './patch.js';
 import path from 'path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
-import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
+import { CompleteEmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
 import { ParseResult } from '../../parsers/parse.js';
 
@@ -36,7 +36,7 @@ export type LanguageParser = (text: string) => EmbeddedJS[];
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function build(
-  input: EmbeddedAnalysisInput,
+  input: CompleteEmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): ExtendedParseResult[] {
   const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);

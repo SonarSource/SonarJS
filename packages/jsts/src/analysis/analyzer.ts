@@ -16,7 +16,12 @@
  */
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
+import {
+  fillLanguage,
+  JsTsAnalysisInput,
+  JsTsAnalysisOutput,
+  SuccessfulJsTsAnalysisOutput,
+} from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
@@ -28,6 +33,7 @@ import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
+import { fillFileContent } from '../../../shared/src/types/analysis.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -44,12 +50,13 @@ import { Telemetry } from '../../../bridge/src/request.js';
  * @param input the JavaScript / TypeScript analysis input to analyze
  * @returns the JavaScript / TypeScript analysis output
  */
-export function analyzeJSTS(input: JsTsAnalysisInput): JsTsAnalysisOutput {
+export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<SuccessfulJsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
-  const parseResult = build(input);
+  const completeInput = fillLanguage(await fillFileContent(input));
+  const parseResult = build(completeInput);
   try {
     const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
-      input;
+      completeInput;
     shouldClearDependenciesCache && clearDependenciesCache();
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
       parseResult,

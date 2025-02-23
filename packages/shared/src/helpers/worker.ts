@@ -17,8 +17,9 @@
 import { SHARE_ENV, Worker } from 'node:worker_threads';
 import { debug } from './logging.js';
 
-export function createWorker(url: string) {
+export function createWorker(url: string, workerData?: WorkerData) {
   const worker = new Worker(url, {
+    workerData,
     env: SHARE_ENV,
   });
 
@@ -35,3 +36,7 @@ export function createWorker(url: string) {
   });
   return worker;
 }
+
+export type WorkerData = {
+  debugMemory: boolean;
+};

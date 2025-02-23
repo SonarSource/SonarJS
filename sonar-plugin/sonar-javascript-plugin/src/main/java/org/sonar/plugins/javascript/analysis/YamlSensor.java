@@ -79,7 +79,8 @@ public class YamlSensor extends AbstractBridgeSensor {
         checks.eslintRules(),
         environments,
         globals,
-        context.fileSystem().baseDir().getAbsolutePath()
+        context.fileSystem().baseDir().getAbsolutePath(),
+        contextUtils.isSonarLint()
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {

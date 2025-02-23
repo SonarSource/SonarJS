@@ -74,7 +74,8 @@ public class HtmlSensor extends AbstractBridgeSensor {
         EslintRule.findAllBut(checks.eslintRules(), Set.of("S3504", "ucfg")),
         environments,
         globals,
-        context.fileSystem().baseDir().getAbsolutePath()
+        context.fileSystem().baseDir().getAbsolutePath(),
+        contextUtils.isSonarLint()
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
