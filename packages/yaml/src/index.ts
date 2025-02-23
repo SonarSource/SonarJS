@@ -14,16 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  EmbeddedAnalysisInput as YamlAnalysisInput,
-  EmbeddedAnalysisOutput as YamlAnalysisOutput,
-} from '../../jsts/src/embedded/analysis/analysis.js';
-
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseAwsFromYaml } from './aws/parser.js';
+import { fillFileContent } from '../../shared/src/types/analysis.js';
 
-export { YamlAnalysisInput, YamlAnalysisOutput };
+import type {
+  EmbeddedAnalysisInput,
+  EmbeddedAnalysisOutput,
+} from '../../jsts/src/embedded/analysis/analysis.js';
 
-export function analyzeYAML(input: YamlAnalysisInput): YamlAnalysisOutput {
-  return analyzeEmbedded(input, parseAwsFromYaml);
+export async function analyzeYAML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
+  return analyzeEmbedded(await fillFileContent(input), parseAwsFromYaml);
 }

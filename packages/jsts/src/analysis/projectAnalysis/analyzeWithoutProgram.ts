@@ -14,9 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
-import { readFile } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Analyzes JavaScript / TypeScript files without type-checking.
@@ -32,11 +31,6 @@ export async function analyzeWithoutProgram(
 ) {
   for (const filename of filenames) {
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = analyzeFile({
-      filePath: filename,
-      fileContent: files[filename].fileContent ?? (await readFile(filename)),
-      fileType: files[filename].fileType,
-      language: files[filename].language ?? DEFAULT_LANGUAGE,
-    });
+    results.files[filename] = await analyzeFile(files[filename]);
   }
 }

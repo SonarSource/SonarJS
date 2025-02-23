@@ -28,15 +28,13 @@ import {
 } from '../../jsts/src/program/program.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import {
-  BridgeRequest,
-  fillLanguage,
-  readFileLazily,
-  RequestResult,
-  serializeError,
-} from './request.js';
+import { BridgeRequest, RequestResult, serializeError } from './request.js';
+import { WorkerData } from '../../shared/src/helpers/worker.js';
 
-export async function handleRequest(request: BridgeRequest): Promise<RequestResult> {
+export async function handleRequest(
+  request: BridgeRequest,
+  workerData: WorkerData,
+): Promise<RequestResult> {
   try {
     switch (request.type) {
       case 'on-init-linter': {
@@ -44,17 +42,18 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         return { type: 'success', result: 'OK!' };
       }
       case 'on-analyze-jsts': {
-        const output = analyzeJSTS(fillLanguage(await readFileLazily(request.data)));
+        const output = await analyzeJSTS(request.data);
         return {
           type: 'success',
           result: output,
         };
       }
       case 'on-create-program': {
-        logHeapStatistics();
+        logHeapStatistics(workerData?.debugMemory);
         const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(
           request.data.tsConfig,
         );
+        logHeapStatistics(workerData?.debugMemory);
         return {
           type: 'success',
           result: { programId, files, projectReferences, missingTsConfig },
@@ -62,7 +61,7 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
       }
       case 'on-delete-program': {
         deleteProgram(request.data.programId);
-        logHeapStatistics();
+        logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: 'OK!' };
       }
       case 'on-create-tsconfig-file': {
@@ -88,16 +87,16 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         };
       }
       case 'on-analyze-css': {
-        const output = await analyzeCSS(await readFileLazily(request.data));
+        const output = await analyzeCSS(request.data);
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const output = analyzeYAML(await readFileLazily(request.data));
+        const output = await analyzeYAML(request.data);
         return { type: 'success', result: output };
       }
 
       case 'on-analyze-html': {
-        const output = analyzeHTML(await readFileLazily(request.data));
+        const output = await analyzeHTML(request.data);
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {

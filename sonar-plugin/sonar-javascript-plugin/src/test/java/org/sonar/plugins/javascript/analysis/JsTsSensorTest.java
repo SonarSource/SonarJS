@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -285,7 +286,7 @@ class JsTsSensorTest {
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), anyBoolean());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues().size());
     assertThat(logTester.logs(Level.DEBUG)).contains(
       String.format("Saving issue for rule S3923 on file %s at line 1", inputFile)

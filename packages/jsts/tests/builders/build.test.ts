@@ -86,7 +86,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = build(await jsTsInput({ filePath, shouldUseTypeScriptParserForJS: false })).sourceCode;
+    } = build(await jsTsInput({ filePath, allowTsParserJsFiles: false })).sourceCode;
 
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
@@ -94,7 +94,7 @@ describe('buildSourceCode', () => {
   it('should fail building malformed JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
 
-    const analysisInput = await jsTsInput({ filePath, shouldUseTypeScriptParserForJS: false });
+    const analysisInput = await jsTsInput({ filePath, allowTsParserJsFiles: false });
 
     expect(() => build(analysisInput)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
@@ -128,18 +128,14 @@ describe('buildSourceCode', () => {
 
   it('should build module JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'module.js');
-    const sourceCode = build(
-      await jsTsInput({ filePath, shouldUseTypeScriptParserForJS: false }),
-    ).sourceCode;
+    const sourceCode = build(await jsTsInput({ filePath, allowTsParserJsFiles: false })).sourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('module');
   });
 
   it('should build script JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'script.js');
-    const sourceCode = build(
-      await jsTsInput({ filePath, shouldUseTypeScriptParserForJS: false }),
-    ).sourceCode;
+    const sourceCode = build(await jsTsInput({ filePath, allowTsParserJsFiles: false })).sourceCode;
 
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
@@ -150,7 +146,7 @@ describe('buildSourceCode', () => {
       ast: {
         body: [stmt],
       },
-    } = build(await jsTsInput({ filePath, shouldUseTypeScriptParserForJS: false })).sourceCode;
+    } = build(await jsTsInput({ filePath, allowTsParserJsFiles: false })).sourceCode;
 
     expect((stmt as any).decorators).toHaveLength(1);
     expect((stmt as any).decorators[0].expression.name).toEqual('annotation');
@@ -211,7 +207,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({
       filePath,
       language: 'js',
-      shouldUseTypeScriptParserForJS: false,
+      allowTsParserJsFiles: false,
     });
     expect(() => build(analysisInput)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 7 }),

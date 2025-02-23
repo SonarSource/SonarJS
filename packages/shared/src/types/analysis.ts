@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { readFile } from '../helpers/files.js';
+
 /**
  * An analysis function
  *
@@ -36,7 +38,7 @@ export type Analysis = (input: AnalysisInput) => Promise<AnalysisOutput>;
  */
 export interface AnalysisInput {
   filePath: string;
-  fileContent: string;
+  fileContent?: string;
   sonarlint?: boolean;
 }
 
@@ -46,3 +48,26 @@ export interface AnalysisInput {
  * A common interface for all kinds of analysis output.
  */
 export interface AnalysisOutput {}
+
+/**
+ * In SonarQube context, an analysis input includes both path and content of a file
+ * to analyze. However, in SonarLint, we might only get the file path. As a result,
+ * we read the file if the content is missing in the input.
+ */
+export async function fillFileContent<T extends AnalysisInput>(
+  input: T,
+): Promise<Omit<T, 'fileContent'> & { fileContent: string }> {
+  if (!isCompleteAnalysisInput(input)) {
+    return {
+      ...input,
+      fileContent: await readFile(input.filePath),
+    };
+  }
+  return input;
+}
+
+export function isCompleteAnalysisInput<T extends AnalysisInput>(
+  input: T,
+): input is T & { fileContent: string } {
+  return 'fileContent' in input;
+}

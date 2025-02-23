@@ -74,7 +74,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       checks.eslintRules(),
       environments,
       globals,
-      context.fileSystem().baseDir().getAbsolutePath()
+      context.fileSystem().baseDir().getAbsolutePath(),
+      contextUtils.isSonarLint()
     );
 
     analysis.initialize(context, checks, consumers);

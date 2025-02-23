@@ -14,11 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createProgramOptions } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { clearTypeScriptESLintParserCaches } from '../../parsers/eslint.js';
-import { readFile } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files
@@ -43,11 +42,8 @@ export async function analyzeWithWatchProgram(
     for (const filename of filenames) {
       // only analyze files which are requested
       if (files[filename] && pendingFiles.has(filename)) {
-        results.files[filename] = analyzeFile({
-          filePath: filename,
-          fileContent: files[filename].fileContent ?? (await readFile(filename)),
-          fileType: files[filename].fileType,
-          language: files[filename].language ?? DEFAULT_LANGUAGE,
+        results.files[filename] = await analyzeFile({
+          ...files[filename],
           tsConfigs: [tsConfig],
         });
         pendingFiles.delete(filename);

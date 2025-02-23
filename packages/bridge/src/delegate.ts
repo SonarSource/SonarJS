@@ -21,27 +21,29 @@ import { JsTsAnalysisOutputWithAst } from '../../jsts/src/analysis/analysis.js';
 import { handleRequest } from './handle-request.js';
 import { AnalysisOutput } from '../../shared/src/types/analysis.js';
 import { RequestResult, RequestType } from './request.js';
+import { WorkerData } from '../../shared/src/helpers/worker.js';
 
 /**
  * Returns a delegate function to handle an HTTP request
  */
-export function createDelegator(worker: Worker | undefined) {
+export function createDelegator(worker: Worker | undefined, workerData: WorkerData) {
   return function (type: RequestType) {
-    return worker ? createWorkerHandler(worker, type) : createHandler(type);
+    return worker ? createWorkerHandler(worker, type) : createHandler(type, workerData);
   };
 }
 
 /**
  * Handler to analyze in the same thread as HTTP server. Used for testing purposes
- * @param type
+ * @param type the request type, i.e. endpoint
+ * @param workerData print memory usage for debugging purposes
  */
-function createHandler(type: RequestType) {
+function createHandler(type: RequestType, workerData: WorkerData) {
   return async (
     request: express.Request,
     response: express.Response,
     next: express.NextFunction,
   ) => {
-    handleResult(await handleRequest({ type, data: request.body }), response, next);
+    handleResult(await handleRequest({ type, data: request.body }, workerData), response, next);
   };
 }
 

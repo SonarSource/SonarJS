@@ -18,8 +18,7 @@ import path from 'path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
-import { EmbeddedAnalysisInput } from '../../../jsts/src/embedded/analysis/analysis.js';
-import { JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { CompleteJsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
 import { build as buildJsTs } from '../../../jsts/src/builders/build.js';
 import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
 import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
@@ -34,7 +33,7 @@ describe('patchSourceCode', () => {
       {
         filePath,
         fileContent: text,
-      } as EmbeddedAnalysisInput,
+      },
       parseAwsFromYaml,
     );
     expect(patchedSourceCode.sourceCode).toEqual(
@@ -64,15 +63,17 @@ describe('patchSourceCode', () => {
 
       let filePath = `${fixture}.yaml`;
       let fileContent = await readFile(filePath);
-      const [patchedSourceCode] = build(
-        { filePath, fileContent } as EmbeddedAnalysisInput,
-        parseAwsFromYaml,
-      );
+      const [patchedSourceCode] = build({ filePath, fileContent }, parseAwsFromYaml);
       const patchedNodes = patchedSourceCode.sourceCode.ast[property];
 
       filePath = `${fixture}.js`;
       fileContent = await readFile(filePath);
-      const input = { filePath, fileContent, language: 'js' } as JsTsAnalysisInput;
+      const input: CompleteJsTsAnalysisInput = {
+        filePath,
+        fileContent,
+        language: 'js',
+        fileType: 'MAIN',
+      };
       const referenceSourceCode = buildJsTs(input);
       const referenceNodes = referenceSourceCode.sourceCode.ast[property];
 
@@ -87,15 +88,20 @@ describe('patchSourceCode', () => {
     let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
-      build({ filePath, fileContent } as EmbeddedAnalysisInput, parseAwsFromYaml);
+      build({ filePath, fileContent }, parseAwsFromYaml);
     } catch (error) {
       patchedParsingError = error;
     }
 
     filePath = `${fixture}.js`;
     fileContent = await readFile(filePath);
-    const input = { filePath, fileContent, language: 'js' } as JsTsAnalysisInput;
-    expect(() => buildJsTs(input)).toThrow(patchedParsingError);
+    const input: CompleteJsTsAnalysisInput = {
+      filePath,
+      fileContent,
+      language: 'js',
+      fileType: 'MAIN',
+    };
+    expect(() => buildJsTs(input)).rejects.toMatch(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {

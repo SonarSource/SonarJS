@@ -14,19 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { compareSync } from 'dir-compare';
-import { setupBeforeAll, testProject } from '../tools/testProject.js';
+import { projectName, testProject } from '../tools/testProject.js';
 import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { ok } from 'assert';
 
 describe('Ruling', () => {
-  const { project, expectedPath, actualPath, rules } = setupBeforeAll(import.meta.filename);
-  it(project.name, { timeout: 10 * 60 * 1000 }, async () => {
-    await testProject(project, actualPath, rules);
-    assert(
-      compareSync(expectedPath, actualPath, {
-        compareContent: true,
-      }).same,
-    );
+  const name = projectName(import.meta.filename);
+  it(name, { timeout: 10 * 60 * 1000 }, async () => {
+    ok(await testProject(name));
   });
 });

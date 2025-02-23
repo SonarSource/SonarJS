@@ -66,7 +66,7 @@ describe('router', () => {
       ],
       baseDir: fixtures,
       files: {
-        [filePath]: { fileType: 'MAIN' },
+        [filePath]: { fileType: 'MAIN', filePath },
       },
     };
 

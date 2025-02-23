@@ -30,12 +30,12 @@ import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
-describe('analyzeJSTS', () => {
+describe('await analyzeJSTS', () => {
   it('should fail on uninitialized linter', async () => {
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const input = await jsTsInput({ filePath });
 
-    expect(() => analyzeJSTS(input)).toThrow(
+    await expect(() => analyzeJSTS(input)).rejects.toThrow(
       APIError.linterError('Linter does not exist. Did you call /init-linter?'),
     );
   });
@@ -56,7 +56,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
 
     expect(issue).toEqual(
       expect.objectContaining({
@@ -81,7 +81,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S1534',
@@ -105,9 +105,9 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [path.join(currentPath, 'fixtures', 'vue_ts', 'tsconfig.json')];
     const language = 'ts';
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
     expect(issues).toHaveLength(0);
-    const { issues: issues_sl } = analyzeJSTS(
+    const { issues: issues_sl } = await analyzeJSTS(
       await jsTsInput({ filePath, tsConfigs, sonarlint: true, language }),
     );
     expect(issues_sl).toHaveLength(0);
@@ -134,7 +134,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'main.js');
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -165,7 +165,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(currentPath, 'fixtures', 'test.js');
     const fileType = 'TEST';
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath, fileType }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, fileType }));
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
@@ -196,7 +196,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(currentPath, 'fixtures', 'mixed.js');
     const fileType = 'TEST';
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath, fileType }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, fileType }));
     expect(issues).toHaveLength(2);
     expect(issues.map(issue => issue.ruleId)).toEqual(expect.arrayContaining(['S6426', 'S3696']));
   });
@@ -217,7 +217,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S3498',
@@ -241,7 +241,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S1116',
@@ -266,7 +266,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, fileContent }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, fileContent }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S3512',
@@ -292,7 +292,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S4335',
@@ -320,7 +320,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S2870',
@@ -348,7 +348,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -376,7 +376,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
     expect(issue).toEqual(
       expect.not.objectContaining({
         ruleId: 'S3003',
@@ -425,7 +425,9 @@ describe('analyzeJSTS', () => {
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodeIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: nodeProgram.programId, language }));
+    } = await analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodeProgram.programId, language }),
+    );
     expect(nodeIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -439,7 +441,9 @@ describe('analyzeJSTS', () => {
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodenextIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: nodenextProgram.programId, language }));
+    } = await analyzeJSTS(
+      await jsTsInput({ filePath, programId: nodenextProgram.programId, language }),
+    );
     expect(nodenextIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -453,7 +457,9 @@ describe('analyzeJSTS', () => {
     expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [classicIssue],
-    } = analyzeJSTS(await jsTsInput({ filePath, programId: classicProgram.programId, language }));
+    } = await analyzeJSTS(
+      await jsTsInput({ filePath, programId: classicProgram.programId, language }),
+    );
     expect(classicIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -478,7 +484,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [issue],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, tsConfigs }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S3403',
@@ -500,7 +506,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'issue.js');
 
-    const { issues } = analyzeJSTS(await jsTsInput({ filePath }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(issues).toEqual([
       {
         ruleId: 'S1314',
@@ -534,7 +540,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ secondaryLocations }],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -562,7 +568,7 @@ describe('analyzeJSTS', () => {
 
     const {
       issues: [{ quickFixes }],
-    } = analyzeJSTS(await jsTsInput({ filePath }));
+    } = await analyzeJSTS(await jsTsInput({ filePath }));
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -601,7 +607,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = await analyzeJSTS(
       await jsTsInput({ filePath }),
     );
 
@@ -844,7 +850,7 @@ describe('analyzeJSTS', () => {
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
     const fileType = 'TEST';
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = await analyzeJSTS(
       await jsTsInput({ filePath, fileType }),
     );
 
@@ -888,7 +894,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'metrics.js');
 
-    const { highlights, highlightedSymbols, metrics, cpdTokens } = analyzeJSTS(
+    const { highlights, highlightedSymbols, metrics, cpdTokens } = await analyzeJSTS(
       await jsTsInput({ filePath, sonarlint: true }),
     );
 
@@ -906,7 +912,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'parsing-error.js');
     const analysisInput = await jsTsInput({ filePath });
-    expect(() => analyzeJSTS(analysisInput)).toThrow(
+    await expect(() => analyzeJSTS(analysisInput)).rejects.toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
   });
@@ -1030,7 +1036,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
-    const { ast } = analyzeJSTS(await jsTsInput({ filePath }));
+    const { ast } = await analyzeJSTS(await jsTsInput({ filePath }));
     const protoMessage = deserializeProtobuf(ast as Uint8Array);
     expect(protoMessage.program).toBeDefined();
     expect(protoMessage.program.body).toHaveLength(1);
@@ -1051,7 +1057,7 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
-    const { ast } = analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
+    const { ast } = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
     expect(ast).toBeUndefined();
   });
 });

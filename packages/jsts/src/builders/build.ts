@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
-import { JsTsAnalysisInput } from '../analysis/analysis.js';
+import { CompleteJsTsAnalysisInput, JsTsAnalysisInput } from '../analysis/analysis.js';
 import { buildParserOptions } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { Parser, parsersMap } from '../parsers/eslint.js';
@@ -31,7 +31,7 @@ import { Linter } from 'eslint';
  * @param input the JavaScript / TypeScript analysis input
  * @returns the parsed source code
  */
-export function build(input: JsTsAnalysisInput) {
+export function build(input: CompleteJsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
@@ -93,11 +93,8 @@ export function build(input: JsTsAnalysisInput) {
   }
 }
 
-function shouldUseTypescriptParser({
-  shouldUseTypeScriptParserForJS,
-  language,
-}: JsTsAnalysisInput): boolean {
-  return shouldUseTypeScriptParserForJS !== false || language === 'ts';
+function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
+  return allowTsParserJsFiles !== false || language === 'ts';
 }
 
 function isVueFile(file: string) {
