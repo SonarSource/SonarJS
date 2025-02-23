@@ -24,6 +24,10 @@ import { AnalysisInput, AnalysisOutput } from '../../../../shared/src/types/anal
  */
 export interface EmbeddedAnalysisInput extends AnalysisInput {}
 
+export type CompleteEmbeddedAnalysisInput = Omit<EmbeddedAnalysisInput, 'fileContent'> & {
+  fileContent: string;
+};
+
 /**
  * A YAML analysis output
  *

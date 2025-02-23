@@ -17,7 +17,6 @@
 import express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
-import { JsTsAnalysisOutput } from '../../../jsts/src/analysis/analysis.js';
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -67,28 +66,21 @@ export function parseParsingError(error: {
       code: error.code,
       line: error.data?.line,
     },
-    ...EMPTY_JSTS_ANALYSIS_OUTPUT,
   };
 }
 
 /**
- * An empty JavaScript / TypeScript analysis output sent back on paring errors.
+ * Creates a S2260 issue from the parsing error
  */
-export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
-  issues: [],
-  highlights: [],
-  highlightedSymbols: [],
-  metrics: {
-    ncloc: [],
-    commentLines: [],
-    nosonarLines: [],
-    executableLines: [],
-    functions: 0,
-    statements: 0,
-    classes: 0,
-    complexity: 0,
-    cognitiveComplexity: 0,
-  },
-  cpdTokens: [],
-  ast: new Uint8Array(),
-};
+export function createParsingIssue({
+  parsingError: { line, message },
+}: {
+  parsingError: { line?: number; message: string };
+}) {
+  return {
+    language: 'js',
+    ruleId: 'S2260',
+    line,
+    message,
+  } as const;
+}

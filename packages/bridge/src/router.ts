@@ -17,10 +17,11 @@
 import * as express from 'express';
 import { Worker } from 'worker_threads';
 import { createDelegator } from './delegate.js';
+import { WorkerData } from '../../shared/src/helpers/worker.js';
 
-export default function (worker?: Worker): express.Router {
+export default function (worker: Worker | undefined, workerData: WorkerData): express.Router {
   const router = express.Router();
-  const delegate = createDelegator(worker);
+  const delegate = createDelegator(worker, workerData);
 
   /** Endpoints running on the worker thread */
   router.post('/analyze-project', delegate('on-analyze-project'));

@@ -196,7 +196,7 @@ class BridgeServerImplTest {
         "js"
       )
     );
-    bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "");
+    bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "", false);
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
       "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"

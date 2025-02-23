@@ -14,30 +14,29 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
-import fs from 'fs';
+import { join, basename, dirname } from 'node:path/posix';
+import fs from 'node:fs/promises';
 import { Minimatch } from 'minimatch';
 import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
 import { analyzeHTML } from '../../../html/src/index.js';
-import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
+import { isHtmlFile, isJsTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import {
-  DEFAULT_ENVIRONMENTS,
-  DEFAULT_GLOBALS,
   JsTsFiles,
-  ProjectAnalysisInput,
   ProjectAnalysisOutput,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
-import { toUnixPath, FileType } from '../../../shared/src/helpers/files.js';
+import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import { createParsingIssue, parseParsingError } from '../../../bridge/src/errors/index.js';
+import { compare } from 'dir-compare';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 
-const sourcesPath = path.join(
-  import.meta.dirname,
+const sourcesPath = join(
+  toUnixPath(import.meta.dirname),
   '..',
   '..',
   '..',
@@ -45,10 +44,10 @@ const sourcesPath = path.join(
   '..',
   'sonarjs-ruling-sources',
 );
-const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+const jsTsProjectsPath = join(sourcesPath, 'jsts', 'projects');
 
-const expectedPath = path.join(
-  import.meta.dirname,
+const expectedPathBase = join(
+  toUnixPath(import.meta.dirname),
   '..',
   '..',
   '..',
@@ -60,16 +59,9 @@ const expectedPath = path.join(
   'expected',
   'jsts',
 );
-const actualPath = path.join(import.meta.dirname, '..', 'actual', 'jsts');
+const actualPathBase = join(import.meta.dirname, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
-
-type RulingInput = {
-  name: string;
-  testDir?: string;
-  exclusions?: string;
-  folder?: string;
-};
 
 const DEFAULT_EXCLUSIONS = [
   '**/.*',
@@ -83,95 +75,61 @@ const DEFAULT_EXCLUSIONS = [
   '**/contrib/**',
 ].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
 
-export function setupBeforeAll(projectFile: string) {
-  const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
+type ProjectsData = {
+  name: string;
+  folder: string;
+  testDir: string;
+  exclusions: string;
+};
 
-  return {
-    project,
-    expectedPath,
-    actualPath,
-    rules,
-  };
+export function projectName(projectFile: string) {
+  const filename = basename(toUnixPath(projectFile));
+  return filename.substring(0, filename.length - '.ruling.test.ts'.length);
 }
 
-function extractParameters(projectFile: string) {
+export async function testProject(projectName: string) {
   const settingsPath = process.env[SETTINGS_KEY];
-  let params;
+  let params: {
+    rules?: RuleConfig[];
+    expectedPath?: string;
+    actualPath?: string;
+  } = {};
   if (settingsPath) {
     params = require(settingsPath);
   }
 
-  const filename = path.basename(toUnixPath(projectFile));
-
-  const project = projects.find(
-    p => p.name === filename.substring(0, filename.length - '.ruling.test.ts'.length),
+  const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
+    p => p.name === projectName,
   );
 
-  return {
-    project,
-    rules: params?.rules || loadRules(),
-    expectedPath: params?.expectedPath
-      ? path.join(params?.expectedPath, project.name)
-      : path.join(expectedPath, project.name),
-    actualPath: params?.actualPath
-      ? path.join(params?.actualPath, project.name)
-      : path.join(actualPath, project.name),
-  };
-}
-/**
- * Load files and analyze project
- */
-export async function testProject(
-  rulingInput: RulingInput,
-  actualPath: string,
-  rules: RuleConfig[],
-) {
-  const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
-  const exclusionsArray = rulingInput.exclusions?.split(',') || [];
-  if (rulingInput.testDir) {
-    exclusionsArray.push(...rulingInput.testDir.split(',').map(dir => `${dir}/**/*`));
-  }
-  const exclusions = exclusionsArray.map(
+  const rules = params?.rules || (await loadRules());
+  const expectedPath = join(params?.expectedPath ?? expectedPathBase, name);
+  const actualPath = join(params?.actualPath ?? actualPathBase, name);
+
+  const projectPath = join(jsTsProjectsPath, folder ?? name);
+  const exclusionsArray = exclusions?.split(',') || [];
+  const exclusionsGlobs = exclusionsArray.map(
     pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true }),
   );
 
-  const { jsTsFiles, htmlFiles, yamlFiles } = getFiles(projectPath, exclusions);
+  const { jsTsFiles, htmlFiles, yamlFiles } = await getFiles(projectPath, testDir, exclusionsGlobs);
 
-  if (rulingInput.testDir != null) {
-    const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
-  }
-
-  const payload: ProjectAnalysisInput = {
+  const results = await analyzeProject({
     rules,
     baseDir: projectPath,
     files: jsTsFiles,
-  };
-
-  await Linter.initialize({
-    rules,
-    environments: DEFAULT_ENVIRONMENTS,
-    globals: DEFAULT_GLOBALS,
-    sonarlint: false,
-    bundles: [],
-    baseDir: path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name),
   });
-  const jsTsResults = await analyzeProject(payload);
-  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
+  await analyzeFiles(yamlFiles, analyzeYAML, results);
 
+  /* we disable `no-var` for HTML */
   Linter.rulesConfig.forEach(rules => {
     rules['sonarjs/S3504'] = ['off'];
   });
-  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML);
-  const results = mergeResults(jsTsResults, htmlResults, yamlResults);
+  await analyzeFiles(htmlFiles, analyzeHTML, results);
 
-  writeResults(
-    projectPath,
-    rulingInput.name,
-    results,
-    [jsTsFiles, htmlFiles, yamlFiles],
-    actualPath,
-  );
+  await writeResults(projectPath, name, results, actualPath);
+
+  return (await compare(expectedPath, actualPath, { compareContent: true })).same;
 }
 
 /**
@@ -179,45 +137,36 @@ export async function testProject(
  * found in the given `dir`, ignoring the given `exclusions` and
  * assigning the given `type`
  */
-function getFiles(
-  dir: string,
-  exclusions: Minimatch[],
-  jsTsFiles: JsTsFiles = {},
-  htmlFiles: JsTsFiles = {},
-  yamlFiles: JsTsFiles = {},
-  type: FileType = 'MAIN',
-) {
-  const prefixLength = toUnixPath(dir).length + 1;
-  const files = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
-  for (const file of files) {
-    const absolutePath = toUnixPath(path.join(file.path, file.name));
-    const relativePath = absolutePath.substring(prefixLength);
-    if (!file.isFile()) continue;
-    if (isExcluded(relativePath, exclusions)) continue;
-    if (isExcluded(absolutePath, DEFAULT_EXCLUSIONS)) continue;
-    const fileContent = fs.readFileSync(absolutePath, 'utf8');
-    const language = findLanguage(absolutePath, fileContent);
-    if (!language) continue;
+async function getFiles(dir: string, testDir: string, exclusions: Minimatch[]) {
+  const prefixLength = dir.length + 1;
+  const files = await fs.readdir(dir, { recursive: true, withFileTypes: true });
+  const jsTsFiles: JsTsFiles = {},
+    htmlFiles: JsTsFiles = {},
+    yamlFiles: JsTsFiles = {};
 
-    if (isHtmlFile(absolutePath)) {
-      htmlFiles[absolutePath] = { fileType: type, fileContent, language };
-    } else if (isYamlFile(absolutePath)) {
-      yamlFiles[absolutePath] = { fileType: type, fileContent, language };
-    } else {
-      if (!accept(absolutePath, fileContent)) continue;
-      jsTsFiles[absolutePath] = { fileType: type, fileContent, language };
+  const testPath = testDir ? join(dir, testDir) : null;
+  for (const file of files) {
+    const filePath = toUnixPath(join(file.parentPath, file.name));
+    const relativePath = filePath.substring(prefixLength);
+    if (!file.isFile()) continue;
+    if (isExcluded(relativePath, exclusions) || isExcluded(filePath, DEFAULT_EXCLUSIONS)) {
+      continue;
+    }
+
+    const fileType = testPath && dirname(filePath).startsWith(testPath) ? 'TEST' : 'MAIN';
+    if (isHtmlFile(filePath)) {
+      htmlFiles[filePath] = { fileType, filePath };
+    } else if (isYamlFile(filePath)) {
+      yamlFiles[filePath] = { fileType, filePath };
+    } else if (isJsTsFile(filePath)) {
+      const fileContent = await fs.readFile(filePath, 'utf8');
+      if (!accept(filePath, fileContent)) {
+        continue;
+      }
+      jsTsFiles[filePath] = { fileType, filePath, fileContent };
     }
   }
   return { jsTsFiles, htmlFiles, yamlFiles };
-}
-
-function findLanguage(filePath: string, contents: string) {
-  if (isTsFile(filePath, contents)) {
-    return 'ts';
-  }
-  if (isJsFile(filePath)) {
-    return 'js';
-  }
 }
 
 function isExcluded(filePath: string, exclusions: Minimatch[]) {
@@ -228,71 +177,25 @@ function isExcluded(filePath: string, exclusions: Minimatch[]) {
  * Analyze files the old school way.
  * Used for HTML and YAML
  */
-function analyzeFiles(files: JsTsFiles, analyzer: (payload: AnalysisInput) => AnalysisOutput) {
-  const results = { files: {} };
+async function analyzeFiles(
+  files: JsTsFiles,
+  analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
+  results: ProjectAnalysisOutput,
+) {
   for (const [filePath, fileData] of Object.entries(files)) {
-    const payload: AnalysisInput = {
-      filePath,
-      fileContent: fileData.fileContent,
-    };
     try {
-      results.files[filePath] = analyzer(payload);
+      results.files[filePath] = await analyzer(fileData);
     } catch (err) {
-      results.files[filePath] = createParsingIssue(err);
-    }
-    results.files[filePath].language = fileData.language;
-  }
-  return results;
-}
-
-/**
- * Merge results from multiple analyses into a single object
- * Creates parsing issues from parsingError when needed
- */
-function mergeResults(...resultsSet: ProjectAnalysisOutput[]) {
-  const allResults = { files: {} };
-  for (const results of resultsSet) {
-    for (const [filePath, fileData] of Object.entries(results.files)) {
-      if (allResults.files[filePath]) {
-        throw Error(`File ${filePath} has been analyzed in multiple paths`);
-      }
-      if (fileData.parsingError) {
-        allResults.files[filePath] = createParsingIssue({ data: fileData.parsingError });
-      } else {
-        allResults.files[filePath] = fileData;
-      }
+      results.files[filePath] = createParsingIssue(parseParsingError(err));
     }
   }
-  return allResults;
-}
-
-/**
- * Creates a S2260 issue for the parsing error
- */
-function createParsingIssue({
-  data: { line, message },
-}: {
-  data: { line?: number; message: string };
-}) {
-  return {
-    issues: [
-      {
-        ruleId: 'S2260',
-        line,
-        // stub values so we don't have to modify the type
-        message,
-        column: 0,
-        secondaryLocations: [],
-      },
-    ],
-  };
 }
 
 /**
  * Loading this through `fs` and not import because the file is absent at compile time
  */
-function loadRules() {
-  const rulesPath = path.join(import.meta.dirname, '..', 'data', 'rules.json');
-  const rulesContent = fs.readFileSync(rulesPath, 'utf8');
+async function loadRules() {
+  const rulesPath = join(toUnixPath(import.meta.dirname), '..', 'data', 'rules.json');
+  const rulesContent = await fs.readFile(rulesPath, 'utf8');
   return JSON.parse(rulesContent);
 }

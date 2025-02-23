@@ -15,16 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AnalysisOutput } from '../../shared/src/types/analysis.js';
-import { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
-import { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
-import { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { TsConfigJson } from 'type-fest';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
-import { readFile } from '../../shared/src/helpers/files.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
 import { NamedDependency } from '../../jsts/src/rules/index.js';
-import { JsTsLanguage, isJsFile, isTsFile } from '../../shared/src/helpers/language.js';
+import { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
+import { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
+import { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
 
 export type RequestResult =
   | {
@@ -42,22 +40,6 @@ export type Telemetry = {
 
 export type RequestType = BridgeRequest['type'];
 
-type MaybeIncompleteCssAnalysisInput = Omit<CssAnalysisInput, 'fileContent'> & {
-  fileContent?: string;
-};
-type MaybeIncompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'fileContent' | 'language'> & {
-  fileContent?: string;
-  language?: JsTsLanguage;
-};
-type MaybeIncompleteEmbeddedAnalysisInput = Omit<EmbeddedAnalysisInput, 'fileContent'> & {
-  fileContent?: string;
-};
-
-type MaybeIncompleteAnalysisInput =
-  | MaybeIncompleteJsTsAnalysisInput
-  | MaybeIncompleteCssAnalysisInput
-  | MaybeIncompleteEmbeddedAnalysisInput;
-
 export type BridgeRequest =
   | CssRequest
   | JsTsRequest
@@ -73,17 +55,17 @@ export type BridgeRequest =
 
 type CssRequest = {
   type: 'on-analyze-css';
-  data: MaybeIncompleteCssAnalysisInput;
+  data: CssAnalysisInput;
 };
 
 type EmbeddedRequest = {
   type: 'on-analyze-html' | 'on-analyze-yaml';
-  data: MaybeIncompleteEmbeddedAnalysisInput;
+  data: EmbeddedAnalysisInput;
 };
 
 type JsTsRequest = {
   type: 'on-analyze-jsts';
-  data: MaybeIncompleteJsTsAnalysisInput;
+  data: JsTsAnalysisInput;
 };
 
 type ProjectAnalysisRequest = {
@@ -128,51 +110,6 @@ type TsConfigFilesRequest = {
 type GetTelemetryRequest = {
   type: 'on-get-telemetry';
 };
-
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
-export async function readFileLazily<T extends MaybeIncompleteAnalysisInput>(
-  input: T,
-): Promise<T & { fileContent: string }> {
-  if (!isCompleteAnalysisInput(input)) {
-    return {
-      ...input,
-      fileContent: await readFile(input.filePath),
-    };
-  }
-  return input;
-}
-
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
-export function fillLanguage<T extends MaybeIncompleteJsTsAnalysisInput & { fileContent: string }>(
-  input: T,
-): JsTsAnalysisInput {
-  if (isTsFile(input.filePath, input.fileContent)) {
-    return {
-      ...input,
-      language: 'ts',
-    };
-  } else if (isJsFile(input.filePath)) {
-    return {
-      ...input,
-      language: 'js',
-    };
-  }
-  throw new Error(`Unable to find language for file ${input.filePath}`);
-}
-
-export function isCompleteAnalysisInput<T extends MaybeIncompleteAnalysisInput>(
-  input: T,
-): input is T & { fileContent: string } {
-  return 'fileContent' in input;
-}
 
 /**
  * The default (de)serialization mechanism of the Worker Thread API cannot be used

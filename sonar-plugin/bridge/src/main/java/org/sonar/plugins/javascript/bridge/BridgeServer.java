@@ -39,7 +39,8 @@ public interface BridgeServer extends Startable {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    String baseDir
+    String baseDir,
+    boolean sonarlint
   ) throws IOException;
 
   AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;

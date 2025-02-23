@@ -110,11 +110,11 @@ export class Linter {
    * will ignore any file external to that path:
    * https://github.com/eslint/rewrite/blob/0e09a420009796ceb4157ebe0dcee1348fdc4b75/packages/config-array/src/config-array.js#L865
    *
-   * @param rules the rules from the active quality profiles
+   * @param rules the active quality profile rules
    * @param environments the JavaScript execution environments
    * @param globals the global variables
    * @param sonarlint whether we are running in sonarlint context
-   * @param bundles external rule bundles to import
+   * @param bundles paths to external rule bundles to import
    * @param baseDir the working directory
    * @param rulesWorkdir the working directory for rules accessing FS (ucfg, architecture, dbd)
    */

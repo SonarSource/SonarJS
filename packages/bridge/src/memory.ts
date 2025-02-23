@@ -21,7 +21,6 @@ import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_ho
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
 
 const MB = 1024 * 1024;
-let debugMemory = false;
 
 export function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
@@ -83,7 +82,6 @@ export function logMemoryError(err: any) {
 }
 
 export function registerGarbageCollectionObserver() {
-  debugMemory = true;
   const obs = new PerformanceObserver(items => {
     items
       .getEntries()
@@ -94,13 +92,13 @@ export function registerGarbageCollectionObserver() {
       .forEach(item => {
         debug(`Major GC event`);
         debug(JSON.stringify(item));
-        logHeapStatistics();
+        logHeapStatistics(true);
       });
   });
   obs.observe({ entryTypes: ['gc'] });
 }
 
-export function logHeapStatistics() {
+export function logHeapStatistics(debugMemory: boolean) {
   if (debugMemory) {
     debug(JSON.stringify(v8.getHeapStatistics()));
   }

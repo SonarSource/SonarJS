@@ -59,9 +59,6 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  if (!inputFilenames.length) {
-    return results;
-  }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.sonarlint;
   await Linter.initialize({
@@ -72,6 +69,9 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     bundles,
     baseDir,
   });
+  if (!inputFilenames.length) {
+    return results;
+  }
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,

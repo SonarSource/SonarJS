@@ -32,7 +32,7 @@ export async function parseJavaScriptSourceFile(
   tsConfigs: string[] = [],
   fileType: FileType = 'MAIN',
   sonarlint = false,
-  shouldUseTypeScriptParserForJS = true,
+  allowTsParserJsFiles = true,
 ) {
   const fileContent = await readFile(filePath);
   return build({
@@ -42,6 +42,6 @@ export async function parseJavaScriptSourceFile(
     fileType,
     language: 'js',
     sonarlint,
-    shouldUseTypeScriptParserForJS,
+    allowTsParserJsFiles,
   });
 }

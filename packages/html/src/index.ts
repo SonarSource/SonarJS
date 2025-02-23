@@ -14,14 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from './parser/parse.js';
+import { fillFileContent } from '../../shared/src/types/analysis.js';
 
 import type {
-  EmbeddedAnalysisInput as HtmlAnalysisInput,
-  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+  EmbeddedAnalysisInput,
+  EmbeddedAnalysisOutput,
 } from '../../jsts/src/embedded/analysis/analysis.js';
-import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 
-export function analyzeHTML(input: HtmlAnalysisInput): HtmlAnalysisOutput {
-  return analyzeEmbedded(input, parseHTML);
+export async function analyzeHTML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
+  return analyzeEmbedded(await fillFileContent(input), parseHTML);
 }

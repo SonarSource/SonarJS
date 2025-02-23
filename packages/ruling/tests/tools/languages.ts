@@ -15,20 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
+import { JS_EXTENSIONS, TS_EXTENSIONS } from '../../../shared/src/helpers/language.js';
 
 const HTML_EXTENSIONS = ['.html', '.htm'];
 const YAML_EXTENSIONS = ['.yml', '.yaml'];
-const JS_EXTENSIONS = [
-  '.js',
-  '.mjs',
-  '.cjs',
-  '.jsx',
-  '.vue',
-  ...HTML_EXTENSIONS,
-  ...YAML_EXTENSIONS,
-];
-const TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
-const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
+const JSTS_EXTENSIONS = JS_EXTENSIONS.concat(TS_EXTENSIONS);
 
 export function isHtmlFile(filePath: string) {
   return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
@@ -38,13 +29,6 @@ export function isYamlFile(filePath: string) {
   return YAML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
 }
 
-export function isJsFile(filePath: string) {
-  return JS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
-}
-
-export function isTsFile(filePath: string, contents: string) {
-  const extension = path.posix.extname(filePath).toLowerCase();
-  return (
-    TS_EXTENSIONS.includes(extension) || (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
-  );
+export function isJsTsFile(filePath: string) {
+  return JSTS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
 }

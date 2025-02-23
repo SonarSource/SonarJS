@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.analysis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -135,7 +136,7 @@ class HtmlSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), anyBoolean());
     assertThat(context.allIssues()).hasSize(2);
 
     Iterator<Issue> issues = context.allIssues().iterator();

@@ -66,6 +66,34 @@ describe('server', () => {
     await serverClosed;
   });
 
+  it('should log memory', async () => {
+    console.log = mock.fn();
+    const { server, serverClosed } = await start(port, undefined, undefined, true);
+    await request(server, '/create-program', 'POST', {
+      tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
+    });
+    await request(server, '/close', 'POST');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs.some(message => message.match(/total_heap_size/))).toEqual(true);
+    await serverClosed;
+  });
+
+  it('should not log memory', async () => {
+    console.log = mock.fn();
+    const { server, serverClosed } = await start(port, undefined, undefined);
+    await request(server, '/create-program', 'POST', {
+      tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
+    });
+    await request(server, '/close', 'POST');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs.some(message => message.match(/total_heap_size/))).toEqual(false);
+    await serverClosed;
+  });
+
   it('should route service requests', async () => {
     const { server, serverClosed } = await start(port);
 

@@ -14,18 +14,24 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parseParsingError } from '../../../../bridge/src/errors/index.js';
-import { JsTsAnalysisInput } from '../analysis.js';
+import { createParsingIssue, parseParsingError } from '../../../../bridge/src/errors/index.js';
+import {
+  FailedJsTsAnalysisOutput,
+  JsTsAnalysisInput,
+  SuccessfulJsTsAnalysisOutput,
+} from '../analysis.js';
 import { analyzeJSTS } from '../analyzer.js';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
-export function analyzeFile(input: JsTsAnalysisInput) {
+export async function analyzeFile(
+  input: JsTsAnalysisInput,
+): Promise<SuccessfulJsTsAnalysisOutput | FailedJsTsAnalysisOutput> {
   try {
-    return analyzeJSTS(input);
+    return await analyzeJSTS(input);
   } catch (e) {
-    return parseParsingError(e);
+    return createParsingIssue(parseParsingError(e));
   }
 }

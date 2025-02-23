@@ -165,7 +165,7 @@ function filesDBtoFilesInput(filesDB: Record<string, File<void>[]>) {
     files.forEach(file => {
       allFiles[file.filename] = {
         fileType: 'MAIN',
-        language: file.filename.toLowerCase().endsWith('js') ? 'js' : 'ts',
+        filePath: file.filename,
       };
     });
   });
@@ -197,7 +197,10 @@ describe('analyzeProject', () => {
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
-      parsingError: { code: 'PARSING', message: 'Unexpected token (3:0)', line: 3 },
+      ruleId: 'S2260',
+      message: 'Unexpected token (3:0)',
+      line: 3,
+      language: 'js',
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
@@ -210,7 +213,10 @@ describe('analyzeProject', () => {
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
-      parsingError: { code: 'PARSING', message: 'Unexpected token (3:0)', line: 3 },
+      ruleId: 'S2260',
+      message: 'Unexpected token (3:0)',
+      line: 3,
+      language: 'js',
     });
     expect(result.meta.withWatchProgram).toBeTruthy();
     expect(result.meta.withProgram).toBeFalsy();

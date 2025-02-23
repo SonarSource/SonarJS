@@ -39,17 +39,6 @@ public interface CustomRuleRepository {
     JAVASCRIPT("js"),
     TYPESCRIPT("ts");
 
-    private final String language;
-
-    Language(String language) {
-      this.language = language;
-    }
-
-    @Override
-    public String toString() {
-      return language;
-    }
-
     private static final Map<String, Language> stringMap = Arrays.stream(values()).collect(
       Collectors.toMap(Enum::toString, Function.identity())
     );
@@ -58,8 +47,15 @@ public interface CustomRuleRepository {
       return stringMap.get(value);
     }
 
-    public String getLanguage() {
-      return language;
+    private final String lang;
+
+    Language(String language) {
+      this.lang = language;
+    }
+
+    @Override
+    public String toString() {
+      return lang;
     }
   }
 

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import express from 'express';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors/index.js';
+import { errorMiddleware } from '../../src/errors/index.js';
 import assert from 'assert';
 
 import { describe, it, beforeEach, mock, Mock } from 'node:test';
@@ -47,7 +47,6 @@ describe('errorMiddleware', () => {
           line: 42,
           code: ErrorCode.Parsing,
         },
-        ...EMPTY_JSTS_ANALYSIS_OUTPUT,
       },
     );
   });

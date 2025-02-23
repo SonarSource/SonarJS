@@ -18,7 +18,7 @@ import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
 import { Issue } from '../../linter/issues/issue.js';
 import { Linter } from '../../linter/linter.js';
-import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
+import { CompleteEmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
@@ -45,7 +45,7 @@ import { debug } from '../../../../shared/src/helpers/logging.js';
  * @returns the analysis output
  */
 export function analyzeEmbedded(
-  input: EmbeddedAnalysisInput,
+  input: CompleteEmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);

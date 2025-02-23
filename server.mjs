@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
-import * as server from './lib/bridge/src/server.js';
-import path from 'path';
-import { pathToFileURL } from 'node:url';
+import { start } from './lib/bridge/src/server.js';
 import { createWorker } from './lib/shared/src/helpers/worker.js';
 
 // import containing code which is only executed if it's a child process
@@ -21,5 +19,10 @@ if (isMainThread) {
   const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
 
-  server.start(Number.parseInt(port), host, createWorker(new URL(import.meta.url)), debugMemory);
+  start(
+    Number.parseInt(port, 10),
+    host,
+    createWorker(new URL(import.meta.url), { debugMemory }),
+    debugMemory,
+  );
 }
