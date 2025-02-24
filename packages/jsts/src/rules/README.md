@@ -4,7 +4,7 @@ eslint-plugin-sonarjs is an ESLint plugin maintained by [Sonar](https://www.sona
 
 This ESLint plugin does not contain all the rules from the SonarQube JS/TS analyzer. Aside of the rules available here, SonarQube uses rules from other ESLint plugins ([some](#eslint-rules) used as they are, [some others](#improved-eslint-rules) have been modified). We recommend installing those ESLint plugins and enabling those rules if you are looking for similar results to SonarQube using ESLint.
 
-If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sonarcloud.io) user, to lint your code locally, we suggest using [SonarLint](https://www.sonarlint.org) IDE extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarLint to your SonarQube/SonarCloud project to synchronize rules configuration, issue statuses, etc.
+If you are a [SonarQube Server](https://www.sonarsource.com/products/sonarqube/) or a [SonarQube Cloud](https://www.sonarsource.com/products/sonarcloud/) user, to lint your code locally, we suggest using the [SonarQube for IDE](https://www.sonarsource.com/products/sonarlint/) extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarQube for IDE to your Server or Cloud project to synchronize rules configuration, issue statuses, etc.
 
 ## Table of Contents
 
