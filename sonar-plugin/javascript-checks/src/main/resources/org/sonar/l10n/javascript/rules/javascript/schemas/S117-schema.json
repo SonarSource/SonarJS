@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "format": {
-          "type": "string"
+          "type": "string",
+          "default": "^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$",
+          "description": "Regular expression used to check the names against."
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

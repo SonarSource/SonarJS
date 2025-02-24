@@ -1,0 +1,12 @@
+[
+  {
+    "type": "array",
+    "items": [
+      {
+        "enum": ["smart", "allow-null"]
+      }
+    ],
+    "default": ["smart"],
+    "additionalItems": false
+  }
+]

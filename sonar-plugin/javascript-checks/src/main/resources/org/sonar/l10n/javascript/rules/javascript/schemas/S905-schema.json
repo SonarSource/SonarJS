@@ -1,0 +1,22 @@
+[{
+  "type": "object",
+  "properties": {
+    "allowShortCircuit": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowTernary": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowTaggedTemplates": {
+      "type": "boolean",
+      "default": true
+    },
+    "enforceForJSX": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": false
+}]

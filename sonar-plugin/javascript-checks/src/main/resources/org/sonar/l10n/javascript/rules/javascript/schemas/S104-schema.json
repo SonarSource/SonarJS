@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "maximum": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Maximum authorized lines in a file",
+          "default": 1000
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

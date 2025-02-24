@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "format": {
-          "type": "string"
+          "type": "string",
+          "description": "Regular expression used to check the class names against.",
+          "default": "^[A-Z][a-zA-Z0-9]*$"
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

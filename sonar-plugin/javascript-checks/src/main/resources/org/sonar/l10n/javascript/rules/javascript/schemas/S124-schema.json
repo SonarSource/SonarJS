@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
@@ -7,16 +7,22 @@
       "type": "object",
       "properties": {
         "regularExpression": {
-          "type": "string"
+          "type": "string",
+          "description": "The regular expression (JavaScript syntax)",
+          "default": ""
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "description": "The issue message",
+          "default": "The regular expression matches this comment."
         },
         "flags": {
-          "type": "string"
+          "type": "string",
+          "description": "Regular expression modifier flags",
+          "default": ""
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

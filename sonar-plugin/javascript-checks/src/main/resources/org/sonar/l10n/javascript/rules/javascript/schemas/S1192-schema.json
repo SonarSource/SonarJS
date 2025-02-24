@@ -6,8 +6,17 @@
     {
       "type": "object",
       "properties": {
-        "threshold": { "type": "integer", "minimum": 2 },
-        "ignoreStrings": { "type": "string" }
+        "threshold": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Number of times a literal must be duplicated to trigger an issue.",
+          "default": 3
+        },
+        "ignoreStrings": {
+          "type": "string",
+          "description": "Comma-separated list of strings that must be ignored.",
+          "default": "application/json"
+        }
       },
       "additionalProperties": false
     }

@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 2,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "max": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Maximum number of allowed conditional operators in an expression",
+          "default": 3
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

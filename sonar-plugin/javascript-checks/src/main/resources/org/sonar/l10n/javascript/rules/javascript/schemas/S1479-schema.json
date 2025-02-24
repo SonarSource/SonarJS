@@ -2,5 +2,13 @@
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
-  "items": [{ "type": "integer", "minimum": 0 }]
+  "title": "maximum",
+  "description": "Maximum number of \"case\".",
+  "default": 30,
+  "items": [
+    {
+      "type": "integer",
+      "minimum": 0
+    }
+  ]
 }

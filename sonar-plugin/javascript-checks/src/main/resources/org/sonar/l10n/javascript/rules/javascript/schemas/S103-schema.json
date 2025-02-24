@@ -1,0 +1,23 @@
+[{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 1,
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "The maximum authorized line length.",
+          "default": 180,
+          "title": "maximumLineLength"
+        },
+        "tabWidth": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}]

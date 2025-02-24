@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 2,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "maximumNestingLevel": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Maximum allowed \"if/for/while/switch/try\" statements nesting depth",
+          "default": 3
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

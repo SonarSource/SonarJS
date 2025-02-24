@@ -1,0 +1,5 @@
+[{
+  "enum": ["always", "never", "unix", "windows"],
+  "default": "always",
+  "description": "Options allowed: always, never, unix, windows"
+}]
