@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { createLinterConfigKey, Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
@@ -26,8 +26,8 @@ import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 import fs from 'fs';
 
 describe('Linter', () => {
-  it('should initialize the linter wrapper', async () => {
-    console.log = mock.fn();
+  it('should initialize the linter wrapper', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     await Linter.initialize({
       rules: [
@@ -60,7 +60,7 @@ describe('Linter', () => {
     );
   });
 
-  it('should load rule bundles', async () => {
+  it('should load rule bundles', async ({ mock }) => {
     const bundlePath = path.join(
       import.meta.dirname,
       'fixtures',
@@ -69,7 +69,7 @@ describe('Linter', () => {
       'rules.js',
     );
 
-    console.log = mock.fn();
+    console.log = mock.fn(console.log);
 
     await Linter.initialize({
       rules: [

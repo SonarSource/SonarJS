@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Timeout } from '../../src/timeout/timeout.js';
-import { describe, it, mock } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
 describe('timeout', () => {
-  it('should start the timeout', () => {
+  it('should start the timeout', ({ mock }) => {
     mock.timers.enable({ apis: ['setTimeout'] });
 
     const fn = mock.fn();
@@ -31,7 +31,7 @@ describe('timeout', () => {
     assert(fn.mock.calls.length > 0);
   });
 
-  it('should stop the timeout', () => {
+  it('should stop the timeout', ({ mock }) => {
     const fn = mock.fn();
     const timeout = new Timeout(fn, 10_000);
     timeout.start();

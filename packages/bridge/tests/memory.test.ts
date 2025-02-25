@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { logMemoryError } from '../src/memory.js';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 
 describe('logMemoryError', () => {
-  it('should log out-of-memory troubleshooting guide', () => {
-    console.error = mock.fn();
+  it('should log out-of-memory troubleshooting guide', ({ mock }) => {
+    console.error = mock.fn(console.error);
 
     logMemoryError({ code: 'ERR_WORKER_OUT_OF_MEMORY' });
 
@@ -46,8 +46,8 @@ describe('logMemoryError', () => {
     );
   });
 
-  it('should log default troubleshooting guide', () => {
-    console.error = mock.fn();
+  it('should log default troubleshooting guide', ({ mock }) => {
+    console.error = mock.fn(console.error);
 
     logMemoryError('something failed');
 

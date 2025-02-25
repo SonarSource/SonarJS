@@ -19,7 +19,7 @@ import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
-import { describe, before, after, it, mock, Mock } from 'node:test';
+import { describe, before, after, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
@@ -275,8 +275,8 @@ describe('router', () => {
     expect(programId).toBeGreaterThan(0);
   });
 
-  it('should forward /create-program failures', async () => {
-    console.error = mock.fn();
+  it('should forward /create-program failures', async ({ mock }) => {
+    console.error = mock.fn(console.error);
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/create-program', 'POST', data)) as string;
@@ -332,8 +332,8 @@ describe('router', () => {
     });
   });
 
-  it('should forward /tsconfig-files failures', async () => {
-    console.error = mock.fn();
+  it('should forward /tsconfig-files failures', async ({ mock }) => {
+    console.error = mock.fn(console.error);
     const tsConfig = toUnixPath(path.join(fixtures, 'malformed.json'));
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;

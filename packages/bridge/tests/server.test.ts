@@ -19,7 +19,7 @@ import * as path from 'path';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
 import * as http from 'http';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
 import { createWorker } from '../../shared/src/helpers/worker.js';
@@ -29,8 +29,8 @@ const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs'
 describe('server', () => {
   const port = 0;
 
-  it('should start', async () => {
-    console.log = mock.fn();
+  it('should start', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const { server, serverClosed } = await start(undefined, undefined);
 
@@ -66,8 +66,8 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should log memory', async () => {
-    console.log = mock.fn();
+  it('should log memory', async ({ mock }) => {
+    console.log = mock.fn(console.log);
     const { server, serverClosed } = await start(port, undefined, undefined, true);
     await request(server, '/create-program', 'POST', {
       tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
@@ -80,8 +80,8 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should not log memory', async () => {
-    console.log = mock.fn();
+  it('should not log memory', async ({ mock }) => {
+    console.log = mock.fn(console.log);
     const { server, serverClosed } = await start(port, undefined, undefined);
     await request(server, '/create-program', 'POST', {
       tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
@@ -118,8 +118,8 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should shut down', async () => {
-    console.log = mock.fn();
+  it('should shut down', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const worker = createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
@@ -135,8 +135,8 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('worker crashing should close server', async () => {
-    console.log = mock.fn();
+  it('worker crashing should close server', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const worker = createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
@@ -153,8 +153,8 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should timeout', async () => {
-    console.log = mock.fn();
+  it('should timeout', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const { server, serverClosed } = await start(
       port,

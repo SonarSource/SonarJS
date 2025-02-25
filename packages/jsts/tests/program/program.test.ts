@@ -18,7 +18,7 @@ import path from 'path';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
 import { isRoot, toUnixPath } from '../../src/rules/helpers/index.js';
-import { describe, it, Mock, mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import {
   createAndSaveProgram,
@@ -112,7 +112,9 @@ describe('program', () => {
    * asserts typescript resolution logic. If it changes, we will need to adapt our logic inside
    * program.ts (createProgramOptions in program.ts)
    */
-  it('typescript tsconfig resolution should check all paths until root node_modules', () => {
+  it('typescript tsconfig resolution should check all paths until root node_modules', ({
+    mock,
+  }) => {
     const configHost = {
       useCaseSensitiveFileNames: true,
       readDirectory: ts.sys.readDirectory,

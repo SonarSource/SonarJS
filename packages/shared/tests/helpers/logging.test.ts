@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug, error, info, warn } from '../../src/helpers/logging.js';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 
 describe('debug', () => {
-  it('should log with a `DEBUG` prefix', () => {
-    console.log = mock.fn();
+  it('should log with a `DEBUG` prefix', ({ mock }) => {
+    console.log = mock.fn(console.log);
     debug('hello, world!');
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
       `DEBUG hello, world!`,
@@ -29,8 +29,8 @@ describe('debug', () => {
 });
 
 describe('error', () => {
-  it('should log to stderr', () => {
-    console.error = mock.fn();
+  it('should log to stderr', ({ mock }) => {
+    console.error = mock.fn(console.error);
     error('hello, world!');
     expect((console.error as Mock<typeof console.error>).mock.calls[0].arguments[0]).toEqual(
       `hello, world!`,
@@ -39,8 +39,8 @@ describe('error', () => {
 });
 
 describe('warn', () => {
-  it('should log with a `WARN` prefix', () => {
-    console.log = mock.fn();
+  it('should log with a `WARN` prefix', ({ mock }) => {
+    console.log = mock.fn(console.log);
     warn('hello, world!');
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
       `WARN hello, world!`,
@@ -49,8 +49,8 @@ describe('warn', () => {
 });
 
 describe('info', () => {
-  it('should log with no prefix', () => {
-    console.log = mock.fn();
+  it('should log with no prefix', ({ mock }) => {
+    console.log = mock.fn(console.log);
     info('hello, world!');
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
       `hello, world!`,
