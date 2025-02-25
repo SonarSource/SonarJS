@@ -1,0 +1,3 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+
+export const fields = ___FIELDS___;
