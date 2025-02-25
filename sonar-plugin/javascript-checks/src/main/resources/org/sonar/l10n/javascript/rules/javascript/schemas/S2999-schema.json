@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 2,
@@ -7,10 +7,12 @@
       "type": "object",
       "properties": {
         "considerJSDoc": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Consider only functions with @constructor tag as constructor functions",
+          "default": false
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

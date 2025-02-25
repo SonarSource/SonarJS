@@ -1,0 +1,20 @@
+[
+  {
+    "ignoreConditionalTests": {
+      "type": "boolean",
+      "default": true
+    },
+    "ignoreTernaryTests": {
+      "type": "boolean",
+      "default": false
+    },
+    "ignoreMixedLogicalExpressions": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+]

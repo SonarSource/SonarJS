@@ -1,0 +1,8 @@
+[
+  {
+    "allowDestructuredState": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+]

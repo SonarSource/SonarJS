@@ -7,7 +7,10 @@
       "type": "object",
       "properties": {
         "threshold": {
-          "type": "integer"
+          "type": "integer",
+          "description": "The maximum authorized complexity.",
+          "default": 10,
+          "title": "Threshold"
         }
       },
       "additionalProperties": false

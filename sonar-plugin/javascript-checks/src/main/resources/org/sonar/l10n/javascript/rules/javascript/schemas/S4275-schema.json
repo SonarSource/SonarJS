@@ -1,0 +1,13 @@
+[
+  {
+    "type": "object",
+    "properties": {
+      "allowImplicit": {
+        "type": "boolean",
+        "description": "Allow implicitly returning undefined with a return statement.",
+        "default": false
+      }
+    },
+    "additionalProperties": false
+  }
+]

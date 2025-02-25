@@ -1,0 +1,8 @@
+[
+  {
+    "allowExpressions": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+]

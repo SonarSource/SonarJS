@@ -1,0 +1,16 @@
+[
+  {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "builtinGlobals": {
+        "type": "boolean",
+        "default": false
+      },
+      "ignoreDeclarationMerge": {
+        "type": "boolean",
+        "default": true
+      }
+    }
+  }
+]

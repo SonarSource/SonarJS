@@ -8,6 +8,8 @@
       "properties": {
         "whitelist": {
           "type": "array",
+          "description": "Comma separated list of modules to ignore while checking in package.json.",
+          "default": "",
           "items": {
             "type": "string"
           }

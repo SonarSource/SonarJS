@@ -7,7 +7,9 @@
       "type": "object",
       "properties": {
         "threshold": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Maximum elements authorized in a union type definition.",
+          "default": 3
         }
       },
       "additionalProperties": false

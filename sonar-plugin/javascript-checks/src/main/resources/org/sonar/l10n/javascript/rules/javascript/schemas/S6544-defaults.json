@@ -1,0 +1,12 @@
+[
+  {
+    "attributes": {
+      "type": "boolean",
+      "default": false
+    },
+    "arguments": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+]

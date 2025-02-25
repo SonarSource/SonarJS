@@ -1,0 +1,10 @@
+[{
+  "ignoreRefs": {
+    "type": "boolean",
+    "default": true
+  },
+  "ignoreDOMComponents": {
+    "type": "boolean",
+    "default": true
+  }
+}]

@@ -1,0 +1,12 @@
+[
+  {
+    "type": "object",
+    "properties": {
+      "destructuring": {
+        "enum": ["any", "all"],
+        "default": "all"
+      }
+    },
+    "additionalProperties": false
+  }
+]

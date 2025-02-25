@@ -7,10 +7,14 @@
       "type": "object",
       "properties": {
         "secretWords": {
-          "type": "string"
+          "type": "string",
+          "description": "Comma separated list of words identifying potential secrets",
+          "default": "api[_.-]?key,auth,credential,secret,token"
         },
         "randomnessSensibility": {
-          "type": "number"
+          "type": "number",
+          "description": "Minimum shannon entropy threshold of the secret",
+          "default": 5.0
         }
       },
       "additionalProperties": false

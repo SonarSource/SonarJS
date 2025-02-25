@@ -1,0 +1,15 @@
+[
+  {
+    "ignoreNonDOM": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowedInvalidRoles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": ["text"]
+    }
+  }
+]

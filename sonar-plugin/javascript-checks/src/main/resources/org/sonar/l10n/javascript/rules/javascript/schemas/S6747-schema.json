@@ -1,0 +1,16 @@
+[
+  {
+    "type": "object",
+    "properties": {
+      "ignore": {
+        "type": "array",
+        "description": "Comma-separated list of property and attribute names to ignore",
+        "default": "",
+        "title": "whitelist",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+]

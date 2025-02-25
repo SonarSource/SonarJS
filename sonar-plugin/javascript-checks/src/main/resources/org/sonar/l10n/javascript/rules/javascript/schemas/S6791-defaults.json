@@ -1,0 +1,8 @@
+[
+  {
+    "checkAliases": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+]

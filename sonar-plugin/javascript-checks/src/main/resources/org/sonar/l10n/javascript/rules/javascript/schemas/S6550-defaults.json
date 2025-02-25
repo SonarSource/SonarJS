@@ -1,0 +1,8 @@
+[
+  {
+    "allowBitwiseExpressions": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+]

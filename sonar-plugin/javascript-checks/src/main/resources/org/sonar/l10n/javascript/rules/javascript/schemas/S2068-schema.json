@@ -8,6 +8,8 @@
       "properties": {
         "passwordWords": {
           "type": "array",
+          "description": "Comma separated list of words identifying potential passwords.",
+          "default": "password, pwd, passwd",
           "items": {
             "type": "string"
           }

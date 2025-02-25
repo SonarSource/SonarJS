@@ -1,4 +1,4 @@
-{
+[{
   "type": "array",
   "minItems": 0,
   "maxItems": 1,
@@ -7,13 +7,19 @@
       "type": "object",
       "properties": {
         "requireParameterParentheses": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "True to require parentheses around parameters. False to forbid them for single parameter.",
+          "default": false,
+          "title": "parameter_parens"
         },
         "requireBodyBraces": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "True to require curly braces around function body. False to forbid them for single-return bodies.",
+          "default": false,
+          "title": "body_braces"
         }
       },
       "additionalProperties": false
     }
   ]
-}
+}]

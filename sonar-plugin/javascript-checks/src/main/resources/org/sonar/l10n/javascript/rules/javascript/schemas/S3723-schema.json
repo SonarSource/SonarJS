@@ -1,0 +1,8 @@
+[{
+  "enum": ["always-multiline",
+    "always",
+    "ignore",
+    "never",
+    "only-multiline"],
+  "default": "always-multiline"
+}]
