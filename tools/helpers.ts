@@ -141,7 +141,7 @@ export async function generateMetaForRule(sonarKey: string) {
   let schema = '';
   if (await exists(schemaFile)) {
     try {
-      schema = `\nimport type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';\nexport const schema = ( ${await readFile(schemaFile, 'utf-8')} ) as const satisfies JSONSchema4;`;
+      schema = `\nimport type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';\nexport const schema = ( ${await readFile(schemaFile, 'utf-8')} ) as const satisfies JSONSchema4 | JSONSchema4[];`;
     } catch {}
   }
 

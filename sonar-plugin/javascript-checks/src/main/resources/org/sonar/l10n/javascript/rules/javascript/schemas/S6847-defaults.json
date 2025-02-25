@@ -1,18 +1,12 @@
 [
   {
-    "handlers": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "default": [
-        "onClick",
-        "onMouseDown",
-        "onMouseUp",
-        "onKeyPress",
-        "onKeyDown",
-        "onKeyUp"
-      ]
-    }
+    "handlers": [
+      "onClick",
+      "onMouseDown",
+      "onMouseUp",
+      "onKeyPress",
+      "onKeyDown",
+      "onKeyUp"
+    ]
   }
 ]

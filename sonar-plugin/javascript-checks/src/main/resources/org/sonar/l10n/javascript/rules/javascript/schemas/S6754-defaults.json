@@ -1,8 +1,5 @@
 [
   {
-    "allowDestructuredState": {
-      "type": "boolean",
-      "default": true
-    }
+    "allowDestructuredState": true
   }
 ]

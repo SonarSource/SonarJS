@@ -1,10 +1,6 @@
-[{
-  "assertionStyle": {
-    "type": "string",
-    "default": "as"
-  },
-  "objectLiteralTypeAssertions": {
-    "type": "string",
-    "default": "allow"
+[
+  {
+    "assertionStyle": "as",
+    "objectLiteralTypeAssertions": "allow"
   }
-}]
+]

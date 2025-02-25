@@ -1,11 +1,5 @@
 [
   {
-      "allow": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "default": ["arrowFunctions", "constructors", "private-constructors"]
-      }
-    }
+    "allow": ["arrowFunctions", "constructors", "private-constructors"]
+  }
 ]

@@ -1,17 +1,20 @@
 [
   {
     "description": "Set to true to require single quotes, false for double quotes.",
+    "type": "string",
     "default": "single",
     "title": "singleQuotes"
   },
   {
     "properties": {
       "avoidEscape": {
+        "type": "boolean",
         "default": true
       },
       "allowTemplateLiterals": {
+        "type": "boolean",
         "default": true
       }
-    },
+    }
   }
 ]

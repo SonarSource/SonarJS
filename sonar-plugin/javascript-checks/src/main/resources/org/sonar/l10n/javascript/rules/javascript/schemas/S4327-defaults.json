@@ -1,6 +1,5 @@
-[{
-  "allowDestructuring": {
-    "type": "boolean",
-    "default": true
+[
+  {
+    "allowDestructuring": true
   }
-}]
+]

@@ -1,8 +1,5 @@
 [
   {
-    "defaultAssignment": {
-      "type": "boolean",
-      "default": false
-    }
+    "defaultAssignment": false
   }
 ]

@@ -1,12 +1,6 @@
 [
   {
-      "builtinGlobals": {
-        "type": "boolean",
-        "default": false
-      },
-      "ignoreDeclarationMerge": {
-        "type": "boolean",
-        "default": true
-      }
+      "builtinGlobals": false,
+      "ignoreDeclarationMerge": true
     }
 ]

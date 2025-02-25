@@ -1,16 +1,7 @@
 [
   {
-      "newIsCap": {
-        "type": "boolean",
-        "default": true
-      },
-      "capIsNew": {
-        "type": "boolean",
-        "default": false
-      },
-      "properties": {
-        "type": "boolean",
-        "default": false
-      }
-    }
+    "newIsCap": true,
+    "capIsNew": false,
+    "properties": false
+  }
 ]

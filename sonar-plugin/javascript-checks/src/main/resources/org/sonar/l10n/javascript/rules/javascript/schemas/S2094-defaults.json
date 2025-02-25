@@ -1,20 +1,8 @@
 [
   {
-      "allowConstructorOnly": {
-        "type": "boolean",
-        "default": false
-      },
-      "allowEmpty": {
-        "type": "boolean",
-        "default": false
-      },
-      "allowStaticOnly": {
-        "type": "boolean",
-        "default": true
-      },
-      "allowWithDecorator": {
-        "type": "boolean",
-        "default": true
-      }
-    }
+    "allowConstructorOnly": false,
+    "allowEmpty": false,
+    "allowStaticOnly": true,
+    "allowWithDecorator": true
+  }
 ]

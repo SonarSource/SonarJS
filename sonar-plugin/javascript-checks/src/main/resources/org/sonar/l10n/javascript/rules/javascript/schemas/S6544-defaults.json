@@ -1,12 +1,6 @@
 [
   {
-    "attributes": {
-      "type": "boolean",
-      "default": false
-    },
-    "arguments": {
-      "type": "boolean",
-      "default": false
-    }
+    "attributes": false,
+    "arguments": false
   }
 ]

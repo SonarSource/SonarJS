@@ -1,8 +1,5 @@
 [
   {
-    "checkAliases": {
-      "type": "boolean",
-      "default": true
-    }
+    "checkAliases": true
   }
 ]

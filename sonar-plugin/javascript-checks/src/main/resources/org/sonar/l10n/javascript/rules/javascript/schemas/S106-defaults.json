@@ -1,0 +1,17 @@
+[
+  {
+    "allow": [
+      "assert",
+      "clear",
+      "count",
+      "group",
+      "groupCollapsed",
+      "groupEnd",
+      "info",
+      "table",
+      "time",
+      "timeEnd",
+      "trace"
+    ]
+  }
+]

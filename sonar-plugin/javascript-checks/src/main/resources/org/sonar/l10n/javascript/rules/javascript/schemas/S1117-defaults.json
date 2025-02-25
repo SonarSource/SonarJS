@@ -1,8 +1,5 @@
 [
   {
-      "hoist": {
-        "type": "string",
-        "default": "all"
-      }
+    "hoist": "all"
   }
 ]

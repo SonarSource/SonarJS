@@ -1,12 +1,14 @@
 [
   {
     "description": "enforced brace-style: 1tbs, stroustrup or allman.",
+    "type": "string",
     "default": "1tbs",
     "title": "braceStyle"
   },
   {
     "properties": {
       "allowSingleLine": {
+        "type": "boolean",
         "default": true
       }
     }

@@ -1,8 +1,5 @@
 [
   {
-      "destructuring": {
-        "type": "string",
-        "default": "all"
-      }
+      "destructuring": "all"
     }
 ]
