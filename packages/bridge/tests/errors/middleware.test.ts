@@ -18,7 +18,7 @@ import express from 'express';
 import { errorMiddleware } from '../../src/errors/index.js';
 import assert from 'assert';
 
-import { describe, it, beforeEach, mock, Mock } from 'node:test';
+import { describe, it, beforeEach, afterEach, mock, type Mock } from 'node:test';
 import { APIError, ErrorCode } from '../../../shared/src/errors/error.js';
 
 describe('errorMiddleware', () => {
@@ -30,6 +30,9 @@ describe('errorMiddleware', () => {
     mockResponse = {
       json: mock.fn(),
     };
+  });
+  afterEach(() => {
+    mock.reset();
   });
 
   it('should return empty JS/TS analysis properties and a complete parsingError for PARSING errors', () => {

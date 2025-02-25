@@ -16,7 +16,7 @@
  */
 import stylelint from 'stylelint';
 import { transform } from '../../../src/linter/issues/index.js';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 
 describe('transform', () => {
@@ -48,8 +48,8 @@ describe('transform', () => {
     ]);
   });
 
-  it('should not transform Stylelint results from a different file', () => {
-    console.log = mock.fn();
+  it('should not transform Stylelint results from a different file', ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const filePath = '/tmp/path';
     const source = '/some/fake/source';
