@@ -1,0 +1,17 @@
+[{
+    "ignore": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "default": [ 0, 1, -1, 24, 60 ]
+    },
+    "ignoreDefaultValues": {
+      "type": "boolean",
+      "default": true
+    },
+    "ignoreClassFieldInitialValues": {
+      "type": "boolean",
+      "default": true
+    }
+}]

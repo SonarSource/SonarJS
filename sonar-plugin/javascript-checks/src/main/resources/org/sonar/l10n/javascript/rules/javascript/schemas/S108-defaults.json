@@ -1,0 +1,7 @@
+[{
+
+    "allowEmptyCatch": {
+      "type": "boolean",
+      "default": true
+    }
+}]

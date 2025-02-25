@@ -1,8 +1,5 @@
 [
   {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
       "allowConstructorOnly": {
         "type": "boolean",
         "default": false
@@ -20,5 +17,4 @@
         "default": true
       }
     }
-  }
 ]

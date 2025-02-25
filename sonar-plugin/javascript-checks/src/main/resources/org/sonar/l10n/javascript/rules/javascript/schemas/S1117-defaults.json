@@ -1,0 +1,8 @@
+[
+  {
+      "hoist": {
+        "type": "string",
+        "default": "all"
+      }
+  }
+]

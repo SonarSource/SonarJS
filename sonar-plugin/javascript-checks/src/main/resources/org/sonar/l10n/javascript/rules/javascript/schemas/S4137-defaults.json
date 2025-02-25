@@ -1,4 +1,4 @@
-{
+[{
   "assertionStyle": {
     "type": "string",
     "default": "as"
@@ -7,4 +7,4 @@
     "type": "string",
     "default": "allow"
   }
-}
+}]

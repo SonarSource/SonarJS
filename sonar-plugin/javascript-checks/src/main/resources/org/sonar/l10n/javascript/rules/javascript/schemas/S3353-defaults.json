@@ -1,0 +1,8 @@
+[
+  {
+      "destructuring": {
+        "type": "string",
+        "default": "all"
+      }
+    }
+]

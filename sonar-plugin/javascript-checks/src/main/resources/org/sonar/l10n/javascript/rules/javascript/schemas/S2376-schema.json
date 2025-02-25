@@ -4,5 +4,5 @@
       "description": "Reports on getters without setters.",
       "default": false
     }
-  },
+  }
 }]

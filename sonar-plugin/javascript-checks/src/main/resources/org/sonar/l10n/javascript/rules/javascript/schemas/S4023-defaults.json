@@ -1,6 +1,6 @@
-{
+[{
   "allowSingleExtends": {
     "type": "boolean",
     "default": true
   }
-}
+}]

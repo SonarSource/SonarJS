@@ -1,7 +1,5 @@
 [
   {
-    "type": "object",
-    "properties": {
       "newIsCap": {
         "type": "boolean",
         "default": true
@@ -14,7 +12,5 @@
         "type": "boolean",
         "default": false
       }
-    },
-    "additionalProperties": false
-  }
+    }
 ]

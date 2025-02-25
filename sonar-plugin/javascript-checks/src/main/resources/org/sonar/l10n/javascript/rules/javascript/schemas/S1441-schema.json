@@ -1,21 +1,17 @@
 [
   {
-    "enum": ["single", "double", "backtick"],
     "description": "Set to true to require single quotes, false for double quotes.",
-    "default": "single"
+    "default": "single",
+    "title": "singleQuotes"
   },
   {
-    "type": "object",
     "properties": {
       "avoidEscape": {
-        "type": "boolean",
         "default": true
       },
       "allowTemplateLiterals": {
-        "type": "boolean",
         "default": true
       }
     },
-    "additionalProperties": false
   }
 ]

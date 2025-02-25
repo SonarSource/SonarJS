@@ -1,17 +1,14 @@
 [
   {
-    "enum": ["1tbs", "stroustrup", "allman"],
     "description": "enforced brace-style: 1tbs, stroustrup or allman.",
-    "default": "1tbs"
+    "default": "1tbs",
+    "title": "braceStyle"
   },
   {
-    "type": "object",
     "properties": {
       "allowSingleLine": {
-        "type": "boolean",
         "default": true
       }
-    },
-    "additionalProperties": false
+    }
   }
 ]

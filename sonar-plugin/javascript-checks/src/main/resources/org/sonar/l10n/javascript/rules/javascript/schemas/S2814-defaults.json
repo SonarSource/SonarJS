@@ -1,8 +1,5 @@
 [
   {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
       "builtinGlobals": {
         "type": "boolean",
         "default": false
@@ -12,5 +9,4 @@
         "default": true
       }
     }
-  }
 ]
