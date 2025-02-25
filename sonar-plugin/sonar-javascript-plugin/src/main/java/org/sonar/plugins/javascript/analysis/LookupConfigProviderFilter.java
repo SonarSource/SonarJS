@@ -17,18 +17,17 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
+import org.sonar.plugins.javascript.utils.Exclusions;
 
 /**
  * This class partially reproduces the behavior of JavaScriptExclusionsFileFilter's implementation.
@@ -53,22 +52,14 @@ public class LookupConfigProviderFilter {
     private final Set<String> extensions = new HashSet<>();
 
     public FileFilter(Configuration config) {
-      extensions.addAll(
-        Arrays.asList(
-          config
-            .get(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-            .orElse(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-            .split(",")
-        )
-      );
-      extensions.addAll(
-        Arrays.asList(
-          config
-            .get(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-            .orElse(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-            .split(",")
-        )
-      );
+      var jsExtensions = config.hasKey(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+        ? config.getStringArray(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+        : JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
+      var tsExtensions = config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+        ? config.getStringArray(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+        : TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
+      extensions.addAll(stream(jsExtensions).toList());
+      extensions.addAll(stream(tsExtensions).toList());
     }
 
     @Override
@@ -82,26 +73,9 @@ public class LookupConfigProviderFilter {
     private final WildcardPattern[] exclusions;
 
     public PathFilter(Configuration config) {
-      if (!isExclusionOverridden(config)) {
-        exclusions = WildcardPattern.create(JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE);
-      } else {
-        WildcardPattern[] jsExcludedPatterns = WildcardPattern.create(
-          config.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-        );
-        WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(
-          config.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
-        );
-        exclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns)).toArray(
-          WildcardPattern[]::new
-        );
-      }
-    }
-
-    private static boolean isExclusionOverridden(Configuration config) {
-      return (
-        config.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent() ||
-        config.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
-      );
+      exclusions = stream(Exclusions.getExcludedPaths(config))
+        .map(WildcardPattern::create)
+        .toArray(WildcardPattern[]::new);
     }
 
     @Override
