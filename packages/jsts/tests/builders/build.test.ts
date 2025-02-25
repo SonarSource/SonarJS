@@ -17,7 +17,7 @@
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools/helpers/input.js';
-import { describe, it, mock, Mock } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../src/builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
@@ -112,8 +112,8 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = mock.fn();
+  it('should fail building JavaScript code with TypeScript ESLint parser', async ({ mock }) => {
+    console.log = mock.fn(console.log);
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
@@ -221,8 +221,10 @@ describe('buildSourceCode', () => {
     expect(sourceCode.ast).toBeDefined();
   });
 
-  it('should fail building malformed Vue.js code with TypeScript ESLint parser', async () => {
-    console.log = mock.fn();
+  it('should fail building malformed Vue.js code with TypeScript ESLint parser', async ({
+    mock,
+  }) => {
+    console.log = mock.fn(console.log);
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });

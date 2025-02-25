@@ -18,10 +18,10 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import { createFindUp } from '../../../src/rules/helpers/find-up.js';
 import Path from 'path/posix';
-import { describe, it, mock } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('findUp', () => {
-  it('only touches the filesystem when needed', () => {
+  it('only touches the filesystem when needed', ({ mock }) => {
     const filesystem = Volume.fromJSON({
       '/a/b/c/d/foo.bar': '/a/b/c/d/foo.bar content',
       '/a/b/c/foo.bar': '/a/b/c/foo.bar content',
