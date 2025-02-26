@@ -30,6 +30,8 @@ import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
+import * as ruleMetas from '../rules/metas.js';
+import { ESLintConfiguration } from '../rules/helpers/configs.js';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -269,6 +271,11 @@ export class Linter {
   ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
+        const ruleMeta = ruleMetas[rule.key as keyof typeof ruleMetas];
+        let eslintConfiguration;
+        if (ruleMeta && 'fields' in ruleMeta) {
+          eslintConfiguration = ruleMeta.fields as ESLintConfiguration;
+        }
         rules[`sonarjs/${rule.key}`] = [
           'error',
           /**
@@ -281,6 +288,7 @@ export class Linter {
             Linter.rules[rule.key].meta?.schema || undefined,
             rule,
             Linter.rulesWorkdir,
+            eslintConfiguration,
           ),
         ];
         return rules;
