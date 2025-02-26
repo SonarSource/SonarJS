@@ -16,58 +16,42 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S109/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
-    {
-      field: 'detectObjects',
-      type: 'boolean',
-    },
-    {
-      field: 'enforceConst',
-      type: 'boolean',
-    },
     {
       field: 'ignore',
       type: 'array',
       items: {
-        anyOf: [
-          {
-            type: 'number',
-          },
-          {
-            type: 'string',
-            pattern: '^[+-]?(?:0|[1-9][0-9]*)n$',
-          },
-        ],
+        type: 'number',
       },
-    },
-    {
-      field: 'ignoreArrayIndexes',
-      type: 'boolean',
+      default: [0, 1, -1, 24, 60],
     },
     {
       field: 'ignoreDefaultValues',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreClassFieldInitialValues',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreEnums',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreNumericLiteralTypes',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreReadonlyClassProperties',
       type: 'boolean',
-    },
-    {
-      field: 'ignoreTypeIndexes',
-      type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

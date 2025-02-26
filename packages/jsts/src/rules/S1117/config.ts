@@ -16,34 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1117/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
-      field: 'allow',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    {
-      field: 'builtinGlobals',
-      type: 'boolean',
-    },
-    {
       field: 'hoist',
       type: 'string',
-    },
-    {
-      field: 'ignoreFunctionTypeParameterNameValueShadow',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreOnInitialization',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTypeValueShadow',
-      type: 'boolean',
+      default: 'all',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

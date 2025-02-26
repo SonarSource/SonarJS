@@ -17,21 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
 export const fields = [
-  [
-    {
-      field: 'arrays',
-    },
-    {
-      field: 'objects',
-    },
-    {
-      field: 'imports',
-    },
-    {
-      field: 'exports',
-    },
-    {
-      field: 'functions',
-    },
-  ],
+  {
+    default: 'always-multiline',
+    type: 'string',
+  },
 ];

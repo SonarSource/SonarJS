@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2999/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'considerJSDoc',
       type: 'boolean',
+      description: 'Consider only functions with @constructor tag as constructor functions',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

@@ -20,3 +20,4 @@ export const eslintId = 'no-this-alias';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-this-alias' },
 ];
+export * from './config.js';

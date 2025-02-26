@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4622/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'threshold',
       type: 'integer',
+      description: 'Maximum elements authorized in a union type definition.',
+      default: 3,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

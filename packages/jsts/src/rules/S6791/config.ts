@@ -16,11 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6791/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'checkAliases',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

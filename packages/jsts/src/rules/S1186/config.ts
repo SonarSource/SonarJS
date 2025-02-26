@@ -16,30 +16,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allow',
       type: 'array',
       items: {
-        enum: [
-          'functions',
-          'arrowFunctions',
-          'generatorFunctions',
-          'methods',
-          'generatorMethods',
-          'getters',
-          'setters',
-          'constructors',
-          'private-constructors',
-          'protected-constructors',
-          'asyncFunctions',
-          'asyncMethods',
-          'decoratedFunctions',
-          'overrideMethods',
-        ],
         type: 'string',
       },
+      default: ['arrowFunctions', 'constructors', 'private-constructors'],
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

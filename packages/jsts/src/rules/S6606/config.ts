@@ -16,46 +16,29 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6606/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing',
       type: 'boolean',
-    },
-    {
-      field: 'ignoreBooleanCoercion',
-      type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreConditionalTests',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreMixedLogicalExpressions',
       type: 'boolean',
-    },
-    {
-      field: 'ignorePrimitives',
-    },
-    {
-      field: 'bigint',
-      type: 'boolean',
-    },
-    {
-      field: 'boolean',
-      type: 'boolean',
-    },
-    {
-      field: 'number',
-      type: 'boolean',
-    },
-    {
-      field: 'string',
-      type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreTernaryTests',
       type: 'boolean',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1067/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'max',
       type: 'integer',
+      description: 'Maximum number of allowed conditional operators in an expression',
+      default: 3,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

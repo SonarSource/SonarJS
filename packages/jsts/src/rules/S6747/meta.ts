@@ -21,3 +21,4 @@ export const externalRules = [
   { externalPlugin: 'react', externalRule: 'no-unknown-property' },
   { externalPlugin: 'jsx-a11y', externalRule: 'aria-props' },
 ];
+export * from './config.js';

@@ -16,19 +16,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4137/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'assertionStyle',
       type: 'string',
-    },
-    {
-      field: 'assertionStyle',
-      type: 'string',
+      default: 'as',
     },
     {
       field: 'objectLiteralTypeAssertions',
       type: 'string',
+      default: 'allow',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

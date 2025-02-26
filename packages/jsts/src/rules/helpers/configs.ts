@@ -14,8 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'external';
-export const eslintId = 'eol-last';
-export const externalPlugin = 'eslint';
-export * from './config.js';
+
+type ESLintConfigurationProperty = {
+  field?: string;
+  type: 'string' | 'number' | 'array' | 'boolean' | 'integer';
+  default: string | boolean | number | string[] | number[];
+  description?: string;
+  sqName?: string;
+  sqFieldType?: 'TEXT';
+  items?: {
+    type: string;
+  };
+};
+
+type ESLintConfigurationElement = ESLintConfigurationProperty[] | ESLintConfigurationProperty;
+
+export type ESLintConfiguration = ESLintConfigurationElement[];

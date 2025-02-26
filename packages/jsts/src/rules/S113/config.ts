@@ -16,4 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S113/javascript
 
-export const fields = [['enum']];
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  { default: 'always', type: 'string' },
+] as const satisfies ESLintConfiguration;

@@ -16,11 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6550/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowBitwiseExpressions',
       type: 'boolean',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

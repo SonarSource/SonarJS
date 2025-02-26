@@ -20,3 +20,4 @@ export const eslintId = 'no-magic-numbers';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
 ];
+export * from './config.js';

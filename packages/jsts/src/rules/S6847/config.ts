@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -24,6 +26,7 @@ export const fields = [
       items: {
         type: 'string',
       },
+      default: ['onClick', 'onMouseDown', 'onMouseUp', 'onKeyPress', 'onKeyDown', 'onKeyUp'],
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

@@ -16,11 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6749/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowExpressions',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

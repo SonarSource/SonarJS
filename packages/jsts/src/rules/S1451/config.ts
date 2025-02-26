@@ -16,15 +16,22 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'headerFormat',
       type: 'string',
+      description: 'Expected copyright and license header',
+      default: '',
+      sqFieldType: 'TEXT',
     },
     {
       field: 'isRegularExpression',
       type: 'boolean',
+      description: 'Whether the headerFormat is a regular expression',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S117/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'format',
       type: 'string',
+      default: '^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$',
+      description: 'Regular expression used to check the names against.',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

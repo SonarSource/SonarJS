@@ -20,10 +20,8 @@ export const fields = [
   [
     {
       field: 'destructuring',
-    },
-    {
-      field: 'ignoreReadBeforeAssign',
-      type: 'boolean',
+      type: 'string',
+      default: 'all',
     },
   ],
 ];

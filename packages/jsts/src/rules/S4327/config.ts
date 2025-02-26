@@ -16,18 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4327/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowDestructuring',
       type: 'boolean',
-    },
-    {
-      field: 'allowedNames',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

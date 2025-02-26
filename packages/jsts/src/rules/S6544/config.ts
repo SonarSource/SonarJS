@@ -14,8 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'external';
-export const eslintId = 'eol-last';
-export const externalPlugin = 'eslint';
-export * from './config.js';
+// https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
+
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'attributes',
+      type: 'boolean',
+      default: false,
+    },
+    {
+      field: 'arguments',
+      type: 'boolean',
+      default: false,
+    },
+  ],
+] as const satisfies ESLintConfiguration;

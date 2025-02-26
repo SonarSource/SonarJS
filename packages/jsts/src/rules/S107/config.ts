@@ -16,15 +16,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S107/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
-      field: 'maximum',
-      type: 'integer',
-    },
-    {
       field: 'max',
       type: 'integer',
+      sqName: 'maximumFunctionParameters',
+      description: 'The maximum authorized number of parameters',
+      default: 7,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

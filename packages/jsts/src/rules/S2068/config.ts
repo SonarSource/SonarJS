@@ -24,6 +24,8 @@ export const fields = [
       items: {
         type: 'string',
       },
+      description: 'Comma separated list of words identifying potential passwords.',
+      default: ['password', 'pwd', 'passwd'],
     },
   ],
 ];

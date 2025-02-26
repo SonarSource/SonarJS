@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -24,6 +26,9 @@ export const fields = [
       items: {
         type: 'string',
       },
+      default: [],
+      description: 'Comma-separated list of property and attribute names to ignore',
+      sqName: 'whitelist',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;
