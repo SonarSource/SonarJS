@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2068/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -28,4 +30,4 @@ export const fields = [
       default: ['password', 'pwd', 'passwd'],
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

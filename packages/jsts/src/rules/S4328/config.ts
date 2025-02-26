@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4328/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -24,6 +26,8 @@ export const fields = [
       items: {
         type: 'string',
       },
+      default: [],
+      description: 'Comma separated list of modules to ignore while checking in package.json.',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

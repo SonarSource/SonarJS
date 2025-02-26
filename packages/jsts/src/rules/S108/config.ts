@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S108/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -24,4 +26,4 @@ export const fields = [
       default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;
