@@ -16,7 +16,6 @@
  */
 
 type ESLintConfigurationProperty = {
-  field?: string;
   type: 'string' | 'number' | 'array' | 'boolean' | 'integer';
   default: string | boolean | number | string[] | number[];
   description?: string;
@@ -27,6 +26,22 @@ type ESLintConfigurationProperty = {
   };
 };
 
-type ESLintConfigurationElement = ESLintConfigurationProperty[] | ESLintConfigurationProperty;
+type ESLintNamedProperty = ESLintConfigurationProperty & {
+  field: string;
+};
+
+type ESLintConfigurationElement = ESLintNamedProperty[] | ESLintConfigurationProperty;
 
 export type ESLintConfiguration = ESLintConfigurationElement[];
+
+export function defaultOptions(configuration?: ESLintConfiguration) {
+  return configuration?.map(element => {
+    if (Array.isArray(element)) {
+      return Object.fromEntries(
+        element.map(namedProperty => [namedProperty.field, namedProperty.default]),
+      );
+    } else {
+      return element.default;
+    }
+  });
+}

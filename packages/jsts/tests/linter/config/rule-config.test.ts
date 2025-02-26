@@ -19,6 +19,7 @@ import { expect } from 'expect';
 import { SONAR_RUNTIME } from '../../../src/rules/index.js';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/rule-config.js';
 import { SONAR_CONTEXT } from '../../../src/linter/parameters/sonar-context.js';
+import { ESLintConfiguration } from '../../../src/rules/helpers/configs.js';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {
@@ -62,5 +63,54 @@ describe('extendRuleConfig', () => {
       '/tmp/dir',
     );
     expect(config).toEqual([42, SONAR_RUNTIME, { workDir: '/tmp/dir' }]);
+  });
+
+  it('should merge with a simple default configuration with sonar runtime present', () => {
+    const inputRule: RuleConfig = {
+      key: 'some-rule',
+      configurations: [42],
+      fileTypeTargets: ['MAIN'],
+      language: 'js',
+      analysisModes: ['DEFAULT'],
+    };
+    const defaultConfiguration: ESLintConfiguration = [
+      { default: 100, type: 'integer' },
+      [
+        {
+          field: 'format',
+          type: 'string',
+          default: 'allow',
+        },
+      ],
+    ];
+    const config = extendRuleConfig(
+      [{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }],
+      inputRule,
+      '/tmp/dir',
+      defaultConfiguration,
+    );
+    expect(config).toEqual([42, { format: 'allow' }, SONAR_RUNTIME, { workDir: '/tmp/dir' }]);
+  });
+
+  it('should use default configuration when empty configuration provided', () => {
+    const inputRule: RuleConfig = {
+      key: 'some-rule',
+      configurations: [],
+      fileTypeTargets: ['MAIN'],
+      language: 'js',
+      analysisModes: ['DEFAULT'],
+    };
+    const defaultConfiguration: ESLintConfiguration = [
+      { default: 100, type: 'integer' },
+      [
+        {
+          field: 'format',
+          type: 'string',
+          default: 'allow',
+        },
+      ],
+    ];
+    const config = extendRuleConfig(undefined, inputRule, '/tmp/dir', defaultConfiguration);
+    expect(config).toEqual([100, { format: 'allow' }]);
   });
 });
