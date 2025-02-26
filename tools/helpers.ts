@@ -137,7 +137,8 @@ export async function generateMetaForRule(sonarKey: string) {
     console.log(`Type not found for rule ${sonarKey}`);
   }
 
-  const schemaFile = join(METADATA_FOLDER, 'schemas', `${sonarKey}-schema.json`);
+  const ruleFolder = join(RULES_FOLDER, sonarKey);
+  const schemaFile = join(ruleFolder, `schema.json`);
   let schema = '';
   if (await exists(schemaFile)) {
     try {
@@ -147,7 +148,7 @@ export async function generateMetaForRule(sonarKey: string) {
 
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
-    join(RULES_FOLDER, sonarKey, `generated-meta.ts`),
+    join(ruleFolder, `generated-meta.ts`),
     {
       ___HEADER___: header,
       ___RULE_TYPE___: typeMatrix[ruleRspecMeta.type],
