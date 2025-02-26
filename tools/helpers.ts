@@ -19,7 +19,6 @@ import { readdir, writeFile, readFile, stat } from 'fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
-import traverse from 'json-schema-traverse';
 
 const ruleRegex = /^S\d+/;
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -107,60 +106,6 @@ export async function inflateTemplateToFile(
 ) {
   const template = await readFile(templatePath, 'utf8');
   await writePrettyFile(dest, inflateTemplate(template, dict));
-}
-
-export async function prepareProps(sonarKey: string) {
-  const {
-    rule: {
-      meta: { schema },
-    },
-  } = await import(join(RULES_FOLDER, sonarKey));
-  if (!schema || schema.length === 0) {
-    return;
-  }
-  let schemaArr = Array.isArray(schema) ? schema : [schema];
-  let nonEmpty = false;
-  const props = schemaArr.map((schemaObj, idx) => {
-    const props = [];
-    const cb = (sch, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex) => {
-      if (jsonPtr === '' && 'enum' in sch && !sch['enum'].includes('sonar-runtime')) {
-        props.push('enum');
-        nonEmpty = true;
-        return;
-      }
-      if (parentKeyword !== 'properties') return;
-      nonEmpty = true;
-      let prop;
-      if (sch.type === 'array') {
-        prop = {
-          field: keyIndex,
-          type: sch.type,
-          items: sch.items,
-        };
-      } else {
-        prop = {
-          field: keyIndex,
-          type: sch.type,
-        };
-      }
-      props.push(prop);
-    };
-    traverse(schemaObj, { cb });
-    return props;
-  });
-  if (nonEmpty) {
-    await inflateTemplateToFile(
-      join(TS_TEMPLATES_FOLDER, 'configs.template'),
-      join(RULES_FOLDER, sonarKey, 'config.ts'),
-      {
-        ___HEADER___: header,
-        ___FIELDS___: JSON.stringify(props, null, 2),
-        ___RULE_KEY___: sonarKey,
-      },
-    );
-    console.log(sonarKey, JSON.stringify(schema, null, 2));
-    console.log(JSON.stringify(props, null, 2));
-  }
 }
 
 /**

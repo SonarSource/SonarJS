@@ -84,7 +84,6 @@
     "fs-extra": "11.3.0",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
-    "json-schema-traverse": "^1.0.0",
     "memfs": "4.17.0",
     "mkdirp": "3.0.1",
     "node-fetch": "3.3.2",
