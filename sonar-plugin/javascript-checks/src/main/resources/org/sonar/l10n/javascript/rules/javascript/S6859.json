@@ -10,7 +10,7 @@
     "pitfall",
     "paths"
   ],
-  "defaultSeverity": "Minor",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6859",
   "sqKey": "S6859",
   "scope": "All",
