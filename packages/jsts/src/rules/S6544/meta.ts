@@ -21,3 +21,4 @@ export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-misused-promises' },
   { externalPlugin: 'eslint', externalRule: 'no-async-promise-executor' },
 ];
+export * from './config.js';

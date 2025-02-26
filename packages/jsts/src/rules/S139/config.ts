@@ -16,22 +16,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S139/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
-      field: 'position',
-    },
-    {
       field: 'ignorePattern',
       type: 'string',
-    },
-    {
-      field: 'applyDefaultPatterns',
-      type: 'boolean',
-    },
-    {
-      field: 'applyDefaultIgnorePatterns',
-      type: 'boolean',
+      description: 'Pattern (JavaScript syntax) for text of trailing comments that are allowed.',
+      default: '^\\s*[^\\s]+$',
+      sqName: 'pattern',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

@@ -20,3 +20,4 @@ export const eslintId = 'no-empty-interface';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-empty-interface' },
 ];
+export * from './config.js';

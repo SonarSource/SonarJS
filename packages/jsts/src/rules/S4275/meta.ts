@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-accessor-field-mismatch';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'getter-return' }];
+export * from './config.js';

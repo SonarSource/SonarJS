@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'max-lines-per-function';
+export * from './config.js';

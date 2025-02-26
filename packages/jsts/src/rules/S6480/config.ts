@@ -16,27 +16,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6480/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
-      field: 'allowArrowFunctions',
-      type: 'boolean',
-    },
-    {
-      field: 'allowBind',
-      type: 'boolean',
-    },
-    {
-      field: 'allowFunctions',
-      type: 'boolean',
-    },
-    {
       field: 'ignoreRefs',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'ignoreDOMComponents',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

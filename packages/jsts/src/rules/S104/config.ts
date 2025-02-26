@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S104/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'maximum',
       type: 'integer',
+      description: 'Maximum authorized lines in a file',
+      default: 1000,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

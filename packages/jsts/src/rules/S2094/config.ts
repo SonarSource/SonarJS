@@ -16,23 +16,29 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2094/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowConstructorOnly',
       type: 'boolean',
+      default: false,
     },
     {
       field: 'allowEmpty',
       type: 'boolean',
+      default: false,
     },
     {
       field: 'allowStaticOnly',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'allowWithDecorator',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

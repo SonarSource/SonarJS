@@ -16,16 +16,25 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1441/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
-  ['enum'],
+  {
+    description: 'Set to true to require single quotes, false for double quotes.',
+    type: 'string',
+    default: 'single',
+    sqName: 'singleQuotes',
+  },
   [
     {
       field: 'avoidEscape',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'allowTemplateLiterals',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

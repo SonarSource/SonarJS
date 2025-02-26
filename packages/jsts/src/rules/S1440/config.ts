@@ -16,10 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1440/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
-  [
-    {
-      field: 'null',
-    },
-  ],
-];
+  {
+    default: 'smart',
+    type: 'string',
+  },
+] as const satisfies ESLintConfiguration;

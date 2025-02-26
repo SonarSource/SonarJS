@@ -16,44 +16,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6766/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'forbid',
       type: 'array',
       items: {
-        anyOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'object',
-            properties: {
-              char: {
-                type: 'string',
-              },
-              alternatives: {
-                type: 'array',
-                uniqueItems: true,
-                items: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        ],
-      },
-    },
-    {
-      field: 'char',
-      type: 'string',
-    },
-    {
-      field: 'alternatives',
-      type: 'array',
-      items: {
         type: 'string',
       },
+      default: ['>', '}'],
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

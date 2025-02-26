@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'accessor-pairs';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'accessor-pairs' }];
+export * from './config.js';

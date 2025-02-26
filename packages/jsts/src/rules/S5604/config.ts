@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5604/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
@@ -24,6 +26,9 @@ export const fields = [
       items: {
         type: 'string',
       },
+      description:
+        'Comma-separated list of intrusive permissions to report (supported values: geolocation, camera, microphone, notifications, persistent-storage)',
+      default: ['geolocation'],
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

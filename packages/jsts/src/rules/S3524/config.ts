@@ -16,15 +16,25 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3524/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'requireParameterParentheses',
       type: 'boolean',
+      description:
+        'True to require parentheses around parameters. False to forbid them for single parameter.',
+      default: false,
+      sqName: 'parameter_parens',
     },
     {
       field: 'requireBodyBraces',
       type: 'boolean',
+      description:
+        'True to require curly braces around function body. False to forbid them for single-return bodies.',
+      default: false,
+      sqName: 'body_braces',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

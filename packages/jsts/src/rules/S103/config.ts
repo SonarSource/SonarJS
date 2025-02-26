@@ -16,131 +16,21 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S103/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'code',
       type: 'integer',
-    },
-    {
-      field: 'comments',
-      type: 'integer',
-    },
-    {
-      field: 'tabWidth',
-      type: 'integer',
-    },
-    {
-      field: 'ignorePattern',
-      type: 'string',
-    },
-    {
-      field: 'ignoreComments',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreStrings',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreUrls',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTemplateLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreRegExpLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTrailingComments',
-      type: 'boolean',
-    },
-  ],
-  [
-    {
-      field: 'code',
-      type: 'integer',
-    },
-    {
-      field: 'comments',
-      type: 'integer',
+      description: 'The maximum authorized line length.',
+      default: 180,
+      sqName: 'maximumLineLength',
     },
     {
       field: 'tabWidth',
       type: 'integer',
-    },
-    {
-      field: 'ignorePattern',
-      type: 'string',
-    },
-    {
-      field: 'ignoreComments',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreStrings',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreUrls',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTemplateLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreRegExpLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTrailingComments',
-      type: 'boolean',
+      default: 1,
     },
   ],
-  [
-    {
-      field: 'code',
-      type: 'integer',
-    },
-    {
-      field: 'comments',
-      type: 'integer',
-    },
-    {
-      field: 'tabWidth',
-      type: 'integer',
-    },
-    {
-      field: 'ignorePattern',
-      type: 'string',
-    },
-    {
-      field: 'ignoreComments',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreStrings',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreUrls',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTemplateLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreRegExpLiterals',
-      type: 'boolean',
-    },
-    {
-      field: 'ignoreTrailingComments',
-      type: 'boolean',
-    },
-  ],
-];
+] as const satisfies ESLintConfiguration;

@@ -16,41 +16,24 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2430/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'newIsCap',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'capIsNew',
       type: 'boolean',
-    },
-    {
-      field: 'newIsCapExceptions',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    {
-      field: 'newIsCapExceptionPattern',
-      type: 'string',
-    },
-    {
-      field: 'capIsNewExceptions',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    {
-      field: 'capIsNewExceptionPattern',
-      type: 'string',
+      default: false,
     },
     {
       field: 'properties',
       type: 'boolean',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

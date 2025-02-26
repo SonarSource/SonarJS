@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'aria-role';
 export const externalPlugin = 'jsx-a11y';
+export * from './config.js';

@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-noninteractive-element-interactions';
 export const externalPlugin = 'jsx-a11y';
+export * from './config.js';

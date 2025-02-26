@@ -16,15 +16,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2814/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'builtinGlobals',
       type: 'boolean',
+      default: false,
     },
     {
       field: 'ignoreDeclarationMerge',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

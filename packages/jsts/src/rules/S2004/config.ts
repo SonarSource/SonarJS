@@ -16,11 +16,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2004/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'threshold',
       type: 'integer',
+      description: 'Maximum depth of allowed nested functions.',
+      default: 4,
+      sqName: 'max',
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

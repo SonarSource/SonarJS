@@ -16,11 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5843/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'threshold',
       type: 'integer',
+      description: 'The maximum authorized complexity.',
+      default: 20,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

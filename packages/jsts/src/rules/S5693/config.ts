@@ -16,15 +16,21 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5693/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'fileUploadSizeLimit',
       type: 'integer',
+      description: 'The maximum size of HTTP requests handling file uploads (in bytes)',
+      default: 8000000,
     },
     {
       field: 'standardSizeLimit',
       type: 'integer',
+      description: 'The maximum size of regular HTTP requests (in bytes)',
+      default: 2000000,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

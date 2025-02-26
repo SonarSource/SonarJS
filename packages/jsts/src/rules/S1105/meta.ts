@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'brace-style';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'brace-style' }];
+export * from './config.js';

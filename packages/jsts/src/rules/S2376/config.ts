@@ -16,19 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2376/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'getWithoutSet',
       type: 'boolean',
-    },
-    {
-      field: 'setWithoutGet',
-      type: 'boolean',
-    },
-    {
-      field: 'enforceForClassMembers',
-      type: 'boolean',
+      description: 'Reports on getters without setters.',
+      default: false,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

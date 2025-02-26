@@ -16,23 +16,29 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S905/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowShortCircuit',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'allowTernary',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'allowTaggedTemplates',
       type: 'boolean',
+      default: true,
     },
     {
       field: 'enforceForJSX',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

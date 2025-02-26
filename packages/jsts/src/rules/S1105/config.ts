@@ -16,12 +16,20 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1105/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
-  ['enum'],
+  {
+    description: 'enforced brace-style: 1tbs, stroustrup or allman.',
+    type: 'string',
+    default: '1tbs',
+    sqName: 'braceStyle',
+  },
   [
     {
       field: 'allowSingleLine',
       type: 'boolean',
+      default: true,
     },
   ],
-];
+] as const satisfies ESLintConfiguration;

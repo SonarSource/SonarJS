@@ -16,12 +16,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4275/javascript
 
+import { ESLintConfiguration } from '../helpers/configs.js';
+
 export const fields = [
   [
     {
       field: 'allowImplicit',
       type: 'boolean',
+      description: 'Allow implicitly returning undefined with a return statement.',
+      default: false,
     },
   ],
-  [],
-];
+] as const satisfies ESLintConfiguration;
