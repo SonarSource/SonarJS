@@ -15,8 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
-
 export type ValueType = 'string' | 'number' | 'array' | 'boolean' | 'integer';
 export type Default = string | boolean | number | string[] | number[];
 
@@ -38,7 +36,6 @@ export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty &
   description: string;
   displayName?: string;
   fieldType?: 'TEXT';
-  language?: JsTsLanguage;
 };
 
 export type ESLintConfigurationProperty =
