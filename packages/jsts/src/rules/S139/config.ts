@@ -25,7 +25,7 @@ export const fields = [
       type: 'string',
       description: 'Pattern (JavaScript syntax) for text of trailing comments that are allowed.',
       default: '^\\s*[^\\s]+$',
-      sqName: 'pattern',
+      displayName: 'pattern',
     },
   ],
 ] as const satisfies ESLintConfiguration;

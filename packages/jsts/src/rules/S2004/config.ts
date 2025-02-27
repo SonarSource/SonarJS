@@ -25,7 +25,7 @@ export const fields = [
       type: 'integer',
       description: 'Maximum depth of allowed nested functions.',
       default: 4,
-      sqName: 'max',
+      displayName: 'max',
     },
   ],
 ] as const satisfies ESLintConfiguration;

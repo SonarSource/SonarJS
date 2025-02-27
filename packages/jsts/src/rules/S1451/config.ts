@@ -25,7 +25,7 @@ export const fields = [
       type: 'string',
       description: 'Expected copyright and license header',
       default: '',
-      sqFieldType: 'TEXT',
+      fieldType: 'TEXT',
     },
     {
       field: 'isRegularExpression',

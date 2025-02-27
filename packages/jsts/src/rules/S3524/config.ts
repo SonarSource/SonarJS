@@ -26,7 +26,7 @@ export const fields = [
       description:
         'True to require parentheses around parameters. False to forbid them for single parameter.',
       default: false,
-      sqName: 'parameter_parens',
+      displayName: 'parameter_parens',
     },
     {
       field: 'requireBodyBraces',
@@ -34,7 +34,7 @@ export const fields = [
       description:
         'True to require curly braces around function body. False to forbid them for single-return bodies.',
       default: false,
-      sqName: 'body_braces',
+      displayName: 'body_braces',
     },
   ],
 ] as const satisfies ESLintConfiguration;

@@ -22,6 +22,6 @@ export const fields = [
   {
     default: 15,
     type: 'integer',
-    sqName: 'threshold',
+    displayName: 'threshold',
   },
 ] as const satisfies ESLintConfiguration;
