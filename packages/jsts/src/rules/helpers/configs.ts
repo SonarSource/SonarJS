@@ -15,22 +15,35 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-type ESLintConfigurationProperty = {
+type ESLintConfigurationDefaultProperty = {
   type: 'string' | 'number' | 'array' | 'boolean' | 'integer';
   default: string | boolean | number | string[] | number[];
-  description?: string;
-  sqName?: string;
-  sqFieldType?: 'TEXT';
   items?: {
     type: string;
   };
 };
 
-type ESLintNamedProperty = ESLintConfigurationProperty & {
+/**
+ * Necessary for the property to show up in the SonarQube interface.
+ * @param description will explain to the user what the property configures
+ * @param displayName only necessary if the name of the property is different from the `field` name
+ * @param fieldType only necessary if you need to override the default fieldType in SQ
+ */
+type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
+  description: string;
+  displayName?: string;
+  fieldType?: 'TEXT';
+};
+
+type ESLintConfigurationProperty =
+  | ESLintConfigurationDefaultProperty
+  | ESLintConfigurationSQProperty;
+
+type ESLintConfigurationNamedProperty = ESLintConfigurationProperty & {
   field: string;
 };
 
-type ESLintConfigurationElement = ESLintNamedProperty[] | ESLintConfigurationProperty;
+type ESLintConfigurationElement = ESLintConfigurationNamedProperty[] | ESLintConfigurationProperty;
 
 export type ESLintConfiguration = ESLintConfigurationElement[];
 

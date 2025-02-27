@@ -28,7 +28,7 @@ export const fields = [
       },
       default: [],
       description: 'Comma-separated list of property and attribute names to ignore',
-      sqName: 'whitelist',
+      displayName: 'whitelist',
     },
   ],
 ] as const satisfies ESLintConfiguration;

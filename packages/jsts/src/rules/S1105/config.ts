@@ -23,7 +23,7 @@ export const fields = [
     default: '1tbs',
     type: 'string',
     description: 'enforced brace-style: 1tbs, stroustrup or allman.',
-    sqName: 'braceStyle',
+    displayName: 'braceStyle',
   },
   [
     {

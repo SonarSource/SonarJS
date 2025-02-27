@@ -25,7 +25,7 @@ export const fields = [
       type: 'integer',
       description: 'Maximum authorized lines in a function',
       default: 200,
-      sqName: 'max',
+      displayName: 'max',
     },
   ],
 ] as const satisfies ESLintConfiguration;

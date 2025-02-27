@@ -25,7 +25,7 @@ export const fields = [
       type: 'integer',
       description: 'The maximum authorized line length.',
       default: 180,
-      sqName: 'maximumLineLength',
+      displayName: 'maximumLineLength',
     },
     {
       field: 'tabWidth',
