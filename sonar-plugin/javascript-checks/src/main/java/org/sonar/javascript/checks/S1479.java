@@ -14,9 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1479/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -29,17 +30,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1479")
 public class S1479 extends Check {
 
-  private static final int DEFAULT_MAXIMUM = 30;
-
   @RuleProperty(
     key = "maximum",
     description = "Maximum number of \"case\".",
-    defaultValue = "" + DEFAULT_MAXIMUM
+    defaultValue = "" + 30
   )
-  int maximum = DEFAULT_MAXIMUM;
+  public double value = 30;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(maximum);
+    return List.of(value);
   }
 }

@@ -14,9 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1105/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -29,22 +30,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1105")
 public class S1105 extends Check {
 
-  private static final String DEFAULT_BRACE_STYLE = "1tbs";
-
   @RuleProperty(
     key = "braceStyle",
     description = "enforced brace-style: 1tbs, stroustrup or allman.",
-    defaultValue = DEFAULT_BRACE_STYLE
+    defaultValue = "1tbs"
   )
-  public String braceStyle = DEFAULT_BRACE_STYLE;
+  public String value = "1tbs";
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList(braceStyle, new Config());
-  }
-
-  private static class Config {
-
-    boolean allowSingleLine = true;
+    return List.of(value);
   }
 }

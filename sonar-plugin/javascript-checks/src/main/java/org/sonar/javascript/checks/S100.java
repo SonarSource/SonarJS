@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S100/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,17 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S100")
 public class S100 extends Check {
 
-  public static final String DEFAULT = "^[_a-z][a-zA-Z0-9]*$";
-
   @RuleProperty(
     key = "format",
     description = "Regular expression used to check the function names against.",
-    defaultValue = "" + DEFAULT
+    defaultValue = "^[_a-z][a-zA-Z0-9]*$"
   )
-  public String format = DEFAULT;
+  public String format = "^[_a-z][a-zA-Z0-9]*$";
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new FormatRuleProperty(format));
+    return List.of(Map.of("format", format));
   }
 }

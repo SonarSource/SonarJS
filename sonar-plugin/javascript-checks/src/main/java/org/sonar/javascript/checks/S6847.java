@@ -14,34 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@TypeScriptRule
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S6847")
-public class S6847 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    String[] handlers = {
-      "onClick",
-      "onMouseDown",
-      "onMouseUp",
-      "onKeyPress",
-      "onKeyDown",
-      "onKeyUp",
-    };
-  }
-}
+public class S6847 extends Check {}

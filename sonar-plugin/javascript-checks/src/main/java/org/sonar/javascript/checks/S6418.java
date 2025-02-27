@@ -14,51 +14,41 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S6418/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@TypeScriptRule
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S6418")
 public class S6418 extends Check {
-
-  private static final String DEFAULT_SECRET_WORDS = "api[_.-]?key,auth,credential,secret,token";
-  private static final String DEFAULT_RANDOMNESS_SENSIBILITY = "5.0";
 
   @RuleProperty(
     key = "secretWords",
     description = "Comma separated list of words identifying potential secrets",
-    defaultValue = DEFAULT_SECRET_WORDS
+    defaultValue = "api[_.-]?key,auth,credential,secret,token"
   )
-  public String secretWords = DEFAULT_SECRET_WORDS;
+  public String secretWords = "api[_.-]?key,auth,credential,secret,token";
 
   @RuleProperty(
     key = "randomnessSensibility",
     description = "Minimum shannon entropy threshold of the secret",
-    defaultValue = DEFAULT_RANDOMNESS_SENSIBILITY
+    defaultValue = "" + 5
   )
-  public String randomnessSensibility = DEFAULT_RANDOMNESS_SENSIBILITY;
+  public double randomnessSensibility = 5;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(secretWords, randomnessSensibility));
-  }
-
-  private static class Config {
-
-    String secretWords;
-    double randomnessSensibility;
-
-    Config(String secretWords, String randomnessSensibility) {
-      this.secretWords = secretWords;
-      this.randomnessSensibility = Double.parseDouble(randomnessSensibility);
-    }
+    return List.of(
+      Map.of("secretWords", secretWords, "randomnessSensibility", randomnessSensibility)
+    );
   }
 }

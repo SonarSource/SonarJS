@@ -14,59 +14,44 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S124/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "CommentRegularExpression")
 @Rule(key = "S124")
 public class S124 extends Check {
-
-  private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
-  private static final String DEFAULT_REGULAR_EXPRESSION = "";
-  private static final String DEFAULT_FLAGS = "";
 
   @RuleProperty(
     key = "regularExpression",
     description = "The regular expression (JavaScript syntax)",
-    defaultValue = DEFAULT_REGULAR_EXPRESSION
+    defaultValue = ""
   )
-  public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
-
-  @RuleProperty(key = "message", description = "The issue message", defaultValue = DEFAULT_MESSAGE)
-  public String message = DEFAULT_MESSAGE;
+  public String regularExpression = "";
 
   @RuleProperty(
-    key = "flags",
-    description = "Regular expression modifier flags",
-    defaultValue = DEFAULT_FLAGS
+    key = "message",
+    description = "The issue message",
+    defaultValue = "The regular expression matches this comment."
   )
-  public String flags = DEFAULT_FLAGS;
+  public String message = "The regular expression matches this comment.";
+
+  @RuleProperty(key = "flags", description = "Regular expression modifier flags", defaultValue = "")
+  public String flags = "";
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new S124.Config(regularExpression, message, flags));
-  }
-
-  private static class Config {
-
-    String regularExpression;
-    String message;
-    String flags;
-
-    Config(String regularExpression, String message, String flags) {
-      this.regularExpression = regularExpression;
-      this.message = message;
-      this.flags = flags;
-    }
+    return List.of(
+      Map.of("regularExpression", regularExpression, "message", message, "flags", flags)
+    );
   }
 }

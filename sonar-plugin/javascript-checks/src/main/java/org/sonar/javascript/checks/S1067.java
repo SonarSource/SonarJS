@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1067/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,25 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1067")
 public class S1067 extends Check {
 
-  private static final int DEFAULT = 3;
-
   @RuleProperty(
+    key = "max",
     description = "Maximum number of allowed conditional operators in an expression",
-    defaultValue = "" + DEFAULT
+    defaultValue = "" + 3
   )
-  public int max = DEFAULT;
+  public int max = 3;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(this.max));
-  }
-
-  private static class Config {
-
-    int max;
-
-    Config(int max) {
-      this.max = max;
-    }
+    return List.of(Map.of("max", max));
   }
 }

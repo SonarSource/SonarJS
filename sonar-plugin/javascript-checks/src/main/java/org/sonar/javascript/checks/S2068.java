@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S2068/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -30,28 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2068")
 public class S2068 extends Check {
 
-  private static final String DEFAULT = "password, pwd, passwd";
-
   @RuleProperty(
     key = "passwordWords",
     description = "Comma separated list of words identifying potential passwords.",
-    defaultValue = "" + DEFAULT
+    defaultValue = "password,pwd,passwd"
   )
-  public String passwordWords = DEFAULT;
+  public List<String> passwordWords = List.of("password", "pwd", "passwd");
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(Arrays.stream(passwordWords.split(",")).map(String::trim).toArray(String[]::new))
-    );
-  }
-
-  private static class Config {
-
-    String[] passwordWords;
-
-    Config(String[] passwordWords) {
-      this.passwordWords = passwordWords;
-    }
+    return List.of(Map.of("passwordWords", passwordWords));
   }
 }

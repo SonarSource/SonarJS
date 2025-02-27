@@ -14,30 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S2094/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@TypeScriptRule
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2094")
-public class S2094 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    boolean allowConstructorOnly = false;
-    boolean allowEmpty = false;
-    boolean allowStaticOnly = true;
-    boolean allowWithDecorator = true;
-  }
-}
+public class S2094 extends Check {}

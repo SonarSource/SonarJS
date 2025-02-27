@@ -14,28 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S6606/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6606")
-public class S6606 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    boolean ignoreConditionalTests = true;
-    boolean ignoreTernaryTests = false;
-    boolean ignoreMixedLogicalExpressions = true;
-    boolean allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing = true;
-  }
-}
+public class S6606 extends Check {}

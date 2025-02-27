@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S5843/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,26 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5843")
 public class S5843 extends Check {
 
-  private static final int DEFAULT_THRESHOLD = 20;
-
   @RuleProperty(
-    key = "maxComplexity",
+    key = "threshold",
     description = "The maximum authorized complexity.",
-    defaultValue = "" + DEFAULT_THRESHOLD
+    defaultValue = "" + 20
   )
-  int threshold = DEFAULT_THRESHOLD;
+  public int threshold = 20;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(threshold));
-  }
-
-  private static class Config {
-
-    int threshold;
-
-    Config(int threshold) {
-      this.threshold = threshold;
-    }
+    return List.of(Map.of("threshold", threshold));
   }
 }

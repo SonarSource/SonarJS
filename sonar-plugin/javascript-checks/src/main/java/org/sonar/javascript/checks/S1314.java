@@ -14,16 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1314/javascript
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1314")
-@DeprecatedRuleKey(ruleKey = "OctalNumber")
 public class S1314 extends Check {}

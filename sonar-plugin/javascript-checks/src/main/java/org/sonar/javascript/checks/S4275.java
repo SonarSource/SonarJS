@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S4275/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,26 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S4275")
 public class S4275 extends Check {
 
-  private static final boolean DEFAULT_ALLOW_IMPLICIT = false;
-
   @RuleProperty(
     key = "allowImplicit",
     description = "Allow implicitly returning undefined with a return statement.",
-    defaultValue = "" + DEFAULT_ALLOW_IMPLICIT
+    defaultValue = "" + false
   )
-  boolean allowImplicit = DEFAULT_ALLOW_IMPLICIT;
+  public boolean allowImplicit = false;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(allowImplicit));
-  }
-
-  private static class Config {
-
-    boolean allowImplicit;
-
-    Config(boolean allowImplicit) {
-      this.allowImplicit = allowImplicit;
-    }
+    return List.of(Map.of("allowImplicit", allowImplicit));
   }
 }

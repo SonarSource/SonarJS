@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
 package org.sonar.javascript.checks;
 
 import java.util.Collections;
@@ -22,13 +23,8 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
-
-// This rule is duplicated for TypeScript because both rules actually map to the
-// same eslint key while defining a different name for the same rule property.
 
 @JavaScriptRule
-@DeprecatedRuleKey(ruleKey = "FunctionComplexity")
 @Rule(key = "S1541")
 public class S1541Js extends Check {
 

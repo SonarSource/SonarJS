@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S5604/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -30,29 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5604")
 public class S5604 extends Check {
 
-  private static final String DEFAULT = "geolocation";
-
   @RuleProperty(
     key = "permissions",
-    description = "Comma-separated list of intrusive permissions to report " +
-    "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
-    defaultValue = "" + DEFAULT
+    description = "Comma-separated list of intrusive permissions to report (supported values: geolocation, camera, microphone, notifications, persistent-storage)",
+    defaultValue = "geolocation"
   )
-  public String permissions = DEFAULT;
+  public List<String> permissions = List.of("geolocation");
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(Arrays.stream(permissions.split(",")).map(String::trim).toArray(String[]::new))
-    );
-  }
-
-  private static class Config {
-
-    String[] permissions;
-
-    Config(String[] permissions) {
-      this.permissions = permissions;
-    }
+    return List.of(Map.of("permissions", permissions));
   }
 }

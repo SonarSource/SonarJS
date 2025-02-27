@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,36 +31,24 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S1451")
 public class S1451 extends Check {
 
-  private static final String DEFAULT_HEADER_FORMAT = "";
-
   @RuleProperty(
     key = "headerFormat",
     description = "Expected copyright and license header",
-    defaultValue = DEFAULT_HEADER_FORMAT,
-    type = "TEXT"
+    defaultValue = ""
   )
-  public String headerFormat = DEFAULT_HEADER_FORMAT;
+  public String headerFormat = "";
 
   @RuleProperty(
     key = "isRegularExpression",
     description = "Whether the headerFormat is a regular expression",
-    defaultValue = "false"
+    defaultValue = "" + false
   )
   public boolean isRegularExpression = false;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(headerFormat, isRegularExpression));
-  }
-
-  private static class Config {
-
-    String headerFormat;
-    boolean isRegularExpression;
-
-    Config(String headerFormat, boolean isRegularExpression) {
-      this.headerFormat = headerFormat;
-      this.isRegularExpression = isRegularExpression;
-    }
+    return List.of(
+      Map.of("headerFormat", headerFormat, "isRegularExpression", isRegularExpression)
+    );
   }
 }

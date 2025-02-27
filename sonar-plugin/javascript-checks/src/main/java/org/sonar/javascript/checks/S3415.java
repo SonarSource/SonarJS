@@ -14,23 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S3415/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3415")
-public class S3415 extends Check {
-
-  @Override
-  public List<Type> targets() {
-    return Collections.singletonList(Type.TEST);
-  }
-}
+public class S3415 extends TestFileCheck {}

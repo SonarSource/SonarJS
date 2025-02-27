@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -35,21 +36,10 @@ public class S6747 extends Check {
     description = "Comma-separated list of property and attribute names to ignore",
     defaultValue = ""
   )
-  public String whitelist = "";
+  public List<String> ignore = List.of();
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(Arrays.asList(whitelist.split(",")).stream().map(String::trim).toList())
-    );
-  }
-
-  private static class Config {
-
-    List<String> ignore;
-
-    Config(List<String> ignore) {
-      this.ignore = ignore;
-    }
+    return List.of(Map.of("ignore", ignore));
   }
 }

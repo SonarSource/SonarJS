@@ -14,24 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1539/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "StrictMode")
 @Rule(key = "S1539")
-public class S1539 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList("never");
-  }
-}
+public class S1539 extends Check {}

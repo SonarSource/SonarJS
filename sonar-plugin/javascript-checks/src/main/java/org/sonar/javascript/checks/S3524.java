@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S3524/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,36 +31,29 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S3524")
 public class S3524 extends Check {
 
-  private static final boolean DEFAULT_PARAMETER_PARENS = false;
-  private static final boolean DEFAULT_BODY_BRACES = false;
-
   @RuleProperty(
     key = "parameter_parens",
     description = "True to require parentheses around parameters. False to forbid them for single parameter.",
-    defaultValue = "" + DEFAULT_PARAMETER_PARENS
+    defaultValue = "" + false
   )
-  boolean parameterParens = DEFAULT_PARAMETER_PARENS;
+  public boolean requireParameterParentheses = false;
 
   @RuleProperty(
     key = "body_braces",
     description = "True to require curly braces around function body. False to forbid them for single-return bodies.",
-    defaultValue = "" + DEFAULT_BODY_BRACES
+    defaultValue = "" + false
   )
-  boolean bodyBraces = DEFAULT_BODY_BRACES;
+  public boolean requireBodyBraces = false;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(parameterParens, bodyBraces));
-  }
-
-  private static class Config {
-
-    boolean requireParameterParentheses;
-    boolean requireBodyBraces;
-
-    Config(boolean requireParameterParentheses, boolean requireBodyBraces) {
-      this.requireParameterParentheses = requireParameterParentheses;
-      this.requireBodyBraces = requireBodyBraces;
-    }
+    return List.of(
+      Map.of(
+        "requireParameterParentheses",
+        requireParameterParentheses,
+        "requireBodyBraces",
+        requireBodyBraces
+      )
+    );
   }
 }

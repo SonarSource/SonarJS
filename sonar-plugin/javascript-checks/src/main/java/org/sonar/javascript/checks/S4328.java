@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S4328/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -28,28 +29,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S4328")
 public class S4328 extends Check {
 
-  private static final String DEFAULT = "";
-
   @RuleProperty(
     key = "whitelist",
     description = "Comma separated list of modules to ignore while checking in package.json.",
-    defaultValue = "" + DEFAULT
+    defaultValue = ""
   )
-  public String whitelist = DEFAULT;
+  public List<String> whitelist = List.of();
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(Arrays.stream(whitelist.split(",")).map(String::trim).toArray(String[]::new))
-    );
-  }
-
-  private static class Config {
-
-    String[] whitelist;
-
-    Config(String[] whitelist) {
-      this.whitelist = whitelist;
-    }
+    return List.of(Map.of("whitelist", whitelist));
   }
 }

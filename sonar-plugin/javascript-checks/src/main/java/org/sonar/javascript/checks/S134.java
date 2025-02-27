@@ -14,43 +14,32 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S134/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S134")
-@DeprecatedRuleKey(ruleKey = "NestedIfDepth")
 public class S134 extends Check {
-
-  private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
   @RuleProperty(
     key = "maximumNestingLevel",
     description = "Maximum allowed \"if/for/while/switch/try\" statements nesting depth",
-    defaultValue = "" + DEFAULT_MAXIMUM_NESTING_LEVEL
+    defaultValue = "" + 3
   )
-  public int maximumNestingLevel = DEFAULT_MAXIMUM_NESTING_LEVEL;
+  public int maximumNestingLevel = 3;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(maximumNestingLevel));
-  }
-
-  private static class Config {
-
-    int maximumNestingLevel;
-
-    Config(int maximumNestingLevel) {
-      this.maximumNestingLevel = maximumNestingLevel;
-    }
+    return List.of(Map.of("maximumNestingLevel", maximumNestingLevel));
   }
 }

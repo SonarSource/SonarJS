@@ -24,7 +24,7 @@ export const fields = [
       field: 'ignore',
       type: 'array',
       items: {
-        type: 'number',
+        type: 'integer',
       },
       default: [0, 1, -1, 24, 60],
     },

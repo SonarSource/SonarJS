@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S138/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,26 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S138")
 public class S138 extends Check {
 
-  private static final int DEFAULT = 200;
-
   @RuleProperty(
     key = "max",
     description = "Maximum authorized lines in a function",
-    defaultValue = "" + DEFAULT
+    defaultValue = "" + 200
   )
-  public int max = DEFAULT;
+  public int maximum = 200;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(max));
-  }
-
-  private static class Config {
-
-    int maximum;
-
-    Config(int maximum) {
-      this.maximum = maximum;
-    }
+    return List.of(Map.of("maximum", maximum));
   }
 }

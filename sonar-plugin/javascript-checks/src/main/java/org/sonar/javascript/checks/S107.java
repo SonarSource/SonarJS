@@ -14,43 +14,32 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S107/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "ExcessiveParameterList")
 @Rule(key = "S107")
 public class S107 extends Check {
-
-  private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
   @RuleProperty(
     key = "maximumFunctionParameters",
     description = "The maximum authorized number of parameters",
-    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS
+    defaultValue = "" + 7
   )
-  int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+  public int max = 7;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(maximumFunctionParameters));
-  }
-
-  private static class Config {
-
-    int max;
-
-    Config(int maximumFunctionParameters) {
-      this.max = maximumFunctionParameters;
-    }
+    return List.of(Map.of("max", max));
   }
 }

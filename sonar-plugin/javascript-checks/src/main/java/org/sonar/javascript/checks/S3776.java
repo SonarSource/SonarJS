@@ -14,9 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S3776/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -29,17 +30,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S3776")
 public class S3776 extends Check {
 
-  private static final int DEFAULT_THRESHOLD = 15;
-
   @RuleProperty(
     key = "threshold",
     description = "The maximum authorized complexity.",
-    defaultValue = "" + DEFAULT_THRESHOLD
+    defaultValue = "" + 15
   )
-  int threshold = DEFAULT_THRESHOLD;
+  public int value = 15;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(threshold);
+    return List.of(value);
   }
 }

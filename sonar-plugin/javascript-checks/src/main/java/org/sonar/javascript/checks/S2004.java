@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S2004/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,26 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2004")
 public class S2004 extends Check {
 
-  private static final int DEFAULT_THRESHOLD = 4;
-
   @RuleProperty(
     key = "max",
     description = "Maximum depth of allowed nested functions.",
-    defaultValue = "" + DEFAULT_THRESHOLD
+    defaultValue = "" + 4
   )
-  int threshold = DEFAULT_THRESHOLD;
+  public int threshold = 4;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(threshold));
-  }
-
-  private static class Config {
-
-    int threshold;
-
-    Config(int threshold) {
-      this.threshold = threshold;
-    }
+    return List.of(Map.of("threshold", threshold));
   }
 }

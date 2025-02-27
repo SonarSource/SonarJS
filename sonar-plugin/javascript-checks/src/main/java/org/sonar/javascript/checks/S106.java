@@ -14,43 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S106/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-// deprecated key in TS
-@DeprecatedRuleKey(ruleKey = "S2228")
 @Rule(key = "S106")
-public class S106 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    List<String> allow = Arrays.asList(
-      "assert",
-      "clear",
-      "count",
-      "group",
-      "groupCollapsed",
-      "groupEnd",
-      "info",
-      "table",
-      "time",
-      "timeEnd",
-      "trace"
-    );
-  }
-}
+public class S106 extends Check {}

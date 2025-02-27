@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S2999/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,26 +31,15 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2999")
 public class S2999 extends Check {
 
-  public static final boolean CONSIDER_JSDOC = false;
-
   @RuleProperty(
     key = "considerJSDoc",
     description = "Consider only functions with @constructor tag as constructor functions",
-    defaultValue = "" + CONSIDER_JSDOC
+    defaultValue = "" + false
   )
-  public boolean considerJSDoc = CONSIDER_JSDOC;
+  public boolean considerJSDoc = false;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(considerJSDoc));
-  }
-
-  private static class Config {
-
-    boolean considerJSDoc;
-
-    Config(boolean considerJSDoc) {
-      this.considerJSDoc = considerJSDoc;
-    }
+    return List.of(Map.of("considerJSDoc", considerJSDoc));
   }
 }

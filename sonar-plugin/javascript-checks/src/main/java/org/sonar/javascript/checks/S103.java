@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S103/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sonar.check.Rule;
@@ -25,28 +25,21 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "LineLength")
 @Rule(key = "S103")
 public class S103 extends Check {
-
-  private static final int DEFAULT_MAXIMUM_LINE_LENGTH = 180;
 
   @RuleProperty(
     key = "maximumLineLength",
     description = "The maximum authorized line length.",
-    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENGTH
+    defaultValue = "" + 180
   )
-  public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENGTH;
+  public int code = 180;
 
   @Override
   public List<Object> configurations() {
-    Map<String, Object> configurationsMap = new HashMap<>();
-    configurationsMap.put("code", maximumLineLength);
-    configurationsMap.put("tabWidth", 1);
-    return Collections.singletonList(configurationsMap);
+    return List.of(Map.of("code", code));
   }
 }

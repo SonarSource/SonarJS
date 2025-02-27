@@ -23,9 +23,7 @@ export const fields = [
     {
       field: 'threshold',
       type: 'integer',
-      description: 'The maximum authorized complexity.',
       default: 10,
-      displayName: 'Threshold',
     },
   ],
 ] as const satisfies ESLintConfiguration;

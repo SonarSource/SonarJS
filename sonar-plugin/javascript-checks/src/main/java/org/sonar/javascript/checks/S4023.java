@@ -14,24 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S4023/javascript
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4023")
-public class S4023 extends Check {
-
-  @Override
-  public List<Object> configurations() {
-    return List.of(new Config());
-  }
-
-  private static class Config {
-
-    boolean allowSingleExtends = true;
-  }
-}
+public class S4023 extends Check {}

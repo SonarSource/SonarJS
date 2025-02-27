@@ -15,11 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+
+export type ValueType = 'string' | 'number' | 'array' | 'boolean' | 'integer';
+export type Default = string | boolean | number | string[] | number[];
+
 type ESLintConfigurationDefaultProperty = {
-  type: 'string' | 'number' | 'array' | 'boolean' | 'integer';
-  default: string | boolean | number | string[] | number[];
+  type: ValueType;
+  default: Default;
   items?: {
-    type: string;
+    type: 'string' | 'integer';
   };
 };
 
@@ -29,13 +34,14 @@ type ESLintConfigurationDefaultProperty = {
  * @param displayName only necessary if the name of the property is different from the `field` name
  * @param fieldType only necessary if you need to override the default fieldType in SQ
  */
-type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
+export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
   description: string;
   displayName?: string;
   fieldType?: 'TEXT';
+  language?: JsTsLanguage;
 };
 
-type ESLintConfigurationProperty =
+export type ESLintConfigurationProperty =
   | ESLintConfigurationDefaultProperty
   | ESLintConfigurationSQProperty;
 

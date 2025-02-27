@@ -14,16 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S1523/javascript
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
-@TypeScriptRule
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1523")
-@DeprecatedRuleKey(ruleKey = "Eval")
 public class S1523 extends Check {}

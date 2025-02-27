@@ -19,15 +19,35 @@ import { readdir, writeFile, readFile, stat } from 'fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
+import {
+  Default,
+  ESLintConfiguration,
+  ESLintConfigurationProperty,
+  ESLintConfigurationSQProperty,
+  ValueType,
+} from '../packages/jsts/src/rules/helpers/configs.js';
+import assert from 'node:assert';
 
 const ruleRegex = /^S\d+/;
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
-export const RULES_FOLDER = join(DIRNAME, '..', 'packages', 'jsts', 'src', 'rules');
+export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'jsts', 'src', 'rules');
+const JAVA_CHECKS_FOLDER = join(
+  REPOSITORY_ROOT,
+  'sonar-plugin',
+  'javascript-checks',
+  'src',
+  'main',
+  'java',
+  'org',
+  'sonar',
+  'javascript',
+  'checks',
+);
 export const METADATA_FOLDER = join(
-  DIRNAME,
-  '..',
+  REPOSITORY_ROOT,
   'sonar-plugin',
   'javascript-checks',
   'src',
@@ -55,6 +75,8 @@ type rspecMeta = {
   title: string;
   quickfix: 'covered' | undefined;
   tags: string[];
+  scope: 'Main' | 'Tests' | 'All';
+  compatibleLanguages: ('JAVASCRIPT' | 'TYPESCRIPT')[];
 };
 
 const sonarWayProfile = JSON.parse(
@@ -108,15 +130,208 @@ export async function inflateTemplateToFile(
   await writePrettyFile(dest, inflateTemplate(template, dict));
 }
 
-/**
- * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
- *
- * @param sonarKey rule ID for which we need to create the generated-meta.ts file
- */
-export async function generateMetaForRule(sonarKey: string) {
+export async function generateParsingErrorClass() {
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'parsingError.template'),
+    join(JAVA_CHECKS_FOLDER, `S2260.java`),
+    {
+      ___HEADER___: header,
+    },
+  );
+}
+
+async function inflate1541() {
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'S1541.template'),
+    join(JAVA_CHECKS_FOLDER, `S1541Ts.java`),
+    {
+      ___HEADER___: header,
+      ___DECORATOR___: 'TypeScriptRule',
+      ___CLASS_NAME___: 'S1541Ts',
+      ___SQ_PROPERTY_NAME___: 'Threshold',
+      ___SQ_PROPERTY_DESCRIPTION___: 'The maximum authorized complexity.',
+    },
+  );
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'S1541.template'),
+    join(JAVA_CHECKS_FOLDER, `S1541Js.java`),
+    {
+      ___HEADER___: header,
+      ___DECORATOR___: 'JavaScriptRule',
+      ___CLASS_NAME___: 'S1541Js',
+      ___SQ_PROPERTY_NAME___: 'maximumFunctionComplexityThreshold',
+      ___SQ_PROPERTY_DESCRIPTION___: 'The maximum authorized complexity in function',
+    },
+  );
+}
+
+export async function generateJavaCheckClass(sonarKey: string) {
+  if (sonarKey === 'S1541') {
+    await inflate1541();
+    return;
+  }
+  const ruleRspecMeta = await getRspecMeta(sonarKey);
+  const imports: Set<string> = new Set();
+  const decorators = [];
+  let javaCheckClass: string;
+  if (ruleRspecMeta.scope === 'Tests') {
+    javaCheckClass = 'TestFileCheck';
+    imports.add('import org.sonar.plugins.javascript.api.TestFileCheck;');
+  } else {
+    javaCheckClass = 'Check';
+    imports.add('import org.sonar.plugins.javascript.api.Check;');
+  }
+
+  if (ruleRspecMeta.compatibleLanguages.includes('JAVASCRIPT')) {
+    decorators.push('@JavaScriptRule');
+    imports.add('import org.sonar.plugins.javascript.api.JavaScriptRule;');
+  }
+  if (ruleRspecMeta.compatibleLanguages.includes('TYPESCRIPT')) {
+    decorators.push('@TypeScriptRule');
+    imports.add('import org.sonar.plugins.javascript.api.TypeScriptRule;');
+  }
+
+  const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
+  const body = generateBody(eslintConfiguration, imports);
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'check.template'),
+    join(JAVA_CHECKS_FOLDER, `${sonarKey}.java`),
+    {
+      ___HEADER___: header,
+      ___DECORATORS___: decorators.join('\n'),
+      ___RULE_KEY___: sonarKey,
+      ___FILE_TYPE_CHECK___: javaCheckClass,
+      ___IMPORTS___: [...imports].join('\n'),
+      ___BODY___: body.join('\n'),
+    },
+  );
+}
+
+function isSonarSQProperty(
+  property: ESLintConfigurationProperty,
+): property is ESLintConfigurationSQProperty {
+  return (property as ESLintConfigurationSQProperty).description !== undefined;
+}
+
+function generateBody(config: ESLintConfiguration, imports: Set<string>) {
+  const result = [];
+  let hasSQProperties = false;
+  function generateRuleProperty(property: ESLintConfigurationProperty): string {
+    if (!isSonarSQProperty(property)) {
+      return;
+    }
+
+    const getJavaType = () => {
+      switch (property.type) {
+        case 'integer':
+          return 'int';
+        case 'number':
+          return 'double';
+        case 'string':
+          return 'String';
+        case 'boolean':
+          return 'boolean';
+        case 'array': {
+          imports.add('import java.util.List;');
+          if (property.items.type === 'string') {
+            return 'List<String>';
+          } else {
+            return 'List<int>';
+          }
+        }
+      }
+    };
+
+    const getDefaultValueString = () => {
+      switch (property.type) {
+        case 'integer':
+        case 'number':
+        case 'boolean':
+          return `"" + ${property.default}`;
+        case 'string':
+          return `"${property.default}"`;
+        case 'array': {
+          assert(Array.isArray(property.default));
+          return `"${property.default.join(',')}"`;
+        }
+      }
+    };
+
+    const getDefaultValue = (
+      valueType: ValueType,
+      defaultValue: Default,
+      property?: ESLintConfigurationSQProperty,
+    ) => {
+      switch (valueType) {
+        case 'integer':
+        case 'number':
+          return defaultValue;
+        case 'boolean':
+          return `${defaultValue.toString()}`;
+        case 'string':
+          return `"${defaultValue}"`;
+        case 'array':
+          assert(Array.isArray(defaultValue));
+          return `List.of(${defaultValue.map(itemDefaultValue => getDefaultValue(property.items.type, itemDefaultValue)).join(',')})`;
+      }
+    };
+
+    const defaultFieldName = 'field' in property ? (property.field as string) : 'value';
+    const defaultValue = getDefaultValueString();
+    imports.add('import org.sonar.check.RuleProperty;');
+    result.push(
+      `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue})`,
+    );
+    result.push(
+      `public ${getJavaType()} ${defaultFieldName} = ${getDefaultValue(property.type, property.default, property)};`,
+    );
+    hasSQProperties = true;
+    return defaultFieldName;
+  }
+
+  const configurations = [];
+  config.forEach(config => {
+    if (Array.isArray(config)) {
+      const fields = config
+        .map(namedProperty => generateRuleProperty(namedProperty))
+        .filter(field => field);
+      if (fields.length > 0) {
+        imports.add('import java.util.Map;');
+        const mapContents = fields.map(field => `"${field}", ${field}`);
+        configurations.push(`Map.of(${mapContents})`);
+      }
+    } else {
+      const field = generateRuleProperty(config);
+      configurations.push(field);
+    }
+  });
+  if (hasSQProperties) {
+    imports.add('import java.util.List;');
+    result.push(
+      `@Override\npublic List<Object> configurations() {\n return List.of(${configurations.join(',')});\n}\n`,
+    );
+  }
+  return result;
+}
+
+async function getESLintDefaultConfiguration(sonarKey: string): Promise<ESLintConfiguration> {
+  const configFilePath = join(RULES_FOLDER, sonarKey, 'config.ts');
+  const configFileExists = await exists(configFilePath);
+  if (!configFileExists) {
+    return [];
+  }
+  const config = await import(pathToFileURL(configFilePath).toString());
+  return config.fields;
+}
+
+async function getRspecMeta(sonarKey: string): Promise<rspecMeta> {
   const rspecFile = join(METADATA_FOLDER, `${sonarKey}.json`);
   const rspecFileExists = await exists(rspecFile);
-  const ruleRspecMeta: rspecMeta = rspecFileExists
+  if (!rspecFileExists) {
+    console.log(`RSPEC metadata not found for rule ${sonarKey}.`);
+  }
+  return rspecFileExists
     ? JSON.parse(await readFile(rspecFile, 'utf-8'))
     : {
         // Dummy data to create compilable new rule metadata
@@ -126,13 +341,15 @@ export async function generateMetaForRule(sonarKey: string) {
         status: 'ready',
         quickfix: 'covered',
       };
+}
 
-  if (!rspecFileExists) {
-    console.log(
-      `RSPEC metadata not found for rule ${sonarKey}. Creating dummy "generated-meta.ts"`,
-    );
-  }
-
+/**
+ * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
+ *
+ * @param sonarKey rule ID for which we need to create the generated-meta.ts file
+ */
+export async function generateMetaForRule(sonarKey: string) {
+  const ruleRspecMeta = await getRspecMeta(sonarKey);
   if (!typeMatrix[ruleRspecMeta.type]) {
     console.log(`Type not found for rule ${sonarKey}`);
   }

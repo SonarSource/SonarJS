@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+// https://sonarsource.github.io/rspec/#/rspec/S5693/javascript
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.Check;
@@ -29,36 +31,24 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5693")
 public class S5693 extends Check {
 
-  private static final int DEFAULT_FILE_UPLOAD_SIZE_LIMIT = 8_000_000;
-  private static final int DEFAULT_STANDARD_SIZE_LIMIT = 2_000_000;
-
   @RuleProperty(
     key = "fileUploadSizeLimit",
     description = "The maximum size of HTTP requests handling file uploads (in bytes)",
-    defaultValue = "" + DEFAULT_FILE_UPLOAD_SIZE_LIMIT
+    defaultValue = "" + 8000000
   )
-  long fileUploadSizeLimit = DEFAULT_FILE_UPLOAD_SIZE_LIMIT;
+  public int fileUploadSizeLimit = 8000000;
 
   @RuleProperty(
     key = "standardSizeLimit",
     description = "The maximum size of regular HTTP requests (in bytes)",
-    defaultValue = "" + DEFAULT_STANDARD_SIZE_LIMIT
+    defaultValue = "" + 2000000
   )
-  long standardSizeLimit = DEFAULT_STANDARD_SIZE_LIMIT;
+  public int standardSizeLimit = 2000000;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(fileUploadSizeLimit, standardSizeLimit));
-  }
-
-  private static class Config {
-
-    long fileUploadSizeLimit;
-    long standardSizeLimit;
-
-    Config(long fileUploadSizeLimit, long standardSizeLimit) {
-      this.fileUploadSizeLimit = fileUploadSizeLimit;
-      this.standardSizeLimit = standardSizeLimit;
-    }
+    return List.of(
+      Map.of("fileUploadSizeLimit", fileUploadSizeLimit, "standardSizeLimit", standardSizeLimit)
+    );
   }
 }
