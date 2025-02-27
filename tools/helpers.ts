@@ -232,14 +232,8 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
           return 'String';
         case 'boolean':
           return 'boolean';
-        case 'array': {
-          imports.add('import java.util.List;');
-          if (property.items.type === 'string') {
-            return 'List<String>';
-          } else {
-            return 'List<int>';
-          }
-        }
+        case 'array':
+          return 'String';
       }
     };
 
@@ -258,22 +252,18 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
       }
     };
 
-    const getDefaultValue = (
-      valueType: ValueType,
-      defaultValue: Default,
-      property?: ESLintConfigurationSQProperty,
-    ) => {
-      switch (valueType) {
+    const getDefaultValue = () => {
+      switch (property.type) {
         case 'integer':
         case 'number':
-          return defaultValue;
+          return property.default;
         case 'boolean':
-          return `${defaultValue.toString()}`;
+          return `${property.default.toString()}`;
         case 'string':
-          return `"${defaultValue}"`;
+          return `"${property.default}"`;
         case 'array':
-          assert(Array.isArray(defaultValue));
-          return `List.of(${defaultValue.map(itemDefaultValue => getDefaultValue(property.items.type, itemDefaultValue)).join(',')})`;
+          assert(Array.isArray(property.default));
+          return `"${property.default.join(',')}"`;
       }
     };
 
@@ -283,9 +273,7 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     result.push(
       `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue})`,
     );
-    result.push(
-      `public ${getJavaType()} ${defaultFieldName} = ${getDefaultValue(property.type, property.default, property)};`,
-    );
+    result.push(`${getJavaType()} ${defaultFieldName} = ${getDefaultValue()};`);
     hasSQProperties = true;
     return defaultFieldName;
   }
@@ -294,11 +282,25 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
   config.forEach(config => {
     if (Array.isArray(config)) {
       const fields = config
-        .map(namedProperty => generateRuleProperty(namedProperty))
+        .map(namedProperty => {
+          const fieldName = generateRuleProperty(namedProperty);
+          if (!fieldName) {
+            return undefined;
+          }
+          let value: string;
+          if (namedProperty.type === 'array') {
+            const castTo = namedProperty.items.type === 'string' ? 'String' : 'Integer';
+            imports.add('import java.util.Arrays;');
+            value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).toArray(${castTo}[]::new)`;
+          } else {
+            value = fieldName;
+          }
+          return { fieldName, value };
+        })
         .filter(field => field);
       if (fields.length > 0) {
         imports.add('import java.util.Map;');
-        const mapContents = fields.map(field => `"${field}", ${field}`);
+        const mapContents = fields.map(({ fieldName, value }) => `"${fieldName}", ${value}`);
         configurations.push(`Map.of(${mapContents})`);
       }
     } else {
