@@ -96,6 +96,9 @@ export function registerGarbageCollectionObserver() {
       });
   });
   obs.observe({ entryTypes: ['gc'] });
+  return () => {
+    obs.disconnect();
+  };
 }
 
 export function logHeapStatistics(debugMemory: boolean) {

@@ -73,6 +73,7 @@ export function start(
   debugMemory = false,
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
+  let unregisterGarbageCollectionObserver = () => {};
   const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
@@ -81,7 +82,7 @@ export function start(
 
   logMemoryConfiguration();
   if (debugMemory) {
-    registerGarbageCollectionObserver();
+    unregisterGarbageCollectionObserver = registerGarbageCollectionObserver();
   }
   return new Promise(resolve => {
     debug('Starting the bridge server');
@@ -156,6 +157,7 @@ export function start(
      * Shutdown the server and the worker thread
      */
     function closeServer() {
+      unregisterGarbageCollectionObserver();
       if (server.listening) {
         while (pendingCloseRequests.length) {
           pendingCloseRequests.pop()?.end();
