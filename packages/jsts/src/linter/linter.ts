@@ -272,9 +272,11 @@ export class Linter {
   ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
-        const ruleMeta = ruleMetas[rule.key as keyof typeof ruleMetas];
+        // in the case of bundles, rule.key will not be present in the ruleMetas
+        const ruleMeta =
+          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
         let eslintConfiguration: ESLintConfiguration | undefined;
-        if ('fields' in ruleMeta) {
+        if (ruleMeta && 'fields' in ruleMeta) {
           eslintConfiguration = ruleMeta.fields;
         }
         rules[`sonarjs/${rule.key}`] = [
