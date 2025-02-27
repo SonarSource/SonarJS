@@ -264,6 +264,7 @@ export class Linter {
    * that are used during linting.
    *
    * @param rules the rules from the active quality profile
+   * @param sonarlint indicates if we are in SonarLint context
    */
   private static createRulesRecord(
     rules: RuleConfig[],
@@ -272,9 +273,9 @@ export class Linter {
     return {
       ...rules.reduce((rules, rule) => {
         const ruleMeta = ruleMetas[rule.key as keyof typeof ruleMetas];
-        let eslintConfiguration;
-        if (ruleMeta && 'fields' in ruleMeta) {
-          eslintConfiguration = ruleMeta.fields as ESLintConfiguration;
+        let eslintConfiguration: ESLintConfiguration | undefined;
+        if ('fields' in ruleMeta) {
+          eslintConfiguration = ruleMeta.fields;
         }
         rules[`sonarjs/${rule.key}`] = [
           'error',
