@@ -217,7 +217,7 @@ function isSonarSQProperty(
 function generateBody(config: ESLintConfiguration, imports: Set<string>) {
   const result = [];
   let hasSQProperties = false;
-  function generateRuleProperty(property: ESLintConfigurationProperty): string {
+  function generateRuleProperty(property: ESLintConfigurationProperty) {
     if (!isSonarSQProperty(property)) {
       return;
     }
@@ -304,8 +304,11 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
         configurations.push(`Map.of(${mapContents})`);
       }
     } else {
-      const field = generateRuleProperty(config);
-      configurations.push(field);
+      let value = generateRuleProperty(config);
+      if (isSonarSQProperty(config) && config.customForConfiguration) {
+        value = config.customForConfiguration;
+      }
+      configurations.push(value);
     }
   });
   if (hasSQProperties) {

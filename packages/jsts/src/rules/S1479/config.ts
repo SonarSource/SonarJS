@@ -21,7 +21,7 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     displayName: 'maximum',
-    type: 'number',
+    type: 'integer',
     description: 'Maximum number of \\"case\\".',
     default: 30,
   },

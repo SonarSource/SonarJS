@@ -36,6 +36,7 @@ export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty &
   description: string;
   displayName?: string;
   fieldType?: 'TEXT';
+  customForConfiguration?: string;
 };
 
 export type ESLintConfigurationProperty =

@@ -82,11 +82,7 @@ class RulesMetadataForSonarLintTest {
       "      }\n" +
       "    ],\n" +
       "    \"defaultParams\": [\n" +
-      "      \"single\",\n" +
-      "      {\n" +
-      "        \"avoidEscape\": true,\n" +
-      "        \"allowTemplateLiterals\": true\n" +
-      "      }\n" +
+      "      \"single\"\n" +
       "    ],\n" +
       "    \"scope\": \"MAIN\",\n" +
       "    \"eslintKey\": \"S1441\",\n" +

@@ -36,7 +36,7 @@ public class S1479 extends Check {
     description = "Maximum number of \"case\".",
     defaultValue = "" + 30
   )
-  double value = 30;
+  int value = 30;
 
   @Override
   public List<Object> configurations() {

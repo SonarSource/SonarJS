@@ -34,12 +34,12 @@ public class S1441 extends Check {
   @RuleProperty(
     key = "singleQuotes",
     description = "Set to true to require single quotes, false for double quotes.",
-    defaultValue = "single"
+    defaultValue = "" + true
   )
-  String value = "single";
+  boolean value = true;
 
   @Override
   public List<Object> configurations() {
-    return List.of(value);
+    return List.of(value ? "single" : "double");
   }
 }
