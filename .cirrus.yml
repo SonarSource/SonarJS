@@ -109,7 +109,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
-  cleanup_before_cache_script: cleanup_maven_repository
 
 build_task:
   eks_container:
@@ -137,7 +136,6 @@ build_task:
     - npm run check-format
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
-  cleanup_before_cache_script: cleanup_maven_repository
 
 analyze_task:
   eks_container:
@@ -172,7 +170,6 @@ build_win_task:
   build_script:
     - source cirrus-env CI
     - npm run build
-  cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
   depends_on:
@@ -256,7 +253,6 @@ plugin_qa_win_task:
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
     - mvn test -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V surefire-report:report
-  cleanup_before_cache_script: cleanup_maven_repository
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_sonarlint_task:
@@ -273,7 +269,6 @@ plugin_qa_win_sonarlint_task:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     - mvn test -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V surefire-report:report
-  cleanup_before_cache_script: cleanup_maven_repository
 
 js_ts_ruling_task:
   depends_on:
@@ -303,7 +298,6 @@ js_ts_ruling_task:
     - npm run ruling
   on_failure:
     debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
-  cleanup_before_cache_script: cleanup_maven_repository
 
 eslint_plugin_test_task:
   depends_on:
@@ -380,7 +374,6 @@ css_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
     - mvn test -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
-  cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
       path: '**/target/actual/**/*'
@@ -408,7 +401,6 @@ perf_task:
     - mvn exec:exec -Dexec.args="-classpath %classpath org.sonar.javascript.it.perf.SonarJsPerfBenchmark LATEST_RELEASE $BUILD_NUMBER"
   perf_result_artifacts:
     path: 'its/perf/target/perf.txt'
-  cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
   depends_on:
@@ -433,4 +425,3 @@ promote_task:
     GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
   <<: *MAVEN_CACHE
   script: cirrus_promote_maven
-  cleanup_before_cache_script: cleanup_maven_repository
