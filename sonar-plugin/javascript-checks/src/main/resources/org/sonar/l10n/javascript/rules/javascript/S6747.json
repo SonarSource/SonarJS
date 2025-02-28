@@ -16,7 +16,7 @@
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW",
+      "MAINTAINABILITY": "MEDIUM",
       "RELIABILITY": "LOW"
     },
     "attribute": "LOGICAL"

@@ -23,12 +23,6 @@
     "OWASP": [
       "A3"
     ],
-    "OWASP Mobile": [
-      "M3"
-    ],
-    "MASVS": [
-      "MSTG-NETWORK-1"
-    ],
     "OWASP Top 10 2021": [
       "A2"
     ],

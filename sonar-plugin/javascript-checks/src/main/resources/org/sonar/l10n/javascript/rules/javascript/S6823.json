@@ -10,7 +10,7 @@
     "react",
     "accessibility"
   ],
-  "defaultSeverity": "Minor",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6823",
   "sqKey": "S6823",
   "scope": "All",
