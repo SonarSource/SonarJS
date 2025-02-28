@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowDestructuredState',
-      type: 'boolean',
       default: true,
     },
   ],

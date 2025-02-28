@@ -22,10 +22,6 @@ export const fields = [
   [
     {
       field: 'forbid',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
       default: ['>', '}'],
     },
   ],

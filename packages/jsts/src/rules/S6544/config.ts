@@ -21,14 +21,15 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   [
     {
-      field: 'attributes',
-      type: 'boolean',
-      default: false,
+      field: 'checksVoidReturn',
+      default: {
+        attributes: false,
+        arguments: false,
+      },
     },
     {
-      field: 'arguments',
-      type: 'boolean',
-      default: false,
+      field: 'ignoreIIFE',
+      default: true,
     },
   ],
 ] as const satisfies ESLintConfiguration;

@@ -22,12 +22,10 @@ export const fields = [
   [
     {
       field: 'assertionStyle',
-      type: 'string',
       default: 'as',
     },
     {
       field: 'objectLiteralTypeAssertions',
-      type: 'string',
       default: 'allow',
     },
   ],

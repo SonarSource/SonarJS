@@ -22,15 +22,10 @@ export const fields = [
   [
     {
       field: 'allowedInvalidRoles',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
       default: ['text'],
     },
     {
       field: 'ignoreNonDOM',
-      type: 'boolean',
       default: true,
     },
   ],

@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'checkAliases',
-      type: 'boolean',
       default: true,
     },
   ],

@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowDestructuring',
-      type: 'boolean',
       default: true,
     },
   ],

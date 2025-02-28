@@ -28,9 +28,10 @@ export const fields = [
     },
     {
       field: 'randomnessSensibility',
-      type: 'number',
+      type: 'string',
       description: 'Minimum shannon entropy threshold of the secret',
-      default: 5.0,
+      default: '5.0',
+      customForConfiguration: `Double.parseDouble(randomnessSensibility)`,
     },
   ],
 ] as const satisfies ESLintConfiguration;

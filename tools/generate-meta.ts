@@ -14,16 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { generateMetaForRule, listRulesDir } from './helpers.js';
+import {
+  generateMetaForRule,
+  listRulesDir,
+  generateJavaCheckClass,
+  generateParsingErrorClass,
+} from './helpers.js';
 
 /**
  * Generate packages/jsts/src/rules/SXXXX/generated-meta.ts on each rule
  * with data coming from the RSPEC json files. This data fills in the Rule ESLint metadata
- * as well as the JSON schema files available in
- * "sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/schemas"
+ * as well as the JSON schema files available in "packages/jsts/src/rules/SXXXX/schema.json"
  */
 for (const file of await listRulesDir()) {
   await generateMetaForRule(file);
+  await generateJavaCheckClass(file);
 }
+await generateParsingErrorClass();
 
 await import('./generate-rule-indexes.js');

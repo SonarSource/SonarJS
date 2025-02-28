@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowBitwiseExpressions',
-      type: 'boolean',
       default: false,
     },
   ],

@@ -21,6 +21,5 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     default: 'always-multiline',
-    type: 'string',
   },
 ] as const satisfies ESLintConfiguration;

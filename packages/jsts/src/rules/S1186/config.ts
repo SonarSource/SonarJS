@@ -22,10 +22,6 @@ export const fields = [
   [
     {
       field: 'allow',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
       default: ['arrowFunctions', 'constructors', 'private-constructors'],
     },
   ],

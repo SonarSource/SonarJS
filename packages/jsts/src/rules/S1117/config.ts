@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'hoist',
-      type: 'string',
       default: 'all',
     },
   ],

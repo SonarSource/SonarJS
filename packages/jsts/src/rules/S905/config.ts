@@ -22,22 +22,18 @@ export const fields = [
   [
     {
       field: 'allowShortCircuit',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'allowTernary',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'allowTaggedTemplates',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'enforceForJSX',
-      type: 'boolean',
       default: true,
     },
   ],

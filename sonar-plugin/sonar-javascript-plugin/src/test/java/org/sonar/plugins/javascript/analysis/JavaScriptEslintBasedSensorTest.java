@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -535,9 +536,10 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(rules).hasSize(3);
 
     assertThat(rules.get(0).getKey()).isEqualTo("S1192");
-    assertThat(new Gson().toJson(rules.get(0).getConfigurations())).isEqualTo(
-      "[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]"
-    );
+    @SuppressWarnings("unchecked")
+    var configuration = (Map<String, Object>) rules.get(0).getConfigurations().get(0);
+    assertThat(configuration).containsEntry("threshold", 3);
+    assertThat(configuration).containsEntry("ignoreStrings", "application/json");
 
     assertThat(rules.get(1).getKey()).isEqualTo("S1479");
     assertThat(rules.get(1).getConfigurations()).containsExactly(42);
