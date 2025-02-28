@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'max-len';
 export const externalPlugin = 'eslint';
+export * from './config.js';

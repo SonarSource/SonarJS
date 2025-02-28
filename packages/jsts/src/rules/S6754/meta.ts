@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'hook-use-state';
 export const externalRules = [{ externalPlugin: 'react', externalRule: 'hook-use-state' }];
+export * from './config.js';

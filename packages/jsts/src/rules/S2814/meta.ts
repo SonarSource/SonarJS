@@ -20,3 +20,4 @@ export const eslintId = 'no-redeclare';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-redeclare' },
 ];
+export * from './config.js';

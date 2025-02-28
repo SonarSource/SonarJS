@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'jsx-no-bind';
 export const externalPlugin = 'react';
+export * from './config.js';

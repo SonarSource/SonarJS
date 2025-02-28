@@ -20,3 +20,4 @@ export const eslintId = 'prefer-nullish-coalescing';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'prefer-nullish-coalescing' },
 ];
+export * from './config.js';

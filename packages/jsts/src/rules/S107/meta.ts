@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'max-params';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
+export * from './config.js';

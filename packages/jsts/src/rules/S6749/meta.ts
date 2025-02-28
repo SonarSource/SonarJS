@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'jsx-no-useless-fragment';
 export const externalRules = [{ externalPlugin: 'react', externalRule: 'jsx-no-useless-fragment' }];
+export * from './config.js';

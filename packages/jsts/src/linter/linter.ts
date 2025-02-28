@@ -30,6 +30,8 @@ import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
+import * as ruleMetas from '../rules/metas.js';
+import { ESLintConfiguration } from '../rules/helpers/configs.js';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -262,6 +264,7 @@ export class Linter {
    * that are used during linting.
    *
    * @param rules the rules from the active quality profile
+   * @param sonarlint indicates if we are in SonarLint context
    */
   private static createRulesRecord(
     rules: RuleConfig[],
@@ -269,6 +272,13 @@ export class Linter {
   ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
+        // in the case of bundles, rule.key will not be present in the ruleMetas
+        const ruleMeta =
+          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
+        let eslintConfiguration: ESLintConfiguration | undefined;
+        if (ruleMeta && 'fields' in ruleMeta) {
+          eslintConfiguration = ruleMeta.fields;
+        }
         rules[`sonarjs/${rule.key}`] = [
           'error',
           /**
@@ -281,6 +291,7 @@ export class Linter {
             Linter.rules[rule.key].meta?.schema || undefined,
             rule,
             Linter.rulesWorkdir,
+            eslintConfiguration,
           ),
         ];
         return rules;

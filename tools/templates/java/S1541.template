@@ -1,0 +1,37 @@
+___HEADER___
+package org.sonar.javascript.checks;
+
+import java.util.Collections;
+import java.util.List;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.Check;
+import org.sonar.plugins.javascript.api.___DECORATOR___;
+
+@___DECORATOR___
+@Rule(key = "S1541")
+public class ___CLASS_NAME___ extends Check {
+
+  private static final int DEFAULT_THRESHOLD = 10;
+
+  @RuleProperty(
+    key = "___SQ_PROPERTY_NAME___",
+    description = "___SQ_PROPERTY_DESCRIPTION___",
+    defaultValue = "" + DEFAULT_THRESHOLD
+  )
+  int threshold = DEFAULT_THRESHOLD;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(threshold));
+  }
+
+  private static class Config {
+
+    int threshold;
+
+    Config(int threshold) {
+      this.threshold = threshold;
+    }
+  }
+}

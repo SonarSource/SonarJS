@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-unsafe';
 export const externalRules = [{ externalPlugin: 'react', externalRule: 'no-unsafe' }];
+export * from './config.js';

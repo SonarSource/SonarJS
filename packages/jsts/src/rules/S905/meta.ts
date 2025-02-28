@@ -20,3 +20,4 @@ export const eslintId = 'no-unused-expressions';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-unused-expressions' },
 ];
+export * from './config.js';
