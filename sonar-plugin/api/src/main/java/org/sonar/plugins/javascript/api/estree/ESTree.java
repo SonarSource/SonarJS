@@ -24,8 +24,8 @@ import java.util.Optional;
 
 /**
   This file is generated. Do not modify it manually. Look at tools/estree instead.
-  
-  This is !EXPERIMENTAL UNSUPPORTED INTERNAL API! It can be modified or removed without prior notice.   
+
+  This is !EXPERIMENTAL UNSUPPORTED INTERNAL API! It can be modified or removed without prior notice.
 */
 public class ESTree {
 
@@ -36,6 +36,22 @@ public class ESTree {
   public sealed interface Node {
     Location loc();
   }
+
+  public sealed interface IdentifierOrTSQualifiedNameOrTSExternalModuleReference extends Node {}
+
+  public record TSQualifiedName(Location loc, TSQualifiedName left, Identifier right)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSExternalModuleReference(Location loc, Literal expression)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSImportEqualsDeclaration(
+    Location loc,
+    Identifier id,
+    IdentifierOrTSQualifiedNameOrTSExternalModuleReference moduleReference,
+    String importKind
+  )
+    implements DirectiveOrModuleDeclarationOrStatement {}
 
   public record Position(int line, int column) {}
 
@@ -276,7 +292,11 @@ public class ESTree {
     implements Expression {}
 
   public record Identifier(Location loc, String name)
-    implements Expression, Pattern, IdentifierOrLiteral {}
+    implements
+      Expression,
+      Pattern,
+      IdentifierOrLiteral,
+      IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
 
   public record IfStatement(
     Location loc,
