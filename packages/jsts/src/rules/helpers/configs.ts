@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export type ValueType = 'string' | 'number' | 'array' | 'boolean' | 'integer';
+export type ValueType = 'string' | 'array' | 'boolean' | 'integer';
 export type Default = string | boolean | number | string[] | number[];
 
 type ESLintConfigurationDefaultProperty = {

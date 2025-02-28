@@ -240,7 +240,6 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     const getDefaultValueString = () => {
       switch (property.type) {
         case 'integer':
-        case 'number':
         case 'boolean':
           return `"" + ${property.default}`;
         case 'string':
@@ -255,8 +254,6 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     const getDefaultValue = () => {
       switch (property.type) {
         case 'integer':
-        case 'number':
-          return property.default;
         case 'boolean':
           return `${property.default.toString()}`;
         case 'string':
