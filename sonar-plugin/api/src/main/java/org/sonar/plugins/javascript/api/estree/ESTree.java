@@ -37,22 +37,6 @@ public class ESTree {
     Location loc();
   }
 
-  public sealed interface IdentifierOrTSQualifiedNameOrTSExternalModuleReference extends Node {}
-
-  public record TSQualifiedName(Location loc, TSQualifiedName left, Identifier right)
-    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
-
-  public record TSExternalModuleReference(Location loc, Literal expression)
-    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
-
-  public record TSImportEqualsDeclaration(
-    Location loc,
-    Identifier id,
-    IdentifierOrTSQualifiedNameOrTSExternalModuleReference moduleReference,
-    String importKind
-  )
-    implements DirectiveOrModuleDeclarationOrStatement {}
-
   public record Position(int line, int column) {}
 
   public record Location(Position start, Position end) {}
@@ -657,4 +641,23 @@ public class ESTree {
         .orElse(null);
     }
   }
+
+  public sealed interface IdentifierOrTSQualifiedNameOrTSExternalModuleReference
+    extends IdentifierOrTSQualifiedName {}
+
+  public sealed interface IdentifierOrTSQualifiedName extends Node {}
+
+  public record TSQualifiedName(Location loc, IdentifierOrTSQualifiedName left, Identifier right)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSExternalModuleReference(Location loc, Literal expression)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSImportEqualsDeclaration(
+    Location loc,
+    Identifier id,
+    IdentifierOrTSQualifiedNameOrTSExternalModuleReference moduleReference,
+    String importKind
+  )
+    implements ModuleDeclaration {}
 }

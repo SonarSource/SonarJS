@@ -54,6 +54,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
+import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
@@ -751,6 +752,43 @@ class ESTreeFactoryTest {
       }
     );
   }
+
+  //  @Test
+  //  void should_create_ts_qualified_name() {
+  //    TSQualifiedName innerTsqn = TSQualifiedName.newBuilder()
+  //      .setLeft(Node.newBuilder().setType(NodeType.IdentifierType))
+  //      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
+  //      .build();
+  //
+  //    Node innerTsqnNode = Node.newBuilder().sett
+  //
+  //    TSQualifiedName tsQualifiedName = TSQualifiedName.newBuilder()
+  //      .setLeft(innerTSQN)
+  //      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
+  //      .build();
+  //
+  //    CallExpression callExpression = CallExpression.newBuilder()
+  //      .setCallee(Node.newBuilder().setType(NodeType.SuperType).build())
+  //      .build();
+  //    Node node = Node.newBuilder()
+  //      .setType(NodeType.CallExpressionType)
+  //      .setCallExpression(callExpression)
+  //      .build();
+  //    //
+  //    ExportAssignment exportAssignment = ExportAssignment.newBuilder().setExpression(node).build();
+  //    Node protobufNode = Node.newBuilder()
+  //      .setType(NodeType.ExportAssignmentType)
+  //      .setExportAssignment(exportAssignment)
+  //      .build();
+  //
+  //    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+  //    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(
+  //      ESTree.ExportAssignment.class,
+  //      export -> {
+  //        assertThat(export.expression()).isInstanceOf(ESTree.CallExpression.class);
+  //      }
+  //    );
+  //  }
 
   @Test
   void throw_exception_from_unrecognized_type() {
