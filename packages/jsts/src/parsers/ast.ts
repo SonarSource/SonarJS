@@ -301,6 +301,15 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSParameterProperty':
       // skipping node
       return visitNode(node.parameter);
+    case 'TSImportEqualsDeclaration':
+      shape = visitTSImportEqualsDeclaration(node);
+      break;
+    case 'TSQualifiedName':
+      shape = visitTSQualifiedName(node);
+      break;
+    case 'TSExternalModuleReference':
+      shape = visitTSExternalModuleReference(node);
+      break;
     case 'AccessorProperty':
     case 'Decorator':
     case 'ImportAttribute':
@@ -339,10 +348,8 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSEnumDeclaration':
     case 'TSEnumMember':
     case 'TSExportKeyword':
-    case 'TSExternalModuleReference':
     case 'TSFunctionType':
     case 'TSInstantiationExpression':
-    case 'TSImportEqualsDeclaration':
     case 'TSImportType':
     case 'TSIndexedAccessType':
     case 'TSIndexSignature':
@@ -368,7 +375,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSPropertySignature':
     case 'TSProtectedKeyword':
     case 'TSPublicKeyword':
-    case 'TSQualifiedName':
     case 'TSReadonlyKeyword':
     case 'TSRestType':
     case 'TSStaticKeyword':
@@ -950,6 +956,27 @@ function visitFunctionExpression(node: TSESTree.FunctionExpression) {
     params: node.params.map(visitNode),
     generator: node.generator,
     async: node.async,
+  };
+}
+
+function visitTSImportEqualsDeclaration(node: TSESTree.TSImportEqualsDeclaration) {
+  return {
+    id: visitNode(node.id),
+    moduleReference: visitNode(node.moduleReference),
+    importKind: node.importKind,
+  };
+}
+
+function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
+  return {
+    left: visitNode(node.left),
+    right: visitNode(node.right),
+  };
+}
+
+function visitTSExternalModuleReference(node: TSESTree.TSExternalModuleReference) {
+  return {
+    expression: visitNode(node.expression),
   };
 }
 
