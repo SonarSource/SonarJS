@@ -180,6 +180,15 @@ public class ESTreeFactory {
         case TemplateElementType -> fromTemplateElementType(node);
         case FunctionExpressionType -> fromFunctionExpressionType(node);
         case ExportAssignmentType -> fromExportAssignment(node);
+        case TSImportEqualsDeclarationType -> throw new IllegalArgumentException(
+          "TSImportEqualsDeclaration is not supported"
+        );
+        case TSExternalModuleReferenceType -> throw new IllegalArgumentException(
+          "TSExternalModuleReference is not supported"
+        );
+        case TSQualifiedNameType -> throw new IllegalArgumentException(
+          "TSQualifiedName is not supported"
+        );
         case UnknownNodeType -> fromUnknownNodeType(node);
         case UNRECOGNIZED -> throw new IllegalArgumentException(
           "Unknown node type: " + node.getType() + " at " + node.getLoc()
