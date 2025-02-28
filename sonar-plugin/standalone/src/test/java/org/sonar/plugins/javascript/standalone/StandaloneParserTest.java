@@ -40,7 +40,7 @@ class StandaloneParserTest {
   }
 
   @Test
-  void should_parse_multiple_time() {
+  void should_parse_multiple_time_multiple_language() {
     Program firstSample = parser.parse("var a = 42;");
     assertThat(firstSample.body()).hasSize(1);
     var firstElement = firstSample.body().get(0);
@@ -56,7 +56,7 @@ class StandaloneParserTest {
         );
       });
     });
-    Program secondSample = parser.parse("let x;");
+    Program secondSample = parser.parse("let x = <T>42;", "typescript-file.ts");
     assertThat(secondSample.body()).hasSize(1);
   }
 
