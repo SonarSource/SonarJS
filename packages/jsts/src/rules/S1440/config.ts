@@ -21,6 +21,5 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     default: 'smart',
-    type: 'string',
   },
 ] as const satisfies ESLintConfiguration;

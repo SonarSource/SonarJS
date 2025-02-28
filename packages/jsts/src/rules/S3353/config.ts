@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'destructuring',
-      type: 'string',
       default: 'all',
     },
   ],

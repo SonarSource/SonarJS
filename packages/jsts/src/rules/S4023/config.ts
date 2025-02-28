@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowSingleExtends',
-      type: 'boolean',
       default: true,
     },
   ],

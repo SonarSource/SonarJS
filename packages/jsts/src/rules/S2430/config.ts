@@ -22,17 +22,14 @@ export const fields = [
   [
     {
       field: 'newIsCap',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'capIsNew',
-      type: 'boolean',
       default: false,
     },
     {
       field: 'properties',
-      type: 'boolean',
       default: false,
     },
   ],

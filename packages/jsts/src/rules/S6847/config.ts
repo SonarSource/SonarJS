@@ -22,10 +22,6 @@ export const fields = [
   [
     {
       field: 'handlers',
-      type: 'array',
-      items: {
-        type: 'string',
-      },
       default: ['onClick', 'onMouseDown', 'onMouseUp', 'onKeyPress', 'onKeyDown', 'onKeyUp'],
     },
   ],

@@ -22,12 +22,10 @@ export const fields = [
   [
     {
       field: 'ignoreRefs',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreDOMComponents',
-      type: 'boolean',
       default: true,
     },
   ],

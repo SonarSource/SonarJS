@@ -22,35 +22,26 @@ export const fields = [
   [
     {
       field: 'ignore',
-      type: 'array',
-      items: {
-        type: 'integer',
-      },
       default: [0, 1, -1, 24, 60],
     },
     {
       field: 'ignoreDefaultValues',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreClassFieldInitialValues',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreEnums',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreNumericLiteralTypes',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreReadonlyClassProperties',
-      type: 'boolean',
       default: true,
     },
   ],

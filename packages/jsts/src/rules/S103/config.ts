@@ -29,7 +29,6 @@ export const fields = [
     },
     {
       field: 'tabWidth',
-      type: 'integer',
       default: 1,
     },
   ],

@@ -16,25 +16,28 @@
  */
 
 export type ValueType = 'string' | 'array' | 'boolean' | 'integer';
-export type Default = string | boolean | number | string[] | number[];
+export type Default = string | boolean | number | string[] | number[] | Object;
 
 type ESLintConfigurationDefaultProperty = {
-  type: ValueType;
   default: Default;
-  items?: {
-    type: 'string' | 'integer';
-  };
 };
 
 /**
  * Necessary for the property to show up in the SonarQube interface.
  * @param description will explain to the user what the property configures
  * @param displayName only necessary if the name of the property is different from the `field` name
+ * @param type what is the type of the option
+ * @param items only necessary if type is 'array'
  * @param fieldType only necessary if you need to override the default fieldType in SQ
+ * @param customForConfiguration replacement content how to pass this variable to the Configuration object
  */
 export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
   description: string;
   displayName?: string;
+  type: ValueType;
+  items?: {
+    type: 'string' | 'integer';
+  };
   fieldType?: 'TEXT';
   customForConfiguration?: string;
 };

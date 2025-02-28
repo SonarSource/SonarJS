@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowExpressions',
-      type: 'boolean',
       default: true,
     },
   ],

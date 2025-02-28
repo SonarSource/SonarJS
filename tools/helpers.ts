@@ -20,11 +20,9 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
 import {
-  Default,
   ESLintConfiguration,
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
-  ValueType,
 } from '../packages/jsts/src/rules/helpers/configs.js';
 import assert from 'node:assert';
 

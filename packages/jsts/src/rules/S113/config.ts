@@ -18,6 +18,4 @@
 
 import { ESLintConfiguration } from '../helpers/configs.js';
 
-export const fields = [
-  { default: 'always', type: 'string' },
-] as const satisfies ESLintConfiguration;
+export const fields = [{ default: 'always' }] as const satisfies ESLintConfiguration;

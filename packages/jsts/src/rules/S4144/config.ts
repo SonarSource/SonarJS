@@ -21,6 +21,5 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     default: 3,
-    type: 'integer',
   },
 ] as const satisfies ESLintConfiguration;

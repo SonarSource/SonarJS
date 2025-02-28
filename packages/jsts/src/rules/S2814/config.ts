@@ -22,12 +22,10 @@ export const fields = [
   [
     {
       field: 'builtinGlobals',
-      type: 'boolean',
       default: false,
     },
     {
       field: 'ignoreDeclarationMerge',
-      type: 'boolean',
       default: true,
     },
   ],

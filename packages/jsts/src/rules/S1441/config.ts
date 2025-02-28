@@ -29,12 +29,10 @@ export const fields = [
   [
     {
       field: 'avoidEscape',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'allowTemplateLiterals',
-      type: 'boolean',
       default: true,
     },
   ],

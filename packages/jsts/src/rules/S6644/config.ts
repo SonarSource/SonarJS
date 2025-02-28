@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'defaultAssignment',
-      type: 'boolean',
       default: false,
     },
   ],

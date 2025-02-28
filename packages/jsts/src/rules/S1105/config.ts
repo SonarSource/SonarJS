@@ -28,7 +28,6 @@ export const fields = [
   [
     {
       field: 'allowSingleLine',
-      type: 'boolean',
       default: true,
     },
   ],

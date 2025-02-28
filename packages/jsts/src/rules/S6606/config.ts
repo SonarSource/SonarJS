@@ -22,22 +22,18 @@ export const fields = [
   [
     {
       field: 'allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreConditionalTests',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreMixedLogicalExpressions',
-      type: 'boolean',
       default: true,
     },
     {
       field: 'ignoreTernaryTests',
-      type: 'boolean',
       default: false,
     },
   ],

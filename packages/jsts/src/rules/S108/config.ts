@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowEmptyCatch',
-      type: 'boolean',
       default: true,
     },
   ],
