@@ -35,9 +35,9 @@ public class S139 extends Check {
   @RuleProperty(
     key = "pattern",
     description = "Pattern (JavaScript syntax) for text of trailing comments that are allowed.",
-    defaultValue = "^\s*[^\s]+$"
+    defaultValue = "^\\s*[^\\s]+$"
   )
-  String ignorePattern = "^\s*[^\s]+$";
+  String ignorePattern = "^\\s*[^\\s]+$";
 
   @Override
   public List<Object> configurations() {
