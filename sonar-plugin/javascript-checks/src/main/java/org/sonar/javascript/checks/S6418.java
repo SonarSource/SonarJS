@@ -42,14 +42,19 @@ public class S6418 extends Check {
   @RuleProperty(
     key = "randomnessSensibility",
     description = "Minimum shannon entropy threshold of the secret",
-    defaultValue = "5"
+    defaultValue = "5.0"
   )
-  String randomnessSensibility = "5";
+  String randomnessSensibility = "5.0";
 
   @Override
   public List<Object> configurations() {
     return List.of(
-      Map.of("secretWords", secretWords, "randomnessSensibility", randomnessSensibility)
+      Map.of(
+        "secretWords",
+        secretWords,
+        "randomnessSensibility",
+        Double.parseDouble(randomnessSensibility)
+      )
     );
   }
 }

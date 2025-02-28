@@ -226,8 +226,6 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
       switch (property.type) {
         case 'integer':
           return 'int';
-        case 'number':
-          return 'double';
         case 'string':
           return 'String';
         case 'boolean':
@@ -281,7 +279,7 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
       const fields = config
         .map(namedProperty => {
           const fieldName = generateRuleProperty(namedProperty);
-          if (!fieldName) {
+          if (!isSonarSQProperty(namedProperty) || !fieldName) {
             return undefined;
           }
           let value: string;
@@ -289,6 +287,8 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
             const castTo = namedProperty.items.type === 'string' ? 'String' : 'Integer';
             imports.add('import java.util.Arrays;');
             value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).toArray(${castTo}[]::new)`;
+          } else if (namedProperty.customForConfiguration) {
+            value = namedProperty.customForConfiguration;
           } else {
             value = fieldName;
           }
