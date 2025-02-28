@@ -17,7 +17,7 @@
   "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW"
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "CONVENTIONAL"
   },
