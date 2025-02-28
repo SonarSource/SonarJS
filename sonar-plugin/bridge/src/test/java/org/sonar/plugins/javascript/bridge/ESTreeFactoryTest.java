@@ -54,6 +54,8 @@ import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
+import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
+import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
@@ -753,42 +755,85 @@ class ESTreeFactoryTest {
     );
   }
 
-  //  @Test
-  //  void should_create_ts_qualified_name() {
-  //    TSQualifiedName innerTsqn = TSQualifiedName.newBuilder()
-  //      .setLeft(Node.newBuilder().setType(NodeType.IdentifierType))
-  //      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
-  //      .build();
-  //
-  //    Node innerTsqnNode = Node.newBuilder().sett
-  //
-  //    TSQualifiedName tsQualifiedName = TSQualifiedName.newBuilder()
-  //      .setLeft(innerTSQN)
-  //      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
-  //      .build();
-  //
-  //    CallExpression callExpression = CallExpression.newBuilder()
-  //      .setCallee(Node.newBuilder().setType(NodeType.SuperType).build())
-  //      .build();
-  //    Node node = Node.newBuilder()
-  //      .setType(NodeType.CallExpressionType)
-  //      .setCallExpression(callExpression)
-  //      .build();
-  //    //
-  //    ExportAssignment exportAssignment = ExportAssignment.newBuilder().setExpression(node).build();
-  //    Node protobufNode = Node.newBuilder()
-  //      .setType(NodeType.ExportAssignmentType)
-  //      .setExportAssignment(exportAssignment)
-  //      .build();
-  //
-  //    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
-  //    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(
-  //      ESTree.ExportAssignment.class,
-  //      export -> {
-  //        assertThat(export.expression()).isInstanceOf(ESTree.CallExpression.class);
-  //      }
-  //    );
-  //  }
+  @Test
+  void should_create_ts_qualified_name() {
+    TSQualifiedName innerTsqn = TSQualifiedName.newBuilder()
+      .setLeft(Node.newBuilder().setType(NodeType.IdentifierType))
+      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
+      .build();
+
+    Node innerTsqnNode = Node.newBuilder()
+      .setType(NodeType.TSQualifiedNameType)
+      .setTSQualifiedName(innerTsqn)
+      .build();
+
+    TSQualifiedName tsQualifiedName = TSQualifiedName.newBuilder()
+      .setLeft(innerTsqnNode)
+      .setRight(Node.newBuilder().setType(NodeType.IdentifierType))
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSQualifiedNameType)
+      .setTSQualifiedName(tsQualifiedName)
+      .build();
+
+    ESTree.Node estreeTsQualifiedName = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeTsQualifiedName).isInstanceOfSatisfying(ESTree.TSQualifiedName.class, tsqn -> {
+      assertThat(tsqn.left()).isInstanceOfSatisfying(ESTree.TSQualifiedName.class, left -> {
+        assertThat(left.left()).isInstanceOf(ESTree.Identifier.class);
+        assertThat(left.right()).isInstanceOf(ESTree.Identifier.class);
+      });
+      assertThat(tsqn.right()).isInstanceOf(ESTree.Identifier.class);
+    });
+  }
+
+  @Test
+  void should_create_ts_external_module_reference() {
+    TSExternalModuleReference tsExternalModuleReference = TSExternalModuleReference.newBuilder()
+      .setExpression(Node.newBuilder().setType(NodeType.LiteralType))
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSExternalModuleReferenceType)
+      .setTSExternalModuleReference(tsExternalModuleReference)
+      .build();
+
+    ESTree.Node estreeTsExternalModuleReference = ESTreeFactory.from(
+      protobufNode,
+      ESTree.Node.class
+    );
+    assertThat(estreeTsExternalModuleReference).isInstanceOfSatisfying(
+      ESTree.TSExternalModuleReference.class,
+      tsemr -> assertThat(tsemr.expression()).isInstanceOf(ESTree.Literal.class)
+    );
+  }
+
+  @Test
+  void should_create_ts_import_equals_declaration() {
+    TSImportEqualsDeclaration tsImportEqualsDeclaration = TSImportEqualsDeclaration.newBuilder()
+      .setId(Node.newBuilder().setType(NodeType.IdentifierType))
+      .setModuleReference(Node.newBuilder().setType(NodeType.IdentifierType))
+      .setImportKind("value")
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSImportEqualsDeclarationType)
+      .setTSImportEqualsDeclaration(tsImportEqualsDeclaration)
+      .build();
+
+    ESTree.Node estreeTsImportEqualsDeclaration = ESTreeFactory.from(
+      protobufNode,
+      ESTree.Node.class
+    );
+    assertThat(estreeTsImportEqualsDeclaration).isInstanceOfSatisfying(
+      ESTree.TSImportEqualsDeclaration.class,
+      tsied -> {
+        assertThat(tsied.id()).isInstanceOf(ESTree.Identifier.class);
+        assertThat(tsied.moduleReference()).isInstanceOf(ESTree.Identifier.class);
+        assertThat(tsied.importKind()).isInstanceOf(String.class);
+      }
+    );
+  }
 
   @Test
   void throw_exception_from_unrecognized_type() {
