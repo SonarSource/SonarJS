@@ -78,8 +78,12 @@ public class StandaloneParser implements AutoCloseable {
   }
 
   public ESTree.Program parse(String code) {
+    return parse(code, "file.js");
+  }
+
+  public ESTree.Program parse(String code, String filename) {
     BridgeServer.JsAnalysisRequest request = new BridgeServer.JsAnalysisRequest(
-      "file.js",
+      filename,
       "MAIN",
       code,
       true,
