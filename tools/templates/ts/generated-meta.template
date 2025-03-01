@@ -12,6 +12,7 @@ export const meta = {
   },
   fixable: ___FIXABLE___,
   deprecated: ___DEPRECATED___,
+  defaultOptions: ___DEFAULT_OPTIONS___,
 };
 
 export const sonarKey = '___RULE_KEY___';

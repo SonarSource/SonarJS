@@ -20,6 +20,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
 import {
+  defaultOptions,
   ESLintConfiguration,
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
@@ -362,6 +363,7 @@ export async function generateMetaForRule(sonarKey: string) {
       schema = `\nimport type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';\nexport const schema = ( ${await readFile(schemaFile, 'utf-8')} ) as const satisfies JSONSchema4;`;
     } catch {}
   }
+  const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
 
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
@@ -376,6 +378,7 @@ export async function generateMetaForRule(sonarKey: string) {
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
       ___RULE_SCHEMA___: schema,
+      ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
     },
   );
 }
