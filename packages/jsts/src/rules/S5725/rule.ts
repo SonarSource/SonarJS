@@ -26,7 +26,6 @@ import {
   isRequiredParserServices,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
-import Variable = Scope.Variable;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -39,7 +38,7 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    function shouldReport(assignedVariable: Variable) {
+    function shouldReport(assignedVariable: Scope.Variable) {
       let nbSrcAssignment = 0;
       let hasUnsafeSrcAssignment = false;
       let hasIntegrityAssignment = false;
