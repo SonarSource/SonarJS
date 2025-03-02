@@ -16,6 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import { SONAR_RUNTIME } from './index.js';
+import merge from 'lodash.merge';
 
 export function generateMeta(
   rspecMeta: Rule.RuleMetaData,
@@ -32,6 +33,9 @@ export function generateMeta(
     ...ruleMeta,
     ...rspecMeta,
   };
+  if (ruleMeta?.defaultOptions) {
+    metadata.defaultOptions = merge(ruleMeta?.defaultOptions, rspecMeta.defaultOptions);
+  }
 
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
   // and suggestion like ESLint does. That's why we set fixable using ruleMeta
