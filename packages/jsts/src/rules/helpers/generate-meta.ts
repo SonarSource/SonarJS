@@ -33,6 +33,7 @@ export function generateMeta(
     ...ruleMeta,
     ...rspecMeta,
   };
+  // If rules contains default options, we will augment them with our defaults.
   if (ruleMeta?.defaultOptions) {
     metadata.defaultOptions = merge(ruleMeta?.defaultOptions, rspecMeta.defaultOptions);
   }
