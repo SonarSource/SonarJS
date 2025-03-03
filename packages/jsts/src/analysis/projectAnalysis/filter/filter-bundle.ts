@@ -14,25 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
-import { describe, before, it } from 'node:test';
-import { expect } from 'expect';
-import {
-  getTSConfigsCount,
-  loadTSConfigs,
-  clearTSConfigs,
-} from '../../src/program/tsconfigs/index.js';
+const READ_CHARACTERS_LIMIT = 2048;
+const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
 
-describe('tsconfigs', () => {
-  describe('loadTSConfigFiles', () => {
-    before(() => {
-      clearTSConfigs();
-    });
+export function filterBundle(input: string) {
+  const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
+  return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
+}
 
-    const fixturesDir = path.join(import.meta.dirname, 'fixtures');
-    it('should return the TSconfig files', () => {
-      loadTSConfigs(fixturesDir, []);
-      expect(getTSConfigsCount()).toEqual(7);
-    });
-  });
-});
+function buildBundleRegex() {
+  const COMMENT = '/\\*.*\\*/';
+  const OPERATOR = '[!;+(]';
+  const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
+
+  return new RegExp(
+    COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
+    's',
+  );
+}

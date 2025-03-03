@@ -14,21 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const READ_CHARACTERS_LIMIT = 2048;
-const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
+const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
-export function bundleAssessor(input: string) {
-  const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
-  return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
-}
+export function filterSize(input: string, maxSize: number = DEFAULT_MAX_FILE_SIZE_KB) {
+  return getBytes(input) <= maxSize * 1000;
 
-function buildBundleRegex() {
-  const COMMENT = '/\\*.*\\*/';
-  const OPERATOR = '[!;+(]';
-  const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
-
-  return new RegExp(
-    COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
-    's',
-  );
+  function getBytes(input: string) {
+    return Buffer.byteLength(input, 'utf8');
+  }
 }

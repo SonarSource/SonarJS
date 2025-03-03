@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { bundleAssessor } from './bundleAssessor.js';
+import { filterBundle } from './filter-bundle.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -42,7 +42,7 @@ describe('assessors', () => {
         '// Use the correct document accordingly with window argument (sandbox)\n' +
         'var document = window.document;\n' +
         'var jQuery = (function() {';
-      expect(bundleAssessor(JQUERY)).toBeFalsy();
+      expect(filterBundle(JQUERY)).toBeFalsy();
     });
   });
 });

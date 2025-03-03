@@ -16,7 +16,6 @@
  */
 import path from 'path';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
-import fs from 'fs';
 import { isRoot, toUnixPath } from '../../src/rules/helpers/index.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
@@ -27,7 +26,6 @@ import {
   deleteProgram,
   getProgramById,
   isRootNodeModules,
-  writeTSConfigFile,
 } from '../../src/program/program.js';
 
 describe('program', () => {
@@ -244,17 +242,6 @@ describe('program', () => {
       expect.objectContaining({
         rootNames: expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.vue'))]),
       }),
-    );
-  });
-
-  it('should write tsconfig file', async () => {
-    const { filename } = await writeTSConfigFile({
-      compilerOptions: { allowJs: true, noImplicitAny: true },
-      include: ['/path/to/project/**/*'],
-    });
-    const content = fs.readFileSync(filename, { encoding: 'utf-8' });
-    expect(content).toBe(
-      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
     );
   });
 

@@ -37,7 +37,6 @@ import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-import org.sonar.plugins.javascript.utils.Exclusions;
 
 public abstract class AbstractBridgeSensor implements Sensor {
 
@@ -45,7 +44,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected final String lang;
   protected final BridgeServer bridgeServer;
-  protected List<String> exclusions;
   List<String> environments;
   List<String> globals;
 
@@ -61,7 +59,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
   public void execute(SensorContext context) {
     CacheStrategies.reset();
     this.context = context;
-    this.exclusions = Arrays.asList(Exclusions.getExcludedPaths(context.config()));
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));

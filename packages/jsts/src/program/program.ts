@@ -28,10 +28,6 @@
 import path from 'path';
 import ts from 'typescript';
 import { debug, error, warn } from '../../../shared/src/helpers/logging.js';
-import tmp from 'tmp';
-import { promisify } from 'util';
-import fs from 'fs/promises';
-import { TsConfigJson } from 'type-fest';
 import {
   readFileSync,
   toUnixPath,
@@ -293,42 +289,4 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
-}
-
-/**
- * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
- */
-tmp.setGracefulCleanup();
-
-/**
- * Create the TSConfig file and returns its path.
- *
- * The file is written in a temporary location in the file system
- * and is marked to be removed after Node.js process terminates.
- *
- * @param tsConfig TSConfig to write
- * @returns the resolved TSConfig file path
- */
-export async function writeTSConfigFile(tsConfig: TsConfigJson): Promise<{ filename: string }> {
-  const filename = await promisify(tmp.file)();
-  await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
-  return { filename };
-}
-
-/**
- * Create and return a TSConfig object.
- *
- * @param files array of files included in the TS program
- * @param include inclusion paths of the TS Program
- * @returns the TSConfig object
- */
-export function createTSConfigFile(files?: string[], include?: string[]): TsConfigJson {
-  return {
-    compilerOptions: {
-      allowJs: true,
-      noImplicitAny: true,
-    },
-    include,
-    files,
-  } as TsConfigJson;
 }
