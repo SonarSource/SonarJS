@@ -22,11 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
-  This file is generated. Do not modify it manually. Look at tools/estree instead.
-
-  This is !EXPERIMENTAL UNSUPPORTED INTERNAL API! It can be modified or removed without prior notice.
-*/
 public class ESTree {
 
   private ESTree() {
