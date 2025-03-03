@@ -79,6 +79,9 @@ import org.sonar.plugins.javascript.bridge.protobuf.SpreadElement;
 import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchCase;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
+import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.TemplateElement;
 import org.sonar.plugins.javascript.bridge.protobuf.TemplateLiteral;
@@ -180,6 +183,9 @@ public class ESTreeFactory {
         case TemplateElementType -> fromTemplateElementType(node);
         case FunctionExpressionType -> fromFunctionExpressionType(node);
         case ExportAssignmentType -> fromExportAssignment(node);
+        case TSImportEqualsDeclarationType -> fromTSImportEqualsDeclaration(node);
+        case TSExternalModuleReferenceType -> fromTSExternalModuleReferenceType(node);
+        case TSQualifiedNameType -> fromTSQualifiedName(node);
         case UnknownNodeType -> fromUnknownNodeType(node);
         case UNRECOGNIZED -> throw new IllegalArgumentException(
           "Unknown node type: " + node.getType() + " at " + node.getLoc()
@@ -944,6 +950,36 @@ public class ESTreeFactory {
       from(functionExpression.getParamsList(), ESTree.Pattern.class),
       functionExpression.getGenerator(),
       functionExpression.getAsync()
+    );
+  }
+
+  private static ESTree.TSExternalModuleReference fromTSExternalModuleReferenceType(Node node) {
+    TSExternalModuleReference tsExternalModuleReference = node.getTSExternalModuleReference();
+    return new ESTree.TSExternalModuleReference(
+      fromLocation(node.getLoc()),
+      from(tsExternalModuleReference.getExpression(), ESTree.Literal.class)
+    );
+  }
+
+  private static ESTree.TSQualifiedName fromTSQualifiedName(Node node) {
+    TSQualifiedName tsExternalModuleReference = node.getTSQualifiedName();
+    return new ESTree.TSQualifiedName(
+      fromLocation(node.getLoc()),
+      from(tsExternalModuleReference.getLeft(), ESTree.IdentifierOrTSQualifiedName.class),
+      from(tsExternalModuleReference.getRight(), ESTree.Identifier.class)
+    );
+  }
+
+  private static ESTree.TSImportEqualsDeclaration fromTSImportEqualsDeclaration(Node node) {
+    TSImportEqualsDeclaration tsImportEqualsDeclaration = node.getTSImportEqualsDeclaration();
+    return new ESTree.TSImportEqualsDeclaration(
+      fromLocation(node.getLoc()),
+      from(tsImportEqualsDeclaration.getId(), ESTree.Identifier.class),
+      from(
+        tsImportEqualsDeclaration.getModuleReference(),
+        ESTree.IdentifierOrTSQualifiedNameOrTSExternalModuleReference.class
+      ),
+      tsImportEqualsDeclaration.getImportKind()
     );
   }
 

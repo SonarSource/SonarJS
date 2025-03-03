@@ -23,14 +23,14 @@ import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
-import { visitNode } from '../../src/parsers/ast.js';
-import { parse } from '../../src/parsers/parse.js';
 import {
   deserializeProtobuf,
   NODE_TYPE_ENUM,
   parseInProtobuf,
   serializeInProtobuf,
+  visitNode,
 } from '../../src/parsers/ast.js';
+import { parse } from '../../src/parsers/parse.js';
 
 const parseFunctions = [
   {
@@ -159,6 +159,118 @@ describe('ast', () => {
     const expression = serializedAST.program.body[0].tSExportAssignment.expression;
     expect(expression.type).toEqual(NODE_TYPE_ENUM.values['CallExpressionType']);
     expect(expression.callExpression.callee.identifier.name).toEqual('foo');
+  });
+
+  test('should support TSImportEquals nodes with Identifier module reference', async () => {
+    const code = `import a = foo;`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
+    );
+
+    const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
+    expect(tSImportEqualsDeclaration.importKind).toEqual('value');
+
+    let id = tSImportEqualsDeclaration.id;
+    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.identifier.name).toEqual('a');
+
+    let moduleReference = tSImportEqualsDeclaration.moduleReference;
+    expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(moduleReference.identifier.name).toEqual('foo');
+
+    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const deserializedProtoMessage = deserializeProtobuf(serialized);
+    compareASTs(protoMessage, deserializedProtoMessage);
+  });
+
+  test('should support TSImportEquals nodes with TSQualifiedName module reference', async () => {
+    const code = `import a = a.b.c;`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
+    );
+
+    const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
+    expect(tSImportEqualsDeclaration.importKind).toEqual('value');
+
+    let id = tSImportEqualsDeclaration.id;
+    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.identifier.name).toEqual('a');
+    expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
+      NODE_TYPE_ENUM.values['TSQualifiedNameType'],
+    );
+
+    let tSQualifiedName = tSImportEqualsDeclaration.moduleReference.tSQualifiedName;
+    expect(tSQualifiedName.right.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSQualifiedName.right.identifier.name).toEqual('c');
+    expect(tSQualifiedName.left.type).toEqual(NODE_TYPE_ENUM.values['TSQualifiedNameType']);
+    expect(tSQualifiedName.left.tSQualifiedName.left.identifier.name).toEqual('a');
+    expect(tSQualifiedName.left.tSQualifiedName.right.identifier.name).toEqual('b');
+
+    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const deserializedProtoMessage = deserializeProtobuf(serialized);
+    compareASTs(protoMessage, deserializedProtoMessage);
+  });
+
+  test('should support TSImportEquals nodes with TSExternalModuleReference', async () => {
+    const code = `import a = require('foo');`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
+    );
+
+    const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
+    expect(tSImportEqualsDeclaration.importKind).toEqual('value');
+
+    let id = tSImportEqualsDeclaration.id;
+    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.identifier.name).toEqual('a');
+    expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
+      NODE_TYPE_ENUM.values['TSExternalModuleReferenceType'],
+    );
+
+    const tSExternalModuleReference =
+      tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
+    expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
+
+    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const deserializedProtoMessage = deserializeProtobuf(serialized);
+    compareASTs(protoMessage, deserializedProtoMessage);
+  });
+
+  test('should support TSImportEquals nodes with type TSExternalModuleReference', async () => {
+    const code = `import type a = require('foo');`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
+    );
+
+    const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
+    expect(tSImportEqualsDeclaration.importKind).toEqual('type');
+
+    let id = tSImportEqualsDeclaration.id;
+    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.identifier.name).toEqual('a');
+    expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
+      NODE_TYPE_ENUM.values['TSExternalModuleReferenceType'],
+    );
+
+    const tSExternalModuleReference =
+      tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
+    expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
+
+    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const deserializedProtoMessage = deserializeProtobuf(serialized);
+    compareASTs(protoMessage, deserializedProtoMessage);
   });
 });
 

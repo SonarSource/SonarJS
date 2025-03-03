@@ -88,6 +88,9 @@ enum NodeType {
   TemplateElementType = 69;
   FunctionExpressionType = 70;
   ExportAssignmentType = 71;
+  TSImportEqualsDeclarationType = 72;
+  TSQualifiedNameType = 73;
+  TSExternalModuleReferenceType = 74;
   UnknownNodeType = 1000;
 }
 message Node {
@@ -166,9 +169,13 @@ message Node {
     TemplateElement templateElement = 72;
     FunctionExpression functionExpression = 73;
     ExportAssignment exportAssignment = 74;
+    TSImportEqualsDeclaration tSImportEqualsDeclaration = 75;
+    TSQualifiedName tSQualifiedName = 76;
+    TSExternalModuleReference tSExternalModuleReference = 77;
     UnknownNode unknownNode = 1000;
   }
 }
+
 message Program {
   string sourceType = 1;
   repeated Node body = 2;
@@ -472,6 +479,18 @@ message FunctionExpression {
   optional bool async = 5;
 }
 message ExportAssignment {
+  Node expression = 1;
+}
+message TSImportEqualsDeclaration {
+  Node id = 1;
+  Node moduleReference = 2;
+  string importKind = 3;
+}
+message TSQualifiedName {
+  Node left = 1;
+  Node right = 2;
+}
+message TSExternalModuleReference {
   Node expression = 1;
 }
 

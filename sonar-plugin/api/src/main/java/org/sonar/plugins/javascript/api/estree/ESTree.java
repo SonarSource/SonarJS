@@ -22,11 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
-  This file is generated. Do not modify it manually. Look at tools/estree instead.
-  
-  This is !EXPERIMENTAL UNSUPPORTED INTERNAL API! It can be modified or removed without prior notice.   
-*/
 public class ESTree {
 
   private ESTree() {
@@ -276,7 +271,11 @@ public class ESTree {
     implements Expression {}
 
   public record Identifier(Location loc, String name)
-    implements Expression, Pattern, IdentifierOrLiteral {}
+    implements
+      Expression,
+      Pattern,
+      IdentifierOrLiteral,
+      IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
 
   public record IfStatement(
     Location loc,
@@ -637,4 +636,23 @@ public class ESTree {
         .orElse(null);
     }
   }
+
+  public sealed interface IdentifierOrTSQualifiedNameOrTSExternalModuleReference
+    extends IdentifierOrTSQualifiedName {}
+
+  public sealed interface IdentifierOrTSQualifiedName extends Node {}
+
+  public record TSQualifiedName(Location loc, IdentifierOrTSQualifiedName left, Identifier right)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSExternalModuleReference(Location loc, Literal expression)
+    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+
+  public record TSImportEqualsDeclaration(
+    Location loc,
+    Identifier id,
+    IdentifierOrTSQualifiedNameOrTSExternalModuleReference moduleReference,
+    String importKind
+  )
+    implements ModuleDeclaration {}
 }
