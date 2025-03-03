@@ -126,7 +126,6 @@ describe('S1871', () => {
         first();
         second();
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               line: 5,
@@ -352,7 +351,6 @@ describe('S1871', () => {
           second();
           break;
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               line: 7,

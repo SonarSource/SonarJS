@@ -77,7 +77,6 @@ describe('S4782', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
           },
           {
             code: `
@@ -121,7 +120,6 @@ describe('S4782', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
           },
           {
             code: `interface T { p?: undefined | number; }`,

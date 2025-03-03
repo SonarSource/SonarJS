@@ -115,7 +115,6 @@ describe('S3514', () => {
               line: 16,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `function foo(arr1, arr2) {
@@ -137,7 +136,6 @@ describe('S3514', () => {
               line: 8,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `// switch cases

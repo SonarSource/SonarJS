@@ -119,7 +119,6 @@ describe('S4822', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -141,7 +140,6 @@ describe('S4822', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

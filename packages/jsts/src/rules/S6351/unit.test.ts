@@ -153,7 +153,6 @@ describe('S6351', () => {
               endColumn: 17,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `RegExp('globalsticky', 'gy');`,
@@ -177,7 +176,6 @@ describe('S6351', () => {
               endColumn: 14,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `do {} while (/foo/g.exec(input));`,
@@ -216,7 +214,6 @@ describe('S6351', () => {
               endColumn: 26,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

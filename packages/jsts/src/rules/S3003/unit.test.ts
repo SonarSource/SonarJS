@@ -76,7 +76,6 @@ describe('S3003', () => {
           code: `
         let str1 = 'hello', str2 = 'world';
         str1 < str2;`,
-          options: ['sonar-runtime'],
           errors: [
             {
               message:

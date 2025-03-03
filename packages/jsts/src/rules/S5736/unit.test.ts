@@ -125,7 +125,6 @@ describe('S5736', () => {
               endColumn: 10,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

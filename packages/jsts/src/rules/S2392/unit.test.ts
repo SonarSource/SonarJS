@@ -74,7 +74,6 @@ describe('S2392', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -91,7 +90,6 @@ describe('S2392', () => {
               line: 4,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -110,7 +108,6 @@ describe('S2392', () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

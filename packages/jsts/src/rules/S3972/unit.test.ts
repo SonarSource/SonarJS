@@ -137,7 +137,6 @@ describe('S3972', () => {
           }
           break;
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -265,7 +264,6 @@ describe('S3972', () => {
       } else if (cond2) {
       } if (cond3) {
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -312,7 +310,6 @@ describe('S3972', () => {
           } if (cond4) {
           }
         }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -363,7 +360,6 @@ describe('S3972', () => {
         } if (cond3) {
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -413,7 +409,6 @@ describe('S3972', () => {
         } if (cond2) {
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',

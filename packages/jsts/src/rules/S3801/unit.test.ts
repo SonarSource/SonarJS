@@ -179,7 +179,6 @@ describe('S3801', () => {
               endColumn: 37,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -198,7 +197,6 @@ describe('S3801', () => {
               endColumn: 43,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `var inconsistentArrow = (p) => {if (p) { return true; } return; };`,
@@ -212,7 +210,6 @@ describe('S3801', () => {
               endColumn: 31,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -235,7 +232,6 @@ describe('S3801', () => {
               endColumn: 40,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -258,7 +254,6 @@ describe('S3801', () => {
               endColumn: 23,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

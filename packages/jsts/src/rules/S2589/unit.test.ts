@@ -102,7 +102,6 @@ describe('S2589', () => {
           code: `
         if (true) {}
         if (false) {}`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -136,7 +135,6 @@ describe('S2589', () => {
           if (y && z) {} // "z" always true
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -181,7 +179,6 @@ describe('S2589', () => {
           }
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -206,7 +203,6 @@ describe('S2589', () => {
         }
         x = foo();
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -240,7 +236,6 @@ describe('S2589', () => {
           }
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -262,7 +257,6 @@ describe('S2589', () => {
           foo(!x) // Noncompliant
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -297,7 +291,6 @@ describe('S2589', () => {
           foo(!x) // Noncompliant
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -323,7 +316,6 @@ describe('S2589', () => {
           bar() || x || bar(); // FN, not supported
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -356,7 +348,6 @@ describe('S2589', () => {
           x && foo(); // Noncompliant
         }
       }`,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -394,7 +385,6 @@ describe('S2589', () => {
         }
       }
       `,
-          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',

@@ -81,7 +81,6 @@ describe('S1110', () => {
               ],
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `const a = ((((a * b) + c)) / 2.0);`,
@@ -101,7 +100,6 @@ describe('S1110', () => {
               ],
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -150,7 +148,6 @@ describe('S1110', () => {
               ],
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `if (myBool) { ((<myCast>obj)).methodCall() }`,
@@ -171,7 +168,6 @@ describe('S1110', () => {
               ],
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `(((((a)))))`,

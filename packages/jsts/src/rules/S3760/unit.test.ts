@@ -124,7 +124,6 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -151,7 +150,6 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -211,7 +209,6 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -298,7 +295,6 @@ describe('S3760', () => {
               endColumn: 39,
             },
           ],
-          options: ['sonar-runtime'],
         },
       ],
     });

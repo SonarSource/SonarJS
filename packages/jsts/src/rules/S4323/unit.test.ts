@@ -92,7 +92,6 @@ describe('S4323', () => {
               endColumn: 45,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -110,7 +109,6 @@ describe('S4323', () => {
               endColumn: 45,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -124,7 +122,6 @@ describe('S4323', () => {
                 '{"message":"Replace this union type with a type alias.","secondaryLocations":[{"message":"Following occurrence.","column":13,"line":3,"endColumn":35,"endLine":3},{"message":"Following occurrence.","column":15,"line":4,"endColumn":40,"endLine":4}]}',
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -138,7 +135,6 @@ describe('S4323', () => {
                 '{"message":"Replace this intersection type with a type alias.","secondaryLocations":[{"message":"Following occurrence.","column":13,"line":3,"endColumn":35,"endLine":3},{"message":"Following occurrence.","column":15,"line":4,"endColumn":40,"endLine":4}]}',
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -152,7 +148,6 @@ describe('S4323', () => {
                 '{"message":"Replace this union type with a type alias.","secondaryLocations":[{"message":"Following occurrence.","column":13,"line":3,"endColumn":22,"endLine":3},{"message":"Following occurrence.","column":13,"line":4,"endColumn":22,"endLine":4}]}',
             },
           ],
-          options: ['sonar-runtime'],
         },
       ],
     });

@@ -83,7 +83,6 @@ describe('S3827', () => {
               endColumn: 13,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -121,7 +120,6 @@ describe('S3827', () => {
               endColumn: 15,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

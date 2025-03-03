@@ -242,7 +242,6 @@ describe('S3516', () => {
               endColumn: 25,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -269,7 +268,6 @@ describe('S3516', () => {
               endLine: 2,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `var arrowNok = (p) => { if (p) { return "foo"; } return "foo"; };`,
@@ -287,7 +285,6 @@ describe('S3516', () => {
               endLine: 1,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -312,7 +309,6 @@ describe('S3516', () => {
               endLine: 2,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -339,7 +335,6 @@ describe('S3516', () => {
               endLine: 2,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -364,7 +359,6 @@ describe('S3516', () => {
               endLine: 2,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -389,7 +383,6 @@ describe('S3516', () => {
               endLine: 6,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -413,7 +406,6 @@ describe('S3516', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -439,7 +431,6 @@ describe('S3516', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -465,7 +456,6 @@ describe('S3516', () => {
               endLine: 3,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `

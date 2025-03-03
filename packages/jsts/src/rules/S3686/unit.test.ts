@@ -68,7 +68,6 @@ describe('S3686', () => {
               endColumn: 29,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `function MyObj() { }
@@ -87,7 +86,6 @@ describe('S3686', () => {
               endColumn: 22,
             },
           ],
-          options: ['sonar-runtime'],
         },
       ],
     });

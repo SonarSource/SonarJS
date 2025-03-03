@@ -89,7 +89,6 @@ describe('S4502', () => {
               endColumn: 97,
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -120,7 +119,6 @@ describe('S4502', () => {
               message: encodedMessage('Make sure not using CSRF protection is safe here.'),
             },
           ],
-          options: ['sonar-runtime'],
         },
         {
           code: `
