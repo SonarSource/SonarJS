@@ -19,33 +19,30 @@
 import type { Rule } from 'eslint';
 import { Character } from '@eslint-community/regexpp/ast';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const EXCEPTIONS = ['\t', '\n'];
 
-export const rule: Rule.RuleModule = createRegExpRule(
-  context => {
-    return {
-      onCharacterEnter: (character: Character) => {
-        const { value, raw } = character;
-        if (
-          value >= 0x00 &&
-          value <= 0x1f &&
-          (isSameInterpreted(raw, value) || raw.startsWith('\\x') || raw.startsWith('\\u')) &&
-          !EXCEPTIONS.includes(raw)
-        ) {
-          context.reportRegExpNode({
-            message: 'Remove this control character.',
-            node: context.node,
-            regexpNode: character,
-          });
-        }
-      },
-    };
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  return {
+    onCharacterEnter: (character: Character) => {
+      const { value, raw } = character;
+      if (
+        value >= 0x00 &&
+        value <= 0x1f &&
+        (isSameInterpreted(raw, value) || raw.startsWith('\\x') || raw.startsWith('\\u')) &&
+        !EXCEPTIONS.includes(raw)
+      ) {
+        context.reportRegExpNode({
+          message: 'Remove this control character.',
+          node: context.node,
+          regexpNode: character,
+        });
+      }
+    },
+  };
+}, generateMeta(meta));
 
 /**
  * When the character has been interpreted, we need to compare its

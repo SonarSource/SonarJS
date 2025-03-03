@@ -24,7 +24,7 @@ import {
   getFullyQualifiedName,
   getPropertyWithValue,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
@@ -32,7 +32,7 @@ const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findFalseCertificateTransparencyPropertyFromHelmet,
   `Make sure disabling Certificate Transparency monitoring is safe here.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 /**

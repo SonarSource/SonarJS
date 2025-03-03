@@ -18,15 +18,14 @@
 
 import { rules } from '../external/a11y.js';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
-import type { Rule } from 'eslint';
+import * as meta from './meta.js';
 
 const anchorIsValid = rules['anchor-is-valid'];
 
 export const rule = interceptReport(
   {
     ...anchorIsValid,
-    meta: generateMeta(meta as Rule.RuleMetaData, anchorIsValid.meta),
+    meta: generateMeta(meta, anchorIsValid.meta),
   },
   (context, reportDescriptor) => {
     const descriptor = reportDescriptor as any;

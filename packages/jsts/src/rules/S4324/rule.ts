@@ -25,12 +25,12 @@ import {
 } from '../helpers/index.js';
 import estree from 'estree';
 import ts from 'typescript';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeOrChangeType: 'Remove this return type or change it to a more specific.',
     },

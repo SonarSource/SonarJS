@@ -30,8 +30,8 @@ import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
-import * as ruleMetas from '../rules/metas.js';
 import { ESLintConfiguration } from '../rules/helpers/configs.js';
+import * as ruleMetas from '../rules/metas.js';
 
 export function createLinterConfigKey(
   fileType: FileType,
@@ -230,7 +230,7 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    return transformMessages(messages, language, { sourceCode, rules: Linter.rules, filePath });
+    return transformMessages(messages, language, { sourceCode, ruleMetas, filePath });
   }
 
   /**

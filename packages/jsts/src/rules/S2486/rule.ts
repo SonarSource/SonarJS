@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getVariableFromScope } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       handleException: "Handle this exception or don't catch it at all.",
     },

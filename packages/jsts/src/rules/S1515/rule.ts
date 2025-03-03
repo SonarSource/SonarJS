@@ -29,7 +29,7 @@ import {
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'Make sure this function is not called after the loop completes.';
 
@@ -53,7 +53,7 @@ const allowedCallbacks = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta, undefined),
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
       return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as

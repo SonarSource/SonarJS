@@ -27,12 +27,12 @@ import {
   mergeRules,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: { ...noUnmodifiedLoopEslint.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

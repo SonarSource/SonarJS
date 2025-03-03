@@ -21,7 +21,7 @@ import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isIdentifier, UTILITY_TYPES } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT_THRESHOLD = 3;
 
@@ -30,7 +30,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     return {
       TSUnionType: (node: estree.Node) => {
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const threshold =
-          (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
+          (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
             messageId: 'refactorUnion',

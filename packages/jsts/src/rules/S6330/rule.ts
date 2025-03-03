@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     ),
     'aws-cdk-lib.aws-sqs.CfnQueue': AwsCdkCheckArguments('CfnQueue', true, 'kmsMasterKeyId'),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       CfnQueue:
         'Omitting "kmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.',

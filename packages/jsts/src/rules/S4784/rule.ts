@@ -19,14 +19,14 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;
 const specialChars = ['+', '*', '{'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeRegex: 'Make sure that using a regular expression is safe here.',
     },

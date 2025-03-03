@@ -20,10 +20,10 @@ import { generateMeta, globalsByLibraries } from '../helpers/index.js';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeOverride: 'Remove this override of "{{overridden}}".',
     },

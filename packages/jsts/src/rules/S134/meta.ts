@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'nested-control-flow';
 export * from './config.js';
+export const hasSecondaries = true;

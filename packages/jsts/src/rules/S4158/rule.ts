@@ -27,7 +27,7 @@ import {
 } from '../helpers/index.js';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [
@@ -80,7 +80,7 @@ const strictlyReadingMethods = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       reviewUsageOfIdentifier:
         'Review this usage of "{{identifierName}}" as it can only be empty here.',

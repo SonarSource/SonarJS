@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { invalid: [false] } },
     ),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
       encryptionOmitted:

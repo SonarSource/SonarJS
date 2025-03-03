@@ -20,7 +20,7 @@ import { AST, Rule, SourceCode } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
 import path from 'path';
 
@@ -34,7 +34,7 @@ interface GroupComment {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       commentedCode: 'Remove this commented out code.',
       commentedCodeFix: 'Remove this commented out code',

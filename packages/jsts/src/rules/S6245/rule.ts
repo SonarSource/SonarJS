@@ -28,7 +28,7 @@ import {
   report,
   S3BucketTemplate,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const ENCRYPTED_KEY = 'encryption';
 
@@ -37,40 +37,33 @@ const messages = {
   omitted: 'Omitting "encryption" disables server-side encryption. Make sure it is safe here.',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
-  (bucket, context) => {
-    const encryptedProperty = getBucketProperty(context, bucket, ENCRYPTED_KEY);
-    if (encryptedProperty == null) {
-      report(context, {
-        message: messages['omitted'],
-        node: bucket.callee,
-      });
-      return;
-    }
+export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
+  const encryptedProperty = getBucketProperty(context, bucket, ENCRYPTED_KEY);
+  if (encryptedProperty == null) {
+    report(context, {
+      message: messages['omitted'],
+      node: bucket.callee,
+    });
+    return;
+  }
 
-    const encryptedValue = getValueOfExpression(
+  const encryptedValue = getValueOfExpression(context, encryptedProperty.value, 'MemberExpression');
+  if (encryptedValue && isUnencrypted(encryptedValue)) {
+    const propagated = findPropagatedSetting(encryptedProperty, encryptedValue);
+    report(
       context,
-      encryptedProperty.value,
-      'MemberExpression',
+      {
+        message: messages['unencrypted'],
+        node: encryptedProperty,
+      },
+      propagated ? [propagated] : [],
     );
-    if (encryptedValue && isUnencrypted(encryptedValue)) {
-      const propagated = findPropagatedSetting(encryptedProperty, encryptedValue);
-      report(
-        context,
-        {
-          message: messages['unencrypted'],
-          node: encryptedProperty,
-        },
-        propagated ? [propagated] : [],
-      );
-    }
+  }
 
-    function isUnencrypted(encrypted: MemberExpression) {
-      return (
-        normalizeFQN(getFullyQualifiedName(context, encrypted)) ===
-        'aws_cdk_lib.aws_s3.BucketEncryption.UNENCRYPTED'
-      );
-    }
-  },
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
-);
+  function isUnencrypted(encrypted: MemberExpression) {
+    return (
+      normalizeFQN(getFullyQualifiedName(context, encrypted)) ===
+      'aws_cdk_lib.aws_s3.BucketEncryption.UNENCRYPTED'
+    );
+  }
+}, generateMeta(meta));

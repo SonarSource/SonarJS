@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isMemberExpression } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeArg: `Make sure that command line arguments are used safely here.`,
     },

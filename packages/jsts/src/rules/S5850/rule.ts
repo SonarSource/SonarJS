@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 enum Position {
@@ -27,29 +27,25 @@ enum Position {
   END,
 }
 
-export const rule: Rule.RuleModule = createRegExpRule(
-  context => {
-    return {
-      onPatternEnter: (pattern: AST.Pattern) => {
-        const { alternatives } = pattern;
-        if (
-          alternatives.length > 1 &&
-          (anchoredAt(alternatives, Position.BEGINNING) ||
-            anchoredAt(alternatives, Position.END)) &&
-          notAnchoredElseWhere(alternatives)
-        ) {
-          context.reportRegExpNode({
-            message:
-              'Group parts of the regex together to make the intended operator precedence explicit.',
-            node: context.node,
-            regexpNode: pattern,
-          });
-        }
-      },
-    };
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  return {
+    onPatternEnter: (pattern: AST.Pattern) => {
+      const { alternatives } = pattern;
+      if (
+        alternatives.length > 1 &&
+        (anchoredAt(alternatives, Position.BEGINNING) || anchoredAt(alternatives, Position.END)) &&
+        notAnchoredElseWhere(alternatives)
+      ) {
+        context.reportRegExpNode({
+          message:
+            'Group parts of the regex together to make the intended operator precedence explicit.',
+          node: context.node,
+          regexpNode: pattern,
+        });
+      }
+    },
+  };
+}, generateMeta(meta));
 
 function anchoredAt(alternatives: AST.Alternative[], position: Position): boolean {
   const itemIndex = position === Position.BEGINNING ? 0 : alternatives.length - 1;

@@ -27,10 +27,10 @@ import {
   isIdentifier,
   last,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       createSession:
         'Create a new session during user authentication to prevent session fixation attacks.',

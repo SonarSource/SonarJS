@@ -18,12 +18,12 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const NOSONAR = 'NOSONAR';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       noSonar: '"NOSONAR" comments should not be used.',
     },

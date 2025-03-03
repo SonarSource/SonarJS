@@ -19,12 +19,12 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       strongerCipher: 'Use a strong cipher algorithm.',
     },

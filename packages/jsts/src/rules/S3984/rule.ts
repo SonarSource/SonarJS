@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getParent } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       throwOrRemoveError: 'Throw this error or remove this useless statement.',

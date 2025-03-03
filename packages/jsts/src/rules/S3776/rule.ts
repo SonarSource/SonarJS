@@ -33,7 +33,7 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_THRESHOLD = 15;
@@ -51,20 +51,15 @@ const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        refactorFunction: message,
-        fileComplexity: '{{complexityAmount}}',
-      },
-      schema,
+  meta: generateMeta(meta, {
+    messages: {
+      refactorFunction: message,
+      fileComplexity: '{{complexityAmount}}',
     },
-    true,
-  ),
+  }),
   create(context) {
     /** Complexity threshold */
-    const thresholdOption = (context.options as FromSchema<typeof schema>)[0];
+    const thresholdOption = (context.options as FromSchema<typeof meta.schema>)[0];
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */

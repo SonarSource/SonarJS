@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isTypeAlias } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const COMMON_NODE_TYPES = new Set([
   'TSAnyKeyword',
@@ -37,7 +37,7 @@ const COMMON_NODE_TYPES = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       redundantTypeAlias:
         'Remove this redundant type alias and replace its occurrences with "{{type}}".',

@@ -30,7 +30,7 @@ import {
   isStringArray,
   sortLike,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
@@ -47,7 +47,7 @@ const compareBigIntFunctionPlaceholder = [
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       provideCompareFunction:

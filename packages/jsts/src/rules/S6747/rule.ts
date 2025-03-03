@@ -22,7 +22,7 @@ import { rules as jsxA11yRules } from '../external/a11y.js';
 import { generateMeta, getDependencies, interceptReport, mergeRules } from '../helpers/index.js';
 import { decorate } from './decorator.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -63,7 +63,7 @@ const twiceDecoratedNoUnknownProp = interceptReport(
 );
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       ...decoratedAriaPropsRule.meta!.messages,

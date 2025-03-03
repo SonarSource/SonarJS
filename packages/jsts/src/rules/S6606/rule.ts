@@ -25,14 +25,14 @@ import {
   isObjectType,
 } from '../helpers/index.js';
 import { type LogicalExpression } from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const preferNullishCoalescingRule = rules['prefer-nullish-coalescing'];
 
 export const rule = interceptReport(
   {
     ...preferNullishCoalescingRule,
-    meta: generateMeta(meta as Rule.RuleMetaData, preferNullishCoalescingRule.meta),
+    meta: generateMeta(meta, preferNullishCoalescingRule.meta),
   },
   (context, reportDescriptor) => {
     const { node: token, messageId } = reportDescriptor as Rule.ReportDescriptor & {

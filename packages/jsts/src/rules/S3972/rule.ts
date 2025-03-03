@@ -20,7 +20,7 @@ import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { AST, Rule } from 'eslint';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'Move this "if" to a new line or add the missing "else".';
 
@@ -30,18 +30,14 @@ interface SiblingIfStatement {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      hasSuggestions: true,
-      messages: {
-        sameLineCondition: message,
-        suggestAddingElse: 'Add "else" keyword',
-        suggestAddingNewline: 'Move this "if" to a new line',
-      },
+  meta: generateMeta(meta, {
+    hasSuggestions: true,
+    messages: {
+      sameLineCondition: message,
+      suggestAddingElse: 'Add "else" keyword',
+      suggestAddingNewline: 'Move this "if" to a new line',
     },
-    true,
-  ),
+  }),
   create(context) {
     function checkStatements(statements: estree.Node[]) {
       const { sourceCode } = context;

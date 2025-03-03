@@ -18,10 +18,10 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isIdentifier } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       defineLocally:
         'Define this declaration in a local scope or bind explicitly the property to the global object.',

@@ -34,7 +34,7 @@ import {
   report,
   S3BucketTemplate,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -48,7 +48,7 @@ const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return mergeRules(
       s3BucketConstructorRule.create(context),

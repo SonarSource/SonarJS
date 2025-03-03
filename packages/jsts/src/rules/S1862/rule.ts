@@ -20,22 +20,18 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';
 const duplicatedCaseMessage = 'This case duplicates the one on line {{line}}';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        duplicatedCondition: duplicatedConditionMessage,
-        duplicatedCase: duplicatedCaseMessage,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      duplicatedCondition: duplicatedConditionMessage,
+      duplicatedCase: duplicatedCaseMessage,
     },
-    true,
-  ),
+  }),
   create(context) {
     const { sourceCode } = context;
     return {

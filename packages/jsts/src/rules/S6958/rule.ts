@@ -17,7 +17,7 @@
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const NODES = new Set<string>([
   'ArrayExpression',
@@ -28,7 +28,7 @@ const NODES = new Set<string>([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       asFunction: 'Literal should not be used as function.',
       asTagFunction: 'Literal should not be used as tag function.',

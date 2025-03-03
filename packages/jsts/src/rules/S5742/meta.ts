@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'certificate-transparency';
+export const hasSecondaries = true;

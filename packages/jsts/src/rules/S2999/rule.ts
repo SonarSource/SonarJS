@@ -28,12 +28,12 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    const considerJSDoc = !!(context.options as FromSchema<typeof schema>)[0]?.considerJSDoc;
+    const considerJSDoc = !!(context.options as FromSchema<typeof meta.schema>)[0]?.considerJSDoc;
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};

@@ -24,7 +24,7 @@ import {
   getUniqueWriteUsageOrNode,
   isStringLiteral,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
@@ -44,7 +44,7 @@ const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
 const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['sha-1']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function checkNodejsCrypto(fqn: string | null, node: estree.CallExpression) {
       // crypto#createHash

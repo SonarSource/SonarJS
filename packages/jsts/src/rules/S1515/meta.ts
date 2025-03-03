@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'function-inside-loop';
+export const hasSecondaries = true;

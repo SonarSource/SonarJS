@@ -24,7 +24,7 @@ import {
   getFullyQualifiedName,
   isMethodInvocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
@@ -34,7 +34,7 @@ const PROTECTING_MIDDLEWARES = [HELMET, HIDE_POWERED_BY];
 const APP_SET_NUM_ARGS = 2;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       headerSet: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
       headerDefault:

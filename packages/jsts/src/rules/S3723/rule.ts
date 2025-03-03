@@ -18,8 +18,7 @@
 
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
-import type { Rule } from 'eslint';
+import * as meta from './meta.js';
 
 /**
  * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the
@@ -27,5 +26,5 @@ import type { Rule } from 'eslint';
  */
 export const rule = {
   ...getESLintCoreRule('comma-dangle'),
-  meta: generateMeta(meta as Rule.RuleMetaData, getESLintCoreRule('comma-dangle').meta),
+  meta: generateMeta(meta, getESLintCoreRule('comma-dangle').meta),
 };

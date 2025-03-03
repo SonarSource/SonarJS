@@ -27,7 +27,7 @@ import {
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -44,8 +44,7 @@ interface FunctionLikeDeclaration {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
-
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const functionContextStack: FunctionContext[] = [];

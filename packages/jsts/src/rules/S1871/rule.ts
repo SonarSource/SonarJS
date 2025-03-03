@@ -29,21 +29,17 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        sameConditionalBlock: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      sameConditionalBlock: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     return {
       IfStatement(node: estree.IfStatement) {

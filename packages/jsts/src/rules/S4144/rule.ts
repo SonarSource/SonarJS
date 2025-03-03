@@ -27,7 +27,7 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MIN_LINES = 3;
@@ -41,19 +41,14 @@ const message =
   'Update this function so that its implementation is not identical to the one on line {{line}}.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        identicalFunctions: message,
-      },
-      schema,
+  meta: generateMeta(meta, {
+    messages: {
+      identicalFunctions: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     const functions: Array<{ function: FunctionNode; parent: TSESTree.Node | undefined }> = [];
-    const minLines = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_MIN_LINES;
+    const minLines = (context.options as FromSchema<typeof meta.schema>)[0] ?? DEFAULT_MIN_LINES;
 
     return {
       FunctionDeclaration(node: estree.Node) {

@@ -31,15 +31,15 @@ import {
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT_THRESHOLD = 10;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
+      (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];

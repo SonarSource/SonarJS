@@ -20,24 +20,21 @@ import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
-export const rule: Rule.RuleModule = createRegExpRule(
-  context => {
-    function checkEmptyGroup(group: AST.Group | AST.CapturingGroup) {
-      const { alternatives } = group;
-      if (alternatives.every(alt => alt.elements.length === 0)) {
-        context.reportRegExpNode({
-          message: 'Remove this empty group.',
-          node: context.node,
-          regexpNode: group,
-        });
-      }
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  function checkEmptyGroup(group: AST.Group | AST.CapturingGroup) {
+    const { alternatives } = group;
+    if (alternatives.every(alt => alt.elements.length === 0)) {
+      context.reportRegExpNode({
+        message: 'Remove this empty group.',
+        node: context.node,
+        regexpNode: group,
+      });
     }
-    return {
-      onGroupEnter: checkEmptyGroup,
-      onCapturingGroupEnter: checkEmptyGroup,
-    };
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+  }
+  return {
+    onGroupEnter: checkEmptyGroup,
+    onCapturingGroupEnter: checkEmptyGroup,
+  };
+}, generateMeta(meta));

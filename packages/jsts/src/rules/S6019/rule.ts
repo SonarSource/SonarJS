@@ -19,19 +19,16 @@
 import type { Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-template.js';
 
-export const rule: Rule.RuleModule = createRegExpRule(
-  context => {
-    return {
-      onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
-        node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
-      },
-    };
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  return {
+    onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
+      node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
+    },
+  };
+}, generateMeta(meta));
 
 function report(quantifier: regexpp.AST.Quantifier, context: RegexRuleContext) {
   const ending = quantifier.min === 1 ? '' : 's';

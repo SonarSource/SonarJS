@@ -24,12 +24,12 @@ import {
   isFunctionNode,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const flaggedStatements = new Set();
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       noAsyncConstructor: 'Refactor this asynchronous operation outside of the constructor.',
     },

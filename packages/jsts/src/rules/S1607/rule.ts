@@ -32,12 +32,12 @@ import {
   resolveFunction,
   toUnixPath,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { dirname } from 'path/posix';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeOrExplainTest: 'Remove this unit test or explain why it is ignored.',
     },

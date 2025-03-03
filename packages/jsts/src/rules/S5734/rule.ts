@@ -24,7 +24,7 @@ import {
   getFullyQualifiedName,
   getPropertyWithValue,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const NO_SNIFF = 'noSniff';
@@ -32,7 +32,7 @@ const NO_SNIFF = 'noSniff';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findFalseNoSniffPropertyFromHelmet,
   `Make sure allowing browsers to sniff MIME types is safe here.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 /**

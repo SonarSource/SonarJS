@@ -25,7 +25,7 @@ import {
   isMemberExpression,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const GEOLOCATION = 'geolocation';
 const CAMERA = 'camera';
@@ -42,10 +42,10 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const permissions =
-      (context.options as FromSchema<typeof schema>)[0]?.permissions ?? DEFAULT_PERMISSIONS;
+      (context.options as FromSchema<typeof meta.schema>)[0]?.permissions ?? DEFAULT_PERMISSIONS;
     return {
       'CallExpression[callee.type="MemberExpression"]'(node: estree.Node) {
         const call = node as estree.CallExpression;

@@ -28,7 +28,7 @@ import {
   RequiredParserServices,
 } from '../helpers/index.js';
 import ts from 'typescript';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 /**
  * Stacks return statements per function.
@@ -38,7 +38,7 @@ interface FunctionInfo {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       readOnlyProps: 'Mark the props of the component as read-only.',

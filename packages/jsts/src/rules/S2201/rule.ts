@@ -21,7 +21,7 @@ import type * as TS from 'typescript';
 import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -171,7 +171,7 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       useForEach: `Consider using "forEach" instead of "map" as its return value is not being used here.`,
       returnValueMustBeUsed: 'The return value of "{{methodName}}" must be used.',

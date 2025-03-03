@@ -19,12 +19,12 @@
 import type { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { ...rulesOfHooks.meta }),
+  meta: generateMeta(meta, { ...rulesOfHooks.meta }),
   create(context: Rule.RuleContext) {
     let isReact = false;
 

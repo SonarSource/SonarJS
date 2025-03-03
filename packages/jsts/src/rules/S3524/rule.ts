@@ -21,7 +21,7 @@ import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
 const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
@@ -34,11 +34,11 @@ const DEFAULT_OPTIONS = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const { requireParameterParentheses, requireBodyBraces } = {
       ...DEFAULT_OPTIONS,
-      ...(context.options as FromSchema<typeof schema>)[0],
+      ...(context.options as FromSchema<typeof meta.schema>)[0],
     };
     return {
       ArrowFunctionExpression(node: estree.Node) {

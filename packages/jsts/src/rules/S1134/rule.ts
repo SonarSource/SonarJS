@@ -19,12 +19,12 @@
 import type { Rule } from 'eslint';
 import { reportPatternInComment } from '../S1135/rule.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const fixmePattern = 'fixme';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       fixme: 'Take the required action to fix the issue indicated by this comment.',
     },

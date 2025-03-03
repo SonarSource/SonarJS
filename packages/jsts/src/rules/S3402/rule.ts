@@ -28,13 +28,13 @@ import {
   RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const services: RequiredParserServices = context.sourceCode.parserServices;
 

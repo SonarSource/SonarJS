@@ -21,7 +21,7 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { computeGrid, TableCell } from '../helpers/table.js';
 import { generateMeta, getElementType } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 type BlockInfo = {
   minRow: number;
@@ -32,7 +32,7 @@ type BlockInfo = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
       const grid = computeGrid(context, tree);

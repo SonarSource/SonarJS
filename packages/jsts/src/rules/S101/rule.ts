@@ -21,7 +21,7 @@ import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
@@ -31,7 +31,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     return {
       ClassDeclaration: (node: estree.Node) =>
@@ -47,7 +47,7 @@ function checkName(
   declarationType: string,
   context: Rule.RuleContext,
 ) {
-  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
+  const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
   if (node.id) {
     const name = node.id.name;
     if (!name.match(format)) {

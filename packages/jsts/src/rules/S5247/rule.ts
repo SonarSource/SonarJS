@@ -28,12 +28,12 @@ import {
   report,
   resolveFromFunctionReference,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

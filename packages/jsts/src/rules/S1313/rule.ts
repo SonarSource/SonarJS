@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { isIP } from 'net';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const netMaskRegex = /(^[^/]+)\/\d{1,3}$/;
 const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
@@ -42,7 +42,7 @@ const acceptedIpV4Starts = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       checkIP: 'Make sure using a hardcoded IP address {{ip}} is safe here.',
     },

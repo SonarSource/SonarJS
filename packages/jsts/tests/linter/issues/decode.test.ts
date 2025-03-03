@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { decodeSonarRuntime } from '../../../src/linter/issues/decode.js';
+import { decodeSecondaryLocations } from '../../../src/linter/issues/decode.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { SONAR_RUNTIME } from '../../../src/rules/index.js';
@@ -29,7 +29,7 @@ describe('decodeSonarRuntime', () => {
         foo: 42,
       }),
     } as Issue;
-    const decoded = decodeSonarRuntime(rule, encoded) as any;
+    const decoded = decodeSecondaryLocations(rule, encoded) as any;
     expect(decoded).toEqual({
       ruleId: 'fake',
       foo: 42,
@@ -43,13 +43,13 @@ describe('decodeSonarRuntime', () => {
       ruleId: 'fake',
       message: '{...',
     } as Issue;
-    expect(() => decodeSonarRuntime(rule, malformed)).toThrow(
+    expect(() => decodeSecondaryLocations(rule, malformed)).toThrow(
       /^Failed to parse encoded issue message for rule fake/,
     );
   });
 
   it('should return undecoded issues from a rule that does not activate sonar-runtime', () => {
     const issue = { ruleId: 'fake', line: 42 } as Issue;
-    expect(decodeSonarRuntime({} as any, issue)).toEqual(issue);
+    expect(decodeSecondaryLocations({} as any, issue)).toEqual(issue);
   });
 });

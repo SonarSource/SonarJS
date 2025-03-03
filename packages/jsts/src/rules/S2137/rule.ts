@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, globalsByLibraries } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const illegalNames = ['arguments'];
 const objectPrototypeProperties = [
@@ -44,7 +44,7 @@ const getModificationIssue = (functionName: string) => ({
 });
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeModification: 'Remove the modification of "{{symbol}}".',
       forbidDeclaration: 'Do not use "{{symbol}}" to declare a {{type}} - use another name.',

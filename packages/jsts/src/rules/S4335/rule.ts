@@ -21,10 +21,10 @@ import estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeIntersection: 'Remove this type without members or change this type intersection.',
       simplifyIntersection: 'Simplify this intersection as it always has type "{{type}}".',

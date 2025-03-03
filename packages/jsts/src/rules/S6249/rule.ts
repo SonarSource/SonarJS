@@ -23,7 +23,7 @@ import {
   getValueOfExpression,
   S3BucketTemplate,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';
 
@@ -32,24 +32,21 @@ const messages = {
   omitted: "Omitting 'enforceSSL' authorizes HTTP requests. Make sure it is safe here.",
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
-  (bucket, context) => {
-    const enforceSSLProperty = getBucketProperty(context, bucket, ENFORCE_SSL_KEY);
-    if (enforceSSLProperty == null) {
-      context.report({
-        message: messages['omitted'],
-        node: bucket.callee,
-      });
-      return;
-    }
+export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
+  const enforceSSLProperty = getBucketProperty(context, bucket, ENFORCE_SSL_KEY);
+  if (enforceSSLProperty == null) {
+    context.report({
+      message: messages['omitted'],
+      node: bucket.callee,
+    });
+    return;
+  }
 
-    const enforceSSLValue = getValueOfExpression(context, enforceSSLProperty.value, 'Literal');
-    if (enforceSSLValue?.value === false) {
-      context.report({
-        message: messages['authorized'],
-        node: enforceSSLProperty,
-      });
-    }
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+  const enforceSSLValue = getValueOfExpression(context, enforceSSLProperty.value, 'Literal');
+  if (enforceSSLValue?.value === false) {
+    context.report({
+      message: messages['authorized'],
+      node: enforceSSLProperty,
+    });
+  }
+}, generateMeta(meta));

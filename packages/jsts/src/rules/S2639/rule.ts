@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { CharacterClass } from '@eslint-community/regexpp/ast';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       issue: "Rework this empty character class that doesn't match anything.",
     },

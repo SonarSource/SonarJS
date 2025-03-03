@@ -27,13 +27,13 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
 
   create(context: Rule.RuleContext) {
     function visitStatements(statements: Array<estree.Statement | estree.ModuleDeclaration>) {

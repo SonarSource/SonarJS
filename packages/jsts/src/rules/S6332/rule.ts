@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { valid: [true] } },
     ),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
       CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',

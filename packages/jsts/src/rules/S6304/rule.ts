@@ -26,7 +26,7 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
@@ -37,7 +37,7 @@ const KMS_PREFIX = 'kms:';
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   allResourcesAccessibleStatementCheck,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function allResourcesAccessibleStatementCheck(

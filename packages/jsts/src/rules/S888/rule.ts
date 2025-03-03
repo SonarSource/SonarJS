@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getVariableFromName } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const allEqualityOperators = ['!=', '==', '!==', '==='];
 const notEqualOperators = ['!==', '!='];
@@ -34,7 +34,7 @@ interface CompleteForStatement extends estree.BaseStatement {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       replaceOperator:
         "Replace '{{operator}}' operator with one of '<=', '>=', '<', or '>' comparison operators.",

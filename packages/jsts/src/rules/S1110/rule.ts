@@ -19,7 +19,7 @@
 import { AST, Rule, SourceCode } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getParent, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;
@@ -40,7 +40,7 @@ const parenthesized: { [key: string]: string } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
+  meta: generateMeta(meta, { hasSuggestions: true }),
   create(context: Rule.RuleContext) {
     return {
       '*'(node: estree.Node) {

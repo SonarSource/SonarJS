@@ -25,7 +25,7 @@ import {
   isLiteral,
   isStaticTemplateLiteral,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 
@@ -36,7 +36,7 @@ const CHILD_PROCESS_MODULE = 'child_process';
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeOSCommand: 'Make sure that executing this OS command is safe here.',
     },

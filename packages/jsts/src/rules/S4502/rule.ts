@@ -29,13 +29,13 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const CSURF_MODULE = 'csurf';
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     let globalCsrfProtection = false;
     let importedCsrfMiddleware = false;

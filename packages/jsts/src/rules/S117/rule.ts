@@ -21,7 +21,7 @@ import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, resolveIdentifiers } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 interface FunctionLike {
   declare?: boolean;
@@ -37,7 +37,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     return {
       VariableDeclaration: (node: estree.Node) =>
@@ -90,7 +90,7 @@ function raiseOnInvalidIdentifier(
   idType: string,
   context: Rule.RuleContext,
 ) {
-  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
+  const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
   const { name } = id;
   if (!name.match(format)) {
     context.report({

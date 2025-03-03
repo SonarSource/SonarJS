@@ -27,7 +27,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
-import { meta as rspecMeta } from './meta.js';
+import * as meta from './meta.js';
 
 type Node = ESTreeNode & Rule.NodeParentExtension;
 
@@ -38,15 +38,11 @@ const message =
  * A suspect test node is a test node that is the only child of a function body
  */
 export const S2301: Rule.RuleModule = {
-  meta: generateMeta(
-    rspecMeta as Rule.RuleMetaData,
-    {
-      messages: {
-        message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      message,
     },
-    true,
-  ),
+  }),
   create: context => {
     if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};

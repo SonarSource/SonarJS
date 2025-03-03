@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const UNIX_DIRECTORIES = [
   '/tmp/',
@@ -42,7 +42,7 @@ const WINDOWS_DIRECTORIES_PATTERN = new RegExp(
 const SENSITIVE_ENV_VARIABLES = ['TMPDIR', 'TMP', 'TEMPDIR', 'TEMP'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeDirectory: 'Make sure publicly writable directories are used safely here.',
     },

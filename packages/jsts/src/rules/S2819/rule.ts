@@ -30,13 +30,13 @@ import {
   isRequiredParserServices,
   resolveFunction,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       specifyTarget: `Specify a target origin for this message.`,
       verifyOrigin: `Verify the origin of the received message.`,

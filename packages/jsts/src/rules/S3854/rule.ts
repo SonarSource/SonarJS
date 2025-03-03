@@ -19,13 +19,13 @@
 import type { Rule } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const constructorSuperRule = getESLintCoreRule('constructor-super');
 const noThisBeforeSuperRule = getESLintCoreRule('no-this-before-super');
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: { ...constructorSuperRule.meta!.messages, ...noThisBeforeSuperRule.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

@@ -20,7 +20,7 @@ import estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isNumberLiteral } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { rules } from '../external/typescript-eslint/index.js';
 const baseRuleModule = rules['prefer-enum-initializers'];
 
@@ -31,7 +31,7 @@ const baseRuleModule = rules['prefer-enum-initializers'];
 // In other words, the decorated rule ignores enums that don't initialize any member value or those
 // that initialize their first member with a number literal.
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     ...baseRuleModule.meta!,
     hasSuggestions: true,
   }),

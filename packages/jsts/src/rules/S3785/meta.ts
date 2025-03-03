@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'in-operator-type-error';
+export const hasSecondaries = true;

@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, getElementType } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       addContent: 'Add an accessible content to this "<object>" tag.',
     },

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 /**
  * Original rule 'prefer-optional-chain' from TypeScript ESLint.
@@ -41,7 +41,7 @@ const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
  * @see https://github.com/typescript-eslint/typescript-eslint/blob/cf045f2c390353c1a074ba85391f773f1ede702c/packages/utils/src/eslint-utils/getParserServices.ts#L19-L25
  */
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { ...preferOptionalChainRule.meta }),
+  meta: generateMeta(meta, { ...preferOptionalChainRule.meta }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!services?.program || !services.esTreeNodeToTSNodeMap || !services.tsNodeToESTreeNodeMap) {

@@ -19,14 +19,14 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isRequire, isStringLiteral } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const messages = {
   default: 'Do not use internal APIs of your dependencies',
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.CallExpression) {
