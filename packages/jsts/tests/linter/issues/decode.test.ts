@@ -17,12 +17,12 @@
 import { decodeSecondaryLocations } from '../../../src/linter/issues/decode.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { SONAR_RUNTIME } from '../../../src/rules/index.js';
+import { SonarMeta } from '../../../src/rules/index.js';
 import { Issue } from '../../../src/linter/issues/issue.js';
 
-describe('decodeSonarRuntime', () => {
+describe('decodeSecondaryLocations', () => {
   it('should decode sonar-runtime-like issues', () => {
-    const rule = { meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any;
+    const rule = { meta: {}, hasSecondaries: true } as SonarMeta;
     const encoded = {
       ruleId: 'fake',
       message: JSON.stringify({
@@ -38,7 +38,7 @@ describe('decodeSonarRuntime', () => {
   });
 
   it('should fail decoding malformed sonar-runtime-like issues', () => {
-    const rule = { meta: { schema: [{ enum: [SONAR_RUNTIME] }] } } as any;
+    const rule = { meta: {}, hasSecondaries: true } as SonarMeta;
     const malformed = {
       ruleId: 'fake',
       message: '{...',
@@ -50,6 +50,6 @@ describe('decodeSonarRuntime', () => {
 
   it('should return undecoded issues from a rule that does not activate sonar-runtime', () => {
     const issue = { ruleId: 'fake', line: 42 } as Issue;
-    expect(decodeSecondaryLocations({} as any, issue)).toEqual(issue);
+    expect(decodeSecondaryLocations(undefined, issue)).toEqual(issue);
   });
 });

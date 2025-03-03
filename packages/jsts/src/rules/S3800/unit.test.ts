@@ -317,6 +317,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -353,6 +354,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -396,6 +398,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -434,6 +437,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -498,6 +502,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

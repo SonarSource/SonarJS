@@ -133,6 +133,7 @@ describe('S3402', () => {
               endColumn: 12,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

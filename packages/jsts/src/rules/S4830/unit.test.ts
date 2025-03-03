@@ -134,6 +134,7 @@ describe('S4830', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

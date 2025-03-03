@@ -78,6 +78,7 @@ describe('S1764', () => {
         {
           code: `a == b || a == b
       //     ^^^^^^>   ^^^^^^`,
+          options: ['sonar-runtime'],
           errors: [
             {
               messageId: 'sonarRuntime',

@@ -38,6 +38,7 @@ describe('S3500', () => {
               endColumn: 10,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

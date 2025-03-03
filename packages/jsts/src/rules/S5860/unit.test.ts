@@ -248,6 +248,7 @@ describe('S5860', () => {
               endColumn: 20,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -295,6 +296,7 @@ describe('S5860', () => {
               endColumn: 47,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -341,6 +343,7 @@ describe('S5860', () => {
               endColumn: 29,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -419,6 +422,7 @@ describe('S5860', () => {
               endColumn: 37,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -460,6 +464,7 @@ describe('S5860', () => {
               endColumn: 51,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -504,6 +509,7 @@ describe('S5860', () => {
               endColumn: 22,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
@@ -533,6 +539,7 @@ describe('S5860', () => {
               endColumn: 47,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -558,6 +565,7 @@ describe('S5860', () => {
               endColumn: 47,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

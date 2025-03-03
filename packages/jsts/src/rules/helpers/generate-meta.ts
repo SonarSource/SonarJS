@@ -24,18 +24,19 @@ export type SonarMeta = {
 };
 
 export function generateMeta(
-  rspecMeta: SonarMeta,
+  sonarMeta: SonarMeta,
   ruleMeta?: Rule.RuleMetaData,
 ): Rule.RuleMetaData {
-  if (rspecMeta.meta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
+  if (sonarMeta.meta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
-      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.meta.docs!.url}`,
+      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${sonarMeta.meta.docs!.url}`,
     );
   }
-  //rspec metadata should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead
+  // sonarMeta should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead
   const metadata = {
     ...ruleMeta,
-    ...rspecMeta.meta,
+    ...sonarMeta.meta,
+    schema: sonarMeta.schema ?? ruleMeta?.schema,
   };
 
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
@@ -47,7 +48,7 @@ export function generateMeta(
   }
 
   metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
-  if (rspecMeta.hasSecondaries) {
+  if (sonarMeta.hasSecondaries) {
     const sonarOptions = {
       type: 'string',
       enum: ['sonar-runtime', 'metric'], // 'metric' only used by S3776

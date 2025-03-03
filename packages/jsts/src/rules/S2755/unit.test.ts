@@ -73,6 +73,7 @@ describe('S2755', () => {
               endColumn: 74,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

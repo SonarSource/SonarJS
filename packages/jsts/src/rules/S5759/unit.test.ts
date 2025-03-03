@@ -71,6 +71,7 @@ describe('S5759', () => {
               endColumn: 34,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

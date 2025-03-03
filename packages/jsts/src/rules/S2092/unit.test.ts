@@ -77,6 +77,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -97,6 +98,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -118,6 +120,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
+          options: ['sonar-runtime'],
         },
       ],
     };
@@ -193,6 +196,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -214,6 +218,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -236,6 +241,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
+          options: ['sonar-runtime'],
         },
       ],
     };
@@ -284,6 +290,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -301,6 +308,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -317,6 +325,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
+          options: ['sonar-runtime'],
         },
       ],
     };

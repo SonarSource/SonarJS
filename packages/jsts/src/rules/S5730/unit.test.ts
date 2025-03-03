@@ -148,6 +148,7 @@ describe('S5730', () => {
               endColumn: 10,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

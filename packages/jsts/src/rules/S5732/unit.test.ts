@@ -160,6 +160,7 @@ describe('S5732', () => {
                 endColumn: 10,
               },
             ],
+            options: ['sonar-runtime'],
           },
           {
             code: `
@@ -192,6 +193,7 @@ describe('S5732', () => {
                 endColumn: 10,
               },
             ],
+            options: ['sonar-runtime'],
           },
           {
             code: `

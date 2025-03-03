@@ -43,7 +43,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {}, hasSecondaries: true } },
+      ruleMetas: { [ruleId]: { meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(

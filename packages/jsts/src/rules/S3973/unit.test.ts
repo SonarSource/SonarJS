@@ -99,6 +99,7 @@ describe('S3973', () => {
               endColumn: 11,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -115,6 +116,7 @@ describe('S3973', () => {
               endColumn: 15,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -131,6 +133,7 @@ describe('S3973', () => {
               endColumn: 16,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -146,6 +149,7 @@ describe('S3973', () => {
               endColumn: 14,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

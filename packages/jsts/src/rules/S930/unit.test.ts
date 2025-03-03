@@ -102,6 +102,7 @@ describe('S930', () => {
               },
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -134,6 +135,7 @@ describe('S930', () => {
               },
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `

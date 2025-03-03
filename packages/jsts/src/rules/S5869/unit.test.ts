@@ -110,6 +110,7 @@ describe('S5869', () => {
               endColumn: 6,
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `/[90-9]/`,

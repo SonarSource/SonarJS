@@ -42,6 +42,7 @@ function tempt3(name: string, ofAge: boolean) {
   return ofAge ? offerLiquor(name) : offerCandy(name);
 }
 `,
+          options: ['sonar-runtime'],
           errors: [
             {
               line: 2,
@@ -118,6 +119,7 @@ function tempt3(name: string, ofAge: boolean) {
       valid: [
         {
           name: `RSPEC compliant code example`,
+          options: ['sonar-runtime'],
           code: `function temptAdult(name: string) {
   offerLiquor(name);
 }
@@ -193,6 +195,7 @@ function tempt8(name: string, ofAge: boolean) {
       valid: [
         {
           name: `RSPEC compliant code example`,
+          options: ['sonar-runtime'],
           code: `function temptAdult(name) {
   offerLiquor(name);
 }

@@ -98,6 +98,7 @@ describe('S5757', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -119,6 +120,7 @@ describe('S5757', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -140,6 +142,7 @@ describe('S5757', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -158,6 +161,7 @@ describe('S5757', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
         {
           code: `
@@ -172,6 +176,7 @@ describe('S5757', () => {
               }),
             },
           ],
+          options: ['sonar-runtime'],
         },
       ],
     });
