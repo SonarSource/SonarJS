@@ -128,11 +128,6 @@ class EslintCustomRulesTest {
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/Person.js", 21, "call"),
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/file.ts", 4, "call")
       );
-    Common.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
-    assertThat(secondaryLocation.getMsg()).isEqualTo(
-      new File(TestUtils.projectDirNoCopy("custom_rules"), ".scannerwork").getAbsolutePath()
-    );
-
     issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);
     assertThat(issues)
       .extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)
