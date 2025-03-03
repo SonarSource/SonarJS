@@ -53,7 +53,7 @@ const allowedCallbacks = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, undefined),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
       return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as

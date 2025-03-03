@@ -22,7 +22,7 @@ import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, undefined),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     let jumpTargets: JumpTarget[] = [];
 
