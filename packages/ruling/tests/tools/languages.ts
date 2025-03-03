@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
-import { JS_EXTENSIONS, TS_EXTENSIONS } from '../../../shared/src/helpers/language.js';
-
-const HTML_EXTENSIONS = ['.html', '.htm'];
-const YAML_EXTENSIONS = ['.yml', '.yaml'];
-const JSTS_EXTENSIONS = JS_EXTENSIONS.concat(TS_EXTENSIONS);
+import {
+  HTML_EXTENSIONS,
+  JSTS_EXTENSIONS,
+  YAML_EXTENSIONS,
+} from '../../../shared/src/helpers/language.js';
 
 export function isHtmlFile(filePath: string) {
   return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());

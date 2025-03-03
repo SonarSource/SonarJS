@@ -30,9 +30,25 @@ export type ProjectAnalysisOutput = {
 
 export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
 
+export type Configuration = {
+  tsSuffixes?: string[];
+  jsSuffixes?: string[];
+  tsConfigPaths?: string[];
+  sources?: string[];
+  inclusions?: string[];
+  exclusions?: string[];
+  tests?: string[];
+  testInclusions?: string[];
+  testExclusions?: string[];
+  jsTsExclusions?: string[];
+  maxFileSize?: number;
+};
+
 export type ProjectAnalysisInput = {
-  files: JsTsFiles;
+  files?: JsTsFiles;
   rules: RuleConfig[];
+  configuration?: Configuration;
+  ignoreHeaderComments?: boolean;
   environments?: string[];
   globals?: string[];
   baseDir: string;
@@ -41,6 +57,18 @@ export type ProjectAnalysisInput = {
   bundles?: string[];
   maxFilesForTypeChecking?: number;
 };
+
+export const DEFAULT_EXCLUSIONS = [
+  '**/.*',
+  '**/.*/**',
+  '**/*.d.ts',
+  '**/node_modules/**',
+  '**/bower_components/**',
+  '**/dist/**',
+  '**/vendor/**',
+  '**/external/**',
+  '**/contrib/**',
+];
 
 export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 

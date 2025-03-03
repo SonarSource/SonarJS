@@ -14,12 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const DEFAULT_MAX_FILE_SIZE_KB = 4000;
+import { filterBundle } from './filter-bundle.js';
+import { filterMinified } from './filter-minified.js';
+import { filterSize } from './filter-size.js';
 
-export function sizeAssessor(input: string, maxSize: number = DEFAULT_MAX_FILE_SIZE_KB) {
-  return getBytes(input) <= maxSize * 1000;
-
-  function getBytes(input: string) {
-    return Buffer.byteLength(input, 'utf8');
-  }
+export function accept(filePath: string, fileContent: string, maxSize?: number) {
+  return (
+    filterBundle(fileContent) &&
+    filterMinified(filePath, fileContent) &&
+    filterSize(fileContent, maxSize)
+  );
 }

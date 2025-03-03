@@ -18,13 +18,13 @@ import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
 import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { writeTSConfigFile } from '../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import {
   createAndSaveProgram,
   createProgramOptions,
   deleteProgram,
-  writeTSConfigFile,
 } from '../../jsts/src/program/program.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';

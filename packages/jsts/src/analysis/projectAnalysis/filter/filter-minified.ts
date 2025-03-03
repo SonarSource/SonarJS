@@ -16,7 +16,7 @@
  */
 const DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
-export function minificationAssessor(filename: string, input: string) {
+export function filterMinified(filename: string, input: string) {
   return !(
     hasMinifiedFilename(filename) ||
     (isMinifiableFilename(filename) && hasExcessiveAverageLineLength(input))

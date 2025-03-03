@@ -25,7 +25,6 @@ export * from './decorators/index.js';
 export * from './equivalence.js';
 export * from './express.js';
 export * from './files.js';
-export * from './find-files.js';
 export * from './generate-meta.js';
 export * from './globals.js';
 export * from './jsx.js';

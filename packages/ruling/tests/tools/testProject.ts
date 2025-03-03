@@ -16,8 +16,6 @@
  */
 import { join, basename, dirname } from 'node:path/posix';
 import fs from 'node:fs/promises';
-import { Minimatch } from 'minimatch';
-import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
 import { analyzeHTML } from '../../../html/src/index.js';
 import { isHtmlFile, isJsTsFile, isYamlFile } from './languages.js';
@@ -25,10 +23,12 @@ import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import {
+  DEFAULT_EXCLUSIONS,
   JsTsFiles,
   ProjectAnalysisOutput,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { accept } from '../../../jsts/src/analysis/projectAnalysis/filter/filter.js';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { createParsingIssue, parseParsingError } from '../../../bridge/src/errors/index.js';
@@ -38,20 +38,14 @@ import { expect } from 'expect';
 import * as metas from '../../../jsts/src/rules/metas.js';
 import { SonarMeta } from '../../../jsts/src/rules/index.js';
 import { defaultOptions } from '../../../jsts/src/rules/helpers/configs.js';
+import { findFiles } from '../../../shared/src/helpers/find-files.js';
 
-const sourcesPath = join(
-  toUnixPath(import.meta.dirname),
-  '..',
-  '..',
-  '..',
-  '..',
-  '..',
-  'sonarjs-ruling-sources',
-);
+const currentPath = toUnixPath(import.meta.dirname);
+
+const sourcesPath = join(currentPath, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = join(sourcesPath, 'jsts', 'projects');
-
 const expectedPathBase = join(
-  toUnixPath(import.meta.dirname),
+  currentPath,
   '..',
   '..',
   '..',
@@ -63,21 +57,9 @@ const expectedPathBase = join(
   'expected',
   'jsts',
 );
-const actualPathBase = join(import.meta.dirname, '..', 'actual', 'jsts');
+const actualPathBase = join(currentPath, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
-
-const DEFAULT_EXCLUSIONS = [
-  '**/.*',
-  '**/.*/**',
-  '**/*.d.ts',
-  '**/node_modules/**',
-  '**/bower_components/**',
-  '**/dist/**',
-  '**/vendor/**',
-  '**/external/**',
-  '**/contrib/**',
-].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
 
 type ProjectsData = {
   name: string;
@@ -120,12 +102,29 @@ export async function testProject(projectName: string) {
   const actualPath = join(params?.actualPath ?? actualPathBase, name);
 
   const projectPath = join(jsTsProjectsPath, folder ?? name);
-  const exclusionsArray = exclusions?.split(',') || [];
-  const exclusionsGlobs = exclusionsArray.map(
-    pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true }),
-  );
+  const testPath = testDir ? join(projectPath, testDir) : null;
 
-  const { jsTsFiles, htmlFiles, yamlFiles } = await getFiles(projectPath, testDir, exclusionsGlobs);
+  const jsTsFiles = {},
+    htmlFiles = {},
+    yamlFiles = {};
+  await findFiles(
+    projectPath,
+    async file => {
+      const filePath = toUnixPath(join(file.parentPath, file.name));
+      const fileType = testPath && dirname(filePath).startsWith(testPath) ? 'TEST' : 'MAIN';
+      if (isHtmlFile(filePath)) {
+        htmlFiles[filePath] = { fileType, filePath };
+      } else if (isYamlFile(filePath)) {
+        yamlFiles[filePath] = { fileType, filePath };
+      } else if (isJsTsFile(filePath)) {
+        const fileContent = await fs.readFile(filePath, 'utf8');
+        if (accept(filePath, fileContent)) {
+          jsTsFiles[filePath] = { fileType, filePath, fileContent };
+        }
+      }
+    },
+    DEFAULT_EXCLUSIONS.concat((exclusions || '').split(',')),
+  );
 
   const results = await analyzeProject({
     rules,
@@ -153,47 +152,6 @@ export function ok(diff: Result) {
       2,
     ),
   ).toEqual('[]');
-}
-
-/**
- * Stores in `jsTsFiles`, `htmlFiles` and `yamlFiles` the files
- * found in the given `dir`, ignoring the given `exclusions` and
- * assigning the given `type`
- */
-async function getFiles(dir: string, testDir: string, exclusions: Minimatch[]) {
-  const prefixLength = dir.length + 1;
-  const files = await fs.readdir(dir, { recursive: true, withFileTypes: true });
-  const jsTsFiles: JsTsFiles = {},
-    htmlFiles: JsTsFiles = {},
-    yamlFiles: JsTsFiles = {};
-
-  const testPath = testDir ? join(dir, testDir) : null;
-  for (const file of files) {
-    const filePath = toUnixPath(join(file.parentPath, file.name));
-    const relativePath = filePath.substring(prefixLength);
-    if (!file.isFile()) continue;
-    if (isExcluded(relativePath, exclusions) || isExcluded(filePath, DEFAULT_EXCLUSIONS)) {
-      continue;
-    }
-
-    const fileType = testPath && dirname(filePath).startsWith(testPath) ? 'TEST' : 'MAIN';
-    if (isHtmlFile(filePath)) {
-      htmlFiles[filePath] = { fileType, filePath };
-    } else if (isYamlFile(filePath)) {
-      yamlFiles[filePath] = { fileType, filePath };
-    } else if (isJsTsFile(filePath)) {
-      const fileContent = await fs.readFile(filePath, 'utf8');
-      if (!accept(filePath, fileContent)) {
-        continue;
-      }
-      jsTsFiles[filePath] = { fileType, filePath, fileContent };
-    }
-  }
-  return { jsTsFiles, htmlFiles, yamlFiles };
-}
-
-function isExcluded(filePath: string, exclusions: Minimatch[]) {
-  return exclusions.some(exclusion => exclusion.match(filePath));
 }
 
 /**

@@ -28,8 +28,15 @@ export type JsTsLanguage = 'js' | 'ts';
 
 import path from 'path';
 
+export const HTML_EXTENSIONS = ['.html', '.htm'];
+export const YAML_EXTENSIONS = ['.yml', '.yaml'];
 export const JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 export const TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+export const JSTS_EXTENSIONS = JS_EXTENSIONS.concat(TS_EXTENSIONS);
+export const ALL_EXTENSIONS = JS_EXTENSIONS.concat(TS_EXTENSIONS)
+  .concat(HTML_EXTENSIONS)
+  .concat(YAML_EXTENSIONS);
+
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 export function isJsFile(filePath: string) {
