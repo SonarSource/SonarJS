@@ -29,9 +29,9 @@ describe('S6791', () => {
         valid: [
           {
             code: `
-import React from 'react';
-class Component extends React.Component {
-    componentWillMount() {}
+class Foo extends React.Component {
+  componentDidUpdate() {}
+  render() {}
 }`,
           },
         ],

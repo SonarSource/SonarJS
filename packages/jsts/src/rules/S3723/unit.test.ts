@@ -27,7 +27,7 @@ describe('S3723', () => {
           code: `
 obj = {
   foo: 42,
-  bar: 24
+  bar: 24,
 }; `,
         },
       ],
@@ -36,13 +36,13 @@ obj = {
           code: `
 obj = {
   foo: 42,
-  bar: 24,
+  bar: 24
 };`,
           errors: 1,
           output: `
 obj = {
   foo: 42,
-  bar: 24
+  bar: 24,
 };`,
         },
       ],

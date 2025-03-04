@@ -19,4 +19,11 @@
 import { ESLintConfiguration } from '../helpers/configs.js';
 
 // Rule S1541 is special, to update it check `npm run generate-meta` for this implementation
-export const fields = [] as const satisfies ESLintConfiguration;
+export const fields = [
+  [
+    {
+      field: 'threshold',
+      default: 10,
+    },
+  ],
+] as const satisfies ESLintConfiguration;

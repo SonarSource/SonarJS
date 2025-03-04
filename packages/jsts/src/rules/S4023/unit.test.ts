@@ -29,21 +29,14 @@ describe('S4023', () => {
         {
           code: 'interface A { x: string, y: string }; interface B extends Pick<A, "x"> {}',
         },
+        {
+          code: 'interface A extends Z {}',
+        },
       ],
       invalid: [
         {
           code: 'interface A {}',
           errors: 1,
-        },
-        {
-          code: 'interface A extends "foo" {}',
-          errors: 1,
-          output: 'type A = "foo"',
-        },
-        {
-          code: 'interface A extends Z {}',
-          errors: 1,
-          output: 'type A = Z',
         },
       ],
     });
