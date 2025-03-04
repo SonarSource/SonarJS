@@ -35,7 +35,6 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { isSonarRuntime } from '../helpers/sonar-runtime.js';
 
 const DEFAULT_THRESHOLD = 15;
 
