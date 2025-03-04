@@ -30,8 +30,8 @@ describe('extendRuleConfig', () => {
       analysisModes: ['DEFAULT'],
     };
 
-    // @ts-ignore
     const config = extendRuleConfig(
+      // @ts-ignore
       { sonarKey: 'some-rule', meta: {}, schema: [{ title: SONAR_CONTEXT }] },
       inputRule,
       '/tmp/dir',
@@ -58,10 +58,10 @@ describe('extendRuleConfig', () => {
       ],
     ];
     const config = extendRuleConfig(
-      // @ts-ignore
       {
         sonarKey: 'some-rule',
         meta: {},
+        // @ts-ignore
         schema: [{ title: SONAR_CONTEXT }],
         fields: defaultConfiguration,
       },
