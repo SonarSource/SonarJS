@@ -155,7 +155,7 @@ describe('Linter', () => {
     });
     expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
       'sonarjs/S100': ['error'],
-      'sonarjs/internal-cognitive-complexity': ['error'],
+      'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
     });
   });
