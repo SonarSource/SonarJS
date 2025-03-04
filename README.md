@@ -22,7 +22,7 @@ This repository now hosts [eslint-plugin-sonarjs](./packages/jsts/src/rules/READ
 
 You can find [documentation here](https://docs.sonarqube.org/latest/analysis/languages/javascript/)
 
-# <a name="support"></a>Have question or feedback?
+# <a name="support"></a>Questions or feedback?
 
 ### SonarSource Community Forum
 
