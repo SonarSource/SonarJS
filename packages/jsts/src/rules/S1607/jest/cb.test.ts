@@ -18,10 +18,11 @@ import { check } from '../../../../tests/tools/testers/comment-based/index.js';
 import { rule } from '../rule.js';
 import { describe } from 'node:test';
 import { join } from 'node:path';
+import * as meta from '../meta.js';
 
 const _dirname = join(import.meta.dirname, 'fixtures');
 process.chdir(_dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
 describe('Rule S1607', () => {
-  check(rule, import.meta.dirname);
+  check(meta, rule, import.meta.dirname);
 });

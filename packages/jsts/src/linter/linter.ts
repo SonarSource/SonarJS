@@ -30,7 +30,6 @@ import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
-import { ESLintConfiguration } from '../rules/helpers/configs.js';
 import * as ruleMetas from '../rules/metas.js';
 
 export function createLinterConfigKey(
@@ -225,7 +224,7 @@ export class Linter {
       },
       rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(sonarlint),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
-      settings: { react: { version: '999.999.999' }, fileType },
+      settings: { react: { version: '999.999.999' }, fileType, sonarRuntime: true },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
     };
 
@@ -275,10 +274,6 @@ export class Linter {
         // in the case of bundles, rule.key will not be present in the ruleMetas
         const ruleMeta =
           rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        let eslintConfiguration: ESLintConfiguration | undefined;
-        if (ruleMeta && 'fields' in ruleMeta) {
-          eslintConfiguration = ruleMeta.fields;
-        }
         rules[`sonarjs/${rule.key}`] = [
           'error',
           /**
@@ -287,12 +282,7 @@ export class Linter {
            * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
            * is a marker for a post-linting processing to decode such locations.
            */
-          ...extendRuleConfig(
-            Linter.rules[rule.key].meta?.schema || undefined,
-            rule,
-            Linter.rulesWorkdir,
-            eslintConfiguration,
-          ),
+          ...extendRuleConfig(ruleMeta, rule, Linter.rulesWorkdir),
         ];
         return rules;
       }, {} as ESLintLinter.RulesRecord),

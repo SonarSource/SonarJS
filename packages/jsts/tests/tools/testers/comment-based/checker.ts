@@ -17,21 +17,22 @@
 import fs from 'fs';
 import path from 'path';
 import { Rule, RuleTester } from 'eslint';
-import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
+import { SonarMeta } from '../../../../src/rules/index.js';
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
  * These fixtures are to be found in the rule directory and should be named as `*.fixture.<ext>`.
  * The directory can include options (`cb.options.json`) to configure the rule behaviour.
  */
-export function check(ruleModule: Rule.RuleModule, ruleDir: string) {
+export function check(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir: string) {
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
   const ruleTester = new RuleTester({
     languageOptions: { parser },
+    settings: { sonarRuntime: true },
   });
 
   const fixtures = [];
@@ -48,8 +49,7 @@ export function check(ruleModule: Rule.RuleModule, ruleDir: string) {
     const { errors, output } = extractExpectations(
       code,
       fixture,
-      hasSonarRuntimeOption(ruleModule.meta?.schema || undefined) &&
-        options.includes('sonar-runtime'),
+      sonarMeta.hasSecondaries ?? false,
     );
 
     const tests = {

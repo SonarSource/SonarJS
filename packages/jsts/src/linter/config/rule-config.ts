@@ -14,14 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters/sonar-runtime.js';
 import { hasSonarContextOption } from '../parameters/sonar-context.js';
 import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
-import type { JSONSchema4 } from 'json-schema';
 import { AnalysisMode } from '../../analysis/analysis.js';
-import { defaultOptions, type ESLintConfiguration } from '../../rules/helpers/configs.js';
+import { defaultOptions } from '../../rules/helpers/configs.js';
 import merge from 'lodash.merge';
+import { SonarMeta } from '../../rules/index.js';
 
 /**
  * An input rule configuration for linting
@@ -53,26 +52,20 @@ export interface RuleConfig {
  *
  * _A rule extension only applies to rules whose implementation is available._
  *
- * @param schema the rule schema
+ * @param sonarMeta the internal meta information of the rule
  * @param inputRule the rule configuration
  * @param workDir the working directory used by rules using the 'sonar-context' flag
- * @param defaultConfiguration possibly undefined ESLint default options configuration added to the
- *  provided inputRule.configuration
  * @returns the extended rule configuration
  */
 export function extendRuleConfig(
-  schema: JSONSchema4 | JSONSchema4[] | undefined,
+  sonarMeta: SonarMeta | undefined,
   inputRule: RuleConfig,
   workDir?: string,
-  defaultConfiguration?: ESLintConfiguration,
 ) {
   const options = Object.values(
-    merge(defaultOptions(defaultConfiguration), [...inputRule.configurations]),
+    merge(defaultOptions(sonarMeta?.fields), [...inputRule.configurations]),
   );
-  if (hasSonarRuntimeOption(schema)) {
-    options.push(SONAR_RUNTIME);
-  }
-  if (hasSonarContextOption(schema)) {
+  if (hasSonarContextOption(sonarMeta?.schema)) {
     options.push({ workDir });
   }
   return options;

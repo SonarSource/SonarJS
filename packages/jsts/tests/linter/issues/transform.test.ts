@@ -43,7 +43,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: { [ruleId]: { sonarKey: ruleId, meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -73,7 +73,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: { [ruleId]: { sonarKey: ruleId, meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -102,7 +102,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: { [ruleId]: { sonarKey: ruleId, meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -143,7 +143,7 @@ describe('transformMessages', () => {
 
     const [{ secondaryLocations }] = transformMessages(messages, 'ts', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {}, hasSecondaries: true } },
+      ruleMetas: { [ruleId]: { sonarKey: ruleId, meta: {}, hasSecondaries: true } },
       filePath: 'foo.js',
     }).issues;
     expect(secondaryLocations).toEqual([
