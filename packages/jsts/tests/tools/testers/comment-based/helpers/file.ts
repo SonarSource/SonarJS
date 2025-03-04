@@ -78,6 +78,11 @@ export class FileIssues {
         `Primary location does not have a related issue at ${primary.range.toString()}`,
       );
     }
+    if (lineIssues.primaryLocation?.range && primary.range) {
+      throw new Error(
+        `Primary location conflicts with another primary location at ${primary.range.toString()}`,
+      );
+    }
     if (!lineIssues.primaryLocation?.range && primary.range) {
       primary = {
         ...lineIssues.primaryLocation,

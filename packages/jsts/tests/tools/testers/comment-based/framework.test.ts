@@ -181,6 +181,31 @@ describe('Comment-based Testing Framework', () => {
     );
   });
 
+  it('allows secondary without specific primary location', async () => {
+    const result = await assertions('secondary_no_primary_range.js', true).catch(err => err);
+    const sonarData = {
+      message: 'Rule message',
+      secondaryLocations: [
+        {
+          message: 'Secondary location message1',
+          column: 6,
+          line: 1,
+          endColumn: 9,
+          endLine: 1,
+        },
+      ],
+    };
+    expect(result).toEqual({
+      errors: [
+        {
+          line: 3,
+          message: JSON.stringify(sonarData),
+        },
+      ],
+      output: null,
+    });
+  });
+
   it('orphan location', async () => {
     let error = await assertions('orphan0.js').catch(err => err);
     expect(error.message).toEqual('Primary location does not have a related issue at (1:7,1:10)');
