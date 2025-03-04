@@ -18,3 +18,4 @@ export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'new-operator-misuse';
 export * from './config.js';
+export const hasSecondaries = true;
