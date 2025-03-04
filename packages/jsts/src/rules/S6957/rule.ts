@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { generateMeta, getManifests, toUnixPath } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { dirname } from 'path/posix';
 
 const reactNoDeprecated = rules['no-deprecated'];
@@ -30,10 +30,10 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     function getVersionFromOptions() {
-      return (context.options as FromSchema<typeof schema>)[0]?.['react-version'];
+      return (context.options as FromSchema<typeof meta.schema>)[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
       for (const packageJson of getManifests(dirname(toUnixPath(context.filename)), context.cwd)) {

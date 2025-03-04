@@ -26,7 +26,7 @@ import {
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [
@@ -122,7 +122,7 @@ const JSDOC_TAGS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeUnusedImport: `Remove this unused import of '{{symbol}}'.`,
       suggestRemoveWholeStatement: `Remove this import statement`,

@@ -18,14 +18,14 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { Node } from 'estree';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta, rule.meta),
     },
     (context, descriptor) => {
       const { node } = descriptor as {

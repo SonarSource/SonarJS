@@ -20,24 +20,21 @@ import type { Rule } from 'eslint';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;
 
-export const rule: Rule.RuleModule = createRegExpRule(
-  context => {
-    return {
-      onRegExpLiteralEnter: (node: RegExpLiteral) => {
-        const { reports } = analyse(node);
-        if (reports.length > 0) {
-          context.report({
-            message,
-            node: context.node,
-          });
-        }
-      },
-    };
-  },
-  generateMeta(meta as Rule.RuleMetaData),
-);
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  return {
+    onRegExpLiteralEnter: (node: RegExpLiteral) => {
+      const { reports } = analyse(node);
+      if (reports.length > 0) {
+        context.report({
+          message,
+          node: context.node,
+        });
+      }
+    },
+  };
+}, generateMeta(meta));

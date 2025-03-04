@@ -26,10 +26,10 @@ import {
   isRequiredParserServices,
   isStringType,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       useForOf: 'Use "for...of" to iterate over this "{{iterable}}".',
     },

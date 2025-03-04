@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];
@@ -30,7 +30,7 @@ class ForInfo {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       misplacedCounter: `This loop's stop condition tests "{{test}}" but the incrementer updates "{{update}}".`,
     },

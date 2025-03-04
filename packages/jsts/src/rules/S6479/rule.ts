@@ -22,14 +22,14 @@
 import { rules } from '../external/react.js';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const baseRule = rules['no-array-index-key'];
 
 export const rule = interceptReportForReact(
   {
     ...baseRule,
-    meta: generateMeta(meta as Rule.RuleMetaData, baseRule.meta),
+    meta: generateMeta(meta, baseRule.meta),
   },
   (context, reportDescriptor) => {
     const { node } = reportDescriptor as Rule.ReportDescriptor & {

@@ -35,7 +35,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -48,7 +48,7 @@ const MESSAGES = {
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   publicAccessStatementChecker,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function publicAccessStatementChecker(

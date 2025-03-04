@@ -19,22 +19,21 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MAX_SWITCH_CASES = 30;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       reduceNumberOfNonEmptySwitchCases:
         'Reduce the number of non-empty switch cases from {{numSwitchCases}} to at most {{maxSwitchCases}}.',
     },
-    schema,
   }),
   create(context) {
     const maxSwitchCases =
-      (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_MAX_SWITCH_CASES;
+      (context.options as FromSchema<typeof meta.schema>)[0] ?? DEFAULT_MAX_SWITCH_CASES;
     return {
       SwitchStatement: (node: estree.SwitchStatement) =>
         visitSwitchStatement(node, context, maxSwitchCases),

@@ -20,7 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import { rules } from '../external/a11y.js';
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const langRule = rules['lang'];
 const htmlHasLangRule = rules['html-has-lang'];
@@ -35,7 +35,7 @@ function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       ...langRule.meta!.messages,

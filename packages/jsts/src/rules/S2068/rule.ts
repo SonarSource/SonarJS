@@ -21,7 +21,7 @@ import estree from 'estree';
 import { generateMeta, isStringLiteral } from '../helpers/index.js';
 import path from 'path';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
 
@@ -30,7 +30,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const dir = path.dirname(context.physicalFilename);
     const parts = dir.split(path.sep).map(part => part.toLowerCase());
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
     }
 
     const variableNames =
-      (context.options as FromSchema<typeof schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
+      (context.options as FromSchema<typeof meta.schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {

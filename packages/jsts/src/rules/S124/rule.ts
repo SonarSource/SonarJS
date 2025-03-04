@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    const options = (context.options as FromSchema<typeof schema>)[0] || {};
+    const options = (context.options as FromSchema<typeof meta.schema>)[0] || {};
     const flags = options.flags || '';
     const cleanedFlags = 'gimusy'
       .split('')

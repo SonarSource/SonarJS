@@ -26,7 +26,7 @@ import {
   isUnion,
   mergeRules,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,
@@ -133,7 +133,7 @@ function fixSwitch(
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       ...switchWithoutDefaultRule.meta?.messages,

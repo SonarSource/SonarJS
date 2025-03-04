@@ -27,10 +27,10 @@ import {
   writingMethods,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       unusedCollection: "Either use this collection's contents or remove the collection.",
     },

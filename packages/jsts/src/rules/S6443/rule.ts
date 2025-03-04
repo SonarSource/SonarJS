@@ -19,7 +19,7 @@
 import { Rule, Scope } from 'eslint';
 import { generateMeta, getFullyQualifiedName, getVariableFromName } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 type Reference = {
   setter: Scope.Variable | undefined;
@@ -46,7 +46,7 @@ const callSelector = [
 ].join('');
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       uselessSetState: 'Change the argument of this setter to not use its matching state variable',
     },

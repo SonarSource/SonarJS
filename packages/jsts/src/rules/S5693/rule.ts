@@ -28,7 +28,7 @@ import {
   getValueOfExpression,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';
@@ -54,7 +54,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
@@ -228,7 +228,7 @@ function report(
 ) {
   const { fileUploadSizeLimit, standardSizeLimit } = {
     ...DEFAULT_OPTIONS,
-    ...(context.options as FromSchema<typeof schema>)[0],
+    ...(context.options as FromSchema<typeof meta.schema>)[0],
   };
   const limitToCompare = useStandardSizeLimit ? standardSizeLimit : fileUploadSizeLimit;
   if (!size || size > limitToCompare) {

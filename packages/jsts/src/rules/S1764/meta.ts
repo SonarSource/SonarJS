@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'no-identical-expressions';
+export const hasSecondaries = true;

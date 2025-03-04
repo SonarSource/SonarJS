@@ -31,20 +31,16 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        tooManyArguments: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      tooManyArguments: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     const callExpressionsToCheck: Array<{
       callExpr: estree.CallExpression;

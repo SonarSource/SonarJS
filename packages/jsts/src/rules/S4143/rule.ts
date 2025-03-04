@@ -27,21 +27,17 @@ import {
 } from '../helpers/index.js';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        verifyIntendedIndex: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      verifyIntendedIndex: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     return {
       SwitchCase(node: estree.SwitchCase) {

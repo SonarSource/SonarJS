@@ -21,12 +21,12 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const noScriptUrlRule = getESLintCoreRule('no-script-url');
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeCode: 'Make sure that this dynamic injection or execution of code is safe.',
       unexpectedScriptURL: "Make sure that 'javascript:' code is safe as it is a form of eval().",

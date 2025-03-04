@@ -25,10 +25,10 @@ import {
   isIdentifier,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       declarePropertiesInsideObject:
         'Declare one or more properties of this object inside of the object literal syntax instead of using separate statements.',

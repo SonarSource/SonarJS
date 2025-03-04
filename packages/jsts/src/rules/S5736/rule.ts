@@ -25,7 +25,7 @@ import {
   getProperty,
   getPropertyWithValue,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const POLICY = 'policy';
@@ -35,7 +35,7 @@ const UNSAFE_REFERRER_POLICY_VALUES = ['', 'unsafe-url', 'no-referrer-when-downg
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findNoReferrerPolicyPropertyFromHelmet,
   `Make sure disabling strict HTTP no-referrer policy is safe here.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function findNoReferrerPolicyPropertyFromHelmet(

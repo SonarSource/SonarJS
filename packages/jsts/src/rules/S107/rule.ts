@@ -29,7 +29,7 @@ import {
   mergeRules,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const eslintMaxParams = getESLintCoreRule('max-params');
 
@@ -38,7 +38,7 @@ const DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 const messages = { ...eslintMaxParams.meta?.messages };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const decorationListeners: Rule.RuleListener = ruleDecoration.create(context);
     const extensionListeners: Rule.RuleListener = ruleExtension.create(context);
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getMax(options: FromSchema<typeof schema>[0]) {
+function getMax(options: FromSchema<typeof meta.schema>[0]) {
   if (options) {
     if (typeof options === 'number') {
       return options;

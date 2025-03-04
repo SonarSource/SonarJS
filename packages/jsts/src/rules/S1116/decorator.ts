@@ -17,7 +17,7 @@
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 type NullableToken = AST.Token | null | undefined;
 type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;
@@ -28,7 +28,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta, rule.meta),
     },
     reportExempting(isProtectionSemicolon),
   );

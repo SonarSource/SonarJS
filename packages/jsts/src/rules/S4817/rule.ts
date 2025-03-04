@@ -25,7 +25,7 @@ import {
   isMemberExpression,
   isMemberWithProperty,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const xpathModule = 'xpath';
 
@@ -33,7 +33,7 @@ const xpathEvalMethods = ['select', 'select1', 'evaluate'];
 const ieEvalMethods = ['selectNodes', 'SelectSingleNode'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       checkXPath: 'Make sure that executing this XPATH expression is safe.',
     },

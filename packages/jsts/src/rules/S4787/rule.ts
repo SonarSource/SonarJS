@@ -24,13 +24,13 @@ import {
   isIdentifier,
   isMemberWithProperty,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const getEncryptionRuleModule = (
   clientSideMethods: string[],
   serverSideMethods: string[],
 ): Rule.RuleModule => ({
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeEncryption: 'Make sure that encrypting data is safe here.',
     },

@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'non-number-in-arithmetic-expression';
+export const hasSecondaries = true;

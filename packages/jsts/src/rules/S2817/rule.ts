@@ -25,12 +25,12 @@ import {
   isIdentifier,
   isRequiredParserServices,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const OPEN_DATABASE = 'openDatabase';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       convertWebSQLUse: 'Convert this use of a Web SQL database to another technology.',
     },

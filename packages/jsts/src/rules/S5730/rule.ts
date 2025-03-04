@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -31,7 +31,7 @@ const BLOCK_ALL_MIXED_CONTENT_HYPHEN = 'block-all-mixed-content';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findDirectivesWithMissingMixedContentPropertyFromHelmet,
   `Make sure allowing mixed-content is safe here.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function findDirectivesWithMissingMixedContentPropertyFromHelmet(

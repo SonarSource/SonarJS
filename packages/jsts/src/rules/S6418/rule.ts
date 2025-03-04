@@ -23,7 +23,7 @@ import {
   isLogicalExpression,
   isStringLiteral,
 } from '../helpers/index.js';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
@@ -41,18 +41,15 @@ let randomnessSensibility: number;
 let secretWordRegexps: RegExp[];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    { schema },
-    false /* true if secondary locations */,
-  ),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     // get typed rule options with FromSchema helper
     const secretWords =
-      (context.options as FromSchema<typeof schema>)[0]?.['secretWords'] ?? DEFAULT_SECRET_WORDS;
+      (context.options as FromSchema<typeof meta.schema>)[0]?.['secretWords'] ??
+      DEFAULT_SECRET_WORDS;
     secretWordRegexps = buildSecretWordRegexps(secretWords);
     randomnessSensibility =
-      (context.options as FromSchema<typeof schema>)[0]?.['randomnessSensibility'] ??
+      (context.options as FromSchema<typeof meta.schema>)[0]?.['randomnessSensibility'] ??
       DEFAULT_RANDOMNESS_SENSIBILITY;
 
     return {

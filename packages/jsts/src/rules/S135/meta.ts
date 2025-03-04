@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'too-many-break-or-continue-in-loop';
+export const hasSecondaries = true;

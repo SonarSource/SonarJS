@@ -20,13 +20,13 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
 const UNARY_OPERATORS = ['++', '--', '+', '-'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       noEvaluatedNaN:
         'Change the expression which uses this operand so that it can\'t evaluate to "NaN" (Not a Number).',

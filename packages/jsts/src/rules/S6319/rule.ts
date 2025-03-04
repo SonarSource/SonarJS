@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -29,7 +29,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       'kmsKeyId',
     ),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       CfnNotebookInstance:
         'Omitting "kmsKeyId" disables encryption of SageMaker notebook instances. Make sure it is safe here.',

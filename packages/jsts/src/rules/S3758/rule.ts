@@ -28,12 +28,12 @@ import {
   isStringType,
   RequiredParserServices,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       reEvaluateDataFlow:
         'Re-evaluate the data flow; this operand of a numeric comparison could be of type {{type}}.',

@@ -19,20 +19,16 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'Merge this if statement with the nested one.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        mergeNestedIfStatement: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      mergeNestedIfStatement: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     return {
       IfStatement(node: estree.IfStatement) {

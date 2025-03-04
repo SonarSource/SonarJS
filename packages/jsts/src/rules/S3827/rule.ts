@@ -25,7 +25,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([
@@ -38,7 +38,7 @@ const vueMacroNames = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const excludedNames = new Set();
     const undeclaredIdentifiersByName: Map<string, estree.Identifier[]> = new Map();

@@ -19,13 +19,13 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getParent, isArray, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeDelete: 'Remove this use of "delete".',
     },

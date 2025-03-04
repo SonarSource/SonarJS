@@ -25,7 +25,7 @@ import {
   getSensitiveEffect,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
@@ -67,7 +67,7 @@ const MESSAGES = {
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   privilegeEscalationStatementChecker,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function privilegeEscalationStatementChecker(

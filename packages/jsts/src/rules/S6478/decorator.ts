@@ -26,13 +26,13 @@ import {
   RuleContext,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta, rule.meta),
     },
     (context, report) => {
       const message =

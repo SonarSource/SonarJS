@@ -25,14 +25,14 @@ import {
   isMethodCall,
   isStringLiteral,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const REQUIRED_OPTION = 'noopener';
 const REQUIRED_OPTION_INDEX = 2;
 const URL_INDEX = 0;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       missingNoopener: 'Make sure not using "noopener" is safe here.',
     },

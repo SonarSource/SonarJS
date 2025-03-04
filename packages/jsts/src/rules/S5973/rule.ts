@@ -26,10 +26,10 @@ import {
   Mocha,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       stable:
         'Make your tests stable so that they pass on the first try, or remove the flaky ones.',

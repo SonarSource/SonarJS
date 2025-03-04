@@ -25,12 +25,12 @@ import {
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       deactivateDebug:
         'Make sure this debug feature is deactivated before delivering the code in production.',

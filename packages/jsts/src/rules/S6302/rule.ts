@@ -26,7 +26,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',
@@ -35,7 +35,7 @@ const MESSAGES = {
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   allPrivilegesStatementChecker,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function allPrivilegesStatementChecker(

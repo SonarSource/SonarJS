@@ -20,10 +20,10 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { CookieFlagCheck } from '../helpers/cookie-flag-check.js';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>

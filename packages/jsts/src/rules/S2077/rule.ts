@@ -19,14 +19,14 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
 
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       safeQuery: `Make sure that executing SQL queries is safe here.`,
     },

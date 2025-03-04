@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const invertedOperators: { [operator: string]: string } = {
   '==': '!=',
@@ -34,7 +34,7 @@ const invertedOperators: { [operator: string]: string } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       useOppositeOperator: 'Use the opposite operator ({{invertedOperator}}) instead.',
       suggestOperationInversion: 'Invert inner operation (apply if NaN is not expected)',

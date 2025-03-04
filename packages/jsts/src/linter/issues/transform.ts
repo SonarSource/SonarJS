@@ -14,13 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule, SourceCode } from 'eslint';
-import { decodeSonarRuntime } from './decode.js';
+import { Linter, SourceCode } from 'eslint';
+import { decodeSecondaryLocations } from './decode.js';
 import { Issue } from './issue.js';
 import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { SonarMeta } from '../../rules/index.js';
 
 /**
  * The result of linting a source code
@@ -70,7 +71,7 @@ export type LintingResult = {
 export function transformMessages(
   messages: Linter.LintMessage[],
   language: JsTsLanguage,
-  ctx: { sourceCode: SourceCode; rules: Record<string, Rule.RuleModule>; filePath: string },
+  ctx: { sourceCode: SourceCode; ruleMetas: { [key: string]: SonarMeta }; filePath: string },
 ): LintingResult {
   const issues: Issue[] = [];
   const ucfgPaths: string[] = [];
@@ -81,7 +82,7 @@ export function transformMessages(
     } else {
       let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
       if (issue !== null) {
-        issue = normalizeLocation(decodeSonarRuntime(ctx.rules[issue.ruleId], issue));
+        issue = normalizeLocation(decodeSecondaryLocations(ctx.ruleMetas[issue.ruleId], issue));
         issues.push(issue);
       }
     }

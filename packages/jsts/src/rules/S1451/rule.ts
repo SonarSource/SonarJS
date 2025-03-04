@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 let cached: {
   headerFormat: string;
@@ -39,7 +39,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     updateCache(context.options);
 
@@ -101,7 +101,7 @@ function addFileIssue(context: Rule.RuleContext) {
 function updateCache(options: any[]) {
   const { headerFormat, isRegularExpression } = {
     ...DEFAULT_OPTIONS,
-    ...(options as FromSchema<typeof schema>)[0],
+    ...(options as FromSchema<typeof meta.schema>)[0],
   };
 
   if (

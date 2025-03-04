@@ -27,20 +27,16 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        refactorBooleanExpression: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      refactorBooleanExpression: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     const truthyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();
     const falsyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();

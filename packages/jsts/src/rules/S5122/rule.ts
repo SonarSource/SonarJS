@@ -32,7 +32,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 const SECONDARY_MESSAGE = 'Sensitive configuration';
@@ -65,7 +65,7 @@ const ROUTINE_METHODS = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.CallExpression) {

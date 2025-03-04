@@ -27,14 +27,15 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT_THRESHOLD = 4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    const max = (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
+    const max =
+      (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];
     return {
       ':function'(node: estree.Node) {

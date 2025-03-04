@@ -17,13 +17,13 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta, rule.meta),
     },
     (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
       const { node } = descriptor as { node: estree.Node };

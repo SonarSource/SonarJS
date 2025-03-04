@@ -14,28 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
 import { Issue } from './issue.js';
-import { hasSonarRuntimeOption } from '../parameters/sonar-runtime.js';
-import { type EncodedMessage } from '../../rules/helpers/index.js';
+import type { EncodedMessage, SonarMeta } from '../../rules/helpers/index.js';
 
 /**
- * Decodes an issue with secondary locations, if any
+ * Decodes an issue with secondary locations, if any.
+ * Otherwise, the original issue is returned unchanged.
  *
- * Decoding an issue with secondary locations consists in checking
- * if the rule definition claims using secondary locations by the
- * definition of the `sonar-runtime` internal parameter. If it is
- * the case, secondary locations are then decoded and a well-formed
- * issue is then returned. Otherwise, the original issue is returned
- * unchanged.
- *
- * @param ruleModule the rule definition
+ * @param sonarMeta the rule definition
  * @param issue the issue to decode
  * @throws a runtime error in case of an invalid encoding
  * @returns the decoded issue (or the original one)
  */
-export function decodeSonarRuntime(ruleModule: Rule.RuleModule | undefined, issue: Issue): Issue {
-  if (hasSonarRuntimeOption(ruleModule?.meta?.schema || undefined)) {
+export function decodeSecondaryLocations(sonarMeta: SonarMeta | undefined, issue: Issue): Issue {
+  if (sonarMeta?.hasSecondaries) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };

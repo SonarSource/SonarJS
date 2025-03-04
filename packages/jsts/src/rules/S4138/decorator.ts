@@ -20,7 +20,7 @@ import { AST, Rule, Scope } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const element = 'element';
 
@@ -29,7 +29,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, {
+      meta: generateMeta(meta, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

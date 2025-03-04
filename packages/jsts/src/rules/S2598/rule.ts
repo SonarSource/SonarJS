@@ -29,7 +29,7 @@ import {
   report as contextReport,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';
@@ -45,7 +45,7 @@ const formidableObjects: Map<
 > = new Map();
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {

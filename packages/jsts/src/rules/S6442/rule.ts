@@ -27,7 +27,7 @@ import {
   isIdentifier,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {
@@ -45,7 +45,7 @@ const REACT_PATTERN = /^[^a-z]/;
 const HOOK_FUNCTION = 'useState';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       noHookSetterInBody:
         'Remove this state setter call, perhaps move it to an event handler or JSX attribute',

@@ -20,7 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 // Number of times a literal must be duplicated to trigger an issue
@@ -45,13 +45,13 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }, true),
+  meta: generateMeta(meta, { messages }),
 
   create(context) {
     const literalsByValue: Map<string, TSESTree.Literal[]> = new Map();
     const { threshold, ignoreStrings } = {
       ...DEFAULT_OPTIONS,
-      ...(context.options as FromSchema<typeof schema>)[0],
+      ...(context.options as FromSchema<typeof meta.schema>)[0],
     };
     const whitelist = ignoreStrings.split(',');
     return {

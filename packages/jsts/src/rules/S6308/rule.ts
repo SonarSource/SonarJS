@@ -26,7 +26,7 @@ import {
   isStringLiteral,
 } from '../helpers/index.js';
 import { getResultOfExpression } from '../helpers/result.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';
@@ -77,7 +77,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       },
     }),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       encryptionDisabled: 'Make sure that using unencrypted {{search}} domains is safe here.',
       encryptionOmitted:

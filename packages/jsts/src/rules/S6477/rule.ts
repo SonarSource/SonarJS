@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { generateMeta, getDependencies } from '../helpers/index.js';
 import { decorate } from './decorator.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const decoratedJsxKey = decorate(rules['jsx-key']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       ...decoratedJsxKey.meta!.messages,
     },

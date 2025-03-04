@@ -19,13 +19,13 @@
 import type { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { rules } from '../external/a11y.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const mouseEventsHaveKeyEvents = rules['mouse-events-have-key-events'];
 const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       ...mouseEventsHaveKeyEvents.meta!.messages,

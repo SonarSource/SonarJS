@@ -19,7 +19,7 @@
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const futureReservedWords = [
   'implements',
@@ -42,7 +42,7 @@ const futureReservedWords = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       renameReserved:
         'Rename "{{reserved}}" identifier to prevent potential conflicts with future evolutions of the JavaScript language.',

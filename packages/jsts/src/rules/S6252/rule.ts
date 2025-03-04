@@ -27,7 +27,7 @@ import {
   S3BucketTemplate,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -38,35 +38,32 @@ const messages = {
   secondary: 'Propagated setting',
 };
 
-export const rule: Rule.RuleModule = S3BucketTemplate(
-  (bucketConstructor, context) => {
-    const versionedProperty = getBucketProperty(context, bucketConstructor, VERSIONED_KEY);
-    if (versionedProperty == null) {
-      report(context, {
-        message: messages.omitted,
-        node: bucketConstructor.callee,
-      });
-      return;
-    }
-    const propertyLiteralValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
+export const rule: Rule.RuleModule = S3BucketTemplate((bucketConstructor, context) => {
+  const versionedProperty = getBucketProperty(context, bucketConstructor, VERSIONED_KEY);
+  if (versionedProperty == null) {
+    report(context, {
+      message: messages.omitted,
+      node: bucketConstructor.callee,
+    });
+    return;
+  }
+  const propertyLiteralValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
 
-    if (propertyLiteralValue?.value === false) {
-      const secondaries: IssueLocation[] = [];
-      const isPropagatedProperty = versionedProperty.value !== propertyLiteralValue;
-      if (isPropagatedProperty) {
-        secondaries.push(
-          toSecondaryLocation(getNodeParent(propertyLiteralValue), messages.secondary),
-        );
-      }
-      report(
-        context,
-        {
-          message: messages.unversioned,
-          node: versionedProperty,
-        },
-        secondaries,
+  if (propertyLiteralValue?.value === false) {
+    const secondaries: IssueLocation[] = [];
+    const isPropagatedProperty = versionedProperty.value !== propertyLiteralValue;
+    if (isPropagatedProperty) {
+      secondaries.push(
+        toSecondaryLocation(getNodeParent(propertyLiteralValue), messages.secondary),
       );
     }
-  },
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
-);
+    report(
+      context,
+      {
+        message: messages.unversioned,
+        node: versionedProperty,
+      },
+      secondaries,
+    );
+  }
+}, generateMeta(meta));

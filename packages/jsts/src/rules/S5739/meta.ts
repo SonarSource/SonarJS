@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'strict-transport-security';
+export const hasSecondaries = true;

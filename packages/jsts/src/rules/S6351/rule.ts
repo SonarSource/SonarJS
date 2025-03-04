@@ -31,14 +31,14 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { isRegExpConstructor } from '../helpers/regex/ast.js';
 import { getFlags } from '../helpers/regex/flags.js';
 
 type RegexInfo = { node: estree.Node; flags: string };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const invocations = new Map<Scope.Variable, estree.CallExpression[]>();
     const regexes: RegexInfo[] = [];

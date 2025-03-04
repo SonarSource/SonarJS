@@ -20,13 +20,13 @@ import { Rule, Scope } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
 const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       // Ignore root scope containing global variables

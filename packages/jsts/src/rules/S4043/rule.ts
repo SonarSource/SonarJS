@@ -29,12 +29,12 @@ import {
   RequiredParserServices,
   sortLike,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       moveMethod:

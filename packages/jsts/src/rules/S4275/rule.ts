@@ -30,7 +30,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { getESLintCoreRule } from '../external/core.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const getterReturnRule = getESLintCoreRule('getter-return');
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
@@ -63,13 +63,9 @@ interface Field {
 
 // The rule is the merger of a decorated ESLint 'getter-return' with the SonarJS 'no-accessor-field-mismatch'.
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      ...getterReturnRule.meta,
-    },
-    true,
-  ),
+  meta: generateMeta(meta, {
+    ...getterReturnRule.meta,
+  }),
   create(context: Rule.RuleContext): Rule.RuleListener {
     const getterReturnListener = getterReturnDecorator.create(context);
     const noAccessorFieldMismatchListener = noAccessorFieldMismatchRule.create(context);

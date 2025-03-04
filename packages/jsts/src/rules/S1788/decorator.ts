@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
 import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 
@@ -27,7 +27,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, { ...rule.meta, schema: undefined }),
+      meta: generateMeta(meta, { ...rule.meta, schema: undefined }),
     },
     reportExempting(isReduxReducer),
   );

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;
@@ -51,7 +51,7 @@ const WEAK_CURVES = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       modulusLength:
         'Use a modulus length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',

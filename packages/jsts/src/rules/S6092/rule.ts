@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const message = 'Refactor this uncertain assertion; it can succeed for multiple reasons.';
 
@@ -29,7 +29,7 @@ type ChainElement = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     if (!Chai.isImported(context)) {
       return {};

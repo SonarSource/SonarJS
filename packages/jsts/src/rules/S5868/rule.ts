@@ -22,7 +22,7 @@ import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { getPatternFromNode } from '../helpers/regex/extract.js';
 import { getFlags } from '../helpers/regex/flags.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
@@ -244,7 +244,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }),
+  generateMeta(meta, { hasSuggestions: true }),
 );
 
 function isCombiningCharacter(codePoint: number) {

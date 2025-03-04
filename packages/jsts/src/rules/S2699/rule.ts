@@ -28,7 +28,7 @@ import {
   Vitest,
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -36,7 +36,7 @@ import { meta } from './meta.js';
  * libX and the imported library was libY.
  */
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const visitedNodes: Set<estree.Node> = new Set();
     const potentialIssues: Rule.ReportDescriptor[] = [];

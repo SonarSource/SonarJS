@@ -19,12 +19,12 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       removeConstructor: 'Remove this use of "{{constructor}}" constructor.',

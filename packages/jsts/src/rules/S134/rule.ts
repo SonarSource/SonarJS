@@ -20,17 +20,17 @@ import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
+  meta: generateMeta(meta),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.maximumNestingLevel ??
+      (context.options as FromSchema<typeof meta.schema>)[0]?.maximumNestingLevel ??
       DEFAULT_MAXIMUM_NESTING_LEVEL;
     const nodeStack: AST.Token[] = [];
     function push(n: AST.Token) {

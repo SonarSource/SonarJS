@@ -24,14 +24,14 @@ import {
   isIdentifier,
   isMemberExpression,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, {
+      meta: generateMeta(meta, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

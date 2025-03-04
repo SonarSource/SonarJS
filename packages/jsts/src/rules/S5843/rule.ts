@@ -45,7 +45,7 @@ import {
 } from '../helpers/index.js';
 import { isRegExpConstructor, isStringRegexMethodCall } from '../helpers/regex/ast.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';
 import { getRegexpRange } from '../helpers/regex/range.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';
@@ -53,10 +53,10 @@ import { getRegexpLocation } from '../helpers/regex/location.js';
 const DEFAULT_THRESHOLD = 20;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
+      (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {

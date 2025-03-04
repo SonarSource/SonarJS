@@ -27,7 +27,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 
@@ -68,15 +68,11 @@ const message =
   'Correct one of the identical sub-expressions on both sides of operator "{{operator}}"';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    meta as Rule.RuleMetaData,
-    {
-      messages: {
-        correctIdenticalSubExpressions: message,
-      },
+  meta: generateMeta(meta, {
+    messages: {
+      correctIdenticalSubExpressions: message,
     },
-    true,
-  ),
+  }),
   create(context) {
     return {
       LogicalExpression(node: estree.LogicalExpression) {

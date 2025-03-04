@@ -21,7 +21,7 @@ import estree from 'estree';
 import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.js';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT = 1000;
 
@@ -31,9 +31,9 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum ?? DEFAULT;
+    const threshold = (context.options as FromSchema<typeof meta.schema>)[0]?.maximum ?? DEFAULT;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;

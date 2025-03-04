@@ -17,6 +17,7 @@
 package org.sonar.samples.javascript;
 
 import org.sonar.api.Plugin;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class EslintCustomRulesPlugin implements Plugin {
 
@@ -26,7 +27,8 @@ public class EslintCustomRulesPlugin implements Plugin {
       EslintRulesBundle.class,
       CustomRulesDefinition.class,
       RuleRepository.class,
-      TsRepository.class
+      TsRepository.class,
+      AnalysisMode.class
     );
   }
 }

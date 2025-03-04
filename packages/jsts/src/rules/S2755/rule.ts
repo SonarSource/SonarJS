@@ -26,13 +26,13 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
       const fqn = getFullyQualifiedName(context, call);

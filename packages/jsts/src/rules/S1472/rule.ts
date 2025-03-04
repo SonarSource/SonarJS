@@ -20,10 +20,10 @@ import { AST, Rule } from 'eslint';
 import estree, { type Position } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       moveArguments: 'Make those call arguments start on line {{line}}.',
       moveTemplateLiteral: 'Make this template literal start on line {{line}}.',

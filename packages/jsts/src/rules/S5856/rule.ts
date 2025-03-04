@@ -27,12 +27,12 @@ import {
 } from '../helpers/index.js';
 import estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const validator = new RegExpValidator();
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function getFlags(node: estree.CallExpression): string | null {
       if (node.arguments.length < 2) {

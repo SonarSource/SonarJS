@@ -20,10 +20,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isIdentifier } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       doImmediateAction:
         'Immediately {{action}} this expression instead of assigning it to the temporary variable "{{variable}}".',

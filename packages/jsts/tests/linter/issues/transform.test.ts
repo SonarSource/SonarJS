@@ -43,7 +43,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      rules: { [ruleId]: rules[ruleId] },
+      ruleMetas: { [ruleId]: { meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -73,7 +73,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      rules: { [ruleId]: rules[ruleId] },
+      ruleMetas: { [ruleId]: { meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -102,7 +102,7 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      rules: { [ruleId]: rules[ruleId] },
+      ruleMetas: { [ruleId]: { meta: {} } },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -143,7 +143,7 @@ describe('transformMessages', () => {
 
     const [{ secondaryLocations }] = transformMessages(messages, 'ts', {
       sourceCode,
-      rules: { [ruleId]: rules[ruleId] },
+      ruleMetas: { [ruleId]: { meta: {}, hasSecondaries: true } },
       filePath: 'foo.js',
     }).issues;
     expect(secondaryLocations).toEqual([
@@ -171,7 +171,7 @@ describe('transformMessages', () => {
 
     const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], 'ts', {
       sourceCode,
-      rules: {},
+      ruleMetas: {},
       filePath: 'foo.js',
     });
     expect(ucfgPaths.length).toEqual(1);

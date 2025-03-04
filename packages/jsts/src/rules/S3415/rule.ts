@@ -27,7 +27,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const ASSERT_FUNCTIONS = [
   'equal',
@@ -41,7 +41,7 @@ const ASSERT_FUNCTIONS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
+  meta: generateMeta(meta, { hasSuggestions: true }),
   create(context: Rule.RuleContext) {
     const testCases: estree.Node[] = [];
     return {

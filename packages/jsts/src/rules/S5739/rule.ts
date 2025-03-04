@@ -26,7 +26,7 @@ import {
   getPropertyWithValue,
   getValueOfExpression,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';
@@ -37,7 +37,7 @@ const RECOMMENDED_MAX_AGE = 15552000;
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findSensitiveTransportSecurityPolicyProperty,
   `Disabling Strict-Transport-Security policy is security-sensitive.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 function findSensitiveTransportSecurityPolicyProperty(

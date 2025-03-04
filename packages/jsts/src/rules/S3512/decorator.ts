@@ -17,14 +17,14 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 // core implementation of this rule raises issues on binary expressions with string literal operand(s)
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta, rule.meta),
     },
     reportExempting(isTwoOperands),
   );

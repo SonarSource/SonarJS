@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { functionLike, generateMeta, last } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 interface FunctionKnowledge {
   node: estree.Identifier;
@@ -58,9 +58,9 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
+    const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
       [functionExpressionProperty]: (node: estree.Property) => {

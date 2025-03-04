@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 /**
  * The core implementation of the rule includes a fix without a message.
@@ -30,7 +30,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, {
+      meta: generateMeta(meta, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

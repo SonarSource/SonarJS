@@ -25,10 +25,10 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       declareClass:
         'Declare a "{{class}}" class and move this declaration of "{{declaration}}" into it.',

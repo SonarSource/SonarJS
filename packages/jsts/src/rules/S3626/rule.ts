@@ -20,12 +20,12 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, RuleContext } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       removeRedundantJump: 'Remove this redundant jump.',
       suggestJumpRemoval: 'Remove this redundant jump',

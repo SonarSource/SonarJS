@@ -21,7 +21,7 @@ import type { Rule } from 'eslint';
 import estree, { type Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const PROPERTIES_POSITION = 2;
 
@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { invalid: [true] } },
     ),
   },
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       publicNetwork: 'Make sure allowing public network access is safe here.',
     },

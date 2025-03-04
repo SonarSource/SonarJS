@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const FORBIDDEN_TYPES = [
@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
     };
   },
 
-  generateMeta(meta as Rule.RuleMetaData, {
+  generateMeta(meta, {
     messages: {
       issue: 'Replace this character class by the character itself.',
     },

@@ -24,7 +24,7 @@ import {
   getFullyQualifiedName,
   getPropertyWithValue,
 } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
@@ -32,7 +32,7 @@ const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findFalseContentSecurityPolicyPropertyFromHelmet,
   `Make sure not enabling content security policy fetch directives is safe here.`,
-  generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  generateMeta(meta),
 );
 
 /**

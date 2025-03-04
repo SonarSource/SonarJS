@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isArray, isNumber, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
       inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',

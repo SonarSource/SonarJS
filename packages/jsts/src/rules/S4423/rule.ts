@@ -20,10 +20,10 @@ import type { Rule } from 'eslint';
 import { rule as librariesRule } from './rule.lib.js';
 import { rule as awsRule } from './rule.aws.js';
 import { generateMeta, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: { ...librariesRule.meta!.messages, ...awsRule.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

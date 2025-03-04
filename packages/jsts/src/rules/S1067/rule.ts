@@ -21,14 +21,14 @@ import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import * as meta from './meta.js';
 
 const DEFAULT = 3;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT;
+    const threshold = (context.options as FromSchema<typeof meta.schema>)[0]?.max ?? DEFAULT;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
       '*': (node: estree.Node) => {

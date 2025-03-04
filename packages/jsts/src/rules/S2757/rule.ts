@@ -20,10 +20,10 @@ import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  meta: generateMeta(meta, {
     messages: {
       useExistingOperator: 'Was "{{operator}}=" meant instead?',
       suggestExistingOperator: 'Replace with "{{operator}}" operator',

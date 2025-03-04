@@ -15,22 +15,28 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { SONAR_RUNTIME } from './index.js';
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+
+export type SonarMeta = {
+  meta: Rule.RuleMetaData & { docs?: { requiresTypeChecking?: boolean } };
+  schema?: JSONSchema4;
+  hasSecondaries?: boolean;
+};
 
 export function generateMeta(
-  rspecMeta: Rule.RuleMetaData,
+  sonarMeta: SonarMeta,
   ruleMeta?: Rule.RuleMetaData,
-  hasSecondaries = false,
 ): Rule.RuleMetaData {
-  if (rspecMeta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
+  if (sonarMeta.meta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
-      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
+      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${sonarMeta.meta.docs!.url}`,
     );
   }
-  //rspec metadata should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead
+  // sonarMeta should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead
   const metadata = {
     ...ruleMeta,
-    ...rspecMeta,
+    ...sonarMeta.meta,
+    schema: sonarMeta.schema ?? ruleMeta?.schema,
   };
 
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
@@ -42,11 +48,10 @@ export function generateMeta(
   }
 
   metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
-
-  if (hasSecondaries) {
+  if (sonarMeta.hasSecondaries) {
     const sonarOptions = {
       type: 'string',
-      enum: [SONAR_RUNTIME, 'metric'], // 'metric' only used by S3776
+      enum: ['sonar-runtime', 'metric'], // 'metric' only used by S3776
     };
 
     if (metadata.schema) {

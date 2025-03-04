@@ -19,7 +19,7 @@
 import { AST, Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { getRegexpRange } from '../helpers/regex/range.js';
 
@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }),
+  generateMeta(meta, { hasSuggestions: true }),
 );
 
 function countSpacesBefore(pattern: string, index: number) {

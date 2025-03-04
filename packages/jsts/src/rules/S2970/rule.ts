@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers/index.js';
-import { meta } from './meta.js';
+import * as meta from './meta.js';
 
 const assertionFunctions = [
   'a',
@@ -109,7 +109,7 @@ const gettersOrModifiers = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData),
+  meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       ExpressionStatement(node: estree.Node) {
