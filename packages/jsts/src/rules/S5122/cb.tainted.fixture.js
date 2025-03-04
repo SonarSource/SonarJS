@@ -3,10 +3,12 @@ const app = express();
 
 app.all('*', (req, res) => {
   res.setHeader('access-control-allow-origin', req.headers.origin);  // Noncompliant {{Make sure that enabling CORS is safe here.}}
+//                                             ^^^^^^^^^^^^^^^^^^< {{Sensitive configuration}}
 });
 
 app.all('*', (req, res) => {
   res.setHeader('access-control-allow-origin', req.header('origin'));  // Noncompliant {{Make sure that enabling CORS is safe here.}}
+//                                             ^^^^^^^^^^^^^^^^^^^^< {{Sensitive configuration}}
 });
 
 app.all('*', (req, res) => {
@@ -18,6 +20,7 @@ app.all('*', (req, res) => {
 
 app.all('*', (req, res) => {
   const origin = req.header('origin');
+  //             ^^^^^^^^^^^^^^^^^^^^> {{Sensitive configuration}}
   res.setHeader('access-control-allow-origin', origin);  // Noncompliant {{Make sure that enabling CORS is safe here.}}
 });
 

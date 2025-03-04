@@ -34,17 +34,19 @@ const notVersioned = new s3.Bucket(this, 'id', {
 })
 
 (() => {
-  const versioned = false;
-//      ^^^^^^^^^^^^^^^^^> {{Propagated setting}}
+  const versionedValue = false;
+//      ^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting}}
   const isNotVersioned = new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
-    versioned: versioned, // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-  //^^^^^^^^^^^^^^^^^^^^
+    versioned: versionedValue, // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+//  ^^^^^^^^^^^^^^^^^^^^^^^^^
   });
+  const versioned = false;
+//      ^^^^^^^^^^^^^^^^^> {{Propagated setting}}
   const isNotVersionedShorthand = new s3.Bucket(this, 'id', {
     bucketName: 'bucket',
     versioned, // Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-  //^^^^^^^^^
+//  ^^^^^^^^^
   });
 })
 

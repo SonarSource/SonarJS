@@ -43,7 +43,7 @@ const LOCATION_PATTERN = RegExp(
 );
 
 export abstract class Location {
-  constructor(readonly range: Range) {}
+  constructor(readonly range?: Range) {}
 }
 
 export class PrimaryLocation extends Location {

@@ -96,6 +96,7 @@ export function extractLineIssues(file: FileIssues, comment: Comment) {
     existingLineIssues.merge(lineIssues);
   } else {
     file.expectedIssues.set(lineIssues.line, lineIssues);
+    file.addLocation(new PrimaryLocation(), lineIssues.line);
   }
 }
 

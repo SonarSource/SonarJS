@@ -8,14 +8,17 @@ describe("invalid comparisons", function() {
 
     it("uses chai 'assert'", function() {
       assert.fail(42, aNumber);  //Noncompliant [[qf1]] {{Swap these 2 arguments so they are in the correct order: assert.fail(actual, expected).}}
+      //          ^^< {{Other argument to swap.}}
       // edit@qf1 {{      assert.fail(aNumber, 42);}}
       // fix@qf1 {{Swap arguments}}
-      assert //Noncompliant@+3 [[qf2]] {{Swap these 2 arguments so they are in the correct order: assert.fail(actual, expected).}}
+      assert //Noncompliant@+4 [[qf2]] {{Swap these 2 arguments so they are in the correct order: assert.fail(actual, expected).}}
         .fail(
           42,
+      //  ^^> {{Other argument to swap.}}
           aNumber
+      //  ^^^^^^^
         );
-      // edit@qf2@-1 {{          aNumber,}}
+      // edit@qf2@-2 {{          aNumber,}}
       // edit@qf2 {{          42}}
       // fix@qf2 {{Swap arguments}}
 
@@ -27,27 +30,35 @@ describe("invalid comparisons", function() {
       // edit@qf11 {{        42);}}
       // fix@qf11 {{Swap arguments}}
       assert.notEqual(42, aNumber); // Noncompliant [[qf3]] {{Swap these 2 arguments so they are in the correct order: assert.notEqual(actual, expected).}}
+      //              ^^< {{Other argument to swap.}}
       // edit@qf3 {{      assert.notEqual(aNumber, 42);}}
       // fix@qf3 {{Swap arguments}}
       assert.strictEqual(42, aNumber); // Noncompliant [[qf4]] {{Swap these 2 arguments so they are in the correct order: assert.strictEqual(actual, expected).}}
+      //                 ^^< {{Other argument to swap.}}
       // edit@qf4 {{      assert.strictEqual(aNumber, 42);}}
       // fix@qf4 {{Swap arguments}}
       assert.notStrictEqual(42, aNumber); // Noncompliant [[qf5]] {{Swap these 2 arguments so they are in the correct order: assert.notStrictEqual(actual, expected).}}
+      //                    ^^< {{Other argument to swap.}}
       // edit@qf5 {{      assert.notStrictEqual(aNumber, 42);}}
       // fix@qf5 {{Swap arguments}}
       assert.deepEqual(42, aNumber); // Noncompliant [[qf6]] {{Swap these 2 arguments so they are in the correct order: assert.deepEqual(actual, expected).}}
+      //               ^^< {{Other argument to swap.}}
       // edit@qf6 {{      assert.deepEqual(aNumber, 42);}}
       // fix@qf6 {{Swap arguments}}
       assert.notDeepEqual(42, aNumber); // Noncompliant [[qf7]] {{Swap these 2 arguments so they are in the correct order: assert.notDeepEqual(actual, expected).}}
+      //                  ^^< {{Other argument to swap.}}
       // edit@qf7 {{      assert.notDeepEqual(aNumber, 42);}}
       // fix@qf7 {{Swap arguments}}
       assert.closeTo(42, aNumber, 0.1); // Noncompliant [[qf8]] {{Swap these 2 arguments so they are in the correct order: assert.closeTo(actual, expected).}}
+      //             ^^< {{Other argument to swap.}}
       // edit@qf8 {{      assert.closeTo(aNumber, 42, 0.1);}}
       // fix@qf8 {{Swap arguments}}
       assert.approximately(42, aNumber, 0.1); // Noncompliant [[qf9]] {{Swap these 2 arguments so they are in the correct order: assert.approximately(actual, expected).}}
+      //                   ^^< {{Other argument to swap.}}
       // edit@qf9 {{      assert.approximately(aNumber, 42, 0.1);}}
       // fix@qf9 {{Swap arguments}}
       assert.fail(  42  , aNumber + (anotherNumber * someNumber()), );//Noncompliant [[qf10]] {{Swap these 2 arguments so they are in the correct order: assert.fail(actual, expected).}}
+      //            ^^< {{Other argument to swap.}}
       // edit@qf10 {{      assert.fail(  aNumber + (anotherNumber * someNumber())  , 42, );}}
       // fix@qf10 {{Swap arguments}}
       assert.fail(aNumber, 42); // Compliant
@@ -62,21 +73,27 @@ describe("invalid comparisons", function() {
       // edit@qf12 {{        42);}}
       // fix@qf12 {{Swap arguments}}
       expect(42).to.be.equal(aNumber); // Noncompliant [[qf13]] {{Swap these 2 arguments so they are in the correct order: expect(actual).to.equal(expected).}}
+      //     ^^< {{Other argument to swap.}}
       // edit@qf13 {{      expect(aNumber).to.be.equal(42);}}
       // fix@qf13 {{Swap arguments}}
       expect(42).to.not.equal(aNumber); // Noncompliant [[qf14]] {{Swap these 2 arguments so they are in the correct order: expect(actual).to.equal(expected).}}
+      //     ^^< {{Other argument to swap.}}
       // edit@qf14 {{      expect(aNumber).to.not.equal(42);}}
       // fix@qf14 {{Swap arguments}}
       expect(42).to.eql(aNumber); // Noncompliant [[qf15]] {{Swap these 2 arguments so they are in the correct order: expect(actual).to.eql(expected).}}
+      //     ^^< {{Other argument to swap.}}
       // edit@qf15 {{      expect(aNumber).to.eql(42);}}
       // fix@qf15 {{Swap arguments}}
       expect(42).to.not.eql(aNumber); // Noncompliant [[qf16]] {{Swap these 2 arguments so they are in the correct order: expect(actual).to.eql(expected).}}
+      //     ^^< {{Other argument to swap.}}
       // edit@qf16 {{      expect(aNumber).to.not.eql(42);}}
       // fix@qf16 {{Swap arguments}}
       expect(42).to.be.closeTo(aNumber, 0.1); // Noncompliant [[qf17]] {{Swap these 2 arguments so they are in the correct order: expect(actual).to.closeTo(expected).}}
+      //     ^^< {{Other argument to swap.}}
       // edit@qf17 {{      expect(aNumber).to.be.closeTo(42, 0.1);}}
       // fix@qf17 {{Swap arguments}}
       expect.fail(42, aNumber); // Noncompliant [[qf18]] {{Swap these 2 arguments so they are in the correct order: expect.fail(actual, expected).}}
+      //          ^^< {{Other argument to swap.}}
       // edit@qf18 {{      expect.fail(aNumber, 42);}}
       // fix@qf18 {{Swap arguments}}
     });

@@ -8,6 +8,7 @@ function cgiHandler(req, res) {
   }
   if (req.headers.origin) {
     res.setHeader('access-control-allow-origin', req.headers.origin); // Noncompliant {{Make sure that enabling CORS is safe here.}}
+    //                                           ^^^^^^^^^^^^^^^^^^< {{Sensitive configuration}}
     res.setHeader('access-control-allow-credentials', true);
   }
   // ...

@@ -63,25 +63,26 @@ export class FileIssues {
     return [...this.expectedIssues.values()];
   }
 
-  public addLocation(location: Location) {
+  public addLocation(location: Location, line?: number) {
     if (location instanceof PrimaryLocation) {
-      this.addPrimary(location);
+      this.addPrimary(location, line);
     } else {
       this.addSecondary(location as SecondaryLocation);
     }
   }
 
-  private addPrimary(primary: PrimaryLocation) {
-    const lineIssues = this.expectedIssues.get(primary.range.line);
+  private addPrimary(primary: PrimaryLocation, line?: number) {
+    const lineIssues = this.expectedIssues.get(primary.range?.line || line);
     if (lineIssues === undefined) {
       throw new Error(
         `Primary location does not have a related issue at ${primary.range.toString()}`,
       );
     }
-    if (lineIssues.primaryLocation !== null) {
-      throw new Error(
-        `Primary location conflicts with another primary location at ${primary.range.toString()}`,
-      );
+    if (!lineIssues.primaryLocation?.range && primary.range) {
+      primary = {
+        ...lineIssues.primaryLocation,
+        range: primary.range,
+      };
     }
     this.orphanSecondaryLocations.forEach(secondary => primary.secondaryLocations.push(secondary));
     this.orphanSecondaryLocations = [];
