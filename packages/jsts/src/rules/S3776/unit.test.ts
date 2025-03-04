@@ -591,6 +591,7 @@ class TopLevel {
 }
       `,
           options: [0, 'metric'],
+          settings: { sonarRuntime: true },
           errors: [{ messageId: 'fileComplexity', data: { complexityAmount: 25 } }],
         },
       ],

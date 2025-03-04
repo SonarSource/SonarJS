@@ -64,7 +64,7 @@ export const rule: Rule.RuleModule = {
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
-    const isFileComplexity = isSonarRuntime(context);
+    const isFileComplexity = context.options.includes('metric');
 
     /** Complexity of the file */
     let fileComplexity = 0;
