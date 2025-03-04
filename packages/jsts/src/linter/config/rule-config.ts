@@ -17,9 +17,6 @@
 import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 import { AnalysisMode } from '../../analysis/analysis.js';
-import { defaultOptions } from '../../rules/helpers/configs.js';
-import merge from 'lodash.merge';
-import { SonarMeta } from '../../rules/index.js';
 
 /**
  * An input rule configuration for linting
@@ -40,20 +37,4 @@ export interface RuleConfig {
   fileTypeTargets: FileType[];
   language: JsTsLanguage;
   analysisModes: AnalysisMode[];
-}
-
-/**
- * Extends an input rule configuration
- *
- * A rule configuration might be extended depending on the rule definition.
- * Primarily, this includes adding the default options stored in `schema.json` files in the rule directory
- *
- * _A rule extension only applies to rules whose implementation is available._
- *
- * @param sonarMeta the internal meta information of the rule
- * @param inputRule the rule configuration
- * @returns the extended rule configuration
- */
-export function extendRuleConfig(sonarMeta: SonarMeta | undefined, inputRule: RuleConfig) {
-  return Object.values(merge(defaultOptions(sonarMeta?.fields), [...inputRule.configurations]));
 }

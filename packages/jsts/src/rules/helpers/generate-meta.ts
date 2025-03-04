@@ -17,6 +17,7 @@
 import type { Rule } from 'eslint';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { ESLintConfiguration } from './configs.js';
+import merge from 'lodash.merge';
 
 export type SonarMeta = {
   meta: Rule.RuleMetaData & { docs?: { requiresTypeChecking?: boolean } };
@@ -42,6 +43,11 @@ export function generateMeta(
     schema: sonarMeta.schema ?? ruleMeta?.schema,
   };
 
+  // If rules contains default options, we will augment them with our defaults.
+  if (ruleMeta?.defaultOptions) {
+    metadata.defaultOptions = merge(ruleMeta?.defaultOptions, sonarMeta.meta.defaultOptions);
+  }
+
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
   // and suggestion like ESLint does. That's why we set fixable using ruleMeta
   metadata.fixable = ruleMeta?.fixable;
@@ -50,6 +56,8 @@ export function generateMeta(
     metadata.messages = {};
   }
 
-  metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
+  if (sonarMeta.hasSecondaries) {
+    metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
+  }
   return metadata;
 }

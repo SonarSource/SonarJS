@@ -16,7 +16,7 @@
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { Rule, Linter as ESLintLinter } from 'eslint';
-import { extendRuleConfig, RuleConfig } from './config/rule-config.js';
+import type { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
@@ -276,10 +276,7 @@ export class Linter {
   ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
-        // in the case of bundles, rule.key will not be present in the ruleMetas
-        const ruleMeta =
-          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        rules[`sonarjs/${rule.key}`] = ['error', ...extendRuleConfig(ruleMeta, rule)];
+        rules[`sonarjs/${rule.key}`] = ['error', ...rule.configurations];
         return rules;
       }, {} as ESLintLinter.RulesRecord),
       ...Linter.createInternalRulesRecord(sonarlint),

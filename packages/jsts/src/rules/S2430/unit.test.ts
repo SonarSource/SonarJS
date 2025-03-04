@@ -33,19 +33,18 @@ describe('S2430', () => {
         let item = new ctor();
       `,
         },
+        {
+          code: `
+      let obj = condition ? {ctor: Foo} : {ctor: Bar};
+      let item = new obj.ctor();
+    `,
+        },
       ],
       invalid: [
         {
           code: `
         function thing(){}
         let x = new thing();
-    `,
-          errors: 1,
-        },
-        {
-          code: `
-      let obj = condition ? {ctor: Foo} : {ctor: Bar};
-      let item = new obj.ctor();
     `,
           errors: 1,
         },
