@@ -5,6 +5,7 @@ exports.rules = [
       meta: {},
       create(context) {
         console.log('Rule context options: ', context.options);
+        console.log('Work dir received: ', context.settings.workDir);
         return {
           CallExpression(node) {
             console.log('detected call expression');

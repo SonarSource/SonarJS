@@ -17,28 +17,9 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/rule-config.js';
-import { SONAR_CONTEXT } from '../../../src/linter/parameters/sonar-context.js';
 import { ESLintConfiguration } from '../../../src/rules/helpers/configs.js';
 
 describe('extendRuleConfig', () => {
-  it('should include the context', () => {
-    const inputRule: RuleConfig = {
-      key: 'some-rule',
-      configurations: [42],
-      fileTypeTargets: ['MAIN'],
-      language: 'js',
-      analysisModes: ['DEFAULT'],
-    };
-
-    const config = extendRuleConfig(
-      // @ts-ignore
-      { sonarKey: 'some-rule', meta: {}, schema: [{ title: SONAR_CONTEXT }] },
-      inputRule,
-      '/tmp/dir',
-    );
-    expect(config).toEqual([42, { workDir: '/tmp/dir' }]);
-  });
-
   it('should merge with a simple default configuration with sonar runtime present', () => {
     const inputRule: RuleConfig = {
       key: 'some-rule',
@@ -61,14 +42,11 @@ describe('extendRuleConfig', () => {
       {
         sonarKey: 'some-rule',
         meta: {},
-        // @ts-ignore
-        schema: [{ title: SONAR_CONTEXT }],
         fields: defaultConfiguration,
       },
       inputRule,
-      '/tmp/dir',
     );
-    expect(config).toEqual([42, { format: 'allow' }, { workDir: '/tmp/dir' }]);
+    expect(config).toEqual([42, { format: 'allow' }]);
   });
 
   it('should use default configuration when empty configuration provided', () => {
@@ -92,7 +70,6 @@ describe('extendRuleConfig', () => {
     const config = extendRuleConfig(
       { meta: {}, sonarKey: 'some-rule', fields: defaultConfiguration },
       inputRule,
-      '/tmp/dir',
     );
     expect(config).toEqual([100, { format: 'allow' }]);
   });
