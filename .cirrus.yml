@@ -55,6 +55,11 @@ nodejs_runtimes_cache_definition: &RUNTIME_CACHE
     folder: tools/fetch-node/downloads/
     fingerprint_script: cat tools/fetch-node/node-distros.mjs
 
+npm_cache_definition: &NPM_CACHE
+  npm_cache:
+    folder: ${CIRRUS_WORKING_DIR}/node_modules
+    fingerprint_script: cat package-lock.json
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
@@ -128,6 +133,7 @@ build_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   build_and_deploy_script:
     - source cirrus-env BUILD
@@ -153,6 +159,7 @@ analyze_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   build_and_analyze_script:
     - source cirrus-env QA
@@ -166,6 +173,7 @@ build_win_task:
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
     - source cirrus-env CI
@@ -186,6 +194,7 @@ ws_scan_task:
   env:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
   <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   whitesource_script:
     - source cirrus-env QA
@@ -284,6 +293,7 @@ js_ts_ruling_task:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
@@ -311,6 +321,7 @@ eslint_plugin_test_task:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
@@ -341,6 +352,7 @@ eslint8_node16_plugin_test_task:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
