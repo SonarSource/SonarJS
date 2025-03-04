@@ -35,6 +35,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import * as meta from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
+import { isSonarRuntime } from '../helpers/sonar-runtime.js';
 
 const DEFAULT_THRESHOLD = 15;
 
@@ -63,7 +64,7 @@ export const rule: Rule.RuleModule = {
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
-    const isFileComplexity = context.options.includes('metric');
+    const isFileComplexity = isSonarRuntime(context);
 
     /** Complexity of the file */
     let fileComplexity = 0;

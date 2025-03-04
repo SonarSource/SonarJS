@@ -224,7 +224,12 @@ export class Linter {
       },
       rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(sonarlint),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
-      settings: { react: { version: '999.999.999' }, fileType, sonarRuntime: true },
+      settings: {
+        react: { version: '999.999.999' },
+        fileType,
+        sonarRuntime: true,
+        workDir: Linter.rulesWorkdir,
+      },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
     };
 
@@ -274,16 +279,7 @@ export class Linter {
         // in the case of bundles, rule.key will not be present in the ruleMetas
         const ruleMeta =
           rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          /**
-           * the rule configuration can be decorated with special markers
-           * to activate internal features: a rule that reports secondary
-           * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
-           * is a marker for a post-linting processing to decode such locations.
-           */
-          ...extendRuleConfig(ruleMeta, rule, Linter.rulesWorkdir),
-        ];
+        rules[`sonarjs/${rule.key}`] = ['error', ...extendRuleConfig(ruleMeta, rule)];
         return rules;
       }, {} as ESLintLinter.RulesRecord),
       ...Linter.createInternalRulesRecord(sonarlint),

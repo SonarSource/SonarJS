@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { hasSonarContextOption } from '../parameters/sonar-context.js';
 import { FileType } from '../../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
 import { AnalysisMode } from '../../analysis/analysis.js';
@@ -48,25 +47,13 @@ export interface RuleConfig {
  *
  * A rule configuration might be extended depending on the rule definition.
  * Primarily, this includes adding the default options stored in `schema.json` files in the rule directory
- * Also, it allows the extension is to activate additional features during linting, e.g., secondary locations.
  *
  * _A rule extension only applies to rules whose implementation is available._
  *
  * @param sonarMeta the internal meta information of the rule
  * @param inputRule the rule configuration
- * @param workDir the working directory used by rules using the 'sonar-context' flag
  * @returns the extended rule configuration
  */
-export function extendRuleConfig(
-  sonarMeta: SonarMeta | undefined,
-  inputRule: RuleConfig,
-  workDir?: string,
-) {
-  const options = Object.values(
-    merge(defaultOptions(sonarMeta?.fields), [...inputRule.configurations]),
-  );
-  if (hasSonarContextOption(sonarMeta?.schema)) {
-    options.push({ workDir });
-  }
-  return options;
+export function extendRuleConfig(sonarMeta: SonarMeta | undefined, inputRule: RuleConfig) {
+  return Object.values(merge(defaultOptions(sonarMeta?.fields), [...inputRule.configurations]));
 }

@@ -51,31 +51,5 @@ export function generateMeta(
   }
 
   metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
-  if (sonarMeta.hasSecondaries) {
-    const sonarOptions = {
-      type: 'string',
-      enum: ['metric'], // 'metric' only used by S3776
-    };
-
-    if (metadata.schema) {
-      if (Array.isArray(metadata.schema)) {
-        metadata.schema = [...metadata.schema, sonarOptions];
-      } else if (metadata.schema.type === 'array') {
-        if (Array.isArray(metadata.schema.items)) {
-          metadata.schema = {
-            ...metadata.schema,
-            items: [...metadata.schema.items, sonarOptions],
-          };
-        } else {
-          metadata.schema = {
-            ...metadata.schema,
-            items: [metadata.schema.items, sonarOptions],
-          };
-        }
-      }
-    } else {
-      metadata.schema = [sonarOptions];
-    }
-  }
   return metadata;
 }
