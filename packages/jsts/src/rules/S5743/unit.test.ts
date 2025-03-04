@@ -98,7 +98,7 @@ describe('S5743', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -124,7 +124,7 @@ describe('S5743', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -150,7 +150,7 @@ describe('S5743', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     });

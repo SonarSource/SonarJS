@@ -139,7 +139,7 @@ describe('S5659', () => {
               endColumn: 27,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -174,7 +174,7 @@ describe('S5659', () => {
               endColumn: 27,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -209,7 +209,7 @@ describe('S5659', () => {
               endColumn: 27,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -252,7 +252,7 @@ describe('S5659', () => {
               endColumn: 27,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -278,7 +278,7 @@ describe('S5659', () => {
               endColumn: 47,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -321,7 +321,7 @@ describe('S5659', () => {
               endColumn: 17,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -350,7 +350,7 @@ describe('S5659', () => {
               endColumn: 17,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

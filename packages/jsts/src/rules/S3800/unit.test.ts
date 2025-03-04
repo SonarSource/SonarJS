@@ -317,7 +317,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -354,7 +354,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -398,7 +398,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -437,7 +437,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -502,7 +502,7 @@ const sanitize = () => {
               endColumn: 21,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

@@ -66,7 +66,7 @@ describe('S1066', () => {
         if (y) {}
       //^^ {{Nested "if" statement.}}
       }`,
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
           errors: [
             {
               messageId: 'sonarRuntime',

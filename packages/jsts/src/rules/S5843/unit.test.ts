@@ -21,7 +21,7 @@ import { describe, it } from 'node:test';
 describe('S5843', () => {
   it('S5843', () => {
     const createOptions = (threshold: number) => {
-      return [{ threshold }, 'sonar-runtime'];
+      return [{ threshold }];
     };
 
     const ruleTesterThreshold0 = new RuleTester();
@@ -121,6 +121,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `RegExp('\\r?');`,
@@ -138,6 +139,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `RegExp('\\\\r?');`,
@@ -157,6 +159,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/(?<=abc)/`,
@@ -176,6 +179,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/[a-z0-9]/`,
@@ -195,6 +199,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/x*/`,
@@ -214,6 +219,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/x{1,2}/`,
@@ -233,6 +239,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/(?:abc)*/`,
@@ -267,6 +274,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/a|b|c/`,
@@ -287,6 +295,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/(?:a|b)*/`,
@@ -319,6 +328,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `/(foo)\\1/`,
@@ -338,6 +348,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `RegExp('x*')`,
@@ -357,6 +368,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: `new RegExp('x*')`,
@@ -376,6 +388,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
           {
             code: 'RegExp(`x*`)',
@@ -387,6 +400,7 @@ if (isString(regex)) {
         RegExp('/s*')
         `,
             options: createOptions(0),
+            settings: { sonarRuntime: true },
             errors: [
               {
                 message: JSON.stringify({
@@ -411,6 +425,7 @@ if (isString(regex)) {
         RegExp('|/?[a-z]')
         `,
             options: createOptions(0),
+            settings: { sonarRuntime: true },
             errors: [
               {
                 message: JSON.stringify({
@@ -499,6 +514,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(1),
+            settings: { sonarRuntime: true },
           },
         ],
       },
@@ -534,6 +550,7 @@ if (isString(regex)) {
               },
             ],
             options: createOptions(0),
+            settings: { sonarRuntime: true },
           },
         ],
       },

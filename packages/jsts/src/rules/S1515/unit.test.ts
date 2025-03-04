@@ -311,7 +311,7 @@ describe('S1515', () => {
               line: 33,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

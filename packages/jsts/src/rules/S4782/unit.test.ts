@@ -77,7 +77,7 @@ describe('S4782', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `
@@ -121,7 +121,7 @@ describe('S4782', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `interface T { p?: undefined | number; }`,

@@ -79,7 +79,7 @@ describe('S2234', () => {
               endColumn: 22,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -93,7 +93,7 @@ describe('S2234', () => {
               endColumn: 37,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -106,7 +106,7 @@ describe('S2234', () => {
               endLine: 3,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -200,7 +200,7 @@ describe('S2234', () => {
               endColumn: 39,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -220,7 +220,7 @@ describe('S2234', () => {
               endColumn: 40,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         invalid(`
         const from = 1, length = 2;
@@ -286,7 +286,7 @@ describe('S2234', () => {
       return {
         code: code,
         errors,
-        options: ['sonar-runtime'],
+        settings: { sonarRuntime: true },
       };
     }
   });

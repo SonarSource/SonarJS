@@ -172,7 +172,7 @@ describe('S5739', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -221,7 +221,7 @@ describe('S5739', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

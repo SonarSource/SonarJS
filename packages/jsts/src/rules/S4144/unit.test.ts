@@ -224,7 +224,8 @@ describe('S4144', () => {
           };
         }
       `,
-          options: [3, 'sonar-runtime'],
+          options: [3],
+          settings: { sonarRuntime: true },
           errors: [
             encodedMessage(2, 7, [
               {
@@ -254,7 +255,8 @@ describe('S4144', () => {
           }
         }
       `,
-          options: [3, 'sonar-runtime'],
+          options: [3],
+          settings: { sonarRuntime: true },
           errors: [
             encodedMessage(2, 9, [
               {

@@ -183,8 +183,8 @@ describe('S1067', () => {
         {
           max,
         },
-        'sonar-runtime',
       ],
+      settings: { sonarRuntime: true },
     };
   }
 

@@ -606,7 +606,8 @@ class TopLevel {
       const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
       return {
         code,
-        options: [0, 'sonar-runtime'],
+        options: [0],
+        settings: { sonarRuntime: true },
         errors: [
           {
             messageId: 'sonarRuntime',

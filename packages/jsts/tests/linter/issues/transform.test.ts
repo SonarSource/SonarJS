@@ -138,7 +138,8 @@ describe('transformMessages', () => {
       plugins: {
         sonarjs: { rules },
       },
-      rules: { [`sonarjs/${ruleId}`]: ['error', 'sonar-runtime'] },
+      rules: { [`sonarjs/${ruleId}`]: ['error'] },
+      settings: { sonarRuntime: true },
     });
 
     const [{ secondaryLocations }] = transformMessages(messages, 'ts', {

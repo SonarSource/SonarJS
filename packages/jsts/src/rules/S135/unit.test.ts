@@ -97,7 +97,7 @@ const testCases = {
           }),
         },
       ],
-      options: ['sonar-runtime'],
+      settings: { sonarRuntime: true },
     },
     {
       code: `

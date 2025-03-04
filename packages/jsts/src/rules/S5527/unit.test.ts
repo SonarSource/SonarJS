@@ -214,7 +214,7 @@ describe('S5527', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -285,7 +285,7 @@ describe('S5527', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -403,7 +403,7 @@ describe('S5527', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

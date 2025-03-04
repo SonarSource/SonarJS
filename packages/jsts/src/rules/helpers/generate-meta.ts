@@ -54,7 +54,7 @@ export function generateMeta(
   if (sonarMeta.hasSecondaries) {
     const sonarOptions = {
       type: 'string',
-      enum: ['sonar-runtime', 'metric'], // 'metric' only used by S3776
+      enum: ['metric'], // 'metric' only used by S3776
     };
 
     if (metadata.schema) {

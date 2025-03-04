@@ -197,7 +197,7 @@ describe('S3403', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `

@@ -26,7 +26,7 @@ describe('S4275', () => {
       return codes.map(code => ({
         code,
         errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
-        options: [{}, 'sonar-runtime'],
+        settings: { sonarRuntime: true },
       }));
     }
 
@@ -36,7 +36,7 @@ describe('S4275', () => {
         errors: [
           '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
         ],
-        options: [{}, 'sonar-runtime'],
+        settings: { sonarRuntime: true },
       }));
     }
 
@@ -289,7 +289,7 @@ describe('S4275', () => {
               endColumn: 21,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -333,7 +333,7 @@ describe('S4275', () => {
               endColumn: 21,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `const foo = {
@@ -361,7 +361,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `class foo {
@@ -389,7 +389,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -416,7 +416,7 @@ describe('S4275', () => {
               endColumn: 46,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -444,7 +444,7 @@ describe('S4275', () => {
               endColumn: 50,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `class foo {
@@ -472,7 +472,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `const foo = {
@@ -491,7 +491,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `class Foo {
@@ -509,7 +509,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -564,7 +564,7 @@ describe('S4275', () => {
               endColumn: 14,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -617,7 +617,7 @@ describe('S4275', () => {
               endColumn: 14,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -749,7 +749,7 @@ describe('S4275', () => {
               endColumn: 16,
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -882,7 +882,7 @@ describe('S4275', () => {
                 '{"message":"Refactor this setter so that it actually refers to the property \'ro\'.","secondaryLocations":[{"message":"Property which should be referred.","column":37,"line":7,"endColumn":56,"endLine":7}]}',
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -939,7 +939,7 @@ describe('S4275', () => {
                 '{"message":"Refactor this setter so that it actually refers to the property \'z\'.","secondaryLocations":[{"message":"Property which should be referred.","column":6,"line":6,"endColumn":12,"endLine":6}]}',
             },
           ],
-          options: [{}, 'sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: 'let _b = 0, _c = 0; Object.defineProperty(o, "b", { get() { return _c; } })',

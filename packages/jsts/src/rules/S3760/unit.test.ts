@@ -124,7 +124,7 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -151,7 +151,7 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -211,7 +211,7 @@ describe('S3760', () => {
               }),
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -298,7 +298,7 @@ describe('S3760', () => {
               endColumn: 39,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     });

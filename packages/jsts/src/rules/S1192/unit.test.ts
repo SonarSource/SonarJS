@@ -166,7 +166,8 @@ describe('S1192', () => {
       console.log('Hello world!');
       console.log('Hello world!');
       `,
-          options: [{ threshold: 2, ignoreStrings: 'Hello world!' }, 'sonar-runtime'],
+          options: [{ threshold: 2, ignoreStrings: 'Hello world!' }],
+          settings: { sonarRuntime: true },
         },
       ],
       invalid: [
@@ -210,7 +211,8 @@ describe('S1192', () => {
               endColumn: 31,
             },
           ],
-          options: [{ threshold: 2 }, 'sonar-runtime'],
+          options: [{ threshold: 2 }],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

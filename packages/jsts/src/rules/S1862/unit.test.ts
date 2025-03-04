@@ -22,8 +22,6 @@ describe('S1862', () => {
   it('S1862', () => {
     const ruleTester = new RuleTester();
 
-    const SONAR_RUNTIME = 'sonar-runtime';
-
     ruleTester.run('no-identical-conditions', rule, {
       valid: [
         {
@@ -80,7 +78,7 @@ describe('S1862', () => {
         else if (a) {}
         //       ^
       `,
-          options: [SONAR_RUNTIME],
+          settings: { sonarRuntime: true },
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -144,7 +142,7 @@ describe('S1862', () => {
         // >^^^^^^
         else if (a) {}
         //       ^`,
-          options: [SONAR_RUNTIME],
+          settings: { sonarRuntime: true },
           errors: [
             {
               messageId: 'sonarRuntime',
@@ -272,7 +270,7 @@ describe('S1862', () => {
             break;
         }
       `,
-          options: [SONAR_RUNTIME],
+          settings: { sonarRuntime: true },
           errors: [
             {
               messageId: 'sonarRuntime',
