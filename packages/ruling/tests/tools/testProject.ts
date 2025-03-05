@@ -16,7 +16,6 @@
  */
 import { join, basename, dirname } from 'node:path/posix';
 import fs from 'node:fs/promises';
-import fsSync from 'fs';
 import { Minimatch } from 'minimatch';
 import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
