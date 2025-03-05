@@ -80,14 +80,6 @@ const DEFAULT_EXCLUSIONS = [
   '**/contrib/**',
 ].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
 
-const TARGET = path.join(import.meta.dirname, '..', 'its', 'sources');
-const LINK = path.join(import.meta.dirname, '..', '..', 'sonarjs-ruling-sources');
-
-if (fsSync.existsSync(LINK)) {
-  fsSync.unlinkSync(LINK);
-}
-fsSync.symlinkSync(TARGET, LINK);
-
 type ProjectsData = {
   name: string;
   folder: string;
