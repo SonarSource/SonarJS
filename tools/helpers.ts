@@ -20,6 +20,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
 import {
+  defaultOptions,
   ESLintConfiguration,
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
@@ -234,29 +235,31 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     };
 
     const getDefaultValueString = () => {
+      const defaultValue = property.customDefault ?? property.default;
       switch (property.type) {
         case 'integer':
         case 'boolean':
-          return `"" + ${property.default}`;
+          return `"" + ${defaultValue}`;
         case 'string':
-          return `"${property.default}"`;
+          return `"${defaultValue}"`;
         case 'array': {
-          assert(Array.isArray(property.default));
-          return `"${property.default.join(',')}"`;
+          assert(Array.isArray(defaultValue));
+          return `"${defaultValue.join(',')}"`;
         }
       }
     };
 
     const getDefaultValue = () => {
+      const defaultValue = property.customDefault ?? property.default;
       switch (property.type) {
         case 'integer':
         case 'boolean':
-          return `${property.default.toString()}`;
+          return `${defaultValue.toString()}`;
         case 'string':
-          return `"${property.default}"`;
+          return `"${defaultValue}"`;
         case 'array':
-          assert(Array.isArray(property.default));
-          return `"${property.default.join(',')}"`;
+          assert(Array.isArray(defaultValue));
+          return `"${defaultValue.join(',')}"`;
       }
     };
 
@@ -363,6 +366,8 @@ export async function generateMetaForRule(sonarKey: string) {
     } catch {}
   }
 
+  const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
+
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
     join(ruleFolder, `generated-meta.ts`),
@@ -376,6 +381,9 @@ export async function generateMetaForRule(sonarKey: string) {
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
       ___RULE_SCHEMA___: schema,
+      ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
+      ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
+      ___SCOPE___: ruleRspecMeta.scope,
     },
   );
 }
