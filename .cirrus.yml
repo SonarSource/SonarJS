@@ -304,7 +304,6 @@ js_ts_ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
-    - npm run update-ruling-data
     - npm run ruling
   on_failure:
     debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
