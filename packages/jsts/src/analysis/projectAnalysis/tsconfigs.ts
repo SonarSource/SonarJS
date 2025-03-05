@@ -19,8 +19,7 @@
  */
 import tmp from 'tmp';
 import { TsConfigJson } from 'type-fest';
-import fs from 'fs/promises';
-import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from './projectAnalysis.js';
+import fs from 'node:fs/promises';
 
 tmp.setGracefulCleanup();
 
@@ -50,7 +49,7 @@ export async function* getTSConfigsIterator(
   files: string[],
   baseDir: string,
   sonarLint: boolean,
-  maxFilesForTypeChecking?: number,
+  maxFilesForTypeChecking: number,
 ) {
   let emptyTsConfigs = true;
   if (tsConfigs.length) {
@@ -59,11 +58,7 @@ export async function* getTSConfigsIterator(
       yield tsConfig;
     }
   }
-  const maxFiles =
-    typeof maxFilesForTypeChecking === 'undefined'
-      ? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING
-      : maxFilesForTypeChecking;
-  if (emptyTsConfigs && files.length < maxFiles) {
+  if (emptyTsConfigs && files.length < maxFilesForTypeChecking) {
     const tsConfig = sonarLint
       ? createTSConfigFile(undefined, [baseDir + '/**/*'])
       : createTSConfigFile(files);

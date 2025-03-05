@@ -31,31 +31,30 @@ export type ProjectAnalysisOutput = {
 export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
 
 export type Configuration = {
-  tsSuffixes?: string[];
-  jsSuffixes?: string[];
-  tsConfigPaths?: string[];
-  sources?: string[];
-  inclusions?: string[];
-  exclusions?: string[];
-  tests?: string[];
-  testInclusions?: string[];
-  testExclusions?: string[];
-  jsTsExclusions?: string[];
-  maxFileSize?: number;
+  tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
+  jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
+  tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
+  sources?: string[] /* sonar.sources property, relative path to baseDir to look for files. NOT YET SUPPORTED, we are based on baseDir */;
+  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
+  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
+  tests?: string[] /* sonar.tests property, relative path to baseDir to look for test files */;
+  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
+  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
+  jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
+  maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
+  ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
+  maxFilesForTypeChecking?: number /* sonar.javascript.sonarlint.typechecking.maxfiles Max project size to turn off type-checking of JavaScript */;
+  environments?: string[] /* sonar.javascript.environments */;
+  globals?: string[] /* sonar.javascript.globals */;
 };
 
 export type ProjectAnalysisInput = {
   files?: JsTsFiles;
   rules: RuleConfig[];
   configuration?: Configuration;
-  ignoreHeaderComments?: boolean;
-  environments?: string[];
-  globals?: string[];
   baseDir: string;
-  exclusions?: string[];
   sonarlint?: boolean;
   bundles?: string[];
-  maxFilesForTypeChecking?: number;
 };
 
 export const DEFAULT_EXCLUSIONS = [
