@@ -14,9 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { projectName, testProject } from '../tools/testProject.js';
+import { projectName, testProject, ok } from '../tools/testProject.js';
 import { describe, it } from 'node:test';
-import { ok } from 'assert';
 
 describe('Ruling', () => {
   const name = projectName(import.meta.filename);
