@@ -14,8 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join, basename, dirname } from 'node:path/posix';
+import path, { join, basename, dirname } from 'node:path/posix';
 import fs from 'node:fs/promises';
+import fsSync from 'fs';
 import { Minimatch } from 'minimatch';
 import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
@@ -78,6 +79,14 @@ const DEFAULT_EXCLUSIONS = [
   '**/external/**',
   '**/contrib/**',
 ].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
+
+const TARGET = path.join(import.meta.dirname, '..', 'its', 'sources');
+const LINK = path.join(import.meta.dirname, '..', '..', 'sonarjs-ruling-sources');
+
+if (fsSync.existsSync(LINK)) {
+  fsSync.unlinkSync(LINK);
+}
+fsSync.symlinkSync(TARGET, LINK);
 
 type ProjectsData = {
   name: string;
