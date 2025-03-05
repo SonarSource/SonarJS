@@ -34,6 +34,7 @@ type ESLintConfigurationDefaultProperty = {
 export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
   description: string;
   displayName?: string;
+  customDefault?: Default;
   type: ValueType;
   items?: {
     type: 'string' | 'integer';
