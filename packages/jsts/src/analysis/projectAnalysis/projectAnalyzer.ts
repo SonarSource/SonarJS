@@ -22,6 +22,7 @@ import {
   type Configuration,
   JsTsFiles,
   DEFAULT_EXCLUSIONS,
+  DEFAULT_MAX_FILES_FOR_TYPE_CHECKING,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
@@ -54,16 +55,7 @@ import { accept } from './filter/filter.js';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const {
-    rules,
-    baseDir,
-    configuration,
-    environments = DEFAULT_ENVIRONMENTS,
-    globals = DEFAULT_GLOBALS,
-    bundles = [],
-    sonarlint = false,
-    maxFilesForTypeChecking,
-  } = input;
+  const { rules, baseDir, configuration, bundles = [], sonarlint = false } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -74,6 +66,10 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
+  const environments = configuration?.environments ?? DEFAULT_ENVIRONMENTS;
+  const globals = configuration?.globals ?? DEFAULT_GLOBALS;
+  const maxFilesForTypeChecking =
+    configuration?.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
   const watchProgram = input.sonarlint;
   await Linter.initialize({
     rules,
@@ -96,7 +92,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,
-    toUnixPath(normalizedBaseDir),
+    normalizedBaseDir,
     sonarlint,
     maxFilesForTypeChecking,
   );
