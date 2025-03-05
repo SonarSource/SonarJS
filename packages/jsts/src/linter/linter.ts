@@ -16,7 +16,7 @@
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { Rule, Linter as ESLintLinter } from 'eslint';
-import { extendRuleConfig, RuleConfig } from './config/rule-config.js';
+import type { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
@@ -30,7 +30,6 @@ import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
-import { ESLintConfiguration } from '../rules/helpers/configs.js';
 import * as ruleMetas from '../rules/metas.js';
 
 export function createLinterConfigKey(
@@ -225,7 +224,12 @@ export class Linter {
       },
       rules: this.rulesConfig.get(key) || Linter.createInternalRulesRecord(sonarlint),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
-      settings: { react: { version: '999.999.999' }, fileType },
+      settings: {
+        react: { version: '999.999.999' },
+        fileType,
+        sonarRuntime: true,
+        workDir: Linter.rulesWorkdir,
+      },
       files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
     };
 
@@ -272,28 +276,7 @@ export class Linter {
   ): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
-        // in the case of bundles, rule.key will not be present in the ruleMetas
-        const ruleMeta =
-          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        let eslintConfiguration: ESLintConfiguration | undefined;
-        if (ruleMeta && 'fields' in ruleMeta) {
-          eslintConfiguration = ruleMeta.fields;
-        }
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          /**
-           * the rule configuration can be decorated with special markers
-           * to activate internal features: a rule that reports secondary
-           * locations would be `["error", "sonar-runtime"]`, where the "sonar-runtime"`
-           * is a marker for a post-linting processing to decode such locations.
-           */
-          ...extendRuleConfig(
-            Linter.rules[rule.key].meta?.schema || undefined,
-            rule,
-            Linter.rulesWorkdir,
-            eslintConfiguration,
-          ),
-        ];
+        rules[`sonarjs/${rule.key}`] = ['error', ...rule.configurations];
         return rules;
       }, {} as ESLintLinter.RulesRecord),
       ...Linter.createInternalRulesRecord(sonarlint),

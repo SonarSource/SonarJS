@@ -31,7 +31,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
@@ -119,6 +118,9 @@ class EslintCustomRulesTest {
         )
       )
     ).isEmpty();
+    assertThat(
+      buildResult.getLogsLines(l -> l.matches(".*INFO: Work dir received: .*[/|\\\\].scannerwork$"))
+    ).hasSize(2);
     assertThat(buildResult.getLogsLines(l -> l.contains("Rule context options:"))).hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);

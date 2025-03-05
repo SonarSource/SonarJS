@@ -43,5 +43,3 @@ export * from './validate-version.js';
 export * from './vitest.js';
 export * from './vue.js';
 export * from './parser-services.js';
-
-export const SONAR_RUNTIME = 'sonar-runtime';

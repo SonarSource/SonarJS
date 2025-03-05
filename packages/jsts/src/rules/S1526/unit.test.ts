@@ -80,7 +80,7 @@ describe('S1526', () => {
               endColumn: 14,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -97,7 +97,7 @@ describe('S1526', () => {
               endColumn: 14,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

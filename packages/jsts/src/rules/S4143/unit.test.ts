@@ -115,7 +115,7 @@ describe('S4143', () => {
     //^^^^^^^^^^^^^^^^^^^^>
       fruits[1] = "apple";
     //^^^^^^^^^^^^^^^^^^^`,
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
           errors: [
             {
               messageId: 'sonarRuntime',

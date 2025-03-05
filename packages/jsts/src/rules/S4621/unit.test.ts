@@ -59,7 +59,7 @@ describe('S4621', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
 
           {
@@ -79,7 +79,7 @@ describe('S4621', () => {
                 ],
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `

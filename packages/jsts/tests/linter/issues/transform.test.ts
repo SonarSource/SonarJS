@@ -43,7 +43,15 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: {
+        [ruleId]: {
+          sonarKey: ruleId,
+          eslintId: 'rule',
+          scope: 'All',
+          languages: ['JAVASCRIPT'],
+          meta: {},
+        },
+      },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -73,7 +81,15 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: {
+        [ruleId]: {
+          sonarKey: ruleId,
+          eslintId: 'rule',
+          scope: 'All',
+          languages: ['JAVASCRIPT'],
+          meta: {},
+        },
+      },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -102,7 +118,15 @@ describe('transformMessages', () => {
 
     const [issue] = transformMessages(messages, 'js', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {} } },
+      ruleMetas: {
+        [ruleId]: {
+          eslintId: 'rule',
+          scope: 'All',
+          languages: ['JAVASCRIPT'],
+          sonarKey: ruleId,
+          meta: {},
+        },
+      },
       filePath: 'foo.js',
     }).issues;
     expect(issue).toEqual(
@@ -138,12 +162,22 @@ describe('transformMessages', () => {
       plugins: {
         sonarjs: { rules },
       },
-      rules: { [`sonarjs/${ruleId}`]: ['error', 'sonar-runtime'] },
+      rules: { [`sonarjs/${ruleId}`]: ['error'] },
+      settings: { sonarRuntime: true },
     });
 
     const [{ secondaryLocations }] = transformMessages(messages, 'ts', {
       sourceCode,
-      ruleMetas: { [ruleId]: { meta: {}, hasSecondaries: true } },
+      ruleMetas: {
+        [ruleId]: {
+          eslintId: 'rule',
+          scope: 'All',
+          languages: ['JAVASCRIPT'],
+          sonarKey: ruleId,
+          meta: {},
+          hasSecondaries: true,
+        },
+      },
       filePath: 'foo.js',
     }).issues;
     expect(secondaryLocations).toEqual([

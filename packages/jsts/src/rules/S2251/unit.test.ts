@@ -171,7 +171,7 @@ describe('S2251', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -187,7 +187,7 @@ describe('S2251', () => {
               endColumn: 39,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `

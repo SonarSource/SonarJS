@@ -24,7 +24,7 @@ const ruleTester = new RuleTester();
 const THRESHOLD = 3;
 
 const createOptions = (maximumNestingLevel: number) => {
-  return [{ maximumNestingLevel }, 'sonar-runtime'];
+  return [{ maximumNestingLevel }];
 };
 
 describe('S134', () => {
@@ -44,6 +44,7 @@ describe('S134', () => {
       }
     `,
             options: createOptions(THRESHOLD),
+            settings: { sonarRuntime: true },
           },
           {
             code: `
@@ -57,6 +58,7 @@ describe('S134', () => {
       }
     `,
             options: createOptions(4),
+            settings: { sonarRuntime: true },
           },
           {
             code: `
@@ -69,6 +71,7 @@ describe('S134', () => {
           }
         `,
             options: createOptions(THRESHOLD),
+            settings: { sonarRuntime: true },
           },
         ],
         invalid: [
@@ -145,6 +148,7 @@ describe('S134', () => {
       code,
       errors: [error(primaryLocation, secondaryLocations)],
       options: createOptions(threshold),
+      settings: { sonarRuntime: true },
     };
   }
 

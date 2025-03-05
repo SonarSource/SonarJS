@@ -28,6 +28,7 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import * as meta from './meta.js';
+import { isSonarRuntime } from '../helpers/sonar-runtime.js';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 
@@ -101,15 +102,11 @@ export const rule: Rule.RuleModule = {
             data: {
               operator: expr.operator,
             },
-            node: isSonarRuntime() ? expr.right : expr,
+            node: isSonarRuntime(context) ? expr.right : expr,
           },
           secondaryLocations,
         );
       }
-    }
-
-    function isSonarRuntime() {
-      return context.options[context.options.length - 1] === 'sonar-runtime';
     }
   },
 };

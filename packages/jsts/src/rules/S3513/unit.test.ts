@@ -66,7 +66,7 @@ const foo2 = function() {
   foo(arguments[1]);
 }
 `,
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
           errors: [
             {
               message: JSON.stringify({

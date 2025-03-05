@@ -133,7 +133,7 @@ describe('S5742', () => {
               endColumn: 10,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -161,7 +161,7 @@ describe('S5742', () => {
               endColumn: 19,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -192,7 +192,7 @@ describe('S5742', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -223,7 +223,7 @@ describe('S5742', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     });

@@ -78,7 +78,11 @@ export function createRegExpRule(
         const { node, regexpNode, offset = [0, 0], ...rest } = descriptor;
         const loc = getRegexpLocation(node, regexpNode, context, offset);
         if (loc) {
-          report(context, { ...rest, loc }, secondaryLocations);
+          if (secondaryLocations?.length) {
+            report(context, { ...rest, loc }, secondaryLocations);
+          } else {
+            context.report({ ...rest, loc });
+          }
         }
       }
 

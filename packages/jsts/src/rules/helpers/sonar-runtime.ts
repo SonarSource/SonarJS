@@ -14,23 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  hasSonarContextOption,
-  SONAR_CONTEXT,
-} from '../../../src/linter/parameters/sonar-context.js';
-import { describe, it } from 'node:test';
-import { expect } from 'expect';
+import { Rule } from 'eslint';
 
-describe('hasSonarContextOption', () => {
-  it('should return true for a rule that has `sonar-context` option', () => {
-    expect(hasSonarContextOption([{ title: SONAR_CONTEXT }])).toEqual(true);
-  });
-
-  it('should return false for a rule that has not `sonar-context` option', () => {
-    expect(hasSonarContextOption([{ title: 42 }])).toEqual(false);
-  });
-
-  it('should return false for a rule without any schema', () => {
-    expect(hasSonarContextOption({})).toEqual(false);
-  });
-});
+export function isSonarRuntime(context: Rule.RuleContext): boolean {
+  return context.settings.sonarRuntime ?? false;
+}

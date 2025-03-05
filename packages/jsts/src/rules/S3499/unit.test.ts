@@ -79,7 +79,7 @@ describe('S3499', () => {
                 endColumn: 13,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `let obj1 = { // Main location
@@ -99,7 +99,7 @@ describe('S3499', () => {
                 endColumn: 13,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `let obj6 = { // Main location
@@ -119,7 +119,7 @@ describe('S3499', () => {
                 endColumn: 13,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
         ],
       },

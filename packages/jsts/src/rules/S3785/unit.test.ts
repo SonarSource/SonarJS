@@ -55,7 +55,7 @@ describe('S3785', () => {
               endColumn: 13,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `unknown in 'str';`,

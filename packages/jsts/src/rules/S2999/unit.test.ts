@@ -140,7 +140,8 @@ describe('S2999', () => {
               endColumn: 20,
             },
           ],
-          options: [{ considerJSDoc: false }, 'sonar-runtime'],
+          options: [{ considerJSDoc: false }],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -185,7 +186,8 @@ describe('S2999', () => {
               endColumn: 13,
             },
           ],
-          options: [{ considerJSDoc: true }, 'sonar-runtime'],
+          options: [{ considerJSDoc: true }],
+          settings: { sonarRuntime: true },
         },
       ],
     });

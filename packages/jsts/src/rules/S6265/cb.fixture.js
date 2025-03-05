@@ -46,10 +46,12 @@ const otherInvalidParam = new s3.Bucket(this, 'id', {
 
 //// 1.2.1 secondary
 
-const publicReadAccess = true; // Secondary Location
+const publicReadAccess = true;
+//    ^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
 const otherInvalidParamSecondary = new s3.Bucket(this, 'id', {
   bucketName: 'Bucket',
   publicReadAccess, // Noncompliant {{Make sure allowing unrestricted access to objects from this bucket is safe here.}}
+//^^^^^^^^^^^^^^^^
 });
 
 // 2.1 s3Bucket.grantPublicAccess()

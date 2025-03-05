@@ -77,7 +77,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -98,7 +98,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -120,7 +120,7 @@ describe('S2092', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };
@@ -196,7 +196,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -218,7 +218,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -241,7 +241,7 @@ describe('S2092', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };
@@ -290,7 +290,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -308,7 +308,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -325,7 +325,7 @@ describe('S2092', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };

@@ -83,7 +83,7 @@ describe('S5867', () => {
               endColumn: 11,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `/\\u{12346}/`,
@@ -105,7 +105,7 @@ describe('S5867', () => {
               endColumn: 12,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `/\\P{Alpha}/`,

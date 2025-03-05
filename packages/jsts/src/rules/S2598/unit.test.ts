@@ -114,7 +114,7 @@ describe('S2598', () => {
             { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 7 },
             { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 8 },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -139,7 +139,7 @@ describe('S2598', () => {
             { message: encodedMessage('Restrict the extension of uploaded files.'), line: 11 },
             { message: encodedMessage('Restrict the extension of uploaded files.'), line: 14 },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -176,7 +176,7 @@ describe('S2598', () => {
               line: 17,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -201,7 +201,7 @@ describe('S2598', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -279,7 +279,7 @@ describe('S2598', () => {
               line: 9,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     });

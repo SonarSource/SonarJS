@@ -8,6 +8,8 @@ String.prototype.foo = function() {
 function foo() { // Noncompliant {{Refactor this function to always return the same type.}}
     if (condition) {
       return 42;
+    //^^^^^^^^^^< {{Returns number}}
     }
     return 'str';
+  //^^^^^^^^^^^^^< {{Returns string}}
   }

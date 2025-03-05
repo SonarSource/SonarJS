@@ -591,6 +591,7 @@ class TopLevel {
 }
       `,
           options: [0, 'metric'],
+          settings: { sonarRuntime: true },
           errors: [{ messageId: 'fileComplexity', data: { complexityAmount: 25 } }],
         },
       ],
@@ -606,7 +607,8 @@ class TopLevel {
       const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
       return {
         code,
-        options: [0, 'sonar-runtime'],
+        options: [0],
+        settings: { sonarRuntime: true },
         errors: [
           {
             messageId: 'sonarRuntime',

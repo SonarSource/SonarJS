@@ -128,6 +128,19 @@ describe('S1186', () => {
         {
           code: `function myNoopFunction() {}`,
         },
+        {
+          code: `const arrow = () => {}`,
+        },
+        {
+          code: `class Foo {
+  private constructor() {}
+}`,
+        },
+        {
+          code: `class A {
+    constructor() {}
+}`,
+        },
       ],
       invalid: [
         {
@@ -187,21 +200,6 @@ class C {
   }
 }
 `,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          code: `const arrow = () => {}`,
-          errors: [
-            {
-              messageId: 'unexpected',
-              suggestions: [
-                {
-                  desc: 'Insert placeholder comment',
-                  output:
-                    'const arrow = () => { /* TODO document why this arrow function is empty */ }',
                 },
               ],
             },

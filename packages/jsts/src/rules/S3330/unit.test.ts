@@ -78,7 +78,7 @@ describe('S3330', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -99,7 +99,7 @@ describe('S3330', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -121,7 +121,7 @@ describe('S3330', () => {
               endColumn: 35,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };
@@ -197,7 +197,7 @@ describe('S3330', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -219,7 +219,7 @@ describe('S3330', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -242,7 +242,7 @@ describe('S3330', () => {
               endColumn: 18,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };
@@ -291,7 +291,7 @@ describe('S3330', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -309,7 +309,7 @@ describe('S3330', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
         {
           code: `
@@ -326,7 +326,7 @@ describe('S3330', () => {
               endColumn: 32,
             },
           ],
-          options: ['sonar-runtime'],
+          settings: { sonarRuntime: true },
         },
       ],
     };

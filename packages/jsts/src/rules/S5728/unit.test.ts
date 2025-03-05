@@ -129,7 +129,7 @@ describe('S5728', () => {
                 endColumn: 10,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `
@@ -160,7 +160,7 @@ describe('S5728', () => {
                 endColumn: 12,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
           {
             code: `
@@ -191,7 +191,7 @@ describe('S5728', () => {
                 endColumn: 12,
               },
             ],
-            options: ['sonar-runtime'],
+            settings: { sonarRuntime: true },
           },
         ],
       },

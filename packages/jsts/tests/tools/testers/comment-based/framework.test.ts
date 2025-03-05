@@ -101,6 +101,7 @@ describe('Comment-based Testing Framework', () => {
           line: 6,
           message: JSON.stringify({
             message: 'Rule message',
+            secondaryLocations: [],
           }),
         },
       ]),
@@ -178,6 +179,31 @@ describe('Comment-based Testing Framework', () => {
     expect(error.message).toEqual(
       'Primary location conflicts with another primary location at (1:12,1:15)',
     );
+  });
+
+  it('allows secondary without specific primary location', async () => {
+    const result = await assertions('secondary_no_primary_range.js', true).catch(err => err);
+    const sonarData = {
+      message: 'Rule message',
+      secondaryLocations: [
+        {
+          message: 'Secondary location message1',
+          column: 6,
+          line: 1,
+          endColumn: 9,
+          endLine: 1,
+        },
+      ],
+    };
+    expect(result).toEqual({
+      errors: [
+        {
+          line: 3,
+          message: JSON.stringify(sonarData),
+        },
+      ],
+      output: null,
+    });
   });
 
   it('orphan location', async () => {

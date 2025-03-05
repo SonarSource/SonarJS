@@ -6,9 +6,11 @@ app1.use(cors()); // Noncompliant {{Make sure that enabling CORS is safe here.}}
 
 const app2 = express();
 app2.use(cors({})); // Noncompliant {{Make sure that enabling CORS is safe here.}}
+//            ^^< {{Sensitive configuration}}
 
 const app3 = express();
 app3.use(cors({ origin: '*' })); // Noncompliant {{Make sure that enabling CORS is safe here.}}
+//              ^^^^^^^^^^^< {{Sensitive configuration}}
 
 const app4 = express();
 const corsOptions = { origin: '*' };
@@ -18,6 +20,7 @@ const corsOptions = { origin: '*' };
 
 const app5 = express();
 const corsOpts = { origin: '*' };
+//                 ^^^^^^^^^^^> {{Sensitive configuration}}
 const corsHandler = cors(corsOpts);
 app5.use(corsHandler); // Noncompliant {{Make sure that enabling CORS is safe here.}}
 

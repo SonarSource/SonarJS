@@ -132,7 +132,7 @@ export function report(
   secondaryLocations: IssueLocation[] = [],
   cost?: number,
 ) {
-  if ((context.options[context.options.length - 1] as unknown) !== 'sonar-runtime') {
+  if (!context.settings.sonarRuntime) {
     if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { message: _, ...rest } = reportDescriptor;
       context.report(rest as Rule.ReportDescriptor);

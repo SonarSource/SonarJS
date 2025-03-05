@@ -17,6 +17,7 @@ describe("Code is executed after Done", function() {
     it("Throws an error some time after done()", function(done) {
         fs.readFile("/etc/bashrc", 'utf8', function(err, data) {
             done();
+//          ^^^^^^>
             setTimeout(() => {  // Noncompliant {{Move this code before the call to "done".}}
                 // This assertion error will not be assigned to any test.
                 // Developers will have to guess which test failed.
@@ -28,6 +29,7 @@ describe("Code is executed after Done", function() {
     it("Has code after done", function(done) {
         fs.readFile("/etc/bashrc", 'utf8', function(err, data) {
             done();
+//          ^^^^^^>
             fs.readFile("/etc/zshrc", 'utf8', function(err, data) {  // Noncompliant {{Move this code before the call to "done".}}
                 // This assertion error will be assigned to "Other test".
                 expect(data).to.match(/some expected string/);
@@ -66,6 +68,7 @@ describe("Code is executed after Done", function() {
     it ("'done' is inside another function", function(done) {
         function foo(){
             done();
+//          ^^^^^^>
             bar(); // Noncompliant {{Move this code before the call to "done".}}
         }
 
@@ -74,6 +77,7 @@ describe("Code is executed after Done", function() {
 
     it ("'done' on top level", function(done) {
         done();
+//      ^^^^^^>
         bar(); // Noncompliant {{Move this code before the call to "done".}}
     });
 
