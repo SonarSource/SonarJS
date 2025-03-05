@@ -31,7 +31,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
