@@ -119,7 +119,7 @@ class EslintCustomRulesTest {
       )
     ).isEmpty();
     assertThat(
-      buildResult.getLogsLines(l -> l.matches(".*INFO: Work dir received: .*/.scannerwork$"))
+      buildResult.getLogsLines(l -> l.matches(".*INFO: Work dir received: .*[/|\\\\].scannerwork$"))
     ).hasSize(2);
     assertThat(buildResult.getLogsLines(l -> l.contains("Rule context options:"))).hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
