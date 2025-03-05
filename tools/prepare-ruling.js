@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 
-const TARGET = path.join(__dirname, '..', 'its', 'sources');
-const LINK = path.join(__dirname, '..', '..', 'sonarjs-ruling-sources');
+const TARGET = path.join(import.meta.dirname, '..', 'its', 'sources');
+const LINK = path.join(import.meta.dirname, '..', '..', 'sonarjs-ruling-sources');
 
 if (fs.existsSync(LINK)) {
   fs.unlinkSync(LINK);
