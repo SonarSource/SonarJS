@@ -32,8 +32,9 @@ import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/proje
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { createParsingIssue, parseParsingError } from '../../../bridge/src/errors/index.js';
-import { compare } from 'dir-compare';
+import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
+import { expect } from 'expect';
 
 const sourcesPath = join(
   toUnixPath(import.meta.dirname),
@@ -129,7 +130,17 @@ export async function testProject(projectName: string) {
 
   await writeResults(projectPath, name, results, actualPath);
 
-  return (await compare(expectedPath, actualPath, { compareContent: true })).same;
+  return await compare(expectedPath, actualPath, { compareContent: true });
+}
+
+export function ok(diff: Result) {
+  expect(
+    JSON.stringify(
+      diff.diffSet.filter(value => value.state !== 'equal'),
+      null,
+      2,
+    ),
+  ).toEqual('[]');
 }
 
 /**
