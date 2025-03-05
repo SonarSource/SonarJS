@@ -22,6 +22,9 @@ import merge from 'lodash.merge';
 export type SonarMeta = {
   meta: Rule.RuleMetaData & { docs?: { requiresTypeChecking?: boolean } };
   sonarKey: string;
+  eslintId: string;
+  scope: 'All' | 'Main' | 'Tests';
+  languages: ('TYPESCRIPT' | 'JAVASCRIPT')[];
   schema?: JSONSchema4;
   hasSecondaries?: boolean;
   fields?: ESLintConfiguration;

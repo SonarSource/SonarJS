@@ -35,6 +35,9 @@ import { createParsingIssue, parseParsingError } from '../../../bridge/src/error
 import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
+import * as metas from '../../../jsts/src/rules/metas.js';
+import { SonarMeta } from '../../../jsts/src/rules/index.js';
+import { defaultOptions } from '../../../jsts/src/rules/helpers/configs.js';
 
 const sourcesPath = join(
   toUnixPath(import.meta.dirname),
@@ -102,8 +105,17 @@ export async function testProject(projectName: string) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   );
-
-  const rules = params?.rules || (await loadRules());
+  const rules = Object.entries(metas)
+    .flatMap(([key, meta]: [string, SonarMeta]): RuleConfig[] => {
+      return meta.languages.map(language => ({
+        key,
+        configurations: defaultOptions(meta.fields) || [],
+        language: language === 'JAVASCRIPT' ? 'js' : 'ts',
+        fileTypeTargets: meta.scope === 'Tests' ? ['TEST'] : ['MAIN'],
+        analysisModes: ['DEFAULT'],
+      }));
+    })
+    .map(applyRulingConfig);
   const expectedPath = join(params?.expectedPath ?? expectedPathBase, name);
   const actualPath = join(params?.actualPath ?? actualPathBase, name);
 
@@ -203,10 +215,37 @@ async function analyzeFiles(
 }
 
 /**
- * Loading this through `fs` and not import because the file is absent at compile time
+ * Apply the non-default configuration for some rules
  */
-async function loadRules() {
-  const rulesPath = join(toUnixPath(import.meta.dirname), '..', 'data', 'rules.json');
-  const rulesContent = await fs.readFile(rulesPath, 'utf8');
-  return JSON.parse(rulesContent);
+function applyRulingConfig(rule: RuleConfig) {
+  switch (rule.key) {
+    case 'S2486': {
+      // for some reason the scope is different
+      rule.fileTypeTargets = ['TEST'];
+      break;
+    }
+    case 'S1451': {
+      if (rule.language === 'js') {
+        rule.configurations[0].headerFormat =
+          '// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.';
+        rule.configurations[0].isRegularExpression = true;
+      } else {
+        rule.configurations[0].headerFormat = '//.*';
+        rule.configurations[0].isRegularExpression = true;
+      }
+      break;
+    }
+    case 'S124': {
+      rule.configurations[0].regularExpression = '.*TODO.*';
+      rule.configurations[0].flags = 'i';
+      break;
+    }
+    case 'S1192': {
+      if (rule.language === 'js') {
+        rule.configurations[0]!.threshold = 4;
+      }
+      break;
+    }
+  }
+  return rule;
 }
