@@ -83,7 +83,7 @@
     <assertj.version>3.27.3</assertj.version>
     <jgit.version>7.1.0.202411261347-r</jgit.version>
     <junit.version>5.12.0</junit.version>
-    <mockito.version>5.15.2</mockito.version>
+    <mockito.version>5.16.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
     <sonar.version>24.12.0.100206</sonar.version>
     <sonar.api.version>11.2.0.2797</sonar.api.version>
