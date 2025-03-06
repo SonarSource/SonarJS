@@ -22,14 +22,12 @@ export const fields = [
   [
     {
       field: 'headerFormat',
-      type: 'string',
       description: 'Expected copyright and license header',
       default: '',
       fieldType: 'TEXT',
     },
     {
       field: 'isRegularExpression',
-      type: 'boolean',
       description: 'Whether the headerFormat is a regular expression',
       default: false,
     },

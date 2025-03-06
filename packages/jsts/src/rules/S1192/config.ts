@@ -22,13 +22,11 @@ export const fields = [
   [
     {
       field: 'threshold',
-      type: 'integer',
       description: 'Number of times a literal must be duplicated to trigger an issue.',
       default: 3,
     },
     {
       field: 'ignoreStrings',
-      type: 'string',
       description: 'Comma-separated list of strings that must be ignored.',
       default: 'application/json',
     },

@@ -21,7 +21,6 @@ import { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     default: 15,
-    type: 'integer',
     displayName: 'threshold',
     description: 'The maximum authorized complexity.',
   },

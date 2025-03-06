@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'whitelist',
-      type: 'array',
       items: {
         type: 'string',
       },

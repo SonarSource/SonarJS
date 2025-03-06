@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'max',
-      type: 'integer',
       displayName: 'maximumFunctionParameters',
       description: 'The maximum authorized number of parameters',
       default: 7,

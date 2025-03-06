@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'ignore',
-      type: 'array',
       items: {
         type: 'string',
       },

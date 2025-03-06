@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'permissions',
-      type: 'array',
       items: {
         type: 'string',
       },

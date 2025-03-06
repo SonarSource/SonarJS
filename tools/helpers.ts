@@ -226,28 +226,33 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
       return;
     }
 
+    const getSQDefault = () => {
+      return property.customDefault ?? property.default;
+    };
+
     const getJavaType = () => {
-      switch (property.type) {
-        case 'integer':
+      const defaultValue = getSQDefault();
+      switch (typeof defaultValue) {
+        case 'number':
           return 'int';
         case 'string':
           return 'String';
         case 'boolean':
           return 'boolean';
-        case 'array':
+        default:
           return 'String';
       }
     };
 
     const getDefaultValueString = () => {
-      const defaultValue = property.customDefault ?? property.default;
-      switch (property.type) {
-        case 'integer':
+      const defaultValue = getSQDefault();
+      switch (typeof defaultValue) {
+        case 'number':
         case 'boolean':
           return `"" + ${defaultValue}`;
         case 'string':
           return `"${defaultValue}"`;
-        case 'array': {
+        case 'object': {
           assert(Array.isArray(defaultValue));
           return `"${defaultValue.join(',')}"`;
         }
@@ -255,14 +260,14 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     };
 
     const getDefaultValue = () => {
-      const defaultValue = property.customDefault ?? property.default;
-      switch (property.type) {
-        case 'integer':
+      const defaultValue = getSQDefault();
+      switch (typeof defaultValue) {
+        case 'number':
         case 'boolean':
           return `${defaultValue.toString()}`;
         case 'string':
           return `"${defaultValue}"`;
-        case 'array':
+        case 'object':
           assert(Array.isArray(defaultValue));
           return `"${defaultValue.join(',')}"`;
       }
@@ -289,7 +294,7 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
             return undefined;
           }
           let value: string;
-          if (namedProperty.type === 'array') {
+          if (typeof namedProperty.default === 'object') {
             const castTo = namedProperty.items.type === 'string' ? 'String' : 'Integer';
             imports.add('import java.util.Arrays;');
             value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).toArray(${castTo}[]::new)`;

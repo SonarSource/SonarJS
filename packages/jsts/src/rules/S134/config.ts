@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'maximumNestingLevel',
-      type: 'integer',
       description: `Maximum allowed \\"if/for/while/switch/try\\" statements nesting depth`,
       default: 3,
     },

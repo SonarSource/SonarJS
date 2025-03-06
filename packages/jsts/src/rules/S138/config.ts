@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'maximum',
-      type: 'integer',
       description: 'Maximum authorized lines in a function',
       default: 200,
       displayName: 'max',

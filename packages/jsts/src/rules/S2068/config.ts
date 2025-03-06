@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'passwordWords',
-      type: 'array',
       items: {
         type: 'string',
       },

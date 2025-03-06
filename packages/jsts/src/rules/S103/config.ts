@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'code',
-      type: 'integer',
       description: 'The maximum authorized line length.',
       default: 180,
       displayName: 'maximumLineLength',

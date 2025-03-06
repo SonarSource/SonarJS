@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'considerJSDoc',
-      type: 'boolean',
       description: 'Consider only functions with @constructor tag as constructor functions',
       default: false,
     },

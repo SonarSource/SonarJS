@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'threshold',
-      type: 'integer',
       description: 'The maximum authorized complexity.',
       default: 20,
     },

@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'format',
-      type: 'string',
       description: 'Regular expression used to check the class names against.',
       default: '^[A-Z][a-zA-Z0-9]*$',
     },

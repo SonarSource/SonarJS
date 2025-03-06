@@ -22,19 +22,16 @@ export const fields = [
   [
     {
       field: 'regularExpression',
-      type: 'string',
       description: 'The regular expression (JavaScript syntax)',
       default: '',
     },
     {
       field: 'message',
-      type: 'string',
       description: 'The issue message',
       default: 'The regular expression matches this comment.',
     },
     {
       field: 'flags',
-      type: 'string',
       description: 'Regular expression modifier flags',
       default: '',
     },

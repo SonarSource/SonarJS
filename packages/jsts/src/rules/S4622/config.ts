@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'threshold',
-      type: 'integer',
       description: 'Maximum elements authorized in a union type definition.',
       default: 3,
     },

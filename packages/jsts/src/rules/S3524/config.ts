@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'requireParameterParentheses',
-      type: 'boolean',
       description:
         'True to require parentheses around parameters. False to forbid them for single parameter.',
       default: false,
@@ -30,7 +29,6 @@ export const fields = [
     },
     {
       field: 'requireBodyBraces',
-      type: 'boolean',
       description:
         'True to require curly braces around function body. False to forbid them for single-return bodies.',
       default: false,
