@@ -19,3 +19,33 @@ export const implementation = 'decorated';
 export const eslintId = 'max-params';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
 export * from './config.js';
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      oneOf: [
+        {
+          type: 'integer',
+          minimum: 0,
+        },
+        {
+          type: 'object',
+          properties: {
+            maximum: {
+              type: 'integer',
+              minimum: 0,
+            },
+            max: {
+              type: 'integer',
+              minimum: 0,
+            },
+          },
+          additionalProperties: false,
+        },
+      ],
+    },
+  ],
+} as const satisfies JSONSchema4;

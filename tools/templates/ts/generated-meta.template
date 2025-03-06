@@ -20,5 +20,3 @@ export const meta = {
 export const sonarKey = '___RULE_KEY___';
 export const scope = '___SCOPE___';
 export const languages: ('JAVASCRIPT' | 'TYPESCRIPT')[] = ___LANGUAGES___;
-
-___RULE_SCHEMA___

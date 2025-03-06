@@ -18,3 +18,24 @@ export * from './generated-meta.js';
 export const implementation = 'original';
 export const eslintId = 'file-header';
 export * from './config.js';
+
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        headerFormat: {
+          type: 'string',
+        },
+        isRegularExpression: {
+          type: 'boolean',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;

@@ -19,3 +19,21 @@ export const implementation = 'decorated';
 export const eslintId = 'no-deprecated-react';
 
 export const externalRules = [{ externalPlugin: 'react', externalRule: 'no-deprecated' }];
+
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        'react-version': {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
