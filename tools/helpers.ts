@@ -221,8 +221,12 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
       return;
     }
 
+    const getSQDefault = () => {
+      return property.customDefault ?? property.default;
+    };
+
     const getJavaType = () => {
-      const defaultValue = property.customDefault ?? property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
           return 'int';
@@ -236,7 +240,7 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     };
 
     const getDefaultValueString = () => {
-      const defaultValue = property.customDefault ?? property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
@@ -251,7 +255,7 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     };
 
     const getDefaultValue = () => {
-      const defaultValue = property.customDefault ?? property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
