@@ -164,12 +164,15 @@ async function inflate1541() {
   );
 }
 
-export async function generateJavaCheckClass(sonarKey: string) {
+export async function generateJavaCheckClass(
+  sonarKey: string,
+  defaults: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+) {
   if (sonarKey === 'S1541') {
     await inflate1541();
     return;
   }
-  const ruleRspecMeta = await getRspecMeta(sonarKey);
+  const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
   const imports: Set<string> = new Set();
   const decorators = [];
   let javaCheckClass: string;
@@ -181,11 +184,12 @@ export async function generateJavaCheckClass(sonarKey: string) {
     imports.add('import org.sonar.plugins.javascript.api.Check;');
   }
 
-  if (ruleRspecMeta.compatibleLanguages.includes('JAVASCRIPT')) {
+  const derivedLanguages = ruleRspecMeta.compatibleLanguages;
+  if (derivedLanguages.includes('JAVASCRIPT')) {
     decorators.push('@JavaScriptRule');
     imports.add('import org.sonar.plugins.javascript.api.JavaScriptRule;');
   }
-  if (ruleRspecMeta.compatibleLanguages.includes('TYPESCRIPT')) {
+  if (derivedLanguages.includes('TYPESCRIPT')) {
     decorators.push('@TypeScriptRule');
     imports.add('import org.sonar.plugins.javascript.api.TypeScriptRule;');
   }
@@ -328,7 +332,10 @@ async function getESLintDefaultConfiguration(sonarKey: string): Promise<ESLintCo
   return config.fields;
 }
 
-async function getRspecMeta(sonarKey: string): Promise<rspecMeta> {
+async function getRspecMeta(
+  sonarKey: string,
+  defaults: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+): Promise<rspecMeta> {
   const rspecFile = join(METADATA_FOLDER, `${sonarKey}.json`);
   const rspecFileExists = await exists(rspecFile);
   if (!rspecFileExists) {
@@ -343,6 +350,7 @@ async function getRspecMeta(sonarKey: string): Promise<rspecMeta> {
         type: 'BUG',
         status: 'ready',
         quickfix: 'covered',
+        ...defaults,
       };
 }
 
@@ -350,9 +358,13 @@ async function getRspecMeta(sonarKey: string): Promise<rspecMeta> {
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
  *
  * @param sonarKey rule ID for which we need to create the generated-meta.ts file
+ * @param defaults if rspec not found, extra properties to set. Useful for the new-rule script
  */
-export async function generateMetaForRule(sonarKey: string) {
-  const ruleRspecMeta = await getRspecMeta(sonarKey);
+export async function generateMetaForRule(
+  sonarKey: string,
+  defaults: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+) {
+  const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
   if (!typeMatrix[ruleRspecMeta.type]) {
     console.log(`Type not found for rule ${sonarKey}`);
   }

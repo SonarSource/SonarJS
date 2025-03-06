@@ -2,4 +2,6 @@ ___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javasc
 export * from './generated-meta.js';
 export const implementation = '___IMPLEMENTATION___';
 export const eslintId = '___ESLINT_ID___';
+export const scope = '___SCOPE___';
+export const languages: ('JAVASCRIPT' | 'TYPESCRIPT')[] = ___LANGUAGES___;
 ___EXTRA___
