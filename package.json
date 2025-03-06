@@ -138,7 +138,7 @@
     "tar": "7.4.3",
     "tmp": "0.2.3",
     "typescript": "5.7.3",
-    "vue-eslint-parser": "9.4.3",
+    "vue-eslint-parser": "10.1.1",
     "yaml": "2.7.0"
   },
   "prettier": {
