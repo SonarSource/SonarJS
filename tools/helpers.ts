@@ -349,7 +349,6 @@ async function getRspecMeta(
         tags: [],
         type: 'BUG',
         status: 'ready',
-        quickfix: 'covered',
         ...defaults,
       };
 }
