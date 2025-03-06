@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'format',
-      type: 'string',
       description: 'Regular expression used to check the function names against.',
       default: '^[_a-z][a-zA-Z0-9]*$',
     },

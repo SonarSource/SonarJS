@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'maximum',
-      type: 'integer',
       description: 'Maximum authorized lines in a file',
       default: 1000,
     },

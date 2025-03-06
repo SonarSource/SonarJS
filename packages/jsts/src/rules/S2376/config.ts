@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'getWithoutSet',
-      type: 'boolean',
       description: 'Reports on getters without setters.',
       default: false,
     },

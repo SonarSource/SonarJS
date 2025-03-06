@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'max',
-      type: 'integer',
       description: 'Maximum number of allowed conditional operators in an expression',
       default: 3,
     },

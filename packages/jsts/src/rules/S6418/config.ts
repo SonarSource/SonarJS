@@ -22,13 +22,11 @@ export const fields = [
   [
     {
       field: 'secretWords',
-      type: 'string',
       description: 'Comma separated list of words identifying potential secrets',
       default: 'api[_.-]?key,auth,credential,secret,token',
     },
     {
       field: 'randomnessSensibility',
-      type: 'string',
       description: 'Minimum shannon entropy threshold of the secret',
       default: 5.0,
       customForConfiguration: `Double.parseDouble(randomnessSensibility)`,

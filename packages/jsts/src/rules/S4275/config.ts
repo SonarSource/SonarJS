@@ -22,7 +22,6 @@ export const fields = [
   [
     {
       field: 'allowImplicit',
-      type: 'boolean',
       description: 'Allow implicitly returning undefined with a return statement.',
       default: false,
     },
