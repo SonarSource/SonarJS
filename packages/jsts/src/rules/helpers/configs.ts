@@ -25,7 +25,7 @@ type ESLintConfigurationDefaultProperty = {
  * Necessary for the property to show up in the SonarQube interface.
  * @param description will explain to the user what the property configures
  * @param displayName only necessary if the name of the property is different from the `field` name
- * @param type what is the type of the option
+ * @param customDefault only necessary if different default in SQ different than in JS/TS
  * @param items only necessary if type is 'array'
  * @param fieldType only necessary if you need to override the default fieldType in SQ
  * @param customForConfiguration replacement content how to pass this variable to the Configuration object
