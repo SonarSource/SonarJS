@@ -162,7 +162,7 @@ await generateJavaCheckClass(sonarKey, { compatibleLanguages: languages, scope }
 
 console.log(`
 NEXT STEPS:
-1. If your rule accepts parameters, you can customize them in a 'config.ts' file
+1. If your rule accepts parameters, export a schema in the meta.ts file. Customize default values in a 'config.ts' file
 2. After RSPEC for the new rule has been generated, run 'npm run generate-meta'
 `);
 

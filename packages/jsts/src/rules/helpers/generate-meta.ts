@@ -48,7 +48,7 @@ export function generateMeta(
 
   // If rules contains default options, we will augment them with our defaults.
   if (ruleMeta?.defaultOptions) {
-    metadata.defaultOptions = merge(ruleMeta?.defaultOptions, sonarMeta.meta.defaultOptions);
+    metadata.defaultOptions = merge(ruleMeta.defaultOptions, sonarMeta.meta.defaultOptions);
   }
 
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
