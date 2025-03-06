@@ -3,9 +3,10 @@ import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { rule } from './index.js';
 import path from 'path';
 import { describe } from 'node:test';
+import * as meta from './meta.js';
 
 const sonarId = path.basename(import.meta.dirname);
 
 describe(`Rule ${sonarId}`, () => {
-  check(sonarId, rule, import.meta.dirname);
+  check(meta, rule, import.meta.dirname);
 });

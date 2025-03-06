@@ -16,13 +16,12 @@
  */
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { input, select } from '@inquirer/prompts';
+import { checkbox, input, select } from '@inquirer/prompts';
 import {
   DIRNAME,
+  generateJavaCheckClass,
   generateMetaForRule,
   inflateTemplateToFile,
-  JAVA_TEMPLATES_FOLDER,
-  javaChecksPath,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
   verifyRspecId,
@@ -33,17 +32,17 @@ const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 
 const sonarKey = await input({ message: 'Enter the Sonar key for the new rule (SXXXX)' });
 const eslintId = await input({ message: 'Enter the ESLint ID for the rule' });
-const ruleTarget = await select({
+const scope = (await select({
   message: 'What code does the rule target?',
   choices: [
     {
-      value: 'MAIN',
+      value: 'Main',
     },
     {
-      value: 'TEST',
+      value: 'Tests',
     },
   ],
-});
+})) satisfies 'Main' | 'Tests';
 const implementation = await select({
   message: 'Origin of the rule',
   choices: [
@@ -61,6 +60,33 @@ const implementation = await select({
     },
   ],
 });
+const languages = (await checkbox({
+  message: 'What languages will the rule support?',
+  choices: [
+    {
+      value: 'JAVASCRIPT',
+      checked: true,
+    },
+    {
+      value: 'TYPESCRIPT',
+      checked: true,
+    },
+  ],
+  required: true,
+})) satisfies ('JAVASCRIPT' | 'TYPESCRIPT')[];
+const hasSecondaries = await select({
+  message: 'Will the rule produce secondary locations?',
+  choices: [
+    {
+      value: true,
+      name: 'Yes',
+    },
+    {
+      value: false,
+      name: 'No',
+    },
+  ],
+});
 
 verifyRspecId(sonarKey);
 verifyRuleName(eslintId);
@@ -71,7 +97,7 @@ await mkdir(ruleFolder, { recursive: true });
 
 if (implementation !== 'external') {
   // index.ts
-  await writeFile(join(ruleFolder, `index.ts`), `${header}export { rule } from './rule';\n`);
+  await writeFile(join(ruleFolder, `index.ts`), `${header}export { rule } from './rule.js';\n`);
   // rule.ts
   await inflateTemplateToFile(
     join(
@@ -108,10 +134,14 @@ if (implementation !== 'external') {
 // meta.ts
 let extra = '';
 if (implementation === 'decorated') {
-  extra = `export const externalRules = [\n  { externalPlugin: 'plugin-name', externalRule: '${eslintId}' },\n];`;
+  extra = `export const externalRules = [\n  { externalPlugin: 'plugin-name', externalRule: '${eslintId}' },\n];\n`;
 } else if (implementation === 'external') {
-  extra = `export const externalPlugin = 'plugin-name';`;
+  extra = `export const externalPlugin = 'plugin-name';\n`;
 }
+if (hasSecondaries) {
+  extra += `export const hasSecondaries = true;\n`;
+}
+console.log(JSON.stringify(languages));
 await inflateTemplateToFile(
   join(TS_TEMPLATES_FOLDER, 'meta.template'),
   join(ruleFolder, `meta.ts`),
@@ -125,32 +155,14 @@ await inflateTemplateToFile(
 );
 
 // preliminary generated-meta.ts
-await generateMetaForRule(sonarKey);
+await generateMetaForRule(sonarKey, { compatibleLanguages: languages, scope });
 
-// Create rule java source from template
-await inflateTemplateToFile(
-  join(JAVA_TEMPLATES_FOLDER, ruleTarget === 'MAIN' ? 'rule.main.template' : 'rule.test.template'),
-  join(javaChecksPath('main'), `${sonarKey}.java`),
-  {
-    ___RULE_KEY___: sonarKey,
-    ___PROPERTIES___: await readFile(join(JAVA_TEMPLATES_FOLDER, 'properties'), 'utf8'),
-    ___HEADER___: header,
-  },
-);
-
-// Create rule java test from template
-await inflateTemplateToFile(
-  join(JAVA_TEMPLATES_FOLDER, 'ruletest.template'),
-  join(javaChecksPath('test'), `${sonarKey}Test.java`),
-  {
-    ___RULE_KEY___: sonarKey,
-    ___HEADER___: header,
-  },
-);
+// generate rule java class
+await generateJavaCheckClass(sonarKey, { compatibleLanguages: languages, scope });
 
 console.log(`
-STEPS
-1. If your rule accepts parameters, please add the JSON Schema to "sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/schemas"
+NEXT STEPS:
+1. If your rule accepts parameters, you can customize them in a 'config.ts' file
 2. After RSPEC for the new rule has been generated, run 'npm run generate-meta'
 `);
 
