@@ -151,8 +151,6 @@ await inflateTemplateToFile(
     ___ESLINT_ID___: eslintId,
     ___EXTRA___: extra,
     ___RULE_KEY___: sonarKey,
-    ___SCOPE___: scope,
-    ___LANGUAGES___: JSON.stringify(languages),
   },
 );
 

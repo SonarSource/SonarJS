@@ -8,9 +8,8 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import estree from 'estree';
-import { FromSchema } from 'json-schema-to-ts';
-// if rule has schema, provide it in a 'schema.json' file
-// and re-run npm run generate-meta
+// If a rule has a schema, use this to extract it.
+// import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './meta.js';
 
 const messages = {
@@ -30,7 +29,7 @@ export const rule: Rule.RuleModule = {
     }
 
     // get typed rule options with FromSchema helper
-    const param = (context.options as FromSchema<typeof meta.schema>)[0]?.param ?? DEFAULT_PARAM;
+    // const param = (context.options as FromSchema<typeof meta.schema>)[0]?.param ?? DEFAULT_PARAM;
 
     return {
       //example
@@ -38,7 +37,7 @@ export const rule: Rule.RuleModule = {
         const secondaries: estree.Node[] = [];
         const message = 'message body';
         const messageId = 'messageId'; // must exist in messages object of rule metadata
-        if (param) {
+        if (DEFAULT_PARAM) {
         // Use context.report if rule does not use secondary locations
           report(
             context,
