@@ -19,3 +19,21 @@ export const implementation = 'original';
 export const eslintId = 'nested-control-flow';
 export * from './config.js';
 export const hasSecondaries = true;
+
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        maximumNestingLevel: {
+          type: 'integer',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;

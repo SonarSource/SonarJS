@@ -19,3 +19,11 @@ export const implementation = 'original';
 export const eslintId = 'cognitive-complexity';
 export * from './config.js';
 export const hasSecondaries = true;
+
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [{ oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string' }] }, { type: 'string' }],
+} as const satisfies JSONSchema4;

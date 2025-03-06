@@ -18,6 +18,7 @@ import prettier from 'prettier';
 import { readdir, writeFile, readFile, stat } from 'fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+//@ts-ignore
 import { prettier as prettierOpts } from '../package.json';
 import {
   defaultOptions,
@@ -369,14 +370,6 @@ export async function generateMetaForRule(
   }
 
   const ruleFolder = join(RULES_FOLDER, sonarKey);
-  const schemaFile = join(ruleFolder, `schema.json`);
-  let schema = '';
-  if (await exists(schemaFile)) {
-    try {
-      schema = `\nimport type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';\nexport const schema = ( ${await readFile(schemaFile, 'utf-8')} ) as const satisfies JSONSchema4;`;
-    } catch {}
-  }
-
   const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
 
   await inflateTemplateToFile(
@@ -391,7 +384,6 @@ export async function generateMetaForRule(
       ___TYPE_CHECKING___: `${ruleRspecMeta.tags.includes('type-dependent')}`,
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
-      ___RULE_SCHEMA___: schema,
       ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,

@@ -1,9 +1,0 @@
-{
-  "type": "array",
-  "minItems": 0,
-  "maxItems": 2,
-  "items": [
-    { "oneOf": [{ "type": "integer", "minimum": 0 },{ "type": "string"}] },
-    { "type": "string" }
-  ]
-}
