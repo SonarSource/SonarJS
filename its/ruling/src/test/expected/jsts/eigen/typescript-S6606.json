@@ -2,6 +2,9 @@
 "eigen:dangerfile.ts": [
 131
 ],
+"eigen:src/app/Components/ArtistListItem.tsx": [
+91
+],
 "eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tests.tsx": [
 263
 ],
@@ -10,6 +13,10 @@
 ],
 "eigen:src/app/Components/Bidding/Screens/BillingAddress.tsx": [
 83
+],
+"eigen:src/app/Components/GenericArtistSeriesRail.tsx": [
+51,
+51
 ],
 "eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx": [
 120,
@@ -21,8 +28,37 @@
 81,
 84
 ],
+"eigen:src/app/Components/ReadMore.tsx": [
+112,
+113
+],
+"eigen:src/app/Components/RelatedArtists/RelatedArtist.tsx": [
+65
+],
+"eigen:src/app/Icons/Pin.tsx": [
+16,
+17,
+23
+],
+"eigen:src/app/Icons/PinSavedOn.tsx": [
+12,
+13
+],
+"eigen:src/app/Icons/PinSavedSelected.tsx": [
+12,
+13
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
+246
+],
+"eigen:src/app/Scenes/Artwork/Components/FollowArtistLink.tsx": [
+25
+],
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tsx": [
 117
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationArtistListItem.tsx": [
+104
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts": [
 41
@@ -36,6 +72,9 @@
 ],
 "eigen:src/app/navigation/navigate.ts": [
 100
+],
+"eigen:src/app/utils/LinkedAccounts/apple.ts": [
+101
 ],
 "eigen:src/app/utils/formatLargeNumberOfItems.ts": [
 4
