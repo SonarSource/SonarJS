@@ -1,6 +1,7 @@
 {
 "postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
-42
+42,
+70
 ],
 "postgraphql:src/graphql/schema/createGqlSchema.ts": [
 36
