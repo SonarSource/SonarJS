@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>perf</module>
     <module>plugin</module>
     <module>ruling</module>
   </modules>
@@ -41,7 +40,6 @@
               </includes>
               <excludes>
                 <!-- Files -->
-                <exclude>**/SonarJsPerfBenchmark.java</exclude>
                 <exclude>**/bundle/dist/rules.js</exclude>
                 <!-- Fixtures -->
                 <exclude>**/fixtures/**/*</exclude>

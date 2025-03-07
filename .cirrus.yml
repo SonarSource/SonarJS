@@ -389,30 +389,6 @@ css_ruling_task:
     diff_artifacts:
       path: '**/target/actual/**/*'
 
-perf_task:
-  timeout_in: 240m
-  depends_on:
-    - build
-  trigger_type: manual
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
-  env:
-    CIRRUS_CLONE_DEPTH: 10
-    SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *ORCHESTRATOR_CACHE
-  submodules_script:
-    - git submodule update --init
-  perf_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - cd its/perf
-    - mvn -B -e -V package
-    - mvn exec:exec -Dexec.args="-classpath %classpath org.sonar.javascript.it.perf.SonarJsPerfBenchmark LATEST_RELEASE $BUILD_NUMBER"
-  perf_result_artifacts:
-    path: 'its/perf/target/perf.txt'
-
 promote_task:
   depends_on:
     - ws_scan
