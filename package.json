@@ -113,7 +113,7 @@
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.4",
-    "eslint-plugin-react-hooks": "5.1.0",
+    "eslint-plugin-react-hooks": "5.2.0",
     "express": "4.21.2",
     "form-data": "4.0.2",
     "functional-red-black-tree": "1.0.1",
