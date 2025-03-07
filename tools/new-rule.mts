@@ -14,19 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { writeFile, readFile, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { checkbox, input, select } from '@inquirer/prompts';
 import {
   DIRNAME,
-  generateJavaCheckClass,
-  generateMetaForRule,
   inflateTemplateToFile,
+  ruleRegex,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
-  verifyRspecId,
   verifyRuleName,
 } from './helpers.js';
+import { generateMetaForRule } from './generate-eslint-meta.js';
+import { generateJavaCheckClass } from './generate-java-rule-classes.js';
 
 const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 
@@ -87,6 +87,12 @@ const hasSecondaries = await select({
     },
   ],
 });
+
+function verifyRspecId(sonarKey: string) {
+  if (!ruleRegex.exec(sonarKey)) {
+    throw new Error(`Invalid rspec key: it should match ${ruleRegex}, but got "${sonarKey}"`);
+  }
+}
 
 verifyRspecId(sonarKey);
 verifyRuleName(eslintId);
