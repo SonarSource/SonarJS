@@ -100,7 +100,7 @@ export function createProgramOptions(
     {
       noEmit: true,
     },
-    tsConfig,
+    path.resolve(tsConfig),
     undefined,
     [
       {

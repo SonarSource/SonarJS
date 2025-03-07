@@ -204,7 +204,7 @@ describe('program', () => {
 
   it('should report errors', () => {
     expect(() => createProgramOptions('tsconfig.json', '{ "files": [] }')).toThrow(
-      `The 'files' list in config file 'tsconfig.json' is empty.`,
+      `The 'files' list in config file '${path.resolve('tsconfig.json')}' is empty.`,
     );
   });
 
