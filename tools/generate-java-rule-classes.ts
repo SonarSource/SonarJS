@@ -24,6 +24,7 @@ import assert from 'node:assert';
 import {
   getESLintDefaultConfiguration,
   getRspecMeta,
+  getRuleMetadata,
   header,
   inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
@@ -109,7 +110,8 @@ export async function generateJavaCheckClass(
   }
 
   const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
-  const body = generateBody(eslintConfiguration, imports);
+  const ruleMetadata = await getRuleMetadata(sonarKey);
+  const body = generateBody(eslintConfiguration, ruleMetadata, imports);
 
   await inflateTemplateToFile(
     join(JAVA_TEMPLATES_FOLDER, 'check.template'),
@@ -131,7 +133,11 @@ function isSonarSQProperty(
   return (property as ESLintConfigurationSQProperty).description !== undefined;
 }
 
-function generateBody(config: ESLintConfiguration, imports: Set<string>) {
+function generateBody(
+  config: ESLintConfiguration,
+  { blacklistedExtensions }: { blacklistedExtensions?: string[] },
+  imports: Set<string>,
+) {
   const result = [];
   let hasSQProperties = false;
 
@@ -237,6 +243,13 @@ function generateBody(config: ESLintConfiguration, imports: Set<string>) {
     imports.add('import java.util.List;');
     result.push(
       `@Override\npublic List<Object> configurations() {\n return List.of(${configurations.join(',')});\n}\n`,
+    );
+  }
+
+  if (blacklistedExtensions?.length) {
+    imports.add('import java.util.List;');
+    result.push(
+      `@Override\npublic List<String> blacklistedExtensions(){\nreturn List.of(${blacklistedExtensions.map(ext => `"${ext}"`).join(',')});\n}\n`,
     );
   }
   return result;

@@ -50,6 +50,7 @@ class EslintRuleTest {
         List.of(),
         List.of(InputFile.Type.MAIN),
         singletonList(AnalysisMode.DEFAULT),
+        emptyList(),
         "invalid"
       )
     ).isInstanceOf(IllegalArgumentException.class);
@@ -62,6 +63,7 @@ class EslintRuleTest {
       List.of(),
       List.of(InputFile.Type.MAIN),
       singletonList(AnalysisMode.DEFAULT),
+      emptyList(),
       "js"
     );
     assertThat(rule.getKey()).isEqualTo("key");
@@ -72,7 +74,14 @@ class EslintRuleTest {
   private static List<EslintRule> rules(String... keys) {
     return Arrays.stream(keys)
       .map(key ->
-        new EslintRule(key, emptyList(), emptyList(), singletonList(AnalysisMode.DEFAULT), "js")
+        new EslintRule(
+          key,
+          emptyList(),
+          emptyList(),
+          singletonList(AnalysisMode.DEFAULT),
+          emptyList(),
+          "js"
+        )
       )
       .toList();
   }

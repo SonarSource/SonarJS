@@ -193,13 +193,14 @@ class BridgeServerImplTest {
         singletonList("config"),
         Collections.singletonList(InputFile.Type.MAIN),
         singletonList(AnalysisMode.DEFAULT),
+        emptyList(),
         "js"
       )
     );
     bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "", false);
     bridgeServer.stop();
     assertThat(logTester.logs()).contains(
-      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"
+      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"blacklistedExtensions\":[],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"
     );
   }
 
@@ -589,6 +590,7 @@ class BridgeServerImplTest {
       emptyList(),
       Collections.singletonList(InputFile.Type.MAIN),
       singletonList(AnalysisMode.DEFAULT),
+      emptyList(),
       "js"
     );
     assertThat(rule).hasToString("key");

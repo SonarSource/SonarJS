@@ -18,7 +18,7 @@ import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { createLinterConfigKey, Linter } from '../../src/linter/linter.js';
+import { Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
@@ -134,7 +134,7 @@ describe('Linter', () => {
         },
       ],
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
+    expect(Linter.getRulesForFile('file.js', 'MAIN', 'ADDED', 'DEFAULT', 'js')).toEqual(
       expect.objectContaining({
         'sonarjs/S100': ['error'],
       }),
@@ -153,7 +153,7 @@ describe('Linter', () => {
         },
       ],
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.getRulesForFile('file.js', 'MAIN', 'ADDED', 'DEFAULT', 'js')).toEqual({
       'sonarjs/S100': ['error'],
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
@@ -175,7 +175,7 @@ describe('Linter', () => {
       globals: [],
       sonarlint: true,
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.getRulesForFile('file.js', 'MAIN', 'ADDED', 'DEFAULT', 'js')).toEqual({
       'sonarjs/S100': ['error'],
     });
   });

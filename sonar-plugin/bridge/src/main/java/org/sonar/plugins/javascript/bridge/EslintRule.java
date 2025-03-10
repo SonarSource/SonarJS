@@ -28,6 +28,7 @@ public class EslintRule {
   final List<String> fileTypeTargets;
   final List<Object> configurations;
   final List<AnalysisMode> analysisModes;
+  final List<String> blacklistedExtensions;
   final String language;
 
   public EslintRule(
@@ -35,12 +36,14 @@ public class EslintRule {
     List<Object> configurations,
     List<InputFile.Type> fileTypeTargets,
     List<AnalysisMode> analysisModes,
+    List<String> blacklistedExtensions,
     String language
   ) {
     this.key = key;
     this.fileTypeTargets = fileTypeTargets.stream().map(InputFile.Type::name).toList();
     this.configurations = configurations;
     this.analysisModes = analysisModes;
+    this.blacklistedExtensions = blacklistedExtensions;
     // unfortunately we can't check this using types, so it's enforced at runtime
     if (!"js".equals(language) && !"ts".equals(language)) {
       throw new IllegalArgumentException("Invalid language " + language);
