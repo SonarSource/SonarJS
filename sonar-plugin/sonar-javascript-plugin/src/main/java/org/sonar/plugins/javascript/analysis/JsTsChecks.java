@@ -162,6 +162,7 @@ public class JsTsChecks {
               check.configurations(),
               check.targets(),
               check.analysisModes(),
+              check.blacklistedExtensions(),
               e.getKey().language
             )
           )

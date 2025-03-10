@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class HtmlSensor extends AbstractBridgeSensor {
@@ -71,7 +69,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
-        EslintRule.findAllBut(checks.eslintRules(), Set.of("S3504", "ucfg")),
+        checks.eslintRules(),
         environments,
         globals,
         context.fileSystem().baseDir().getAbsolutePath(),

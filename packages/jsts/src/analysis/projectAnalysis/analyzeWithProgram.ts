@@ -18,6 +18,7 @@ import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
+import { isJsTsFile } from './languages.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files
@@ -59,7 +60,7 @@ async function analyzeProgram(
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
-    if (files[filename] && pendingFiles.has(filename)) {
+    if (files[filename] && pendingFiles.has(filename) && isJsTsFile(filename)) {
       results.files[filename] = await analyzeFile({
         ...files[filename],
         programId,
