@@ -25,6 +25,7 @@ export type SonarMeta = {
   eslintId: string;
   scope: 'All' | 'Main' | 'Tests';
   languages: ('TYPESCRIPT' | 'JAVASCRIPT')[];
+  blacklistedExtensions?: string[];
   schema?: JSONSchema4;
   hasSecondaries?: boolean;
   fields?: ESLintConfiguration;

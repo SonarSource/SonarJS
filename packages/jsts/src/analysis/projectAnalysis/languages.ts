@@ -19,7 +19,7 @@ import {
   HTML_EXTENSIONS,
   JSTS_EXTENSIONS,
   YAML_EXTENSIONS,
-} from '../../../shared/src/helpers/language.js';
+} from '../../../../shared/src/helpers/language.js';
 
 export function isHtmlFile(filePath: string) {
   return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
