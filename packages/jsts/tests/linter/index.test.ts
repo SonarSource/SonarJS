@@ -134,7 +134,7 @@ describe('Linter', () => {
         },
       ],
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
+    expect(Linter.rulesConfigCache.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual(
       expect.objectContaining({
         'sonarjs/S100': ['error'],
       }),
@@ -153,7 +153,7 @@ describe('Linter', () => {
         },
       ],
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.rulesConfigCache.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
       'sonarjs/S100': ['error'],
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
@@ -175,7 +175,7 @@ describe('Linter', () => {
       globals: [],
       sonarlint: true,
     });
-    expect(Linter.rulesConfig.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
+    expect(Linter.rulesConfigCache.get(createLinterConfigKey('MAIN', 'js', 'DEFAULT'))).toEqual({
       'sonarjs/S100': ['error'],
     });
   });

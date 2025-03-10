@@ -16,6 +16,9 @@
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
+import { isHtmlFile, isYamlFile } from './languages.js';
+import { analyzeHTML } from '../../../../html/src/index.js';
+import { analyzeYAML } from '../../../../yaml/src/index.js';
 
 /**
  * Analyzes JavaScript / TypeScript files without type-checking.
@@ -31,6 +34,12 @@ export async function analyzeWithoutProgram(
 ) {
   for (const filename of filenames) {
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = await analyzeFile(files[filename]);
+    if (isHtmlFile(filename)) {
+      results.files[filename] = await analyzeHTML(files[filename]);
+    } else if (isYamlFile(filename)) {
+      results.files[filename] = await analyzeYAML(files[filename]);
+    } else {
+      results.files[filename] = await analyzeFile(files[filename]);
+    }
   }
 }

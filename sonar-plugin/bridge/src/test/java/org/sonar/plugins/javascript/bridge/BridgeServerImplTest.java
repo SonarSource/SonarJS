@@ -193,6 +193,7 @@ class BridgeServerImplTest {
         singletonList("config"),
         Collections.singletonList(InputFile.Type.MAIN),
         singletonList(AnalysisMode.DEFAULT),
+        emptyList(),
         "js"
       )
     );
@@ -589,6 +590,7 @@ class BridgeServerImplTest {
       emptyList(),
       Collections.singletonList(InputFile.Type.MAIN),
       singletonList(AnalysisMode.DEFAULT),
+      emptyList(),
       "js"
     );
     assertThat(rule).hasToString("key");

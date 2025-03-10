@@ -35,4 +35,8 @@ public interface EslintBasedCheck extends JavaScriptCheck {
   default List<AnalysisMode> analysisModes() {
     return Collections.singletonList(AnalysisMode.DEFAULT);
   }
+
+  default List<String> blacklistedExtensions() {
+    return Collections.emptyList();
+  }
 }

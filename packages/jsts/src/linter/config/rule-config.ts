@@ -37,4 +37,5 @@ export interface RuleConfig {
   fileTypeTargets: FileType[];
   language: JsTsLanguage;
   analysisModes: AnalysisMode[];
+  blacklistedExtensions?: string[];
 }

@@ -130,6 +130,9 @@ export async function getRspecMeta(
         tags: [],
         type: 'BUG',
         status: 'ready',
+        scope: 'Main',
+        compatibleLanguages: ['JAVASCRIPT', 'TYPESCRIPT'],
+        quickfix: undefined,
         ...defaults,
       };
 }
@@ -140,9 +143,16 @@ export async function getRspecMeta(
 export async function getAllRulesMetadata() {
   const rulesMetadata = [];
   for (const file of await listRulesDir()) {
-    rulesMetadata.push(await import(pathToFileURL(join(RULES_FOLDER, file, 'meta.js')).toString()));
+    rulesMetadata.push(await getRuleMetadata(file));
   }
   return rulesMetadata;
+}
+
+/**
+ * Get the metadata for all rules in SonarJS
+ */
+export async function getRuleMetadata(sonarKey: string) {
+  return await import(pathToFileURL(join(RULES_FOLDER, sonarKey, 'meta.js')).toString());
 }
 
 /**
@@ -163,6 +173,7 @@ async function exists(file: string) {
 }
 
 export async function writePrettyFile(filepath: string, contents: string) {
+  console.log(contents);
   await writeFile(
     filepath,
     await prettier.format(contents, {
