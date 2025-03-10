@@ -23,6 +23,6 @@ import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 export const schema = {
   type: 'array',
   minItems: 0,
-  maxItems: 2,
+  maxItems: 1,
   items: [{ type: 'integer', minimum: 3 }],
 } as const satisfies JSONSchema4;
