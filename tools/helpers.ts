@@ -173,7 +173,6 @@ async function exists(file: string) {
 }
 
 export async function writePrettyFile(filepath: string, contents: string) {
-  console.log(contents);
   await writeFile(
     filepath,
     await prettier.format(contents, {

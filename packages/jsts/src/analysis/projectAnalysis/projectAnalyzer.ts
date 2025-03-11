@@ -43,10 +43,12 @@ import {
 import {
   HTML_EXTENSIONS,
   JS_EXTENSIONS,
+  JSTS_EXTENSIONS,
   TS_EXTENSIONS,
   YAML_EXTENSIONS,
 } from '../../../../shared/src/helpers/language.js';
 import { accept } from './filter/filter.js';
+import { isJsTsFile } from './languages.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -91,7 +93,8 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     return results;
   }
   const tsConfigs = getTSConfigsIterator(
-    inputFilenames,
+    // we create the fallback tsconfig without html files, they alter the results (probably for the better)
+    inputFilenames.filter(filename => isJsTsFile(filename)),
     normalizedBaseDir,
     sonarlint,
     maxFilesForTypeChecking,
@@ -110,7 +113,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
 
 export async function loadFiles(
   baseDir: string,
-  { tsSuffixes, jsSuffixes, tests, exclusions, maxFileSize }: Configuration,
+  { tsSuffixes, jsSuffixes, tests, exclusions, maxFileSize, jsTsExclusions }: Configuration,
 ) {
   const extensions = (jsSuffixes ?? JS_EXTENSIONS)
     .concat(tsSuffixes ?? TS_EXTENSIONS)
@@ -134,7 +137,7 @@ export async function loadFiles(
       const extension = extname(file.name).toLowerCase();
       if (extensions.includes(extension)) {
         const fileContent = await readFile(filePath, 'utf8');
-        if (accept(filePath, fileContent, maxFileSize)) {
+        if (!JSTS_EXTENSIONS.includes(extension) || accept(filePath, fileContent, maxFileSize)) {
           files[filePath] = { fileType, filePath, fileContent };
         }
       }
@@ -142,7 +145,7 @@ export async function loadFiles(
         foundTsConfigs.push(filePath);
       }
     },
-    DEFAULT_EXCLUSIONS.concat(exclusions ?? []),
+    DEFAULT_EXCLUSIONS.concat(exclusions ?? []).concat(jsTsExclusions ?? []),
   );
   if (!getTSConfigsCount() && foundTsConfigs.length > 0) {
     setTSConfigs(foundTsConfigs);

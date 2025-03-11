@@ -251,7 +251,7 @@ export class Linter {
           ? (['DEFAULT', 'SKIP_UNCHANGED'] as const)
           : analysisModes;
         // TODO: remove when sonar-security overrides the blacklistedExtensions method
-        const blacklist = (blacklistedExtensions ?? key === 'ucfg') ? ['.htm', '.html'] : [];
+        const blacklist = blacklistedExtensions ?? (key === 'ucfg' ? ['.htm', '.html'] : []);
         return (
           fileTypeTargets.includes(fileType) &&
           effectiveAnalysisModes.includes(actualMode) &&
