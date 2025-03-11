@@ -18,8 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.checkFactory;
-import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
-import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -42,10 +40,10 @@ class JsTsChecksTest {
   void test() {
     JsTsChecks checks = new JsTsChecks(checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923"));
 
-    assertThat(checks.ruleKeyByEslintKey("S3923", TYPESCRIPT)).isEqualTo(
+    assertThat(checks.ruleKeyByEslintKey("S3923", Language.TYPESCRIPT)).isEqualTo(
       RuleKey.of("typescript", "S3923")
     );
-    assertThat(checks.ruleKeyByEslintKey("unknown-rule-key", JAVASCRIPT)).isNull();
+    assertThat(checks.ruleKeyByEslintKey("unknown-rule-key", Language.JAVASCRIPT)).isNull();
   }
 
   @Test
@@ -55,7 +53,7 @@ class JsTsChecksTest {
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
     assertThat(checks.eslintBasedChecks()).hasSize(1);
-    assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT)).isEqualTo(
+    assertThat(checks.ruleKeyByEslintKey("customcheck", Language.TYPESCRIPT)).isEqualTo(
       RuleKey.parse("repo:customcheck")
     );
   }
@@ -69,20 +67,20 @@ class JsTsChecksTest {
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
     assertThat(checks.eslintBasedChecks()).hasSize(2);
-    assertThat(checks.ruleKeyByEslintKey("customcheck", JAVASCRIPT)).isEqualTo(
+    assertThat(checks.ruleKeyByEslintKey("customcheck", Language.JAVASCRIPT)).isEqualTo(
       RuleKey.parse("js-repo:customcheck")
     );
-    assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT)).isEqualTo(
+    assertThat(checks.ruleKeyByEslintKey("customcheck", Language.TYPESCRIPT)).isEqualTo(
       RuleKey.parse("repo:customcheck")
     );
   }
 
   @Test
   void test_equals() {
-    var js1 = new JsTsChecks.LanguageAndRepository(JAVASCRIPT, "javascript");
-    var js2 = new JsTsChecks.LanguageAndRepository(JAVASCRIPT, "javascript");
-    var js3 = new JsTsChecks.LanguageAndRepository(JAVASCRIPT, "custom");
-    var ts = new JsTsChecks.LanguageAndRepository(TYPESCRIPT, "typescript");
+    var js1 = new JsTsChecks.LanguageAndRepository(Language.JAVASCRIPT, "javascript");
+    var js2 = new JsTsChecks.LanguageAndRepository(Language.JAVASCRIPT, "javascript");
+    var js3 = new JsTsChecks.LanguageAndRepository(Language.JAVASCRIPT, "custom");
+    var ts = new JsTsChecks.LanguageAndRepository(Language.TYPESCRIPT, "typescript");
     assertThat(js1.equals(js1)).isTrue();
     assertThat(js1.equals(js2)).isTrue();
     assertThat(js1.equals(null)).isFalse();
@@ -96,7 +94,7 @@ class JsTsChecksTest {
 
     @Override
     public Set<Language> languages() {
-      return EnumSet.of(TYPESCRIPT);
+      return EnumSet.of(CustomRuleRepository.Language.TYPESCRIPT);
     }
 
     @Override

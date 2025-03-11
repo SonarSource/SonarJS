@@ -95,7 +95,7 @@ public class JsTsChecks {
   private void addCustomChecks(Language language) {
     if (customRuleRepositories != null) {
       for (CustomRuleRepository repo : customRuleRepositories) {
-        if (repo.languages().contains(language)) {
+        if (repo.languages().stream().map(Enum::toString).toList().contains(language.toString())) {
           doAddChecks(language, repo.repositoryKey(), repo.checkClasses());
         }
       }
