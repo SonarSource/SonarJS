@@ -1,11 +1,18 @@
 {
+"TypeScript:scripts/tslint/booleanTriviaRule.ts": [
+70
+],
 "TypeScript:src/compiler/binder.ts": [
 185
 ],
 "TypeScript:src/compiler/checker.ts": [
 60,
 61,
-62
+62,
+19049
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+1118
 ],
 "TypeScript:src/compiler/core.ts": [
 834
@@ -14,10 +21,18 @@
 1112
 ],
 "TypeScript:src/compiler/program.ts": [
-1839
+1839,
+1973
+],
+"TypeScript:src/compiler/sys.ts": [
+393
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
 475
+],
+"TypeScript:src/harness/fourslash.ts": [
+2565,
+2578
 ],
 "TypeScript:src/harness/harness.ts": [
 1144
@@ -33,6 +48,7 @@
 129
 ],
 "TypeScript:src/server/server.ts": [
+65,
 455
 ],
 "TypeScript:src/server/session.ts": [
@@ -40,12 +56,21 @@
 1505,
 1509
 ],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+514
+],
 "TypeScript:src/services/patternMatcher.ts": [
 448,
 453
 ],
+"TypeScript:src/services/shims.ts": [
+425
+],
 "TypeScript:src/services/textChanges.ts": [
 465,
 471
+],
+"TypeScript:src/services/utilities.ts": [
+1383
 ]
 }

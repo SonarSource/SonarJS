@@ -1,9 +1,136 @@
 {
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+429
+],
+"courselit:apps/web/components/admin/design/layout-manager/edit-widget-dialog.tsx": [
+56
+],
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
+299,
+385
+],
+"courselit:apps/web/components/admin/media/upload.tsx": [
+199
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+164,
+165,
+167,
+168,
+169,
+170,
+171,
+429,
+441,
+510,
+525,
+593,
+608,
+660,
+681,
+730
+],
+"courselit:apps/web/components/admin/users/details.tsx": [
+162
+],
+"courselit:apps/web/components/admin/users/index.tsx": [
+272
+],
 "courselit:apps/web/components/img.tsx": [
 16
+],
+"courselit:apps/web/components/public/base-layout/template/index.tsx": [
+66,
+97
+],
+"courselit:apps/web/components/public/code-injector.tsx": [
+19
+],
+"courselit:apps/web/components/public/purchase-status.tsx": [
+43
+],
+"courselit:apps/web/config/constants.ts": [
+9,
+16,
+28,
+29
+],
+"courselit:apps/web/graphql/courses/logic.ts": [
+207
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+57,
+114
+],
+"courselit:apps/web/lib/auth-cookies.ts": [
+31
 ],
 "courselit:apps/web/lib/graphql.ts": [
 103,
 106
+],
+"courselit:apps/web/lib/passport-magic-link.ts": [
+24
+],
+"courselit:apps/web/middlewares/verify-domain.ts": [
+70
+],
+"courselit:apps/web/models/Course.ts": [
+66
+],
+"courselit:apps/web/models/Domain.ts": [
+38
+],
+"courselit:apps/web/models/Lesson.ts": [
+42
+],
+"courselit:apps/web/models/Log.ts": [
+21
+],
+"courselit:apps/web/models/Purchase.ts": [
+40
+],
+"courselit:apps/web/models/Theme.ts": [
+38
+],
+"courselit:apps/web/models/User.ts": [
+47
+],
+"courselit:apps/web/pages/_app.tsx": [
+91
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+28,
+29,
+68,
+151
+],
+"courselit:apps/web/services/db.ts": [
+15
+],
+"courselit:apps/web/services/medialit.ts": [
+3
+],
+"courselit:packages/common-widgets/src/tagged-content/admin-widget.tsx": [
+52,
+62,
+72,
+82
+],
+"courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
+19
+],
+"courselit:packages/state-management/src/reducer.ts": [
+44,
+46,
+49,
+52,
+55,
+58,
+61,
+64,
+126,
+135,
+144
 ]
 }

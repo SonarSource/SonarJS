@@ -1,10 +1,30 @@
 {
+"postgraphql:src/__tests__/utils/pgPool.ts": [
+4
+],
+"postgraphql:src/__tests__/utils/withPgClient.ts": [
+36
+],
 "postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
 42,
 70
 ],
 "postgraphql:src/graphql/schema/createGqlSchema.ts": [
 36
+],
+"postgraphql:src/graphql/schema/createMutationGqlField.ts": [
+87
+],
+"postgraphql:src/postgraphql/cli.ts": [
+90,
+99,
+100,
+101,
+118,
+136
+],
+"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
+203
 ],
 "postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts": [
 34
