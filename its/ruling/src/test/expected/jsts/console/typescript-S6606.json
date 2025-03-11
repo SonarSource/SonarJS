@@ -1,0 +1,192 @@
+{
+"console:src/components/Checkbox.tsx": [
+40
+],
+"console:src/components/Datepicker/Datepicker.tsx": [
+55
+],
+"console:src/components/Help/Alert.tsx": [
+26,
+31,
+32
+],
+"console:src/components/Help/Help.tsx": [
+26,
+31,
+32
+],
+"console:src/components/Info.tsx": [
+89
+],
+"console:src/components/Links.tsx": [
+170,
+184,
+197,
+231
+],
+"console:src/components/Loading/Loading.tsx": [
+14,
+15,
+16
+],
+"console:src/components/ModalDocs/ModalDocs.tsx": [
+49,
+150
+],
+"console:src/components/NodeSelector/NodeSelector.tsx": [
+87
+],
+"console:src/components/Popup.tsx": [
+17
+],
+"console:src/components/ScrollBox/ScrollBox.tsx": [
+46,
+52
+],
+"console:src/components/Tether/Tether.tsx": [
+53
+],
+"console:src/reducers/databrowser/data.ts": [
+84,
+88
+],
+"console:src/utils/QueryHistoryStorage.ts": [
+8,
+14
+],
+"console:src/views/ActionsView/ActionTrigger.tsx": [
+45,
+64
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+177
+],
+"console:src/views/Integrations/Algolia/AlgoliaModal.tsx": [
+144,
+152
+],
+"console:src/views/Integrations/Algolia/ConfirmOperationsPopup.tsx": [
+120
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopup.tsx": [
+205
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupHeader.tsx": [
+94,
+102
+],
+"console:src/views/Integrations/IntegrationsCard.tsx": [
+71
+],
+"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
+112
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+226
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+511
+],
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
+427
+],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
+68
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+181
+],
+"console:src/views/ProjectRootView/SideNav.tsx": [
+343,
+438
+],
+"console:src/views/ProjectRootView/SideNavElement.tsx": [
+64,
+71,
+72
+],
+"console:src/views/ProjectRootView/TokenRedirectView.tsx": [
+21
+],
+"console:src/views/RelationsPopup/BreakingChangeIndicator.tsx": [
+26
+],
+"console:src/views/RelationsPopup/HorizontalSelect.tsx": [
+18,
+19
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+83,
+90
+],
+"console:src/views/SchemaView/SchemaOverview/FieldItem.tsx": [
+146,
+147
+],
+"console:src/views/SchemaView/SchemaOverview/PermissionsTag.tsx": [
+14,
+14,
+14
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+223
+],
+"console:src/views/Settings/Billing/CreditCardBack.tsx": [
+18,
+21
+],
+"console:src/views/Settings/Billing/CreditCardFront.tsx": [
+26
+],
+"console:src/views/Settings/Billing/Seats.tsx": [
+15
+],
+"console:src/views/Settings/PricingColumn.tsx": [
+22,
+61
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+44
+],
+"console:src/views/models/DatabrowserView/Cell/DateTimeCell.tsx": [
+22
+],
+"console:src/views/models/DatabrowserView/Cell/DefaultCell.tsx": [
+12
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SearchBox.tsx": [
+60
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+268,
+652,
+657
+],
+"console:src/views/models/DatabrowserView/LoadingCell.tsx": [
+16,
+17
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+141
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+84
+],
+"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
+26,
+27
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+266,
+267,
+299,
+373
+],
+"console:src/views/models/FieldPopup/HorizontalSelect.tsx": [
+18,
+19
+],
+"console:src/views/models/ModelDescription.tsx": [
+60
+]
+}

@@ -1,0 +1,42 @@
+{
+"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
+45,
+46,
+47
+],
+"searchkit:packages/searchkit-elastic-ui/src/SelectedFilters/index.tsx": [
+81
+],
+"searchkit:packages/searchkit-elastic-ui/src/SortingSelector/index.tsx": [
+20
+],
+"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+92
+],
+"searchkit:packages/searchkit-sdk/src/core/FacetsFns.ts": [
+59
+],
+"searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
+56
+],
+"searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts": [
+111
+],
+"searchkit:packages/searchkit-sdk/src/facets/MultiQueryOptionsFacet.ts": [
+107
+],
+"searchkit:packages/searchkit-sdk/src/index.ts": [
+199,
+225
+],
+"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
+71
+],
+"searchkit:packages/searchkit-sdk/src/transformers/index.ts": [
+43,
+43,
+77,
+130,
+178
+]
+}
