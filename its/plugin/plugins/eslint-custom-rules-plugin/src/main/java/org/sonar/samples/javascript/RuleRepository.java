@@ -22,13 +22,14 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Language;
 
 public class RuleRepository implements CustomRuleRepository {
 
   public static final String REPOSITORY_KEY = "eslint-custom-rules";
 
   @Override
-  public Set<CustomRuleRepository.Language> languages() {
+  public Set<Language> languages() {
     return EnumSet.of(Language.JAVASCRIPT, Language.TYPESCRIPT);
   }
 

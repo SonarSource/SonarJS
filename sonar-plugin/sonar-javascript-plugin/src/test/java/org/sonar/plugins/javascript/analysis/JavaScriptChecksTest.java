@@ -17,7 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
+import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;

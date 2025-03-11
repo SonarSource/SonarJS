@@ -28,12 +28,9 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * This interface should be implemented by custom rules plugins to register their rules with SonarJS
- *
- * @deprecated since 6.0. Consider using ESlint custom rules with external issue import instead.
  */
 @ScannerSide
 @SonarLintSide
-@Deprecated(since = "6.0")
 public interface CustomRuleRepository {
   enum Language {
     JAVASCRIPT("js"),
