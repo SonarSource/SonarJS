@@ -75,7 +75,7 @@
     "esbuild": "0.25.1",
     "esbuild-plugin-copy": "2.1.1",
     "esbuild-plugin-text-replace": "1.3.0",
-    "eslint-doc-generator": "2.1.0",
+    "eslint-doc-generator": "2.1.1",
     "esprima": "4.0.1",
     "expect": "29.7.0",
     "extract-zip": "2.0.1",
