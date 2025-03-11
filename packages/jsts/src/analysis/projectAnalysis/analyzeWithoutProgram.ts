@@ -16,15 +16,12 @@
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
-import { isHtmlFile, isYamlFile } from './languages.js';
-import { analyzeHTML } from '../../../../html/src/index.js';
-import { analyzeYAML } from '../../../../yaml/src/index.js';
 
 /**
- * Analyzes JavaScript / TypeScript files without type-checking.
+ * Analyzes files without type-checking.
  *
- * @param filenames the list of JavaScript / TypeScript files to analyze.
- * @param files the list of JavaScript / TypeScript files objects containing the files input data.
+ * @param filenames the list of files to analyze.
+ * @param files the list of files objects containing the files input data.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  */
 export async function analyzeWithoutProgram(
@@ -34,12 +31,6 @@ export async function analyzeWithoutProgram(
 ) {
   for (const filename of filenames) {
     results.meta?.filesWithoutTypeChecking.push(filename);
-    if (isHtmlFile(filename)) {
-      results.files[filename] = await analyzeHTML(files[filename]);
-    } else if (isYamlFile(filename)) {
-      results.files[filename] = await analyzeYAML(files[filename]);
-    } else {
-      results.files[filename] = await analyzeFile(files[filename]);
-    }
+    results.files[filename] = await analyzeFile(files[filename]);
   }
 }
