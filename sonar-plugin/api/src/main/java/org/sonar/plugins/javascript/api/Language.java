@@ -25,8 +25,8 @@ public enum Language {
   JAVASCRIPT("js"),
   TYPESCRIPT("ts");
 
-  private final String lang;
   private static final Map<String, Language> stringMap = Map.of("js", JAVASCRIPT, "ts", TYPESCRIPT);
+  private final String lang;
 
   Language(String language) {
     this.lang = language;
