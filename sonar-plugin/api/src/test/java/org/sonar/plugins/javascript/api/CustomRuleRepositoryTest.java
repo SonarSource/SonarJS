@@ -28,7 +28,7 @@ class CustomRuleRepositoryTest {
   @Test
   void test() {
     MyRepository repo = new MyRepository();
-    assertThat(repo.languages()).containsExactly(MyRepository.Language.JAVASCRIPT);
+    assertThat(repo.compatibleLanguages()).containsExactly(Language.JAVASCRIPT);
   }
 
   static class MyRepository implements CustomRuleRepository {

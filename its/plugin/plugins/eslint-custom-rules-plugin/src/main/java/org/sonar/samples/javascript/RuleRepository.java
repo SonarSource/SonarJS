@@ -16,6 +16,9 @@
  */
 package org.sonar.samples.javascript;
 
+import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
+import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -28,8 +31,8 @@ public class RuleRepository implements CustomRuleRepository {
   public static final String REPOSITORY_KEY = "eslint-custom-rules";
 
   @Override
-  public Set<Language> languages() {
-    return EnumSet.of(Language.JAVASCRIPT, Language.TYPESCRIPT);
+  public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
+    return EnumSet.of(JAVASCRIPT, TYPESCRIPT);
   }
 
   @Override
