@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Language;
 
 /**
  * This repository will register rule only for TypeScript. We reuse same rule implementation

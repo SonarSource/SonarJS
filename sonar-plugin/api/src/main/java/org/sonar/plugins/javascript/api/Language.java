@@ -16,34 +16,25 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Map;
 
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.sonar.check.Rule;
+public enum Language {
+  JAVASCRIPT("js"),
+  TYPESCRIPT("ts");
 
-class CustomRuleRepositoryTest {
+  private static final Map<String, Language> stringMap = Map.of("js", JAVASCRIPT, "ts", TYPESCRIPT);
+  private final String lang;
 
-  @Test
-  void test() {
-    MyRepository repo = new MyRepository();
-    assertThat(repo.compatibleLanguages()).containsExactly(Language.JAVASCRIPT);
+  Language(String language) {
+    this.lang = language;
   }
 
-  static class MyRepository implements CustomRuleRepository {
-
-    @Override
-    public String repositoryKey() {
-      return "key";
-    }
-
-    @Override
-    public List<Class<? extends JavaScriptCheck>> checkClasses() {
-      return Collections.singletonList(CustomCheck.class);
-    }
+  public static Language of(String value) {
+    return stringMap.get(value);
   }
 
-  @Rule(key = "key")
-  static class CustomCheck extends Check {}
+  @Override
+  public String toString() {
+    return lang;
+  }
 }

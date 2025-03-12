@@ -18,8 +18,8 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.checkFactory;
-import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
-import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
+import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
+import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,7 +31,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -95,7 +94,7 @@ class JsTsChecksTest {
   public static class TsRepository implements CustomRuleRepository {
 
     @Override
-    public Set<Language> languages() {
+    public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
       return EnumSet.of(TYPESCRIPT);
     }
 

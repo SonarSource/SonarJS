@@ -34,9 +34,9 @@ import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.CustomRuleRepository.Language;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -95,7 +95,7 @@ public class JsTsChecks {
   private void addCustomChecks(Language language) {
     if (customRuleRepositories != null) {
       for (CustomRuleRepository repo : customRuleRepositories) {
-        if (repo.languages().contains(language)) {
+        if (repo.compatibleLanguages().contains(language)) {
           doAddChecks(language, repo.repositoryKey(), repo.checkClasses());
         }
       }

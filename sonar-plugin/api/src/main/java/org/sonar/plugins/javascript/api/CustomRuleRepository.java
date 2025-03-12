@@ -28,13 +28,14 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * This interface should be implemented by custom rules plugins to register their rules with SonarJS
- *
- * @deprecated since 6.0. Consider using ESlint custom rules with external issue import instead.
  */
 @ScannerSide
 @SonarLintSide
-@Deprecated(since = "6.0")
 public interface CustomRuleRepository {
+  /**
+   * @deprecated Use org.sonar.plugins.javascript.api.Language instead.
+   */
+  @Deprecated(since = "10.22.0", forRemoval = true)
   enum Language {
     JAVASCRIPT("js"),
     TYPESCRIPT("ts");
@@ -59,8 +60,20 @@ public interface CustomRuleRepository {
     }
   }
 
+  /**
+   * @deprecated Override compatibleLanguages instead.
+   */
+  @Deprecated(since = "10.22", forRemoval = true)
   default Set<Language> languages() {
     return EnumSet.of(Language.JAVASCRIPT);
+  }
+
+  default Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
+    // fallback to the values provided in languages(). In the next version, we will remove this fallback.
+    return languages()
+      .stream()
+      .map(language -> org.sonar.plugins.javascript.api.Language.of(language.toString()))
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -70,8 +83,6 @@ public interface CustomRuleRepository {
 
   /**
    * List of the custom rules classes.
-   *
-   * @return
    */
   List<Class<? extends JavaScriptCheck>> checkClasses();
 }

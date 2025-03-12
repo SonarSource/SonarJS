@@ -46,7 +46,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
@@ -351,10 +351,7 @@ public class AnalysisProcessor {
   }
 
   private RuleKey findRuleKey(Issue issue) {
-    return checks.ruleKeyByEslintKey(
-      issue.ruleId(),
-      CustomRuleRepository.Language.of(issue.language())
-    );
+    return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
   }
 
   private boolean isSqQuickFixCompatible() {
