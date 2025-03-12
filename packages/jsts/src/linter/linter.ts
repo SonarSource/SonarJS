@@ -84,7 +84,7 @@ export class Linter {
   };
 
   /** The rules configuration */
-  public static ruleConfigs: RuleConfig[] | undefined;
+  private static ruleConfigs: RuleConfig[] | undefined;
   /** The rules configuration */
   public static readonly rulesConfigCache: Map<string, ESLintLinter.RulesRecord> = new Map();
   /** The global variables */

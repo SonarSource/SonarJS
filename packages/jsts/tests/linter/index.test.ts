@@ -142,19 +142,8 @@ describe('Linter', () => {
   });
 
   it('should enable internal custom rules by default', async () => {
-    await Linter.initialize({
-      rules: [
-        {
-          key: 'S100',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-      ],
-    });
+    await Linter.initialize({});
     expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual({
-      'sonarjs/S100': ['error'],
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
     });
@@ -196,13 +185,34 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const { issues } = Linter.lint(parseResult, filePath, 'MAIN', 'SAME');
 
     expect(issues).toEqual([
       expect.objectContaining({
         ruleId,
       }),
     ]);
+  });
+
+  it('should skip issues for unchanged files when analysis mode is skip_unchanged', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'internal.js');
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    const ruleId = 'S2251';
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    await Linter.initialize({ rules });
+    const { issues } = Linter.lint(parseResult, filePath, 'MAIN', 'SAME', 'SKIP_UNCHANGED');
+
+    expect(issues).toEqual([]);
   });
 
   it('should report issues from type-aware rules', async () => {
