@@ -25,18 +25,18 @@ public enum Language {
   JAVASCRIPT("js"),
   TYPESCRIPT("ts");
 
-  private static final Map<String, Language> stringMap = Arrays.stream(values()).collect(
-    Collectors.toMap(Enum::toString, Function.identity())
-  );
-
-  public static Language of(String value) {
-    return stringMap.get(value);
-  }
-
   private final String lang;
 
   Language(String language) {
     this.lang = language;
+  }
+
+  private static final Map<String, Language> stringMap = Arrays.stream(values()).collect(
+    Collectors.toMap(Language::toString, Function.identity())
+  );
+
+  public static Language of(String value) {
+    return stringMap.get(value);
   }
 
   @Override
