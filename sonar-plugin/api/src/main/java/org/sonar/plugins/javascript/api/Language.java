@@ -16,10 +16,7 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum Language {
   JAVASCRIPT("js"),
