@@ -26,14 +26,11 @@ public enum Language {
   TYPESCRIPT("ts");
 
   private final String lang;
+  private static final Map<String, Language> stringMap = Map.of("js", JAVASCRIPT, "ts", TYPESCRIPT);
 
   Language(String language) {
     this.lang = language;
   }
-
-  private static final Map<String, Language> stringMap = Arrays.stream(values()).collect(
-    Collectors.toMap(Language::toString, Function.identity())
-  );
 
   public static Language of(String value) {
     return stringMap.get(value);
