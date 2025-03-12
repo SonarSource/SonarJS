@@ -12,7 +12,7 @@
   "sqKey": "S2255",
   "scope": "Main",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

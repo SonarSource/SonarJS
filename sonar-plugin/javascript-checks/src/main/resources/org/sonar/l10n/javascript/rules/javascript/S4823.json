@@ -8,7 +8,7 @@
   "sqKey": "S4823",
   "scope": "Main",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

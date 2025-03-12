@@ -22,6 +22,6 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

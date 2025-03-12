@@ -22,7 +22,7 @@
     "attribute": "LOGICAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

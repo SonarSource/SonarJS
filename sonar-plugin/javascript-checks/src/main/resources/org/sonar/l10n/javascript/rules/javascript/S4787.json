@@ -14,7 +14,7 @@
   "sqKey": "S4787",
   "scope": "Main",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

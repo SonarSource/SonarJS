@@ -22,7 +22,7 @@
   "quickfix": "unknown",
   "title": "Variables should not be shadowed",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

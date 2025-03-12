@@ -23,6 +23,6 @@
   "quickfix": "covered",
   "title": "Nullish coalescing should be preferred",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

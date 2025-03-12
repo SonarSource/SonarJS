@@ -19,6 +19,6 @@
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

@@ -22,7 +22,7 @@
     "attribute": "FORMATTED"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

@@ -22,7 +22,7 @@
   "scope": "All",
   "quickfix": "targeted",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

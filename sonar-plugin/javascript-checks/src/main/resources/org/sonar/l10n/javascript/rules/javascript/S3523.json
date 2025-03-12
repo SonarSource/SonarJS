@@ -19,6 +19,6 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "js"
   ]
 }

@@ -21,7 +21,7 @@
     "attribute": "IDENTIFIABLE"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

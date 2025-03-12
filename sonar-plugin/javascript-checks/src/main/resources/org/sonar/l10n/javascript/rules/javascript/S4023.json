@@ -19,6 +19,6 @@
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

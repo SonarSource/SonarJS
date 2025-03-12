@@ -21,6 +21,6 @@
   "scope": "All",
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

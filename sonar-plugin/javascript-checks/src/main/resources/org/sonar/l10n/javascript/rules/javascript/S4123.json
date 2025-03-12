@@ -22,7 +22,7 @@
   "quickfix": "unknown",
   "title": "\"await\" should only be used with promises",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

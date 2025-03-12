@@ -23,7 +23,7 @@
     "attribute": "MODULAR"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

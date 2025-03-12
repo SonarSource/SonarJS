@@ -22,7 +22,7 @@
     "attribute": "EFFICIENT"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

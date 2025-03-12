@@ -19,7 +19,7 @@
     "attribute": "CLEAR"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

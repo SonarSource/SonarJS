@@ -23,7 +23,7 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

@@ -22,7 +22,7 @@
     "attribute": "COMPLETE"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

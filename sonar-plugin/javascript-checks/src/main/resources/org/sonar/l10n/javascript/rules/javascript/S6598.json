@@ -22,6 +22,6 @@
   "scope": "All",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

@@ -22,7 +22,7 @@
     "attribute": "DISTINCT"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }
