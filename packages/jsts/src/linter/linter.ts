@@ -84,7 +84,7 @@ export class Linter {
   };
 
   /** The rules configuration */
-  public static ruleConfig: RuleConfig[] | undefined;
+  public static ruleConfigs: RuleConfig[] | undefined;
   /** The rules configuration */
   public static readonly rulesConfigCache: Map<string, ESLintLinter.RulesRecord> = new Map();
   /** The global variables */
@@ -126,7 +126,7 @@ export class Linter {
     rulesWorkdir,
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
-    Linter.ruleConfig = rules;
+    Linter.ruleConfigs = rules;
     Linter.sonarlint = sonarlint;
     Linter.linter = new ESLintLinter({ cwd: baseDir });
     Linter.rulesWorkdir = rulesWorkdir;
@@ -186,7 +186,12 @@ export class Linter {
       plugins: {
         sonarjs: { rules: Linter.rules },
       },
-      rules: this.getRulesForFile(filePath, fileType, fileStatus, analysisMode, language),
+      rules: Linter.getRulesForFile(
+        filePath,
+        fileType,
+        fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
+        language,
+      ),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
@@ -225,20 +230,18 @@ export class Linter {
 
   public static getRulesForFile(
     filePath: string,
-    fileType: FileType = 'MAIN',
-    fileStatus: FileStatus = 'CHANGED',
-    analysisMode: AnalysisMode = 'DEFAULT',
-    fileLanguage: JsTsLanguage = 'js',
+    fileType: FileType,
+    analysisMode: AnalysisMode,
+    fileLanguage: JsTsLanguage,
   ) {
-    const actualMode = fileStatus === 'SAME' ? analysisMode : 'DEFAULT';
-    const key = createLinterConfigKey(filePath, fileType, fileLanguage, actualMode);
-    if (!this.rulesConfigCache.has(key)) {
+    const linterConfigKey = createLinterConfigKey(filePath, fileType, fileLanguage, analysisMode);
+    if (!Linter.rulesConfigCache.has(linterConfigKey)) {
       /**
        * Creates the wrapper's linting configurations
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const rules = Linter.ruleConfig?.filter(ruleConfig => {
+      const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           key,
           fileTypeTargets,
@@ -254,14 +257,14 @@ export class Linter {
         const blacklist = blacklistedExtensions ?? (key === 'ucfg' ? ['.htm', '.html'] : []);
         return (
           fileTypeTargets.includes(fileType) &&
-          effectiveAnalysisModes.includes(actualMode) &&
+          effectiveAnalysisModes.includes(analysisMode) &&
           fileLanguage === language &&
           !blacklist.includes(extname(toUnixPath(filePath)))
         );
       });
-      this.rulesConfigCache.set(key, Linter.createRulesRecord(rules ?? []));
+      Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
     }
-    return this.rulesConfigCache.get(key);
+    return Linter.rulesConfigCache.get(linterConfigKey);
   }
 
   /**
