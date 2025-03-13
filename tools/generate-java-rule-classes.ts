@@ -28,11 +28,13 @@ import {
   header,
   inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
-  REPOSITORY_ROOT,
+  listRulesDir,
+  ruleRegex,
+  sonarKeySorter,
 } from './helpers.js';
+import { readdir } from 'fs/promises';
 
 const JAVA_CHECKS_FOLDER = join(
-  REPOSITORY_ROOT,
   'sonar-plugin',
   'javascript-checks',
   'src',
@@ -81,7 +83,7 @@ async function inflate1541() {
 
 export async function generateJavaCheckClass(
   sonarKey: string,
-  defaults?: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+  defaults?: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
 ) {
   if (sonarKey === 'S1541') {
     await inflate1541();
@@ -100,11 +102,11 @@ export async function generateJavaCheckClass(
   }
 
   const derivedLanguages = ruleRspecMeta.compatibleLanguages;
-  if (derivedLanguages.includes('JAVASCRIPT')) {
+  if (derivedLanguages.includes('js')) {
     decorators.push('@JavaScriptRule');
     imports.add('import org.sonar.plugins.javascript.api.JavaScriptRule;');
   }
-  if (derivedLanguages.includes('TYPESCRIPT')) {
+  if (derivedLanguages.includes('ts')) {
     decorators.push('@TypeScriptRule');
     imports.add('import org.sonar.plugins.javascript.api.TypeScriptRule;');
   }
@@ -254,3 +256,31 @@ function generateBody(
   }
   return result;
 }
+
+const allChecks = [];
+
+for (const file of await listRulesDir()) {
+  if (file === 'S1541') {
+    allChecks.push(`${file}Js`);
+    allChecks.push(`${file}Ts`);
+  } else {
+    allChecks.push(file);
+  }
+
+  await generateJavaCheckClass(file);
+}
+
+await generateParsingErrorClass();
+allChecks.push('S2260');
+
+await inflateTemplateToFile(
+  join(JAVA_TEMPLATES_FOLDER, 'allchecks.template'),
+  join(JAVA_CHECKS_FOLDER, 'AllChecks.java'),
+  {
+    ___JAVACHECKS_CLASSES___: allChecks
+      .sort(sonarKeySorter)
+      .map(rule => `${rule}.class`)
+      .join(','),
+    ___HEADER___: header,
+  },
+);

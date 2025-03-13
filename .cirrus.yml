@@ -52,8 +52,8 @@ orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
 
 nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
-    folder: tools/fetch-node/downloads/
-    fingerprint_script: cat tools/fetch-node/node-distros.mjs
+    folder: resources/downloads/
+    fingerprint_script: cat tools/node-distros.mjs
 
 npm_cache_definition: &NPM_CACHE
   npm_cache:
@@ -140,8 +140,7 @@ build_task:
     - node --version
     - npm ci
     - npm run check-format
-    - npm run build
-    - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
+    - regular_mvn_build_deploy_analyze -Dsonar.skip=true
 
 analyze_task:
   eks_container:

@@ -13,7 +13,7 @@
     "type-dependent"
   ],
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "defaultSeverity": "Minor",
@@ -23,6 +23,6 @@
   "quickfix": "covered",
   "title": "Nullish coalescing should be preferred",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

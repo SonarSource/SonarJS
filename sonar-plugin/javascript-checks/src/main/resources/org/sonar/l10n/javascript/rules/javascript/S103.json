@@ -9,17 +9,24 @@
   },
   "status": "deprecated",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "MaxLineLengthCheck",
+      "LineLength"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-103",
   "sqKey": "S103",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

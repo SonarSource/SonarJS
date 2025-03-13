@@ -9,19 +9,26 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "pitfall"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "OctalConstantAndSequence",
+      "OctalNumber"
+    ]
+  },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1314",
   "sqKey": "S1314",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

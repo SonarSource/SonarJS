@@ -9,18 +9,22 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "15min"
   },
   "tags": [
     "unpredictable"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2966",
   "sqKey": "S2966",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }
