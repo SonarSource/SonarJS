@@ -9,19 +9,23 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "confusing",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2933",
   "sqKey": "S2933",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

@@ -11,6 +11,9 @@
   "tags": [
     "cwe"
   ],
+  "extra": {
+    "replacementRules": []
+  },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6299",
   "sqKey": "S6299",
@@ -36,7 +39,7 @@
     ]
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

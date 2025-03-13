@@ -9,20 +9,23 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "regex",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6326",
   "sqKey": "S6326",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

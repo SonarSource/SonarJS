@@ -9,13 +9,16 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "60min"
   },
   "tags": [
     "cwe",
     "aws"
   ],
+  "extra": {
+    "legacyKeys": []
+  },
   "securityStandards": {
     "CWE": [
       269
@@ -33,7 +36,7 @@
   "scope": "All",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

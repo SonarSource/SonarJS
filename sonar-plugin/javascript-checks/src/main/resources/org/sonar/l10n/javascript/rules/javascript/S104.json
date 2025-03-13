@@ -9,19 +9,27 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1h"
   },
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "FileLoc",
+      "FileLengthCheck",
+      "S00104"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-104",
   "sqKey": "S104",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

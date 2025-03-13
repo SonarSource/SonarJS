@@ -1,5 +1,5 @@
 {
-  "title": "Server hostnames should be verified during SSL\/TLS connections",
+  "title": "Server hostnames should be verified during SSL/TLS connections",
   "type": "VULNERABILITY",
   "code": {
     "impacts": {
@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
@@ -17,6 +17,10 @@
     "privacy",
     "ssl"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5527",
   "sqKey": "S5527",
@@ -49,7 +53,7 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

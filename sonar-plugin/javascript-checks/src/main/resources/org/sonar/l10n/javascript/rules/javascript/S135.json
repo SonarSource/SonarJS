@@ -16,13 +16,20 @@
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "TooManyBreakOrContinueInLoop",
+      "too-many-break-or-continue-in-loop"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-135",
   "sqKey": "S135",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

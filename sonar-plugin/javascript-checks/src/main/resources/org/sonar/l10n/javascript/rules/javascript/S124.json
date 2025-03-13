@@ -9,17 +9,25 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "0min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "comment-regular-expression",
+      "CommentRegularExpression",
+      "CommentRegularExpressionCheckPlSql"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-124",
   "sqKey": "S124",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

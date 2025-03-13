@@ -10,12 +10,18 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "30min"
   },
   "tags": [
     "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "Eval"
+    ]
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1523",
   "sqKey": "S1523",
@@ -43,7 +49,7 @@
     ]
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

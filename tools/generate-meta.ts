@@ -16,17 +16,13 @@
  */
 import { listRulesDir } from './helpers.js';
 import { generateMetaForRule } from './generate-eslint-meta.js';
-import { generateJavaCheckClass, generateParsingErrorClass } from './generate-java-rule-classes.js';
 import { updateIndexes } from './generate-rule-indexes.js';
 
 /**
  * Generate packages/jsts/src/rules/SXXXX/generated-meta.ts on each rule
- * with data coming from the RSPEC json files. This data fills in the Rule ESLint metadata
- * Also, generate SXXX Java Check classes.
+ * with data coming from the RSPEC json files. This data fills in the Rule ESLint metadata.
  */
 for (const file of await listRulesDir()) {
   await generateMetaForRule(file);
-  await generateJavaCheckClass(file);
 }
-await generateParsingErrorClass();
 await updateIndexes();

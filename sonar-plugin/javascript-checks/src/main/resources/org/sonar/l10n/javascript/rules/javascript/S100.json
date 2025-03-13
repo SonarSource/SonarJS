@@ -9,19 +9,25 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "convention"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "MethodName"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-100",
   "sqKey": "S100",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -104,15 +105,109 @@
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <configuration>
-          <jreMinVersion>${jdk.min.version}</jreMinVersion>
-          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
-          <pluginName>JavaScript/TypeScript/CSS Code Quality and Security</pluginName>
-          <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
-          <requiredForLanguages>js,ts,css,web,yaml</requiredForLanguages>
-          <skipDependenciesPackaging>true</skipDependenciesPackaging>
-          <sonarLintSupported>true</sonarLintSupported>
-        </configuration>
+          <configuration>
+            <jreMinVersion>${jdk.min.version}</jreMinVersion>
+            <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
+            <pluginName>JavaScript/TypeScript/CSS Code Quality and Security</pluginName>
+            <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
+            <requiredForLanguages>js,ts,css,web,yaml</requiredForLanguages>
+            <skipDependenciesPackaging>true</skipDependenciesPackaging>
+            <sonarLintSupported>true</sonarLintSupported>
+          </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>Download the Node.js runtimes</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>node</executable>
+              <workingDirectory>${project.basedir}/../..</workingDirectory>
+              <arguments>
+                <argument>tools/fetch-node.mjs</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonarsource.javascript</groupId>
+        <artifactId>sonarjs-maven-plugin</artifactId>
+        <version>1</version>
+        <executions>
+          <execution>
+            <id>Compress the Node.js runtimes</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>compress</goal>
+            </goals>
+            <configuration>
+              <baseDirectory>${project.basedir}/../../resources/downloads/runtimes</baseDirectory>
+              <filenames>
+                <filename>darwin-arm64/node</filename>
+                <filename>darwin-x64/node</filename>
+                <filename>linux-arm64/node</filename>
+                <filename>linux-x64/node</filename>
+                <filename>linux-x64-musl/node</filename>
+                <filename>win-x64/node.exe</filename>
+              </filenames>
+              <targetDirectory>${project.basedir}/../../resources/downloads/runtimes</targetDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Create Node.js runtimes versions</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>create-versions</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>v22.11.0</nodeVersion>
+              <baseDirectory>${project.basedir}/../../resources/downloads/runtimes</baseDirectory>
+              <filenames>
+                <filename>darwin-arm64/node.xz</filename>
+                <filename>darwin-x64/node.xz</filename>
+                <filename>linux-arm64/node.xz</filename>
+                <filename>linux-x64/node.xz</filename>
+                <filename>linux-x64-musl/node.xz</filename>
+                <filename>win-x64/node.exe.xz</filename>
+              </filenames>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>Deploy the Node.js runtimes to the test classes</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/../../resources/downloads/runtimes</directory>
+                  <includes>
+                    <include>**/*.xz</include>
+                    <include>**/version.txt</include>
+                  </includes>
+                </resource>
+              </resources>
+              <outputDirectory>${project.build.directory}/test-classes/runtimes</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -142,11 +237,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>win-x64/node.exe.xz</resource>
-                  <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/win-x64/node.exe.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>win-x64/version.txt</resource>
-                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/win-x64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -170,11 +265,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/node.xz</resource>
-                  <file>${project.build.directory}/node/linux-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
-                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -198,11 +293,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/node.xz</resource>
-                  <file>${project.build.directory}/node/linux-x64-musl/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/version.txt</resource>
-                  <file>${project.build.directory}/node/linux-x64-musl/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -226,11 +321,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
-                  <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>
-                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -254,11 +349,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-x64/node.xz</resource>
-                  <file>${project.build.directory}/node/darwin-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-x64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-x64/version.txt</resource>
-                  <file>${project.build.directory}/node/darwin-x64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-x64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -282,11 +377,11 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-arm64/node.xz</resource>
-                  <file>${project.build.directory}/node/linux-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-arm64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-arm64/version.txt</resource>
-                  <file>${project.build.directory}/node/linux-arm64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-arm64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -310,40 +405,41 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>win-x64/node.exe.xz</resource>
-                  <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/win-x64/node.exe.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>win-x64/version.txt</resource>
-                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/win-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/node.xz</resource>
-                  <file>${project.build.directory}/node/linux-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
-                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/node.xz</resource>
-                  <file>${project.build.directory}/node/linux-x64-musl/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/version.txt</resource>
-                  <file>${project.build.directory}/node/linux-x64-musl/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
-                  <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>
-                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
           </execution>
 
+          <!-- what is the purpose of this step -->
           <execution>
             <phase>package</phase>
             <goals>
@@ -409,5 +505,4 @@
 
     </plugins>
   </build>
-
 </project>

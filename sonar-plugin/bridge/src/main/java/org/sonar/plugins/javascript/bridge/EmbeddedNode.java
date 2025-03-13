@@ -172,11 +172,14 @@ public class EmbeddedNode {
     }
     try {
       var is = getClass().getResourceAsStream(platform.archivePathInJar());
+
       if (is == null) {
         LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
         return;
       }
+
       var targetRuntime = deployLocation.resolve(platform.binary());
+
       var targetDirectory = targetRuntime.getParent();
       var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
       LOG.info(

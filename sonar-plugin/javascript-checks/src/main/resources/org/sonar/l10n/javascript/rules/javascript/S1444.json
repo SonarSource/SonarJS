@@ -9,12 +9,16 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "20min"
   },
   "tags": [
     "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1444",
   "sqKey": "S1444",
@@ -26,6 +30,6 @@
   },
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "ts"
   ]
 }

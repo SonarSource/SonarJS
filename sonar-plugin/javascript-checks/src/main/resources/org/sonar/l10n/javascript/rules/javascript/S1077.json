@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
@@ -17,13 +17,19 @@
     "wcag2-a",
     "react"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "ImgWithoutAltCheck"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1077",
   "sqKey": "S1077",
   "scope": "Main",
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }
