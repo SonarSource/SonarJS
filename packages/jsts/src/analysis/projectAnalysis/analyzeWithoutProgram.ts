@@ -14,7 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import {
+  Configuration,
+  fieldsForJsTsAnalysisInput,
+  JsTsFiles,
+  ProjectAnalysisOutput,
+} from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 
 /**
@@ -23,14 +28,20 @@ import { analyzeFile } from './analyzeFile.js';
  * @param filenames the list of files to analyze.
  * @param files the list of files objects containing the files input data.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
+ * @param configuration object containing configuration for the analysis with fields needed for
+ *                      analyzing each file, i.e. allowTsParserJsFiles
  */
 export async function analyzeWithoutProgram(
   filenames: Set<string>,
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
+  configuration: Configuration,
 ) {
   for (const filename of filenames) {
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = await analyzeFile(files[filename]);
+    results.files[filename] = await analyzeFile({
+      ...files[filename],
+      ...fieldsForJsTsAnalysisInput(configuration),
+    });
   }
 }

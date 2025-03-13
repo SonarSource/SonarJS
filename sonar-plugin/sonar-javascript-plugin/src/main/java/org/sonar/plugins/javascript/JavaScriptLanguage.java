@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.List;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -35,5 +36,13 @@ public class JavaScriptLanguage extends AbstractLanguage {
   @Override
   public String[] getFileSuffixes() {
     return configuration.getStringArray(FILE_SUFFIXES_KEY);
+  }
+
+  public static List<String> getExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+        ? config.getStringArray(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+        : JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",")
+    );
   }
 }

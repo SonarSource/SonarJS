@@ -46,7 +46,6 @@ public abstract class AbstractAnalysis {
   final BridgeServer bridgeServer;
   final AnalysisProcessor analysisProcessor;
   SensorContext context;
-  ContextUtils contextUtils;
   JsTsChecks checks;
   ProgressReport progressReport;
   protected final AnalysisWarningsWrapper analysisWarnings;
@@ -65,7 +64,6 @@ public abstract class AbstractAnalysis {
   void initialize(SensorContext context, JsTsChecks checks, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
-    contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.consumers = consumers;
   }
@@ -90,18 +88,15 @@ public abstract class AbstractAnalysis {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
-        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var skipAst =
-          !consumers.hasConsumers() ||
-          !(contextUtils.isSonarArmorEnabled() ||
-            contextUtils.isSonarJasminEnabled() ||
-            contextUtils.isSonarJaredEnabled());
+        var fileContent = ContextUtils.shouldSendFileContent(context, file)
+          ? file.contents()
+          : null;
         var request = getJsAnalysisRequest(
           file,
           fileContent,
           tsProgram,
           tsConfigs,
-          skipAst,
+          ContextUtils.skipAst(context, consumers),
           dirtyPackageJSONCache
         );
 
@@ -153,15 +148,15 @@ public abstract class AbstractAnalysis {
       file.absolutePath(),
       file.type().toString(),
       fileContent,
-      contextUtils.ignoreHeaderComments(),
+      ContextUtils.ignoreHeaderComments(context),
       tsConfigs,
       tsProgram != null ? tsProgram.programId() : null,
       file.status(),
-      contextUtils.getAnalysisMode(),
+      ContextUtils.getAnalysisMode(context),
       skipAst,
       shouldClearDependenciesCache,
-      contextUtils.isSonarLint(),
-      contextUtils.allowTsParserJsFiles()
+      ContextUtils.isSonarLint(context),
+      ContextUtils.allowTsParserJsFiles(context)
     );
   }
 

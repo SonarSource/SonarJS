@@ -52,14 +52,8 @@ public class LookupConfigProviderFilter {
     private final Set<String> extensions = new HashSet<>();
 
     public FileFilter(Configuration config) {
-      var jsExtensions = config.hasKey(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        : JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
-      var tsExtensions = config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        : TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
-      extensions.addAll(stream(jsExtensions).toList());
-      extensions.addAll(stream(tsExtensions).toList());
+      extensions.addAll(JavaScriptLanguage.getExtensions(config));
+      extensions.addAll(TypeScriptLanguage.getExtensions(config));
     }
 
     @Override

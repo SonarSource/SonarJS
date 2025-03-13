@@ -24,7 +24,6 @@ import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../../../jsts/src/rules/metas.js';
 import { SonarMeta } from '../../../jsts/src/rules/index.js';
-import { defaultOptions } from '../../../jsts/src/rules/helpers/configs.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -77,7 +76,7 @@ export async function testProject(projectName: string) {
     .flatMap(([key, meta]: [string, SonarMeta]): RuleConfig[] => {
       return meta.languages.map(language => ({
         key,
-        configurations: defaultOptions(meta.fields) || [],
+        configurations: [],
         language: language === 'JAVASCRIPT' ? 'js' : 'ts',
         fileTypeTargets: meta.scope === 'Tests' ? ['TEST'] : ['MAIN'],
         analysisModes: ['DEFAULT'],
@@ -126,23 +125,30 @@ function applyRulingConfig(rule: RuleConfig) {
     }
     case 'S1451': {
       if (rule.language === 'js') {
-        rule.configurations[0].headerFormat =
-          '// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.';
-        rule.configurations[0].isRegularExpression = true;
+        rule.configurations.push({
+          headerFormat: '// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.',
+          isRegularExpression: true,
+        });
       } else {
-        rule.configurations[0].headerFormat = '//.*';
-        rule.configurations[0].isRegularExpression = true;
+        rule.configurations.push({
+          headerFormat: '//.*',
+          isRegularExpression: true,
+        });
       }
       break;
     }
     case 'S124': {
-      rule.configurations[0].regularExpression = '.*TODO.*';
-      rule.configurations[0].flags = 'i';
+      rule.configurations.push({
+        regularExpression: '.*TODO.*',
+        flags: 'i',
+      });
       break;
     }
     case 'S1192': {
       if (rule.language === 'js') {
-        rule.configurations[0]!.threshold = 4;
+        rule.configurations.push({
+          threshold: 4,
+        });
       }
       break;
     }

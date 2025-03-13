@@ -14,7 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import {
+  Configuration,
+  fieldsForJsTsAnalysisInput,
+  JsTsFiles,
+  ProjectAnalysisOutput,
+} from './projectAnalysis.js';
 import { createProgramOptions } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { clearTypeScriptESLintParserCaches } from '../../parsers/eslint.js';
@@ -29,12 +34,15 @@ import { clearTypeScriptESLintParserCaches } from '../../parsers/eslint.js';
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
+ * @param configuration object containing configuration for the analysis with fields needed for
+ *                      analyzing each file, i.e. allowTsParserJsFiles
  */
 export async function analyzeWithWatchProgram(
   files: JsTsFiles,
   tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  configuration: Configuration,
 ) {
   for await (const tsConfig of tsConfigs) {
     const options = createProgramOptions(tsConfig);
@@ -45,6 +53,7 @@ export async function analyzeWithWatchProgram(
         results.files[filename] = await analyzeFile({
           ...files[filename],
           tsConfigs: [tsConfig],
+          ...fieldsForJsTsAnalysisInput(configuration),
         });
         pendingFiles.delete(filename);
       }

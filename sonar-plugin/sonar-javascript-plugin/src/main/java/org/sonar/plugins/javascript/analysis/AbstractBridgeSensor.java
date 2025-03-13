@@ -46,9 +46,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected final BridgeServer bridgeServer;
   List<String> environments;
   List<String> globals;
-
   protected SensorContext context;
-  protected ContextUtils contextUtils;
 
   protected AbstractBridgeSensor(BridgeServer bridgeServer, String lang) {
     this.bridgeServer = bridgeServer;
@@ -59,7 +57,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
   public void execute(SensorContext context) {
     CacheStrategies.reset();
     this.context = context;
-    this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
 
@@ -71,7 +68,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
-      var msg = contextUtils.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
+      var msg = ContextUtils.getAnalysisMode(context) == AnalysisMode.SKIP_UNCHANGED
         ? "Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);

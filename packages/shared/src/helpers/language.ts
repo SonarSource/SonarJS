@@ -49,3 +49,30 @@ export function isTsFile(filePath: string, contents: string) {
     TS_EXTENSIONS.includes(extension) || (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
   );
 }
+
+export function isHtmlFile(filePath: string) {
+  return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+}
+
+export function isYamlFile(filePath: string) {
+  return YAML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+}
+
+export function isJsTsFile(filePath: string) {
+  return JSTS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+}
+
+export function isAnalyzableFile(filePath: string) {
+  return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
+}
+
+export function setJsTsExtensions(jsSuffixes?: string[], tsSuffixes?: string[]) {
+  if (jsSuffixes?.length) {
+    JS_EXTENSIONS.length = 0;
+    JS_EXTENSIONS.push(...jsSuffixes);
+  }
+  if (tsSuffixes?.length) {
+    TS_EXTENSIONS.length = 0;
+    TS_EXTENSIONS.push(...tsSuffixes);
+  }
+}

@@ -44,14 +44,14 @@ import { Issue } from '../linter/issues/issue.js';
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
+  fileStatus?: FileStatus;
   language?: JsTsLanguage;
+  analysisMode?: AnalysisMode;
   ignoreHeaderComments?: boolean;
   allowTsParserJsFiles?: boolean;
   tsConfigs?: string[];
   programId?: string;
   skipAst?: boolean;
-  analysisMode?: AnalysisMode;
-  fileStatus?: FileStatus;
   shouldClearDependenciesCache?: boolean;
 }
 

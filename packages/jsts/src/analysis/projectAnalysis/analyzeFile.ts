@@ -16,11 +16,11 @@
  */
 import { createParsingIssue, parseParsingError } from '../../../../bridge/src/errors/index.js';
 import { JsTsAnalysisInput } from '../analysis.js';
-import { isHtmlFile, isYamlFile } from './languages.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
 import { analyzeJSTS } from '../analyzer.js';
 import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import { isHtmlFile, isYamlFile } from '../../../../shared/src/helpers/language.js';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format

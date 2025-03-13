@@ -14,7 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import {
+  Configuration,
+  fieldsForJsTsAnalysisInput,
+  JsTsFiles,
+  ProjectAnalysisOutput,
+} from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
@@ -28,15 +33,18 @@ import { error } from '../../../../shared/src/helpers/logging.js';
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
+ * @param configuration object containing configuration for the analysis with fields needed for
+ *                      analyzing each file, i.e. allowTsParserJsFiles
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,
   tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  configuration: Configuration,
 ) {
   for await (const tsConfig of tsConfigs) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles);
+    await analyzeProgram(files, tsConfig, results, pendingFiles, configuration);
     if (!pendingFiles.size) {
       break;
     }
@@ -48,6 +56,7 @@ async function analyzeProgram(
   tsConfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  configuration: Configuration,
 ) {
   let filenames, programId, projectReferences;
   try {
@@ -63,6 +72,7 @@ async function analyzeProgram(
       results.files[filename] = await analyzeFile({
         ...files[filename],
         programId,
+        ...fieldsForJsTsAnalysisInput(configuration),
       });
       pendingFiles.delete(filename);
     }
@@ -70,6 +80,6 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles);
+    await analyzeProgram(files, reference, results, pendingFiles, configuration);
   }
 }

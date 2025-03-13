@@ -52,7 +52,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var issues = new ArrayList<BridgeServer.Issue>();
 
-    var tsConfigs = TsConfigProvider.getTsConfigs(contextUtils, this::createTsConfigFile);
+    var tsConfigs = TsConfigProvider.getTsConfigs(context, this::createTsConfigFile);
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
     boolean success = false;
