@@ -14,12 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AnalysisMode, JsTsAnalysisInput } from '../analysis.js';
+import { AnalysisMode, JsTsAnalysisInput, JsTsAnalysisOutput } from '../analysis.js';
 import { RuleConfig } from '../../linter/config/rule-config.js';
-import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
+import { ErrorCode } from '../../../../shared/src/errors/error.js';
 
 export type ProjectAnalysisOutput = {
-  files: { [key: string]: AnalysisOutput };
+  files: { [key: string]: FileResult };
   meta?: {
     withProgram: boolean;
     withWatchProgram: boolean;
@@ -27,6 +28,17 @@ export type ProjectAnalysisOutput = {
     programsCreated: string[];
   };
 };
+
+export type FileResult = JsTsAnalysisOutput | EmbeddedAnalysisOutput | ParsingError | Error;
+
+export type ParsingError = {
+  parsingError: {
+    message: string;
+    code: ErrorCode;
+    line?: number;
+  };
+};
+export type Error = { error: string };
 
 export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
 
