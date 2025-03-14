@@ -1,0 +1,28 @@
+{
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+394
+],
+"console:src/utils/valueparser.ts": [
+142,
+155,
+184
+],
+"console:src/views/ActionsView/ActionBoxes.tsx": [
+55
+],
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+92
+],
+"console:src/views/Integrations/Algolia/AlgoliaQuery.tsx": [
+31
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupQuery.tsx": [
+48
+],
+"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
+29,
+55,
+86,
+126
+]
+}

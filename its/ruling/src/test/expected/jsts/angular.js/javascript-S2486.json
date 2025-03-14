@@ -1,35 +1,32 @@
 {
-"angular.js:test/e2e/fixtures/base-tag/script.js": [
-9
+"angular.js:src/Angular.js": [
+1154,
+1378,
+1398
 ],
-"angular.js:test/helpers/privateMocks.js": [
-52,
-55
+"angular.js:src/ng/browser.js": [
+67
 ],
-"angular.js:test/helpers/support.js": [
-16
+"angular.js:src/ng/compile.js": [
+2319,
+2778
 ],
-"angular.js:test/ng/compileSpec.js": [
-688
+"angular.js:src/ng/cookieReader.js": [
+20,
+28
 ],
-"angular.js:test/ng/ngPropSpec.js": [
-844
+"angular.js:src/ngMock/angular-mocks.js": [
+2215,
+3373
 ],
-"angular.js:test/ng/parseSpec.js": [
-4058
+"angular.js:src/ngMock/browserTrigger.js": [
+108,
+120,
+143,
+188
 ],
-"angular.js:test/ng/rafSpec.js": [
-30,
-69,
-97
-],
-"angular.js:test/ng/templateRequestSpec.js": [
-243
-],
-"angular.js:test/ngAnimate/animateSpec.js": [
-289
-],
-"angular.js:test/ngMock/angular-mocksSpec.js": [
-1280
+"angular.js:src/ngSanitize/sanitize.js": [
+458,
+478
 ]
 }

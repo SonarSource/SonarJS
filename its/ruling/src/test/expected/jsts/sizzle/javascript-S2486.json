@@ -1,8 +1,11 @@
 {
-"sizzle:test/unit/selector.js": [
-1386
+"sizzle:speed/speed.js": [
+561
 ],
-"sizzle:test/unit/utilities.js": [
-220
+"sizzle:src/sizzle.js": [
+215,
+363,
+418,
+1105
 ]
 }

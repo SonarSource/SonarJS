@@ -1,5 +1,30 @@
 {
-"mootools-core:Specs/Class/Class.Thenable.js": [
-42
+"mootools-core:Source/Element/Element.js": [
+210,
+225,
+627,
+644,
+661,
+670
+],
+"mootools-core:Source/Slick/Slick.Finder.js": [
+85,
+100,
+108,
+118,
+124,
+135,
+141,
+147,
+153,
+161,
+170,
+178,
+364,
+563
+],
+"mootools-core:Source/Types/Function.js": [
+23,
+35
 ]
 }

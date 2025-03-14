@@ -24,8 +24,11 @@ import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../../../jsts/src/rules/metas.js';
 import { SonarMeta } from '../../../jsts/src/rules/index.js';
+import { symlink } from 'node:fs/promises';
 
 const currentPath = toUnixPath(import.meta.dirname);
+
+await assertSymlink();
 
 const sourcesPath = join(currentPath, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = join(sourcesPath, 'jsts', 'projects');
@@ -118,11 +121,6 @@ export function ok(diff: Result) {
  */
 function applyRulingConfig(rule: RuleConfig) {
   switch (rule.key) {
-    case 'S2486': {
-      // for some reason the scope is different
-      rule.fileTypeTargets = ['TEST'];
-      break;
-    }
     case 'S1451': {
       if (rule.language === 'js') {
         rule.configurations.push({
@@ -154,4 +152,15 @@ function applyRulingConfig(rule: RuleConfig) {
     }
   }
   return rule;
+}
+
+async function assertSymlink() {
+  const TARGET = join(currentPath, '..', '..', '..', '..', 'its', 'sources');
+  const LINK = join(currentPath, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
+
+  await symlink(TARGET, LINK).catch(err => {
+    if (err.code !== 'EEXIST') {
+      throw err;
+    }
+  });
 }

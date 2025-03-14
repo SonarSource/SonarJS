@@ -1,0 +1,26 @@
+{
+"paper.js:gulp/tasks/minify.js": [
+43
+],
+"paper.js:src/canvas/BlendMode.js": [
+253
+],
+"paper.js:src/canvas/ProxyContext.js": [
+66
+],
+"paper.js:src/core/PaperScript.js": [
+24
+],
+"paper.js:src/dom/DomElement.js": [
+55
+],
+"paper.js:src/item/Raster.js": [
+365
+],
+"paper.js:src/node/canvas.js": [
+22
+],
+"paper.js:src/node/self.js": [
+29
+]
+}
