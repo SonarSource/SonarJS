@@ -35,7 +35,6 @@
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm run bridge:bundle && npm pack --ignore-scripts && npm run _:plugin:copy-bridge",
-    "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run _:plugin:prepare-bridge",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
     "eslint-plugin:build": "npm ci && npm run generate-meta && npm run eslint-plugin:compile && cd lib && npm pack",

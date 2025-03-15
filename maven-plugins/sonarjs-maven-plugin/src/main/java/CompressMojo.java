@@ -70,11 +70,12 @@ public class CompressMojo extends AbstractMojo {
       this.getLog().info("Compressing " + file + " to " + outputFile);
 
       if (!Files.exists(file)) {
-        throw new FileNotFoundException("File " + file + " does not exist.");
+        throw new FileNotFoundException(String.format("File %s does not exist.", file));
       }
 
       if (Files.exists(outputFile)) {
-        this.getLog().info("Skipping compression. File " + outputFile + " already exists.");
+        this.getLog()
+          .info(String.format("Skipping compression, file %s already exists.", outputFile));
         continue;
       }
 

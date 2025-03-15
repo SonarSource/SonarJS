@@ -24,6 +24,10 @@
     <tag>HEAD</tag>
   </scm>
 
+  <properties>
+    <nodeVersion>22.11.0</nodeVersion>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -117,32 +121,60 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.5.0</version>
+        <groupId>org.sonarsource.javascript</groupId>
+        <artifactId>sonarjs-maven-plugin</artifactId>
+        <version>1</version>
         <executions>
           <execution>
             <id>Download the Node.js runtimes</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>exec</goal>
+              <goal>download-runtimes</goal>
             </goals>
             <configuration>
-              <executable>node</executable>
-              <workingDirectory>${project.basedir}/../..</workingDirectory>
-              <arguments>
-                <argument>tools/fetch-node.mjs</argument>
-              </arguments>
+              <!-- to preserve backward compatibility, we have to pass the redundant version argument -->
+              <version>v${nodeVersion}</version>
+              <targetDirectory>${project.basedir}/../../resources/downloads/runtimes</targetDirectory>
+              <flavors>
+                <flavor>
+                  <name>darwin-arm64</name>
+                  <checksum>2e89afe6f4e3aa6c7e21c560d8a0453d84807e97850bbb819b998531a22bdfde</checksum>
+                  <url>https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.gz</url>
+                  <binaryName>bin/node</binaryName>
+                </flavor>
+                <flavor>
+                  <name>darwin-x64</name>
+                  <checksum>668d30b9512137b5f5baeef6c1bb4c46efff9a761ba990a034fb6b28b9da2465</checksum>
+                  <url>https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.gz</url>
+                  <binaryName>bin/node</binaryName>
+                </flavor>
+                <flavor>
+                  <name>linux-arm64</name>
+                  <checksum>27453f7a0dd6b9e6738f1f6ea6a09b102ec7aa484de1e39d6a1c3608ad47aa6a</checksum>
+                  <url>https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-linux-arm64.tar.gz</url>
+                  <binaryName>bin/node</binaryName>
+                </flavor>
+                <flavor>
+                  <name>linux-x64</name>
+                  <checksum>4f862bab52039835efbe613b532238b6e4dde98d139a34e6923193e073438b13</checksum>
+                  <url>https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-linux-x64.tar.gz</url>
+                  <binaryName>bin/node</binaryName>
+                </flavor>
+                <flavor>
+                  <name>linux-x64-musl</name>
+                  <checksum>c9b4eba63f6569547e3a3423b446613a5a56dffb571b10f556bac2ae45fdc1fb</checksum>
+                  <url>https://unofficial-builds.nodejs.org/download/release/v${nodeVersion}/node-v${nodeVersion}-linux-x64-musl.tar.gz</url>
+                  <binaryName>bin/node</binaryName>
+                </flavor>
+                <flavor>
+                  <name>win-x64</name>
+                  <checksum>905373a059aecaf7f48c1ce10ffbd5334457ca00f678747f19db5ea7d256c236</checksum>
+                  <url>https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-win-x64.zip</url>
+                  <binaryName>node.exe</binaryName>
+                </flavor>
+              </flavors>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.sonarsource.javascript</groupId>
-        <artifactId>sonarjs-maven-plugin</artifactId>
-        <version>1</version>
-        <executions>
           <execution>
             <id>Compress the Node.js runtimes</id>
             <phase>generate-resources</phase>
@@ -152,33 +184,14 @@
             <configuration>
               <baseDirectory>${project.basedir}/../../resources/downloads/runtimes</baseDirectory>
               <filenames>
-                <filename>darwin-arm64/node</filename>
-                <filename>darwin-x64/node</filename>
-                <filename>linux-arm64/node</filename>
-                <filename>linux-x64/node</filename>
-                <filename>linux-x64-musl/node</filename>
+                <filename>darwin-arm64/bin/node</filename>
+                <filename>darwin-x64/bin/node</filename>
+                <filename>linux-arm64/bin/node</filename>
+                <filename>linux-x64/bin/node</filename>
+                <filename>linux-x64-musl/bin/node</filename>
                 <filename>win-x64/node.exe</filename>
               </filenames>
               <targetDirectory>${project.basedir}/../../resources/downloads/runtimes</targetDirectory>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Create Node.js runtimes versions</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>create-versions</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>v22.11.0</nodeVersion>
-              <baseDirectory>${project.basedir}/../../resources/downloads/runtimes</baseDirectory>
-              <filenames>
-                <filename>darwin-arm64/node.xz</filename>
-                <filename>darwin-x64/node.xz</filename>
-                <filename>linux-arm64/node.xz</filename>
-                <filename>linux-x64/node.xz</filename>
-                <filename>linux-x64-musl/node.xz</filename>
-                <filename>win-x64/node.exe.xz</filename>
-              </filenames>
             </configuration>
           </execution>
         </executions>
@@ -265,7 +278,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
@@ -293,7 +306,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/version.txt</resource>
@@ -321,7 +334,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>
@@ -349,7 +362,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-x64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-x64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-x64/version.txt</resource>
@@ -377,7 +390,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-arm64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-arm64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-arm64/version.txt</resource>
@@ -413,7 +426,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
@@ -421,7 +434,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/linux-x64-musl/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64-musl/version.txt</resource>
@@ -429,7 +442,7 @@
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
-                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/node.xz</file>
+                  <file>${project.basedir}/../../resources/downloads/runtimes/darwin-arm64/bin/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>

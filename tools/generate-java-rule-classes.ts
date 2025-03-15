@@ -29,7 +29,6 @@ import {
   inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
   listRulesDir,
-  ruleRegex,
   sonarKeySorter,
 } from './helpers.js';
 import { readdir } from 'fs/promises';
