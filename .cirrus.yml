@@ -53,7 +53,7 @@ orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
 nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
     folder: resources/downloads/
-    fingerprint_script: cat tools/node-distros.mjs
+    fingerprint_script: cat sonar-plugin/sonar-javascript-plugin/pom.xml | grep -o "<nodeVersion>.*"
 
 npm_cache_definition: &NPM_CACHE
   npm_cache:
@@ -166,8 +166,6 @@ analyze_task:
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
 build_win_task:
-  depends_on:
-    - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
@@ -175,8 +173,9 @@ build_win_task:
   <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
-    - source cirrus-env CI
-    - npm run build
+    - source cirrus-env BUILD
+    - npm ci
+    - mvn clean install -e
 
 ws_scan_task:
   depends_on:

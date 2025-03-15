@@ -64,16 +64,16 @@ const languages = (await checkbox({
   message: 'What languages will the rule support?',
   choices: [
     {
-      value: 'JAVASCRIPT',
+      value: 'js',
       checked: true,
     },
     {
-      value: 'TYPESCRIPT',
+      value: 'ts',
       checked: true,
     },
   ],
   required: true,
-})) satisfies ('JAVASCRIPT' | 'TYPESCRIPT')[];
+})) satisfies ('js' | 'ts')[];
 const hasSecondaries = await select({
   message: 'Will the rule produce secondary locations?',
   choices: [
