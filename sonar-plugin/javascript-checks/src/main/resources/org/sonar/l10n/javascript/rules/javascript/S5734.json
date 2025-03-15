@@ -9,12 +9,16 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "express.js"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5734",
   "sqKey": "S5734",
@@ -28,7 +32,7 @@
     ]
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

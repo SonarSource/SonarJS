@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [
@@ -17,6 +17,10 @@
     "suspicious",
     "redundant"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2589",
   "sqKey": "S2589",
@@ -30,7 +34,7 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

@@ -2,8 +2,14 @@
   "title": "Quotes for string literals should be used consistently",
   "type": "CODE_SMELL",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1min"
+  },
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "SingleQuote"
+    ]
   },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1441",
@@ -19,7 +25,7 @@
     "attribute": "FORMATTED"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

@@ -9,13 +9,17 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [
     "aws",
     "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6249",
   "sqKey": "S6249",
@@ -34,7 +38,7 @@
     ]
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

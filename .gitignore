@@ -7,8 +7,6 @@ node_modules/
 coverage/
 test-report.xml
 
-sonarjs-*
-
 packages/jsts/src/rules/*/generated-meta.ts
 
 # IntelliJ IDEA
@@ -51,3 +49,5 @@ Desktop.ini
 eslint-plugin-sonarjs-*.tgz
 its/eslint8-plugin-sonarjs/package-lock.json
 its/eslint9-plugin-sonarjs/package-lock.json
+
+/resources

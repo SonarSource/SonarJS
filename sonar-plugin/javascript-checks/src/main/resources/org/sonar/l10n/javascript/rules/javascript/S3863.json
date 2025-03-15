@@ -9,19 +9,23 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1min"
   },
   "tags": [
     "es2015"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3863",
   "sqKey": "S3863",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

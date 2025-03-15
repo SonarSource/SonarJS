@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "15min"
   },
   "tags": [
@@ -17,6 +17,12 @@
     "obsolete",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "CallToDeprecatedMethod"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1874",
   "sqKey": "S1874",
@@ -31,7 +37,7 @@
   },
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

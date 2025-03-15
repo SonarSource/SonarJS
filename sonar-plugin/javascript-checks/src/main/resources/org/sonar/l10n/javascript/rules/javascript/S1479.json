@@ -9,19 +9,23 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "30min"
   },
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1479",
   "sqKey": "S1479",
   "scope": "Main",
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

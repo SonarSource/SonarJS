@@ -11,6 +11,10 @@
   "tags": [
     "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5332",
   "sqKey": "S5332",
@@ -52,7 +56,7 @@
     ]
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }

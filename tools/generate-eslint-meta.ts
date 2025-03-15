@@ -41,7 +41,7 @@ const sonarWayProfile = JSON.parse(
  */
 export async function generateMetaForRule(
   sonarKey: string,
-  defaults?: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+  defaults?: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
 ) {
   const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
   if (!typeMatrix[ruleRspecMeta.type]) {

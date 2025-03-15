@@ -9,18 +9,24 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "unused"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "UnusedVariable"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1481",
   "sqKey": "S1481",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "js"
   ]
 }

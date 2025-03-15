@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
@@ -17,13 +17,17 @@
     "chai",
     "suspicious"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3415",
   "sqKey": "S3415",
   "scope": "Tests",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
   ]
 }
