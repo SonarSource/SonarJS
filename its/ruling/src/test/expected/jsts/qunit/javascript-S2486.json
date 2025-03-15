@@ -1,7 +1,11 @@
 {
-"qunit:test/main/deepEqual.js": [
-522,
-1767,
-1787
+"qunit:src/cli/require-qunit.js": [
+12
+],
+"qunit:src/cli/utils.js": [
+10
+],
+"qunit:src/globals.js": [
+18
 ]
 }

@@ -29,10 +29,12 @@ describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
 
   it('should fail on uninitialized linter', async () => {
-    const input = {} as any;
-    expect(() => analyzeEmbedded(input, parseAwsFromYaml)).toThrow(
-      APIError.linterError('Linter default does not exist. Did you call /init-linter?'),
-    );
+    await expect(async () =>
+      analyzeEmbedded(
+        await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
+        parseAwsFromYaml,
+      ),
+    ).rejects.toThrow(APIError.linterError('Linter does not exist. Did you call /init-linter?'));
   });
 
   it('should analyze YAML file', async () => {

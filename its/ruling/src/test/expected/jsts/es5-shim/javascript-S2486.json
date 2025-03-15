@@ -1,16 +1,29 @@
 {
-"es5-shim:tests/lib/jasmine.js": [
-624,
-1647
+"es5-shim:es5-sham.js": [
+93,
+122,
+220,
+348,
+382,
+447,
+492
 ],
-"es5-shim:tests/spec/s-date.js": [
-15
-],
-"es5-shim:tests/spec/s-error.js": [
-10
-],
-"es5-shim:tests/spec/s-object.js": [
-10,
-106
+"es5-shim:es5-shim.js": [
+69,
+69,
+71,
+72,
+84,
+346,
+435,
+886,
+955,
+958,
+969,
+977,
+1048,
+1060,
+1404,
+1780
 ]
 }

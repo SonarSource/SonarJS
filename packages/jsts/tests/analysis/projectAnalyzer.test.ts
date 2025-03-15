@@ -226,6 +226,8 @@ function prepareInput(files?: JsTsFiles, sonarlint = false): ProjectAnalysisInpu
     rules: defaultRules,
     baseDir: fixtures,
     files,
-    sonarlint,
+    configuration: {
+      sonarlint,
+    },
   };
 }

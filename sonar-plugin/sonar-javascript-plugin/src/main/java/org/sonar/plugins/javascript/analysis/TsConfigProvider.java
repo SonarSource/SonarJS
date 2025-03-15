@@ -18,6 +18,8 @@ package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
+import static org.sonar.plugins.javascript.analysis.ContextUtils.getTypeCheckingLimit;
 import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.FileFilter;
 import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.PathFilter;
 
@@ -76,6 +78,19 @@ public class TsConfigProvider {
     this(providers, null);
   }
 
+  static List<String> getTsConfigPaths(SensorContext context) {
+    if (
+      !context.config().hasKey(TSCONFIG_PATHS) && !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
+    ) {
+      return emptyList();
+    }
+
+    String property = context.config().hasKey(TSCONFIG_PATHS)
+      ? TSCONFIG_PATHS
+      : TSCONFIG_PATHS_ALIAS;
+    return Arrays.asList(context.config().getStringArray(property));
+  }
+
   /**
    * Relying on (in order of priority)
    * 1. Property sonar.typescript.tsconfigPath(s)
@@ -83,7 +98,7 @@ public class TsConfigProvider {
    * 3. Creating a tmp tsconfig.json listing all files
    */
   static List<String> getTsConfigs(
-    ContextUtils contextUtils,
+    SensorContext context,
     TsConfigProvider.TsConfigFileCreator tsConfigFileCreator
   ) throws IOException {
     var provider = new TsConfigProvider(
@@ -96,7 +111,7 @@ public class TsConfigProvider {
         )
       )
     );
-    return provider.tsconfigs(contextUtils.context());
+    return provider.tsconfigs(context);
   }
 
   /**
@@ -105,7 +120,7 @@ public class TsConfigProvider {
    * because we get the tsconfig file from the cache.
    */
   static void initializeTsConfigCache(
-    ContextUtils contextUtils,
+    SensorContext context,
     TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
     TsConfigCache tsConfigCache
   ) throws IOException {
@@ -117,7 +132,7 @@ public class TsConfigProvider {
       ),
       tsConfigCache
     );
-    provider.tsconfigs(contextUtils.context());
+    provider.tsconfigs(context);
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -140,21 +155,8 @@ public class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      if (
-        !context.config().hasKey(TSCONFIG_PATHS) && !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
-      ) {
-        return emptyList();
-      }
-
-      String property = context.config().hasKey(TSCONFIG_PATHS)
-        ? TSCONFIG_PATHS
-        : TSCONFIG_PATHS_ALIAS;
-      Set<String> patterns = new HashSet<>(
-        Arrays.asList(context.config().getStringArray(property))
-      );
-
-      var patternString = String.join(",", patterns);
-      LOG.info("Resolving TSConfig files using '{}' from property {}", patternString, property);
+      var tsconfigsPaths = getTsConfigPaths(context);
+      Set<String> patterns = new HashSet<>(tsconfigsPaths);
 
       File baseDir = context.fileSystem().baseDir();
 
@@ -347,9 +349,6 @@ public class TsConfigProvider {
 
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
 
-    static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
-    static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
-
     private static final Map<String, List<String>> defaultWildcardTsConfig =
       new ConcurrentHashMap<>();
 
@@ -419,13 +418,6 @@ public class TsConfigProvider {
         );
       }
       return beyondLimit;
-    }
-
-    static int getTypeCheckingLimit(SensorContext context) {
-      return Math.max(
-        context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
-        0
-      );
     }
   }
 }

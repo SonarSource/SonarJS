@@ -16,14 +16,25 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILE_SIZE_KB;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
+
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class ContextUtils {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ContextUtils.class);
+
+  private ContextUtils() {}
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
@@ -44,62 +55,96 @@ public class ContextUtils {
 
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
 
-  private final SensorContext context;
-
-  ContextUtils(SensorContext context) {
-    this.context = context;
-  }
-
-  boolean isSonarLint() {
+  public static boolean isSonarLint(SensorContext context) {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
-  boolean isSonarQube() {
+  public static boolean isSonarQube(SensorContext context) {
     return context.runtime().getProduct() == SonarProduct.SONARQUBE;
   }
 
-  boolean ignoreHeaderComments() {
+  public static boolean ignoreHeaderComments(SensorContext context) {
     return context
       .config()
       .getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
       .orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 
-  boolean shouldSendFileContent(InputFile file) {
-    return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
+  public static boolean shouldSendFileContent(SensorContext context, InputFile file) {
+    return isSonarLint(context) || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
-  boolean failFast() {
+  public static boolean failFast(SensorContext context) {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 
-  SensorContext context() {
-    return context;
-  }
-
   @Deprecated(forRemoval = true)
-  boolean isSonarArmorEnabled() {
+  private static boolean isSonarArmorEnabled(SensorContext context) {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 
-  boolean isSonarJasminEnabled() {
+  private static boolean isSonarJasminEnabled(SensorContext context) {
     return context.config().getBoolean(JASMIN_INTERNAL_ENABLED).orElse(false);
   }
 
-  boolean isSonarJaredEnabled() {
+  private static boolean isSonarJaredEnabled(SensorContext context) {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
   }
 
-  boolean allowTsParserJsFiles() {
+  public static boolean allowTsParserJsFiles(SensorContext context) {
     return context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
   }
 
-  AnalysisMode getAnalysisMode() {
+  public static AnalysisMode getAnalysisMode(SensorContext context) {
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
       return AnalysisMode.DEFAULT;
     }
 
     return AnalysisMode.SKIP_UNCHANGED;
+  }
+
+  public static long getMaxFileSizeProperty(Configuration configuration) {
+    if (!configuration.hasKey(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE)) {
+      return DEFAULT_MAX_FILE_SIZE_KB;
+    }
+
+    try {
+      var maxFileSize = configuration
+        .getLong(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE)
+        .orElse(DEFAULT_MAX_FILE_SIZE_KB);
+      if (maxFileSize <= 0) {
+        LOG.warn(
+          "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: {}, falling back to {}.",
+          maxFileSize,
+          DEFAULT_MAX_FILE_SIZE_KB
+        );
+        return DEFAULT_MAX_FILE_SIZE_KB;
+      }
+      return maxFileSize;
+    } catch (NumberFormatException nfe) {
+      LOG.warn(
+        "Maximum file size (sonar.javascript.maxFileSize) is not an integer: {}, falling back to {}.",
+        configuration.get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE),
+        DEFAULT_MAX_FILE_SIZE_KB
+      );
+      return DEFAULT_MAX_FILE_SIZE_KB;
+    }
+  }
+
+  public static int getTypeCheckingLimit(SensorContext context) {
+    return Math.max(
+      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
+      0
+    );
+  }
+
+  public static boolean skipAst(SensorContext context, AnalysisConsumers consumers) {
+    return (
+      !consumers.hasConsumers() ||
+      !(isSonarArmorEnabled(context) ||
+        isSonarJasminEnabled(context) ||
+        isSonarJaredEnabled(context))
+    );
   }
 }

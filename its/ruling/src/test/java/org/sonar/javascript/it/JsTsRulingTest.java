@@ -40,8 +40,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -253,7 +251,6 @@ class JsTsRulingTest {
 
   @ParameterizedTest
   @MethodSource
-  @Execution(ExecutionMode.CONCURRENT)
   void ruling(String project, String sourceDir, String exclusions, String testDir)
     throws Exception {
     runRulingTest(project, sourceDir, exclusions, testDir);

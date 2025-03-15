@@ -22,41 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.analysis.ContextUtils;
 
 class SizeAssessor implements Assessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SizeAssessor.class);
-  private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
-
   /**
    * Note that in user-facing option handling the units are kilobytes, not bytes.
    */
-  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
+  private final long maxFileSizeKb;
 
   SizeAssessor(Configuration configuration) {
-    configuration
-      .get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE)
-      .ifPresent(str -> {
-        try {
-          maxFileSizeKb = Long.parseLong(str);
-          if (maxFileSizeKb <= 0) {
-            fallbackToDefaultMaxFileSize(
-              "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " +
-              maxFileSizeKb
-            );
-          }
-        } catch (NumberFormatException nfe) {
-          fallbackToDefaultMaxFileSize(
-            "Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\""
-          );
-        }
-      });
-  }
-
-  final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
-    LOG.warn("{}, falling back to {}.", reasonErrorMessage, DEFAULT_MAX_FILE_SIZE_KB);
-    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
+    maxFileSizeKb = ContextUtils.getMaxFileSizeProperty(configuration);
   }
 
   /**

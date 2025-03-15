@@ -117,11 +117,7 @@ class TsConfigCacheTest {
       Files.createFile(tsConfigPath);
     }
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    TsConfigProvider.initializeTsConfigCache(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      tsConfigCache
-    );
+    TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
 
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
       String tsConfigPath = (String) invocationOnMock.getArguments()[0];
@@ -197,11 +193,7 @@ class TsConfigCacheTest {
     Files.createFile(tsconfig2);
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    TsConfigProvider.initializeTsConfigCache(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      tsConfigCache
-    );
+    TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
       String tsConfigPath = (String) invocationOnMock.getArguments()[0];
       if (tsConfigPath.equals(tsConfigFile1.getFilename())) {
@@ -249,11 +241,7 @@ class TsConfigCacheTest {
     );
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "tsconfig.*.json,tsconfig.json"));
-    TsConfigProvider.initializeTsConfigCache(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      tsConfigCache
-    );
+    TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
@@ -270,11 +258,7 @@ class TsConfigCacheTest {
     var propertyCachedTsConfig = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.PROPERTY);
     assertThat(propertyCachedTsConfig).containsExactly(tsconfig1.toAbsolutePath().toString());
 
-    TsConfigProvider.initializeTsConfigCache(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      tsConfigCache
-    );
+    TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     propertyCachedTsConfig = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.PROPERTY);
     assertThat(propertyCachedTsConfig).containsExactlyInAnyOrder(
       tsconfig1.toAbsolutePath().toString(),
@@ -324,11 +308,7 @@ class TsConfigCacheTest {
     Files.createFile(tsconfig1);
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    TsConfigProvider.initializeTsConfigCache(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      tsConfigCache
-    );
+    TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     return Pair.of(file1, tsConfigFile);
   }

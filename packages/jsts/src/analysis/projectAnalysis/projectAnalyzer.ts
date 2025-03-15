@@ -30,7 +30,7 @@ import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import { FileType, toUnixPath } from '../../../../shared/src/helpers/files.js';
 import { findFiles } from '../../../../shared/src/helpers/find-files.js';
-import { extname, join, dirname } from 'node:path/posix';
+import { join, dirname } from 'node:path/posix';
 import { readFile, access } from 'node:fs/promises';
 import {
   addTSConfig,
@@ -41,14 +41,11 @@ import {
   TSCONFIG_JSON,
 } from './tsconfigs.js';
 import {
-  HTML_EXTENSIONS,
-  JS_EXTENSIONS,
-  JSTS_EXTENSIONS,
-  TS_EXTENSIONS,
-  YAML_EXTENSIONS,
+  isAnalyzableFile,
+  isJsTsFile,
+  setJsTsExtensions,
 } from '../../../../shared/src/helpers/language.js';
 import { accept } from './filter/filter.js';
-import { isJsTsFile } from './languages.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -57,7 +54,7 @@ import { isJsTsFile } from './languages.js';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, baseDir, configuration, bundles = [], sonarlint = false } = input;
+  const { rules, baseDir, configuration = {}, bundles = [] } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -68,11 +65,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  const environments = configuration?.environments ?? DEFAULT_ENVIRONMENTS;
-  const globals = configuration?.globals ?? DEFAULT_GLOBALS;
+  setJsTsExtensions(configuration.jsSuffixes, configuration.tsSuffixes);
+  const environments = configuration.environments ?? DEFAULT_ENVIRONMENTS;
+  const globals = configuration.globals ?? DEFAULT_GLOBALS;
   const maxFilesForTypeChecking =
-    configuration?.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-  const watchProgram = input.sonarlint;
+    configuration.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+  const sonarlint = !!configuration.sonarlint;
   await Linter.initialize({
     rules,
     environments,
@@ -82,13 +80,13 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     baseDir: normalizedBaseDir,
   });
   clearTSConfigs();
-  await verifyProvidedTsConfigs(normalizedBaseDir, configuration?.tsConfigPaths);
+  await verifyProvidedTsConfigs(normalizedBaseDir, configuration.tsConfigPaths);
   if (!input.files) {
-    input.files = await loadFiles(normalizedBaseDir, configuration ?? {});
+    input.files = await loadFiles(normalizedBaseDir, configuration);
   }
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
-  await loadFiles(normalizedBaseDir, configuration ?? {});
+  await loadFiles(normalizedBaseDir, configuration);
   if (!inputFilenames.length) {
     return results;
   }
@@ -99,26 +97,22 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     sonarlint,
     maxFilesForTypeChecking,
   );
-  if (watchProgram) {
+  if (sonarlint) {
     results.meta!.withWatchProgram = true;
-    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
+    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles, configuration);
   } else {
     results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
+    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles, configuration);
   }
 
-  await analyzeWithoutProgram(pendingFiles, input.files, results);
+  await analyzeWithoutProgram(pendingFiles, input.files, results, configuration);
   return results;
 }
 
 export async function loadFiles(
   baseDir: string,
-  { tsSuffixes, jsSuffixes, tests, exclusions, maxFileSize, jsTsExclusions }: Configuration,
+  { tests, exclusions, maxFileSize, jsTsExclusions }: Configuration,
 ) {
-  const extensions = (jsSuffixes ?? JS_EXTENSIONS)
-    .concat(tsSuffixes ?? TS_EXTENSIONS)
-    .concat(HTML_EXTENSIONS)
-    .concat(YAML_EXTENSIONS);
   const testPaths = tests ? tests.map(test => join(baseDir, test)) : null;
 
   const files: JsTsFiles = {};
@@ -126,23 +120,23 @@ export async function loadFiles(
   await findFiles(
     baseDir,
     async file => {
-      let fileType: FileType = 'MAIN';
-      const filePath = toUnixPath(join(file.parentPath, file.name));
-      if (testPaths?.length) {
-        const parent = dirname(filePath);
-        if (testPaths?.some(testPath => parent.startsWith(testPath))) {
-          fileType = 'TEST';
+      if (isAnalyzableFile(file.name)) {
+        let fileType: FileType = 'MAIN';
+        const filePath = toUnixPath(join(file.parentPath, file.name));
+        if (testPaths?.length) {
+          const parent = dirname(filePath);
+          if (testPaths?.some(testPath => parent.startsWith(testPath))) {
+            fileType = 'TEST';
+          }
         }
-      }
-      const extension = extname(file.name).toLowerCase();
-      if (extensions.includes(extension)) {
         const fileContent = await readFile(filePath, 'utf8');
-        if (!JSTS_EXTENSIONS.includes(extension) || accept(filePath, fileContent, maxFileSize)) {
+        // filters are not applied to HTML and YAML files
+        if (!isJsTsFile(file.name) || accept(filePath, fileContent, maxFileSize)) {
           files[filePath] = { fileType, filePath, fileContent };
         }
       }
       if (file.name === TSCONFIG_JSON) {
-        foundTsConfigs.push(filePath);
+        foundTsConfigs.push(toUnixPath(join(file.parentPath, file.name)));
       }
     },
     DEFAULT_EXCLUSIONS.concat(exclusions ?? []).concat(jsTsExclusions ?? []),

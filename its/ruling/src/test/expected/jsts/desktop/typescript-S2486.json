@@ -1,8 +1,93 @@
 {
-"desktop:app/test/unit/git/core-test.ts": [
-30,
-45,
-63,
-78
+"desktop:app/git-info.ts": [
+20,
+55
+],
+"desktop:app/src/cli/commands/clone.ts": [
+37
+],
+"desktop:app/src/lib/api.ts": [
+1118,
+1155,
+1180,
+1204,
+1291
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+81
+],
+"desktop:app/src/lib/directory-exists.ts": [
+11
+],
+"desktop:app/src/lib/get-main-guid.ts": [
+37
+],
+"desktop:app/src/lib/git/description.ts": [
+21
+],
+"desktop:app/src/lib/git/status.ts": [
+386
+],
+"desktop:app/src/lib/git/var.ts": [
+39
+],
+"desktop:app/src/lib/http.ts": [
+174
+],
+"desktop:app/src/lib/local-storage.ts": [
+172,
+224
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+112
+],
+"desktop:app/src/lib/shells/darwin.ts": [
+48
+],
+"desktop:app/src/lib/source-map-support.ts": [
+40,
+59
+],
+"desktop:app/src/lib/ssh/ssh.ts": [
+36
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+5656
+],
+"desktop:app/src/main-process/exception-reporting.ts": [
+82
+],
+"desktop:app/src/main-process/log.ts": [
+80
+],
+"desktop:app/src/main-process/main.ts": [
+261,
+737
+],
+"desktop:app/src/ui/index.tsx": [
+184
+],
+"desktop:app/src/ui/lib/app-proxy.ts": [
+63
+],
+"desktop:app/src/ui/lib/avatar.tsx": [
+84
+],
+"desktop:app/src/ui/lib/install-cli.ts": [
+21
+],
+"desktop:script/build.ts": [
+377
+],
+"desktop:script/pr-api.ts": [
+43,
+82,
+114
+],
+"desktop:script/run.ts": [
+34
+],
+"desktop:script/test-setup.ts": [
+15
 ]
 }

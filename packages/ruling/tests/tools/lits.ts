@@ -17,10 +17,6 @@
 import fs from 'node:fs/promises';
 import path from 'path';
 import { ProjectAnalysisOutput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import {
-  isFailedJsTsAnalysisOutput,
-  isSuccessfulAnalysisOutput,
-} from '../../../jsts/src/analysis/analysis.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
@@ -65,7 +61,7 @@ function transformResults(projectPath: string, project: string, results: Project
   for (const [filename, analysisOutput] of Object.entries(results.files)) {
     const relativePath = filename.substring(projectPath.length + 1);
     const projectWithFilename = `${project}:${relativePath}`;
-    if (isSuccessfulAnalysisOutput(analysisOutput)) {
+    if ('issues' in analysisOutput) {
       for (const issue of analysisOutput.issues) {
         const { ruleId, language, line } = issue;
         if (result[ruleId] === undefined) {
@@ -76,12 +72,8 @@ function transformResults(projectPath: string, project: string, results: Project
         }
         result[ruleId][language][projectWithFilename].push(line);
       }
-    } else if (isFailedJsTsAnalysisOutput(analysisOutput)) {
-      const { ruleId, language, line } = analysisOutput;
-      if (result[ruleId][language][projectWithFilename] === undefined) {
-        result[ruleId][language][projectWithFilename] = [];
-      }
-      result[ruleId][language][projectWithFilename].push(line);
+    } else if ('parsingError' in analysisOutput) {
+      result.S2260.js[projectWithFilename] = [analysisOutput.parsingError.line];
     }
   }
   return result;

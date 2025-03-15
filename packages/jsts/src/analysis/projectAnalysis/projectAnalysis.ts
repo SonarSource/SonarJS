@@ -14,12 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsAnalysisInput } from '../analysis.js';
+import { AnalysisMode, JsTsAnalysisInput, JsTsAnalysisOutput } from '../analysis.js';
 import { RuleConfig } from '../../linter/config/rule-config.js';
-import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
+import { ErrorCode } from '../../../../shared/src/errors/error.js';
 
 export type ProjectAnalysisOutput = {
-  files: { [key: string]: AnalysisOutput };
+  files: { [key: string]: FileResult };
   meta?: {
     withProgram: boolean;
     withWatchProgram: boolean;
@@ -28,24 +29,40 @@ export type ProjectAnalysisOutput = {
   };
 };
 
+export type FileResult = JsTsAnalysisOutput | EmbeddedAnalysisOutput | ParsingError | Error;
+
+export type ParsingError = {
+  parsingError: {
+    message: string;
+    code: ErrorCode;
+    line?: number;
+  };
+};
+export type Error = { error: string };
+
 export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
 
 export type Configuration = {
+  sonarlint?: boolean;
+  shouldClearDependenciesCache?: boolean;
+  allowTsParserJsFiles?: boolean;
+  analysisMode?: AnalysisMode;
+  skipAst?: boolean;
+  ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
+  maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
+  maxFilesForTypeChecking?: number /* sonar.javascript.sonarlint.typechecking.maxfiles Max project size to turn off type-checking of JavaScript */;
+  environments?: string[] /* sonar.javascript.environments */;
+  globals?: string[] /* sonar.javascript.globals */;
   tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
   jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
   tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
+  jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
   sources?: string[] /* sonar.sources property, relative path to baseDir to look for files. NOT YET SUPPORTED, we are based on baseDir */;
   inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
   exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
   tests?: string[] /* sonar.tests property, relative path to baseDir to look for test files */;
   testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
   testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
-  jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
-  ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
-  maxFilesForTypeChecking?: number /* sonar.javascript.sonarlint.typechecking.maxfiles Max project size to turn off type-checking of JavaScript */;
-  environments?: string[] /* sonar.javascript.environments */;
-  globals?: string[] /* sonar.javascript.globals */;
 };
 
 export type ProjectAnalysisInput = {
@@ -53,9 +70,25 @@ export type ProjectAnalysisInput = {
   rules: RuleConfig[];
   configuration?: Configuration;
   baseDir: string;
-  sonarlint?: boolean;
   bundles?: string[];
+  rulesWorkdir?: string;
 };
+
+export const fieldsForJsTsAnalysisInput = ({
+  sonarlint,
+  shouldClearDependenciesCache,
+  allowTsParserJsFiles,
+  analysisMode,
+  skipAst,
+  ignoreHeaderComments,
+}: Configuration) => ({
+  allowTsParserJsFiles,
+  analysisMode,
+  ignoreHeaderComments,
+  shouldClearDependenciesCache,
+  skipAst,
+  sonarlint,
+});
 
 export const DEFAULT_EXCLUSIONS = [
   '**/.*',

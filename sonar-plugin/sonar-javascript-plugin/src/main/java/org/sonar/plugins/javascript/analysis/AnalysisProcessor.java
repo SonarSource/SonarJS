@@ -67,8 +67,6 @@ public class AnalysisProcessor {
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
-  private SensorContext context;
-  private ContextUtils contextUtils;
   private InputFile file;
   private JsTsChecks checks;
   HashSet<String> uniqueParsingErrors;
@@ -90,13 +88,11 @@ public class AnalysisProcessor {
   ) {
     List<Issue> issues;
 
-    this.context = context;
-    contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.file = file;
     if (response.parsingError() != null) {
       uniqueParsingErrors.add(file.absolutePath());
-      processParsingError(response.parsingError());
+      processParsingError(context, response.parsingError());
       return new ArrayList<>();
     }
 
@@ -109,15 +105,15 @@ public class AnalysisProcessor {
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
-      saveIssues(issues);
+      saveIssues(context, issues);
     } else {
       // it's important to have an order here:
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
-      saveMetrics(response.metrics());
-      saveIssues(issues);
-      saveHighlights(response.highlights());
-      saveHighlightedSymbols(response.highlightedSymbols());
-      saveCpd(response.cpdTokens());
+      saveMetrics(context, response.metrics());
+      saveIssues(context, issues);
+      saveHighlights(context, response.highlights());
+      saveHighlightedSymbols(context, response.highlightedSymbols());
+      saveCpd(context, response.cpdTokens());
     }
 
     return issues;
@@ -128,8 +124,6 @@ public class AnalysisProcessor {
   }
 
   void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
-    this.context = context;
-    contextUtils = new ContextUtils(context);
     this.file = file;
 
     if (
@@ -143,11 +137,11 @@ public class AnalysisProcessor {
         "Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files"
       );
     } else {
-      saveCpd(cacheAnalysis.getCpdTokens());
+      saveCpd(context, cacheAnalysis.getCpdTokens());
     }
   }
 
-  private void processParsingError(ParsingError parsingError) {
+  private void processParsingError(SensorContext context, ParsingError parsingError) {
     Integer line = parsingError.line();
     String message = parsingError.message();
 
@@ -157,7 +151,7 @@ public class AnalysisProcessor {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (contextUtils.failFast()) {
+      if (ContextUtils.failFast(context)) {
         throw new IllegalStateException("Failed to analyze file " + file);
       }
     }
@@ -183,7 +177,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private void saveIssues(List<Issue> issues) {
+  private void saveIssues(SensorContext context, List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug(
         "Saving issue for rule {} on file {} at line {}",
@@ -192,7 +186,7 @@ public class AnalysisProcessor {
         issue.line()
       );
       try {
-        saveIssue(issue);
+        saveIssue(context, issue);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.line());
         LOG.warn("Exception cause", e);
@@ -200,7 +194,7 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlights(List<Highlight> highlights) {
+  private void saveHighlights(SensorContext context, List<Highlight> highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       try {
@@ -222,7 +216,10 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlightedSymbols(List<HighlightedSymbol> highlightedSymbols) {
+  private void saveHighlightedSymbols(
+    SensorContext context,
+    List<HighlightedSymbol> highlightedSymbols
+  ) {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       Location declaration = highlightedSymbol.declaration();
@@ -254,19 +251,19 @@ public class AnalysisProcessor {
     symbolTable.save();
   }
 
-  private void saveMetrics(Metrics metrics) {
-    if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
+  private void saveMetrics(SensorContext context, Metrics metrics) {
+    if (file.type() == InputFile.Type.TEST || ContextUtils.isSonarLint(context)) {
       noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
       return;
     }
 
-    saveMetric(file, CoreMetrics.FUNCTIONS, metrics.functions());
-    saveMetric(file, CoreMetrics.STATEMENTS, metrics.statements());
-    saveMetric(file, CoreMetrics.CLASSES, metrics.classes());
-    saveMetric(file, CoreMetrics.NCLOC, metrics.ncloc().size());
-    saveMetric(file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
-    saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity());
-    saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
+    saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
+    saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
+    saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
+    saveMetric(context, file, CoreMetrics.NCLOC, metrics.ncloc().size());
+    saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
+    saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
+    saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
 
     noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
 
@@ -282,12 +279,17 @@ public class AnalysisProcessor {
     fileLinesContext.save();
   }
 
-  private <T extends Serializable> void saveMetric(InputFile file, Metric<T> metric, T value) {
+  private <T extends Serializable> void saveMetric(
+    SensorContext context,
+    InputFile file,
+    Metric<T> metric,
+    T value
+  ) {
     context.<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
   }
 
-  private void saveCpd(List<CpdToken> cpdTokens) {
-    if (file.type().equals(InputFile.Type.TEST) || contextUtils.isSonarLint()) {
+  private void saveCpd(SensorContext context, List<CpdToken> cpdTokens) {
+    if (file.type().equals(InputFile.Type.TEST) || ContextUtils.isSonarLint(context)) {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;
     }
@@ -306,7 +308,7 @@ public class AnalysisProcessor {
     }
   }
 
-  void saveIssue(Issue issue) {
+  void saveIssue(SensorContext context, Issue issue) {
     var newIssue = context.newIssue();
     var location = newIssue.newLocation().on(file);
     if (issue.message() != null) {
@@ -336,10 +338,10 @@ public class AnalysisProcessor {
     }
 
     if (issue.quickFixes() != null && !issue.quickFixes().isEmpty()) {
-      if (isSqQuickFixCompatible()) {
+      if (isSqQuickFixCompatible(context)) {
         newIssue.setQuickFixAvailable(true);
       }
-      if (isQuickFixCompatible()) {
+      if (isQuickFixCompatible(context)) {
         addQuickFixes(issue, newIssue, file);
       }
     }
@@ -354,16 +356,16 @@ public class AnalysisProcessor {
     return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
   }
 
-  private boolean isSqQuickFixCompatible() {
+  private boolean isSqQuickFixCompatible(SensorContext context) {
     return (
-      contextUtils.isSonarQube() &&
+      ContextUtils.isSonarQube(context) &&
       context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 2))
     );
   }
 
-  private boolean isQuickFixCompatible() {
+  private boolean isQuickFixCompatible(SensorContext context) {
     return (
-      contextUtils.isSonarLint() &&
+      ContextUtils.isSonarLint(context) &&
       ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion()
         .isGreaterThanOrEqual(SONARLINT_6_3)
     );
