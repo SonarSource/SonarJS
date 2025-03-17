@@ -27,5 +27,8 @@
   "quickfix": "unknown",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

@@ -1,7 +1,25 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 package domain;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sonarsource.ruleapi.domain.Profile;
+import java.util.ArrayList;
 
 public class RuleDataGenerator {
 
@@ -32,7 +50,17 @@ public class RuleDataGenerator {
       var manifestFileName = name + ".json";
       var manifestFile = this.fileSystem.resolve(targetDirectory, manifestFileName);
 
-      this.fileSystem.write(manifestFile, serializer.toJson(ruleManifest.getMetadata()));
+      var manifest = ruleManifest.getMetadata();
+
+      var qualityProfiles = ruleManifest
+        .getQualityProfiles()
+        .stream()
+        .map(Profile::getName)
+        .toList();
+
+      manifest.add("defaultQualityProfiles", serializer.toJsonTree(qualityProfiles));
+
+      this.fileSystem.write(manifestFile, serializer.toJson(manifest));
     }
   }
 }

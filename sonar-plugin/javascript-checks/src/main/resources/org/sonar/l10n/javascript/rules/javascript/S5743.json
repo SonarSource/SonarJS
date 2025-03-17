@@ -38,5 +38,6 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

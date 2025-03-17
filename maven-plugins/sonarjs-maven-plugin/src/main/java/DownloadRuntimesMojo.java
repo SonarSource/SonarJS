@@ -1,7 +1,25 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -11,7 +29,6 @@ import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
@@ -32,8 +49,11 @@ public class DownloadRuntimesMojo extends AbstractMojo {
   @Parameter(required = true)
   private String version;
 
+  @Parameter
+  private String proxyToken;
+
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
+  public void execute() throws MojoExecutionException {
     for (var flavor : this.flavors) {
       try {
         var url = new URL(flavor.getUrl());
@@ -57,16 +77,44 @@ public class DownloadRuntimesMojo extends AbstractMojo {
       return;
     }
 
-    var url = new URL(flavor.getUrl());
+    InputStream inputStream = null;
 
-    getLog().info("Downloading " + url + " to " + destinationFile);
+    var proxyUrl = flavor.getProxyUrl();
 
-    var inputStream = url.openStream();
+    if (proxyUrl != null) {
+      getLog().info("Downloading from " + proxyUrl);
+
+      var url = new URL(proxyUrl);
+
+      // todo: per-flavor
+      var proxyToken = this.proxyToken;
+
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+      connection.setRequestProperty("Authorization", String.format("Bearer %s", proxyToken));
+      connection.setRequestMethod("GET");
+
+      var responseCode = connection.getResponseCode();
+
+      if (responseCode == 200) {
+        inputStream = connection.getInputStream();
+      }
+    }
+
+    if (inputStream == null) {
+      var url = new URL(flavor.getUrl());
+
+      getLog().info("Downloading from " + url);
+
+      inputStream = url.openStream();
+    }
 
     ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
 
     var fileOutputStream = new FileOutputStream(destinationFile.toString());
     var fileChannel = fileOutputStream.getChannel();
+
+    getLog().info("Downloading to " + destinationFile);
 
     fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 

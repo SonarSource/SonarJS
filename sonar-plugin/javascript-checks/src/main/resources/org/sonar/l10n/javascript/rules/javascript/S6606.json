@@ -24,5 +24,8 @@
   "title": "Nullish coalescing should be preferred",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

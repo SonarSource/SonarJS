@@ -26,5 +26,6 @@
   },
   "compatibleLanguages": [
     "js"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

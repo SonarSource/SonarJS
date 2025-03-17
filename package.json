@@ -22,7 +22,7 @@
     "bridge:bundle": "node esbuild.mjs",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
-    "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
+    "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
     "plugin:build": "mvn install",
     "plugin:build:fast": "mvn install -DskipTests",

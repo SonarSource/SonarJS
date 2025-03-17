@@ -16,7 +16,7 @@
  */
 import { join, resolve } from 'node:path';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -38,10 +38,41 @@ const ruleNames = await listRulesDir();
 
 ruleNames.push('S2260');
 
+rmSync(RULE_DATA_FOLDER, {
+  recursive: true,
+  force: true,
+});
+
+mkdirSync(RULE_DATA_FOLDER, {
+  recursive: true,
+});
+
+const sonarWayRuleNames: Array<string> = [];
+
 for (const ruleName of ruleNames) {
   for (const extension of ['json', 'html']) {
     const fileName = `${ruleName}.${extension}`;
 
     copyFileSync(join(sourceFolder, fileName), join(RULE_DATA_FOLDER, fileName));
   }
+
+  const manifestFileName = join(sourceFolder, `${ruleName}.json`);
+
+  const manifest: {
+    defaultQualityProfiles: Array<string>;
+  } = JSON.parse(readFileSync(manifestFileName, 'utf-8'));
+
+  const qualityProfileName = manifest.defaultQualityProfiles[0];
+
+  if (qualityProfileName === 'Sonar way') {
+    sonarWayRuleNames.push(ruleName);
+  }
 }
+
+writeFileSync(
+  join(RULE_DATA_FOLDER, 'Sonar_way_profile.json'),
+  JSON.stringify({
+    name: 'Sonar way',
+    ruleKeys: sonarWayRuleNames,
+  }),
+);

@@ -10,16 +10,19 @@ problems:</p>
   changes correctly across all occurrences. This can introduce bugs and inconsistencies in the codebase. </li>
   <li> Code readability is crucial for maintainability and collaboration. Having repetitive return statements can lead to unnecessary code
   duplication, which should be avoided in favor of creating modular and clean code. </li>
+  <li> This often happens in functions that perform a conditional side effect but always return the same value. </li>
 </ul>
 <p>This rule raises an issue when a function contains several <code>return</code> statements that all return the same value.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-function f(a, g) { // Noncompliant: 'f' returns 'b' on two different return statements
-  const b = 42;
-  if (a) {
-    g(a);
-    return b;
+function f(a, g) { // Noncompliant: 'f' returns 'false' on 3 different return statements
+  if (a &lt; 0) {
+    return false;
   }
-  return b;
+  if (a &gt; 10) {
+    g(a); // side effect
+    return false;
+  }
+  return false;
 }
 </pre>
 <p>To address this, you should refactor the function to use a single return statement with a variable storing the value to be returned. This way, the
@@ -27,11 +30,10 @@ code becomes more concise, easier to understand, and reduces the likelihood of i
 return point, you can also enforce consistency and prevent unexpected return values.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 function f(a, g) {
-  const b = 42;
-  if (a) {
-    g(a);
+  if (a &gt; 10) {
+    g(a); // side effect
   }
-  return b;
+  return false;
 }
 </pre>
 <h2>Resources</h2>

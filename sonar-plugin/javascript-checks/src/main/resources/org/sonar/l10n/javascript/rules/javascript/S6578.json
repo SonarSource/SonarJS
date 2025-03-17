@@ -20,5 +20,8 @@
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

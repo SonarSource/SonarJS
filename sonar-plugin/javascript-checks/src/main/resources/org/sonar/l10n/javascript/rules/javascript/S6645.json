@@ -20,5 +20,8 @@
   "quickfix": "covered",
   "compatibleLanguages": [
     "js"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

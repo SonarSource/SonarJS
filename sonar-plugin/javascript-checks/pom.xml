@@ -65,8 +65,6 @@
             <configuration>
               <ruleSubdirectory>javascript</ruleSubdirectory>
               <targetDirectory>${project.basedir}/../../resources/rule-data</targetDirectory>
-              <!--          <vcsRepositoryUrl>https://github.com/ericmorand-sonarsource/rspec.git</vcsRepositoryUrl>-->
-              <vcsBranchName>RULEAPI-836</vcsBranchName>
             </configuration>
           </execution>
         </executions>
@@ -78,7 +76,44 @@
         <version>3.5.0</version>
         <executions>
           <execution>
-            <id>Generate the Java Check classes</id>
+            <id>Clean the Rule Data</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>rm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>resources</argument>
+                <argument>-rf</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Clean node_modules</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>rm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <!-- the bridge module should clean node_modules, but we have to install npm dependencies from this module so... -->
+                <argument>node_modules</argument>
+                <argument>-rf</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!--
+              This step belongs to a bridge module, since it is only necessary to build the Bridge.
+              Unfortunately, it is also required to build the Java Check Classes.
+
+              We want to improve that in the future.
+        -->
+          <execution>
+            <id>Install the npm dependencies</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>exec</goal>
@@ -87,8 +122,7 @@
               <executable>npm</executable>
               <workingDirectory>../..</workingDirectory>
               <arguments>
-                <argument>run</argument>
-                <argument>generate-java-rule-classes</argument>
+                <argument>ci</argument>
               </arguments>
             </configuration>
           </execution>
@@ -104,6 +138,42 @@
               <arguments>
                 <argument>run</argument>
                 <argument>deploy-rule-data</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!--
+                This step belongs to a bridge module, since it is only necessary to build the Bridge.
+                Unfortunately, it is also required to build the Java Check Classes.
+
+                We want to improve that in the future.
+          -->
+          <execution>
+            <id>Generate the ESLint Meta</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>generate-meta</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Generate the Java Check classes</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>generate-java-rule-classes</argument>
               </arguments>
             </configuration>
           </execution>

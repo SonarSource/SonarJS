@@ -72,6 +72,11 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.javascript</groupId>
+      <artifactId>javascript-checks</artifactId>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <build>
     <extensions>
@@ -117,6 +122,22 @@
         <version>3.5.0</version>
         <executions>
           <execution>
+            <id>Clean the npm dependencies</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>rm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>lib</argument>
+                <argument>bin</argument>
+                <argument>-rf</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>Build the bridge</id>
             <phase>generate-resources</phase>
             <goals>
@@ -127,7 +148,7 @@
               <workingDirectory>../..</workingDirectory>
               <arguments>
                 <argument>run</argument>
-                <argument>bridge:build:fast</argument>
+                <argument>bridge:compile</argument>
               </arguments>
             </configuration>
           </execution>

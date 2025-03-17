@@ -23,5 +23,8 @@
   },
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

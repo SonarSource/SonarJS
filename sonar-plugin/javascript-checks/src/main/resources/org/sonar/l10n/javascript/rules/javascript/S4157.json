@@ -27,5 +27,6 @@
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

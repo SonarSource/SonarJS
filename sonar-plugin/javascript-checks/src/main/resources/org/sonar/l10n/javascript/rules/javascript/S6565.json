@@ -23,5 +23,8 @@
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

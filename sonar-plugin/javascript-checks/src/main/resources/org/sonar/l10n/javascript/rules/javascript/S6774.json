@@ -23,5 +23,8 @@
   },
   "compatibleLanguages": [
     "js"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

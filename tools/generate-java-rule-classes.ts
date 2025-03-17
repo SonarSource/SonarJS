@@ -31,7 +31,6 @@ import {
   listRulesDir,
   sonarKeySorter,
 } from './helpers.js';
-import { readdir } from 'fs/promises';
 
 const JAVA_CHECKS_FOLDER = join(
   'sonar-plugin',

@@ -52,7 +52,7 @@ orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
 
 nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
-    folder: resources/downloads/
+    folder: sonar-plugin/sonar-javascript-plugin/downloads/
     fingerprint_script: cat sonar-plugin/sonar-javascript-plugin/pom.xml | grep -o "<nodeVersion>.*"
 
 npm_cache_definition: &NPM_CACHE
@@ -138,9 +138,7 @@ build_task:
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
-    - npm ci
-    - npm run check-format
-    - regular_mvn_build_deploy_analyze -Dsonar.skip=true
+    - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN
 
 analyze_task:
   eks_container:
@@ -162,7 +160,7 @@ analyze_task:
   <<: *NPMRC_SCRIPT_DEFINITION
   build_and_analyze_script:
     - source cirrus-env QA
-    - npm run build:cov
+    - npm run bridge:test:cov
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
 build_win_task:
@@ -174,7 +172,6 @@ build_win_task:
   <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
     - source cirrus-env BUILD
-    - npm ci
     - mvn clean install -e
 
 ws_scan_task:

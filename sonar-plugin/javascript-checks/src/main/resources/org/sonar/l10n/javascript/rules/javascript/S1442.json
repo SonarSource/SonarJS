@@ -20,5 +20,6 @@
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }
