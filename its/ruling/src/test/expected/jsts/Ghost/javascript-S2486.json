@@ -1,0 +1,40 @@
+{
+"Ghost:core/client/app/controllers/feature.js": [
+16
+],
+"Ghost:core/client/app/controllers/settings/navigation.js": [
+59
+],
+"Ghost:core/client/app/services/config.js": [
+19
+],
+"Ghost:core/client/app/utils/ajax.js": [
+30
+],
+"Ghost:core/server/api/settings.js": [
+48
+],
+"Ghost:core/server/config/index.js": [
+95
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+93
+],
+"Ghost:core/server/ghost-server.js": [
+46
+],
+"Ghost:core/server/update-check.js": [
+128
+],
+"Ghost:core/server/utils/parse-package-json.js": [
+41
+],
+"Ghost:core/server/utils/startup-check.js": [
+53,
+124,
+190
+],
+"Ghost:core/test/utils/index.js": [
+325
+]
+}

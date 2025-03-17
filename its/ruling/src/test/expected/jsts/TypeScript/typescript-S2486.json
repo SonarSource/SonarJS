@@ -1,0 +1,54 @@
+{
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+101
+],
+"TypeScript:src/compiler/sys.ts": [
+261,
+274,
+296,
+400,
+422,
+435
+],
+"TypeScript:src/compiler/utilities.ts": [
+4641,
+4650
+],
+"TypeScript:src/harness/harness.ts": [
+129,
+551,
+630
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+307,
+494
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+153
+],
+"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
+16
+],
+"TypeScript:src/server/server.ts": [
+150,
+724
+],
+"TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
+27
+],
+"TypeScript:src/server/watchGuard/watchGuard.ts": [
+17
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+523
+],
+"TypeScript:src/services/pathCompletions.ts": [
+355,
+445,
+527,
+535
+],
+"TypeScript:src/services/shims.ts": [
+502
+]
+}

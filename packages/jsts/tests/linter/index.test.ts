@@ -136,7 +136,12 @@ describe('Linter', () => {
     });
     expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual(
       expect.objectContaining({
-        'sonarjs/S100': ['error'],
+        'sonarjs/S100': [
+          'error',
+          {
+            format: '^[_a-z][a-zA-Z0-9]*$',
+          },
+        ],
       }),
     );
   });
@@ -165,7 +170,12 @@ describe('Linter', () => {
       sonarlint: true,
     });
     expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual({
-      'sonarjs/S100': ['error'],
+      'sonarjs/S100': [
+        'error',
+        {
+          format: '^[_a-z][a-zA-Z0-9]*$',
+        },
+      ],
     });
   });
 
