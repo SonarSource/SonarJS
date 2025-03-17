@@ -16,6 +16,7 @@
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
+import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes files without type-checking.
@@ -31,6 +32,9 @@ export async function analyzeWithoutProgram(
 ) {
   for (const filename of filenames) {
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = await analyzeFile(files[filename]);
+    results.files[filename] = await analyzeFile({
+      ...files[filename],
+      ...fieldsForJsTsAnalysisInput(),
+    });
   }
 }

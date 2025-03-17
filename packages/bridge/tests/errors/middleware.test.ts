@@ -66,6 +66,7 @@ describe('errorMiddleware', () => {
       {
         parsingError: {
           message: 'TypeScript failed for some reason',
+          line: undefined,
           code: ErrorCode.FailingTypeScript,
         },
       },
@@ -84,6 +85,7 @@ describe('errorMiddleware', () => {
       {
         parsingError: {
           message: 'Uninitialized linter',
+          line: undefined,
           code: ErrorCode.LinterInitialization,
         },
       },

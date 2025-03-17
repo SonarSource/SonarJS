@@ -18,6 +18,7 @@ import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
+import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files
@@ -63,6 +64,7 @@ async function analyzeProgram(
       results.files[filename] = await analyzeFile({
         ...files[filename],
         programId,
+        ...fieldsForJsTsAnalysisInput(),
       });
       pendingFiles.delete(filename);
     }

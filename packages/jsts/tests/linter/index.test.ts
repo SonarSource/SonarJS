@@ -20,7 +20,7 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
-import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 import fs from 'fs';

@@ -14,9 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
-export function filterSize(input: string, maxSize: number = DEFAULT_MAX_FILE_SIZE_KB) {
+export function filterSize(input: string, maxSize: number) {
   return getBytes(input) <= maxSize * 1000;
 
   function getBytes(input: string) {

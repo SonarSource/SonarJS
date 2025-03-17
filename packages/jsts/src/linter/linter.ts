@@ -18,7 +18,7 @@ import { debug } from '../../../shared/src/helpers/logging.js';
 import { Rule, Linter as ESLintLinter } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
-import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';

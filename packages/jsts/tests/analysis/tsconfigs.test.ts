@@ -36,7 +36,7 @@ const fixtures = join(import.meta.dirname, 'fixtures');
 describe('tsconfigs', () => {
   it('should return the TSconfig files', async () => {
     clearTSConfigs();
-    await loadFiles(fixtures, {});
+    await loadFiles(fixtures);
     expect(getTSConfigsCount()).toEqual(3);
   });
 
@@ -64,7 +64,7 @@ describe('tsconfigs', () => {
   it('when no tsconfigs, in SonarLint should generate tsconfig with wildcard', async () => {
     clearTSConfigs();
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir, {});
+    const files = await loadFiles(baseDir);
     const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 200);
     const tsconfig = await getAsyncIteratorValue(tsconfigs);
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
@@ -81,7 +81,7 @@ describe('tsconfigs', () => {
   it('when no tsconfigs, in SonarQube should generate tsconfig with all files', async () => {
     clearTSConfigs();
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir, {});
+    const files = await loadFiles(baseDir);
     const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, false, 200);
     const tsconfig = await getAsyncIteratorValue(tsconfigs);
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
@@ -98,7 +98,7 @@ describe('tsconfigs', () => {
   it('should not generate tsconfig file when too many files', async () => {
     clearTSConfigs();
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir, {});
+    const files = await loadFiles(baseDir);
     const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 1);
     expect(await getAsyncIteratorValue(tsconfigs)).toEqual(undefined);
   });
@@ -106,7 +106,7 @@ describe('tsconfigs', () => {
   it('should not generate tsconfig file if there is already at least one', async () => {
     clearTSConfigs();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
-    const files = await loadFiles(baseDir, {});
+    const files = await loadFiles(baseDir);
     const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 1);
     expect(await getAsyncIteratorValue(tsconfigs)).toEqual(
       toUnixPath(join(baseDir, 'tsconfig.json')),

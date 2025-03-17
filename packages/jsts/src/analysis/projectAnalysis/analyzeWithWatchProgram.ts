@@ -18,6 +18,7 @@ import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createProgramOptions } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { clearTypeScriptESLintParserCaches } from '../../parsers/eslint.js';
+import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files
@@ -45,6 +46,7 @@ export async function analyzeWithWatchProgram(
         results.files[filename] = await analyzeFile({
           ...files[filename],
           tsConfigs: [tsConfig],
+          ...fieldsForJsTsAnalysisInput(),
         });
         pendingFiles.delete(filename);
       }

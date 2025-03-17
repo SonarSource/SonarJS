@@ -20,7 +20,7 @@ import {
   fillLanguage,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
-  SuccessfulJsTsAnalysisOutput,
+  JsTsAnalysisOutputWithAst,
 } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
@@ -50,7 +50,9 @@ import { fillFileContent } from '../../../shared/src/types/analysis.js';
  * @param input the JavaScript / TypeScript analysis input to analyze
  * @returns the JavaScript / TypeScript analysis output
  */
-export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<SuccessfulJsTsAnalysisOutput> {
+export async function analyzeJSTS(
+  input: JsTsAnalysisInput,
+): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
   debug(`Analyzing file "${input.filePath}"`);
   const completeInput = fillLanguage(await fillFileContent(input));
   const parseResult = build(completeInput);

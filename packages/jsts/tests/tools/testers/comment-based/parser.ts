@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { FileType } from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
-import { JsTsLanguage } from '../../../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module

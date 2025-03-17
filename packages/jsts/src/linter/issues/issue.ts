@@ -16,7 +16,7 @@
  */
 import { QuickFix } from '../quickfixes/quickfix.js';
 import { Location } from './location.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * A SonarQube-compatible source code issue

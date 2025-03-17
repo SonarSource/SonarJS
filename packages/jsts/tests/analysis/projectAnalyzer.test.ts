@@ -26,6 +26,7 @@ import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyz
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { clearTSConfigs } from '../../src/analysis/projectAnalysis/tsconfigs.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
@@ -49,10 +50,11 @@ describe('analyzeProject', () => {
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
-      ruleId: 'S2260',
-      message: 'Unexpected token (3:0)',
-      line: 3,
-      language: 'js',
+      parsingError: {
+        code: ErrorCode.Parsing,
+        message: 'Unexpected token (3:0)',
+        line: 3,
+      },
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
@@ -64,10 +66,11 @@ describe('analyzeProject', () => {
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
-      ruleId: 'S2260',
-      message: 'Unexpected token (3:0)',
-      line: 3,
-      language: 'js',
+      parsingError: {
+        code: ErrorCode.Parsing,
+        message: 'Unexpected token (3:0)',
+        line: 3,
+      },
     });
     expect(result.meta.withWatchProgram).toBeTruthy();
     expect(result.meta.withProgram).toBeFalsy();
@@ -226,6 +229,8 @@ function prepareInput(files?: JsTsFiles, sonarlint = false): ProjectAnalysisInpu
     rules: defaultRules,
     baseDir: fixtures,
     files,
-    sonarlint,
+    configuration: {
+      sonarlint,
+    },
   };
 }

@@ -18,7 +18,7 @@ import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 
 function getESLintKeys(sonarKey: string) {
   const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas];
