@@ -19,7 +19,7 @@ import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { type FileType, readFile } from '../../../shared/src/helpers/files.js';
 import { build } from '../../src/builders/build.js';
-import type { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 
 const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

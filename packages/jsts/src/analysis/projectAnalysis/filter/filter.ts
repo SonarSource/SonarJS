@@ -18,7 +18,7 @@ import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 
-export function accept(filePath: string, fileContent: string, maxSize?: number) {
+export function accept(filePath: string, fileContent: string, maxSize: number) {
   return (
     filterBundle(fileContent) &&
     filterMinified(filePath, fileContent) &&

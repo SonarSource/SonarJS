@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { FileType } from '../../../../shared/src/helpers/files.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../analysis/analysis.js';
 
 /**

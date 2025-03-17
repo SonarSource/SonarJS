@@ -21,7 +21,7 @@ import { error } from '../../../shared/src/helpers/logging.js';
 /**
  * Express.js middleware for handling error while serving requests.
  *
- * The purpose of this middleware is to catch any error occuring within
+ * The purpose of this middleware is to catch any error occurring within
  * the different layers of the bridge to centralize and customize error
  * information that is sent back.
  *
@@ -34,28 +34,23 @@ export function errorMiddleware(
   response: express.Response,
   _next: express.NextFunction,
 ) {
+  response.json(handleError(err));
+}
+
+export function handleError(err: any) {
   const { code, message, stack } = err;
   switch (code) {
     case ErrorCode.Parsing:
-      response.json(parseParsingError(err));
-      break;
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
-      response.json({
-        parsingError: {
-          message,
-          code,
-        },
-      });
-      break;
+      return generateParsingError(err);
     default:
       error(stack);
-      response.json({ error: message });
-      break;
+      return { error: message };
   }
 }
 
-export function parseParsingError(error: {
+export function generateParsingError(error: {
   message: string;
   code: ErrorCode;
   data?: { line: number };
@@ -67,20 +62,4 @@ export function parseParsingError(error: {
       line: error.data?.line,
     },
   };
-}
-
-/**
- * Creates a S2260 issue from the parsing error
- */
-export function createParsingIssue({
-  parsingError: { line, message },
-}: {
-  parsingError: { line?: number; message: string };
-}) {
-  return {
-    language: 'js',
-    ruleId: 'S2260',
-    line,
-    message,
-  } as const;
 }

@@ -15,9 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { FileType } from '../../../shared/src/helpers/files.js';
-import { isJsFile, isTsFile, JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { isJsFile, isTsFile, JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
@@ -44,14 +43,14 @@ import { Issue } from '../linter/issues/issue.js';
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
+  fileStatus?: FileStatus;
   language?: JsTsLanguage;
+  analysisMode?: AnalysisMode;
   ignoreHeaderComments?: boolean;
   allowTsParserJsFiles?: boolean;
   tsConfigs?: string[];
   programId?: string;
   skipAst?: boolean;
-  analysisMode?: AnalysisMode;
-  fileStatus?: FileStatus;
   shouldClearDependenciesCache?: boolean;
 }
 
@@ -63,16 +62,10 @@ export type CompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'language' | 'fi
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
 export type FileStatus = 'SAME' | 'CHANGED' | 'ADDED';
 
-export interface ParsingError {
-  message: string;
-  line?: number;
-  code: ErrorCode;
-}
-
 /**
  * A JavaScript / TypeScript analysis output
  */
-export interface SuccessfulJsTsAnalysisOutput extends AnalysisOutput {
+export interface JsTsAnalysisOutput extends AnalysisOutput {
   issues: Issue[];
   highlights?: SyntaxHighlight[];
   highlightedSymbols?: SymbolHighlight[];
@@ -82,34 +75,9 @@ export interface SuccessfulJsTsAnalysisOutput extends AnalysisOutput {
   ast?: Uint8Array;
 }
 
-export function isSuccessfulAnalysisOutput(
-  analysis: AnalysisOutput,
-): analysis is SuccessfulJsTsAnalysisOutput {
-  return 'issues' in analysis;
-}
-
-export function isFailedJsTsAnalysisOutput(
-  analysis: AnalysisOutput,
-): analysis is FailedJsTsAnalysisOutput {
-  return 'ruleId' in analysis && analysis.ruleId === 'S2260';
-}
-
-/**
- * A JavaScript / TypeScript analysis output
- */
-export interface FailedJsTsAnalysisOutput extends AnalysisOutput {
-  language: JsTsLanguage;
-  ruleId: 'S2260';
-  line?: number;
-  message: string;
-}
-
-export interface JsTsAnalysisOutputWithAst extends SuccessfulJsTsAnalysisOutput {
+export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
   ast: Uint8Array;
 }
-
-export type JsTsAnalysisOutput = FailedJsTsAnalysisOutput | SuccessfulJsTsAnalysisOutput;
-
 /**
  * In SonarQube context, an analysis input includes both path and content of a file
  * to analyze. However, in SonarLint, we might only get the file path. As a result,

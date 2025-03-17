@@ -15,14 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import {
-  DEFAULT_ENVIRONMENTS,
-  DEFAULT_GLOBALS,
+  JsTsFiles,
   type ProjectAnalysisInput,
   type ProjectAnalysisOutput,
-  type Configuration,
-  JsTsFiles,
-  DEFAULT_EXCLUSIONS,
-  DEFAULT_MAX_FILES_FOR_TYPE_CHECKING,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
@@ -30,7 +25,7 @@ import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import { FileType, toUnixPath } from '../../../../shared/src/helpers/files.js';
 import { findFiles } from '../../../../shared/src/helpers/find-files.js';
-import { extname, join, dirname } from 'node:path/posix';
+import { join, dirname } from 'node:path/posix';
 import { readFile, access } from 'node:fs/promises';
 import {
   addTSConfig,
@@ -41,14 +36,18 @@ import {
   TSCONFIG_JSON,
 } from './tsconfigs.js';
 import {
-  HTML_EXTENSIONS,
-  JS_EXTENSIONS,
-  JSTS_EXTENSIONS,
-  TS_EXTENSIONS,
-  YAML_EXTENSIONS,
-} from '../../../../shared/src/helpers/language.js';
+  isAnalyzableFile,
+  isJsTsFile,
+  setGlobalConfiguration,
+  isSonarLint,
+  getGlobals,
+  getEnvironments,
+  maxFilesForTypeChecking,
+  getTestPaths,
+  getExclusions,
+  getMaxFileSize,
+} from '../../../../shared/src/helpers/configuration.js';
 import { accept } from './filter/filter.js';
-import { isJsTsFile } from './languages.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -57,7 +56,7 @@ import { isJsTsFile } from './languages.js';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, baseDir, configuration, bundles = [], sonarlint = false } = input;
+  const { rules, baseDir, configuration = {}, bundles = [] } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -68,27 +67,23 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  const environments = configuration?.environments ?? DEFAULT_ENVIRONMENTS;
-  const globals = configuration?.globals ?? DEFAULT_GLOBALS;
-  const maxFilesForTypeChecking =
-    configuration?.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-  const watchProgram = input.sonarlint;
+  setGlobalConfiguration(configuration);
   await Linter.initialize({
     rules,
-    environments,
-    globals,
-    sonarlint,
+    environments: getEnvironments(),
+    globals: getGlobals(),
+    sonarlint: isSonarLint(),
     bundles,
     baseDir: normalizedBaseDir,
   });
   clearTSConfigs();
-  await verifyProvidedTsConfigs(normalizedBaseDir, configuration?.tsConfigPaths);
+  await verifyProvidedTsConfigs(normalizedBaseDir, configuration.tsConfigPaths);
   if (!input.files) {
-    input.files = await loadFiles(normalizedBaseDir, configuration ?? {});
+    input.files = await loadFiles(normalizedBaseDir);
   }
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
-  await loadFiles(normalizedBaseDir, configuration ?? {});
+  await loadFiles(normalizedBaseDir);
   if (!inputFilenames.length) {
     return results;
   }
@@ -96,10 +91,10 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     // we create the fallback tsconfig without html files, they alter the results (probably for the better)
     inputFilenames.filter(filename => isJsTsFile(filename)),
     normalizedBaseDir,
-    sonarlint,
-    maxFilesForTypeChecking,
+    isSonarLint(),
+    maxFilesForTypeChecking(),
   );
-  if (watchProgram) {
+  if (isSonarLint()) {
     results.meta!.withWatchProgram = true;
     await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
   } else {
@@ -111,14 +106,8 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   return results;
 }
 
-export async function loadFiles(
-  baseDir: string,
-  { tsSuffixes, jsSuffixes, tests, exclusions, maxFileSize, jsTsExclusions }: Configuration,
-) {
-  const extensions = (jsSuffixes ?? JS_EXTENSIONS)
-    .concat(tsSuffixes ?? TS_EXTENSIONS)
-    .concat(HTML_EXTENSIONS)
-    .concat(YAML_EXTENSIONS);
+export async function loadFiles(baseDir: string) {
+  const tests = getTestPaths();
   const testPaths = tests ? tests.map(test => join(baseDir, test)) : null;
 
   const files: JsTsFiles = {};
@@ -126,26 +115,23 @@ export async function loadFiles(
   await findFiles(
     baseDir,
     async file => {
-      let fileType: FileType = 'MAIN';
-      const filePath = toUnixPath(join(file.parentPath, file.name));
-      if (testPaths?.length) {
-        const parent = dirname(filePath);
-        if (testPaths?.some(testPath => parent.startsWith(testPath))) {
-          fileType = 'TEST';
-        }
-      }
-      const extension = extname(file.name).toLowerCase();
-      if (extensions.includes(extension)) {
-        const fileContent = await readFile(filePath, 'utf8');
-        if (!JSTS_EXTENSIONS.includes(extension) || accept(filePath, fileContent, maxFileSize)) {
-          files[filePath] = { fileType, filePath, fileContent };
+      if (isAnalyzableFile(file.name)) {
+        const filePath = toUnixPath(join(file.parentPath, file.name));
+        const fileType = getFiletype(filePath, testPaths);
+        if (isJsTsFile(file.name)) {
+          const fileContent = await readFile(filePath, 'utf8');
+          if (accept(filePath, fileContent, getMaxFileSize())) {
+            files[filePath] = { fileType, filePath, fileContent };
+          }
+        } else {
+          files[filePath] = { fileType, filePath };
         }
       }
       if (file.name === TSCONFIG_JSON) {
-        foundTsConfigs.push(filePath);
+        foundTsConfigs.push(toUnixPath(join(file.parentPath, file.name)));
       }
     },
-    DEFAULT_EXCLUSIONS.concat(exclusions ?? []).concat(jsTsExclusions ?? []),
+    getExclusions(),
   );
   if (!getTSConfigsCount() && foundTsConfigs.length > 0) {
     setTSConfigs(foundTsConfigs);
@@ -163,4 +149,14 @@ export async function verifyProvidedTsConfigs(baseDir: string, tsConfigPaths?: s
       } catch {}
     }
   }
+}
+
+function getFiletype(filePath: string, testPaths: string[] | null): FileType {
+  if (testPaths?.length) {
+    const parent = dirname(filePath);
+    if (testPaths?.some(testPath => parent.startsWith(testPath))) {
+      return 'TEST';
+    }
+  }
+  return 'MAIN';
 }

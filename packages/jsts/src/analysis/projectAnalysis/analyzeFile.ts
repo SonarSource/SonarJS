@@ -14,23 +14,24 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { createParsingIssue, parseParsingError } from '../../../../bridge/src/errors/index.js';
+import { handleError } from '../../../../bridge/src/errors/index.js';
 import { JsTsAnalysisInput } from '../analysis.js';
-import { isHtmlFile, isYamlFile } from './languages.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
 import { analyzeJSTS } from '../analyzer.js';
-import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import { isHtmlFile, isYamlFile } from '../../../../shared/src/helpers/configuration.js';
+import { serializeError } from '../../../../bridge/src/request.js';
+import { FileResult } from './projectAnalysis.js';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
-export async function analyzeFile(input: JsTsAnalysisInput): Promise<AnalysisOutput> {
+export async function analyzeFile(input: JsTsAnalysisInput): Promise<FileResult> {
   try {
     return await getAnalyzerForFile(input.filePath)(input);
   } catch (e) {
-    return createParsingIssue(parseParsingError(e));
+    return handleError(serializeError(e));
   }
 }
 
