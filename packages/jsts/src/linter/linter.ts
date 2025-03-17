@@ -32,6 +32,8 @@ import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
+import { defaultOptions } from '../rules/helpers/configs.js';
+import merge from 'lodash.merge';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -163,7 +165,6 @@ export class Linter {
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
-   * @param sonarlint whether we are running in sonarlint context
    * @returns the linting result
    */
   static lint(
@@ -280,7 +281,17 @@ export class Linter {
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
     return {
       ...rules.reduce((rules, rule) => {
-        rules[`sonarjs/${rule.key}`] = ['error', ...rule.configurations];
+        // in the case of bundles, rule.key will not be present in the ruleMetas
+        const ruleMeta =
+          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
+        if (ruleMeta && 'fields' in ruleMeta) {
+          rules[`sonarjs/${rule.key}`] = [
+            'error',
+            ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
+          ];
+        } else {
+          rules[`sonarjs/${rule.key}`] = ['error'];
+        }
         return rules;
       }, {} as ESLintLinter.RulesRecord),
       ...Linter.createInternalRulesRecord(),

@@ -1,18 +1,14 @@
 {
-"knockout:spec/defaultBindings/optionsBehaviors.js": [
-8
+"knockout:src/binding/defaultBindings/hasfocus.js": [
+18
 ],
-"knockout:spec/defaultBindings/selectedOptionsBehaviors.js": [
-8
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+173
 ],
-"knockout:spec/lib/jasmine-1.2.0/jasmine.js": [
-613
+"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
+16
 ],
-"knockout:spec/memoizationBehaviors.js": [
-11,
-34
-],
-"knockout:spec/onErrorBehaviors.js": [
-62
+"knockout:src/utils.js": [
+472
 ]
 }
