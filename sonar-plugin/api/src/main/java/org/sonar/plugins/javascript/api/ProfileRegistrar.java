@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.api;
 import java.util.Collection;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * This class can be extended to provide additional rule keys in the builtin default quality profile.
@@ -39,7 +38,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *   }
  * </pre>
  */
-@SonarLintSide
 @ServerSide
 public interface ProfileRegistrar {
   /**
