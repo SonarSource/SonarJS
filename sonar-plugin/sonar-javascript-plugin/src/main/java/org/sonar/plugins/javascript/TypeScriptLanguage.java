@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -24,7 +25,7 @@ public class TypeScriptLanguage extends AbstractLanguage {
   public static final String KEY = "ts";
 
   public static final String FILE_SUFFIXES_KEY = "sonar.typescript.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = ".ts,.tsx,.cts,.mts";
+  public static final String DEFAULT_FILE_SUFFIXES = ".ts,.tsx,.cts,.mts";
 
   private Configuration configuration;
 
@@ -35,6 +36,9 @@ public class TypeScriptLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return configuration.getStringArray(FILE_SUFFIXES_KEY);
+    String[] suffixes = Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY))
+      .filter(s -> s != null && !s.trim().isEmpty())
+      .toArray(String[]::new);
+    return suffixes.length > 0 ? suffixes : DEFAULT_FILE_SUFFIXES.split(",");
   }
 }

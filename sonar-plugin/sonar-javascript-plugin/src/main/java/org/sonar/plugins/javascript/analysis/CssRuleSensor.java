@@ -141,7 +141,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         return new ArrayList<>();
       }
       LOG.debug("Analyzing file: {}", uri);
-      String fileContent = contextUtils.shouldSendFileContent(inputFile)
+      String fileContent = ContextUtils.shouldSendFileContent(context, inputFile)
         ? inputFile.contents()
         : null;
       CssAnalysisRequest request = new CssAnalysisRequest(

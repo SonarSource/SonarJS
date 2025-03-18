@@ -106,9 +106,9 @@ class JavaScriptFilePredicateTest {
 
   private static String getLanguage(String path) {
     String fileExtension = path.substring(path.indexOf("."));
-    if (JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(fileExtension)) {
+    if (JavaScriptLanguage.DEFAULT_FILE_SUFFIXES.contains(fileExtension)) {
       return JavaScriptLanguage.KEY;
-    } else if (TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(fileExtension)) {
+    } else if (TypeScriptLanguage.DEFAULT_FILE_SUFFIXES.contains(fileExtension)) {
       return TypeScriptLanguage.KEY;
     } else {
       return path.split("\\.")[1];

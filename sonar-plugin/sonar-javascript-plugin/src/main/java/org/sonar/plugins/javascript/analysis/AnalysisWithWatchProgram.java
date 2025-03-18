@@ -45,7 +45,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var issues = new ArrayList<BridgeServer.Issue>();
 
-    TsConfigProvider.initializeTsConfigCache(contextUtils, this::createTsConfigFile, tsConfigCache);
+    TsConfigProvider.initializeTsConfigCache(context, this::createTsConfigFile, tsConfigCache);
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     try {

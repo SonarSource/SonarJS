@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS;
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS_ALIAS;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TsConfigFileCreator;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.WildcardTsConfigProvider;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
@@ -48,6 +48,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
@@ -86,7 +87,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactlyInAnyOrder(
       tsconfig1.toAbsolutePath().toString(),
       tsconfig2.toAbsolutePath().toString()
@@ -107,7 +108,7 @@ class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
@@ -124,7 +125,7 @@ class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, absolutePath));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
 
@@ -145,7 +146,7 @@ class TsConfigProviderTest {
         )
     );
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactlyInAnyOrder(
       baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
       baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
@@ -173,7 +174,7 @@ class TsConfigProviderTest {
         .setProperty(TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json")
     );
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactlyInAnyOrder(
       baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
       baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
@@ -188,10 +189,10 @@ class TsConfigProviderTest {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
-      "Resolving TSConfig files using 'tsconfig.json' from property " + TSCONFIG_PATHS_ALIAS
+      "Resolving TSConfig files using 'tsconfig.json' from property " + TSCONFIG_PATHS
     );
   }
 
@@ -201,7 +202,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
     String expectedBaseDir = this.baseDir.toString().replaceAll("[\\\\/]", "/");
@@ -221,7 +222,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
     var tsConfigCache = tsConfigCache();
-    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
 
     assertThat(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK))
       .hasSize(1)
@@ -240,7 +241,7 @@ class TsConfigProviderTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     var tsConfigCache = tsConfigCache();
-    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
 
     var tsconfigs = new WildcardTsConfigProvider(
       tsConfigCache,
@@ -253,12 +254,12 @@ class TsConfigProviderTest {
   void should_not_create_wildcard_tsconfig_in_sonarlint() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    ctx.setSettings(new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 1));
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 1));
     createInputFile(ctx, "file.js");
     createInputFile(ctx, "file2.js");
 
     var tsConfigCache = tsConfigCache();
-    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     assertThat(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK)).isEmpty();
   }
 
@@ -289,7 +290,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "node_modules/dep.js");
 
     var tsConfigCache = tsConfigCache();
-    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     assertThat(logger.logs()).contains("Turning on type-checking of JavaScript files");
   }
 
@@ -297,13 +298,13 @@ class TsConfigProviderTest {
   void should_detect_projects_with_too_many_files() throws IOException {
     logger.setLevel(LoggerLevel.WARN);
     var ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 3));
+    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 3));
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.ts");
     createInputFile(ctx, "file3.cjs");
     createInputFile(ctx, "file4.cts");
     var tsConfigCache = tsConfigCache();
-    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     assertThat(
       WildcardTsConfigProvider.isBeyondLimit(ctx, tsConfigCache.getProjectSize())
     ).isTrue();
@@ -312,7 +313,7 @@ class TsConfigProviderTest {
       "This may cause rules dependent on type information to not behave as expected",
       "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
       "To turn type-checking back on, increase the \"" +
-      WildcardTsConfigProvider.MAX_FILES_PROPERTY +
+      JavaScriptPlugin.MAX_FILES_PROPERTY +
       "\" property value",
       "Please be aware that this could potentially impact the performance of the analysis"
     );

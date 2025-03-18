@@ -28,7 +28,7 @@ class TypeScriptLanguageTest {
     MapSettings settings = new MapSettings();
     settings.setProperty(
       TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE
+      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
     TypeScriptLanguage typeScriptLanguage = new TypeScriptLanguage(settings.asConfig());
     assertThat(typeScriptLanguage.getFileSuffixes()).containsExactly(".ts", ".tsx", ".cts", ".mts");

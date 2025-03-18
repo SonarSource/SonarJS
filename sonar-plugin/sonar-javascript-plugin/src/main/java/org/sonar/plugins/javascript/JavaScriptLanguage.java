@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -23,7 +24,7 @@ public class JavaScriptLanguage extends AbstractLanguage {
 
   public static final String KEY = "js";
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.cjs,.mjs,.vue";
+  public static final String DEFAULT_FILE_SUFFIXES = ".js,.jsx,.cjs,.mjs,.vue";
 
   private Configuration configuration;
 
@@ -34,6 +35,9 @@ public class JavaScriptLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return configuration.getStringArray(FILE_SUFFIXES_KEY);
+    String[] suffixes = Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY))
+      .filter(s -> s != null && !s.trim().isEmpty())
+      .toArray(String[]::new);
+    return suffixes.length > 0 ? suffixes : DEFAULT_FILE_SUFFIXES.split(",");
   }
 }
