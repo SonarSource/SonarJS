@@ -14,9 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import prettier from 'prettier';
 import { readdir, readFile, stat, writeFile } from 'fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+//@ts-ignore
+import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
 import { mkdir } from 'node:fs/promises';
 
@@ -173,5 +176,14 @@ async function exists(file: string) {
 export async function writePrettyFile(filepath: string, contents: string) {
   await mkdir(dirname(filepath), {
     recursive: true,
-  }).then(() => writeFile(filepath, contents));
+  }).then(async () =>
+    writeFile(
+      filepath,
+      await prettier.format(contents, {
+        ...(prettierOpts as prettier.Options),
+        filepath,
+        plugins: ['prettier-plugin-java'],
+      }),
+    ),
+  );
 }
