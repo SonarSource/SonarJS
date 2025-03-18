@@ -36,7 +36,6 @@ import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
@@ -71,9 +70,7 @@ public class JavaScriptPlugin implements Plugin {
 
   // Global JavaScript constants
 
-  public static final String PROPERTY_PREFIX = "sonar.javascript";
-
-  public static final String LCOV_REPORT_PATHS = PROPERTY_PREFIX + ".lcov.reportPaths";
+  public static final String LCOV_REPORT_PATHS = "sonar.javascript.lcov.reportPaths";
   public static final String LCOV_REPORT_PATHS_ALIAS = "sonar.typescript.lcov.reportPaths";
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
@@ -109,10 +106,10 @@ public class JavaScriptPlugin implements Plugin {
   public static final String GLOBALS_DEFAULT_VALUE =
     "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper,_,sap";
 
-  public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
+  public static final String IGNORE_HEADER_COMMENTS = "sonar.javascript.ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
-  public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
+  public static final String JS_EXCLUSIONS_KEY = "sonar.javascript.exclusions";
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
   public static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
     "**/node_modules/**",
@@ -130,9 +127,18 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
-
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
+  public static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
+
+  public static final String MAX_FILES_PROPERTY =
+    "sonar.javascript.sonarlint.typechecking.maxfiles";
+  public static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
+
+  public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
+  public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
+
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
+  public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
 
   @Override
   public void define(Context context) {
@@ -171,7 +177,7 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .build(),
       PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
+        .defaultValue(JavaScriptLanguage.DEFAULT_FILE_SUFFIXES)
         .name("JavaScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
@@ -180,7 +186,7 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
+        .defaultValue(TypeScriptLanguage.DEFAULT_FILE_SUFFIXES)
         .name("TypeScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
@@ -188,7 +194,7 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .build(),
-      PropertyDefinition.builder(TsConfigProvider.TSCONFIG_PATHS)
+      PropertyDefinition.builder(TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
         .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
         .onQualifiers(Qualifiers.PROJECT)
@@ -208,7 +214,7 @@ public class JavaScriptPlugin implements Plugin {
         .type(PropertyType.INTEGER)
         .defaultValue("1000")
         .build(),
-      PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+      PropertyDefinition.builder(IGNORE_HEADER_COMMENTS)
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
@@ -217,7 +223,7 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
         .build(),
-      PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
+      PropertyDefinition.builder(ENVIRONMENTS)
         .defaultValue(String.join(",", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE))
         .name("JavaScript execution environments")
         .description(
@@ -231,7 +237,7 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .category(JS_TS_CATEGORY)
         .build(),
-      PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
+      PropertyDefinition.builder(GLOBALS)
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
@@ -264,7 +270,7 @@ public class JavaScriptPlugin implements Plugin {
 
     context.addExtension(
       PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
-        .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
+        .defaultValue(CssLanguage.DEFAULT_FILE_SUFFIXES)
         .name("File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)

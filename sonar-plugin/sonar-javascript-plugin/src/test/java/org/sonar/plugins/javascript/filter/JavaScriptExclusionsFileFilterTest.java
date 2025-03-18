@@ -147,11 +147,11 @@ class JavaScriptExclusionsFileFilterTest {
     mapSettings.setProperty("sonar.javascript.maxFileSize", "" + MAX_SIZE_SETTING);
     mapSettings.setProperty(
       JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
     mapSettings.setProperty(
       TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE
+      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       mapSettings.asConfig()
@@ -370,11 +370,11 @@ class JavaScriptExclusionsFileFilterTest {
   private static String language(String filename) {
     String[] parts = filename.split("\\.");
     String ending = parts[parts.length - 1];
-    if (JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+    if (JavaScriptLanguage.DEFAULT_FILE_SUFFIXES.contains(ending)) {
       return JavaScriptLanguage.KEY;
-    } else if (TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+    } else if (TypeScriptLanguage.DEFAULT_FILE_SUFFIXES.contains(ending)) {
       return TypeScriptLanguage.KEY;
-    } else if (CssLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+    } else if (CssLanguage.DEFAULT_FILE_SUFFIXES.contains(ending)) {
       return CssLanguage.KEY;
     } else if ("java".contains(ending)) {
       return ending;

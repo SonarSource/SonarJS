@@ -26,7 +26,7 @@ class CssLanguageTest {
   @Test
   void test() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.FILE_SUFFIXES_DEFVALUE);
+    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.DEFAULT_FILE_SUFFIXES);
     CssLanguage language = new CssLanguage(settings.asConfig());
     assertThat(language.getKey()).isEqualTo("css");
     assertThat(language.getName()).isEqualTo("CSS");

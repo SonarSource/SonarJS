@@ -80,7 +80,7 @@ public class YamlSensor extends AbstractBridgeSensor {
         environments,
         globals,
         context.fileSystem().baseDir().getAbsolutePath(),
-        contextUtils.isSonarLint()
+        ContextUtils.isSonarLint(context)
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
@@ -154,20 +154,22 @@ public class YamlSensor extends AbstractBridgeSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var fileContent = ContextUtils.shouldSendFileContent(context, file)
+          ? file.contents()
+          : null;
         var jsAnalysisRequest = new JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
           fileContent,
-          contextUtils.ignoreHeaderComments(),
+          ContextUtils.ignoreHeaderComments(context),
           null,
           null,
           file.status(),
-          contextUtils.getAnalysisMode(),
+          ContextUtils.getAnalysisMode(context),
           false,
           false,
-          contextUtils.isSonarLint(),
-          contextUtils.allowTsParserJsFiles()
+          ContextUtils.isSonarLint(context),
+          ContextUtils.allowTsParserJsFiles(context)
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         issues = analysisProcessor.processResponse(context, checks, file, response);

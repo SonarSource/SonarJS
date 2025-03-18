@@ -16,6 +16,7 @@
  */
 package org.sonar.css;
 
+import java.util.Arrays;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -23,7 +24,7 @@ public class CssLanguage extends AbstractLanguage {
 
   public static final String KEY = "css";
   public static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = ".css,.less,.scss,.sass";
+  public static final String DEFAULT_FILE_SUFFIXES = ".css,.less,.scss,.sass";
 
   private Configuration configuration;
 
@@ -34,6 +35,9 @@ public class CssLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return configuration.getStringArray(FILE_SUFFIXES_KEY);
+    String[] suffixes = Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY))
+      .filter(s -> s != null && !s.trim().isEmpty())
+      .toArray(String[]::new);
+    return suffixes.length > 0 ? suffixes : DEFAULT_FILE_SUFFIXES.split(",");
   }
 }

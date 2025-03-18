@@ -24,10 +24,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
-import org.sonar.plugins.javascript.utils.Exclusions;
 
 /**
  * This class partially reproduces the behavior of JavaScriptExclusionsFileFilter's implementation.
@@ -52,14 +49,7 @@ public class LookupConfigProviderFilter {
     private final Set<String> extensions = new HashSet<>();
 
     public FileFilter(Configuration config) {
-      var jsExtensions = config.hasKey(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        : JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
-      var tsExtensions = config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        : TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.split(",");
-      extensions.addAll(stream(jsExtensions).toList());
-      extensions.addAll(stream(tsExtensions).toList());
+      extensions.addAll(ContextUtils.getJsTsExtensions(config));
     }
 
     @Override
@@ -73,7 +63,7 @@ public class LookupConfigProviderFilter {
     private final WildcardPattern[] exclusions;
 
     public PathFilter(Configuration config) {
-      exclusions = stream(Exclusions.getExcludedPaths(config))
+      exclusions = stream(ContextUtils.getExcludedPaths(config))
         .map(WildcardPattern::create)
         .toArray(WildcardPattern[]::new);
     }

@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.filter;
 
 import static java.util.regex.Pattern.DOTALL;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DETECT_BUNDLES_PROPERTY;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 public class BundleAssessor implements Assessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(BundleAssessor.class);
-  static final String PROPERTY = "sonar.javascript.detectBundles";
   private static final Pattern COMMENT_OPERATOR_FUNCTION = bundleRegexPattern();
   private static final int READ_CHARACTERS_LIMIT = 2048;
   private boolean isInfoLogged;
@@ -48,7 +48,7 @@ public class BundleAssessor implements Assessor {
       if (matcher.find()) {
         LOG.debug(
           "File {} was excluded because it looks like a bundle. (Disable detection with " +
-          PROPERTY +
+          DETECT_BUNDLES_PROPERTY +
           "=false)",
           inputFile
         );
@@ -56,7 +56,7 @@ public class BundleAssessor implements Assessor {
           LOG.info(
             "Some of the project files were automatically excluded because they looked like generated code. " +
             "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
-            BundleAssessor.PROPERTY +
+            DETECT_BUNDLES_PROPERTY +
             "=false"
           );
           isInfoLogged = true;

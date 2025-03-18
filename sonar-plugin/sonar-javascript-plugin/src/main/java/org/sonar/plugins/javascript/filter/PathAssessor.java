@@ -22,7 +22,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.utils.Exclusions;
+import org.sonar.plugins.javascript.analysis.ContextUtils;
 
 class PathAssessor implements Assessor {
 
@@ -30,7 +30,7 @@ class PathAssessor implements Assessor {
   private final WildcardPattern[] excludedPatterns;
 
   PathAssessor(Configuration configuration) {
-    excludedPatterns = WildcardPattern.create(Exclusions.getExcludedPaths(configuration));
+    excludedPatterns = WildcardPattern.create(ContextUtils.getExcludedPaths(configuration));
   }
 
   @Override

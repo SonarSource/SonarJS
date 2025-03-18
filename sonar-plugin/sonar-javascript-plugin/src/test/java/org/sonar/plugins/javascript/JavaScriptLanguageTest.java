@@ -28,7 +28,7 @@ class JavaScriptLanguageTest {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty(
       JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(

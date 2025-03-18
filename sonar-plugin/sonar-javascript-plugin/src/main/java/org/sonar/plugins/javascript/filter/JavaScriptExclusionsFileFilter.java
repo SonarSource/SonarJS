@@ -24,6 +24,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.analysis.ContextUtils;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
@@ -52,7 +53,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static boolean shouldBeEnabled(Assessor assessor, Configuration configuration) {
     if (assessor instanceof BundleAssessor) {
-      return configuration.getBoolean(BundleAssessor.PROPERTY).orElse(true);
+      return ContextUtils.shouldDetectBundles(configuration);
     }
     return true;
   }
