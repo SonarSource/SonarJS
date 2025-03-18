@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_SECURITY_RULES_CLASS_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getExternalRules;
 
 import com.sonar.plugins.security.api.JsRules;
 import java.lang.annotation.Annotation;
@@ -141,29 +141,51 @@ class JavaScriptProfilesDefinitionTest {
   void should_contains_security_rules_if_available() {
     // no security rule available
     assertThat(
-      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js")
+      getExternalRules(
+        SONAR_SECURITY_RULES_CLASS_NAME,
+        SECURITY_RULE_KEYS_METHOD_NAME,
+        "js",
+        "security"
+      )
     ).isEmpty();
 
     assertThat(
-      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts")
+      getExternalRules(
+        SONAR_SECURITY_RULES_CLASS_NAME,
+        SECURITY_RULE_KEYS_METHOD_NAME,
+        "ts",
+        "security"
+      )
     ).isEmpty();
 
     JsRules.JS_RULES.add(RuleKey.parse("jssecurity:S3649"));
     // one security rule available
     assertThat(
-      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js")
+      getExternalRules(
+        SONAR_SECURITY_RULES_CLASS_NAME,
+        SECURITY_RULE_KEYS_METHOD_NAME,
+        "js",
+        "security"
+      )
     ).containsOnly(RuleKey.of("jssecurity", "S3649"));
 
     JsRules.TS_RULES.add(RuleKey.parse("tssecurity:S3649"));
     assertThat(
-      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts")
+      getExternalRules(
+        SONAR_SECURITY_RULES_CLASS_NAME,
+        SECURITY_RULE_KEYS_METHOD_NAME,
+        "ts",
+        "security"
+      )
     ).containsOnly(RuleKey.of("tssecurity", "S3649"));
 
     // invalid class name
-    assertThat(getSecurityRuleKeys("xxx", SECURITY_RULE_KEYS_METHOD_NAME, "js")).isEmpty();
+    assertThat(getExternalRules("xxx", SECURITY_RULE_KEYS_METHOD_NAME, "js", "security")).isEmpty();
 
     // invalid method name
-    assertThat(getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, "xxx", "js")).isEmpty();
+    assertThat(
+      getExternalRules(SONAR_SECURITY_RULES_CLASS_NAME, "xxx", "js", "security")
+    ).isEmpty();
 
     JsRules.clear();
   }

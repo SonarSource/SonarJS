@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,9 +47,14 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
+
   static final String SONAR_SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
+
+  private static final String SONAR_ARCHITECTURE_RULES_CLASS_NAME =
+    "com.sonarsource.architecture.JsRulesList";
+  private static final String ARCHITECTURE_RULE_KEYS_METHOD_NAME = "getRuleKeys";
 
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
@@ -105,26 +109,27 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       .filter(activeKeysForBothLanguages::contains)
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
 
-    addSecurityRules(newProfile, language);
-
-    var ruleKeys = new HashSet<RuleKey>();
-    logger.info("################################################################");
-    logger.info("################################################################");
-    logger.info("################################################################");
-    logger.info("hashcode of ProfileRegistrar: " + System.identityHashCode(ProfileRegistrar.class));
-    logger.info("my profiles size: " + profileRegistrars.length); // crashing here because we don't get any ProfileRegistrars injected
-
-    logger.info("################################################################");
-    logger.info("################################################################");
-    logger.info("################################################################");
-    if (profileRegistrars != null) {
-      for (ProfileRegistrar profileRegistrar : profileRegistrars) {
-        profileRegistrar.register(ruleKeys::addAll);
-      }
-    }
-    logger.info("my rule keys: " + ruleKeys.size());
-    ruleKeys.forEach(ruleKey -> logger.info("adding key: " + ruleKey.rule()));
-    ruleKeys.forEach(ruleKey -> newProfile.activateRule(ruleKey.repository(), ruleKey.rule()));
+    addExternalRules(
+      newProfile,
+      language,
+      SONAR_SECURITY_RULES_CLASS_NAME,
+      SECURITY_RULE_KEYS_METHOD_NAME,
+      "security"
+    );
+    addExternalRules(
+      newProfile,
+      language,
+      SONAR_JASMIN_RULES_CLASS_NAME,
+      SECURITY_RULE_KEYS_METHOD_NAME,
+      "security"
+    );
+    addExternalRules(
+      newProfile,
+      language,
+      SONAR_ARCHITECTURE_RULES_CLASS_NAME,
+      ARCHITECTURE_RULE_KEYS_METHOD_NAME,
+      "architecture"
+    );
 
     newProfile.done();
   }
@@ -134,40 +139,36 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * rule keys to add to the built-in profiles.
    * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
    */
-  private static void addSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
-    Set<RuleKey> sonarSecurityRuleKeys = getSecurityRuleKeys(
-      SONAR_SECURITY_RULES_CLASS_NAME,
-      SECURITY_RULE_KEYS_METHOD_NAME,
-      language
-    );
-    LOG.debug("Adding security ruleKeys {}", sonarSecurityRuleKeys);
-    sonarSecurityRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
-
-    Set<RuleKey> sonarJasminRuleKeys = getSecurityRuleKeys(
-      SONAR_JASMIN_RULES_CLASS_NAME,
-      SECURITY_RULE_KEYS_METHOD_NAME,
-      language
-    );
-    LOG.debug("Adding security ruleKeys {}", sonarJasminRuleKeys);
-    sonarJasminRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+  private static void addExternalRules(
+    NewBuiltInQualityProfile newProfile,
+    String language,
+    String className,
+    String methodName,
+    String topic
+  ) {
+    Set<RuleKey> externalRuleKeys = getExternalRules(className, methodName, language, topic);
+    LOG.debug("Adding " + topic + " ruleKeys {}", externalRuleKeys);
+    externalRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
   }
 
   // Visible for testing
-  static Set<RuleKey> getSecurityRuleKeys(
+  static Set<RuleKey> getExternalRules(
     String className,
     String ruleKeysMethodName,
-    String language
+    String language,
+    String topic
   ) {
     try {
       Class<?> rulesClass = Class.forName(className);
       Method getRuleKeysMethod = rulesClass.getMethod(ruleKeysMethodName, String.class);
+      LOG.info("loaded rule keys from {}", className);
       return (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
     } catch (ClassNotFoundException e) {
-      LOG.debug("{} is not found, {}", className, securityRuleMessage(e));
+      LOG.info("{} is not found, {}", className, detailedMessage(topic, e));
     } catch (NoSuchMethodException e) {
-      LOG.debug("Method not found on {}, {}", className, securityRuleMessage(e));
+      LOG.info("Method not found on {}, {}", className, detailedMessage(topic, e));
     } catch (IllegalAccessException | InvocationTargetException e) {
-      LOG.debug("{}: {}", e.getClass().getSimpleName(), securityRuleMessage(e));
+      LOG.info("{}: {}", e.getClass().getSimpleName(), detailedMessage(topic, e));
     }
 
     return Collections.emptySet();
@@ -177,7 +178,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
   }
 
-  private static String securityRuleMessage(Exception e) {
-    return "no security rules added to builtin profile: " + e.getMessage();
+  private static String detailedMessage(String topic, Exception e) {
+    return "no " + topic + " rules added to builtin profile: " + e.getMessage();
   }
 }
