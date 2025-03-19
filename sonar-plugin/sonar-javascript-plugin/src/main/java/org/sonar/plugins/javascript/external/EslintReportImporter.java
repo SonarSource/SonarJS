@@ -33,8 +33,8 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.rules.RuleType;
+import org.sonar.plugins.javascript.analysis.JsTsContext;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
@@ -51,9 +51,10 @@ public class EslintReportImporter {
     return ESLINT_REPORT_PATHS;
   }
 
-  InputFile getInputFile(SensorContext context, String fileName) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.hasPath(fileName));
+  InputFile getInputFile(JsTsContext<?> context, String fileName) {
+    var fileSystem = context.getSensorContext().fileSystem();
+    FilePredicates predicates = fileSystem.predicates();
+    InputFile inputFile = fileSystem.inputFile(predicates.hasPath(fileName));
     if (inputFile == null) {
       LOG.warn(
         "No input file found for {}. No {} issues will be imported on this file.",
@@ -68,10 +69,13 @@ public class EslintReportImporter {
   /**
    * Execute the importer, and return the list of external issues found.
    */
-  public List<ExternalIssue> execute(SensorContext context) {
+  public List<ExternalIssue> execute(JsTsContext<?> context) {
     var results = new ArrayList<ExternalIssue>();
 
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, reportsPropertyName());
+    List<File> reportFiles = ExternalReportProvider.getReportFiles(
+      context.getSensorContext(),
+      reportsPropertyName()
+    );
     reportFiles.forEach(report -> results.addAll(importReport(report, context)));
 
     return results;
@@ -80,7 +84,7 @@ public class EslintReportImporter {
   /**
    * Import the passed report, and return the list of external issues found.
    */
-  List<ExternalIssue> importReport(File report, SensorContext context) {
+  List<ExternalIssue> importReport(File report, JsTsContext<?> context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
     var results = new ArrayList<ExternalIssue>();

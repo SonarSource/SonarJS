@@ -81,20 +81,22 @@ class QuickFixSupportTest {
     );
   }
 
-  DefaultSensorContext createContext(Version version) {
+  JsTsContext<DefaultSensorContext> createContext(Version version) {
     var settings = new MapSettings();
     var fs = new DefaultFileSystem(baseDir);
     var runtime = new SonarLintRuntimeImpl(Version.create(8, 9), version, 1L);
     sensorStorage = mock(SensorStorage.class);
-    return new DefaultSensorContext(
-      mock(SonarLintInputProject.class),
-      settings,
-      settings.asConfig(),
-      fs,
-      activeRules,
-      sensorStorage,
-      runtime,
-      mock(ProgressMonitor.class)
+    return new JsTsContext<DefaultSensorContext>(
+      new DefaultSensorContext(
+        mock(SonarLintInputProject.class),
+        settings,
+        settings.asConfig(),
+        fs,
+        activeRules,
+        sensorStorage,
+        runtime,
+        mock(ProgressMonitor.class)
+      )
     );
   }
 

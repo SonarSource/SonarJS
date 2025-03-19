@@ -86,13 +86,10 @@ class HtmlSensorTest {
   @TempDir
   Path workDir;
 
-  @TempDir
-  Path monitoringDir;
-
   private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -114,7 +111,7 @@ class HtmlSensorTest {
   }
 
   @Test
-  void should_have_descriptor() throws Exception {
+  void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
@@ -170,7 +167,7 @@ class HtmlSensorTest {
     var htmlPath = "dir/file.html";
     var templatePath = "dir/file.chtml";
 
-    var context = SensorContextTester.create(baseDir);
+    context = SensorContextTester.create(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
     context.setNextCache(mock(WriteCache.class));
     context.fileSystem().setWorkDir(workDir);
@@ -236,7 +233,7 @@ class HtmlSensorTest {
   }
 
   @Test
-  void stop_analysis_if_cancelled() throws Exception {
+  void stop_analysis_if_cancelled() {
     HtmlSensor sensor = createSensor();
 
     createInputFile(context);
@@ -262,7 +259,7 @@ class HtmlSensorTest {
   @Test
   void should_not_save_cached_cpd() throws IOException {
     var path = "dir/file.html";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(
       InputFile.Status.SAME
     );

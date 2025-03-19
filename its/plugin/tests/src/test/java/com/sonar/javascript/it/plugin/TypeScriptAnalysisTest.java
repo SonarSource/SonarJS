@@ -148,8 +148,8 @@ class TypeScriptAnalysisTest {
       );
 
     List<Path> tsconfigs = Arrays.asList(
-      projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json")),
-      projectDir.getCanonicalFile().toPath().resolve("tsconfig.json")
+      projectDir.getCanonicalFile().toPath().resolve("tsconfig.json"),
+      projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json"))
     );
     assertThat(
       result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): " + tsconfigs))

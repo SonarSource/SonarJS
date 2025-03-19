@@ -23,7 +23,6 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -60,7 +59,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<InputFile> getInputFiles() {
-    FileSystem fileSystem = context.fileSystem();
+    FileSystem fileSystem = context.getSensorContext().fileSystem();
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
     return StreamSupport.stream(
       fileSystem.inputFiles(allFilesPredicate).spliterator(),
@@ -72,10 +71,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     bridgeServer.initLinter(
       checks.eslintRules(),
-      environments,
-      globals,
-      context.fileSystem().baseDir().getAbsolutePath(),
-      ContextUtils.isSonarLint(context)
+      context.getEnvironments(),
+      context.getGlobals(),
+      context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),
+      context.isSonarLint()
     );
 
     analysis.initialize(context, checks, consumers);
@@ -86,7 +85,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<ExternalIssue> getESLintIssues(SensorContext context) {
+  protected List<ExternalIssue> getESLintIssues(JsTsContext<?> context) {
     var importer = new EslintReportImporter();
 
     return importer.execute(context);

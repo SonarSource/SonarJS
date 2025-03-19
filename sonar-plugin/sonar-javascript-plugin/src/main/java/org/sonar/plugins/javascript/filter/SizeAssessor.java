@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
-import org.sonar.plugins.javascript.analysis.ContextUtils;
+import org.sonar.plugins.javascript.analysis.JsTsContext;
 
 class SizeAssessor implements Assessor {
 
@@ -33,7 +33,7 @@ class SizeAssessor implements Assessor {
   private final long maxFileSizeKb;
 
   SizeAssessor(Configuration configuration) {
-    maxFileSizeKb = ContextUtils.getMaxFileSizeProperty(configuration);
+    maxFileSizeKb = JsTsContext.getMaxFileSizeProperty(configuration);
   }
 
   /**

@@ -54,7 +54,7 @@ class JavaScriptExclusionsFileFilterTest {
   Path tempDir;
 
   @Test
-  void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
+  void should_exclude_node_modules_and_bower_components_by_default() {
     MapSettings settings = new MapSettings();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
@@ -74,7 +74,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_using_ts_property() throws Exception {
+  void should_exclude_using_ts_property() {
     MapSettings settings = new MapSettings();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
@@ -89,7 +89,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_include_node_modules_when_property_is_overridden() throws Exception {
+  void should_include_node_modules_when_property_is_overridden() {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
 
@@ -101,7 +101,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_using_custom_path_regex() throws Exception {
+  void should_exclude_using_custom_path_regex() {
     MapSettings settings = new MapSettings();
     settings.setProperty(
       JavaScriptPlugin.JS_EXCLUSIONS_KEY,
@@ -116,7 +116,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_ignore_empty_path_regex() throws Exception {
+  void should_ignore_empty_path_regex() {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "," + EXCLUSIONS_DEFAULT_VALUE + ",");
 
@@ -182,7 +182,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_log_negative_max_size() throws Exception {
+  void should_log_negative_max_size() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "-42");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
@@ -194,7 +194,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_log_non_integer_max_size() throws Exception {
+  void should_log_non_integer_max_size() {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "huge");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
@@ -217,7 +217,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_only_on_relative_path() throws Exception {
+  void should_exclude_only_on_relative_path() {
     // **/vendor/** is excluded by default, however it should only be excluded under 'basedir', here it's above
     Path basedirUnderVendor = tempDir.resolve("vendor/basedir");
     Path file = basedirUnderVendor.resolve("file.js");
@@ -237,7 +237,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_only_jsts_files() throws Exception {
+  void should_exclude_only_jsts_files() {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       new MapSettings().asConfig()
     );
@@ -264,7 +264,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_css_with_patterns() throws Exception {
+  void should_exclude_css_with_patterns() {
     var filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
     var inputFile = new TestInputFileBuilder("key", "vendor/file.css")
       .setContents("h1 { color: blue } ")
@@ -275,7 +275,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_not_exclude_when_property_false() throws Exception {
+  void should_not_exclude_when_property_false() {
     var config = new MapSettings()
       .setProperty("sonar.javascript.detectBundles", "false")
       .asConfig();
@@ -290,7 +290,7 @@ class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
-  void should_exclude_when_property_true() throws Exception {
+  void should_exclude_when_property_true() {
     var inputFile = new TestInputFileBuilder("key", "bootstrap.js")
       .setContents(BundleAssessorTest.BOOTSTRAP)
       .setLanguage(CssLanguage.KEY)

@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
@@ -45,7 +44,7 @@ public abstract class AbstractAnalysis {
 
   final BridgeServer bridgeServer;
   final AnalysisProcessor analysisProcessor;
-  SensorContext context;
+  JsTsContext<?> context;
   JsTsChecks checks;
   ProgressReport progressReport;
   protected final AnalysisWarningsWrapper analysisWarnings;
@@ -61,7 +60,7 @@ public abstract class AbstractAnalysis {
     this.analysisWarnings = analysisWarnings;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisConsumers consumers) {
+  void initialize(JsTsContext<?> context, JsTsChecks checks, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     this.checks = checks;
@@ -78,7 +77,7 @@ public abstract class AbstractAnalysis {
   ) throws IOException {
     List<BridgeServer.Issue> issues = new ArrayList<>();
 
-    if (context.isCancelled()) {
+    if (context.getSensorContext().isCancelled()) {
       throw new CancellationException(
         "Analysis interrupted because the SensorContext is in cancelled state"
       );
@@ -88,15 +87,13 @@ public abstract class AbstractAnalysis {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
-        var fileContent = ContextUtils.shouldSendFileContent(context, file)
-          ? file.contents()
-          : null;
+        var fileContent = context.shouldSendFileContent(file) ? file.contents() : null;
         var request = getJsAnalysisRequest(
           file,
           fileContent,
           tsProgram,
           tsConfigs,
-          ContextUtils.skipAst(context, consumers),
+          context.skipAst(consumers),
           dirtyPackageJSONCache
         );
 
@@ -148,15 +145,15 @@ public abstract class AbstractAnalysis {
       file.absolutePath(),
       file.type().toString(),
       fileContent,
-      ContextUtils.ignoreHeaderComments(context),
+      context.ignoreHeaderComments(),
       tsConfigs,
       tsProgram != null ? tsProgram.programId() : null,
       file.status(),
-      ContextUtils.getAnalysisMode(context),
+      context.getAnalysisMode(),
       skipAst,
       shouldClearDependenciesCache,
-      ContextUtils.isSonarLint(context),
-      ContextUtils.allowTsParserJsFiles(context)
+      context.isSonarLint(),
+      context.allowTsParserJsFiles()
     );
   }
 

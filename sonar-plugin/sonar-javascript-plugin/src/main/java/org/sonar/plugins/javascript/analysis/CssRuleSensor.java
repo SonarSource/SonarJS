@@ -83,7 +83,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   @Override
   public void execute(SensorContext context) {
-    this.context = context;
+    this.context = new JsTsContext<SensorContext>(context);
     List<InputFile> inputFiles = getInputFiles();
     if (inputFiles.isEmpty()) {
       LOG.info(
@@ -108,7 +108,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
-        if (context.isCancelled()) {
+        if (context.getSensorContext().isCancelled()) {
           throw new CancellationException(
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
@@ -131,7 +131,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     return issues;
   }
 
-  List<Issue> analyzeFile(InputFile inputFile, SensorContext context, List<StylelintRule> rules) {
+  List<Issue> analyzeFile(InputFile inputFile, JsTsContext<?> context, List<StylelintRule> rules) {
     List<Issue> issues;
 
     try {
@@ -141,9 +141,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         return new ArrayList<>();
       }
       LOG.debug("Analyzing file: {}", uri);
-      String fileContent = ContextUtils.shouldSendFileContent(context, inputFile)
-        ? inputFile.contents()
-        : null;
+      String fileContent = context.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
       CssAnalysisRequest request = new CssAnalysisRequest(
         new File(uri).getAbsolutePath(),
         fileContent,
@@ -162,7 +160,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     return issues;
   }
 
-  private void saveIssues(SensorContext context, InputFile inputFile, List<Issue> issues) {
+  private void saveIssues(JsTsContext<?> context, InputFile inputFile, List<Issue> issues) {
     for (Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId());
       if (ruleKey == null) {
@@ -182,7 +180,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
           );
         }
       } else {
-        NewIssue sonarIssue = context.newIssue();
+        NewIssue sonarIssue = context.getSensorContext().newIssue();
         NewIssueLocation location = sonarIssue
           .newLocation()
           .on(inputFile)
@@ -221,7 +219,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<InputFile> getInputFiles() {
-    var fileSystem = this.context.fileSystem();
+    var fileSystem = this.context.getSensorContext().fileSystem();
     var p = fileSystem.predicates();
 
     var cssFilePredicate = p.and(
@@ -249,8 +247,8 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     ).toList();
   }
 
-  public static boolean hasCssFiles(SensorContext context) {
-    FileSystem fileSystem = context.fileSystem();
+  public static boolean hasCssFiles(JsTsContext<?> context) {
+    FileSystem fileSystem = context.getSensorContext().fileSystem();
     FilePredicate mainFilePredicate = fileSystem
       .predicates()
       .and(

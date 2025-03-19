@@ -77,13 +77,13 @@ public class YamlSensor extends AbstractBridgeSensor {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
         checks.eslintRules(),
-        environments,
-        globals,
-        context.fileSystem().baseDir().getAbsolutePath(),
-        ContextUtils.isSonarLint(context)
+        context.getEnvironments(),
+        context.getGlobals(),
+        context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),
+        context.isSonarLint()
       );
       for (var inputFile : inputFiles) {
-        if (context.isCancelled()) {
+        if (context.getSensorContext().isCancelled()) {
           throw new CancellationException(
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
@@ -105,11 +105,11 @@ public class YamlSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<InputFile> getInputFiles() {
-    var fileSystem = context.fileSystem();
+    var fileSystem = context.getSensorContext().fileSystem();
     FilePredicates p = fileSystem.predicates();
     var yamlPredicate = getYamlPredicate(fileSystem);
     var filePredicate = p.and(yamlPredicate, input -> isSamTemplate(input, LOG));
-    var inputFiles = context.fileSystem().inputFiles(filePredicate);
+    var inputFiles = fileSystem.inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).toList();
   }
 
@@ -154,22 +154,20 @@ public class YamlSensor extends AbstractBridgeSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        var fileContent = ContextUtils.shouldSendFileContent(context, file)
-          ? file.contents()
-          : null;
+        var fileContent = context.shouldSendFileContent(file) ? file.contents() : null;
         var jsAnalysisRequest = new JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
           fileContent,
-          ContextUtils.ignoreHeaderComments(context),
+          context.ignoreHeaderComments(),
           null,
           null,
           file.status(),
-          ContextUtils.getAnalysisMode(context),
+          context.getAnalysisMode(),
           false,
           false,
-          ContextUtils.isSonarLint(context),
-          ContextUtils.allowTsParserJsFiles(context)
+          context.isSonarLint(),
+          context.allowTsParserJsFiles()
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         issues = analysisProcessor.processResponse(context, checks, file, response);

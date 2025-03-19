@@ -20,7 +20,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
@@ -44,9 +42,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected final String lang;
   protected final BridgeServer bridgeServer;
-  List<String> environments;
-  List<String> globals;
-  protected SensorContext context;
+  protected JsTsContext<?> context;
 
   protected AbstractBridgeSensor(BridgeServer bridgeServer, String lang) {
     this.bridgeServer = bridgeServer;
@@ -54,11 +50,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
   }
 
   @Override
-  public void execute(SensorContext context) {
+  public void execute(SensorContext sensorContext) {
     CacheStrategies.reset();
-    this.context = context;
-    environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
-    globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
+    this.context = new JsTsContext<>(sensorContext);
 
     var externalIssues = this.getESLintIssues(context);
 
@@ -68,13 +62,13 @@ public abstract class AbstractBridgeSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
-      var msg = ContextUtils.getAnalysisMode(context) == AnalysisMode.SKIP_UNCHANGED
+      var msg = context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
         ? "Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
-      bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
+      bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       var issues = analyzeFiles(inputFiles);
-      ExternalIssueRepository.saveESLintIssues(context, externalIssues, issues);
+      ExternalIssueRepository.saveESLintIssues(sensorContext, externalIssues, issues);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -117,7 +111,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected abstract List<InputFile> getInputFiles();
 
-  protected List<ExternalIssue> getESLintIssues(SensorContext context) {
+  protected List<ExternalIssue> getESLintIssues(JsTsContext<?> context) {
     return new ArrayList<>();
   }
 }

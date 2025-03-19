@@ -27,11 +27,13 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.analysis.JsTsContext;
 
 class EslintReportImporterTest {
 
@@ -61,7 +63,7 @@ class EslintReportImporterTest {
   void should_create_issues_from_report() throws Exception {
     logTester.setLevel(Level.DEBUG);
     setEslintReport("eslint-report.json");
-    var issues = eslintReportImporter.execute(context);
+    var issues = eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
 
     assertThat(issues).hasSize(4);
     var iterator = issues.iterator();
@@ -96,7 +98,7 @@ class EslintReportImporterTest {
   @Test
   void should_log_invalid_report() throws Exception {
     setEslintReport("invalid-eslint-report.json");
-    eslintReportImporter.execute(context);
+    eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
@@ -109,7 +111,7 @@ class EslintReportImporterTest {
   @Test
   void should_log_not_existing_report() throws Exception {
     setEslintReport("not-existing-eslint-report.json");
-    eslintReportImporter.execute(context);
+    eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);

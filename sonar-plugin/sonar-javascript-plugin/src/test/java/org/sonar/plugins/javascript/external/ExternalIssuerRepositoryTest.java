@@ -30,7 +30,7 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
 
-public class ExternalIssuerRepositoryTest {
+class ExternalIssuerRepositoryTest {
 
   /**
    * We check that `ExternalIssueRepository.save` call every `NewExternalIssue` method that is required to register an external issue to SonarQube

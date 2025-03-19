@@ -29,11 +29,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -43,7 +41,6 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonarsource.analyzer.commons.FileProvider;
@@ -53,7 +50,7 @@ public class TsConfigProvider {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigProvider.class);
 
   interface Provider {
-    List<String> tsconfigs(SensorContext context) throws IOException;
+    List<String> tsconfigs(JsTsContext<?> context) throws IOException;
 
     TsConfigOrigin type();
   }
@@ -82,7 +79,7 @@ public class TsConfigProvider {
    * 3. Creating a tmp tsconfig.json listing all files
    */
   static List<String> getTsConfigs(
-    SensorContext context,
+    JsTsContext<?> context,
     TsConfigProvider.TsConfigFileCreator tsConfigFileCreator
   ) throws IOException {
     var provider = new TsConfigProvider(
@@ -104,7 +101,7 @@ public class TsConfigProvider {
    * because we get the tsconfig file from the cache.
    */
   static void initializeTsConfigCache(
-    SensorContext context,
+    JsTsContext<?> context,
     TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
     TsConfigCache tsConfigCache
   ) throws IOException {
@@ -119,7 +116,7 @@ public class TsConfigProvider {
     provider.tsconfigs(context);
   }
 
-  List<String> tsconfigs(SensorContext context) throws IOException {
+  List<String> tsconfigs(JsTsContext<?> context) throws IOException {
     for (Provider provider : providers) {
       List<String> tsconfigs = provider.tsconfigs(context);
       if (cache != null) {
@@ -138,32 +135,31 @@ public class TsConfigProvider {
   static class PropertyTsConfigProvider implements Provider {
 
     @Override
-    public List<String> tsconfigs(SensorContext context) {
-      var tsconfigsPaths = ContextUtils.getTsConfigPaths(context);
-      if (tsconfigsPaths.isEmpty()) {
+    public List<String> tsconfigs(JsTsContext<?> context) {
+      var tsconfigPaths = context.getTsConfigPaths();
+      if (tsconfigPaths.isEmpty()) {
         return emptyList();
       }
-      Set<String> patterns = new HashSet<>(tsconfigsPaths);
       LOG.info(
         "Resolving TSConfig files using '{}' from property {}",
-        String.join(",", patterns),
+        String.join(",", tsconfigPaths),
         TSCONFIG_PATHS
       );
-      File baseDir = context.fileSystem().baseDir();
+      File baseDir = context.getSensorContext().fileSystem().baseDir();
 
       List<String> tsconfigs = new ArrayList<>();
-      for (String pattern : patterns) {
-        LOG.debug("Using '{}' to resolve TSConfig file(s)", pattern);
+      for (String tsconfigPath : tsconfigPaths) {
+        LOG.debug("Using '{}' to resolve TSConfig file(s)", tsconfigPath);
 
         /** Resolving a TSConfig file based on a path */
-        Path tsconfig = getFilePath(baseDir, pattern);
+        Path tsconfig = getFilePath(baseDir, tsconfigPath);
         if (tsconfig != null) {
           tsconfigs.add(tsconfig.toString());
           continue;
         }
 
         /** Resolving TSConfig files based on pattern matching */
-        FileProvider fileProvider = new FileProvider(baseDir, pattern);
+        FileProvider fileProvider = new FileProvider(baseDir, tsconfigPath);
         List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
         if (!matchingTsconfigs.isEmpty()) {
           tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).toList());
@@ -205,17 +201,17 @@ public class TsConfigProvider {
     }
 
     @Override
-    public List<String> tsconfigs(SensorContext context) {
+    public List<String> tsconfigs(JsTsContext<?> context) {
       if (cache != null) {
         var tsconfigs = cache.listCachedTsConfigs(TsConfigOrigin.LOOKUP);
         if (tsconfigs != null) {
           return tsconfigs;
         }
       }
-      var fs = context.fileSystem();
+      var fs = context.getSensorContext().fileSystem();
       var fileCount = 0;
-      var fileFilter = new FileFilter(context.config());
-      var pathFilter = new PathFilter(context.config());
+      var fileFilter = new FileFilter(context);
+      var pathFilter = new PathFilter(context);
       var tsconfigs = new ArrayList<String>();
       var dirs = new ArrayDeque<File>();
       dirs.add(fs.baseDir());
@@ -291,20 +287,21 @@ public class TsConfigProvider {
     }
 
     @Override
-    public final List<String> tsconfigs(SensorContext context) throws IOException {
-      if (context.runtime().getProduct() != product) {
+    public final List<String> tsconfigs(JsTsContext<?> context) throws IOException {
+      SonarProduct contextProduct = context.getSensorContext().runtime().getProduct();
+      if (contextProduct != product) {
         // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
         LOG.warn(
           "Generating temporary tsconfig is not supported by {} in {} context.",
           getClass().getSimpleName(),
-          context.runtime().getProduct()
+          contextProduct
         );
         return emptyList();
       }
       return getDefaultTsConfigs(context);
     }
 
-    abstract List<String> getDefaultTsConfigs(SensorContext context) throws IOException;
+    abstract List<String> getDefaultTsConfigs(JsTsContext<?> context) throws IOException;
   }
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
@@ -322,10 +319,9 @@ public class TsConfigProvider {
     }
 
     @Override
-    List<String> getDefaultTsConfigs(SensorContext context) throws IOException {
-      var inputFiles = context
-        .fileSystem()
-        .inputFiles(filePredicateProvider.apply(context.fileSystem()));
+    List<String> getDefaultTsConfigs(JsTsContext<?> context) throws IOException {
+      var fs = context.getSensorContext().fileSystem();
+      var inputFiles = fs.inputFiles(filePredicateProvider.apply(fs));
       var tsConfig = new TsConfig(inputFiles, null);
       var tsconfigFile = writeToJsonFile(tsConfig);
       LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
@@ -355,15 +351,15 @@ public class TsConfigProvider {
       this.tsConfigFileCreator = tsConfigFileCreator;
     }
 
-    private static String getProjectRoot(SensorContext context) {
-      var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
+    private static String getProjectRoot(JsTsContext<?> context) {
+      var projectBaseDir = context.getSensorContext().fileSystem().baseDir().getAbsolutePath();
       return "/".equals(File.separator)
         ? projectBaseDir
         : projectBaseDir.replace(File.separator, "/");
     }
 
     @Override
-    List<String> getDefaultTsConfigs(SensorContext context) {
+    List<String> getDefaultTsConfigs(JsTsContext<?> context) {
       boolean deactivated =
         tsConfigCache == null || isBeyondLimit(context, tsConfigCache.getProjectSize());
       if (deactivated) {
@@ -383,8 +379,8 @@ public class TsConfigProvider {
       return file;
     }
 
-    static boolean isBeyondLimit(SensorContext context, int projectSize) {
-      var typeCheckingLimit = ContextUtils.getTypeCheckingLimit(context);
+    static boolean isBeyondLimit(JsTsContext<?> context, int projectSize) {
+      var typeCheckingLimit = context.getTypeCheckingLimit();
 
       var beyondLimit = projectSize >= typeCheckingLimit;
       if (!beyondLimit) {

@@ -83,7 +83,7 @@ class TsConfigProviderTest {
     Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
     Files.createFile(subdir.resolve("base.tsconfig.json"));
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
@@ -102,10 +102,12 @@ class TsConfigProviderTest {
 
   @Test
   void should_use_tsconfig_from_property() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
+    baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "custom.tsconfig.json"));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
 
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
@@ -118,11 +120,11 @@ class TsConfigProviderTest {
 
   @Test
   void should_use_absolute_path_from_property() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
+    baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
-    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, absolutePath));
+    ctx.getSensorContext().setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, absolutePath));
     createInputFile(ctx, "file.ts");
 
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
@@ -131,20 +133,22 @@ class TsConfigProviderTest {
 
   @Test
   void should_use_multiple_tsconfigs_from_property() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
+    baseDir = tempFolder.newDir().toPath();
 
     Files.createFile(baseDir.resolve("base.tsconfig.json"));
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     Files.createFile(baseDir.resolve("extended.tsconfig.json"));
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(
-      new MapSettings()
-        .setProperty(
-          TSCONFIG_PATHS,
-          "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"
-        )
-    );
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(
+        new MapSettings()
+          .setProperty(
+            TSCONFIG_PATHS,
+            "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"
+          )
+      );
 
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactlyInAnyOrder(
@@ -160,7 +164,7 @@ class TsConfigProviderTest {
 
   @Test
   void should_use_matching_tsconfigs_from_property() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
+    baseDir = tempFolder.newDir().toPath();
 
     Files.createFile(baseDir.resolve("tsconfig.settings.json"));
     Files.createFile(baseDir.resolve("tsconfig.ignored.json"));
@@ -168,11 +172,13 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")));
     Files.createFile(baseDir.resolve(Paths.get("dir", "tsconfig.ignored.json")));
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(
-      new MapSettings()
-        .setProperty(TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json")
-    );
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(
+        new MapSettings()
+          .setProperty(TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json")
+      );
 
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactlyInAnyOrder(
@@ -183,11 +189,13 @@ class TsConfigProviderTest {
 
   @Test
   void should_use_tsconfigs_from_property_alias() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
+    baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("tsconfig.json"));
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(new MapSettings().setProperty(TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
 
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
@@ -198,7 +206,7 @@ class TsConfigProviderTest {
 
   @Test
   void should_create_tsconfig() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
@@ -217,8 +225,8 @@ class TsConfigProviderTest {
 
   @Test
   void should_create_wildcard_tsconfig() throws Exception {
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx.getSensorContext().setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
     var tsConfigCache = tsConfigCache();
@@ -237,8 +245,8 @@ class TsConfigProviderTest {
 
   @Test
   void should_not_recreate_wildcard_tsconfig_in_sonarlint() throws Exception {
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx.getSensorContext().setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     var tsConfigCache = tsConfigCache();
     initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
@@ -252,9 +260,11 @@ class TsConfigProviderTest {
 
   @Test
   void should_not_create_wildcard_tsconfig_in_sonarlint() throws Exception {
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 1));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx.getSensorContext().setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    ctx
+      .getSensorContext()
+      .setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 1));
     createInputFile(ctx, "file.js");
     createInputFile(ctx, "file2.js");
 
@@ -265,7 +275,7 @@ class TsConfigProviderTest {
 
   @Test
   void should_not_fail_on_exception() throws Exception {
-    var ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     createInputFile(ctx, "file.js");
 
     var tsConfigCache = tsConfigCache();
@@ -281,8 +291,8 @@ class TsConfigProviderTest {
   @Test
   void should_check_javascript_files() throws IOException {
     logger.setLevel(LoggerLevel.INFO);
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx.getSensorContext().setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx, "file.js");
     createInputFile(ctx, "file.css");
     createInputFile(ctx, "file.d.ts");
@@ -297,8 +307,10 @@ class TsConfigProviderTest {
   @Test
   void should_detect_projects_with_too_many_files() throws IOException {
     logger.setLevel(LoggerLevel.WARN);
-    var ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 3));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(new MapSettings().setProperty(JavaScriptPlugin.MAX_FILES_PROPERTY, 3));
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.ts");
     createInputFile(ctx, "file3.cjs");
@@ -319,13 +331,13 @@ class TsConfigProviderTest {
     );
   }
 
-  private void createInputFile(SensorContextTester context, String relativePath)
+  private void createInputFile(JsTsContext<SensorContextTester> context, String relativePath)
     throws IOException {
     DefaultInputFile inputFile = new TestInputFileBuilder(baseDir.toString(), relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
-    context.fileSystem().add(inputFile);
+    context.getSensorContext().fileSystem().add(inputFile);
     Files.createFile(Paths.get(baseDir.toString(), relativePath));
   }
 
