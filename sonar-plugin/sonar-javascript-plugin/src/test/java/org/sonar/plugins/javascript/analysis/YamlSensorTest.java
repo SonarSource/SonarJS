@@ -90,7 +90,7 @@ class YamlSensorTest {
   private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -112,7 +112,7 @@ class YamlSensorTest {
   }
 
   @Test
-  void should_have_descriptor() throws Exception {
+  void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
@@ -205,7 +205,7 @@ class YamlSensorTest {
   }
 
   @Test
-  void stop_analysis_if_cancelled() throws Exception {
+  void stop_analysis_if_cancelled() {
     YamlSensor sensor = createSensor();
 
     createInputFile(context);
@@ -240,7 +240,7 @@ class YamlSensorTest {
   @Test
   void should_not_save_cached_cpd() throws IOException {
     var path = "dir/file.yaml";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(
       InputFile.Status.SAME
     );

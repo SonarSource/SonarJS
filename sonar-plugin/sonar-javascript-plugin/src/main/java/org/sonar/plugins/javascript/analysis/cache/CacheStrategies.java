@@ -26,8 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analysis.JsTsContext;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 
 public class CacheStrategies {
@@ -38,12 +39,10 @@ public class CacheStrategies {
 
   private CacheStrategies() {}
 
-  private static boolean isRuntimeApiCompatible(SensorContext context) {
-    var isVersionValid = context
-      .runtime()
-      .getApiVersion()
-      .isGreaterThanOrEqual(Version.create(9, 4));
-    var isProductValid = context.runtime().getProduct() != SonarProduct.SONARLINT;
+  private static boolean isRuntimeApiCompatible(JsTsContext<?> context) {
+    var runtime = context.getSensorContext().runtime();
+    var isVersionValid = runtime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
+    var isProductValid = runtime.getProduct() != SonarProduct.SONARLINT;
     return isVersionValid && isProductValid;
   }
 
@@ -60,13 +59,13 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(SensorContext context, InputFile inputFile)
+  public static CacheStrategy getStrategyFor(JsTsContext<?> context, InputFile inputFile)
     throws IOException {
     return getStrategyFor(context, inputFile, PluginInfo.getVersion());
   }
 
   static CacheStrategy getStrategyFor(
-    SensorContext context,
+    JsTsContext<?> context,
     InputFile inputFile,
     @Nullable String pluginVersion
   ) throws IOException {
@@ -77,9 +76,9 @@ public class CacheStrategies {
     }
 
     var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
-    var serialization = new CacheAnalysisSerialization(context, cacheKey);
+    var serialization = new CacheAnalysisSerialization(context.getSensorContext(), cacheKey);
 
-    if (!context.canSkipUnchangedFiles()) {
+    if (context.getAnalysisMode() == AnalysisMode.DEFAULT) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.ANALYSIS_MODE_INELIGIBLE);
       return strategy;

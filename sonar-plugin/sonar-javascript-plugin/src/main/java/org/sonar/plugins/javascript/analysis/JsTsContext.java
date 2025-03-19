@@ -17,7 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Stream.concat;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILE_SIZE_KB;
@@ -28,6 +28,7 @@ import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS_ALIAS
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -41,11 +42,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 
-public class ContextUtils {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ContextUtils.class);
-
-  private ContextUtils() {}
+public class JsTsContext<T extends SensorContext> {
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
@@ -66,53 +63,73 @@ public class ContextUtils {
 
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
 
-  public static boolean isSonarLint(SensorContext context) {
+  private static final Logger LOG = LoggerFactory.getLogger(JsTsContext.class);
+
+  private final T context;
+
+  public JsTsContext(T context) {
+    this.context = context;
+  }
+
+  public T getSensorContext() {
+    return context;
+  }
+
+  boolean isSonarLint() {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
-  public static boolean isSonarQube(SensorContext context) {
+  public boolean isSonarQube() {
     return context.runtime().getProduct() == SonarProduct.SONARQUBE;
   }
 
-  public static boolean ignoreHeaderComments(SensorContext context) {
+  public boolean ignoreHeaderComments() {
     return context
       .config()
       .getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
       .orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 
-  public static boolean shouldSendFileContent(SensorContext context, InputFile file) {
-    return isSonarLint(context) || !StandardCharsets.UTF_8.equals(file.charset());
+  public boolean shouldSendFileContent(InputFile file) {
+    return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
-  public static boolean failFast(SensorContext context) {
+  public boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 
   @Deprecated(forRemoval = true)
-  private static boolean isSonarArmorEnabled(SensorContext context) {
+  private boolean isSonarArmorEnabled() {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 
-  private static boolean isSonarJasminEnabled(SensorContext context) {
+  private boolean isSonarJasminEnabled() {
     return context.config().getBoolean(JASMIN_INTERNAL_ENABLED).orElse(false);
   }
 
-  private static boolean isSonarJaredEnabled(SensorContext context) {
+  private boolean isSonarJaredEnabled() {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
   }
 
-  public static boolean allowTsParserJsFiles(SensorContext context) {
+  public boolean allowTsParserJsFiles() {
     return context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
   }
 
-  public static AnalysisMode getAnalysisMode(SensorContext context) {
+  public AnalysisMode getAnalysisMode() {
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
       return AnalysisMode.DEFAULT;
     }
 
     return AnalysisMode.SKIP_UNCHANGED;
+  }
+
+  public List<String> getEnvironments() {
+    return Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
+  }
+
+  public List<String> getGlobals() {
+    return Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
   }
 
   public static long getMaxFileSizeProperty(Configuration configuration) {
@@ -140,33 +157,31 @@ public class ContextUtils {
     return DEFAULT_MAX_FILE_SIZE_KB;
   }
 
-  public static int getTypeCheckingLimit(SensorContext context) {
+  public int getTypeCheckingLimit() {
     return Math.max(
       context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
       0
     );
   }
 
-  public static boolean skipAst(SensorContext context, AnalysisConsumers consumers) {
+  public boolean skipAst(AnalysisConsumers consumers) {
     return (
       !consumers.hasConsumers() ||
-      !(isSonarArmorEnabled(context) ||
-        isSonarJasminEnabled(context) ||
-        isSonarJaredEnabled(context))
+      !(isSonarArmorEnabled() || isSonarJasminEnabled() || isSonarJaredEnabled())
     );
   }
 
-  static List<String> getTsConfigPaths(SensorContext context) {
+  public Set<String> getTsConfigPaths() {
     if (
       !context.config().hasKey(TSCONFIG_PATHS) && !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
     ) {
-      return emptyList();
+      return emptySet();
     }
 
     String property = context.config().hasKey(TSCONFIG_PATHS)
       ? TSCONFIG_PATHS
       : TSCONFIG_PATHS_ALIAS;
-    return Arrays.asList(context.config().getStringArray(property));
+    return new LinkedHashSet<>(List.of(context.config().getStringArray(property)));
   }
 
   public static List<String> getJsExtensions(Configuration config) {
@@ -177,6 +192,10 @@ public class ContextUtils {
     );
   }
 
+  public List<String> getJsExtensions() {
+    return getJsExtensions(context.config());
+  }
+
   public static List<String> getTsExtensions(Configuration config) {
     return List.of(
       config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)
@@ -185,11 +204,19 @@ public class ContextUtils {
     );
   }
 
-  public static Set<String> getJsTsExtensions(Configuration config) {
+  public List<String> getTsExtensions() {
+    return getTsExtensions(context.config());
+  }
+
+  public Set<String> getJsTsExtensions() {
     var extensions = new HashSet<String>();
-    extensions.addAll(getJsExtensions(config));
-    extensions.addAll(getTsExtensions(config));
+    extensions.addAll(getJsExtensions());
+    extensions.addAll(getTsExtensions());
     return extensions;
+  }
+
+  public String[] getExcludedPaths() {
+    return getExcludedPaths(context.config());
   }
 
   public static String[] getExcludedPaths(Configuration configuration) {

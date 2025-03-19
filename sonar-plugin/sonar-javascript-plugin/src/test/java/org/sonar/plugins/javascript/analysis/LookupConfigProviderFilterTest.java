@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.config.Configuration;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -38,10 +38,9 @@ class LookupConfigProviderFilterTest {
 
   @Test
   void should_filter_default_files() throws IOException {
-    MapSettings settings = new MapSettings();
-
-    Configuration config = settings.asConfig();
-    var filter = new FileFilter(config);
+    var sensorContext = SensorContextTester.create(baseDir.getRoot());
+    sensorContext.setSettings(new MapSettings());
+    var filter = new FileFilter(new JsTsContext(sensorContext));
 
     assertThat(filter.test(inputFile("file.js"))).isTrue();
     assertThat(filter.test(inputFile("file.ts"))).isTrue();
@@ -55,8 +54,9 @@ class LookupConfigProviderFilterTest {
     settings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, ".js");
     settings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, ".ts");
 
-    Configuration config = settings.asConfig();
-    var filter = new FileFilter(config);
+    var sensorContext = SensorContextTester.create(baseDir.getRoot());
+    sensorContext.setSettings(settings);
+    var filter = new FileFilter(new JsTsContext(sensorContext));
 
     assertThat(filter.test(inputFile("file.js"))).isTrue();
     assertThat(filter.test(inputFile("file.ts"))).isTrue();
@@ -66,9 +66,9 @@ class LookupConfigProviderFilterTest {
 
   @Test
   void should_filter_default_paths() throws IOException {
-    MapSettings settings = new MapSettings();
-    Configuration config = settings.asConfig();
-    var filter = new PathFilter(config);
+    var sensorContext = SensorContextTester.create(baseDir.getRoot());
+    sensorContext.setSettings(new MapSettings());
+    var filter = new PathFilter(new JsTsContext<SensorContextTester>(sensorContext));
 
     assertThat(filter.test(inputFile("node_modules", "file.js"))).isFalse();
     assertThat(filter.test(inputFile("bower_components", "file.jsx"))).isFalse();
@@ -82,8 +82,9 @@ class LookupConfigProviderFilterTest {
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "**/foo/**");
     settings.setProperty(JavaScriptPlugin.TS_EXCLUSIONS_KEY, "**/bar/**");
 
-    Configuration config = settings.asConfig();
-    var filter = new PathFilter(config);
+    var sensorContext = SensorContextTester.create(baseDir.getRoot());
+    sensorContext.setSettings(settings);
+    var filter = new PathFilter(new JsTsContext<SensorContextTester>(sensorContext));
 
     assertThat(filter.test(inputFile("foo", "file.js"))).isFalse();
     assertThat(filter.test(inputFile("bar", "file.ts"))).isFalse();

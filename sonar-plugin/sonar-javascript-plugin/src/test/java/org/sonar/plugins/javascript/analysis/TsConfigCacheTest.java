@@ -116,7 +116,7 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
 
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
@@ -192,7 +192,7 @@ class TsConfigCacheTest {
     Files.createFile(tsconfig1);
     Files.createFile(tsconfig2);
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
       String tsConfigPath = (String) invocationOnMock.getArguments()[0];
@@ -239,8 +239,10 @@ class TsConfigCacheTest {
       singletonList(file1.absolutePath()),
       emptyList()
     );
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "tsconfig.*.json,tsconfig.json"));
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    ctx
+      .getSensorContext()
+      .setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "tsconfig.*.json,tsconfig.json"));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
@@ -307,7 +309,7 @@ class TsConfigCacheTest {
     );
     Files.createFile(tsconfig1);
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     return Pair.of(file1, tsConfigFile);

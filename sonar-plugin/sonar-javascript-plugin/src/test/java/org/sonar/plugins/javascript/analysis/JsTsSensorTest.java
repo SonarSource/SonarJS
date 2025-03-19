@@ -42,8 +42,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +49,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.provider.Arguments;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -142,7 +139,7 @@ class JsTsSensorTest {
   private AnalysisProcessor processAnalysis;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -166,8 +163,8 @@ class JsTsSensorTest {
         context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(),
         false
       )
-        .map(file -> file.absolutePath())
-        .collect(Collectors.toList());
+        .map(InputFile::absolutePath)
+        .toList();
       return new TsConfigFile(tsConfigPath, files, emptyList());
     });
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
@@ -185,7 +182,7 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_have_descriptor() throws Exception {
+  void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
@@ -203,9 +200,9 @@ class JsTsSensorTest {
   void should_de_duplicate_issues() throws Exception {
     JsTsSensor sensor = createSensor();
 
-    Path baseDir = Paths.get("src/test/resources/de-duplicate-issues");
+    baseDir = Paths.get("src/test/resources/de-duplicate-issues");
 
-    var context = createSensorContext(baseDir);
+    context = createSensorContext(baseDir);
 
     context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, "eslint-report.json");
 
@@ -603,8 +600,8 @@ class JsTsSensorTest {
 
   @Test
   void should_analyze_by_tsconfig() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/multi-tsconfig");
-    SensorContextTester context = createSensorContext(baseDir);
+    baseDir = Paths.get("src/test/resources/multi-tsconfig");
+    context = createSensorContext(baseDir);
     setSonarLintRuntime(context);
 
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
@@ -640,8 +637,8 @@ class JsTsSensorTest {
 
   @Test
   void should_analyze_by_program_on_missing_extended_tsconfig() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/external-tsconfig").toAbsolutePath();
-    SensorContextTester context = createSensorContext(baseDir);
+    baseDir = Paths.get("src/test/resources/external-tsconfig").toAbsolutePath();
+    context = createSensorContext(baseDir);
 
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/main.ts");
 
@@ -676,8 +673,8 @@ class JsTsSensorTest {
 
   @Test
   void should_analyze_by_program() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
-    SensorContextTester context = createSensorContext(baseDir);
+    baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
+    context = createSensorContext(baseDir);
 
     var file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
     var file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
@@ -745,8 +742,8 @@ class JsTsSensorTest {
 
   @Test
   void should_not_analyze_references_twice() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/referenced-tsconfigs").toAbsolutePath();
-    SensorContextTester context = createSensorContext(baseDir);
+    baseDir = Paths.get("src/test/resources/referenced-tsconfigs").toAbsolutePath();
+    context = createSensorContext(baseDir);
 
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "file.ts");
     DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir/file.ts");
@@ -805,17 +802,10 @@ class JsTsSensorTest {
     );
   }
 
-  private static Stream<Arguments> provideAnalyzeByTsConfig() {
-    return Stream.of(
-      Arguments.of(true, 2), // SonarLint = true, 2 invocations
-      Arguments.of(false, 3) // SonarLint = false, 3 invocations
-    );
-  }
-
   @Test
   void should_resolve_project_references_from_tsconfig() throws Exception {
-    Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    SensorContextTester context = createSensorContext(baseDir);
+    baseDir = Paths.get("src/test/resources/solution-tsconfig");
+    context = createSensorContext(baseDir);
     setSonarLintRuntime(context);
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
 
@@ -851,7 +841,7 @@ class JsTsSensorTest {
 
   @Test
   void should_stop_when_no_input_files() throws Exception {
-    SensorContextTester context = createSensorContext(tempDir);
+    context = createSensorContext(tempDir);
     createSensor().execute(context);
     assertThat(logTester.logs()).contains(
       "No input files found for analysis",
@@ -935,7 +925,7 @@ class JsTsSensorTest {
   @Test
   void should_save_cached_cpd() throws IOException {
     var path = "dir/file.ts";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(
       context,
       "if (cond)\ndoFoo(); \nelse \ndoFoo();",
@@ -958,7 +948,7 @@ class JsTsSensorTest {
   @Test
   void should_save_cached_cpd_with_program() throws IOException {
     var path = "dir/file.ts";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(
       context,
       "if (cond)\ndoFoo(); \nelse \ndoFoo();",
@@ -1142,7 +1132,7 @@ class JsTsSensorTest {
   }
 
   private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {
-    var analysisResponse = new AnalysisResponse(
+    return new AnalysisResponse(
       null,
       issues,
       List.of(),
@@ -1152,8 +1142,6 @@ class JsTsSensorTest {
       List.of(),
       null
     );
-
-    return analysisResponse;
   }
 
   private AnalysisResponse createResponse() {

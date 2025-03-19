@@ -52,7 +52,7 @@ class AnalysisProcessorTest {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
-    var context = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
@@ -79,7 +79,7 @@ class AnalysisProcessorTest {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
-    var context = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
@@ -100,7 +100,7 @@ class AnalysisProcessorTest {
       "Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1"
     );
 
-    context = SensorContextTester.create(baseDir);
+    context = new JsTsContext(SensorContextTester.create(baseDir));
     symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
     response = new AnalysisResponse(
       null,
@@ -123,7 +123,7 @@ class AnalysisProcessorTest {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
-    var context = SensorContextTester.create(baseDir);
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
@@ -140,7 +140,7 @@ class AnalysisProcessorTest {
       null
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(context.cpdTokens(file.key())).isNull();
+    assertThat(context.getSensorContext().cpdTokens(file.key())).isNull();
     assertThat(logTester.logs()).contains(
       "Failed to save CPD token in " + file.uri() + ". File will not be analyzed for duplications."
     );
@@ -151,7 +151,7 @@ class AnalysisProcessorTest {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
-    var context = SensorContextTester.create(baseDir);
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();

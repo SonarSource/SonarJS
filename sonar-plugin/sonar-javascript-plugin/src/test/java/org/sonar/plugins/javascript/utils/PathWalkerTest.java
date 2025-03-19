@@ -16,7 +16,6 @@
  */
 package org.sonar.plugins.javascript.utils;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;

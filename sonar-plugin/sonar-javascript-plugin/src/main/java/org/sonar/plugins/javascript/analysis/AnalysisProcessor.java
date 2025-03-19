@@ -29,7 +29,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -80,7 +79,7 @@ public class AnalysisProcessor {
   }
 
   List<Issue> processResponse(
-    SensorContext context,
+    JsTsContext<?> context,
     JsTsChecks checks,
     InputFile file,
     AnalysisResponse response
@@ -122,7 +121,7 @@ public class AnalysisProcessor {
     return uniqueParsingErrors.size();
   }
 
-  void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
+  void processCacheAnalysis(JsTsContext<?> context, InputFile file, CacheAnalysis cacheAnalysis) {
     this.file = file;
 
     if (
@@ -140,7 +139,7 @@ public class AnalysisProcessor {
     }
   }
 
-  private void processParsingError(SensorContext context, ParsingError parsingError) {
+  private void processParsingError(JsTsContext<?> context, ParsingError parsingError) {
     Integer line = parsingError.line();
     String message = parsingError.message();
 
@@ -150,14 +149,14 @@ public class AnalysisProcessor {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (ContextUtils.failFast(context)) {
+      if (context.failFast()) {
         throw new IllegalStateException("Failed to analyze file " + file);
       }
     }
 
     var parsingErrorRuleKey = checks.parsingErrorRuleKey();
     if (parsingErrorRuleKey != null) {
-      NewIssue newIssue = context.newIssue();
+      NewIssue newIssue = context.getSensorContext().newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation().message(message).on(file);
 
@@ -169,6 +168,7 @@ public class AnalysisProcessor {
     }
 
     context
+      .getSensorContext()
       .newAnalysisError()
       .onFile(file)
       .at(file.newPointer(line != null ? line : 1, 0))
@@ -176,7 +176,7 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private void saveIssues(SensorContext context, List<Issue> issues) {
+  private void saveIssues(JsTsContext<?> context, List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug(
         "Saving issue for rule {} on file {} at line {}",
@@ -193,8 +193,8 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlights(SensorContext context, List<Highlight> highlights) {
-    NewHighlighting highlighting = context.newHighlighting().onFile(file);
+  private void saveHighlights(JsTsContext<?> context, List<Highlight> highlights) {
+    NewHighlighting highlighting = context.getSensorContext().newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       try {
         highlighting.highlight(
@@ -216,10 +216,10 @@ public class AnalysisProcessor {
   }
 
   private void saveHighlightedSymbols(
-    SensorContext context,
+    JsTsContext<?> context,
     List<HighlightedSymbol> highlightedSymbols
   ) {
-    NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
+    NewSymbolTable symbolTable = context.getSensorContext().newSymbolTable().onFile(file);
     for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       Location declaration = highlightedSymbol.declaration();
       NewSymbol newSymbol;
@@ -250,8 +250,8 @@ public class AnalysisProcessor {
     symbolTable.save();
   }
 
-  private void saveMetrics(SensorContext context, Metrics metrics) {
-    if (file.type() == InputFile.Type.TEST || ContextUtils.isSonarLint(context)) {
+  private void saveMetrics(JsTsContext<?> context, Metrics metrics) {
+    if (file.type() == InputFile.Type.TEST || context.isSonarLint()) {
       noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
       return;
     }
@@ -279,21 +279,21 @@ public class AnalysisProcessor {
   }
 
   private static <T extends Serializable> void saveMetric(
-    SensorContext context,
+    JsTsContext<?> context,
     InputFile file,
     Metric<T> metric,
     T value
   ) {
-    context.<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
+    context.getSensorContext().<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
   }
 
-  private void saveCpd(SensorContext context, List<CpdToken> cpdTokens) {
-    if (file.type().equals(InputFile.Type.TEST) || ContextUtils.isSonarLint(context)) {
+  private void saveCpd(JsTsContext<?> context, List<CpdToken> cpdTokens) {
+    if (file.type().equals(InputFile.Type.TEST) || context.isSonarLint()) {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;
     }
     try {
-      NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
+      NewCpdTokens newCpdTokens = context.getSensorContext().newCpdTokens().onFile(file);
       for (CpdToken cpdToken : cpdTokens) {
         newCpdTokens.addToken(cpdToken.location().toTextRange(file), cpdToken.image());
       }
@@ -307,8 +307,8 @@ public class AnalysisProcessor {
     }
   }
 
-  void saveIssue(SensorContext context, Issue issue) {
-    var newIssue = context.newIssue();
+  void saveIssue(JsTsContext<?> context, Issue issue) {
+    var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (issue.message() != null) {
       var escapedMsg = unicodeEscape(issue.message());
@@ -355,17 +355,21 @@ public class AnalysisProcessor {
     return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
   }
 
-  private static boolean isSqQuickFixCompatible(SensorContext context) {
+  private static boolean isSqQuickFixCompatible(JsTsContext<?> context) {
     return (
-      ContextUtils.isSonarQube(context) &&
-      context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 2))
+      context.isSonarQube() &&
+      context
+        .getSensorContext()
+        .runtime()
+        .getApiVersion()
+        .isGreaterThanOrEqual(Version.create(9, 2))
     );
   }
 
-  private static boolean isQuickFixCompatible(SensorContext context) {
+  private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
-      ContextUtils.isSonarLint(context) &&
-      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion()
+      context.isSonarLint() &&
+      ((SonarLintRuntime) context.getSensorContext().runtime()).getSonarLintPluginApiVersion()
         .isGreaterThanOrEqual(Version.create(6, 3))
     );
   }

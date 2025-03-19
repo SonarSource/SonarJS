@@ -64,6 +64,7 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analysis.JsTsContext;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 
@@ -87,7 +88,8 @@ class CacheStrategyTest {
   Path tempDir;
 
   InputFile inputFile;
-  SensorContext context;
+  JsTsContext<?> context;
+  SensorContext sensorContext;
   ReadCache previousCache;
   WriteCache nextCache;
   FileSystem fileSystem;
@@ -117,9 +119,10 @@ class CacheStrategyTest {
 
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
-    context = mock(SensorContext.class);
+    sensorContext = mock(SensorContext.class);
+    context = new JsTsContext<SensorContext>(sensorContext);
     serialization = new CacheAnalysisSerialization(
-      context,
+      sensorContext,
       CacheKey.forFile(inputFile, PLUGIN_VERSION)
     );
 
@@ -141,17 +144,16 @@ class CacheStrategyTest {
       .toString();
     metadataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forFileMetadata().toString();
 
-    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
-    when(context.runtime()).thenReturn(
+    when(sensorContext.runtime()).thenReturn(
       SonarRuntimeImpl.forSonarQube(
         Version.create(9, 6),
         SonarQubeSide.SCANNER,
         SonarEdition.ENTERPRISE
       )
     );
-    when(context.previousCache()).thenReturn(previousCache);
-    when(context.nextCache()).thenReturn(nextCache);
-    when(context.fileSystem()).thenReturn(fileSystem);
+    when(sensorContext.previousCache()).thenReturn(previousCache);
+    when(sensorContext.nextCache()).thenReturn(nextCache);
+    when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
     when(previousCache.contains(metadataCacheKey)).thenReturn(true);
     var metadata = inputStream(new Gson().toJson(FileMetadata.from(inputFile)));
@@ -174,8 +176,8 @@ class CacheStrategyTest {
 
   @Test
   void should_not_fail_on_older_versions() throws Exception {
-    when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 3));
-    when(context.runtime()).thenReturn(
+    when(sensorContext.getSonarQubeVersion()).thenReturn(Version.create(9, 3));
+    when(sensorContext.runtime()).thenReturn(
       SonarRuntimeImpl.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
@@ -186,19 +188,19 @@ class CacheStrategyTest {
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
-    verify(context, never()).nextCache();
-    verify(context, never()).previousCache();
+    verify(sensorContext, never()).nextCache();
+    verify(sensorContext, never()).previousCache();
   }
 
   @Test
   void should_not_fail_in_sonarlint() throws Exception {
-    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    when(sensorContext.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
-    verify(context, never()).nextCache();
-    verify(context, never()).previousCache();
+    verify(sensorContext, never()).nextCache();
+    verify(sensorContext, never()).previousCache();
   }
 
   @Test
@@ -214,7 +216,7 @@ class CacheStrategyTest {
 
     when(previousCache.contains(anyString())).thenReturn(false);
 
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -262,7 +264,7 @@ class CacheStrategyTest {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
     when(previousCache.contains(anyString())).thenReturn(false);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -303,7 +305,7 @@ class CacheStrategyTest {
       .when(nextCache)
       .write(eq(jsonCacheKey), any(byte[].class));
 
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -321,7 +323,7 @@ class CacheStrategyTest {
     var ucfgFileRelativePaths = createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.READ_AND_WRITE);
@@ -360,7 +362,7 @@ class CacheStrategyTest {
     createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(InputStream.nullInputStream());
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
@@ -382,7 +384,7 @@ class CacheStrategyTest {
     createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(inputStream("invalid-json"));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
@@ -404,7 +406,7 @@ class CacheStrategyTest {
     createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream("invalid-cpd-data"));
     when(previousCache.read(cpdStringTableCacheKey)).thenReturn(
       inputStream("invalid-cpd-stringTable")
@@ -431,7 +433,7 @@ class CacheStrategyTest {
     createUcfgFilesInCache();
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var serializationResult = CpdSerializer.toBinary(new CpdData(emptyList()));
     when(previousCache.read(cpdDataCacheKey)).thenReturn(
@@ -489,7 +491,7 @@ class CacheStrategyTest {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
     when(previousCache.read(seqCacheKey)).thenReturn(InputStream.nullInputStream());
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -505,7 +507,7 @@ class CacheStrategyTest {
     when(previousCache.read(seqCacheKey)).thenReturn(
       new InfiniteCircularInputStream(new byte[] { 32 })
     );
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -518,7 +520,7 @@ class CacheStrategyTest {
 
     when(inputFile.contents()).thenReturn("Changed");
 
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -555,7 +557,7 @@ class CacheStrategyTest {
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
-    when(context.canSkipUnchangedFiles()).thenReturn(false);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(false);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -614,7 +616,7 @@ class CacheStrategyTest {
 
   @Test
   void should_check_file_hash() throws Exception {
-    when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
     var inputFile = TestInputFileBuilder.create("dir", "file.ts")
       .setContents("abc")
@@ -681,10 +683,10 @@ class CacheStrategyTest {
       .write(eq(jsonCacheKey), any(byte[].class));
 
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
-    when(context.nextCache()).thenReturn(tempCache);
+    when(sensorContext.nextCache()).thenReturn(tempCache);
     serialization.writeToCache(CacheAnalysis.fromResponse(ucfgFiles, List.of()), inputFile);
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
-    when(context.nextCache()).thenReturn(nextCache);
+    when(sensorContext.nextCache()).thenReturn(nextCache);
 
     when(previousCache.read(jsonCacheKey)).thenReturn(inputStream(jsonFile));
     when(previousCache.read(seqCacheKey)).thenReturn(inputStream(binFile));

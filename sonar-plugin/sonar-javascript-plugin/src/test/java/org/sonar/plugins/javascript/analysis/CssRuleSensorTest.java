@@ -51,6 +51,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.impl.utils.DefaultTempFolder;
@@ -270,7 +271,7 @@ class CssRuleSensorTest {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
-    sensor.analyzeFile(httpFile, context, Collections.emptyList());
+    sensor.analyzeFile(httpFile, new JsTsContext<SensorContext>(context), Collections.emptyList());
     assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");

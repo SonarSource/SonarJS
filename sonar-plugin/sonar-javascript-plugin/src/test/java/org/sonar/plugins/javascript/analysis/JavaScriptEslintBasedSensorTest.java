@@ -128,7 +128,7 @@ class JavaScriptEslintBasedSensorTest {
   private TsProgram tsProgram;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     MockitoAnnotations.openMocks(this).close();
 
     // reset is required as this static value might be set by another test
@@ -735,7 +735,7 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_save_cached_cpd() throws IOException {
     var path = "dir/file.js";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     var file = TestUtils.createInputFile(
       context,
       "if (cond)\ndoFoo(); \nelse \ndoFoo();",

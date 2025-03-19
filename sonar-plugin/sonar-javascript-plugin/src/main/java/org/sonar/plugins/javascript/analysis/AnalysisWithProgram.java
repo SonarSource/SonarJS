@@ -114,7 +114,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
             )
           );
       }
-      new PluginTelemetry(context, bridgeServer).reportTelemetry();
+      new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
     } finally {
       if (success) {
         progressReport.stop();
@@ -129,7 +129,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   private List<BridgeServer.Issue> analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles)
     throws IOException {
     LOG.info("Starting analysis with current program");
-    var fs = context.fileSystem();
+    var fs = context.getSensorContext().fileSystem();
     var counter = 0;
     List<BridgeServer.Issue> issues = new ArrayList<>();
 

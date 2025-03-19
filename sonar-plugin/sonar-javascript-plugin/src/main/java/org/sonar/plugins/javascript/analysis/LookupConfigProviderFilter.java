@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 
@@ -48,8 +47,8 @@ public class LookupConfigProviderFilter {
 
     private final Set<String> extensions = new HashSet<>();
 
-    public FileFilter(Configuration config) {
-      extensions.addAll(ContextUtils.getJsTsExtensions(config));
+    public FileFilter(JsTsContext<?> context) {
+      extensions.addAll(context.getJsTsExtensions());
     }
 
     @Override
@@ -62,8 +61,8 @@ public class LookupConfigProviderFilter {
 
     private final WildcardPattern[] exclusions;
 
-    public PathFilter(Configuration config) {
-      exclusions = stream(ContextUtils.getExcludedPaths(config))
+    public PathFilter(JsTsContext<?> context) {
+      exclusions = stream(context.getExcludedPaths())
         .map(WildcardPattern::create)
         .toArray(WildcardPattern[]::new);
     }

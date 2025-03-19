@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 class MinificationAssessorTest {
@@ -70,11 +69,10 @@ class MinificationAssessorTest {
   }
 
   private InputFile getFile(String name) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("module1", DIR + name)
+    return new TestInputFileBuilder("module1", DIR + name)
       .setModuleBaseDir(Paths.get(""))
       .setCharset(StandardCharsets.UTF_8)
       .build();
-    return inputFile;
   }
 
   private AbstractBooleanAssert<?> getAssert(String fileName) {
