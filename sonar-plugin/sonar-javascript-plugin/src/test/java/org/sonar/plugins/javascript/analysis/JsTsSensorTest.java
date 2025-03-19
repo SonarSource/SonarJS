@@ -988,7 +988,7 @@ class JsTsSensorTest {
     var sensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers(List.of(consumer))
     );
 
@@ -1095,7 +1095,7 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers(List.of(consumer))
     );
   }
@@ -1104,7 +1104,7 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers()
     );
   }
@@ -1113,7 +1113,7 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithWatchProgram(),
+      processAnalysis,
       new AnalysisConsumers()
     );
   }
