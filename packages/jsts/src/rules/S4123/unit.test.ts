@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S4123', () => {
@@ -160,6 +160,58 @@ describe('S4123', () => {
       }
       `,
         },
+        {
+          code: `
+async function foo () {
+  await bar() // Compliant: ignored because of JSDoc
+}
+/**
+ * @return {Promise<number>}
+ */
+async function bar () {
+  return 5;
+}`,
+        },
+        {
+          code: `
+async function foo () {
+  await bar() // Compliant: ignored because of JSDoc
+}
+/**
+ * @return {number}
+ */
+async function bar () {
+  return Promise.resolve(5);
+}`,
+        },
+        {
+          code: `
+async function foo () {
+  await bar.baz() // Compliant: ignored because of JSDoc
+}
+
+const bar = {
+  /**
+   * @return {Promise<number>}
+   */
+  baz() {
+    return Promise.resolve(5);
+  }
+}`,
+        },
+        {
+          code: `function returnBoolOrPromise(x: boolean) {
+  if (x) {
+    return x;
+  } else { 
+    return Promise.resolve(10);
+  }
+}
+
+async function bar() { 
+  await returnBoolOrPromise();
+}`,
+        },
       ],
       invalid: [
         {
@@ -212,84 +264,18 @@ describe('S4123', () => {
       `,
           errors: 1,
         },
-      ],
-    });
-
-    const ruleTesterWithNoFullTypeInfo = new RuleTester();
-
-    ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
-      valid: [
         {
           code: `
-      async function bar() { return 42; }
-      async function foo() {
-        await bar();
-      }
-      `,
-        },
-      ],
-      invalid: [],
-    });
-
-    const javaScriptRuleTester = new RuleTester();
-    javaScriptRuleTester.run(
-      'await should only be used with promises: ignore function calls for functions with JSdoc',
-      rule,
-      {
-        valid: [
-          {
-            code: `
-async function foo () {
-  await bar() // Compliant: ignored because of JSDoc
-}
-/**
- * @return {Promise<number>}
- */
-async function bar () {
-  return 5;
-}`,
-          },
-          {
-            code: `
-async function foo () {
-  await bar() // Compliant: ignored because of JSDoc
-}
-/**
- * @return {number}
- */
-async function bar () {
-  return Promise.resolve(5);
-}`,
-          },
-          {
-            code: `
-async function foo () {
-  await bar.baz() // Compliant: ignored because of JSDoc
-}
-
-const bar = {
-  /**
-   * @return {Promise<number>}
-   */
-  baz() {
-    return Promise.resolve(5);
-  }
-}`,
-          },
-        ],
-        invalid: [
-          {
-            code: `
 async function foo () {
     await bar() // Noncompliant
 }
 function bar () {
     return 5;
 }`,
-            errors: 1,
-          },
-          {
-            code: `
+          errors: 1,
+        },
+        {
+          code: `
 async function foo () {
     await bar() // Noncompliant
 }
@@ -299,10 +285,49 @@ async function foo () {
 function bar () {
     return 5;
 }`,
-            errors: 1,
-          },
-        ],
-      },
-    );
+          errors: 1,
+        },
+        {
+          code: `function returnBool() { 
+  return false;
+}
+
+async function bar() { 
+  await returnBool();
+}`,
+          errors: 1,
+        },
+        {
+          code: `function returnNumberOrString(isNumber: boolean) {
+  if (isNumber) {
+    return 10;
+  } else {
+    return "stringValue";
+  }
+}
+
+async function bar() {
+  await returnNumberOrString(true);
+}`,
+          errors: 1,
+        },
+      ],
+    });
+
+    const ruleTesterWithNoFullTypeInfo = new DefaultParserRuleTester();
+
+    ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
+      valid: [
+        {
+          code: `
+      function bar() { return 42; }
+      async function foo() {
+        await bar();
+      }
+      `,
+        },
+      ],
+      invalid: [],
+    });
   });
 });

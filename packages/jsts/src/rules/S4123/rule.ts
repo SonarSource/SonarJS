@@ -41,17 +41,18 @@ export const rule: Rule.RuleModule = {
         AwaitExpression: (node: estree.AwaitExpression) => {
           const awaitedType = getTypeFromTreeNode(node.argument, services);
           if (
-            !isException(node, services) &&
-            !isThenable(awaitedType) &&
-            !isAny(awaitedType) &&
-            !isUnknown(awaitedType) &&
-            !isUnion(awaitedType)
+            isCallWithJSDoc(node, services) ||
+            isThenable(awaitedType) ||
+            isAny(awaitedType) ||
+            isUnknown(awaitedType) ||
+            isUnionWithThenable(awaitedType)
           ) {
-            context.report({
-              messageId: 'refactorAwait',
-              node,
-            });
+            return;
           }
+          context.report({
+            messageId: 'refactorAwait',
+            node,
+          });
         },
       };
     }
@@ -63,25 +64,28 @@ export const rule: Rule.RuleModule = {
  * If the awaited expression is a call expression, check if it is a call to a function with
  * a JSDoc containing a return tag.
  */
-function isException(node: estree.AwaitExpression, services: ParserServicesWithTypeInformation) {
+function isCallWithJSDoc(
+  node: estree.AwaitExpression,
+  services: ParserServicesWithTypeInformation,
+) {
   if (node.argument.type !== 'CallExpression') {
     return false;
   }
   const signature = getSignatureFromCallee(node.argument, services);
   return signature?.declaration && hasJsDocReturn(signature.declaration);
+}
 
-  function hasJsDocReturn(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
-    const RETURN_TAGS = ['return', 'returns'];
-    if (!declaration.jsDoc) {
-      return false;
-    }
-    for (const jsDoc of declaration.jsDoc) {
-      if (jsDoc.tags?.some(tag => RETURN_TAGS.includes(tag.tagName.escapedText.toString()))) {
-        return true;
-      }
-    }
+function hasJsDocReturn(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
+  const RETURN_TAGS = ['return', 'returns'];
+  if (!declaration.jsDoc) {
     return false;
   }
+  for (const jsDoc of declaration.jsDoc) {
+    if (jsDoc.tags?.some(tag => RETURN_TAGS.includes(tag.tagName.escapedText.toString()))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isThenable(type: ts.Type) {
@@ -102,6 +106,6 @@ function isUnknown(type: ts.Type) {
   return Boolean(type.flags & ts.TypeFlags.Unknown);
 }
 
-function isUnion(type: ts.Type) {
-  return Boolean(type.flags & ts.TypeFlags.Union);
+function isUnionWithThenable(type: ts.Type) {
+  return type.isUnion() && type.types.some(innerUnionType => isThenable(innerUnionType));
 }
