@@ -49,7 +49,7 @@ describe('Plugin public API', () => {
 
     for (const ruleId of ruleIds) {
       const metadata = await import(
-        pathToFileURL(path.join(ruleFolder, ruleId, 'meta.js')).toString()
+        pathToFileURL(path.join(ruleFolder, ruleId, 'generated-meta.js')).toString()
       );
       expect(metadata.eslintId).toBeDefined();
       expect(metadata.sonarKey).toEqual(ruleId);
