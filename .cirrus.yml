@@ -204,6 +204,7 @@ build_win_task:
   <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
     - source cirrus-env BUILD
+    - npm ci
     - mvn clean install -e
 
 ws_scan_task:
