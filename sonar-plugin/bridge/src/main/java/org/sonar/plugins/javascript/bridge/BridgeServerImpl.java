@@ -494,6 +494,9 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public TelemetryData getTelemetry() {
+    if (nodeCommand == null) {
+      return new TelemetryData(getTelemetryEslintBridgeResponse().dependencies(), null);
+    }
     return new TelemetryData(
       getTelemetryEslintBridgeResponse().dependencies(),
       new RuntimeTelemetry(
@@ -501,6 +504,14 @@ public class BridgeServerImpl implements BridgeServer {
         nodeCommand.getNodeExecutableOrigin()
       )
     );
+  }
+
+  @Override
+  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException {
+    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
+    request.setRulesWorkdir(workdir);
+    var response = request(GSON.toJson(request), "analyze-project");
+    return GSON.fromJson(response.json(), ProjectAnalysisOutput.class);
   }
 
   private TelemetryEslintBridgeResponse getTelemetryEslintBridgeResponse() {
