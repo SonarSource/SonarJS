@@ -157,6 +157,10 @@ public class JsTsContext<T extends SensorContext> {
     return DEFAULT_MAX_FILE_SIZE_KB;
   }
 
+  public long getMaxFileSizeProperty() {
+    return getMaxFileSizeProperty(context.config());
+  }
+
   public int getTypeCheckingLimit() {
     return Math.max(
       context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
