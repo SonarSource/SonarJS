@@ -26,7 +26,7 @@ import {
   getPropertyWithValue,
   getValueOfExpression,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';

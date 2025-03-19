@@ -43,7 +43,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { isStringRegexMethodCall, isStringReplaceCall } from '../helpers/regex/ast.js';
 import { extractReferences } from '../helpers/regex/group.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';

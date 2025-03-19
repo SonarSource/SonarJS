@@ -18,7 +18,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 // core implementation of this rule raises issues on type exports
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

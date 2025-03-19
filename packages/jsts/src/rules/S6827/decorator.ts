@@ -19,7 +19,7 @@ import { generateMeta, interceptReport } from '../helpers/index.js';
 import pkg from 'jsx-ast-utils';
 const { hasAnyProp } = pkg;
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,

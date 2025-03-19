@@ -17,7 +17,7 @@
 import { check } from '../../../../tests/tools/testers/comment-based/index.js';
 import { rule } from '../index.js';
 import { describe } from 'node:test';
-import * as meta from '../meta.js';
+import * as meta from '../generated-meta.js';
 
 describe('Rule S6477', () => {
   process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree

@@ -27,7 +27,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;

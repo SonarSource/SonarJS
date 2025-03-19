@@ -31,7 +31,7 @@ import {
   RequiredParserServices,
   RuleContext,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message = `Add a "return" statement to this callback.`;
 

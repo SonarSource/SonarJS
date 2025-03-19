@@ -18,7 +18,7 @@ import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 import path from 'path';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 describe('Rule S6544', () => {
   check(meta, rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));

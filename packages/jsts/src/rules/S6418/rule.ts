@@ -23,7 +23,7 @@ import {
   isLogicalExpression,
   isStringLiteral,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';

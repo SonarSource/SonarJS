@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { generateMeta, getDependencies } from '../helpers/index.js';
 import { decorate } from './decorator.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const decoratedJsxKey = decorate(rules['jsx-key']);
 

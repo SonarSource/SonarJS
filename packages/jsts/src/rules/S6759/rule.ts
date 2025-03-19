@@ -28,7 +28,7 @@ import {
   RequiredParserServices,
 } from '../helpers/index.js';
 import ts from 'typescript';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * Stacks return statements per function.

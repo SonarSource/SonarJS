@@ -27,7 +27,7 @@ import {
   S3BucketTemplate,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const VERSIONED_KEY = 'versioned';
 

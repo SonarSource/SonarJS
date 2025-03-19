@@ -25,7 +25,7 @@ import {
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 

@@ -27,7 +27,7 @@ import {
 } from '../helpers/index.js';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [

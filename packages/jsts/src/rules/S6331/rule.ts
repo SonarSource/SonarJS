@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkEmptyGroup(group: AST.Group | AST.CapturingGroup) {

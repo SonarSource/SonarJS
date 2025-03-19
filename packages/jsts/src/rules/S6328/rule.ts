@@ -21,7 +21,7 @@ import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { extractReferences, type GroupReference } from '../helpers/regex/group.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';
 import { isStringReplaceCall } from '../helpers/regex/ast.js';

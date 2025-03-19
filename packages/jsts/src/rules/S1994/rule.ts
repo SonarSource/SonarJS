@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];

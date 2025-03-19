@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.js';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message = 'Refactor this uncertain assertion; it can succeed for multiple reasons.';
 

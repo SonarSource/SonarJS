@@ -25,7 +25,7 @@ import {
   isObjectType,
 } from '../helpers/index.js';
 import { type LogicalExpression } from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const preferNullishCoalescingRule = rules['prefer-nullish-coalescing'];
 

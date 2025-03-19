@@ -21,7 +21,7 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { computeGrid, TableCell } from '../helpers/table.js';
 import { generateMeta, getElementType } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 type BlockInfo = {
   minRow: number;

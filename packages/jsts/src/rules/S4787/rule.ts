@@ -24,7 +24,7 @@ import {
   isIdentifier,
   isMemberWithProperty,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const getEncryptionRuleModule = (
   clientSideMethods: string[],

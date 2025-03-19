@@ -36,7 +36,7 @@ import {
   isUnresolved,
   reduceToIdentifier,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',

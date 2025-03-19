@@ -21,7 +21,7 @@ import estree from 'estree';
 import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.js';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const DEFAULT = 1000;
 

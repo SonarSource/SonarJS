@@ -28,7 +28,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const MESSAGE = 'Convert this operand into a number.';
 export const rule: Rule.RuleModule = {

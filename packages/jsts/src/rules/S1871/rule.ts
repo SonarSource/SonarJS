@@ -29,7 +29,7 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";

@@ -31,7 +31,7 @@ import {
   resolveIdentifiers,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

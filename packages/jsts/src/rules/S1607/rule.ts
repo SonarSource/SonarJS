@@ -32,7 +32,7 @@ import {
   resolveFunction,
   toUnixPath,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { dirname } from 'path/posix';
 

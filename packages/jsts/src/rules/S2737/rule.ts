@@ -20,7 +20,7 @@ import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, generateMeta, isThrowStatement } from '../helpers/index.js';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

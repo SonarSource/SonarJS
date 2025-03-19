@@ -34,7 +34,7 @@ import {
   report,
   S3BucketTemplate,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,

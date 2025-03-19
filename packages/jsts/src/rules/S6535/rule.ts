@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * We want to merge ESLint rules 'no-useless-escape' and 'no-nonoctal-decimal-escape'. However,

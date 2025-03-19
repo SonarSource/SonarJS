@@ -27,7 +27,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 type Node = ESTreeNode & Rule.NodeParentExtension;
 

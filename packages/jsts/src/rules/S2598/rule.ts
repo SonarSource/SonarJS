@@ -29,7 +29,7 @@ import {
   report as contextReport,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';

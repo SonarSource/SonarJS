@@ -28,7 +28,7 @@ import {
   report,
   S3BucketTemplate,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const ENCRYPTED_KEY = 'encryption';
 

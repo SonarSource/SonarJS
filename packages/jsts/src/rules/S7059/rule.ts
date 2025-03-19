@@ -24,7 +24,7 @@ import {
   isFunctionNode,
 } from '../helpers/index.js';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const flaggedStatements = new Set();
 

@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { generateMeta, getManifests, toUnixPath } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { dirname } from 'path/posix';
 
 const reactNoDeprecated = rules['no-deprecated'];

@@ -19,7 +19,7 @@
 import { Rule, Scope } from 'eslint';
 import { generateMeta, getFullyQualifiedName, getVariableFromName } from '../helpers/index.js';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 type Reference = {
   setter: Scope.Variable | undefined;

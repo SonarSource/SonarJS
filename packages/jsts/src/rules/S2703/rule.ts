@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { flatMap, generateMeta, globalsByLibraries } from '../helpers/index.js';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 

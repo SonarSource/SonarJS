@@ -28,7 +28,7 @@ import {
   report,
   resolveFromFunctionReference,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 

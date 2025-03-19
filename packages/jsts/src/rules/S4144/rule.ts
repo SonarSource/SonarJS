@@ -27,7 +27,7 @@ import {
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MIN_LINES = 3;

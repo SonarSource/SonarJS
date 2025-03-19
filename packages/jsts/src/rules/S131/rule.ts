@@ -26,7 +26,7 @@ import {
   isUnion,
   mergeRules,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

@@ -26,7 +26,7 @@ import {
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [

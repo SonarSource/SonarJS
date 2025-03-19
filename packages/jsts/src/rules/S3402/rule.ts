@@ -28,7 +28,7 @@ import {
   RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);

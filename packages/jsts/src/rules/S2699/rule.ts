@@ -28,7 +28,7 @@ import {
   Vitest,
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * We assume that the user is using a single assertion library per file,

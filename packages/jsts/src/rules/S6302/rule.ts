@@ -26,7 +26,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',

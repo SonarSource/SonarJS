@@ -27,7 +27,7 @@ import {
 } from '../helpers/index.js';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';

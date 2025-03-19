@@ -20,7 +20,7 @@ import { generateMeta, globalsByLibraries } from '../helpers/index.js';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
 

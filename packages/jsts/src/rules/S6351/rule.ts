@@ -31,7 +31,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { isRegExpConstructor } from '../helpers/regex/ast.js';
 import { getFlags } from '../helpers/regex/flags.js';
 

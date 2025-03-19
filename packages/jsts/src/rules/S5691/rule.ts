@@ -24,7 +24,7 @@ import {
   getProperty,
   getUniqueWriteUsage,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const SERVE_STATIC = 'serve-static';
 

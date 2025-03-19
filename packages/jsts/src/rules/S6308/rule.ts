@@ -26,7 +26,7 @@ import {
   isStringLiteral,
 } from '../helpers/index.js';
 import { getResultOfExpression } from '../helpers/result.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';

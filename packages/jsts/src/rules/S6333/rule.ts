@@ -27,7 +27,7 @@ import {
   isMemberWithProperty,
   isMethodCall,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const REST_API_PROPERTIES_POSITION = 2;
 const RESOURCE_ADD_RESOURCE_PROPERTIES_POSITION = 1;

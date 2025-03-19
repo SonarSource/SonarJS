@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, getElementType } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
