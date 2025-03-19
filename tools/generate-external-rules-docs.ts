@@ -16,8 +16,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { getAllRulesMetadata, RULES_FOLDER } from './helpers.js';
-import { writePrettyFile } from './output-code-helpers.js';
+import { getAllRulesMetadata, RULES_FOLDER, writePrettyFile } from './helpers.js';
 
 /**
  * Script to be called to update the eslint-plugin-sonarjs README.md

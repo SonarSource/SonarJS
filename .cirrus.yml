@@ -167,6 +167,7 @@ build_task:
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
+    - npm ci
     - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN
 
 analyze_task:

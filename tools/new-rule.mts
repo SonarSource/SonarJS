@@ -19,6 +19,7 @@ import { join } from 'node:path';
 import { checkbox, input, select } from '@inquirer/prompts';
 import {
   DIRNAME,
+  inflateTemplateToFile,
   ruleRegex,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
@@ -26,7 +27,6 @@ import {
 } from './helpers.js';
 import { generateMetaForRule } from './generate-eslint-meta.js';
 import { generateJavaCheckClass } from './generate-java-rule-classes.js';
-import { inflateTemplateToFile } from './output-code-helpers.js';
 
 const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 

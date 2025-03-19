@@ -26,11 +26,11 @@ import {
   getRspecMeta,
   getRuleMetadata,
   header,
+  inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
   listRulesDir,
   sonarKeySorter,
 } from './helpers.js';
-import { inflateTemplateToFile } from './output-code-helpers.js';
 
 const JAVA_CHECKS_FOLDER = join(
   'sonar-plugin',
@@ -124,7 +124,6 @@ export async function generateJavaCheckClass(
       ___IMPORTS___: [...imports].join('\n'),
       ___BODY___: body.join('\n'),
     },
-    /*skipPrettify*/ true,
   );
 }
 
@@ -282,5 +281,4 @@ await inflateTemplateToFile(
       .join(','),
     ___HEADER___: header,
   },
-  true,
 );

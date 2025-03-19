@@ -129,21 +129,6 @@
                 <argument>-rf</argument>
                 <argument>lib</argument>
                 <argument>bin</argument>
-                <argument>node_modules</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Install the npm dependencies</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>npm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>ci</argument>
               </arguments>
             </configuration>
           </execution>
