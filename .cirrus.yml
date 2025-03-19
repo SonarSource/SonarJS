@@ -50,19 +50,6 @@ orchestrator_cache_preparation_definition_monthly: &ORCHESTRATOR_CACHE_MONTHLY
     fingerprint_script: echo ${THIS_MONTH}
     reupload_on_changes: 'true'
 
-orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
-  set_orchestrator_home_script: |
-    export TODAY=$(date '+%Y-%m-%d')
-    echo "TODAY=${TODAY}" >> $CIRRUS_ENV
-    echo "ORCHESTRATOR_HOME=${CIRRUS_WORKING_DIR}/orchestrator/${TODAY}" >> $CIRRUS_ENV
-  mkdir_orchestrator_home_script: |
-    echo "Create dir ${ORCHESTRATOR_HOME} if needed"
-    mkdir -p ${ORCHESTRATOR_HOME}
-  orchestrator_cache:
-    folder: ${ORCHESTRATOR_HOME}
-    fingerprint_script: echo ${TODAY}
-    reupload_on_changes: 'true'
-
 nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
     folder: tools/fetch-node/downloads/
@@ -111,22 +98,6 @@ win_ssd_and_clone:
 
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
-
-plugin_qa_body: &PLUGIN_QA_BODY
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-  env:
-    CIRRUS_CLONE_DEPTH: 10
-    SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *ORCHESTRATOR_CACHE
-  qa_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
@@ -262,7 +233,7 @@ plugin_qa_no_node_alpine_task:
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_sq_dev_task:
-  <<: *PLUGIN_QA_BODY
+  <<: *PLUGIN_QA_BODY_MONTHLY
   eks_container:
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   env:
