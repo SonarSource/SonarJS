@@ -14,14 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import prettier from 'prettier';
-import { readdir, readFile, stat, writeFile } from 'fs/promises';
+import { readdir, readFile, stat } from 'fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-//@ts-ignore
-import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
-import { mkdir } from 'node:fs/promises';
 
 export const ruleRegex = /^S\d+/;
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -71,35 +67,6 @@ export function verifyRuleName(eslintId: string) {
   if (!re.exec(eslintId)) {
     throw new Error(`Invalid class name: it should match ${re}, but got "${eslintId}"`);
   }
-}
-
-/**
- * Inflate string template with given dictionary
- * @param text template string
- * @param dictionary object with the keys to replace
- */
-function inflateTemplate(text: string, dictionary: { [x: string]: string }): string {
-  for (const key in dictionary) {
-    text = text.replaceAll(key, dictionary[key]);
-  }
-  return text;
-}
-
-/**
- * Reads a template file, inflates it with the provided dictionary, and writes the prettified
- * result to destination file
- *
- * @param templatePath path to template file
- * @param dest destination file
- * @param dict dictionary to inflate the template
- */
-export async function inflateTemplateToFile(
-  templatePath: string,
-  dest: string,
-  dict: { [x: string]: string },
-) {
-  const template = await readFile(templatePath, 'utf8');
-  await writePrettyFile(dest, inflateTemplate(template, dict));
 }
 
 export async function getESLintDefaultConfiguration(
@@ -174,19 +141,4 @@ async function exists(file: string) {
   return stat(file)
     .then(() => true)
     .catch(() => false);
-}
-
-export async function writePrettyFile(filepath: string, contents: string) {
-  await mkdir(dirname(filepath), {
-    recursive: true,
-  }).then(async () =>
-    writeFile(
-      filepath,
-      await prettier.format(contents, {
-        ...(prettierOpts as prettier.Options),
-        filepath,
-        plugins: ['prettier-plugin-java'],
-      }),
-    ),
-  );
 }

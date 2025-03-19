@@ -21,13 +21,13 @@ import {
   getESLintDefaultConfiguration,
   getRspecMeta,
   header,
-  inflateTemplateToFile,
   METADATA_FOLDER,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
+import { inflateTemplateToFile } from './output-code-helpers.js';
 
 const sonarWayProfile = JSON.parse(
   await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
