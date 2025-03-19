@@ -9,19 +9,24 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "clumsy",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4157",
   "sqKey": "S4157",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "TYPESCRIPT"
-  ]
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

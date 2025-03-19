@@ -17,13 +17,20 @@
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "BooleanExpressionComplexity"
+    ]
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1067",
   "sqKey": "S1067",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

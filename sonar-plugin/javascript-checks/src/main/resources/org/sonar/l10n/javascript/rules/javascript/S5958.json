@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
@@ -17,13 +17,20 @@
     "chai",
     "mocha"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5958",
   "sqKey": "S5958",
   "scope": "Tests",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

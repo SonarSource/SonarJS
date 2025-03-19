@@ -9,19 +9,29 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "suspicious"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "EmptyBlock",
+      "EmptyCompoundStatement"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-108",
   "sqKey": "S108",
   "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
@@ -21,13 +21,20 @@
     "unused",
     "confusing"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2187",
   "sqKey": "S2187",
   "scope": "Tests",
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

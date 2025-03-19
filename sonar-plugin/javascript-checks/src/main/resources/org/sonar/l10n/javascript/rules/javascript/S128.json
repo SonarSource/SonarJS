@@ -9,13 +9,20 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [
     "cwe",
     "suspicious"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "non-empty-case-without-break",
+      "NonEmptyCaseWithoutBreak"
+    ]
+  },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-128",
   "sqKey": "S128",
@@ -27,7 +34,10 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

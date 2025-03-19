@@ -9,13 +9,17 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "cwe",
     "suspicious"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-888",
   "sqKey": "S888",
@@ -27,7 +31,10 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

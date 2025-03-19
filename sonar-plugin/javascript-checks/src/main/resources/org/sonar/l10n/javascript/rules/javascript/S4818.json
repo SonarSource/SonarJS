@@ -3,12 +3,17 @@
   "type": "SECURITY_HOTSPOT",
   "status": "deprecated",
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4818",
   "sqKey": "S4818",
   "scope": "Main",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

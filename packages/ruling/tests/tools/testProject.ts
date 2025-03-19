@@ -80,7 +80,7 @@ export async function testProject(projectName: string) {
       return meta.languages.map(language => ({
         key,
         configurations: [],
-        language: language === 'JAVASCRIPT' ? 'js' : 'ts',
+        language,
         fileTypeTargets: meta.scope === 'Tests' ? ['TEST'] : ['MAIN'],
         analysisModes: ['DEFAULT'],
         blacklistedExtensions: meta.blacklistedExtensions,

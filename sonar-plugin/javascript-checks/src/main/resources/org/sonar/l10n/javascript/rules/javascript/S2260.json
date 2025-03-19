@@ -3,12 +3,21 @@
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "30min"
   },
   "tags": [
     "suspicious"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "ParsingError",
+      "PlSql.ParsingError",
+      "ParseError",
+      "COBOL.ParsingErrorCheck"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2260",
   "sqKey": "S2260",
@@ -22,7 +31,8 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

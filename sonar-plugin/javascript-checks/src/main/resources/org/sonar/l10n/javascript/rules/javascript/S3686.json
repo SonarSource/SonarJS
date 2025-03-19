@@ -9,16 +9,23 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "15min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3686",
   "sqKey": "S3686",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "js"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

@@ -41,11 +41,20 @@ To work on this project, it is required to have the following tools installed:
 
 ## How-to
 
-### 1. Request a new feature
+### Build the project
+
+The project can be built into the SonarJS Plugin by installing Node.js dependencies, and executing the usual Maven `install` command.
+
+```shell
+npm install
+mvn clean install
+```
+
+### Request a new feature
 
 To request a new feature, create a new thread in [SonarSource Community Forum](https://community.sonarsource.com/). Even if you plan to implement it yourself and submit it back to the community, please create a thread to be sure that we can follow up on it.
 
-### 2. Pull Request
+### Create a Pull Request
 
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset) and that all [tests](/docs/DEV.md#testing) are passing.
 

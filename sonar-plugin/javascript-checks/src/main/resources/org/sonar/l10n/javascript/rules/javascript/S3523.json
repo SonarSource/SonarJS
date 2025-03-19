@@ -3,10 +3,16 @@
   "type": "CODE_SMELL",
   "status": "deprecated",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [
+      "RSPEC-1523"
+    ],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3523",
   "sqKey": "S3523",
@@ -19,6 +25,7 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT"
-  ]
+    "js"
+  ],
+  "defaultQualityProfiles": []
 }

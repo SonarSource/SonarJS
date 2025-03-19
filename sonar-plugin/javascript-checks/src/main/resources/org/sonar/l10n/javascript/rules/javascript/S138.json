@@ -9,19 +9,26 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "20min"
   },
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "too-many-loc-in-function"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-138",
   "sqKey": "S138",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

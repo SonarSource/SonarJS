@@ -8,13 +8,22 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "suspicious",
     "pitfall"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "S1524",
+      "VariableHiding",
+      "VariableShadowing",
+      "HiddenFieldCheck"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1117",
   "sqKey": "S1117",
@@ -22,7 +31,8 @@
   "quickfix": "unknown",
   "title": "Variables should not be shadowed",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

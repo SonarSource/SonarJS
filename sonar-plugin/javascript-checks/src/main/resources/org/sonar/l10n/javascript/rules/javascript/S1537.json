@@ -3,10 +3,16 @@
   "type": "CODE_SMELL",
   "status": "deprecated",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "TrailingComma"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1537",
   "sqKey": "S1537",
@@ -19,7 +25,8 @@
     "attribute": "FORMATTED"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

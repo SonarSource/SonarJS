@@ -9,20 +9,26 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "regex",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6353",
   "sqKey": "S6353",
   "scope": "Main",
   "quickfix": "targeted",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "title": "\"if\/else if\" chains and \"switch\" cases should not have the same condition",
+  "title": "\"if/else if\" chains and \"switch\" cases should not have the same condition",
   "type": "BUG",
   "code": {
     "impacts": {
@@ -9,20 +9,27 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [
     "unused",
     "pitfall"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1862",
   "sqKey": "S1862",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

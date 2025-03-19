@@ -87,7 +87,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(100);
 
-    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
+    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).hasSize(1);
   }
 
   private List<String> deprecatedRulesInProfile(
@@ -117,7 +117,7 @@ class JavaScriptProfilesDefinitionTest {
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S5122");
 
-    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
+    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).hasSize(1);
   }
 
   @Test

@@ -9,12 +9,16 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "0min"
   },
   "tags": [
     "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Info",
   "ruleSpecification": "RSPEC-1135",
   "sqKey": "S1135",
@@ -26,7 +30,10 @@
   },
   "quickfix": "infeasible",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

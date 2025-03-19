@@ -14,8 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonarsource.javascript;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,23 +21,37 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
-public class XZ {
+@Mojo(name = "compress")
+public class CompressMojo extends AbstractMojo {
 
-  private static final int DEFAULT_COMPRESSION_LEVEL = 9;
+  @Parameter(required = true)
+  private String baseDirectory;
 
-  public static void main(String[] args) {
-    if (args.length == 0) {
-      throw new IllegalArgumentException("Please provide at least 1 filename to compress using XZ");
-    }
+  @Parameter(required = true)
+  private List<String> filenames;
+
+  @Parameter(required = true)
+  private String targetDirectory;
+
+  @Parameter(defaultValue = "9")
+  private int compressionLevel;
+
+  @Override
+  public void execute() {
     List<String> filenames = Collections.emptyList();
-    try {
-      filenames = Stream.of(args).map(filename -> filename.replaceAll("[\\\\/]+", "/")).toList();
 
-      compress(filenames);
+    try {
+      this.compress(
+          this.filenames.stream()
+            .map(filename -> Path.of(this.baseDirectory, filename).toAbsolutePath())
+            .toList()
+        );
     } catch (IOException e) {
       throw new IllegalStateException(
         "Error while compressing " + Arrays.toString(filenames.toArray()),
@@ -48,31 +60,33 @@ public class XZ {
     }
   }
 
-  /**
-   * Compress the provided filenames with the `DEFAULT_COMPRESSION_LEVEL`
-   *
-   * @param filenames
-   * @throws IOException
-   */
-  public static void compress(List<String> filenames) throws IOException {
-    for (var filename : filenames) {
-      var file = Path.of(filename);
-      System.out.println("Compressing " + filename);
+  protected void compress(List<Path> filenames) throws IOException {
+    for (var file : filenames) {
+      var outputFile = Path.of(
+        this.targetDirectory,
+        Path.of(this.baseDirectory).toAbsolutePath().relativize(file) + ".xz"
+      );
+
+      this.getLog().info("Compressing " + file + " to " + outputFile);
+
       if (!Files.exists(file)) {
-        throw new FileNotFoundException("File " + filename + " does not exist.");
+        throw new FileNotFoundException(String.format("File %s does not exist.", file));
       }
-      var outputFile = Path.of(file + ".xz");
+
       if (Files.exists(outputFile)) {
-        System.out.println("Skipping compression. File " + outputFile + " already exists.");
+        this.getLog()
+          .info(String.format("Skipping compression, file %s already exists.", outputFile));
         continue;
       }
+
+      outputFile.toFile().getParentFile().mkdirs();
+
       try (
         var is = Files.newInputStream(file);
         var outfile = Files.newOutputStream(outputFile);
-        var outxz = new XZOutputStream(outfile, new LZMA2Options(DEFAULT_COMPRESSION_LEVEL))
+        var outxz = new XZOutputStream(outfile, new LZMA2Options(this.compressionLevel))
       ) {
         is.transferTo(outxz);
-        Files.delete(file);
       }
     }
   }

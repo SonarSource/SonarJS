@@ -9,20 +9,27 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "cross-browser",
     "user-experience"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "FunctionDeclarationsWithinBlocks"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1530",
   "sqKey": "S1530",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

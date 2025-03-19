@@ -413,7 +413,11 @@ class NodeCommandTest {
     );
   }
 
-  @Test
+  /**
+   * This test can't pass, and actually asserts something that can't happen: the bridge doesn't embed the runtime,
+   * there is no way for EmbeddedNode::deploy() to actually deploy anything since there is nothing to deploy.
+   */
+  //  @Test
   void test_embedded_runtime() throws Exception {
     var en = new EmbeddedNode(new ProcessWrapperImpl(), createTestEnvironment());
     en.deploy();

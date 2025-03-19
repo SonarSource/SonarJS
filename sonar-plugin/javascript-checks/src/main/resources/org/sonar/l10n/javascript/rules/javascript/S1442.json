@@ -3,16 +3,23 @@
   "type": "VULNERABILITY",
   "status": "deprecated",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [
+      "RSPEC-4507"
+    ],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1442",
   "sqKey": "S1442",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT"
-  ]
+    "js"
+  ],
+  "defaultQualityProfiles": []
 }

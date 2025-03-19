@@ -9,19 +9,24 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "proficiency",
     "type-dependent"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4324",
   "sqKey": "S4324",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "TYPESCRIPT"
-  ]
+    "ts"
+  ],
+  "defaultQualityProfiles": []
 }

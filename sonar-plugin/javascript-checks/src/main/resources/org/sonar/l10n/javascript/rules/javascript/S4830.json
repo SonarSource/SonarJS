@@ -1,5 +1,5 @@
 {
-  "title": "Server certificates should be verified during SSL\/TLS connections",
+  "title": "Server certificates should be verified during SSL/TLS connections",
   "type": "VULNERABILITY",
   "code": {
     "impacts": {
@@ -9,7 +9,7 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
@@ -17,6 +17,10 @@
     "privacy",
     "ssl"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4830",
   "sqKey": "S4830",
@@ -53,7 +57,10 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

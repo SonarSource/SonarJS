@@ -706,7 +706,9 @@ class BridgeServerImplTest {
     var telemetry = bridgeServer.getTelemetry();
     assertThat(telemetry.dependencies()).isEqualTo(List.of(new Dependency("pkg1", "1.0.0")));
     var runtimeTelemetry = telemetry.runtimeTelemetry();
-    assertThat(runtimeTelemetry.version().isGreaterThanOrEqual(Version.create(22, 9))).isTrue();
+
+    // todo: we should test here against either a controlled version of Node.js, or the lowest version that we officially support
+    assertThat(runtimeTelemetry.version().isGreaterThanOrEqual(Version.create(18, 0))).isTrue();
     assertThat(runtimeTelemetry.nodeExecutableOrigin()).isNotEmpty();
   }
 

@@ -9,19 +9,30 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "20min"
   },
   "tags": [
     "brain-overload"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "ProcedureParameterCount",
+      "PlSql.FunctionAndProcedureExcessiveParameters",
+      "ExcessiveParameterList"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-107",
   "sqKey": "S107",
   "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

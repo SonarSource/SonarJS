@@ -21,6 +21,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 //@ts-ignore
 import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
+import { mkdir } from 'node:fs/promises';
 
 export const ruleRegex = /^S\d+/;
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -58,7 +59,7 @@ type rspecMeta = {
   quickfix: 'covered' | undefined;
   tags: string[];
   scope: 'Main' | 'Tests' | 'All';
-  compatibleLanguages: ('JAVASCRIPT' | 'TYPESCRIPT')[];
+  compatibleLanguages: ('js' | 'ts')[];
 };
 
 // Array sorter for Sonar rule IDs
@@ -115,7 +116,7 @@ export async function getESLintDefaultConfiguration(
 
 export async function getRspecMeta(
   sonarKey: string,
-  defaults: { compatibleLanguages?: ('JAVASCRIPT' | 'TYPESCRIPT')[]; scope?: 'Main' | 'Tests' },
+  defaults: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
 ): Promise<rspecMeta> {
   const rspecFile = join(METADATA_FOLDER, `${sonarKey}.json`);
   const rspecFileExists = await exists(rspecFile);
@@ -131,7 +132,7 @@ export async function getRspecMeta(
         type: 'BUG',
         status: 'ready',
         scope: 'Main',
-        compatibleLanguages: ['JAVASCRIPT', 'TYPESCRIPT'],
+        compatibleLanguages: ['js', 'ts'],
         quickfix: undefined,
         ...defaults,
       };
@@ -173,12 +174,16 @@ async function exists(file: string) {
 }
 
 export async function writePrettyFile(filepath: string, contents: string) {
-  await writeFile(
-    filepath,
-    await prettier.format(contents, {
-      ...(prettierOpts as prettier.Options),
+  await mkdir(dirname(filepath), {
+    recursive: true,
+  }).then(async () =>
+    writeFile(
       filepath,
-      plugins: ['prettier-plugin-java'],
-    }),
+      await prettier.format(contents, {
+        ...(prettierOpts as prettier.Options),
+        filepath,
+        plugins: ['prettier-plugin-java'],
+      }),
+    ),
   );
 }

@@ -1,5 +1,5 @@
 {
-  "title": "Weak SSL\/TLS protocols should not be used",
+  "title": "Weak SSL/TLS protocols should not be used",
   "type": "VULNERABILITY",
   "code": {
     "impacts": {
@@ -9,13 +9,17 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "cwe",
     "privacy"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4423",
   "sqKey": "S4423",
@@ -50,7 +54,10 @@
   },
   "quickfix": "unknown",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }
