@@ -16,7 +16,6 @@
  */
 import protobuf from 'protobufjs';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { debug } from '../../../shared/src/helpers/logging.js';
 
 import path from 'path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +24,7 @@ const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url))
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
+export const UNSUPPORTED_NODE_TYPES = new Map<string, number>();
 
 export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
   const protobufAST = parseInProtobuf(ast);
@@ -38,6 +38,13 @@ export function parseInProtobuf(ast: TSESTree.Program) {
   const protobugShapedAST = visitNode(ast);
   const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create(protobugShapedAST);
+}
+
+/**
+ * Only used for testing encoding of unknown nodes
+ */
+export function parseInProtobufUnknownNode(unknownNode: VisitNodeReturnType | undefined) {
+  return PROTO_ROOT.lookupType('Node').create(unknownNode);
 }
 
 /**
@@ -61,6 +68,12 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
   }
 
   return getProtobufShapeForNode(node);
+}
+
+function filterUnknownTypeNodes(
+  nodes: (VisitNodeReturnType | undefined)[],
+): (VisitNodeReturnType | undefined)[] {
+  return nodes.filter(node => node?.type !== NODE_TYPE_ENUM.values['UnknownNodeType']);
 }
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
@@ -310,97 +323,8 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSExternalModuleReference':
       shape = visitTSExternalModuleReference(node);
       break;
-    case 'AccessorProperty':
-    case 'Decorator':
-    case 'ImportAttribute':
-    case 'JSXAttribute':
-    case 'JSXClosingElement':
-    case 'JSXClosingFragment':
-    case 'JSXElement':
-    case 'JSXEmptyExpression':
-    case 'JSXExpressionContainer':
-    case 'JSXFragment':
-    case 'JSXIdentifier':
-    case 'JSXMemberExpression':
-    case 'JSXNamespacedName':
-    case 'JSXOpeningElement':
-    case 'JSXOpeningFragment':
-    case 'JSXSpreadAttribute':
-    case 'JSXSpreadChild':
-    case 'JSXText':
-    case 'TSAbstractAccessorProperty':
-    case 'TSAbstractKeyword':
-    case 'TSAbstractMethodDefinition':
-    case 'TSAbstractPropertyDefinition':
-    case 'TSAnyKeyword':
-    case 'TSArrayType':
-    case 'TSAsyncKeyword':
-    case 'TSBigIntKeyword':
-    case 'TSBooleanKeyword':
-    case 'TSCallSignatureDeclaration':
-    case 'TSClassImplements':
-    case 'TSConditionalType':
-    case 'TSConstructorType':
-    case 'TSConstructSignatureDeclaration':
-    case 'TSDeclareFunction':
-    case 'TSDeclareKeyword':
-    case 'TSEmptyBodyFunctionExpression':
-    case 'TSEnumDeclaration':
-    case 'TSEnumMember':
-    case 'TSExportKeyword':
-    case 'TSFunctionType':
-    case 'TSInstantiationExpression':
-    case 'TSImportType':
-    case 'TSIndexedAccessType':
-    case 'TSIndexSignature':
-    case 'TSInferType':
-    case 'TSInterfaceBody':
-    case 'TSInterfaceDeclaration':
-    case 'TSInterfaceHeritage':
-    case 'TSIntersectionType':
-    case 'TSIntrinsicKeyword':
-    case 'TSLiteralType':
-    case 'TSMappedType':
-    case 'TSMethodSignature':
-    case 'TSModuleBlock':
-    case 'TSModuleDeclaration':
-    case 'TSNamedTupleMember':
-    case 'TSNamespaceExportDeclaration':
-    case 'TSNeverKeyword':
-    case 'TSNullKeyword':
-    case 'TSNumberKeyword':
-    case 'TSObjectKeyword':
-    case 'TSOptionalType':
-    case 'TSPrivateKeyword':
-    case 'TSPropertySignature':
-    case 'TSProtectedKeyword':
-    case 'TSPublicKeyword':
-    case 'TSReadonlyKeyword':
-    case 'TSRestType':
-    case 'TSStaticKeyword':
-    case 'TSStringKeyword':
-    case 'TSSymbolKeyword':
-    case 'TSTemplateLiteralType':
-    case 'TSThisType':
-    case 'TSTupleType':
-    case 'TSTypeAliasDeclaration':
-    case 'TSTypeAnnotation':
-    case 'TSTypeLiteral':
-    case 'TSTypeOperator':
-    case 'TSTypeParameter':
-    case 'TSTypeParameterDeclaration':
-    case 'TSTypeParameterInstantiation':
-    case 'TSTypePredicate':
-    case 'TSTypeQuery':
-    case 'TSTypeReference':
-    case 'TSUndefinedKeyword':
-    case 'TSUnionType':
-    case 'TSUnknownKeyword':
-    case 'TSVoidKeyword':
-      // do not log unsupported known nodes
-      break;
     default:
-      debug(`Unknown node type: ${node.type}`);
+      UNSUPPORTED_NODE_TYPES.set(node.type, (UNSUPPORTED_NODE_TYPES.get(node.type) ?? 0) + 1);
   }
   return {
     type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
@@ -408,10 +332,11 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     [lowerCaseFirstLetter(node.type)]: shape || visitUnknownNode(node),
   };
 }
+
 function visitProgram(node: TSESTree.Program) {
   return {
     sourceType: node.sourceType,
-    body: node.body.map(visitNode),
+    body: filterUnknownTypeNodes(node.body.map(visitNode)),
   };
 }
 
@@ -498,8 +423,8 @@ function visitThisExpression(_node: TSESTree.ThisExpression) {
 
 function visitTemplateLiteral(node: TSESTree.TemplateLiteral) {
   return {
-    quasis: node.quasis.map(visitNode),
-    expressions: node.expressions.map(visitNode),
+    quasis: filterUnknownTypeNodes(node.quasis.map(visitNode)),
+    expressions: filterUnknownTypeNodes(node.expressions.map(visitNode)),
   };
 }
 
@@ -512,13 +437,13 @@ function visitTaggedTemplateExpression(node: TSESTree.TaggedTemplateExpression) 
 
 function visitSequenceExpression(node: TSESTree.SequenceExpression) {
   return {
-    expressions: node.expressions.map(visitNode),
+    expressions: filterUnknownTypeNodes(node.expressions.map(visitNode)),
   };
 }
 
 function visitObjectExpression(node: TSESTree.ObjectExpression) {
   return {
-    properties: node.properties.map(visitNode),
+    properties: filterUnknownTypeNodes(node.properties.map(visitNode)),
   };
 }
 
@@ -561,7 +486,7 @@ function visitArrayPattern(node: TSESTree.ArrayPattern) {
 
 function visitObjectPattern(node: TSESTree.ObjectPattern) {
   return {
-    properties: node.properties.map(visitNode),
+    properties: filterUnknownTypeNodes(node.properties.map(visitNode)),
   };
 }
 
@@ -580,7 +505,7 @@ function visitExportAssignment(node: TSESTree.TSExportAssignment) {
 function visitNewExpression(node: TSESTree.NewExpression) {
   return {
     callee: visitNode(node.callee),
-    arguments: node.arguments.map(visitNode),
+    arguments: filterUnknownTypeNodes(node.arguments.map(visitNode)),
   };
 }
 
@@ -620,7 +545,7 @@ function visitImportExpression(node: TSESTree.ImportExpression) {
 
 function visitBlockStatement(node: TSESTree.BlockStatement) {
   return {
-    body: node.body.map(visitNode),
+    body: filterUnknownTypeNodes(node.body.map(visitNode)),
   };
 }
 
@@ -642,13 +567,13 @@ function visitClassExpression(node: TSESTree.ClassExpression) {
 
 function visitClassBody(node: TSESTree.ClassBody) {
   return {
-    body: node.body.map(visitNode),
+    body: filterUnknownTypeNodes(node.body.map(visitNode)),
   };
 }
 
 function visitStaticBlock(node: TSESTree.StaticBlock) {
   return {
-    body: node.body.map(visitNode),
+    body: filterUnknownTypeNodes(node.body.map(visitNode)),
   };
 }
 
@@ -681,7 +606,7 @@ function visitCallExpression(node: TSESTree.CallExpression) {
   return {
     optional: node.optional,
     callee: visitNode(node.callee),
-    arguments: node.arguments.map(visitNode),
+    arguments: filterUnknownTypeNodes(node.arguments.map(visitNode)),
   };
 }
 
@@ -711,7 +636,7 @@ function visitArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression) {
   return {
     expression: node.expression,
     body: visitNode(node.body),
-    params: node.params.map(visitNode),
+    params: filterUnknownTypeNodes(node.params.map(visitNode)),
     generator: node.generator,
     async: node.async,
   };
@@ -744,7 +669,7 @@ function visitFunctionDeclaration(node: TSESTree.FunctionDeclaration) {
   return {
     id: visitNode(node.id),
     body: visitNode(node.body),
-    params: node.params.map(visitNode),
+    params: filterUnknownTypeNodes(node.params.map(visitNode)),
     generator: node.generator,
     async: node.async,
   };
@@ -753,7 +678,7 @@ function visitFunctionDeclaration(node: TSESTree.FunctionDeclaration) {
 function visitExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration) {
   return {
     declaration: visitNode(node.declaration),
-    specifiers: node.specifiers.map(visitNode),
+    specifiers: filterUnknownTypeNodes(node.specifiers.map(visitNode)),
     source: visitNode(node.source),
   };
 }
@@ -767,7 +692,7 @@ function visitExportSpecifier(node: TSESTree.ExportSpecifier) {
 
 function visitVariableDeclaration(node: TSESTree.VariableDeclaration) {
   return {
-    declarations: node.declarations.map(visitNode),
+    declarations: filterUnknownTypeNodes(node.declarations.map(visitNode)),
     kind: node.kind,
   };
 }
@@ -781,7 +706,7 @@ function visitVariableDeclarator(node: TSESTree.VariableDeclarator) {
 
 function visitImportDeclaration(node: TSESTree.ImportDeclaration) {
   return {
-    specifiers: node.specifiers.map(visitNode),
+    specifiers: filterUnknownTypeNodes(node.specifiers.map(visitNode)),
     source: visitNode(node.source),
   };
 }
@@ -869,14 +794,14 @@ function visitThrowStatement(node: TSESTree.ThrowStatement) {
 function visitSwitchStatement(node: TSESTree.SwitchStatement) {
   return {
     discriminant: visitNode(node.discriminant),
-    cases: node.cases.map(visitNode),
+    cases: filterUnknownTypeNodes(node.cases.map(visitNode)),
   };
 }
 
 function visitSwitchCase(node: TSESTree.SwitchCase) {
   return {
     test: visitNode(node.test),
-    consequent: node.consequent.map(visitNode),
+    consequent: filterUnknownTypeNodes(node.consequent.map(visitNode)),
   };
 }
 
@@ -953,7 +878,7 @@ function visitFunctionExpression(node: TSESTree.FunctionExpression) {
   return {
     id: visitNode(node.id),
     body: visitNode(node.body),
-    params: node.params.map(visitNode),
+    params: filterUnknownTypeNodes(node.params.map(visitNode)),
     generator: node.generator,
     async: node.async,
   };

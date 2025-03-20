@@ -25,6 +25,7 @@ import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import {
   deserializeProtobuf,
+  parseInProtobufUnknownNode,
   NODE_TYPE_ENUM,
   parseInProtobuf,
   serializeInProtobuf,
@@ -77,12 +78,9 @@ describe('ast', () => {
     );
   });
   test('should encode unknown nodes', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'unknownNode.ts');
-    const sc = await parseSourceFile(filePath, parsersMap.typescript);
-    const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
-    expect((protoMessage as any).program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['UnknownNodeType'],
-    );
+    let unknownNodeType = { type: NODE_TYPE_ENUM.values['UnknownNodeType'], loc: undefined };
+    let protoMessage = parseInProtobufUnknownNode(unknownNodeType);
+    expect(protoMessage.type).toEqual(NODE_TYPE_ENUM.values['UnknownNodeType']);
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;
@@ -268,6 +266,17 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
+    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const deserializedProtoMessage = deserializeProtobuf(serialized);
+    compareASTs(protoMessage, deserializedProtoMessage);
+  });
+
+  test('Unknown node types in program body are not serialized', async () => {
+    const code = `namespace Foo {}`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body).toEqual([]);
     const serialized = serializeInProtobuf(ast as TSESTree.Program);
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
