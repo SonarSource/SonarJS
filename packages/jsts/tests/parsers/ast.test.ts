@@ -329,7 +329,7 @@ describe('ast', () => {
   });
 
   test('Unknown node types in program body are not serialized', async () => {
-    const code = `namespace Foo {}`;
+    const code = `type a = {}`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
