@@ -81,6 +81,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.SwitchCase;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
 import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.TSModuleDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.TemplateElement;
@@ -186,6 +187,8 @@ public class ESTreeFactory {
         case TSImportEqualsDeclarationType -> fromTSImportEqualsDeclaration(node);
         case TSExternalModuleReferenceType -> fromTSExternalModuleReferenceType(node);
         case TSQualifiedNameType -> fromTSQualifiedName(node);
+        case TSModuleBlockType -> fromTSModuleBlock(node);
+        case TSModuleDeclarationType -> fromTSModuleDeclaration(node);
         case UnknownNodeType -> fromUnknownNodeType(node);
         case UNRECOGNIZED -> throw new IllegalArgumentException(
           "Unknown node type: " + node.getType() + " at " + node.getLoc()
@@ -980,6 +983,28 @@ public class ESTreeFactory {
         ESTree.IdentifierOrTSQualifiedNameOrTSExternalModuleReference.class
       ),
       tsImportEqualsDeclaration.getImportKind()
+    );
+  }
+
+  private static ESTree.TSModuleBlock fromTSModuleBlock(Node node) {
+    return new ESTree.TSModuleBlock(
+      fromLocation(node.getLoc()),
+      from(
+        node.getTSModuleBlock().getBodyList(),
+        ESTree.DirectiveOrModuleDeclarationOrStatement.class
+      )
+    );
+  }
+
+  private static ESTree.TSModuleDeclaration fromTSModuleDeclaration(Node node) {
+    TSModuleDeclaration tsModuleDeclaration = node.getTSModuleDeclaration();
+    return new ESTree.TSModuleDeclaration(
+      fromLocation(node.getLoc()),
+      from(tsModuleDeclaration.getId(), ESTree.IdentifierOrLiteralOrTSQualifiedName.class),
+      tsModuleDeclaration.hasBody()
+        ? Optional.of(from(tsModuleDeclaration.getBody(), ESTree.TSModuleBlock.class))
+        : Optional.empty(),
+      tsModuleDeclaration.getKind()
     );
   }
 

@@ -91,6 +91,8 @@ enum NodeType {
   TSImportEqualsDeclarationType = 72;
   TSQualifiedNameType = 73;
   TSExternalModuleReferenceType = 74;
+  TSModuleBlockType = 75;
+  TSModuleDeclarationType = 76;
   UnknownNodeType = 1000;
 }
 message Node {
@@ -172,6 +174,8 @@ message Node {
     TSImportEqualsDeclaration tSImportEqualsDeclaration = 75;
     TSQualifiedName tSQualifiedName = 76;
     TSExternalModuleReference tSExternalModuleReference = 77;
+    TSModuleBlock tSModuleBlock = 78;
+    TSModuleDeclaration tSModuleDeclaration = 79;
     UnknownNode unknownNode = 1000;
   }
 }
@@ -492,6 +496,14 @@ message TSQualifiedName {
 }
 message TSExternalModuleReference {
   Node expression = 1;
+}
+message TSModuleBlock {
+  repeated Node body = 1;
+}
+message TSModuleDeclaration {
+  Node id = 1;
+  optional Node body = 2;
+  string kind = 3;
 }
 
 message UnknownNode {
