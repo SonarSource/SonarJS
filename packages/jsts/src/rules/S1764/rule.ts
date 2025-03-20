@@ -27,7 +27,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { isSonarRuntime } from '../helpers/sonar-runtime.js';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);

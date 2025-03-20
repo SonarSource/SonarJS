@@ -21,7 +21,7 @@ import type { Rule } from 'eslint';
 import estree, { type Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const PROPERTIES_POSITION = 2;
 

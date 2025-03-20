@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';
 

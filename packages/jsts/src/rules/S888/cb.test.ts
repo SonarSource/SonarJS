@@ -17,7 +17,7 @@
 import { rule } from './index.js';
 import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { describe } from 'node:test';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 describe('Rule S888', () => {
   check(meta, rule, import.meta.dirname);

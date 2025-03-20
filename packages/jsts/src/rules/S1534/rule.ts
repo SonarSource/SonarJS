@@ -22,7 +22,7 @@ import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { rules as reactRules } from '../external/react.js';
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { decorate } from './decorator.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const noDupeKeysRule = decorate(getESLintCoreRule('no-dupe-keys'));
 const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];

@@ -21,7 +21,7 @@ import estree from 'estree';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),

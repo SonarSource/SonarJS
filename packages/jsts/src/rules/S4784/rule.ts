@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;

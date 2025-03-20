@@ -18,7 +18,7 @@
 
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the

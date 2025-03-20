@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { generateMeta, last } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import type { Alternation } from '../helpers/regex/alternation.js';
 

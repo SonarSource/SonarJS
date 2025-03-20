@@ -22,7 +22,7 @@
 import { rules } from '../external/react.js';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const baseRule = rules['no-array-index-key'];
 

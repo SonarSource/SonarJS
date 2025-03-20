@@ -25,7 +25,7 @@ import {
   isLiteral,
   isStaticTemplateLiteral,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 

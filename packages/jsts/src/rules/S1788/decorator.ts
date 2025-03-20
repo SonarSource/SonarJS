@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
 import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 

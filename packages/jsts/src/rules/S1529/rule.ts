@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const BITWISE_AND_OR = ['&', '|'];
 const BITWISE_OPERATORS = [

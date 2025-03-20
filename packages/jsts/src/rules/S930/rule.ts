@@ -31,7 +31,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 

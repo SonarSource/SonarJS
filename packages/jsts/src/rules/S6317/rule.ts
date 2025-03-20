@@ -25,7 +25,7 @@ import {
   getSensitiveEffect,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 

@@ -276,7 +276,7 @@ await inflateTemplateToFile(
   join(JAVA_CHECKS_FOLDER, 'AllChecks.java'),
   {
     ___JAVACHECKS_CLASSES___: allChecks
-      .sort(sonarKeySorter)
+      .toSorted(sonarKeySorter)
       .map(rule => `${rule}.class`)
       .join(','),
     ___HEADER___: header,

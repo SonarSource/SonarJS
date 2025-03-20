@@ -65,7 +65,7 @@ export async function updateIndexes() {
     join(RULES_FOLDER, './metas.ts'),
     {
       ___EXPORTS___: allRules
-        .map(id => `export * as ${id} from './${id}/meta.js'; // ${eslintIds[id]}\n`)
+        .map(id => `export * as ${id} from './${id}/generated-meta.js'; // ${eslintIds[id]}\n`)
         .join(''),
       ___HEADER___: header,
     },

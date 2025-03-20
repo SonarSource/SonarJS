@@ -27,7 +27,7 @@ import {
   isIdentifier,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {

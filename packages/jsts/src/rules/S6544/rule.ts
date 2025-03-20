@@ -28,7 +28,7 @@ import {
   RuleContext,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * We keep a single occurrence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'

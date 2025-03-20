@@ -20,7 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { ancestorsChain, generateMeta } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

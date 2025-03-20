@@ -153,7 +153,10 @@ export async function getAllRulesMetadata() {
  * Get the metadata for all rules in SonarJS
  */
 export async function getRuleMetadata(sonarKey: string) {
-  return await import(pathToFileURL(join(RULES_FOLDER, sonarKey, 'meta.js')).toString());
+  return {
+    ...(await import(pathToFileURL(join(RULES_FOLDER, sonarKey, 'meta.js')).toString())),
+    sonarKey, // we add this, as we don't track it in the meta.ts as it can be trivially derived
+  };
 }
 
 /**

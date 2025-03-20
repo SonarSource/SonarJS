@@ -20,7 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import { rules } from '../external/a11y.js';
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const langRule = rules['lang'];
 const htmlHasLangRule = rules['html-has-lang'];

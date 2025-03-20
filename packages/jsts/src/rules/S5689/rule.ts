@@ -24,7 +24,7 @@ import {
   getFullyQualifiedName,
   isMethodInvocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';

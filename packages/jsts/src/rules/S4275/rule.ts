@@ -30,7 +30,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { getESLintCoreRule } from '../external/core.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const getterReturnRule = getESLintCoreRule('getter-return');
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;

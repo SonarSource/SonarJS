@@ -20,7 +20,7 @@ import { AST, Rule, SourceCode } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
 import path from 'path';
 

@@ -10,7 +10,7 @@ import {
 import estree from 'estree';
 // If a rule has a schema, use this to extract it.
 // import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const messages = {
   //TODO: add needed messages

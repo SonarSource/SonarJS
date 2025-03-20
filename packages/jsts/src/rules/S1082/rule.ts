@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { rules } from '../external/a11y.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const mouseEventsHaveKeyEvents = rules['mouse-events-have-key-events'];
 const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];

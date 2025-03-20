@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'prefer-template';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'prefer-template' }];

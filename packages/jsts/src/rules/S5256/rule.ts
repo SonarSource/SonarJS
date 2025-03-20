@@ -24,7 +24,7 @@ const { getLiteralPropValue, getProp } = pkg;
 
 import { computeGrid } from '../helpers/table.js';
 import { generateMeta, isPresentationTable, getElementType } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),

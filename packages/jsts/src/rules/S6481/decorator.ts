@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return changeRuleMessagesWith(

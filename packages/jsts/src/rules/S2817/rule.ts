@@ -25,7 +25,7 @@ import {
   isIdentifier,
   isRequiredParserServices,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const OPEN_DATABASE = 'openDatabase';
 

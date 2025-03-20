@@ -147,7 +147,7 @@ if (implementation === 'decorated') {
 if (hasSecondaries) {
   extra += `export const hasSecondaries = true;\n`;
 }
-console.log(JSON.stringify(languages));
+
 await inflateTemplateToFile(
   join(TS_TEMPLATES_FOLDER, 'meta.template'),
   join(ruleFolder, `meta.ts`),

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta, mergeRules } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const constructorSuperRule = getESLintCoreRule('constructor-super');
 const noThisBeforeSuperRule = getESLintCoreRule('no-this-before-super');

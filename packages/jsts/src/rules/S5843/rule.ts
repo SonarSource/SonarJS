@@ -45,7 +45,7 @@ import {
 } from '../helpers/index.js';
 import { isRegExpConstructor, isStringRegexMethodCall } from '../helpers/regex/ast.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';
 import { getRegexpRange } from '../helpers/regex/range.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';

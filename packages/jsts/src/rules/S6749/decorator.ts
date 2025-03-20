@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 /**
  * The core implementation of the rule reports on empty React fragments.

@@ -22,7 +22,7 @@ import builtins from 'builtin-modules';
 import ts from 'typescript';
 import { generateMeta, getDependencies } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { Minimatch } from 'minimatch';
 
 const messages = {

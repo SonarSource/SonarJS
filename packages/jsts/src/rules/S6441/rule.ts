@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { detectReactRule, generateMeta, mergeRules } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const noUnusedClassComponentMethod = rules['no-unused-class-component-methods'];
 

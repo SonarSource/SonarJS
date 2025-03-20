@@ -31,7 +31,7 @@ import {
   RuleContext,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 interface FunctionKnowledge {
   node: estree.Node;

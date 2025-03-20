@@ -27,7 +27,7 @@ import {
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 interface FunctionContext {
   codePath: Rule.CodePath;

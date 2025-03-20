@@ -35,7 +35,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 

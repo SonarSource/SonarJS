@@ -26,7 +26,7 @@ import {
   isRequiredParserServices,
   isString,
 } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';
 
 export const rule: Rule.RuleModule = {

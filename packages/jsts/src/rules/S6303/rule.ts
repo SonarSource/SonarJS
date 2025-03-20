@@ -29,7 +29,7 @@ import {
 
 import estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const CfnDBCluster = 'CfnDBCluster';
 const CfnDBInstance = 'CfnDBInstance';

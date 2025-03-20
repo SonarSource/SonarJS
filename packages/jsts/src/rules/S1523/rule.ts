@@ -21,7 +21,7 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/index.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const noScriptUrlRule = getESLintCoreRule('no-script-url');
 

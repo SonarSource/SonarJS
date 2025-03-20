@@ -29,7 +29,7 @@ import {
   mergeRules,
 } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const eslintMaxParams = getESLintCoreRule('max-params');
 

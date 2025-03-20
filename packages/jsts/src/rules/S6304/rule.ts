@@ -26,7 +26,7 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
-import * as meta from './meta.js';
+import * as meta from './generated-meta.js';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
