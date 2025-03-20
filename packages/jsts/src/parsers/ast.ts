@@ -316,6 +316,12 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSExternalModuleReference':
       shape = visitTSExternalModuleReference(node);
       break;
+    case 'TSModuleBlock':
+      shape = visitTSModuleBlock(node);
+      break;
+    case 'TSModuleDeclaration':
+      shape = visitTSModuleDeclaration(node);
+      break;
     default:
       UNSUPPORTED_NODE_TYPES.set(node.type, (UNSUPPORTED_NODE_TYPES.get(node.type) ?? 0) + 1);
   }
@@ -895,6 +901,20 @@ function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
 function visitTSExternalModuleReference(node: TSESTree.TSExternalModuleReference) {
   return {
     expression: visitNode(node.expression),
+  };
+}
+
+function visitTSModuleBlock(node: TSESTree.TSModuleBlock) {
+  return {
+    body: filterUnknownTypeNodes(node.body.map(visitNode)),
+  };
+}
+
+function visitTSModuleDeclaration(node: TSESTree.TSModuleDeclaration) {
+  return {
+    id: visitNode(node.id),
+    body: visitNode(node.body),
+    kind: node.kind,
   };
 }
 
