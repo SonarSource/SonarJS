@@ -81,7 +81,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.SwitchCase;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
 import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
-import org.sonar.plugins.javascript.bridge.protobuf.TSModuleBlock;
 import org.sonar.plugins.javascript.bridge.protobuf.TSModuleDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
