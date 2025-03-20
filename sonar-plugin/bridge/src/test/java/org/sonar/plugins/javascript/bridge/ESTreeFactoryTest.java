@@ -742,7 +742,7 @@ class ESTreeFactoryTest {
     //
     ExportAssignment exportAssignment = ExportAssignment.newBuilder().setExpression(node).build();
     Node protobufNode = Node.newBuilder()
-      .setType(NodeType.ExportAssignmentType)
+      .setType(NodeType.TSExportAssignmentType)
       .setExportAssignment(exportAssignment)
       .build();
 

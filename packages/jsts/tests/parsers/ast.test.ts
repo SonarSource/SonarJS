@@ -25,7 +25,6 @@ import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import {
   deserializeProtobuf,
-  parseInProtobufUnknownNode,
   NODE_TYPE_ENUM,
   parseInProtobuf,
   serializeInProtobuf,
@@ -76,11 +75,6 @@ describe('ast', () => {
         compareASTs(protoMessage, deserializedProtoMessage);
       }),
     );
-  });
-  test('should encode unknown nodes', async () => {
-    let unknownNodeType = { type: NODE_TYPE_ENUM.values['UnknownNodeType'], loc: undefined };
-    let protoMessage = parseInProtobufUnknownNode(unknownNodeType);
-    expect(protoMessage.type).toEqual(NODE_TYPE_ENUM.values['UnknownNodeType']);
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;

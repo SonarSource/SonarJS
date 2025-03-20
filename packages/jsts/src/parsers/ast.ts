@@ -41,13 +41,6 @@ export function parseInProtobuf(ast: TSESTree.Program) {
 }
 
 /**
- * Only used for testing encoding of unknown nodes
- */
-export function parseInProtobufUnknownNode(unknownNode: VisitNodeReturnType | undefined) {
-  return PROTO_ROOT.lookupType('Node').create(unknownNode);
-}
-
-/**
  * Only used for tests
  */
 export function deserializeProtobuf(serialized: Uint8Array): any {
