@@ -13,6 +13,9 @@
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
+    <!-- sonar scanner properties -->
+    <sonar.sources/>
+    <sonar.tests>src/test</sonar.tests>
   </properties>
 
   <!--

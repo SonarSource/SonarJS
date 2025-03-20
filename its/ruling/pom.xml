@@ -19,6 +19,8 @@
 
   <properties>
     <surefire.argLine>-server -Xmx512m</surefire.argLine>
+    <sonar.sources/>
+    <sonar.tests>src/test</sonar.tests>
   </properties>
 
   <dependencies>

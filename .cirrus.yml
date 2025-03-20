@@ -126,7 +126,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
@@ -142,7 +142,7 @@ plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
   eks_container:
@@ -287,7 +287,7 @@ plugin_qa_win_task:
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn test -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V surefire-report:report
+    - mvn test -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V surefire-report:report
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_sonarlint_task:
@@ -303,7 +303,7 @@ plugin_qa_win_sonarlint_task:
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - mvn test -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V surefire-report:report
+    - mvn test -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V surefire-report:report
 
 js_ts_ruling_task:
   depends_on:
@@ -410,7 +410,7 @@ css_ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn test -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn test -DskipTests=false -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   on_failure:
     diff_artifacts:
       path: '**/target/actual/**/*'
