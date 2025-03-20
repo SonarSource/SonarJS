@@ -194,27 +194,27 @@ test_js_task:
     - npm run bridge:build:fast
     - npm run bridge:test:cov
 
-  test_java_task:
-    eks_container:
-      <<: *CONTAINER_DEFINITION
-      dockerfile: .cirrus/nodejs.Dockerfile
-      docker_arguments:
-        CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-        NODE_VERSION: 22
-    depends_on:
-      - build
-    env:
-      # analysis on next
-      SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-      SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-      ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
-    <<: *MAVEN_CACHE
-    <<: *RUNTIME_CACHE
-    <<: *NPM_CACHE
-    <<: *NPMRC_SCRIPT_DEFINITION
-    test_java_script:
-      - source cirrus-env QA
-      - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+test_java_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 22
+  depends_on:
+    - build
+  env:
+    # analysis on next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  test_java_script:
+    - source cirrus-env QA
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
 analyze_task:
   eks_container:
