@@ -35,6 +35,9 @@ import { join } from 'node:path';
  *
  * ESLint plugin rule index:
  * packages/jsts/src/rules/rules.ts
+ *
+ * Metas rule index:
+ * packages/jsts/src/rules/metas.ts
  */
 export async function updateIndexes() {
   const allRules: string[] = [];
