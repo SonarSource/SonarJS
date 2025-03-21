@@ -253,7 +253,7 @@ analyze_task:
   analyze_script:
     - source cirrus-env QA
     - ls -LR coverage/
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign,-coverage -Dcommercial -Dmaven.shade.skip=true -DskipTests -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/coverage/java/jacoco.xml
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign,-coverage -Dcommercial -Dmaven.shade.skip=true -DskipTests -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.sca.recursiveManifestSearch=false -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/coverage/java/jacoco.xml
 #build_win_task:
 #  <<: *WINDOWS_VM_DEFINITION
 #  <<: *ONLY_SONARSOURCE_QA
