@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
   }
 
-  private static final Map<Language, String> REPO_BY_LANGUAGE = new HashMap<>();
+  private static final Map<Language, String> REPO_BY_LANGUAGE = new EnumMap<>(Language.class);
 
   static {
     REPO_BY_LANGUAGE.put(Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY);
@@ -64,7 +65,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private final Map<Language, ArrayList<RuleKey>> additionalRulesByLanguage;
 
   JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
-    additionalRulesByLanguage = new HashMap<>();
+    additionalRulesByLanguage = new EnumMap<>(Language.class);
     for (var profileRegistrar : profileRegistrars) {
       profileRegistrar.register((language, rules) -> {
         var additionalRules = additionalRulesByLanguage.computeIfAbsent(language, it ->
@@ -113,11 +114,13 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * @param profile profile to activate the rules for
    */
   void activateAdditionalRules(NewBuiltInQualityProfile profile) {
-    var rules = additionalRulesByLanguage.get(Language.of(profile.name()));
+    var language = profile.language();
+    var rules = additionalRulesByLanguage.get(Language.of(language));
     if (rules == null) {
       return;
     }
     rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
+    LOG.debug("Adding extra {} ruleKeys {}", language, rules);
   }
 
   /**

@@ -142,7 +142,6 @@ public class JavaScriptPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    LOG.info("##### Registering JavaScript plugin");
     context.addExtensions(
       AnalysisConsumers.class,
       JavaScriptLanguage.class,
