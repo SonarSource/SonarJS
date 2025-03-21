@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +32,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
@@ -54,68 +54,70 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
   }
 
-  private static final Map<String, String> REPO_BY_LANGUAGE = new HashMap<>();
+  private static final Map<Language, String> REPO_BY_LANGUAGE = new HashMap<>();
 
   static {
-    REPO_BY_LANGUAGE.put(JavaScriptLanguage.KEY, CheckList.JS_REPOSITORY_KEY);
-    REPO_BY_LANGUAGE.put(TypeScriptLanguage.KEY, CheckList.TS_REPOSITORY_KEY);
+    REPO_BY_LANGUAGE.put(Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY);
+    REPO_BY_LANGUAGE.put(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY);
   }
 
-  private final ProfileRegistrar[] profileRegistrars;
+  private final Map<Language, ArrayList<RuleKey>> additionalRulesByLanguage;
 
   JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
-    this.profileRegistrars = profileRegistrars;
+    additionalRulesByLanguage = new HashMap<>();
+    for (var profileRegistrar : profileRegistrars) {
+      profileRegistrar.register((language, rules) -> {
+        var additionalRules = additionalRulesByLanguage.computeIfAbsent(language, it ->
+          new ArrayList<>()
+        );
+        additionalRules.addAll(rules);
+      });
+    }
   }
 
   @Override
   public void define(Context context) {
-    /*var externalRuleKeys = new ArrayList<RuleKey>();
-    for (var profileRegistrar: profileRegistrars) {
-      profileRegistrar.register(externalRuleKeys::addAll);
-    }
-    var x = externalRuleKeys.stream().map(RuleKey::rule).toList();
-    x.forEach(it -> LOG.info("###### add extra rule key {}", it));
-*/
-    Set<String> javaScriptRuleKeys = ruleKeys(CheckList.getJavaScriptChecks());
-    //javaScriptRuleKeys.addAll(x);
-    createProfile(SONAR_WAY, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
-
-    Set<String> typeScriptRuleKeys = ruleKeys(CheckList.getTypeScriptChecks());
-    //javaScriptRuleKeys.addAll(x);
-    createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
+    createSonarWayProfile(JavaScriptLanguage.KEY, context);
+    createSonarWayProfile(TypeScriptLanguage.KEY, context);
   }
 
-  private void createProfile(
-    String profileName,
-    String language,
-    Set<String> keys,
-    Context context
-  ) {
-    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(
-      profileName,
-      language
-    );
-    String jsonProfilePath = PROFILES.get(profileName);
+  private void createSonarWayProfile(String language, Context context) {
+    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(SONAR_WAY, language);
+    activateBuiltInRules(newProfile);
+    activateAdditionalRules(newProfile);
+    activateSecurityRules(newProfile, language);
+    newProfile.done();
+  }
+
+  /**
+   * Activate rules whose implementation is built-in into the SonarJS plugin.
+   *
+   * @param profile profile to activate the rules for
+   */
+  private static void activateBuiltInRules(NewBuiltInQualityProfile profile) {
+    var language = Language.of(profile.language());
     String repositoryKey = REPO_BY_LANGUAGE.get(language);
+    var jsonProfilePath = PROFILES.get(profile.name());
+
     Set<String> activeKeysForBothLanguages =
       BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(jsonProfilePath);
-
-    keys
+    ruleKeys(CheckList.getChecksForLanguage(language))
       .stream()
       .filter(activeKeysForBothLanguages::contains)
-      .forEach(key -> newProfile.activateRule(repositoryKey, key));
+      .forEach(key -> profile.activateRule(repositoryKey, key));
+  }
 
-    var externalRuleKeys = new ArrayList<RuleKey>();
-    for (var profileRegistrar : profileRegistrars) {
-      profileRegistrar.register(externalRuleKeys::addAll);
+  /**
+   * Activate additional rules that are provided by other plugins.
+   *
+   * @param profile profile to activate the rules for
+   */
+  void activateAdditionalRules(NewBuiltInQualityProfile profile) {
+    var rules = additionalRulesByLanguage.get(Language.of(profile.name()));
+    if (rules == null) {
+      return;
     }
-    var x = externalRuleKeys.stream().filter(it -> it.repository().contains(language)).toList();
-    x.forEach(it -> LOG.info("###### add extra rule key {}, repo {}", it.rule(), it.repository()));
-    x.forEach(it -> newProfile.activateRule(it.repository(), it.rule()));
-
-    addSecurityRules(newProfile, language);
-
-    newProfile.done();
+    rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
   }
 
   /**
@@ -123,7 +125,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * rule keys to add to the built-in profiles.
    * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
    */
-  private static void addSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
+  private static void activateSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
     Set<RuleKey> sonarSecurityRuleKeys = getSecurityRuleKeys(
       SONAR_SECURITY_RULES_CLASS_NAME,
       SECURITY_RULE_KEYS_METHOD_NAME,

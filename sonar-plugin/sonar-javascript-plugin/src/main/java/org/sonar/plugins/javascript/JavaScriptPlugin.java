@@ -144,7 +144,6 @@ public class JavaScriptPlugin implements Plugin {
   public void define(Context context) {
     LOG.info("##### Registering JavaScript plugin");
     context.addExtensions(
-      ExampleProfileRegistrar.class,
       AnalysisConsumers.class,
       JavaScriptLanguage.class,
       JavaScriptExclusionsFileFilter.class,

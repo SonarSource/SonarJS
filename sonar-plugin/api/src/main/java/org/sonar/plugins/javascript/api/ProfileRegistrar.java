@@ -10,15 +10,9 @@ import org.sonar.api.server.ServerSide;
  * <pre>
  *   {@code
  *     public void register(RegistrarContext registrarContext) {
- *       registrarContext.registerDefaultQualityProfileRules(ruleKeys);
+ *       registrarContext.registerDefaultQualityProfileRules(jsRuleKeys, Language.JAVASCRIPT);
+ *       registrarContext.registerDefaultQualityProfileRules(tsRuleKeys, Language.TYPESCRIPT);
  *     }
- *   }
- * </pre>
- *
- *  Note: It's possible to convert checkClass to RuleKey using:
- * <pre>
- *   {@code
- *     RuleKey.of(repositoryKey, RuleAnnotationUtils.getRuleKey(checkClass))
  *   }
  * </pre>
  */
@@ -31,8 +25,11 @@ public interface ProfileRegistrar {
 
   interface RegistrarContext {
     /**
-     * Registers additional rules into the "Sonar Way" default quality profile for the language "java".
+     * Registers additional rules into the "Sonar Way" default quality profile for the given language.
+     *
+     * @param language profile language
+     * @param ruleKeys additional rule keys
      */
-    void registerDefaultQualityProfileRules(Collection<RuleKey> ruleKeys);
+    void registerDefaultQualityProfileRules(Language language, Collection<RuleKey> ruleKeys);
   }
 }
