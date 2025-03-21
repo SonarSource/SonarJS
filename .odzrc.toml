@@ -11,6 +11,7 @@ excludedSources = [
   "packages/jsts/src/rules/plugin-rules.ts",
   "packages/jsts/src/rules/rules.ts",
   "packages/jsts/src/rules/metas.ts",
+  "packages/jsts/src/rules/*/generated-meta.ts",
 ]
 
 coverageDirectory="coverage/.coverage" # this should not be cached in CI

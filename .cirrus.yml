@@ -225,7 +225,7 @@ test_java_task:
   <<: *JAVA_COVERAGE_CACHE
   test_java_script:
     - source cirrus-env QA
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -Dcommercial -Dmaven.shade.skip=true -Dmaven.deploy.skip=true -Dsonar.skip=true -Pcoverage-report
+    - mvn install -Pcoverage,coverage-report
 
 analyze_task:
   eks_container:
