@@ -182,7 +182,7 @@ public class ESTreeFactory {
         case LiteralType -> fromLiteralType(node);
         case TemplateElementType -> fromTemplateElementType(node);
         case FunctionExpressionType -> fromFunctionExpressionType(node);
-        case ExportAssignmentType -> fromExportAssignment(node);
+        case TSExportAssignmentType -> fromExportAssignment(node);
         case TSImportEqualsDeclarationType -> fromTSImportEqualsDeclaration(node);
         case TSExternalModuleReferenceType -> fromTSExternalModuleReferenceType(node);
         case TSQualifiedNameType -> fromTSQualifiedName(node);
@@ -984,7 +984,6 @@ public class ESTreeFactory {
   }
 
   private static ESTree.UnknownNode fromUnknownNodeType(Node node) {
-    UnknownNode unknownNode = node.getUnknownNode();
-    return new ESTree.UnknownNode(fromLocation(node.getLoc()), unknownNode.getRawType());
+    return new ESTree.UnknownNode(fromLocation(node.getLoc()));
   }
 }

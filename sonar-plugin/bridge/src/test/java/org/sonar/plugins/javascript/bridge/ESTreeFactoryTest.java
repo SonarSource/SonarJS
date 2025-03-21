@@ -81,8 +81,6 @@ class ESTreeFactoryTest {
       ESTree.IfStatement.class,
       ifStatement -> {
         assertThat(ifStatement.test()).isInstanceOf(ESTree.UnknownNode.class);
-        ESTree.UnknownNode unknownNode = (ESTree.UnknownNode) ifStatement.test();
-        assertThat(unknownNode.rawType()).isEqualTo("TSAsExpression");
       }
     );
   }
@@ -742,7 +740,7 @@ class ESTreeFactoryTest {
     //
     ExportAssignment exportAssignment = ExportAssignment.newBuilder().setExpression(node).build();
     Node protobufNode = Node.newBuilder()
-      .setType(NodeType.ExportAssignmentType)
+      .setType(NodeType.TSExportAssignmentType)
       .setExportAssignment(exportAssignment)
       .build();
 
