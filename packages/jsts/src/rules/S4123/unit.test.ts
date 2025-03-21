@@ -26,13 +26,6 @@ describe('S4123', () => {
         {
           code: `
       async function foo() {
-        await ({then() { }});
-      }
-      `,
-        },
-        {
-          code: `
-      async function foo() {
         await Promise.resolve(42);
       }
       `,
@@ -41,54 +34,6 @@ describe('S4123', () => {
           code: `
       async function foo(p: PromiseLike<any>) {
         await p;
-      }
-      `,
-        },
-        {
-          code: `
-      class MyPromiseLike implements PromiseLike<any> {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromiseLike();
-      }
-      `,
-        },
-        {
-          code: `
-      class MyPromiseLike implements PromiseLike<any> {
-        then(){}
-      }
-      class MyPromiseLike2 extends MyPromiseLike {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromiseLike2();
-      }
-      `,
-        },
-        {
-          code: `
-      class MyPromise implements Promise<any> {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromise();
-      }
-      `,
-        },
-        {
-          code: `
-      interface Thenable<T> {
-        then: () => T
-      }
-      class MyThenable implements Thenable<number> {
-        then() {
-          return 1;
-        }
-      }
-      async function foo() {
-        await new MyThenable();
       }
       `,
         },
@@ -147,14 +92,6 @@ describe('S4123', () => {
         },
         {
           code: `
-      class Foo {
-        then: Promise<Bar>;
-      }
-      function qux(): Foo {}
-      const baz = await qux();`,
-        },
-        {
-          code: `
       async function foo() {
         await bar();
       }
@@ -171,11 +108,22 @@ describe('S4123', () => {
       `,
           errors: [
             {
-              message: "Refactor this redundant 'await' on a non-promise.",
+              message: 'Unexpected `await` of a non-Promise (non-"Thenable") value.',
               line: 4,
               endLine: 4,
               column: 9,
               endColumn: 18,
+              suggestions: [
+                {
+                  output: `
+      async function foo() {
+        let arr = [1, 2, 3];
+         arr;
+      }
+      `,
+                  desc: 'Remove unnecessary `await`.',
+                },
+              ],
             },
           ],
         },

@@ -14,4 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export { rule } from './rule.js';
+
+import { rules } from '../external/typescript-eslint/index.js';
+export const rule = rules['await-thenable'];

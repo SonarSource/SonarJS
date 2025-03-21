@@ -14,5 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
-export const eslintId = 'no-invalid-await';
+export * from './generated-meta.js';
+export const implementation = 'external';
+export const eslintId = 'await-thenable';
+export const externalPlugin = 'typescript-eslint';
