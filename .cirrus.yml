@@ -76,13 +76,13 @@ npm_cache_definition: &NPM_CACHE
 js_coverage_cache_definition: &JS_COVERAGE_CACHE
   js_coverage_cache:
     folder: ${CIRRUS_WORKING_DIR}/coverage/js
-    fingerprint_key: $BUILD_NUMBER
+    fingerprint_script: echo JS$BUILD_NUMBER
     reupload_on_changes: 'true'
 
 java_coverage_cache_definition: &JAVA_COVERAGE_CACHE
   java_coverage_cache:
     folder: ${CIRRUS_WORKING_DIR}/coverage/java
-    fingerprint_key: $BUILD_NUMBER
+    fingerprint_script: echo JAVA$BUILD_NUMBER
     reupload_on_changes: 'true'
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
