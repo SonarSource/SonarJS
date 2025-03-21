@@ -350,12 +350,6 @@
         <module>its</module>
       </modules>
     </profile>
-    <profile>
-      <id>coverage-aggregated</id>
-      <modules>
-        <module>sonar-plugin/sonarjs-coverage-report</module>
-      </modules>
-    </profile>
   </profiles>
 
 
