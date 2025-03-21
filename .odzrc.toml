@@ -2,16 +2,19 @@ sources = [
   "packages/*/src/**/*.ts"
 ]
 
-ignoredSources = [
+excludedSources = [
   "packages/**/*.test.*",
   "packages/**/*.fixture.*",
-  "packages/**/fixtures/**"
+  "packages/**/fixtures/**",
+  "packages/jsts/src/rules/plugin-rules.ts",
+  "packages/jsts/src/rules/rules.ts",
+  "packages/jsts/src/rules/metas.ts",
 ]
 
-coverageDirectory="coverage/.coverage"
-reportsDirectory="coverage/reports"
+coverageDirectory="coverage/.coverage" # this should not be cached in CI
+reportsDirectory="coverage/js/"
 
 reporters = [
-  "html",
-  "text-summary"
+  "lcovonly",
+  "text-summary",
 ]
