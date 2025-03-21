@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Language;
 
 class CheckListTest {
 
@@ -96,6 +97,16 @@ class CheckListTest {
   void testJavaScriptChecks() {
     var javaScriptChecks = CheckList.getJavaScriptChecks();
     assertThat(javaScriptChecks).isNotEmpty().isNotEqualTo(CheckList.getAllChecks());
+  }
+
+  @Test
+  void testChecksForLanguage() {
+    assertThat(CheckList.getChecksForLanguage(Language.JAVASCRIPT)).isEqualTo(
+      CheckList.getJavaScriptChecks()
+    );
+    assertThat(CheckList.getChecksForLanguage(Language.TYPESCRIPT)).isEqualTo(
+      CheckList.getTypeScriptChecks()
+    );
   }
 
   @Test
