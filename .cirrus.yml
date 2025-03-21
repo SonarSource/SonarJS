@@ -75,13 +75,8 @@ npm_cache_definition: &NPM_CACHE
 
 js_coverage_cache_definition: &LCOV_JS_CACHE
   js_coverage_cache:
-    folder: ${CIRRUS_WORKING_DIR}/
+    folder: ${CIRRUS_WORKING_DIR}/coverage
     fingerprint_script: $GIT_SHA1
-
-#java_coverage_cache_definition: &JAVA_COVERAGE_CACHE
-#  java_coverage_cache:
-#    folder: $CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate
-#    fingerprint_script: $GIT_SHA1
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
@@ -225,7 +220,7 @@ test_java_task:
   <<: *LCOV_JS_CACHE
   test_java_script:
     - source cirrus-env QA
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -Dcommercial -Dmaven.shade.skip=true -Dmaven.deploy.skip=true -Dsonar.skip=true
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -Dcommercial -Dmaven.shade.skip=true -Dmaven.deploy.skip=true -Dsonar.skip=true -Paggregated-coverage
 
 analyze_task:
   eks_container:
@@ -249,7 +244,7 @@ analyze_task:
   <<: *LCOV_JS_CACHE
   analyze_script:
     - source cirrus-env QA
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
 
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
