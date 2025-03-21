@@ -6,6 +6,8 @@ excludedSources = [
   "packages/**/*.test.*",
   "packages/**/*.fixture.*",
   "packages/**/fixtures/**",
+
+  # auto-generated files, coverage shouldn't be computed for them
   "packages/jsts/src/rules/plugin-rules.ts",
   "packages/jsts/src/rules/rules.ts",
   "packages/jsts/src/rules/metas.ts",

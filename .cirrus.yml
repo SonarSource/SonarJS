@@ -74,14 +74,14 @@ npm_cache_definition: &NPM_CACHE
     fingerprint_script: cat package-lock.json
 
 js_coverage_cache_definition: &JS_COVERAGE_CACHE
-  coverage_cache:
+  js_coverage_cache:
     folder: ${CIRRUS_WORKING_DIR}/coverage/js
-    fingerprint_script: $GIT_SHA1
+    fingerprint_script: $BUILD_NUMBER
 
 java_coverage_cache_definition: &JAVA_COVERAGE_CACHE
-  coverage_cache:
+  java_coverage_cache:
     folder: ${CIRRUS_WORKING_DIR}/coverage/java
-    fingerprint_script: $GIT_SHA1
+    fingerprint_script: $BUILD_NUMBER
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
@@ -250,7 +250,6 @@ analyze_task:
   <<: *JAVA_COVERAGE_CACHE
   analyze_script:
     - source cirrus-env QA
-    - ls -LR coverage
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
 
 build_win_task:
