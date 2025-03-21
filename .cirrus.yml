@@ -237,7 +237,7 @@ analyze_task:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 22
   depends_on:
-    - test_js
+    #    - test_js
     - test_java
   env:
     # analysis on next
