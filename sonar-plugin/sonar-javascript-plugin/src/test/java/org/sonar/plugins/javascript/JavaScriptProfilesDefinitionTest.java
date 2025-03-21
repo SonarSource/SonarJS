@@ -39,6 +39,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -72,7 +73,7 @@ class JavaScriptProfilesDefinitionTest {
 
   @BeforeEach
   public void setUp() {
-    new JavaScriptProfilesDefinition().define(context);
+    new JavaScriptProfilesDefinition(new ProfileRegistrar[] {}).define(context);
   }
 
   @Test

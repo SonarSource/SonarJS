@@ -31,6 +31,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
@@ -56,6 +57,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   static {
     REPO_BY_LANGUAGE.put(JavaScriptLanguage.KEY, CheckList.JS_REPOSITORY_KEY);
     REPO_BY_LANGUAGE.put(TypeScriptLanguage.KEY, CheckList.TS_REPOSITORY_KEY);
+  }
+
+  JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrar) {
+    LOG.info("##### Hello from JavaScriptProfilesDefinition ctor");
+    LOG.info("registrars: " + profileRegistrar.length);
   }
 
   @Override
