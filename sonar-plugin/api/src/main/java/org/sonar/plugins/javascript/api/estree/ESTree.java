@@ -476,7 +476,7 @@ public class ESTree {
   public record YieldExpression(Location loc, Optional<Expression> argument, boolean delegate)
     implements Expression {}
 
-  public record UnknownNode(Location loc, String rawType) implements Expression {}
+  public record UnknownNode(Location loc) implements Expression {}
 
   public interface Operator {
     String raw();

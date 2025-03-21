@@ -495,5 +495,4 @@ message TSExternalModuleReference {
 }
 
 message UnknownNode {
-  string rawType = 1;
 }

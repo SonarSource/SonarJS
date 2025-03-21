@@ -19,15 +19,25 @@ import type { TSESTree } from '@typescript-eslint/utils';
 
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import { debug } from '../../../shared/src/helpers/logging.js';
 
 const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
-export const UNSUPPORTED_NODE_TYPES = new Map<string, number>();
+const unsupportedNodeTypes = new Map<string, number>();
 
-export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
+export function serializeInProtobuf(ast: TSESTree.Program, filePath: string): Uint8Array {
+  unsupportedNodeTypes.clear();
   const protobufAST = parseInProtobuf(ast);
+  if (unsupportedNodeTypes.size > 0) {
+    debug(
+      `Not supported syntax nodes in file "${filePath}": ` +
+        Array.from(unsupportedNodeTypes)
+          .map(([key, value]) => `${key}(${value})`)
+          .join(', '),
+    );
+  }
   return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
 }
 
@@ -61,12 +71,6 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
   }
 
   return getProtobufShapeForNode(node);
-}
-
-function filterUnknownTypeNodes(
-  nodes: (VisitNodeReturnType | undefined)[],
-): (VisitNodeReturnType | undefined)[] {
-  return nodes.filter(node => node?.type !== NODE_TYPE_ENUM.values['UnknownNodeType']);
 }
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
@@ -317,19 +321,28 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       shape = visitTSExternalModuleReference(node);
       break;
     default:
-      UNSUPPORTED_NODE_TYPES.set(node.type, (UNSUPPORTED_NODE_TYPES.get(node.type) ?? 0) + 1);
+      unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
+      shape = {};
+  }
+  // Visiting UnknownNodeTypes can cause the failure of the ESTreeFactory. For this reason where possible (for example in the arrays) we try to remove them.
+  for (const key in shape) {
+    if (Array.isArray(shape[key])) {
+      shape[key] = shape[key].filter(
+        node => node?.type !== NODE_TYPE_ENUM.values['UnknownNodeType'],
+      );
+    }
   }
   return {
     type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
     loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: shape || visitUnknownNode(node),
+    [lowerCaseFirstLetter(node.type)]: shape,
   };
 }
 
 function visitProgram(node: TSESTree.Program) {
   return {
     sourceType: node.sourceType,
-    body: filterUnknownTypeNodes(node.body.map(visitNode)),
+    body: node.body.map(visitNode),
   };
 }
 
@@ -416,8 +429,8 @@ function visitThisExpression(_node: TSESTree.ThisExpression) {
 
 function visitTemplateLiteral(node: TSESTree.TemplateLiteral) {
   return {
-    quasis: filterUnknownTypeNodes(node.quasis.map(visitNode)),
-    expressions: filterUnknownTypeNodes(node.expressions.map(visitNode)),
+    quasis: node.quasis.map(visitNode),
+    expressions: node.expressions.map(visitNode),
   };
 }
 
@@ -430,13 +443,13 @@ function visitTaggedTemplateExpression(node: TSESTree.TaggedTemplateExpression) 
 
 function visitSequenceExpression(node: TSESTree.SequenceExpression) {
   return {
-    expressions: filterUnknownTypeNodes(node.expressions.map(visitNode)),
+    expressions: node.expressions.map(visitNode),
   };
 }
 
 function visitObjectExpression(node: TSESTree.ObjectExpression) {
   return {
-    properties: filterUnknownTypeNodes(node.properties.map(visitNode)),
+    properties: node.properties.map(visitNode),
   };
 }
 
@@ -479,7 +492,7 @@ function visitArrayPattern(node: TSESTree.ArrayPattern) {
 
 function visitObjectPattern(node: TSESTree.ObjectPattern) {
   return {
-    properties: filterUnknownTypeNodes(node.properties.map(visitNode)),
+    properties: node.properties.map(visitNode),
   };
 }
 
@@ -498,7 +511,7 @@ function visitExportAssignment(node: TSESTree.TSExportAssignment) {
 function visitNewExpression(node: TSESTree.NewExpression) {
   return {
     callee: visitNode(node.callee),
-    arguments: filterUnknownTypeNodes(node.arguments.map(visitNode)),
+    arguments: node.arguments.map(visitNode),
   };
 }
 
@@ -538,7 +551,7 @@ function visitImportExpression(node: TSESTree.ImportExpression) {
 
 function visitBlockStatement(node: TSESTree.BlockStatement) {
   return {
-    body: filterUnknownTypeNodes(node.body.map(visitNode)),
+    body: node.body.map(visitNode),
   };
 }
 
@@ -560,13 +573,13 @@ function visitClassExpression(node: TSESTree.ClassExpression) {
 
 function visitClassBody(node: TSESTree.ClassBody) {
   return {
-    body: filterUnknownTypeNodes(node.body.map(visitNode)),
+    body: node.body.map(visitNode),
   };
 }
 
 function visitStaticBlock(node: TSESTree.StaticBlock) {
   return {
-    body: filterUnknownTypeNodes(node.body.map(visitNode)),
+    body: node.body.map(visitNode),
   };
 }
 
@@ -599,7 +612,7 @@ function visitCallExpression(node: TSESTree.CallExpression) {
   return {
     optional: node.optional,
     callee: visitNode(node.callee),
-    arguments: filterUnknownTypeNodes(node.arguments.map(visitNode)),
+    arguments: node.arguments.map(visitNode),
   };
 }
 
@@ -629,7 +642,7 @@ function visitArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression) {
   return {
     expression: node.expression,
     body: visitNode(node.body),
-    params: filterUnknownTypeNodes(node.params.map(visitNode)),
+    params: node.params.map(visitNode),
     generator: node.generator,
     async: node.async,
   };
@@ -662,7 +675,7 @@ function visitFunctionDeclaration(node: TSESTree.FunctionDeclaration) {
   return {
     id: visitNode(node.id),
     body: visitNode(node.body),
-    params: filterUnknownTypeNodes(node.params.map(visitNode)),
+    params: node.params.map(visitNode),
     generator: node.generator,
     async: node.async,
   };
@@ -671,7 +684,7 @@ function visitFunctionDeclaration(node: TSESTree.FunctionDeclaration) {
 function visitExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration) {
   return {
     declaration: visitNode(node.declaration),
-    specifiers: filterUnknownTypeNodes(node.specifiers.map(visitNode)),
+    specifiers: node.specifiers.map(visitNode),
     source: visitNode(node.source),
   };
 }
@@ -685,7 +698,7 @@ function visitExportSpecifier(node: TSESTree.ExportSpecifier) {
 
 function visitVariableDeclaration(node: TSESTree.VariableDeclaration) {
   return {
-    declarations: filterUnknownTypeNodes(node.declarations.map(visitNode)),
+    declarations: node.declarations.map(visitNode),
     kind: node.kind,
   };
 }
@@ -699,7 +712,7 @@ function visitVariableDeclarator(node: TSESTree.VariableDeclarator) {
 
 function visitImportDeclaration(node: TSESTree.ImportDeclaration) {
   return {
-    specifiers: filterUnknownTypeNodes(node.specifiers.map(visitNode)),
+    specifiers: node.specifiers.map(visitNode),
     source: visitNode(node.source),
   };
 }
@@ -787,14 +800,14 @@ function visitThrowStatement(node: TSESTree.ThrowStatement) {
 function visitSwitchStatement(node: TSESTree.SwitchStatement) {
   return {
     discriminant: visitNode(node.discriminant),
-    cases: filterUnknownTypeNodes(node.cases.map(visitNode)),
+    cases: node.cases.map(visitNode),
   };
 }
 
 function visitSwitchCase(node: TSESTree.SwitchCase) {
   return {
     test: visitNode(node.test),
-    consequent: filterUnknownTypeNodes(node.consequent.map(visitNode)),
+    consequent: node.consequent.map(visitNode),
   };
 }
 
@@ -871,7 +884,7 @@ function visitFunctionExpression(node: TSESTree.FunctionExpression) {
   return {
     id: visitNode(node.id),
     body: visitNode(node.body),
-    params: filterUnknownTypeNodes(node.params.map(visitNode)),
+    params: node.params.map(visitNode),
     generator: node.generator,
     async: node.async,
   };
@@ -895,12 +908,6 @@ function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
 function visitTSExternalModuleReference(node: TSESTree.TSExternalModuleReference) {
   return {
     expression: visitNode(node.expression),
-  };
-}
-
-function visitUnknownNode(node: TSESTree.Node) {
-  return {
-    rawType: node.type,
   };
 }
 

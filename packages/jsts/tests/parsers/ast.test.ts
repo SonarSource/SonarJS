@@ -70,7 +70,7 @@ describe('ast', () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
-        const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program);
+        const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       }),
@@ -173,7 +173,7 @@ describe('ast', () => {
     expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(moduleReference.identifier.name).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
   });
@@ -204,7 +204,7 @@ describe('ast', () => {
     expect(tSQualifiedName.left.tSQualifiedName.left.identifier.name).toEqual('a');
     expect(tSQualifiedName.left.tSQualifiedName.right.identifier.name).toEqual('b');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
   });
@@ -232,7 +232,7 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
   });
@@ -260,7 +260,7 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
   });
@@ -271,7 +271,7 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     expect(protoMessage.program.body).toEqual([]);
-    const serialized = serializeInProtobuf(ast as TSESTree.Program);
+    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
     const deserializedProtoMessage = deserializeProtobuf(serialized);
     compareASTs(protoMessage, deserializedProtoMessage);
   });

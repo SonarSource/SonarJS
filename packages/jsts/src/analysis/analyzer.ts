@@ -26,7 +26,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { serializeInProtobuf, UNSUPPORTED_NODE_TYPES } from '../parsers/ast.js';
+import { serializeInProtobuf } from '../parsers/ast.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
@@ -101,17 +101,7 @@ export async function analyzeJSTS(
 
 function serializeAst(sourceCode: SourceCode, filePath: string) {
   try {
-    UNSUPPORTED_NODE_TYPES.clear();
-    const serialized = serializeInProtobuf(sourceCode.ast as TSESTree.Program);
-    if (UNSUPPORTED_NODE_TYPES.size > 0) {
-      debug(
-        `Not supported syntax nods in file "${filePath}": ` +
-          Array.from(UNSUPPORTED_NODE_TYPES)
-            .map(([key, value]) => `${key}(${value})`)
-            .join(', '),
-      );
-    }
-    return serialized;
+    return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
   } catch (e) {
     info(`Failed to serialize AST for file "${filePath}"`);
     return null;
