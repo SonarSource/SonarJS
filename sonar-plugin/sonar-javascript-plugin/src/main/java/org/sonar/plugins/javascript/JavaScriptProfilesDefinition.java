@@ -18,6 +18,8 @@ package org.sonar.plugins.javascript;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,21 +61,31 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     REPO_BY_LANGUAGE.put(TypeScriptLanguage.KEY, CheckList.TS_REPOSITORY_KEY);
   }
 
-  JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrar) {
-    LOG.info("##### Hello from JavaScriptProfilesDefinition ctor");
-    LOG.info("registrars: " + profileRegistrar.length);
+  private final ProfileRegistrar[] profileRegistrars;
+
+  JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
+    this.profileRegistrars = profileRegistrars;
   }
 
   @Override
   public void define(Context context) {
+    /*var externalRuleKeys = new ArrayList<RuleKey>();
+    for (var profileRegistrar: profileRegistrars) {
+      profileRegistrar.register(externalRuleKeys::addAll);
+    }
+    var x = externalRuleKeys.stream().map(RuleKey::rule).toList();
+    x.forEach(it -> LOG.info("###### add extra rule key {}", it));
+*/
     Set<String> javaScriptRuleKeys = ruleKeys(CheckList.getJavaScriptChecks());
+    //javaScriptRuleKeys.addAll(x);
     createProfile(SONAR_WAY, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
 
     Set<String> typeScriptRuleKeys = ruleKeys(CheckList.getTypeScriptChecks());
+    //javaScriptRuleKeys.addAll(x);
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
 
-  private static void createProfile(
+  private void createProfile(
     String profileName,
     String language,
     Set<String> keys,
@@ -92,6 +104,14 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       .stream()
       .filter(activeKeysForBothLanguages::contains)
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
+
+    var externalRuleKeys = new ArrayList<RuleKey>();
+    for (var profileRegistrar : profileRegistrars) {
+      profileRegistrar.register(externalRuleKeys::addAll);
+    }
+    var x = externalRuleKeys.stream().filter(it -> it.repository().contains(language)).toList();
+    x.forEach(it -> LOG.info("###### add extra rule key {}, repo {}", it.rule(), it.repository()));
+    x.forEach(it -> newProfile.activateRule(it.repository(), it.rule()));
 
     addSecurityRules(newProfile, language);
 
