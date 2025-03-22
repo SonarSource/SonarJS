@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -163,7 +164,8 @@ public class JavaScriptPlugin implements Plugin {
       YamlSensor.class,
       HtmlSensor.class,
       EmbeddedNode.class,
-      Environment.class
+      Environment.class,
+      ProfileRegistrar.class
     );
 
     context.addExtensions(
