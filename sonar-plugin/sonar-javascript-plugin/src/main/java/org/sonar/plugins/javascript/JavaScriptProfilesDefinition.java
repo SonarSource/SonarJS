@@ -20,10 +20,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -31,9 +33,12 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
+
+  private final ProfileRegistrar[] profileRegistrars;
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptProfilesDefinition.class);
 
@@ -58,8 +63,21 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     REPO_BY_LANGUAGE.put(TypeScriptLanguage.KEY, CheckList.TS_REPOSITORY_KEY);
   }
 
+  private static Logger logger = LoggerFactory.getLogger(JavaScriptProfilesDefinition.class);
+
+  public JavaScriptProfilesDefinition() {
+    this(null);
+    logger.info("hello from the NULL constructor.");
+  }
+
+  public JavaScriptProfilesDefinition(@Nullable ProfileRegistrar[] profileRegistrars) {
+    logger.info("hello from the non-null constructor. Are we null? " + (profileRegistrars == null));
+    this.profileRegistrars = profileRegistrars;
+  }
+
   @Override
   public void define(Context context) {
+    // what happens if we call this in another plugin?
     Set<String> javaScriptRuleKeys = ruleKeys(CheckList.getJavaScriptChecks());
     createProfile(SONAR_WAY, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
 
@@ -67,7 +85,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
 
-  private static void createProfile(
+  private void createProfile(
     String profileName,
     String language,
     Set<String> keys,
@@ -88,6 +106,25 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
 
     addSecurityRules(newProfile, language);
+
+    var ruleKeys = new HashSet<RuleKey>();
+    logger.info("################################################################");
+    logger.info("################################################################");
+    logger.info("################################################################");
+    logger.info("hashcode of ProfileRegistrar: " + System.identityHashCode(ProfileRegistrar.class));
+    logger.info("my profiles size: " + profileRegistrars.length); // crashing here because we don't get any ProfileRegistrars injected
+
+    logger.info("################################################################");
+    logger.info("################################################################");
+    logger.info("################################################################");
+    if (profileRegistrars != null) {
+      for (ProfileRegistrar profileRegistrar : profileRegistrars) {
+        profileRegistrar.register(ruleKeys::addAll);
+      }
+    }
+    logger.info("my rule keys: " + ruleKeys.size());
+    ruleKeys.forEach(ruleKey -> logger.info("adding key: " + ruleKey.rule()));
+    ruleKeys.forEach(ruleKey -> newProfile.activateRule(ruleKey.repository(), ruleKey.rule()));
 
     newProfile.done();
   }
