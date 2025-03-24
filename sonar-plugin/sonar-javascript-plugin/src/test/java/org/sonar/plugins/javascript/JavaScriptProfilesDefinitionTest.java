@@ -100,9 +100,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules())
       .extracting("repoKey")
-      .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository")
-      .contains(CheckList.JS_REPOSITORY_KEY)
-      .contains("additionalRepository");
+      .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository");
     assertThat(profile.rules().size()).isGreaterThan(100);
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).hasSize(1);
