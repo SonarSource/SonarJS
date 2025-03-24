@@ -58,7 +58,8 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
   return decoded;
 }
 
-type VisitNodeReturnType = {
+// Exported for testing purpose
+export type VisitNodeReturnType = {
   type: number;
   loc: TSESTree.SourceLocation;
   [key: string]: any;
