@@ -101,7 +101,7 @@ export async function analyzeJSTS(
 
 function serializeAst(sourceCode: SourceCode, filePath: string) {
   try {
-    return serializeInProtobuf(sourceCode.ast as TSESTree.Program);
+    return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
   } catch (e) {
     info(`Failed to serialize AST for file "${filePath}"`);
     return null;

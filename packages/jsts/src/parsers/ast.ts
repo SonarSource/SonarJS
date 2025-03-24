@@ -16,18 +16,28 @@
  */
 import protobuf from 'protobufjs';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { debug } from '../../../shared/src/helpers/logging.js';
 
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import { debug } from '../../../shared/src/helpers/logging.js';
 
 const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
+const unsupportedNodeTypes = new Map<string, number>();
 
-export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
+export function serializeInProtobuf(ast: TSESTree.Program, filePath: string): Uint8Array {
+  unsupportedNodeTypes.clear();
   const protobufAST = parseInProtobuf(ast);
+  if (unsupportedNodeTypes.size > 0) {
+    debug(
+      `Not supported syntax nodes in file "${filePath}": ` +
+        Array.from(unsupportedNodeTypes)
+          .map(([key, value]) => `${key}(${value})`)
+          .join(', '),
+    );
+  }
   return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
 }
 
@@ -310,104 +320,25 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSExternalModuleReference':
       shape = visitTSExternalModuleReference(node);
       break;
-    case 'AccessorProperty':
-    case 'Decorator':
-    case 'ImportAttribute':
-    case 'JSXAttribute':
-    case 'JSXClosingElement':
-    case 'JSXClosingFragment':
-    case 'JSXElement':
-    case 'JSXEmptyExpression':
-    case 'JSXExpressionContainer':
-    case 'JSXFragment':
-    case 'JSXIdentifier':
-    case 'JSXMemberExpression':
-    case 'JSXNamespacedName':
-    case 'JSXOpeningElement':
-    case 'JSXOpeningFragment':
-    case 'JSXSpreadAttribute':
-    case 'JSXSpreadChild':
-    case 'JSXText':
-    case 'TSAbstractAccessorProperty':
-    case 'TSAbstractKeyword':
-    case 'TSAbstractMethodDefinition':
-    case 'TSAbstractPropertyDefinition':
-    case 'TSAnyKeyword':
-    case 'TSArrayType':
-    case 'TSAsyncKeyword':
-    case 'TSBigIntKeyword':
-    case 'TSBooleanKeyword':
-    case 'TSCallSignatureDeclaration':
-    case 'TSClassImplements':
-    case 'TSConditionalType':
-    case 'TSConstructorType':
-    case 'TSConstructSignatureDeclaration':
-    case 'TSDeclareFunction':
-    case 'TSDeclareKeyword':
-    case 'TSEmptyBodyFunctionExpression':
-    case 'TSEnumDeclaration':
-    case 'TSEnumMember':
-    case 'TSExportKeyword':
-    case 'TSFunctionType':
-    case 'TSInstantiationExpression':
-    case 'TSImportType':
-    case 'TSIndexedAccessType':
-    case 'TSIndexSignature':
-    case 'TSInferType':
-    case 'TSInterfaceBody':
-    case 'TSInterfaceDeclaration':
-    case 'TSInterfaceHeritage':
-    case 'TSIntersectionType':
-    case 'TSIntrinsicKeyword':
-    case 'TSLiteralType':
-    case 'TSMappedType':
-    case 'TSMethodSignature':
-    case 'TSModuleBlock':
-    case 'TSModuleDeclaration':
-    case 'TSNamedTupleMember':
-    case 'TSNamespaceExportDeclaration':
-    case 'TSNeverKeyword':
-    case 'TSNullKeyword':
-    case 'TSNumberKeyword':
-    case 'TSObjectKeyword':
-    case 'TSOptionalType':
-    case 'TSPrivateKeyword':
-    case 'TSPropertySignature':
-    case 'TSProtectedKeyword':
-    case 'TSPublicKeyword':
-    case 'TSReadonlyKeyword':
-    case 'TSRestType':
-    case 'TSStaticKeyword':
-    case 'TSStringKeyword':
-    case 'TSSymbolKeyword':
-    case 'TSTemplateLiteralType':
-    case 'TSThisType':
-    case 'TSTupleType':
-    case 'TSTypeAliasDeclaration':
-    case 'TSTypeAnnotation':
-    case 'TSTypeLiteral':
-    case 'TSTypeOperator':
-    case 'TSTypeParameter':
-    case 'TSTypeParameterDeclaration':
-    case 'TSTypeParameterInstantiation':
-    case 'TSTypePredicate':
-    case 'TSTypeQuery':
-    case 'TSTypeReference':
-    case 'TSUndefinedKeyword':
-    case 'TSUnionType':
-    case 'TSUnknownKeyword':
-    case 'TSVoidKeyword':
-      // do not log unsupported known nodes
-      break;
     default:
-      debug(`Unknown node type: ${node.type}`);
+      unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
+      shape = {};
+  }
+  // Visiting UnknownNodeTypes can cause the failure of the ESTreeFactory. For this reason where possible (for example in the arrays) we try to remove them.
+  for (const key in shape) {
+    if (Array.isArray(shape[key])) {
+      shape[key] = shape[key].filter(
+        node => node?.type !== NODE_TYPE_ENUM.values['UnknownNodeType'],
+      );
+    }
   }
   return {
     type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
     loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: shape || visitUnknownNode(node),
+    [lowerCaseFirstLetter(node.type)]: shape,
   };
 }
+
 function visitProgram(node: TSESTree.Program) {
   return {
     sourceType: node.sourceType,
@@ -977,12 +908,6 @@ function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
 function visitTSExternalModuleReference(node: TSESTree.TSExternalModuleReference) {
   return {
     expression: visitNode(node.expression),
-  };
-}
-
-function visitUnknownNode(node: TSESTree.Node) {
-  return {
-    rawType: node.type,
   };
 }
 
