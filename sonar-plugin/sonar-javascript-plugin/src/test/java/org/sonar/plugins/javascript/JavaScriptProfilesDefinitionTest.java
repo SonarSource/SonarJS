@@ -39,6 +39,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.Language;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -72,7 +74,19 @@ class JavaScriptProfilesDefinitionTest {
 
   @BeforeEach
   public void setUp() {
-    new JavaScriptProfilesDefinition().define(context);
+    new JavaScriptProfilesDefinition(
+      new ProfileRegistrar[] {
+        new ProfileRegistrar() {
+          @Override
+          public void register(RegistrarContext registrarContext) {
+            registrarContext.registerDefaultQualityProfileRules(
+              Language.JAVASCRIPT,
+              List.of(RuleKey.of("additionalRepository", "additionalRule"))
+            );
+          }
+        },
+      }
+    ).define(context);
   }
 
   @Test
@@ -84,7 +98,9 @@ class JavaScriptProfilesDefinitionTest {
 
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
-    assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
+    assertThat(profile.rules())
+      .extracting("repoKey")
+      .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository");
     assertThat(profile.rules().size()).isGreaterThan(100);
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).hasSize(1);
