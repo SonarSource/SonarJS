@@ -52,5 +52,5 @@ its/eslint9-plugin-sonarjs/package-lock.json
 
 /resources
 
-# coverage
+# coverage tool "nyc"
 .nyc_output
