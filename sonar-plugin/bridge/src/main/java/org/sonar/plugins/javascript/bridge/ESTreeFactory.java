@@ -567,7 +567,7 @@ public class ESTreeFactory {
       fromLocation(node.getLoc()),
       arrowFunctionExpression.getExpression(),
       from(arrowFunctionExpression.getBody(), ESTree.BlockStatementOrExpression.class),
-      from(arrowFunctionExpression.getParamsList(), ESTree.Pattern.class),
+      from(arrowFunctionExpression.getParamsList(), ESTree.PatternOrTSParameterProperty.class),
       arrowFunctionExpression.getGenerator(),
       arrowFunctionExpression.getAsync()
     );
@@ -615,7 +615,7 @@ public class ESTreeFactory {
         ? Optional.of(from(functionDeclaration.getId(), ESTree.Identifier.class))
         : Optional.empty(),
       from(functionDeclaration.getBody(), ESTree.BlockStatement.class),
-      from(functionDeclaration.getParamsList(), ESTree.Pattern.class),
+      from(functionDeclaration.getParamsList(), ESTree.PatternOrTSParameterProperty.class),
       functionDeclaration.getGenerator(),
       functionDeclaration.getAsync()
     );
