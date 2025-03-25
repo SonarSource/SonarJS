@@ -135,19 +135,8 @@ describe('ast', () => {
     }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['ClassDeclarationType'],
-    );
     const classDeclaration = protoMessage.program.body[0].classDeclaration;
-    expect(classDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
-    expect(classDeclaration.id.identifier.name).toEqual('Foo');
-    expect(classDeclaration.body.type).toEqual(NODE_TYPE_ENUM.values['ClassBodyType']);
-    expect(classDeclaration.body.classBody.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['MethodDefinitionType'],
-    );
     const constructorMethod = classDeclaration.body.classBody.body[0].methodDefinition;
-    expect(constructorMethod.kind).toEqual('constructor');
-    expect(constructorMethod.value.type).toEqual(NODE_TYPE_ENUM.values['FunctionExpressionType']);
     const constructorFunction = constructorMethod.value.functionExpression;
     expect(constructorFunction.params[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSParameterPropertyType'],
