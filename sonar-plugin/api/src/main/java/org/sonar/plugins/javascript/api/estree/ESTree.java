@@ -64,7 +64,11 @@ public class ESTree {
   public sealed interface ModuleDeclaration extends DirectiveOrModuleDeclarationOrStatement {}
 
   public sealed interface Pattern
-    extends ExpressionOrPattern, PatternOrVariableDeclaration, MemberExpressionOrPattern {}
+    extends
+      PatternOrTSParameterProperty,
+      ExpressionOrPattern,
+      PatternOrVariableDeclaration,
+      MemberExpressionOrPattern {}
 
   public sealed interface Statement extends DirectiveOrModuleDeclarationOrStatement {}
 
@@ -266,7 +270,7 @@ public class ESTree {
     Location loc,
     Optional<Identifier> id,
     BlockStatement body,
-    List<Pattern> params,
+    List<PatternOrTSParameterProperty> params,
     boolean generator,
     boolean async
   )
@@ -670,4 +674,14 @@ public class ESTree {
     String kind
   )
     implements ModuleDeclaration {}
+
+  public sealed interface PatternOrTSParameterProperty extends Node {}
+
+  public record TSParameterProperty(
+    Location loc,
+    Optional<String> accessibility,
+    boolean readonly,
+    Pattern parameter
+  )
+    implements PatternOrTSParameterProperty {}
 }

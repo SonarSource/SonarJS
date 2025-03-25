@@ -82,6 +82,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
 import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.TSModuleDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.TSParameterProperty;
 import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.TemplateElement;
@@ -189,6 +190,7 @@ public class ESTreeFactory {
         case TSQualifiedNameType -> fromTSQualifiedName(node);
         case TSModuleBlockType -> fromTSModuleBlock(node);
         case TSModuleDeclarationType -> fromTSModuleDeclaration(node);
+        case TSParameterPropertyType -> fromTSParameterProperty(node);
         case UnknownNodeType -> fromUnknownNodeType(node);
         case UNRECOGNIZED -> throw new IllegalArgumentException(
           "Unknown node type: " + node.getType() + " at " + node.getLoc()
@@ -950,7 +952,7 @@ public class ESTreeFactory {
         ? Optional.of(from(functionExpression.getId(), ESTree.Identifier.class))
         : Optional.empty(),
       from(functionExpression.getBody(), ESTree.BlockStatement.class),
-      from(functionExpression.getParamsList(), ESTree.Pattern.class),
+      from(functionExpression.getParamsList(), ESTree.PatternOrTSParameterProperty.class),
       functionExpression.getGenerator(),
       functionExpression.getAsync()
     );
@@ -1005,6 +1007,18 @@ public class ESTreeFactory {
         ? Optional.of(from(tsModuleDeclaration.getBody(), ESTree.TSModuleBlock.class))
         : Optional.empty(),
       tsModuleDeclaration.getKind()
+    );
+  }
+
+  private static ESTree.TSParameterProperty fromTSParameterProperty(Node node) {
+    TSParameterProperty tsParameterProperty = node.getTSParameterProperty();
+    return new ESTree.TSParameterProperty(
+      fromLocation(node.getLoc()),
+      tsParameterProperty.hasAccessibility()
+        ? Optional.of(tsParameterProperty.getAccessibility())
+        : Optional.empty(),
+      tsParameterProperty.getReadonly(),
+      from(tsParameterProperty.getParameter(), ESTree.Pattern.class)
     );
   }
 

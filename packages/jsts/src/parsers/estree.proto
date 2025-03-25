@@ -93,6 +93,7 @@ enum NodeType {
   TSExternalModuleReferenceType = 74;
   TSModuleBlockType = 75;
   TSModuleDeclarationType = 76;
+  TSParameterPropertyType = 77;
   UnknownNodeType = 1000;
 }
 message Node {
@@ -176,6 +177,7 @@ message Node {
     TSExternalModuleReference tSExternalModuleReference = 77;
     TSModuleBlock tSModuleBlock = 78;
     TSModuleDeclaration tSModuleDeclaration = 79;
+    TSParameterProperty tSParameterProperty = 80;
     UnknownNode unknownNode = 1000;
   }
 }
@@ -504,6 +506,11 @@ message TSModuleDeclaration {
   Node id = 1;
   optional Node body = 2;
   string kind = 3;
+}
+message TSParameterProperty {
+  optional string accessibility = 1;
+  bool readonly = 2;
+  Node parameter = 3;
 }
 
 message UnknownNode {
