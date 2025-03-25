@@ -26,7 +26,6 @@ import { buildParserOptions } from '../../src/parsers/options.js';
 import {
   deserializeProtobuf,
   NODE_TYPE_ENUM,
-  parseInProtobuf,
   serializeInProtobuf,
   visitNode,
   VisitNodeReturnType,
@@ -70,8 +69,12 @@ describe('ast', () => {
       test('should not lose information between serialize and deserializing JavaScript', async () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
-        const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
-        checkAstIsProperlySerializedAndDeserialized(sc.sourceCode.ast, protoMessage, filePath);
+        const protoMessage = visitNode(sc.sourceCode.ast as TSESTree.Program);
+        checkAstIsProperlySerializedAndDeserialized(
+          sc.sourceCode.ast as TSESTree.Program,
+          protoMessage,
+          filePath,
+        );
       }),
     );
   });
