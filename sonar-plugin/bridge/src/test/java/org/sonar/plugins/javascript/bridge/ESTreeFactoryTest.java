@@ -902,6 +902,27 @@ class ESTreeFactoryTest {
     TSParameterProperty tsParameterProperty = TSParameterProperty.newBuilder()
       .setParameter(Node.newBuilder().setType(NodeType.IdentifierType).build())
       .setReadonly(true)
+      .setAccessibility("public")
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSParameterPropertyType)
+      .setTSParameterProperty(tsParameterProperty)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.TSParameterProperty.class, param -> {
+      assertThat(param.parameter()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(param.readonly()).isTrue();
+      assertThat(param.accessibility()).contains("public");
+    });
+  }
+
+  @Test
+  void should_create_ts_parameter_property_with_empty_accessibility() {
+    TSParameterProperty tsParameterProperty = TSParameterProperty.newBuilder()
+      .setParameter(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .setReadonly(true)
       .build();
 
     Node protobufNode = Node.newBuilder()
