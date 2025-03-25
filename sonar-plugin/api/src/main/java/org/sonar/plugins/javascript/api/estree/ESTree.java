@@ -97,7 +97,9 @@ public class ESTree {
 
   public sealed interface ExpressionOrPattern extends Node {}
 
-  public sealed interface IdentifierOrLiteral extends Node {}
+  public sealed interface IdentifierOrLiteral extends IdentifierOrLiteralOrTSQualifiedName {}
+
+  public sealed interface IdentifierOrLiteralOrTSQualifiedName extends Node {}
 
   public record ArrayExpression(Location loc, List<Optional<ExpressionOrSpreadElement>> elements)
     implements Expression {}
@@ -643,7 +645,9 @@ public class ESTree {
   public sealed interface IdentifierOrTSQualifiedName extends Node {}
 
   public record TSQualifiedName(Location loc, IdentifierOrTSQualifiedName left, Identifier right)
-    implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+    implements
+      IdentifierOrTSQualifiedNameOrTSExternalModuleReference,
+      IdentifierOrLiteralOrTSQualifiedName {}
 
   public record TSExternalModuleReference(Location loc, Literal expression)
     implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
@@ -653,6 +657,17 @@ public class ESTree {
     Identifier id,
     IdentifierOrTSQualifiedNameOrTSExternalModuleReference moduleReference,
     String importKind
+  )
+    implements ModuleDeclaration {}
+
+  public record TSModuleBlock(Location loc, List<DirectiveOrModuleDeclarationOrStatement> body)
+    implements Node {}
+
+  public record TSModuleDeclaration(
+    Location loc,
+    IdentifierOrLiteralOrTSQualifiedName id,
+    Optional<TSModuleBlock> body,
+    String kind
   )
     implements ModuleDeclaration {}
 }

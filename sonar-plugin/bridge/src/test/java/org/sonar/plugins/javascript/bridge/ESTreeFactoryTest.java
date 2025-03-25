@@ -56,6 +56,8 @@ import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
 import org.sonar.plugins.javascript.bridge.protobuf.TSExternalModuleReference;
 import org.sonar.plugins.javascript.bridge.protobuf.TSImportEqualsDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.TSModuleBlock;
+import org.sonar.plugins.javascript.bridge.protobuf.TSModuleDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.TSQualifiedName;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
@@ -831,6 +833,67 @@ class ESTreeFactoryTest {
         assertThat(tsied.importKind()).isInstanceOf(String.class);
       }
     );
+  }
+
+  @Test
+  void should_create_ts_module_block() {
+    Node emptyStatementNode = Node.newBuilder()
+      .setType(NodeType.EmptyStatementType)
+      .setEmptyStatement(EmptyStatement.newBuilder().build())
+      .build();
+    TSModuleBlock tsModuleBlock = TSModuleBlock.newBuilder().addBody(emptyStatementNode).build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSModuleBlockType)
+      .setTSModuleBlock(tsModuleBlock)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.TSModuleBlock.class, block -> {
+      assertThat(block.body()).hasSize(1);
+      assertThat(block.body().get(0)).isInstanceOf(ESTree.EmptyStatement.class);
+    });
+  }
+
+  @Test
+  void should_create_ts_module_declaration() {
+    TSModuleDeclaration tsModuleDeclaration = TSModuleDeclaration.newBuilder()
+      .setId(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .setBody(Node.newBuilder().setType(NodeType.TSModuleBlockType).build())
+      .setKind("module")
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSModuleDeclarationType)
+      .setTSModuleDeclaration(tsModuleDeclaration)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.TSModuleDeclaration.class, module -> {
+      assertThat(module.id()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(module.body()).isPresent();
+      assertThat(module.body().get()).isInstanceOf(ESTree.TSModuleBlock.class);
+      assertThat(module.kind()).isEqualTo("module");
+    });
+  }
+
+  @Test
+  void should_create_ts_module_declaration_without_body() {
+    TSModuleDeclaration tsModuleDeclaration = TSModuleDeclaration.newBuilder()
+      .setId(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .setKind("module")
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.TSModuleDeclarationType)
+      .setTSModuleDeclaration(tsModuleDeclaration)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.TSModuleDeclaration.class, module -> {
+      assertThat(module.id()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(module.body()).isEmpty();
+      assertThat(module.kind()).isEqualTo("module");
+    });
   }
 
   @Test
