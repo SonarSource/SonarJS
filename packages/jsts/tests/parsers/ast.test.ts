@@ -29,6 +29,7 @@ import {
   parseInProtobuf,
   serializeInProtobuf,
   visitNode,
+  VisitNodeReturnType,
 } from '../../src/parsers/ast.js';
 import { parse } from '../../src/parsers/parse.js';
 
@@ -173,9 +174,7 @@ describe('ast', () => {
     expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(moduleReference.identifier.name).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
-    const deserializedProtoMessage = deserializeProtobuf(serialized);
-    compareASTs(protoMessage, deserializedProtoMessage);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 
   test('should support TSImportEquals nodes with TSQualifiedName module reference', async () => {
@@ -204,9 +203,7 @@ describe('ast', () => {
     expect(tSQualifiedName.left.tSQualifiedName.left.identifier.name).toEqual('a');
     expect(tSQualifiedName.left.tSQualifiedName.right.identifier.name).toEqual('b');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
-    const deserializedProtoMessage = deserializeProtobuf(serialized);
-    compareASTs(protoMessage, deserializedProtoMessage);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 
   test('should support TSImportEquals nodes with TSExternalModuleReference', async () => {
@@ -232,9 +229,7 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
-    const deserializedProtoMessage = deserializeProtobuf(serialized);
-    compareASTs(protoMessage, deserializedProtoMessage);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 
   test('should support TSImportEquals nodes with type TSExternalModuleReference', async () => {
@@ -260,20 +255,70 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
-    const deserializedProtoMessage = deserializeProtobuf(serialized);
-    compareASTs(protoMessage, deserializedProtoMessage);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 
   test('Unknown node types in program body are not serialized', async () => {
-    const code = `namespace Foo {}`;
+    const code = `type Foo = {}`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     expect(protoMessage.program.body).toEqual([]);
-    const serialized = serializeInProtobuf(ast as TSESTree.Program, 'foo.ts');
-    const deserializedProtoMessage = deserializeProtobuf(serialized);
-    compareASTs(protoMessage, deserializedProtoMessage);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+  });
+
+  test('should support TSModuleDeclaration nodes', async () => {
+    const code = `namespace Foo { let a = 42;}`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
+    );
+    const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
+    expect(tSModuleDeclaration.kind).toEqual('namespace');
+    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSModuleDeclaration.id.identifier.name).toEqual('Foo');
+    expect(tSModuleDeclaration.body.type).toEqual(NODE_TYPE_ENUM.values['TSModuleBlockType']);
+    expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['VariableDeclarationType'],
+    );
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+  });
+
+  test('should support TSModuleDeclaration nodes, global kind', async () => {
+    const code = `global { let a = 42;}`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
+    );
+    const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
+    expect(tSModuleDeclaration.kind).toEqual('global');
+    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSModuleDeclaration.id.identifier.name).toEqual('global');
+    expect(tSModuleDeclaration.body.type).toEqual(NODE_TYPE_ENUM.values['TSModuleBlockType']);
+    expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['VariableDeclarationType'],
+    );
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+  });
+
+  test('should support TSModuleDeclaration nodes, without body', async () => {
+    const code = `declare module 'Foo'`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
+    );
+    const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
+    expect(tSModuleDeclaration.kind).toEqual('module');
+    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
+    expect(tSModuleDeclaration.id.literal.valueString).toEqual('Foo');
+    expect(tSModuleDeclaration.body).toEqual(undefined);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 });
 
@@ -319,4 +364,14 @@ function compareASTs(parsedAst, deserializedAst) {
       return a === null || a === undefined;
     }
   }
+}
+
+function checkAstIsProperlySerializedAndDeserialized(
+  ast: TSESTree.Program,
+  expectedProtoMessage: VisitNodeReturnType,
+  fileName: string,
+) {
+  const serialized = serializeInProtobuf(ast, fileName);
+  const deserializedProtoMessage = deserializeProtobuf(serialized);
+  compareASTs(deserializedProtoMessage, expectedProtoMessage);
 }
