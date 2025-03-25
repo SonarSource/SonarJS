@@ -86,7 +86,7 @@
               <workingDirectory>../..</workingDirectory>
               <arguments>
                 <argument>-rf</argument>
-                <argument>resources/rules-data</argument>
+                <argument>resources/rule-data</argument>
               </arguments>
             </configuration>
           </execution>
