@@ -205,7 +205,7 @@ build_win_task:
   build_script:
     - source cirrus-env BUILD
     - npm ci
-    - mvn clean install -e
+    - mvnd clean install -e
 
 ws_scan_task:
   depends_on:
