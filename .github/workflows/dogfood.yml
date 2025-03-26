@@ -8,7 +8,7 @@ on:
 
 jobs:
   dogfood_merge:
-    runs-on: ubuntu-latest
+    runs-on: sonar-runner
     name: Update dogfood branch
     permissions:
       id-token: write # required for SonarSource/vault-action-wrapper

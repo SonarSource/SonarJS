@@ -5,7 +5,7 @@ name: Releasability status
       - completed
 jobs:
   update_releasability_status:
-    runs-on: ubuntu-latest
+    runs-on: sonar-runner
     name: Releasability status
     permissions:
       id-token: write
