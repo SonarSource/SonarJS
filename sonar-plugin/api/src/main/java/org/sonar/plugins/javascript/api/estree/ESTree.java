@@ -114,7 +114,7 @@ public class ESTree {
     Location loc,
     boolean expression,
     BlockStatementOrExpression body,
-    List<Pattern> params,
+    List<PatternOrTSParameterProperty> params,
     boolean generator,
     boolean async
   )
@@ -260,7 +260,7 @@ public class ESTree {
     Location loc,
     Optional<Identifier> id,
     BlockStatement body,
-    List<Pattern> params,
+    List<PatternOrTSParameterProperty> params,
     boolean generator,
     boolean async
   )
