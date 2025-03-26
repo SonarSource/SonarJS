@@ -86,7 +86,7 @@
     "memfs": "4.17.0",
     "mkdirp": "3.0.1",
     "node-fetch": "3.3.2",
-    "one-double-zero": "^1.0.0",
+    "one-double-zero": "1.1.0",
     "prettier": "3.5.3",
     "prettier-plugin-java": "2.6.7",
     "pretty-quick": "4.1.1",
