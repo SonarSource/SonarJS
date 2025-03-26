@@ -163,15 +163,6 @@ build_task:
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 22
-  env:
-    #allow deployment of pull request artifacts to repox
-    DEPLOY_PULL_REQUEST: true
-    #sign artifacts
-    SIGN_KEY: VAULT[development/kv/data/sign data.key]
-    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
-    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
@@ -180,32 +171,32 @@ build_task:
     - source cirrus-env BUILD
     - node --version
     - npm ci
-    - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DskipTests -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN
+    - mvn install -T1C
 
-#test_js_task:
-#  eks_container:
-#    <<: *CONTAINER_DEFINITION
-#    dockerfile: .cirrus/nodejs.Dockerfile
-#    docker_arguments:
-#      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-#      NODE_VERSION: 22
-#  depends_on:
-#    - build
-#  env:
-#    # analysis on next
-#    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-#    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-#    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
-#  <<: *MAVEN_CACHE
-#  <<: *RUNTIME_CACHE
-#  <<: *NPM_CACHE
-#  <<: *NPMRC_SCRIPT_DEFINITION
-#  <<: *JS_COVERAGE_CACHE
-#  test_js_script:
-#    - source cirrus-env QA
-#    - npm run generate-meta
-#    - npm run bridge:build:fast
-#    - npm run bridge:test:cov
+test_js_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 22
+  depends_on:
+    - build
+  env:
+    # analysis on next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *JS_COVERAGE_CACHE
+  test_js_script:
+    - source cirrus-env QA
+    - npm run generate-meta
+    - npm run bridge:build:fast
+    - npm run bridge:test:cov
 
 test_java_task:
   eks_container:
@@ -237,13 +228,18 @@ analyze_task:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 22
   depends_on:
-    #    - test_js
+    - test_js
     - test_java
   env:
+    #allow deployment of pull request artifacts to repox
+    DEPLOY_PULL_REQUEST: 'true'
+    #sign artifacts
+    SIGN_KEY: VAULT[development/kv/data/sign data.key]
+    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
     # analysis on next
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
@@ -252,8 +248,7 @@ analyze_task:
   <<: *JAVA_COVERAGE_CACHE
   analyze_script:
     - source cirrus-env QA
-    - ls -LR coverage/
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign,-coverage -Dcommercial -Dmaven.shade.skip=true -DskipTests -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.sca.recursiveManifestSearch=false -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/coverage/java/jacoco.xml
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -DskipTests
 #build_win_task:
 #  <<: *WINDOWS_VM_DEFINITION
 #  <<: *ONLY_SONARSOURCE_QA
