@@ -177,7 +177,6 @@ describe('ast', () => {
     let moduleReference = tSImportEqualsDeclaration.moduleReference;
     expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(moduleReference.identifier.name).toEqual('foo');
-    expect(true).toEqual(true);
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });

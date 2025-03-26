@@ -38,9 +38,6 @@ public class CssLanguage extends AbstractLanguage {
     String[] suffixes = Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY))
       .filter(s -> s != null && !s.trim().isEmpty())
       .toArray(String[]::new);
-    for (int i = 0; i < suffixes.length; i++) {
-      suffixes[i] = suffixes[i];
-    }
     return suffixes.length > 0 ? suffixes : DEFAULT_FILE_SUFFIXES.split(",");
   }
 }
