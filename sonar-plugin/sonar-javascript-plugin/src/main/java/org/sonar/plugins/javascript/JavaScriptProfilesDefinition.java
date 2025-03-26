@@ -64,7 +64,14 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   private final Map<Language, ArrayList<RuleKey>> additionalRulesByLanguage;
 
-  JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
+  /**
+   * Constructor used by Pico container (SC) when no ProfileRegistrar are available
+   */
+  public JavaScriptProfilesDefinition() {
+    this(new ProfileRegistrar[] {});
+  }
+
+  public JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
     additionalRulesByLanguage = new EnumMap<>(Language.class);
     for (var profileRegistrar : profileRegistrars) {
       profileRegistrar.register((language, rules) -> {
@@ -120,7 +127,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       return;
     }
     rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
-    LOG.debug("Adding extra {} ruleKeys {}", language, rules);
+    LOG.info("Adding extra {} ruleKeys {}", language, rules);
   }
 
   /**
