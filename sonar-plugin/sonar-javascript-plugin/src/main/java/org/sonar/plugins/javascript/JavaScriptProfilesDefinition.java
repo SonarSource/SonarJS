@@ -127,7 +127,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       return;
     }
     rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
-    LOG.info("Adding extra {} ruleKeys {}", language, rules);
+    LOG.debug("Adding extra {} ruleKeys {}", language, rules);
   }
 
   /**
