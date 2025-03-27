@@ -199,7 +199,6 @@ test_js_task:
     - npm run generate-meta
     - npm run bridge:build:fast
     - npm run bridge:test:cov
-    - ls -LR coverage/js
 
 test_java_task:
   eks_container:
@@ -241,7 +240,6 @@ analyze_task:
   <<: *JAVA_COVERAGE_CACHE
   analyze_script:
     - source cirrus-env BUILD
-    - ls -LR coverage/js
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
 
 build_win_task:
