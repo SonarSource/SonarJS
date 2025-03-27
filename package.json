@@ -121,7 +121,7 @@
     "globals": "16.0.0",
     "htmlparser2": "10.0.0",
     "jsx-ast-utils": "3.3.5",
-    "lodash.merge": "^4.6.2",
+    "lodash.merge": "4.6.2",
     "minimatch": "9.0.5",
     "module-alias": "2.2.3",
     "patch-package": "8.0.0",
