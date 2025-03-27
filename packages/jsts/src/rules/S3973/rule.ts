@@ -31,6 +31,9 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
+    for (let i = 0; i < 10; ++i) {
+      i *= 10; // for coverage
+    }
     return {
       IfStatement: (node: estree.Node) => {
         const ifStatement = node as estree.IfStatement;
