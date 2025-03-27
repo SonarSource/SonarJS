@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new NoTypeCheckingRuleTester();
 
 const DEFAULT_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
 const ALLOW_UPPERCASE = '^[A-Z][a-zA-Z0-9]*$';

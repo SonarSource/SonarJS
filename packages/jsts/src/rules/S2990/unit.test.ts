@@ -15,13 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S2990', () => {
   it('S2990', () => {
-    const ruleTesterJS = new RuleTester();
-    const ruleTesterTS = new RuleTester();
+    const ruleTesterJS = new DefaultParserRuleTester();
+    const ruleTesterTS = new NoTypeCheckingRuleTester();
 
     const testCases = {
       valid: [

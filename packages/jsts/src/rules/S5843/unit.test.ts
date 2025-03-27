@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
@@ -24,7 +28,7 @@ describe('S5843', () => {
       return [{ threshold }];
     };
 
-    const ruleTesterThreshold0 = new RuleTester();
+    const ruleTesterThreshold0 = new DefaultParserRuleTester();
     ruleTesterThreshold0.run(
       'Regular expressions should not be too complicated with threshold 0',
       rule,
@@ -451,7 +455,7 @@ if (isString(regex)) {
       },
     );
 
-    const ruleTesterThreshold1 = new RuleTester();
+    const ruleTesterThreshold1 = new DefaultParserRuleTester();
     ruleTesterThreshold1.run(
       'Regular expressions should not be too complicated with threshold 1',
       rule,
@@ -556,7 +560,7 @@ if (isString(regex)) {
       },
     );
 
-    const ruleTesterDefaultThreshold = new RuleTester();
+    const ruleTesterDefaultThreshold = new NoTypeCheckingRuleTester();
     ruleTesterDefaultThreshold.run(
       'Regular expressions should not be too complicated with default threshold',
       rule,

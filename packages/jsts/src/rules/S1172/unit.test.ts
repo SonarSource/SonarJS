@@ -19,11 +19,11 @@ import { isParameterProperty, rule } from './rule.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 describe('S1172', () => {
   it('S1172', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('Unused function parameters should be removed', rule, {
       valid: [

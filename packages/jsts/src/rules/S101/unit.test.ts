@@ -15,10 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new NoTypeCheckingRuleTester();
 
 const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const CUSTOM_FORMAT = '^[_A-Z][a-zA-Z0-9]*$';

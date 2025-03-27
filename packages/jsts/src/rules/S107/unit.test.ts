@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const MAX_PARAMS_3 = 3;
@@ -27,7 +27,7 @@ const createOptions = (max: number) => {
 
 describe('S107', () => {
   it('S107', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run(``, rule, {
       valid: [
         {

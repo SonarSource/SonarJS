@@ -16,10 +16,10 @@
  */
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new DefaultParserRuleTester();
 
 const options = [
   {

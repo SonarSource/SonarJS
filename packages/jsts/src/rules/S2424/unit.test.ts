@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S2424', () => {
@@ -68,7 +71,7 @@ describe('S2424', () => {
       ],
     };
 
-    const ruleTesterJs = new RuleTester();
+    const ruleTesterJs = new DefaultParserRuleTester();
     ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
 
     tests.valid.push({
@@ -79,7 +82,7 @@ describe('S2424', () => {
     }`,
     });
 
-    const ruleTesterTs = new RuleTester();
+    const ruleTesterTs = new NoTypeCheckingRuleTester();
     ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
   });
 });

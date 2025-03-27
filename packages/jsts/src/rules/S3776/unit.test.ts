@@ -16,12 +16,12 @@
  */
 import { rule } from './index.js';
 import type { IssueLocation } from '../helpers/index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S3776', () => {
   it('S3776', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('cognitive-complexity', rule, {
       valid: [

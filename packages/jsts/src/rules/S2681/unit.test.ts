@@ -14,14 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S2681', () => {
   it('S2681', () => {
-    const ruleTester = new RuleTester();
-    const ruleTesterTs = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
+    const ruleTesterTs = new NoTypeCheckingRuleTester();
 
     ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
       valid: [

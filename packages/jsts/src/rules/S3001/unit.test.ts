@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S3001', () => {
@@ -102,7 +102,7 @@ describe('S3001', () => {
       ],
     };
 
-    const ruleTesterJs = new RuleTester();
+    const ruleTesterJs = new NoTypeCheckingRuleTester();
     const ruleTesterTs = new RuleTester();
 
     ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);

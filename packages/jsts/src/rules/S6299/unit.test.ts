@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester, DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 import parser from 'vue-eslint-parser';
@@ -25,7 +25,7 @@ describe('S6299', () => {
     const ruleTesterForVue = new RuleTester({
       parser,
     });
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
 
     const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
     const testName = 'Disabling Vue.js built-in escaping is security-sensitive';
