@@ -197,7 +197,7 @@ test_js_task:
   test_js_script:
     - source cirrus-env QA
     - npm run generate-meta
-    - npm run bridge:build:fast
+    - npm run bridge:compile
     - npm run bridge:test:cov
 
 test_java_task:
