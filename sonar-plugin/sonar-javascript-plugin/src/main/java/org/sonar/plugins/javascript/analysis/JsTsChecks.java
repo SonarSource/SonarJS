@@ -210,11 +210,6 @@ public class JsTsChecks {
             )
           );
       });
-
-    var x = eslintHooks.toList();
-    LOG.info("!!!!! eslint hooks: " + x.size());
-    eslintHooks = x.stream();
-
     return Stream.concat(eslintRules, eslintHooks).toList();
   }
 
