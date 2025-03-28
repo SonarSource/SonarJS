@@ -192,7 +192,7 @@ analyze_task:
     - source cirrus-env QA
     - npm run generate-meta
     - npm run bridge:build:fast
-    - npm run bridge:test:cov
+    - npm run bridge:test:cov:js
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
 build_win_task:
