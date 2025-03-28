@@ -18,9 +18,11 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -35,6 +37,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.EslintHook;
+import org.sonar.plugins.javascript.api.EslintHookRegistrar;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.EslintRule;
@@ -50,20 +54,39 @@ public class JsTsChecks {
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
   private final CheckFactory checkFactory;
   private final CustomRuleRepository[] customRuleRepositories;
+  private final Map<Language, Set<EslintHook>> eslintHooksByLanguage = new EnumMap<>(
+    Language.class
+  );
   private final Map<LanguageAndRepository, Checks<JavaScriptCheck>> checks = new HashMap<>();
   private final Map<String, Map<Language, RuleKey>> eslintKeyToRuleKey = new HashMap<>();
   private RuleKey parseErrorRuleKey;
 
   public JsTsChecks(CheckFactory checkFactory) {
-    this(checkFactory, null);
+    this(checkFactory, new CustomRuleRepository[] {}, new EslintHookRegistrar[] {});
+  }
+
+  public JsTsChecks(CheckFactory checkFactory, CustomRuleRepository[] customRuleRepositories) {
+    this(checkFactory, customRuleRepositories, new EslintHookRegistrar[] {});
+  }
+
+  public JsTsChecks(CheckFactory checkFactory, EslintHookRegistrar[] eslintHookRegistrars) {
+    this(checkFactory, new CustomRuleRepository[] {}, eslintHookRegistrars);
   }
 
   public JsTsChecks(
     CheckFactory checkFactory,
-    @Nullable CustomRuleRepository[] customRuleRepositories
+    CustomRuleRepository[] customRuleRepositories,
+    EslintHookRegistrar[] eslintHookRegistrars
   ) {
     this.checkFactory = checkFactory;
     this.customRuleRepositories = customRuleRepositories;
+
+    for (var registrar : eslintHookRegistrars) {
+      registrar.register(
+        ((language, hook) ->
+            eslintHooksByLanguage.computeIfAbsent(language, it -> new HashSet<>()).add(hook))
+      );
+    }
     doAddChecks(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
     addCustomChecks(Language.TYPESCRIPT);
     doAddChecks(Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
@@ -93,11 +116,9 @@ public class JsTsChecks {
   }
 
   private void addCustomChecks(Language language) {
-    if (customRuleRepositories != null) {
-      for (CustomRuleRepository repo : customRuleRepositories) {
-        if (repo.compatibleLanguages().contains(language)) {
-          doAddChecks(language, repo.repositoryKey(), repo.checkClasses());
-        }
+    for (CustomRuleRepository repo : customRuleRepositories) {
+      if (repo.compatibleLanguages().contains(language)) {
+        doAddChecks(language, repo.repositoryKey(), repo.checkClasses());
       }
     }
   }
@@ -145,8 +166,8 @@ public class JsTsChecks {
       .orElse(null);
   }
 
-  List<EslintRule> eslintRules() {
-    return checks
+  List<EslintRule> enabledEslintRules() {
+    var eslintRules = checks
       .entrySet()
       .stream()
       .flatMap(e ->
@@ -156,6 +177,7 @@ public class JsTsChecks {
           .stream()
           .filter(EslintBasedCheck.class::isInstance)
           .map(EslintBasedCheck.class::cast)
+          .filter(EslintHook::isEnabled)
           .map(check ->
             new EslintRule(
               check.eslintKey(),
@@ -166,8 +188,34 @@ public class JsTsChecks {
               e.getKey().language
             )
           )
-      )
-      .toList();
+      );
+
+    var eslintHooks = eslintHooksByLanguage
+      .entrySet()
+      .stream()
+      .flatMap(entry -> {
+        var languageKey = entry.getKey().toString();
+        return entry
+          .getValue()
+          .stream()
+          .filter(EslintHook::isEnabled)
+          .map(hook ->
+            new EslintRule(
+              hook.eslintKey(),
+              hook.configurations(),
+              hook.targets(),
+              hook.analysisModes(),
+              hook.blacklistedExtensions(),
+              languageKey
+            )
+          );
+      });
+
+    var x = eslintHooks.toList();
+    LOG.info("!!!!! eslint hooks: " + x.size());
+    eslintHooks = x.stream();
+
+    return Stream.concat(eslintRules, eslintHooks).toList();
   }
 
   static class LanguageAndRepository {

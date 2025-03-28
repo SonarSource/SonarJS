@@ -10,8 +10,8 @@ import org.sonar.api.server.ServerSide;
  * <pre>
  *   {@code
  *     public void register(RegistrarContext registrarContext) {
- *       registrarContext.registerDefaultQualityProfileRules(jsRuleKeys, Language.JAVASCRIPT);
- *       registrarContext.registerDefaultQualityProfileRules(tsRuleKeys, Language.TYPESCRIPT);
+ *       registrarContext.registerDefaultQualityProfileRules(Language.JAVASCRIPT, jsRuleKeys);
+ *       registrarContext.registerDefaultQualityProfileRules(Language.TYPESCRIPT, tsRuleKeys);
  *     }
  *   }
  * </pre>

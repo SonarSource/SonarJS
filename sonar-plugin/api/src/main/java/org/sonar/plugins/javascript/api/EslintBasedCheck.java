@@ -16,27 +16,4 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
-
-public interface EslintBasedCheck extends JavaScriptCheck {
-  String eslintKey();
-
-  default List<Object> configurations() {
-    return Collections.emptyList();
-  }
-
-  default List<InputFile.Type> targets() {
-    return Collections.singletonList(Type.MAIN);
-  }
-
-  default List<AnalysisMode> analysisModes() {
-    return Collections.singletonList(AnalysisMode.DEFAULT);
-  }
-
-  default List<String> blacklistedExtensions() {
-    return Collections.emptyList();
-  }
-}
+public interface EslintBasedCheck extends EslintHook, JavaScriptCheck {}
