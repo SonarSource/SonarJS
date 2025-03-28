@@ -7,7 +7,7 @@ on:
 jobs:
   PullRequestMerged_job:
     name: Pull Request Merged
-    runs-on: sonar-runner
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       pull-requests: read

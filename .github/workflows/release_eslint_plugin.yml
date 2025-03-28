@@ -13,7 +13,7 @@ jobs:
   publish:
     permissions:
       id-token: write # required for SonarSource/vault-action-wrapper
-    runs-on: sonar-runner
+    runs-on: ubuntu-latest
     env:
       RELEASE_TAG: ${{ github.event.inputs.release_version }}
       NPM_REPOSITORY: "sonarsource-npm-public"

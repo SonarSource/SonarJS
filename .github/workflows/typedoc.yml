@@ -7,7 +7,7 @@ permissions:
   contents: write
 jobs:
   publish-rules-helper-site:
-    runs-on: sonar-runner
+    runs-on: ubuntu-latest
     permissions:
       id-token: write # for vault
       contents: write # for publish
