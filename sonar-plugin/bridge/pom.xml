@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>sonar-plugin</artifactId>
-    <version>10.22.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>bridge</artifactId>
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
-    <protobuf.version>4.30.1</protobuf.version>
+    <protobuf.version>4.30.2</protobuf.version>
   </properties>
   <dependencies>
     <dependency>

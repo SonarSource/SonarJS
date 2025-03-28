@@ -26,21 +26,21 @@ class ESTreeTest {
   @Test
   void test() {
     Class<?>[] classes = ESTree.class.getDeclaredClasses();
-    assertThat(classes).hasSize(116);
+    assertThat(classes).hasSize(118);
 
     //filter all classes that are interface
     var ifaceCount = Arrays.stream(classes).filter(Class::isInterface).count();
-    assertThat(ifaceCount).isEqualTo(28);
+    assertThat(ifaceCount).isEqualTo(29);
 
     var recordCount = Arrays.stream(classes).filter(Class::isRecord).count();
-    assertThat(recordCount).isEqualTo(83);
+    assertThat(recordCount).isEqualTo(84);
   }
 
   @Test
   void test_node_subclasses() {
     Class<?> sealedClass = ESTree.Node.class;
     Class<?>[] permittedSubclasses = sealedClass.getPermittedSubclasses();
-    assertThat(permittedSubclasses).hasSize(25);
+    assertThat(permittedSubclasses).hasSize(26);
   }
 
   @Test

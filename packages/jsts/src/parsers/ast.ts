@@ -310,8 +310,8 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       // skipping node
       return visitNode(node.expression);
     case 'TSParameterProperty':
-      // skipping node
-      return visitNode(node.parameter);
+      shape = visitTSParameterProperty(node);
+      break;
     case 'TSImportEqualsDeclaration':
       shape = visitTSImportEqualsDeclaration(node);
       break;
@@ -929,6 +929,14 @@ function visitTSModuleDeclaration(node: TSESTree.TSModuleDeclaration) {
     id: visitNode(node.id),
     body: visitNode(node.body),
     kind: node.kind,
+  };
+}
+
+function visitTSParameterProperty(node: TSESTree.TSParameterProperty) {
+  return {
+    accessibility: node.accessibility,
+    readonly: node.readonly,
+    parameter: visitNode(node.parameter),
   };
 }
 

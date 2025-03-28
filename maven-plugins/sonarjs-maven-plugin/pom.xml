@@ -3,12 +3,11 @@
   <artifactId>sonarjs-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>SonarJS Maven Plugin</name>
-  <version>1</version>
 
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>maven-plugins</artifactId>
-    <version>1</version>
+    <version>${revision}</version>
   </parent>
 
   <properties>

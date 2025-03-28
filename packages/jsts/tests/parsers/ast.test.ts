@@ -130,18 +130,22 @@ describe('ast', () => {
 
   test('should support TSParameterProperty nodes', async () => {
     const code = `
-    class Point {
-      constructor(public foo: number) {}
-    }
-    `;
+    class Foo {
+      constructor(public foo: Bar) {}
+    }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
-    const serializedAST = visitNode(ast as TSESTree.Program);
-
-    const classDeclaration = serializedAST.program.body[0].classDeclaration;
-    const methodDefinition = classDeclaration.body.classBody.body[0].methodDefinition;
-    const functionParameter = methodDefinition.value.functionExpression.params[0];
-    expect(functionParameter.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
-    expect(functionParameter.identifier.name).toEqual('foo');
+    const protoMessage = visitNode(ast as TSESTree.Program);
+    const classDeclaration = protoMessage.program.body[0].classDeclaration;
+    const constructorMethod = classDeclaration.body.classBody.body[0].methodDefinition;
+    const constructorFunction = constructorMethod.value.functionExpression;
+    expect(constructorFunction.params[0].type).toEqual(
+      NODE_TYPE_ENUM.values['TSParameterPropertyType'],
+    );
+    const parameterProperty = constructorFunction.params[0].tSParameterProperty;
+    expect(parameterProperty.accessibility).toEqual('public');
+    expect(parameterProperty.readonly).toEqual(false);
+    expect(parameterProperty.parameter.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(parameterProperty.parameter.identifier.name).toEqual('foo');
   });
 
   test('should support TSExportAssignment nodes', async () => {
