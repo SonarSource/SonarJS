@@ -958,7 +958,60 @@ class ESTreeFactoryTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "Expected class org.sonar.plugins.javascript.api.estree.ESTree$Super " +
-        "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
+        "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement at :0"
       );
+  }
+
+  @Test
+  void should_create_ts_abstract_method_definition() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSAbstractMethodDefinitionType,
+      ESTree.TSAbstractMethodDefinition.class
+    );
+  }
+
+  @Test
+  void should_create_ts_declare_function() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSDeclareFunctionType,
+      ESTree.TSDeclareFunction.class
+    );
+  }
+
+  @Test
+  void should_create_ts_interface_declaration() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSInterfaceDeclarationType,
+      ESTree.TSInterfaceDeclaration.class
+    );
+  }
+
+  @Test
+  void should_create_ts_enum_declaration() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSEnumDeclarationType,
+      ESTree.TSEnumDeclaration.class
+    );
+  }
+
+  @Test
+  void should_create_ts_type_alias_declaration() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSTypeAliasDeclarationType,
+      ESTree.TSTypeAliasDeclaration.class
+    );
+  }
+
+  @Test
+  void should_create_ts_empty_body_function_expression() {
+    assertNodeTypeIsParsedToExpectedClass(
+      NodeType.TSEmptyBodyFunctionExpressionType,
+      ESTree.TSEmptyBodyFunctionExpression.class
+    );
+  }
+
+  private static <T> void assertNodeTypeIsParsedToExpectedClass(NodeType nodeType, Class<T> clazz) {
+    Node tsTypeAliasDeclaration = Node.newBuilder().setType(nodeType).build();
+    assertThat(ESTreeFactory.from(tsTypeAliasDeclaration, ESTree.Node.class)).isInstanceOf(clazz);
   }
 }
