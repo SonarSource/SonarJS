@@ -1,4 +1,7 @@
 {
+"searchkit:packages/searchkit-client/src/withSearchkit.tsx": [
+10
+],
 "searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
 45,
 46,
@@ -11,13 +14,15 @@
 20
 ],
 "searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+12,
 92
 ],
 "searchkit:packages/searchkit-sdk/src/core/FacetsFns.ts": [
 59
 ],
 "searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
-56
+56,
+75
 ],
 "searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts": [
 111
@@ -30,6 +35,7 @@
 225
 ],
 "searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
+47,
 71
 ],
 "searchkit:packages/searchkit-sdk/src/transformers/index.ts": [

@@ -4,6 +4,12 @@
 33,
 46
 ],
+"desktop:app/src/cli/load-commands.ts": [
+46
+],
+"desktop:app/src/cli/main.ts": [
+13
+],
 "desktop:app/src/cli/open-desktop.ts": [
 15
 ],
@@ -12,7 +18,8 @@
 513
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
-97
+97,
+162
 ],
 "desktop:app/src/lib/api.ts": [
 557,
@@ -46,6 +53,9 @@
 222,
 271
 ],
+"desktop:app/src/lib/git/core.ts": [
+189
+],
 "desktop:app/src/lib/git/diff-check.ts": [
 32
 ],
@@ -76,6 +86,9 @@
 130,
 158
 ],
+"desktop:app/src/lib/range.ts": [
+14
+],
 "desktop:app/src/lib/shell.ts": [
 42
 ],
@@ -97,6 +110,7 @@
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
 1200,
+2107,
 3961,
 4867,
 4897,
@@ -222,6 +236,9 @@
 336,
 531
 ],
+"desktop:app/src/ui/lib/app-proxy.ts": [
+47
+],
 "desktop:app/src/ui/lib/author-input.tsx": [
 376,
 530,
@@ -301,6 +318,8 @@
 "desktop:app/src/ui/preferences/preferences.tsx": [
 107,
 140,
+143,
+147,
 153,
 154
 ],
@@ -348,6 +367,7 @@
 68
 ],
 "desktop:script/build.ts": [
+155,
 412,
 413
 ],

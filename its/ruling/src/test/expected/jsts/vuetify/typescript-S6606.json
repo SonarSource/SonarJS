@@ -147,6 +147,7 @@
 21
 ],
 "vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
+121,
 158,
 195
 ],
@@ -328,6 +329,9 @@
 115,
 115
 ],
+"vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
+90
+],
 "vuetify:packages/vuetify/src/directives/mutate/index.ts": [
 11
 ],
@@ -338,7 +342,11 @@
 131
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
-86
+86,
+143
+],
+"vuetify:packages/vuetify/src/util/anchor.ts": [
+22
 ],
 "vuetify:packages/vuetify/src/util/console.ts": [
 17,

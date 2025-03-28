@@ -1,4 +1,16 @@
 {
+"Joust:ts/Entity.ts": [
+140
+],
+"Joust:ts/Launcher.tsx": [
+404
+],
+"Joust:ts/MetaData.ts": [
+6
+],
+"Joust:ts/components/DebugApplication.tsx": [
+116
+],
 "Joust:ts/components/EventLog.tsx": [
 185
 ],
@@ -43,6 +55,7 @@
 56,
 153,
 154,
+166,
 167,
 172,
 201,
@@ -68,6 +81,17 @@
 ],
 "Joust:ts/protocol/KettleEncoder.ts": [
 14
+],
+"Joust:ts/state/GameState.ts": [
+24,
+27,
+30,
+33,
+39,
+45
+],
+"Joust:ts/state/GameStateDescriptor.ts": [
+8
 ],
 "Joust:ts/state/GameStateScrubber.ts": [
 17
