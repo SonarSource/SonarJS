@@ -70,7 +70,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   @Override
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
     bridgeServer.initLinter(
-      checks.eslintRules(),
+      checks.enabledEslintRules(),
       context.getEnvironments(),
       context.getGlobals(),
       context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),

@@ -69,7 +69,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
-        checks.eslintRules(),
+        checks.enabledEslintRules(),
         context.getEnvironments(),
         context.getGlobals(),
         context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),
