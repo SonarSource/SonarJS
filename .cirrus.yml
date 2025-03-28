@@ -73,6 +73,18 @@ npm_cache_definition: &NPM_CACHE
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
 
+js_coverage_cache_definition: &JS_COVERAGE_CACHE
+  js_coverage_cache:
+    folder: ${CIRRUS_WORKING_DIR}/coverage/js
+    fingerprint_script: echo "JS$(git rev-parse HEAD)"
+    reupload_on_changes: 'true'
+
+java_coverage_cache_definition: &JAVA_COVERAGE_CACHE
+  java_coverage_cache:
+    folder: ${CIRRUS_WORKING_DIR}/coverage/java
+    fingerprint_script: echo "JAVA$(git rev-parse HEAD)"
+    reupload_on_changes: 'true'
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
@@ -164,11 +176,47 @@ build_task:
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
-  build_and_deploy_script:
+  build_script:
     - source cirrus-env BUILD
     - node --version
     - npm ci
-    - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN
+    - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
+
+test_js_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 22
+  depends_on:
+    - build
+  <<: *NPM_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *JS_COVERAGE_CACHE
+  test_js_script:
+    - source cirrus-env QA
+    - npm run generate-meta
+    - npm run bridge:build:fast
+    - npm run bridge:test:cov
+
+test_java_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 22
+  depends_on:
+    - build
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPM_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *JAVA_COVERAGE_CACHE
+  test_java_script:
+    - source cirrus-env QA
+    - mvn install -T1C -Pcoverage,coverage-report
 
 analyze_task:
   eks_container:
@@ -178,29 +226,27 @@ analyze_task:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 22
   depends_on:
-    - build
+    - test_js
+    - test_java
   env:
     # analysis on next
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
-  build_and_analyze_script:
-    - source cirrus-env QA
-    - npm run generate-meta
-    - npm run bridge:build:fast
-    - npm run bridge:test:cov
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+  <<: *JS_COVERAGE_CACHE
+  <<: *JAVA_COVERAGE_CACHE
+  analyze_script:
+    - source cirrus-env BUILD
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
 
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
-  <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
     - source cirrus-env BUILD
@@ -272,7 +318,7 @@ plugin_qa_sq_dev_task:
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
   depends_on:
-    - build
+    - build_win
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   env:
@@ -423,7 +469,6 @@ promote_task:
     - build_win
     - plugin_qa_with_node
     - plugin_qa_no_node
-    - plugin_qa_no_node_alpine
     - plugin_qa_sq_dev
     - plugin_qa_win
     - plugin_qa_win_sonarlint

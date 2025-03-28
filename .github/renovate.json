@@ -23,6 +23,9 @@
     "its/eslint8-plugin-sonarjs/**",
     "its/eslint9-plugin-sonarjs/**"
   ],
+  "ignoreDeps": [
+    "one-double-zero"
+  ],
   "packageRules": [
     {
       "managers": [
