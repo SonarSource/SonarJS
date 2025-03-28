@@ -9,13 +9,23 @@
 60,
 61,
 62,
-19049
+3661,
+10038,
+11051,
+14885,
+19049,
+22598
 ],
 "TypeScript:src/compiler/commandLineParser.ts": [
-1118
+1118,
+1242
 ],
 "TypeScript:src/compiler/core.ts": [
-834
+834,
+1529
+],
+"TypeScript:src/compiler/factory.ts": [
+3558
 ],
 "TypeScript:src/compiler/parser.ts": [
 1112
@@ -27,22 +37,38 @@
 "TypeScript:src/compiler/sys.ts": [
 393
 ],
+"TypeScript:src/compiler/transformers/generators.ts": [
+2412,
+2834
+],
+"TypeScript:src/compiler/transformers/module/system.ts": [
+1787
+],
 "TypeScript:src/compiler/transformers/ts.ts": [
 475
+],
+"TypeScript:src/compiler/utilities.ts": [
+2475,
+2947
 ],
 "TypeScript:src/harness/fourslash.ts": [
 2565,
 2578
 ],
 "TypeScript:src/harness/harness.ts": [
-1144
+1144,
+1912
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 159
 ],
 "TypeScript:src/server/editorServices.ts": [
 980,
-1008
+1008,
+1212
+],
+"TypeScript:src/server/project.ts": [
+1092
 ],
 "TypeScript:src/server/scriptInfo.ts": [
 129
@@ -59,12 +85,32 @@
 "TypeScript:src/services/codefixes/importFixes.ts": [
 514
 ],
+"TypeScript:src/services/formatting/formattingContext.ts": [
+43,
+51,
+69,
+77
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+51,
+166
+],
+"TypeScript:src/services/pathCompletions.ts": [
+73
+],
 "TypeScript:src/services/patternMatcher.ts": [
 448,
 453
 ],
+"TypeScript:src/services/services.ts": [
+329,
+337,
+453,
+461
+],
 "TypeScript:src/services/shims.ts": [
-425
+425,
+1173
 ],
 "TypeScript:src/services/textChanges.ts": [
 465,

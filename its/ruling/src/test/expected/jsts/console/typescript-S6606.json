@@ -94,7 +94,11 @@
 68
 ],
 "console:src/views/ProjectRootView/ProjectRootView.tsx": [
-181
+181,
+302
+],
+"console:src/views/ProjectRootView/RootRedirectView.tsx": [
+87
 ],
 "console:src/views/ProjectRootView/SideNav.tsx": [
 343,

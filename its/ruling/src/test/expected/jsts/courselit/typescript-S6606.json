@@ -62,6 +62,9 @@
 57,
 114
 ],
+"courselit:apps/web/graphql/widgets/logic.ts": [
+72
+],
 "courselit:apps/web/lib/auth-cookies.ts": [
 31
 ],
@@ -70,10 +73,12 @@
 106
 ],
 "courselit:apps/web/lib/passport-magic-link.ts": [
-24
+24,
+43
 ],
 "courselit:apps/web/middlewares/verify-domain.ts": [
-70
+70,
+90
 ],
 "courselit:apps/web/models/Course.ts": [
 66

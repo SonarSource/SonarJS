@@ -1,9 +1,36 @@
 {
+"ag-grid:src/ts/componentProvider.ts": [
+223
+],
+"ag-grid:src/ts/components/agGridWebComponent.ts": [
+39,
+56
+],
+"ag-grid:src/ts/context/context.ts": [
+309,
+317,
+351,
+376,
+379
+],
+"ag-grid:src/ts/eventService.ts": [
+70
+],
+"ag-grid:src/ts/gridSerializer.ts": [
+112,
+128
+],
 "ag-grid:src/ts/templateService.ts": [
 55
 ],
 "ag-grid:src/ts/utils.ts": [
+778,
+785,
 822
+],
+"ag-grid:src/ts/widgets/componentAnnotations.ts": [
+22,
+44
 ],
 "ag-grid:src/ts/widgets/popupService.ts": [
 246
