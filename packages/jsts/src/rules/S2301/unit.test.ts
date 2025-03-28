@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule as S2301 } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S2301', () => {
@@ -188,7 +188,7 @@ function tempt8(name: string, ofAge: boolean) {
       ],
     });
 
-    const javaScriptRuleTester = new RuleTester();
+    const javaScriptRuleTester = new DefaultParserRuleTester();
 
     javaScriptRuleTester.run('S2301:JavaScript', S2301, {
       invalid: [],

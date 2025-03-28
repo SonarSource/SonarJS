@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1481', () => {
   it('S1481', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
 
     ruleTester.run('Local variables should be used', rule, {
       valid: [

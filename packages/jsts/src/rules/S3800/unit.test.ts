@@ -575,7 +575,7 @@ const sanitize = () => {
       ],
     });
 
-    const ruleTestJSWithTypes = new RuleTester();
+    const ruleTestJSWithTypes = new DefaultParserRuleTester();
     ruleTestJSWithTypes.run(
       `'Functions should always return the same type [js with type inference]'`,
       rule,

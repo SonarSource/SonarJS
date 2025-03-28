@@ -15,12 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1530', () => {
   it('S1530', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
     ruleTester.run(`Function declarations should not be made within blocks`, rule, {
       valid: [
         {
@@ -70,7 +73,7 @@ describe('S1530', () => {
       ],
     });
 
-    const ruleTesterTS = new RuleTester();
+    const ruleTesterTS = new NoTypeCheckingRuleTester();
 
     ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
       valid: [

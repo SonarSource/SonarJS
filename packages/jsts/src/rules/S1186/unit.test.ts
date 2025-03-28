@@ -18,11 +18,11 @@ import type { Rule } from 'eslint';
 import { rule } from './index.js';
 import { reportWithQuickFixIfApplicable } from './decorator.js';
 import { describe, it } from 'node:test';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 describe('S1186', () => {
   it('S1186', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run(`Decorated rule should provide suggestion`, rule, {
       valid: [

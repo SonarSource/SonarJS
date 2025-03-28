@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S4030', () => {
   it('S4030', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     function invalidTest(code: string) {
       const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;

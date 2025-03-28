@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1533', () => {
   it('S1533', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('Wrapper objects should not be used for primitive types', rule, {
       valid: [

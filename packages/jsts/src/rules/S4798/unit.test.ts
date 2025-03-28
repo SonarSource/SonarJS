@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S4798', () => {
   it('S4798', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('Optional boolean parameters should have default value', rule, {
       valid: [

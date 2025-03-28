@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S4123', () => {
@@ -215,7 +215,7 @@ describe('S4123', () => {
       ],
     });
 
-    const ruleTesterWithNoFullTypeInfo = new RuleTester();
+    const ruleTesterWithNoFullTypeInfo = new NoTypeCheckingRuleTester();
 
     ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
       valid: [

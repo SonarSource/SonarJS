@@ -14,13 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S3827', () => {
   it('S3827', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Variables should be defined before being used', rule, {
       valid: [
         {
@@ -138,7 +141,7 @@ describe('S3827', () => {
       ],
     });
 
-    const ruleTesterScript = new RuleTester();
+    const ruleTesterScript = new NoTypeCheckingRuleTester();
     ruleTesterScript.run('No issues within with statements', rule, {
       valid: [
         {

@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S128', () => {
   it('S128', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('No fallthrough in switch statement', rule, {
       valid: [
         {

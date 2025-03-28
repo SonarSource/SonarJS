@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const tests = {
@@ -58,8 +58,8 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester();
-const ruleTesterTs = new RuleTester();
+const ruleTesterJs = new DefaultParserRuleTester();
+const ruleTesterTs = new DefaultParserRuleTester();
 
 describe('S2138', () => {
   it('S2138', () => {

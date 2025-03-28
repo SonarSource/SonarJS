@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AwsCdkTemplate } from '../../../../src/rules/index.js';
-import { RuleTester } from '../../../tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
 const rule = AwsCdkTemplate({
@@ -24,7 +24,7 @@ const rule = AwsCdkTemplate({
   },
 });
 describe('aws test', () => {
-  const ruleTester = new RuleTester();
+  const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run('AWS CDK Rule Template', rule, {
     valid: [
       {

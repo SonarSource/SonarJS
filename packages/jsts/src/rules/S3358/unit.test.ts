@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S3358', () => {
   it('S3358', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Ternary operators should not be nested', rule, {
       valid: [
         {

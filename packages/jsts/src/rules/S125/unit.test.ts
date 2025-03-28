@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S125', () => {
   it('S125', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('Sections of code should not be commented out', rule, {
       valid: [
         {

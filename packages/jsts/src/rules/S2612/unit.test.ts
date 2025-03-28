@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S2612', () => {
@@ -296,10 +296,10 @@ describe('S2612', () => {
       ],
     };
 
-    const ruleTester = new RuleTester();
+    const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
 
-    const ruleTesterTs = new RuleTester();
+    const ruleTesterTs = new DefaultParserRuleTester();
     ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);
   });
 });
