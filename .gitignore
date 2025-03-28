@@ -54,3 +54,5 @@ its/eslint9-plugin-sonarjs/package-lock.json
 
 # coverage tool "nyc"
 .nyc_output
+lcov-report/
+lcov.info
