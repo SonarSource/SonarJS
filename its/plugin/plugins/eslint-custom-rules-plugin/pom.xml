@@ -63,4 +63,9 @@
     </plugins>
   </build>
 
+  <properties>
+    <!-- sonar scanner properties -->
+    <sonar.sources>src/main</sonar.sources>
+    <sonar.tests/>
+  </properties>
 </project>

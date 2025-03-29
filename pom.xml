@@ -59,9 +59,7 @@
   <modules>
     <module>maven-plugins</module>
     <module>sonar-plugin</module>
-    <!--
-      its module is added via profile below
-    -->
+    <module>its</module>
   </modules>
 
   <scm>
@@ -342,15 +340,4 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <profiles>
-    <profile>
-      <id>its</id>
-      <modules>
-        <module>its</module>
-      </modules>
-    </profile>
-  </profiles>
-
-
 </project>
