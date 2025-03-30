@@ -316,7 +316,7 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body).toEqual(undefined);
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
-  test('should serialize some nodes to empty objects', async () => {
+  test('should serialize some nodes to empty object', async () => {
     const codeMap = new Map<string, string>();
     codeMap.set('TSTypeAliasDeclaration', `type A = { a: string };`);
     codeMap.set('TSInterfaceDeclaration', `interface A { a: string; }`);
@@ -333,7 +333,7 @@ describe('ast', () => {
       checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
     }
   });
-  test('should serialize TSEmptyBodyFunctionExpression nodes to empty objects', async () => {
+  test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
     const code = `class Foo { bar() }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);

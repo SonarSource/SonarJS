@@ -202,16 +202,7 @@ public class ESTreeFactory {
         );
       };
     if (!clazz.isInstance(estreeNode)) {
-      throw new IllegalStateException(
-        "Expected " +
-        clazz +
-        " but got " +
-        estreeNode.getClass() +
-        " at " +
-        node.getLoc().getSource() +
-        ":" +
-        node.getLoc().getStart().getLine()
-      );
+      throw new IllegalStateException("Expected " + clazz + " but got " + estreeNode.getClass());
     }
     return clazz.cast(estreeNode);
   }

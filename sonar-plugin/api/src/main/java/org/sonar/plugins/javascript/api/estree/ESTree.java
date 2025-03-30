@@ -677,8 +677,6 @@ public class ESTree {
 
   public sealed interface PatternOrTSParameterProperty extends Node {}
 
-  public sealed interface FunctionExpressionOrTSEmptyBodyFunctionExpression extends Expression {}
-
   public record TSParameterProperty(
     Location loc,
     Optional<String> accessibility,
@@ -686,6 +684,8 @@ public class ESTree {
     Pattern parameter
   )
     implements PatternOrTSParameterProperty {}
+
+  public sealed interface FunctionExpressionOrTSEmptyBodyFunctionExpression extends Expression {}
 
   public record TSTypeAliasDeclaration(Location loc) implements Declaration {}
 

@@ -136,9 +136,9 @@ class StandaloneParserTest {
     );
   }
 
-  private static <
-    T
-  > ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock parseClassAndReturnNode(String code) {
+  private static ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock parseClassAndReturnNode(
+    String code
+  ) {
     Program program = parser.parse(code, "file.ts");
     assertThat(program.body()).hasSize(1);
     assertThat(program.body().get(0)).isInstanceOf(ESTree.ClassDeclaration.class);

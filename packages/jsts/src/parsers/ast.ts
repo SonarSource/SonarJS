@@ -327,7 +327,16 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSModuleDeclaration':
       shape = visitTSModuleDeclaration(node);
       break;
+    case 'TSTypeAliasDeclaration':
+    case 'TSInterfaceDeclaration':
+    case 'TSEmptyBodyFunctionExpression':
+    case 'TSEnumDeclaration':
+    case 'TSDeclareFunction':
+    case 'TSAbstractMethodDefinition':
+      shape = {};
+      break;
     default:
+      unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
       shape = {};
   }
   // Visiting UnknownNodeTypes can cause the failure of the ESTreeFactory. For this reason where possible (for example in the arrays) we try to remove them.
@@ -338,14 +347,8 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       );
     }
   }
-  const type =
-    NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'];
-  if (type === NODE_TYPE_ENUM.values['UnknownNodeType']) {
-    unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
-  }
-
   return {
-    type,
+    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
     loc: node.loc,
     [lowerCaseFirstLetter(node.type)]: shape,
   };
