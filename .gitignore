@@ -51,3 +51,8 @@ its/eslint8-plugin-sonarjs/package-lock.json
 its/eslint9-plugin-sonarjs/package-lock.json
 
 /resources
+
+# coverage
+.nyc_output/
+lcov-report/
+lcov.info
