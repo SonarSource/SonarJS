@@ -25,6 +25,7 @@ import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import {
   deserializeProtobuf,
+  lowerCaseFirstLetter,
   NODE_TYPE_ENUM,
   parseInProtobuf,
   serializeInProtobuf,
@@ -262,15 +263,6 @@ describe('ast', () => {
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 
-  test('Unknown node types in program body are not serialized', async () => {
-    const code = `type Foo = {}`;
-    const ast = await parseSourceCode(code, parsersMap.typescript);
-    const protoMessage = visitNode(ast as TSESTree.Program);
-
-    expect(protoMessage.program.body).toEqual([]);
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
-  });
-
   test('should support TSModuleDeclaration nodes', async () => {
     const code = `namespace Foo { let a = 42;}`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
@@ -322,6 +314,52 @@ describe('ast', () => {
     expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
     expect(tSModuleDeclaration.id.literal.valueString).toEqual('Foo');
     expect(tSModuleDeclaration.body).toEqual(undefined);
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+  });
+  [
+    { nodeType: 'TSTypeAliasDeclaration', code: `type A = { a: string };` },
+    { nodeType: 'TSInterfaceDeclaration', code: `interface A { a: string; }` },
+    { nodeType: 'TSEnumDeclaration', code: `enum Direction {}` },
+    { nodeType: 'TSDeclareFunction', code: `declare function foo()` },
+  ].forEach(({ nodeType, code }) =>
+    test(`should serialize ${nodeType} to empty object`, async () => {
+      const ast = await parseSourceCode(code, parsersMap.typescript);
+      const protoMessage = visitNode(ast as TSESTree.Program);
+      expect(protoMessage.program.body[0].type).toEqual(NODE_TYPE_ENUM.values[`${nodeType}Type`]);
+      const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
+      expect(tSModuleDeclaration).toEqual({});
+      checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    }),
+  );
+
+  test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
+    const code = `class Foo { bar() }`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['ClassDeclarationType'],
+    );
+    const methodDefinition =
+      protoMessage.program.body[0].classDeclaration.body.classBody.body[0].methodDefinition.value;
+    expect(methodDefinition.type).toEqual(
+      NODE_TYPE_ENUM.values['TSEmptyBodyFunctionExpressionType'],
+    );
+    expect(methodDefinition.tSEmptyBodyFunctionExpression).toEqual({});
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+  });
+
+  test('should serialize TSAbstractMethodDefinition nodes to empty objects', async () => {
+    const code = `class Foo { abstract bar() }`;
+    const ast = await parseSourceCode(code, parsersMap.typescript);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    expect(protoMessage.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['ClassDeclarationType'],
+    );
+    let body = protoMessage.program.body[0].classDeclaration.body.classBody.body;
+    expect(body[0].type).toEqual(NODE_TYPE_ENUM.values['TSAbstractMethodDefinitionType']);
+    expect(body[0].tSAbstractMethodDefinition).toEqual({});
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
 });

@@ -90,7 +90,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.TemplateLiteral;
 import org.sonar.plugins.javascript.bridge.protobuf.ThrowStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TryStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
-import org.sonar.plugins.javascript.bridge.protobuf.UnknownNode;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclarator;
@@ -191,6 +190,12 @@ public class ESTreeFactory {
         case TSModuleBlockType -> fromTSModuleBlock(node);
         case TSModuleDeclarationType -> fromTSModuleDeclaration(node);
         case TSParameterPropertyType -> fromTSParameterProperty(node);
+        case TSTypeAliasDeclarationType -> fromTSTypeAliasDeclaration(node);
+        case TSEnumDeclarationType -> fromTSEnumDeclaration(node);
+        case TSInterfaceDeclarationType -> fromTSInterfaceDeclaration(node);
+        case TSDeclareFunctionType -> fromTSDeclareFunction(node);
+        case TSEmptyBodyFunctionExpressionType -> fromTSEmptyBodyFunctionExpression(node);
+        case TSAbstractMethodDefinitionType -> fromTSAbstractMethodDefinition(node);
         case UnknownNodeType -> fromUnknownNodeType(node);
         case UNRECOGNIZED -> throw new IllegalArgumentException(
           "Unknown node type: " + node.getType() + " at " + node.getLoc()
@@ -508,7 +513,10 @@ public class ESTreeFactory {
     return new ESTree.MethodDefinition(
       fromLocation(node.getLoc()),
       from(methodDefinition.getKey(), ESTree.ExpressionOrPrivateIdentifier.class),
-      from(methodDefinition.getValue(), ESTree.FunctionExpression.class),
+      from(
+        methodDefinition.getValue(),
+        ESTree.FunctionExpressionOrTSEmptyBodyFunctionExpression.class
+      ),
       methodDefinition.getKind(),
       methodDefinition.getComputed(),
       methodDefinition.getStatic()
@@ -1020,6 +1028,30 @@ public class ESTreeFactory {
       tsParameterProperty.getReadonly(),
       from(tsParameterProperty.getParameter(), ESTree.Pattern.class)
     );
+  }
+
+  private static ESTree.TSAbstractMethodDefinition fromTSAbstractMethodDefinition(Node node) {
+    return new ESTree.TSAbstractMethodDefinition(fromLocation(node.getLoc()));
+  }
+
+  private static ESTree.TSDeclareFunction fromTSDeclareFunction(Node node) {
+    return new ESTree.TSDeclareFunction(fromLocation(node.getLoc()));
+  }
+
+  private static ESTree.TSInterfaceDeclaration fromTSInterfaceDeclaration(Node node) {
+    return new ESTree.TSInterfaceDeclaration(fromLocation(node.getLoc()));
+  }
+
+  private static ESTree.TSEnumDeclaration fromTSEnumDeclaration(Node node) {
+    return new ESTree.TSEnumDeclaration(fromLocation(node.getLoc()));
+  }
+
+  private static ESTree.TSTypeAliasDeclaration fromTSTypeAliasDeclaration(Node node) {
+    return new ESTree.TSTypeAliasDeclaration(fromLocation(node.getLoc()));
+  }
+
+  private static ESTree.TSEmptyBodyFunctionExpression fromTSEmptyBodyFunctionExpression(Node node) {
+    return new ESTree.TSEmptyBodyFunctionExpression(fromLocation(node.getLoc()));
   }
 
   private static ESTree.UnknownNode fromUnknownNodeType(Node node) {

@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayElement;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
@@ -960,5 +964,37 @@ class ESTreeFactoryTest {
         "Expected class org.sonar.plugins.javascript.api.estree.ESTree$Super " +
         "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
       );
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInputsForExpectedJavaTypes")
+  <T> void node_type_should_create_expected_java_types(NodeType nodeType, Class<T> clazz) {
+    assertNodeTypeIsParsedToExpectedClass(nodeType, clazz);
+  }
+
+  private static Stream<Arguments> provideInputsForExpectedJavaTypes() {
+    return Stream.of(
+      Arguments.of(
+        NodeType.TSAbstractMethodDefinitionType,
+        ESTree.TSAbstractMethodDefinition.class
+      ),
+      Arguments.of(
+        NodeType.TSAbstractMethodDefinitionType,
+        ESTree.TSAbstractMethodDefinition.class
+      ),
+      Arguments.of(NodeType.TSDeclareFunctionType, ESTree.TSDeclareFunction.class),
+      Arguments.of(NodeType.TSInterfaceDeclarationType, ESTree.TSInterfaceDeclaration.class),
+      Arguments.of(NodeType.TSEnumDeclarationType, ESTree.TSEnumDeclaration.class),
+      Arguments.of(NodeType.TSTypeAliasDeclarationType, ESTree.TSTypeAliasDeclaration.class),
+      Arguments.of(
+        NodeType.TSEmptyBodyFunctionExpressionType,
+        ESTree.TSEmptyBodyFunctionExpression.class
+      )
+    );
+  }
+
+  private static <T> void assertNodeTypeIsParsedToExpectedClass(NodeType nodeType, Class<T> clazz) {
+    Node tsTypeAliasDeclaration = Node.newBuilder().setType(nodeType).build();
+    assertThat(ESTreeFactory.from(tsTypeAliasDeclaration, ESTree.Node.class)).isInstanceOf(clazz);
   }
 }

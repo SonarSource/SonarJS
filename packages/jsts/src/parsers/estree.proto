@@ -94,6 +94,12 @@ enum NodeType {
   TSModuleBlockType = 75;
   TSModuleDeclarationType = 76;
   TSParameterPropertyType = 77;
+  TSTypeAliasDeclarationType = 78;
+  TSInterfaceDeclarationType = 79;
+  TSEmptyBodyFunctionExpressionType = 80;
+  TSEnumDeclarationType = 81;
+  TSDeclareFunctionType = 82;
+  TSAbstractMethodDefinitionType = 83;
   UnknownNodeType = 1000;
 }
 message Node {
@@ -512,6 +518,5 @@ message TSParameterProperty {
   bool readonly = 2;
   Node parameter = 3;
 }
-
 message UnknownNode {
 }

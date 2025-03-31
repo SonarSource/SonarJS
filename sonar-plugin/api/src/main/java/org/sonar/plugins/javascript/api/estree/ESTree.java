@@ -274,7 +274,7 @@ public class ESTree {
     boolean generator,
     boolean async
   )
-    implements Expression {}
+    implements FunctionExpressionOrTSEmptyBodyFunctionExpression {}
 
   public record Identifier(Location loc, String name)
     implements
@@ -335,7 +335,7 @@ public class ESTree {
   public record MethodDefinition(
     Location loc,
     ExpressionOrPrivateIdentifier key,
-    FunctionExpression value,
+    FunctionExpressionOrTSEmptyBodyFunctionExpression value,
     String kind,
     boolean computed,
     boolean isStatic
@@ -673,7 +673,7 @@ public class ESTree {
     Optional<TSModuleBlock> body,
     String kind
   )
-    implements ModuleDeclaration {}
+    implements Declaration {}
 
   public sealed interface PatternOrTSParameterProperty extends Node {}
 
@@ -684,4 +684,20 @@ public class ESTree {
     Pattern parameter
   )
     implements PatternOrTSParameterProperty {}
+
+  public sealed interface FunctionExpressionOrTSEmptyBodyFunctionExpression extends Expression {}
+
+  public record TSTypeAliasDeclaration(Location loc) implements Declaration {}
+
+  public record TSEnumDeclaration(Location loc) implements Declaration {}
+
+  public record TSInterfaceDeclaration(Location loc) implements Declaration {}
+
+  public record TSDeclareFunction(Location loc) implements Declaration {}
+
+  public record TSEmptyBodyFunctionExpression(Location loc)
+    implements FunctionExpressionOrTSEmptyBodyFunctionExpression {}
+
+  public record TSAbstractMethodDefinition(Location loc)
+    implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
 }

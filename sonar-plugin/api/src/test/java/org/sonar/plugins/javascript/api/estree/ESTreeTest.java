@@ -26,14 +26,14 @@ class ESTreeTest {
   @Test
   void test() {
     Class<?>[] classes = ESTree.class.getDeclaredClasses();
-    assertThat(classes).hasSize(118);
+    assertThat(classes).hasSize(125);
 
     //filter all classes that are interface
     var ifaceCount = Arrays.stream(classes).filter(Class::isInterface).count();
-    assertThat(ifaceCount).isEqualTo(29);
+    assertThat(ifaceCount).isEqualTo(30);
 
     var recordCount = Arrays.stream(classes).filter(Class::isRecord).count();
-    assertThat(recordCount).isEqualTo(84);
+    assertThat(recordCount).isEqualTo(90);
   }
 
   @Test

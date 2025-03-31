@@ -20,9 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.api.estree.ESTree.Program;
 
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 
 class StandaloneParserTest {
@@ -74,5 +79,67 @@ class StandaloneParserTest {
     assertThat(emptyConfiguration.get("key")).isEmpty();
     assertThat(emptyConfiguration.hasKey("key")).isFalse();
     assertThat(emptyConfiguration.getStringArray("key")).isEmpty();
+  }
+
+  @Test
+  void should_parse_ts_empty_body_function_expression() {
+    ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock actual = parseClassAndReturnNode(
+      "class Foo { bar() }"
+    );
+    assertThat(actual).isInstanceOfSatisfying(ESTree.MethodDefinition.class, methodDefinition ->
+      assertThat(methodDefinition.value()).isInstanceOf(
+        ESTree.FunctionExpressionOrTSEmptyBodyFunctionExpression.class
+      )
+    );
+  }
+
+  @Test
+  void should_parse_ts_abstract_method_definition() {
+    assertThat(parseClassAndReturnNode("class Foo { abstract bar() }")).isInstanceOf(
+      ESTree.TSAbstractMethodDefinition.class
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInputsForParsingExportedNodes")
+  <T> void should_parse_exported_nodes_to_correct_types(String code, Class<T> clazz) {
+    assertExportedNodeIsParsedToCorrectObjectType(code, clazz);
+  }
+
+  private static Stream<Arguments> provideInputsForParsingExportedNodes() {
+    return Stream.of(
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare module 'foo'", ESTree.TSModuleDeclaration.class),
+      Arguments.of("export type A = { a: 42 }", ESTree.TSTypeAliasDeclaration.class),
+      Arguments.of("export enum A {}", ESTree.TSEnumDeclaration.class),
+      Arguments.of("export interface A {}", ESTree.TSInterfaceDeclaration.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class)
+    );
+  }
+
+  private static ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock parseClassAndReturnNode(
+    String code
+  ) {
+    Program program = parser.parse(code, "file.ts");
+    assertThat(program.body()).hasSize(1);
+    assertThat(program.body().get(0)).isInstanceOf(ESTree.ClassDeclaration.class);
+    List<ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock> bodyClass =
+      ((ESTree.ClassDeclaration) program.body().get(0)).body().body();
+    assertThat(bodyClass).isNotEmpty();
+    return bodyClass.get(0);
+  }
+
+  private static <T> void assertExportedNodeIsParsedToCorrectObjectType(
+    String code,
+    Class<T> nodeType
+  ) {
+    Program program = parser.parse(code, "file.ts");
+    assertThat(program.body()).hasSize(1);
+    assertThat(program.body().get(0)).isInstanceOfSatisfying(
+      ESTree.ExportNamedDeclaration.class,
+      export -> assertThat(export.declaration()).isPresent().get().isInstanceOf(nodeType)
+    );
   }
 }

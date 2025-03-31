@@ -327,6 +327,14 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSModuleDeclaration':
       shape = visitTSModuleDeclaration(node);
       break;
+    case 'TSTypeAliasDeclaration':
+    case 'TSInterfaceDeclaration':
+    case 'TSEmptyBodyFunctionExpression':
+    case 'TSEnumDeclaration':
+    case 'TSDeclareFunction':
+    case 'TSAbstractMethodDefinition':
+      shape = {};
+      break;
     default:
       unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
       shape = {};
@@ -940,6 +948,7 @@ function visitTSParameterProperty(node: TSESTree.TSParameterProperty) {
   };
 }
 
-function lowerCaseFirstLetter(str: string) {
+// Exported for testing purpose
+export function lowerCaseFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
