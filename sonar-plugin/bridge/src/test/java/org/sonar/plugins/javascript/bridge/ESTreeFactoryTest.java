@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayElement;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
@@ -962,51 +966,30 @@ class ESTreeFactoryTest {
       );
   }
 
-  @Test
-  void should_create_ts_abstract_method_definition() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSAbstractMethodDefinitionType,
-      ESTree.TSAbstractMethodDefinition.class
-    );
+  @ParameterizedTest
+  @MethodSource("provideInputsForExpectedJavaTypes")
+  <T> void node_type_should_create_expected_java_types(NodeType nodeType, Class<T> clazz) {
+    assertNodeTypeIsParsedToExpectedClass(nodeType, clazz);
   }
 
-  @Test
-  void should_create_ts_declare_function() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSDeclareFunctionType,
-      ESTree.TSDeclareFunction.class
-    );
-  }
-
-  @Test
-  void should_create_ts_interface_declaration() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSInterfaceDeclarationType,
-      ESTree.TSInterfaceDeclaration.class
-    );
-  }
-
-  @Test
-  void should_create_ts_enum_declaration() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSEnumDeclarationType,
-      ESTree.TSEnumDeclaration.class
-    );
-  }
-
-  @Test
-  void should_create_ts_type_alias_declaration() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSTypeAliasDeclarationType,
-      ESTree.TSTypeAliasDeclaration.class
-    );
-  }
-
-  @Test
-  void should_create_ts_empty_body_function_expression() {
-    assertNodeTypeIsParsedToExpectedClass(
-      NodeType.TSEmptyBodyFunctionExpressionType,
-      ESTree.TSEmptyBodyFunctionExpression.class
+  private static Stream<Arguments> provideInputsForExpectedJavaTypes() {
+    return Stream.of(
+      Arguments.of(
+        NodeType.TSAbstractMethodDefinitionType,
+        ESTree.TSAbstractMethodDefinition.class
+      ),
+      Arguments.of(
+        NodeType.TSAbstractMethodDefinitionType,
+        ESTree.TSAbstractMethodDefinition.class
+      ),
+      Arguments.of(NodeType.TSDeclareFunctionType, ESTree.TSDeclareFunction.class),
+      Arguments.of(NodeType.TSInterfaceDeclarationType, ESTree.TSInterfaceDeclaration.class),
+      Arguments.of(NodeType.TSEnumDeclarationType, ESTree.TSEnumDeclaration.class),
+      Arguments.of(NodeType.TSTypeAliasDeclarationType, ESTree.TSTypeAliasDeclaration.class),
+      Arguments.of(
+        NodeType.TSEmptyBodyFunctionExpressionType,
+        ESTree.TSEmptyBodyFunctionExpression.class
+      )
     );
   }
 

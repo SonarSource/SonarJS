@@ -316,23 +316,21 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body).toEqual(undefined);
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
-  test('should serialize some nodes to empty object', async () => {
-    const codeMap = new Map<string, string>();
-    codeMap.set('TSTypeAliasDeclaration', `type A = { a: string };`);
-    codeMap.set('TSInterfaceDeclaration', `interface A { a: string; }`);
-    codeMap.set('TSEnumDeclaration', `enum Direction {}`);
-    codeMap.set('TSDeclareFunction', `declare function foo()`);
-
-    for (const [nodeType, code] of codeMap) {
+  [
+    { nodeType: 'TSTypeAliasDeclaration', code: `type A = { a: string };` },
+    { nodeType: 'TSInterfaceDeclaration', code: `interface A { a: string; }` },
+    { nodeType: 'TSEnumDeclaration', code: `enum Direction {}` },
+    { nodeType: 'TSDeclareFunction', code: `declare function foo()` },
+  ].forEach(({ nodeType, code }) =>
+    test(`should serialize ${nodeType} to empty object`, async () => {
       const ast = await parseSourceCode(code, parsersMap.typescript);
       const protoMessage = visitNode(ast as TSESTree.Program);
-
       expect(protoMessage.program.body[0].type).toEqual(NODE_TYPE_ENUM.values[`${nodeType}Type`]);
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
       checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
-    }
-  });
+    }),
+  );
   test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
     const code = `class Foo { bar() }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);

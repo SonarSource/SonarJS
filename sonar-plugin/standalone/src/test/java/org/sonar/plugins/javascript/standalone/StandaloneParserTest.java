@@ -21,9 +21,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.api.estree.ESTree.Program;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 
 class StandaloneParserTest {
@@ -78,46 +82,6 @@ class StandaloneParserTest {
   }
 
   @Test
-  void should_parse_exported_ts_module_declaration() {
-    assertExportedNodeIsParsedToCorrectObjectType(
-      "export declare module 'foo'",
-      ESTree.TSModuleDeclaration.class
-    );
-  }
-
-  @Test
-  void should_parse_exported_ts_type_alias_declaration() {
-    assertExportedNodeIsParsedToCorrectObjectType(
-      "export type A = { a: 42 }",
-      ESTree.TSTypeAliasDeclaration.class
-    );
-  }
-
-  @Test
-  void should_parse_exported_ts_enum_declaration() {
-    assertExportedNodeIsParsedToCorrectObjectType(
-      "export enum A {}",
-      ESTree.TSEnumDeclaration.class
-    );
-  }
-
-  @Test
-  void should_parse_exported_ts_interface_declaration() {
-    assertExportedNodeIsParsedToCorrectObjectType(
-      "export interface A {}",
-      ESTree.TSInterfaceDeclaration.class
-    );
-  }
-
-  @Test
-  void should_parse_exported_ts_declare_function() {
-    assertExportedNodeIsParsedToCorrectObjectType(
-      "export declare function foo()",
-      ESTree.TSDeclareFunction.class
-    );
-  }
-
-  @Test
   void should_parse_ts_empty_body_function_expression() {
     ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock actual = parseClassAndReturnNode(
       "class Foo { bar() }"
@@ -133,6 +97,25 @@ class StandaloneParserTest {
   void should_parse_ts_abstract_method_definition() {
     assertThat(parseClassAndReturnNode("class Foo { abstract bar() }")).isInstanceOf(
       ESTree.TSAbstractMethodDefinition.class
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInputsForParsingExportedNodes")
+  <T> void should_parse_exported_nodes_to_correct_types(String code, Class<T> clazz) {
+    assertExportedNodeIsParsedToCorrectObjectType(code, clazz);
+  }
+
+  private static Stream<Arguments> provideInputsForParsingExportedNodes() {
+    return Stream.of(
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare module 'foo'", ESTree.TSModuleDeclaration.class),
+      Arguments.of("export type A = { a: 42 }", ESTree.TSTypeAliasDeclaration.class),
+      Arguments.of("export enum A {}", ESTree.TSEnumDeclaration.class),
+      Arguments.of("export interface A {}", ESTree.TSInterfaceDeclaration.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class)
     );
   }
 
