@@ -45,6 +45,10 @@
           "matchUpdateTypes": ["minor", "patch"],
           "matchCurrentVersion": "!/^0/",
           "automerge": false
+        },
+        {
+          "updateTypes": ["patch"],
+          "enabled": false
         }
       ]
     }
