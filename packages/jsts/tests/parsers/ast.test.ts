@@ -331,6 +331,7 @@ describe('ast', () => {
       checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
     }),
   );
+
   test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
     const code = `class Foo { bar() }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
@@ -347,6 +348,7 @@ describe('ast', () => {
     expect(methodDefinition.tSEmptyBodyFunctionExpression).toEqual({});
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
+
   test('should serialize TSAbstractMethodDefinition nodes to empty objects', async () => {
     const code = `class Foo { abstract bar() }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
