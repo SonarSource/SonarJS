@@ -78,9 +78,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   });
   clearTSConfigs();
   await verifyProvidedTsConfigs(normalizedBaseDir, configuration.tsConfigPaths);
-  if (!input.files) {
-    input.files = await loadFiles(normalizedBaseDir);
-  }
+  input.files = input.files ?? (await loadFiles(normalizedBaseDir));
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
   await loadFiles(normalizedBaseDir);

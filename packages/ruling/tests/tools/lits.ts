@@ -64,12 +64,9 @@ function transformResults(projectPath: string, project: string, results: Project
     if ('issues' in analysisOutput) {
       for (const issue of analysisOutput.issues) {
         const { ruleId, language, line } = issue;
-        if (result[ruleId] === undefined) {
-          result[ruleId] = { js: {}, ts: {} };
-        }
-        if (result[ruleId][language][projectWithFilename] === undefined) {
-          result[ruleId][language][projectWithFilename] = [];
-        }
+        result[ruleId] = result[ruleId] ?? { js: {}, ts: {} };
+        result[ruleId][language][projectWithFilename] =
+          result[ruleId][language][projectWithFilename] ?? [];
         result[ruleId][language][projectWithFilename].push(line);
       }
     } else if ('parsingError' in analysisOutput) {
