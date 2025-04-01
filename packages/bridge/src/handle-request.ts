@@ -39,7 +39,7 @@ export async function handleRequest(
     switch (request.type) {
       case 'on-init-linter': {
         await Linter.initialize(request.data);
-        return { type: 'success', result: 'OK!' };
+        return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
         const output = await analyzeJSTS(request.data);
@@ -62,7 +62,7 @@ export async function handleRequest(
       case 'on-delete-program': {
         deleteProgram(request.data.programId);
         logHeapStatistics(workerData?.debugMemory);
-        return { type: 'success', result: 'OK!' };
+        return { type: 'success', result: 'OK' };
       }
       case 'on-create-tsconfig-file': {
         const tsConfigContent = request.data;
@@ -72,7 +72,7 @@ export async function handleRequest(
       // Clean typescript-eslint cache in SonarLint. not used currently
       case 'on-new-tsconfig': {
         clearTypeScriptESLintParserCaches();
-        return { type: 'success', result: 'OK!' };
+        return { type: 'success', result: 'OK' };
       }
       case 'on-tsconfig-files': {
         const options = createProgramOptions(request.data.tsConfig);

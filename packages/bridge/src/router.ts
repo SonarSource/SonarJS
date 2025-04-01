@@ -38,7 +38,9 @@ export default function (worker: Worker | undefined, workerData: WorkerData): ex
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
   /** Endpoints running on the main thread */
-  router.get('/status', (_, response) => response.send('OK!'));
+  router.get('/status', (_, response) => {
+    response.sendStatus(200);
+  });
 
   return router;
 }

@@ -116,13 +116,13 @@ class SonarJsIntegrationTest {
       .until(() -> {
         try {
           response[0] = bridge.status();
-          return response[0].equals("OK!");
+          return response[0].equals("OK");
         } catch (IOException e) {
           Thread.sleep(100);
           return false;
         }
       });
-    assertThat(response[0]).isEqualTo("OK!");
+    assertThat(response[0]).isEqualTo("OK");
   }
 
   static void extractArchive(Path tgz, Path targetPath) throws IOException {

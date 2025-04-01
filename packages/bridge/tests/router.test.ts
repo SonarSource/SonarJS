@@ -290,24 +290,24 @@ describe('router', () => {
     const { programId } = createAndSaveProgram(tsConfig);
     const data = { programId };
     const response = (await request(server, '/delete-program', 'POST', data)) as string;
-    expect(response).toEqual('OK!');
+    expect(response).toEqual('OK');
   });
 
   it('should route /init-linter requests', async () => {
     const data = { rules: [], environments: [], globals: [] };
     const response = await request(server, '/init-linter', 'POST', data);
-    expect(response).toEqual('OK!');
+    expect(response).toEqual('OK');
   });
 
   it('should route /new-tsconfig requests', async () => {
     const data = {};
     const response = await request(server, '/new-tsconfig', 'POST', data);
-    expect(response).toEqual('OK!');
+    expect(response).toEqual('OK');
   });
 
   it('should route /status requests', async () => {
     const response = await request(server, '/status', 'GET');
-    expect(response).toEqual('OK!');
+    expect(response).toEqual('OK');
   });
 
   it('should route /tsconfig-files requests', async () => {

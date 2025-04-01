@@ -41,7 +41,7 @@ describe('worker', () => {
     worker.once('message', message => {
       expect(message).toEqual({
         type: 'success',
-        result: 'OK!',
+        result: 'OK',
       });
       resolver();
     });

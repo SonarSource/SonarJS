@@ -350,7 +350,7 @@ public class BridgeServerImpl implements BridgeServer {
     String request = GSON.toJson(initLinterRequest);
 
     String response = request(request, "init-linter").json();
-    if (!"OK!".equals(response)) {
+    if (!"OK".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
     }
   }
@@ -416,7 +416,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
     try {
       String res = http.get(url("status"));
-      var result = "OK!".equals(res);
+      var result = "OK".equals(res);
       if (result) {
         latestOKIsAliveTimestamp = System.currentTimeMillis();
       }
@@ -436,7 +436,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public boolean newTsConfig() {
     var response = request("", "new-tsconfig").json();
-    return "OK!".equals(response);
+    return "OK".equals(response);
   }
 
   TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
@@ -480,7 +480,7 @@ public class BridgeServerImpl implements BridgeServer {
   public boolean deleteProgram(TsProgram tsProgram) {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
     var response = request(GSON.toJson(programToDelete), "delete-program").json();
-    return "OK!".equals(response);
+    return "OK".equals(response);
   }
 
   @Override
