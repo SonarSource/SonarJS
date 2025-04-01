@@ -18,5 +18,6 @@
 // https://nodejs.org/docs/latest-v22.x/api/module.html#customization-hooks
 import { register } from 'node:module';
 import { pathToFileURL } from 'node:url';
+// import 'source-map-support/register.js'
 
 register('@istanbuljs/esm-loader-hook', pathToFileURL('./'));
