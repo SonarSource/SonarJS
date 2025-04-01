@@ -2,7 +2,6 @@ import path from 'path';
 import { cpSync, mkdirSync, statSync, accessSync } from 'node:fs';
 import { globSync } from 'glob';
 
-// Define the source and destination directories
 const sourceBaseDir = path.join(import.meta.dirname, '..');
 const patterns = [
   'packages/*/tests/**/fixtures/**/*',
@@ -12,7 +11,7 @@ const patterns = [
 ];
 
 const filesToCopy = [
-  path.join(import.meta.dirname, '..', 'packages', 'jsts', 'src', 'rules', 'tsconfig.cb.json'),
+  path.join(sourceBaseDir, 'packages', 'jsts', 'src', 'rules', 'tsconfig.cb.json'),
 ];
 filesToCopy.forEach(copyFileIntoLib);
 
