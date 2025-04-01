@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.sonarsource.rule-api</groupId>
       <artifactId>rule-api</artifactId>
-      <version>2.10.0.4262</version>
+      <version>2.10.0.4287</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
