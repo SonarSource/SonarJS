@@ -9,7 +9,7 @@ let server;
 const requestHandler = async (request, response) => {
   if (request.url === '/status') {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
-    response.end('OK!');
+    response.end('OK');
   } else if (request.url === '/close') {
     response.end();
     server.close();
