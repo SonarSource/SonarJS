@@ -18,6 +18,7 @@ import * as express from 'express';
 import { Worker } from 'worker_threads';
 import { createDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
+import { StatusCodes } from 'http-status-codes';
 
 export default function (worker: Worker | undefined, workerData: WorkerData): express.Router {
   const router = express.Router();
@@ -38,7 +39,9 @@ export default function (worker: Worker | undefined, workerData: WorkerData): ex
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
   /** Endpoints running on the main thread */
-  router.get('/status', (_, response) => response.send('OK!'));
+  router.get('/status', (_, response) => {
+    response.sendStatus(StatusCodes.OK);
+  });
 
   return router;
 }

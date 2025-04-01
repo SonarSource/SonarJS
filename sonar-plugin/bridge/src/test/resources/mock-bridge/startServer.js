@@ -15,13 +15,13 @@ const requestHandler = (request, response) => {
 
     if (request.url === '/status' || request.url === '/new-tsconfig') {
       response.writeHead(200, { 'Content-Type': 'text/plain' });
-      response.end('OK!');
+      response.end('OK');
     } else if (request.url === '/tsconfig-files') {
       response.end("{files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
     } else if (request.url === '/init-linter') {
-      response.end('OK!');
+      response.end('OK');
     } else if (request.url === '/load-rule-bundles') {
-      response.end('OK!');
+      response.end('OK');
     } else if (request.url === '/close') {
       response.end();
       server.close();
@@ -32,7 +32,7 @@ const requestHandler = (request, response) => {
         "{programId: '42', projectReferences: [], files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}",
       );
     } else if (request.url === '/delete-program') {
-      response.end('OK!');
+      response.end('OK');
     } else if (request.url === '/create-tsconfig-file') {
       response.end('{"filename":"/path/to/tsconfig.json"}');
     } else if (['/analyze-css', '/analyze-yaml', '/analyze-html'].includes(request.url)) {

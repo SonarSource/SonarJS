@@ -7,7 +7,7 @@ const host = process.argv[3];
 const requestHandler = (request, response) => {
   if (request.url === '/status') {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
-    response.end('OK!');
+    response.end('OK');
     server.close();
   }
 };

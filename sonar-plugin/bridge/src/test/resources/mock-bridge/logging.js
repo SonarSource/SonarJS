@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
   } else {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
-    res.end('OK!');
+    res.end('OK');
   }
 });
 server.keepAliveTimeout = 100; // this is used so server disconnects faster
