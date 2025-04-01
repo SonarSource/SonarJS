@@ -1,8 +1,16 @@
 {
   "extension": [".ts"],
   "include": ["packages/**/src/**/*.ts"],
-  "exclude": ["**/*.test.ts", "**/*.d.ts", "node_modules/**"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.d.ts",
+    "node_modules/**",
+    "packages/jsts/src/rules/*/generated-meta.ts",
+    "**/tests/**",
+    "packages/**/*.fixture.*",
+    "packages/**/fixtures/**/*"
+  ],
   "reporter": ["lcov", "text-summary"],
-  "report-dir": ".",
+  "report-dir": "coverage/js/",
   "all": true
 }
