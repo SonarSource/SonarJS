@@ -73,7 +73,7 @@
   </issueManagement>
 
   <properties>
-    <revision>10.22.0-SNAPSHOT</revision>
+    <revision>10.23.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
