@@ -97,6 +97,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <jdk.min.version>17</jdk.min.version>
     <version.surefire.plugin>3.1.2</version.surefire.plugin>
+    <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/coverage/java/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
@@ -106,12 +107,12 @@
     <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
-    <sonar.javascript.lcov.reportPaths>lcov.info</sonar.javascript.lcov.reportPaths>
+    <sonar.javascript.lcov.reportPaths>coverage/js/lcov.info</sonar.javascript.lcov.reportPaths>
     <sonar.typescript.tsconfigPath>
       ${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json
     </sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
-    <sonar.coverage.exclusions>packages/ruling/**,packages/jsts/tests/tools/**</sonar.coverage.exclusions>
+    <sonar.coverage.exclusions>packages/ruling/**/*,packages/*/tests/**/*,resources/org/sonar/l10n/javascript/rules/javascript/**</sonar.coverage.exclusions>
   </properties>
 
   <dependencyManagement>
