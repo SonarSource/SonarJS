@@ -124,7 +124,7 @@
       <plugin>
         <groupId>org.sonarsource.javascript</groupId>
         <artifactId>sonarjs-maven-plugin</artifactId>
-        <version>1</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <id>Download the Node.js runtimes</id>
