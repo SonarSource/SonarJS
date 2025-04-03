@@ -216,7 +216,7 @@ test_java_task:
   <<: *JAVA_COVERAGE_CACHE
   test_java_script:
     - source cirrus-env QA
-    - mvn install -Pcoverage,coverage-report
+    - mvn install -T1C -Pcoverage,coverage-report
 
 analyze_task:
   eks_container:
