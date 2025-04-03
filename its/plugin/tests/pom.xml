@@ -76,6 +76,8 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-javascript-plugin</artifactId>
       <version>${project.version}</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/../../../sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-${project.version}-multi.jar</systemPath>
     </dependency>
   </dependencies>
 
@@ -102,63 +104,6 @@
           <value>true</value>
         </property>
       </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-plugin</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>win-x64</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>linux-x64</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>linux-x64-musl</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>multi</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>../../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
-                  <overWriteReleases>true</overWriteReleases>
-                  <overWriteSnapshots>true</overWriteSnapshots>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 
