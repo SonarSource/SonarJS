@@ -96,7 +96,7 @@
     "pretty-quick": "4.1.1",
     "rimraf": "6.0.1",
     "tsx": "4.19.3",
-    "type-fest": "4.39.0",
+    "type-fest": "4.39.1",
     "typedoc": "0.28.1"
   },
   "dependencies": {
