@@ -531,7 +531,7 @@ class JavaScriptEslintBasedSensorTest {
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     var checks = new JsTsChecks(checkFactory);
-    List<EslintRule> rules = checks.eslintRules();
+    List<EslintRule> rules = checks.enabledEslintRules();
 
     assertThat(rules).hasSize(3);
 

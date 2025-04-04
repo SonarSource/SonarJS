@@ -31,6 +31,8 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.EslintHook;
+import org.sonar.plugins.javascript.api.EslintHookRegistrar;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -57,6 +59,43 @@ class JsTsChecksTest {
     assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT)).isEqualTo(
       RuleKey.parse("repo:customcheck")
     );
+  }
+
+  @Test
+  void should_invoke_eslint_hook() {
+    var hook = new TestEslintHook();
+
+    JsTsChecks checks = new JsTsChecks(
+      checkFactory("repo", "customcheck"),
+      new EslintHookRegistrar[] { hook }
+    );
+    assertThat(hook.isRegisterCalled).isTrue();
+    assertThat(hook.isIsEnabledCalled).isFalse();
+    checks.enabledEslintRules();
+    assertThat(hook.isIsEnabledCalled).isTrue();
+  }
+
+  private static class TestEslintHook implements EslintHook, EslintHookRegistrar {
+
+    public boolean isIsEnabledCalled = false;
+    public boolean isRegisterCalled = false;
+
+    @Override
+    public String eslintKey() {
+      return "test-hook";
+    }
+
+    @Override
+    public boolean isEnabled() {
+      isIsEnabledCalled = true;
+      return true;
+    }
+
+    @Override
+    public void register(RegistrarContext registrarContext) {
+      isRegisterCalled = true;
+      registrarContext.registerEslintHook(JAVASCRIPT, this);
+    }
   }
 
   @Test
