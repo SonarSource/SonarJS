@@ -163,15 +163,6 @@ build_task:
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 22
-  env:
-    #allow deployment of pull request artifacts to repox
-    DEPLOY_PULL_REQUEST: true
-    #sign artifacts
-    SIGN_KEY: VAULT[development/kv/data/sign data.key]
-    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
-    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
@@ -180,7 +171,7 @@ build_task:
     - source cirrus-env BUILD
     - node --version
     - npm ci
-    - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
+    - mvn install -T1C -DskipTests
 
 test_js_task:
   eks_container:
@@ -218,7 +209,7 @@ test_java_task:
     - source cirrus-env QA
     - mvn install -T1C -Pcoverage,coverage-report
 
-analyze_task:
+deploy_and_analyze_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs.Dockerfile
@@ -232,15 +223,21 @@ analyze_task:
     # analysis on next
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    #allow deployment of pull request artifacts to repox
+    DEPLOY_PULL_REQUEST: true
+    #sign artifacts
+    SIGN_KEY: VAULT[development/kv/data/sign data.key]
+    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   <<: *JS_COVERAGE_CACHE
   <<: *JAVA_COVERAGE_CACHE
-  analyze_script:
+  deploy_and_analyze_script:
     - source cirrus-env BUILD
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -DskipTests -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN
 
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
@@ -475,7 +472,7 @@ promote_task:
     - plugin_qa_win_sonarlint
     - css_ruling
     - js_ts_ruling
-    - analyze
+    - deploy_and_analyze
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
