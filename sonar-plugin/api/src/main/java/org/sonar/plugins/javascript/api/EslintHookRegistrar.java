@@ -16,36 +16,34 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import java.util.Collection;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
- * This class can be extended to provide additional rule keys in the builtin default quality profile.
+ * This class can be extended to provide ESLint hooks to be executed on the JS side during analysis.
  *
  * <pre>
  *   {@code
  *     public void register(RegistrarContext registrarContext) {
- *       registrarContext.registerDefaultQualityProfileRules(Language.JAVASCRIPT, jsRuleKeys);
- *       registrarContext.registerDefaultQualityProfileRules(Language.TYPESCRIPT, tsRuleKeys);
+ *       registrarContext.registerEslintHook(Language.JAVASCRIPT, jsHook);
+ *       registrarContext.registerEslintHook(Language.TYPESCRIPT, tsHook);
  *     }
  *   }
  * </pre>
  */
-@ServerSide
-public interface ProfileRegistrar {
+@ScannerSide
+public interface EslintHookRegistrar {
   /**
-   * This method is called on server side and during an analysis to modify the builtin default quality profile for java.
+   * This method is called on the server side and during an analysis to register ESLint hooks.
    */
   void register(RegistrarContext registrarContext);
 
   interface RegistrarContext {
     /**
-     * Registers additional rules into the "Sonar Way" default quality profile for the given language.
+     * Registers an ESLint hook to be executed on the JS side if enabled.
      *
-     * @param language profile language
-     * @param ruleKeys additional rule keys
+     * @param language language for which to execute the hook
+     * @param hook ESLint hook
      */
-    void registerDefaultQualityProfileRules(Language language, Collection<RuleKey> ruleKeys);
+    void registerEslintHook(Language language, EslintHook hook);
   }
 }
