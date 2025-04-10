@@ -14,13 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join, resolve } from 'node:path';
+import { join, resolve, extname } from 'node:path';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  cpSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
-const RULE_DATA_FOLDER = join(
+const JS_RULE_DATA_FOLDER = join(
   'sonar-plugin',
   'javascript-checks',
   'src',
@@ -34,45 +42,63 @@ const RULE_DATA_FOLDER = join(
   'javascript',
 );
 
-const ruleNames = await listRulesDir();
-
-ruleNames.push('S2260');
-
-rmSync(RULE_DATA_FOLDER, {
-  recursive: true,
-  force: true,
-});
-
-mkdirSync(RULE_DATA_FOLDER, {
-  recursive: true,
-});
-
-const sonarWayRuleNames: Array<string> = [];
-
-for (const ruleName of ruleNames) {
-  for (const extension of ['json', 'html']) {
-    const fileName = `${ruleName}.${extension}`;
-
-    copyFileSync(join(sourceFolder, fileName), join(RULE_DATA_FOLDER, fileName));
-  }
-
-  const manifestFileName = join(sourceFolder, `${ruleName}.json`);
-
-  const manifest: {
-    defaultQualityProfiles: Array<string>;
-  } = JSON.parse(readFileSync(manifestFileName, 'utf-8'));
-
-  const qualityProfileName = manifest.defaultQualityProfiles[0];
-
-  if (qualityProfileName === 'Sonar way') {
-    sonarWayRuleNames.push(ruleName);
-  }
-}
-
-writeFileSync(
-  join(RULE_DATA_FOLDER, 'Sonar_way_profile.json'),
-  JSON.stringify({
-    name: 'Sonar way',
-    ruleKeys: sonarWayRuleNames,
-  }),
+const CSS_RULE_DATA_FOLDER = join(
+  'sonar-plugin',
+  'css',
+  'src',
+  'main',
+  'resources',
+  'org',
+  'sonar',
+  'l10n',
+  'css',
+  'rules',
+  'css',
 );
+
+const jsRuleNames = [...(await listRulesDir()), 'S2260'];
+
+const cssRuleNames = JSON.parse(
+  readFileSync(join(CSS_RULE_DATA_FOLDER, '..', 'rules.json'), 'utf-8'),
+);
+
+syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
+syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+
+function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
+  rmSync(targetFolder, {
+    recursive: true,
+    force: true,
+  });
+
+  mkdirSync(targetFolder, {
+    recursive: true,
+  });
+
+  const sonarWayRuleNames: Array<string> = [];
+
+  for (const ruleName of ruleNames) {
+    for (const extension of ['json', 'html']) {
+      const fileName = `${ruleName}.${extension}`;
+
+      copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+    }
+    const manifest: {
+      defaultQualityProfiles: Array<string>;
+    } = JSON.parse(readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'));
+
+    const qualityProfileName = manifest.defaultQualityProfiles[0];
+
+    if (qualityProfileName === 'Sonar way') {
+      sonarWayRuleNames.push(ruleName);
+    }
+  }
+
+  writeFileSync(
+    join(targetFolder, 'Sonar_way_profile.json'),
+    JSON.stringify({
+      name: 'Sonar way',
+      ruleKeys: sonarWayRuleNames,
+    }),
+  );
+}
