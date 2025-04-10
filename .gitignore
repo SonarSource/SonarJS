@@ -8,6 +8,7 @@ coverage/
 test-report.xml
 
 packages/jsts/src/rules/*/generated-meta.ts
+sonarjs-1.0.0.tgz
 
 # IntelliJ IDEA
 *.iws
@@ -54,5 +55,4 @@ its/eslint9-plugin-sonarjs/package-lock.json
 
 # coverage
 .nyc_output/
-lcov-report/
 lcov.info
