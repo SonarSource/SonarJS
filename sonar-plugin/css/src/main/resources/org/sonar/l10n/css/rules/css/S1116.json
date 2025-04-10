@@ -9,15 +9,24 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "2min"
   },
   "tags": [
     "unused"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "EmptyStatementUsageCheck"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1116",
   "sqKey": "S1116",
   "scope": "All",
-  "quickfix": "unknown"
+  "quickfix": "unknown",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }
