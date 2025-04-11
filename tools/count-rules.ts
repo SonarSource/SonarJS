@@ -19,8 +19,7 @@ import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 /**
- * Script to count the rules in SonarJS for CSS, JS and TS.
- * We could automate this as we do with the eslint-plugin-sonarjs README.md.
+ * Script to count the rules in SonarJS for CSS, JS and TS and update the README.md file.
  */
 
 const pathToJsTsRules = path.join(
