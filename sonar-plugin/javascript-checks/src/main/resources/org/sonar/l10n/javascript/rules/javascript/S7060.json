@@ -6,7 +6,9 @@
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "architecture"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7060",
   "sqKey": "S7060",

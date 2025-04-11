@@ -32,7 +32,7 @@
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
-    "count-rules": "node tools/count-rules.js",
+    "count-rules": "tsx tools/count-rules.ts",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm run bridge:bundle && npm pack --ignore-scripts && npm run _:plugin:copy-bridge",
