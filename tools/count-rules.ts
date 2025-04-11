@@ -19,8 +19,8 @@ import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 /**
- * Script to count the rules in SonarJS for CSS, JS and TS so that we can update the README.md
- * manually. We should automatize this as we do with the eslint-plugin-sonarjs README.md
+ * Script to count the rules in SonarJS for CSS, JS and TS.
+ * We could automate this as we do with the eslint-plugin-sonarjs README.md.
  */
 
 const pathToJsTsRules = path.join(
@@ -56,24 +56,47 @@ const pathToCssRules = path.join(
 
 const jsTsRules = await getJsonFiles(pathToJsTsRules);
 
-const jsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('JAVASCRIPT'));
-const tsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('TYPESCRIPT'));
+const jsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('js'));
+const tsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('ts'));
 
 const cssRules = await getJsonFiles(pathToCssRules);
 
+console.log('Checking rule counts');
 console.log(`JS/TS rules: ${jsTsRules.length}`);
 console.log(`JS rules: ${jsRules.length}`);
 console.log(`TS rules: ${tsRules.length}`);
 console.log(`CSS rules: ${cssRules.length}`);
 
-async function getJsonFiles(pathToRules) {
+await updateReadmeFile();
+
+async function updateReadmeFile() {
+  const PATH_TO_README = path.join(import.meta.dirname, '..', 'README.md');
+  const readmeContent = await fs.readFile(PATH_TO_README, 'utf-8');
+  const replacements = [
+    { pattern: /\d+ JS rules/, replacement: `${jsRules.length} JS rules` },
+    { pattern: /\d+ TS rules/, replacement: `${tsRules.length} TS rules` },
+    { pattern: /\d+ CSS rules/, replacement: `${cssRules.length} CSS rules` },
+  ];
+  let updatedContent = readmeContent;
+  replacements.forEach(({ pattern, replacement }) => {
+    updatedContent = updatedContent.replace(pattern, replacement);
+  });
+  if (updatedContent !== readmeContent) {
+    console.log('Updating README.md with new rule counts');
+    await fs.writeFile(PATH_TO_README, updatedContent);
+  }
+}
+
+async function getJsonFiles(pathToRules: string) {
   const filenames = await fs.readdir(pathToRules);
   return Promise.all(
     filenames
       .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
       .map(
         async file =>
-          await import(pathToFileURL(path.join(pathToRules, file)), { with: { type: 'json' } }),
+          await import(pathToFileURL(path.join(pathToRules, file)).toString(), {
+            with: { type: 'json' },
+          }),
       ),
   );
 }
