@@ -16,7 +16,6 @@
  */
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { pathToFileURL } from 'node:url';
 
 /**
  * Script to count the rules in SonarJS for CSS, JS and TS and update the README.md file.
@@ -55,8 +54,8 @@ const pathToCssRules = path.join(
 
 const jsTsRules = await getJsonFiles(pathToJsTsRules);
 
-const jsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('js'));
-const tsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('ts'));
+const jsRules = jsTsRules.filter(rule => rule.compatibleLanguages.includes('js'));
+const tsRules = jsTsRules.filter(rule => rule.compatibleLanguages.includes('ts'));
 
 const cssRules = await getJsonFiles(pathToCssRules);
 
@@ -91,11 +90,6 @@ async function getJsonFiles(pathToRules: string) {
   return Promise.all(
     filenames
       .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
-      .map(
-        async file =>
-          await import(pathToFileURL(path.join(pathToRules, file)).toString(), {
-            with: { type: 'json' },
-          }),
-      ),
+      .map(async file => JSON.parse(await fs.readFile(path.join(pathToRules, file), 'utf-8'))),
   );
 }
