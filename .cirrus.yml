@@ -382,6 +382,29 @@ js_ts_ruling_task:
   on_failure:
     debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
 
+ruling_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    CIRRUS_CLONE_DEPTH: 10
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd its/ruling
+    - mvn test -Dtest=JsTsRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+  cleanup_before_cache_script: cleanup_maven_repository
+  on_failure:
+    diff_artifacts:
+      path: '**/target/actual/**/*'
+
 eslint_plugin_test_task:
   depends_on:
     - build
