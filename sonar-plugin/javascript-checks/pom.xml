@@ -131,6 +131,21 @@
               </arguments>
             </configuration>
           </execution>
+          <execution>
+            <id>Update README with rule counts</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>count-rules</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
