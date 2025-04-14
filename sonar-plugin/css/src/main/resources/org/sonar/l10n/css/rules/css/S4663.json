@@ -9,13 +9,20 @@
   },
   "status": "ready",
   "remediation": {
-    "func": "Constant\/Issue",
+    "func": "Constant/Issue",
     "constantCost": "1min"
   },
   "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4663",
   "sqKey": "S4663",
   "scope": "Main",
-  "quickfix": "unknown"
+  "quickfix": "unknown",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }

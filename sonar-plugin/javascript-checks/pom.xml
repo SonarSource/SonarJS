@@ -57,14 +57,25 @@
         <version>1.0.0.26</version>
         <executions>
           <execution>
-            <id>Generate the rules data</id>
+            <id>Generate Javascript/Typescript rules data</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>generate-rule-data</goal>
             </goals>
             <configuration>
               <ruleSubdirectory>javascript</ruleSubdirectory>
-              <targetDirectory>${project.basedir}/../../resources/rule-data</targetDirectory>
+              <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Generate CSS rules data</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>generate-rule-data</goal>
+            </goals>
+            <configuration>
+              <ruleSubdirectory>css</ruleSubdirectory>
+              <targetDirectory>${project.basedir}/../../resources/rule-data/css</targetDirectory>
             </configuration>
           </execution>
         </executions>
