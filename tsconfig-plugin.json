@@ -15,5 +15,5 @@
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./typings"]
   },
-  "include": ["packages/jsts/src/rules/helpers/index.ts"]
+  "include": ["packages/jsts/src/rules/plugin.ts"]
 }

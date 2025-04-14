@@ -28,7 +28,7 @@
     "plugin:build": "mvn install",
     "plugin:build:fast": "mvn install -DskipTests",
     "pbf": "npm run plugin:build:fast",
-    "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
+    "td": "npm run generate-meta && npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
