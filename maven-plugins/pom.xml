@@ -11,7 +11,6 @@
 
   <modules>
     <module>sonarjs-maven-plugin</module>
-    <module>rspec-maven-plugin</module>
   </modules>
 
   <properties>
