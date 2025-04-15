@@ -47,6 +47,14 @@
           "automerge": false
         }
       ]
+    },
+    {
+      "packageRules": [
+        {
+          "updateTypes": ["minor"],
+          "enabled": false
+        }
+      ]
     }
   ]
 }
