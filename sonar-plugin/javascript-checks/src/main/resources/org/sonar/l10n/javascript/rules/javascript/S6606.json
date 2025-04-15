@@ -19,7 +19,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6606",
   "sqKey": "S6606",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "covered",
   "title": "Nullish coalescing should be preferred",
   "compatibleLanguages": [

@@ -16,7 +16,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6535",
   "sqKey": "S6535",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",

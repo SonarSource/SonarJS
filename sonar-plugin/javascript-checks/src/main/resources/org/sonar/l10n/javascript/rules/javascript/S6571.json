@@ -19,7 +19,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6571",
   "sqKey": "S6571",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "ts"

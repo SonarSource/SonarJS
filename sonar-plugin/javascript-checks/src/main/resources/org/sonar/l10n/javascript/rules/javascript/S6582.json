@@ -15,7 +15,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6582",
   "sqKey": "S6582",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "title": "Optional chaining should be preferred",
   "compatibleLanguages": [
