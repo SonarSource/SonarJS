@@ -13,7 +13,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1090",
   "sqKey": "S1090",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "code": {
     "impacts": {

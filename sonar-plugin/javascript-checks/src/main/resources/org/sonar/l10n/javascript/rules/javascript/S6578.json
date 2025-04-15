@@ -16,7 +16,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6578",
   "sqKey": "S6578",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "ts"

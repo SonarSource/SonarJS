@@ -24,7 +24,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5264",
   "sqKey": "S5264",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",

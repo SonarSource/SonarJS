@@ -9,7 +9,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6850",
   "sqKey": "S6850",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "code": {
     "impacts": {

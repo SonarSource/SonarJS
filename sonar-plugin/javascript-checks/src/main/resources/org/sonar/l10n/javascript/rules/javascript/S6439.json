@@ -19,7 +19,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6439",
   "sqKey": "S6439",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",

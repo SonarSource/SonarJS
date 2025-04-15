@@ -12,7 +12,7 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6861",
   "sqKey": "S6861",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
   "code": {
     "impacts": {

@@ -23,7 +23,7 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5260",
   "sqKey": "S5260",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
