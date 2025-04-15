@@ -57,7 +57,7 @@ import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
-  public static final String TYPESCRIPT_VERSION = "5.7.2";
+  public static final String TYPESCRIPT_VERSION = "5.8.3";
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptPlugin.class);
 
   // Subcategories
