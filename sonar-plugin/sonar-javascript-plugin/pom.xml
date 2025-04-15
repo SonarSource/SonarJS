@@ -102,11 +102,6 @@
       <artifactId>sonarlint-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.sonarsource.nodejs</groupId>
-      <artifactId>nodejs-runtime</artifactId>
-      <version>22.11.0.5</version>
-    </dependency>
   </dependencies>
 
   <build>
