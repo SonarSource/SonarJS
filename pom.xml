@@ -30,23 +30,8 @@
   </licenses>
   <developers>
     <developer>
-      <id>vilchik-elena</id>
-      <name>Elena Vilchik</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
-      <id>saberduck</id>
-      <name>Tibor Blénessy</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
-      <id>yassin-kammoun-sonarsource</id>
-      <name>Yassin Kammoun</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
-      <id>ilia-kebets-sonarsource</id>
-      <name>Ilia Kebets</name>
+      <id>zglicz</id>
+      <name>Michał Zgliczyński</name>
       <organization>SonarSource</organization>
     </developer>
     <developer>
