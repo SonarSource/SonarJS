@@ -18,6 +18,7 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
+import static org.sonar.plugins.javascript.nodejs.NodeCommand.toWslPathIfNeeded;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
@@ -440,15 +441,19 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
+    var tsconfigPathAdapted = toWslPathIfNeeded(
+      nodeCommand.shouldExecuteWithWsl(),
+      tsconfigAbsolutePath
+    );
     String result = null;
     try {
-      TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
+      TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigPathAdapted);
       result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (JsonSyntaxException e) {
       LOG.error(
         "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}",
-        tsconfigAbsolutePath,
+        tsconfigPathAdapted,
         result,
         e.getMessage()
       );

@@ -46,6 +46,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
+  public static final String NODE_EXECUTE_WITH_WSL = "sonar.nodejs.executeWithWsl";
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
@@ -65,6 +66,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Version actualNodeVersion;
   private Map<String, String> env = Map.of();
   private String nodeExecutableOrigin = "none";
+  private boolean shouldExecuteWithWsl;
 
   public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -166,7 +168,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       outputConsumer,
       errorConsumer,
       env,
-      nodeExecutableOrigin
+      nodeExecutableOrigin,
+      shouldExecuteWithWsl
     );
   }
 
@@ -176,7 +179,11 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     LOG.debug("Checking Node.js version");
 
-    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
+    String versionString = NodeVersion.getVersion(
+      processWrapper,
+      nodeExecutable,
+      shouldExecuteWithWsl
+    );
     actualNodeVersion = nodeVersion(versionString);
     if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
       throw new NodeCommandException(
@@ -212,6 +219,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    * 2. an embedded runtime bundled with the analyzer
    * 3. a runtime on the host
    * If sonar.nodejs.forceHost is enabled, 2. is ignored
+   * If sonar.nodejs.executeWithWsl is enabled, we execute node commands prepended with 'wsl'
    *
    * @param configuration
    * @return
@@ -220,28 +228,64 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    */
   private String retrieveNodeExecutable(Configuration configuration)
     throws NodeCommandException, IOException {
-    if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
+    var optNodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY);
+    if (optNodeExecutable.isPresent()) {
+      shouldExecuteWithWsl = retrieveShouldExecuteWithWsl(configuration);
       nodeExecutableOrigin = NODE_EXECUTABLE_PROPERTY;
-      String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
-      File file = new File(nodeExecutable);
-      if (file.exists()) {
-        LOG.info(
-          "Using Node.js executable {} from property {}.",
-          file.getAbsoluteFile(),
-          NODE_EXECUTABLE_PROPERTY
-        );
-        return nodeExecutable;
+      var nodeExecutable = optNodeExecutable.get();
+
+      if (shouldExecuteWithWsl) {
+        return handleWslNode(nodeExecutable);
       } else {
-        LOG.error(
-          "Provided Node.js executable file does not exist. Property '{}' was set to '{}'",
-          NODE_EXECUTABLE_PROPERTY,
-          nodeExecutable
-        );
-        throw new NodeCommandException("Provided Node.js executable file does not exist.");
+        return handleStandardNode(nodeExecutable);
       }
     }
 
     return locateNode(isForceHost(configuration));
+  }
+
+  private String handleWslNode(String nodeExecutable) throws NodeCommandException, IOException {
+    var stdOut = new ArrayList<String>();
+    var wslProcess = processWrapper.startProcess(
+      List.of("wsl", "test", "-f", nodeExecutable, "&&", "echo", "true"),
+      Map.of(),
+      stdOut::add,
+      LOG::error
+    );
+    try {
+      processWrapper.waitFor(wslProcess, 5, TimeUnit.SECONDS);
+      if (!stdOut.isEmpty() && "true".equals(stdOut.get(0))) {
+        LOG.info(
+          "Using Node.js executable in WSL '{}' from property '{}'.",
+          nodeExecutable,
+          NODE_EXECUTABLE_PROPERTY
+        );
+        return nodeExecutable;
+      }
+    } catch (InterruptedException e) {
+      processWrapper.interrupt();
+      LOG.error("Interrupted while waiting for WSL process to terminate.");
+    }
+    throw new NodeCommandException("Provided Node.js executable file does not exist in WSL.");
+  }
+
+  private String handleStandardNode(String nodeExecutable) throws NodeCommandException {
+    File file = new File(nodeExecutable);
+    if (file.exists()) {
+      LOG.info(
+        "Using Node.js executable '{}' from property '{}'.",
+        file.getAbsoluteFile(),
+        NODE_EXECUTABLE_PROPERTY
+      );
+      return nodeExecutable;
+    } else {
+      LOG.error(
+        "Provided Node.js executable file does not exist. Property '{}' was set to '{}'",
+        NODE_EXECUTABLE_PROPERTY,
+        nodeExecutable
+      );
+      throw new NodeCommandException("Provided Node.js executable file does not exist.");
+    }
   }
 
   private String locateNode(boolean isForceHost) throws IOException {
@@ -278,6 +322,14 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       return forceHost.get();
     }
     return configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false);
+  }
+
+  private static boolean retrieveShouldExecuteWithWsl(Configuration configuration) {
+    var shouldExecuteWithWsl = configuration.getBoolean(NODE_EXECUTE_WITH_WSL).orElse(false);
+    if (Boolean.TRUE.equals(shouldExecuteWithWsl)) {
+      LOG.info("Using Node.js from WSL.");
+    }
+    return shouldExecuteWithWsl;
   }
 
   private String locateNodeOnMac() throws IOException {

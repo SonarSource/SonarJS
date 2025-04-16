@@ -49,6 +49,7 @@ public class NodeCommand {
   private Process process;
   private final List<String> command;
   private final String nodeExecutableOrigin;
+  private final boolean shouldExecuteWithWsl;
 
   NodeCommand(
     ProcessWrapper processWrapper,
@@ -60,15 +61,23 @@ public class NodeCommand {
     Consumer<String> outputConsumer,
     Consumer<String> errorConsumer,
     Map<String, String> env,
-    String nodeExecutableOrigin
+    String nodeExecutableOrigin,
+    boolean shouldExecuteWithWsl
   ) {
     this.processWrapper = processWrapper;
-    this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
+    this.command = buildCommand(
+      shouldExecuteWithWsl,
+      nodeExecutable,
+      nodeJsArgs,
+      scriptFilename,
+      args
+    );
     this.actualNodeVersion = actualNodeVersion;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
     this.env = env;
     this.nodeExecutableOrigin = nodeExecutableOrigin;
+    this.shouldExecuteWithWsl = shouldExecuteWithWsl;
   }
 
   /**
@@ -78,27 +87,31 @@ public class NodeCommand {
    */
   public void start() {
     try {
-      LOG.debug("Launching command {}", toString());
+      LOG.debug("Launching command {}", this);
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException(
-        "Error when running: '" + toString() + "'. Is Node.js available during analysis?",
+        "Error when running: '" + this + "'. Is Node.js available during analysis?",
         e
       );
     }
   }
 
   private static List<String> buildCommand(
+    boolean shouldExecuteWithWsl,
     String nodeExecutable,
     List<String> nodeJsArgs,
     @Nullable String scriptFilename,
     List<String> args
   ) {
     List<String> result = new ArrayList<>();
+    if (shouldExecuteWithWsl) {
+      result.add("wsl");
+    }
     result.add(nodeExecutable);
     result.addAll(nodeJsArgs);
     if (scriptFilename != null) {
-      result.add(scriptFilename);
+      result.add(toWslPathIfNeeded(shouldExecuteWithWsl, scriptFilename));
     }
     result.addAll(args);
     return result;
@@ -138,5 +151,35 @@ public class NodeCommand {
 
   public String getNodeExecutableOrigin() {
     return nodeExecutableOrigin;
+  }
+
+  public boolean shouldExecuteWithWsl() {
+    return shouldExecuteWithWsl;
+  }
+
+  public static String toWslPathIfNeeded(boolean shouldExecuteWithWsl, String path) {
+    if (!shouldExecuteWithWsl) {
+      return path;
+    }
+
+    if (path.isEmpty()) {
+      return "";
+    }
+
+    var normalizedPath = path.replace('\\', '/');
+
+    if (
+      normalizedPath.length() > 2 &&
+      Character.isLetter(normalizedPath.charAt(0)) &&
+      normalizedPath.charAt(1) == ':'
+    ) {
+      var driveLetter = String.valueOf(normalizedPath.charAt(0)).toLowerCase();
+
+      var remainingPath = normalizedPath.substring(2);
+
+      return "/mnt/" + driveLetter + remainingPath;
+    } else {
+      return normalizedPath;
+    }
   }
 }

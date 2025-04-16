@@ -106,7 +106,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_min_version() throws IOException {
+  void test_min_version() {
     assertThatThrownBy(() ->
       builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
     )
@@ -117,7 +117,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_mac_default_executable_not_found() throws IOException {
+  void test_mac_default_executable_not_found() {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
     assertThatThrownBy(() ->
@@ -195,13 +195,30 @@ class NodeCommandTest {
         logTester
           .logs(LoggerLevel.INFO)
           .contains(
-            "Using Node.js executable " +
+            "Using Node.js executable '" +
             nodeExecutable +
-            " from property " +
+            "' from property '" +
             NODE_EXECUTABLE_PROPERTY +
-            "."
+            "'."
           )
       );
+  }
+
+  @Test
+  void test_should_try_find_wsl_nodejs_configuration() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+    String NODE_EXECUTE_WITH_WSL = "sonar.nodejs.executeWithWsl";
+    Path nodeExecutable = Files.createFile(tempDir.resolve("custom-node")).toAbsolutePath();
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
+    mapSettings.setProperty(NODE_EXECUTE_WITH_WSL, "true");
+    Configuration configuration = mapSettings.asConfig();
+
+    assertThatThrownBy(() ->
+      builder(mockProcessWrapper).configuration(configuration).script("not-used").build()
+    )
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageMatching("Provided Node.js executable file does not exist in WSL.");
   }
 
   @Test
@@ -223,7 +240,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_non_existing_node_file() throws Exception {
+  void test_non_existing_node_file() {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.nodejs.executable", "non-existing-file");
     NodeCommandBuilder nodeCommand = builder(mockProcessWrapper)
@@ -358,7 +375,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_actual_node_version() throws Exception {
+  void test_actual_node_version() {
     Consumer<String> noop = s -> {};
     NodeCommand nodeCommand = new NodeCommand(
       mockProcessWrapper,
@@ -370,7 +387,8 @@ class NodeCommandTest {
       noop,
       noop,
       Map.of(),
-      "host"
+      "host",
+      false
     );
     assertThat(nodeCommand.getActualNodeVersion().major()).isEqualTo(12);
   }

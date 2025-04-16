@@ -32,8 +32,11 @@ public class NodeVersion {
     // utility class
   }
 
-  public static String getVersion(ProcessWrapper processWrapper, String nodeExecutable)
-    throws NodeCommandException {
+  public static String getVersion(
+    ProcessWrapper processWrapper,
+    String nodeExecutable,
+    boolean shouldExecuteWithWsl
+  ) throws NodeCommandException {
     var output = new StringBuilder();
     var nodeCommand = new NodeCommand(
       processWrapper,
@@ -49,7 +52,8 @@ public class NodeVersion {
         "RUN_NODE_ERROR_MSG",
         "Couldn't find the Node.js binary. Ensure you have Node.js installed."
       ),
-      "host"
+      "host",
+      shouldExecuteWithWsl
     );
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
