@@ -1,6 +1,7 @@
 # Maven
 target/
 bin/
+.flattened-pom.xml
 
 lib/
 node_modules/

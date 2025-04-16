@@ -54,7 +54,7 @@
       <plugin>
         <groupId>org.sonarsource.rspec</groupId>
         <artifactId>rspec-maven-plugin</artifactId>
-        <version>1.0.0.26</version>
+        <version>1.0.0.47</version>
         <executions>
           <execution>
             <id>Generate Javascript/Typescript rules data</id>
