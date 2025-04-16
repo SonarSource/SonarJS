@@ -49,11 +49,6 @@ export interface AnalysisInput {
  */
 export interface AnalysisOutput {}
 
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
 export async function fillFileContent<T extends AnalysisInput>(
   input: T,
 ): Promise<Omit<T, 'fileContent'> & { fileContent: string }> {

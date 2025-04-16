@@ -68,7 +68,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     boolean initialized = false;
 
     TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
-      var inputFilePath = inputFile.absolutePath();
+      var inputFilePath = inputFile.relativePath();
       if (!initialized) {
         LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFilePath);
         return null;
@@ -150,9 +150,11 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     private Deque<String> improvedPendingTsConfigOrder(InputFile inputFile) {
       var newPendingTsConfigFiles = new ArrayDeque<String>();
       var notMatchingPendingTsConfigFiles = new ArrayList<String>();
+      var absolutePath = inputFile.absolutePath();
       pendingTsConfigFiles.forEach(ts -> {
         if (
-          inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())
+          absolutePath != null &&
+          absolutePath.startsWith(Path.of(ts).getParent().toAbsolutePath().toString())
         ) {
           newPendingTsConfigFiles.add(ts);
         } else {
@@ -210,7 +212,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
     var file = moduleFileEvent.getTarget();
-    var filename = file.absolutePath();
+    var filename = file.filename();
     LOG.debug("Processing file event {} with event {}", filename, moduleFileEvent.getType());
     // Look for any event on files named *tsconfig*.json
     // Filenames other than tsconfig.json can be discovered through references

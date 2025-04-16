@@ -96,17 +96,17 @@ class TsConfigCacheTest {
     List<TsConfigFile> tsConfigFiles = Arrays.asList(
       new TsConfigFile(
         absolutePath(baseDir, "dir1/tsconfig.json"),
-        singletonList(inputFiles.get(0).absolutePath()),
+        singletonList(inputFiles.get(0).relativePath()),
         emptyList()
       ),
       new TsConfigFile(
         absolutePath(baseDir, "dir2/tsconfig.json"),
-        singletonList(inputFiles.get(1).absolutePath()),
+        singletonList(inputFiles.get(1).relativePath()),
         emptyList()
       ),
       new TsConfigFile(
         absolutePath(baseDir, "dir3/tsconfig.json"),
-        singletonList(inputFiles.get(2).absolutePath()),
+        singletonList(inputFiles.get(2).relativePath()),
         emptyList()
       )
     );
@@ -116,7 +116,7 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var ctx = new JsTsContext<>(SensorContextTester.create(baseDir));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
 
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
@@ -186,7 +186,7 @@ class TsConfigCacheTest {
     );
     var tsConfigFile2 = new TsConfigFile(
       tsconfig2.toAbsolutePath().toString(),
-      singletonList(file1.absolutePath()),
+      singletonList(file1.getProjectRelativePath()),
       emptyList()
     );
     Files.createFile(tsconfig1);
@@ -236,10 +236,10 @@ class TsConfigCacheTest {
     Files.createFile(tsconfig1);
     var tsConfigFile = new TsConfigFile(
       tsconfig1.toAbsolutePath().toString(),
-      singletonList(file1.absolutePath()),
+      singletonList(file1.getProjectRelativePath()),
       emptyList()
     );
-    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var ctx = new JsTsContext<>(SensorContextTester.create(baseDir));
     ctx
       .getSensorContext()
       .setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "tsconfig.*.json,tsconfig.json"));
@@ -304,12 +304,12 @@ class TsConfigCacheTest {
     Path tsconfig1 = baseDir.resolve("tsconfig.json");
     var tsConfigFile = new TsConfigFile(
       tsconfig1.toAbsolutePath().toString(),
-      singletonList(file1.absolutePath()),
+      singletonList(file1.getProjectRelativePath()),
       emptyList()
     );
     Files.createFile(tsconfig1);
 
-    var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var ctx = new JsTsContext<>(SensorContextTester.create(baseDir));
     TsConfigProvider.initializeTsConfigCache(ctx, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     return Pair.of(file1, tsConfigFile);

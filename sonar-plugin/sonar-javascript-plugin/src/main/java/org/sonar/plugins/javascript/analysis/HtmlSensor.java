@@ -124,7 +124,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
       LOG.debug("Analyzing file: {}", file.uri());
       var fileContent = context.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
-        file.absolutePath(),
+        file.relativePath(),
         file.type().toString(),
         fileContent,
         context.ignoreHeaderComments(),

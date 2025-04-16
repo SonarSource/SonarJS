@@ -142,7 +142,7 @@ public abstract class AbstractAnalysis {
     boolean shouldClearDependenciesCache
   ) {
     return new BridgeServer.JsAnalysisRequest(
-      file.absolutePath(),
+      file.relativePath(),
       file.type().toString(),
       fileContent,
       context.ignoreHeaderComments(),

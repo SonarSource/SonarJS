@@ -269,7 +269,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     throw new NodeCommandException("Provided Node.js executable file does not exist in WSL.");
   }
 
-  private String handleStandardNode(String nodeExecutable) throws NodeCommandException {
+  private static String handleStandardNode(String nodeExecutable) throws NodeCommandException {
     File file = new File(nodeExecutable);
     if (file.exists()) {
       LOG.info(

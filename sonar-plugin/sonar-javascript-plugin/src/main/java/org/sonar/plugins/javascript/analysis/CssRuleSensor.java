@@ -135,15 +135,15 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     List<Issue> issues;
 
     try {
-      URI uri = inputFile.uri();
-      if (!"file".equalsIgnoreCase(uri.getScheme())) {
-        LOG.debug("Skipping {} as it has not 'file' scheme", uri);
+      String relativeFilePath = inputFile.relativePath();
+      if (!inputFile.isFile()) {
+        LOG.debug("Skipping {} as it is not a file", relativeFilePath);
         return new ArrayList<>();
       }
-      LOG.debug("Analyzing file: {}", uri);
+      LOG.debug("Analyzing file: {}", relativeFilePath);
       String fileContent = context.shouldSendFileContent(inputFile) ? inputFile.contents() : null;
       CssAnalysisRequest request = new CssAnalysisRequest(
-        new File(uri).getAbsolutePath(),
+        new File(relativeFilePath).getAbsolutePath(),
         fileContent,
         rules
       );

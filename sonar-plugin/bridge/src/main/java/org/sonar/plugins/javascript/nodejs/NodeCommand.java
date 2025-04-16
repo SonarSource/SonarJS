@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.nodejs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -162,24 +163,15 @@ public class NodeCommand {
       return path;
     }
 
-    if (path.isEmpty()) {
-      return "";
-    }
-
-    var normalizedPath = path.replace('\\', '/');
-
-    if (
-      normalizedPath.length() > 2 &&
-      Character.isLetter(normalizedPath.charAt(0)) &&
-      normalizedPath.charAt(1) == ':'
-    ) {
-      var driveLetter = String.valueOf(normalizedPath.charAt(0)).toLowerCase();
+    if (path.length() > 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+      var normalizedPath = path.replace('\\', '/');
+      var driveLetter = String.valueOf(normalizedPath.charAt(0)).toLowerCase(Locale.ROOT);
 
       var remainingPath = normalizedPath.substring(2);
 
       return "/mnt/" + driveLetter + remainingPath;
     } else {
-      return normalizedPath;
+      return path;
     }
   }
 }

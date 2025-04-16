@@ -89,7 +89,7 @@ public class AnalysisProcessor {
     this.checks = checks;
     this.file = file;
     if (response.parsingError() != null) {
-      uniqueParsingErrors.add(file.absolutePath());
+      uniqueParsingErrors.add(file.relativePath());
       processParsingError(context, response.parsingError());
       return new ArrayList<>();
     }
