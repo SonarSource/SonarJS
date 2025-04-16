@@ -25,7 +25,6 @@
   </scm>
 
   <properties>
-    <nodeVersion>22.11.0</nodeVersion>
     <artifactoryToken/>
   </properties>
 
@@ -135,7 +134,7 @@
                 <artifactItem>
                   <groupId>org.sonarsource.nodejs</groupId>
                   <artifactId>nodejs-runtime</artifactId>
-                  <version>22.11.0.8</version>
+                  <version>22.11.0.20</version>
                   <type>jar</type>
                   <outputDirectory>${project.build.directory}/downloads</outputDirectory>
                   <includes>**/*.xz,**/version.txt</includes>
