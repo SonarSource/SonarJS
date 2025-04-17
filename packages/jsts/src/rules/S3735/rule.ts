@@ -18,7 +18,12 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, isRequiredParserServices, isThenable } from '../helpers/index.js';
+import {
+  generateMeta,
+  isFunctionCall,
+  isRequiredParserServices,
+  isThenable,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -28,36 +33,45 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const services = context.sourceCode.parserServices;
-    function checkNode(node: estree.Node) {
-      const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
-      if (isVoid0(unaryExpression) || isIIFE(unaryExpression) || isPromiseLike(unaryExpression)) {
-        return;
-      }
-      const operatorToken = context.sourceCode.getTokenBefore(unaryExpression.argument);
-      context.report({
-        loc: operatorToken!.loc, // cannot be null due to previous checks
-        messageId: 'removeVoid',
-      });
-    }
-
-    function isVoid0(expr: estree.UnaryExpression) {
-      return expr.argument.type === 'Literal' && 0 === expr.argument.value;
-    }
-
-    function isIIFE(expr: estree.UnaryExpression) {
-      return (
-        expr.argument.type === 'CallExpression' &&
-        ['ArrowFunctionExpression', 'FunctionExpression'].includes(expr.argument.callee.type)
-      );
-    }
-
-    function isPromiseLike(expr: estree.UnaryExpression) {
-      return isRequiredParserServices(services) && isThenable(expr.argument, services);
-    }
-
     return {
-      'UnaryExpression[operator="void"]': checkNode,
+      'UnaryExpression[operator="void"]': (node: estree.Node) => {
+        const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
+        if (
+          isVoid0(unaryExpression) ||
+          isIIFE(unaryExpression) ||
+          isPromiseLike(context, unaryExpression)
+        ) {
+          return;
+        }
+        const operatorToken = context.sourceCode.getTokenBefore(unaryExpression.argument);
+        context.report({
+          loc: operatorToken!.loc, // cannot be null due to previous checks
+          messageId: 'removeVoid',
+        });
+      },
     };
   },
 };
+
+function isVoid0(expr: estree.UnaryExpression) {
+  return expr.argument.type === 'Literal' && expr.argument.value === 0;
+}
+
+function isIIFE(expr: estree.UnaryExpression) {
+  return (
+    expr.argument.type === 'CallExpression' &&
+    ['ArrowFunctionExpression', 'FunctionExpression'].includes(expr.argument.callee.type)
+  );
+}
+
+function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) {
+  const services = context.sourceCode.parserServices;
+  if (isRequiredParserServices(services)) {
+    return isThenable(expr.argument, services);
+  } else {
+    // If we don't have typescript types, we can't reason if it's a promise.
+    // Therefore, if this is a function call, assume it is a promise.
+    // For this rule, it will result in not raising an issue.
+    return isFunctionCall(expr.argument);
+  }
+}
