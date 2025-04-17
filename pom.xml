@@ -302,6 +302,8 @@
                 <exclude>**/*.fixture.*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
+                <exclude>typedoc/**/*</exclude>
+                <exclude>coverage/**/*</exclude>
               </excludes>
             </licenseSet>
           </licenseSets>
