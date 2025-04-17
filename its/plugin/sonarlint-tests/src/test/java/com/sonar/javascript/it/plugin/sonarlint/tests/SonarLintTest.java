@@ -69,14 +69,14 @@ class SonarLintTest {
   Path sonarLintHome;
 
   @BeforeEach
-  public void prepare() throws Exception {
+  void prepare() throws Exception {
     logs = new ArrayList<>();
     StandaloneGlobalConfiguration sonarLintConfig = getSonarLintConfig();
     sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
   }
 
   @AfterEach
-  public void stop() {
+  void stop() {
     sonarlintEngine.stop();
   }
 
@@ -107,7 +107,9 @@ class SonarLintTest {
         logs
           .stream()
           .anyMatch(s ->
-            s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
+            s.matches(
+              "Using Node\\.js executable '.*' from property 'sonar\\.nodejs\\.executable'\\."
+            )
           )
       ).isTrue();
     }
@@ -291,8 +293,7 @@ class SonarLintTest {
     return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
   }
 
-  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion)
-    throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) {
     ClientLogOutput logOutput = (formattedMessage, level) -> {
       logs.add(formattedMessage);
       System.out.println(formattedMessage);

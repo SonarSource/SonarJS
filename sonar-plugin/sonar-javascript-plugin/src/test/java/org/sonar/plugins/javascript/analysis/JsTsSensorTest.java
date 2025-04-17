@@ -207,14 +207,15 @@ class JsTsSensorTest {
     context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, "eslint-report.json");
 
     var content =
-      "function addOne(i) {\n" +
-      "    if (i != NaN) {\n" +
-      "        return i ++\n" +
-      "    } else {\n" +
-      "      return\n" +
-      "    }\n" +
-      "};";
-
+      """
+      function addOne(i) {
+          if (i != NaN) {
+              return i ++
+          } else {
+            return
+          }
+      };
+      """;
     var inputFile = createInputFile(
       context,
       "file.js",
@@ -429,7 +430,7 @@ class JsTsSensorTest {
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(
-      new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList())
+      new TsConfigFile("tsconfig.json", singletonList(file.getProjectRelativePath()), emptyList())
     );
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSonarLintSensor().execute(ctx);
@@ -568,7 +569,7 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock, times(2)).analyzeJsTs(captor.capture());
-    assertThat(captor.getAllValues()).extracting(c -> c.fileContent()).contains(content);
+    assertThat(captor.getAllValues()).extracting(JsAnalysisRequest::fileContent).contains(content);
   }
 
   @Test
@@ -611,27 +612,27 @@ class JsTsSensorTest {
 
     String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
     when(bridgeServerMock.loadTsConfig(tsconfig1)).thenReturn(
-      new TsConfigFile(tsconfig1, singletonList(file1.absolutePath()), emptyList())
+      new TsConfigFile(tsconfig1, singletonList(file1.getProjectRelativePath()), emptyList())
     );
     String tsconfig2 = absolutePath(baseDir, "dir2/tsconfig.json");
     when(bridgeServerMock.loadTsConfig(tsconfig2)).thenReturn(
-      new TsConfigFile(tsconfig2, singletonList(file2.absolutePath()), emptyList())
+      new TsConfigFile(tsconfig2, singletonList(file2.getProjectRelativePath()), emptyList())
     );
     String tsconfig3 = absolutePath(baseDir, "dir3/tsconfig.json");
     when(bridgeServerMock.loadTsConfig(tsconfig3)).thenReturn(
-      new TsConfigFile(tsconfig3, singletonList(file3.absolutePath()), emptyList())
+      new TsConfigFile(tsconfig3, singletonList(file3.getProjectRelativePath()), emptyList())
     );
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSonarLintSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
+      .extracting(JsAnalysisRequest::filePath)
       .containsExactlyInAnyOrder(
-        file1.absolutePath(),
-        file2.absolutePath(),
-        file3.absolutePath(),
-        noconfig.absolutePath()
+        file1.getProjectRelativePath(),
+        file2.getProjectRelativePath(),
+        file3.getProjectRelativePath(),
+        noconfig.getProjectRelativePath()
       );
   }
 
@@ -641,8 +642,6 @@ class JsTsSensorTest {
     context = createSensorContext(baseDir);
 
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/main.ts");
-
-    String tsconfig = absolutePath(baseDir, "tsconfig.json");
 
     when(bridgeServerMock.createProgram(any())).thenReturn(
       new TsProgram(
@@ -659,8 +658,8 @@ class JsTsSensorTest {
     createSensor().execute(context);
     verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(file1.absolutePath());
+      .extracting(JsAnalysisRequest::filePath)
+      .containsExactlyInAnyOrder(file1.getProjectRelativePath());
 
     verify(bridgeServerMock, times(1)).deleteProgram(any());
     assertThat(logTester.logs(Level.WARN)).contains(
@@ -712,12 +711,12 @@ class JsTsSensorTest {
     verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
     verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
+      .extracting(JsAnalysisRequest::filePath)
       .containsExactlyInAnyOrder(
-        file1.absolutePath(),
-        file2.absolutePath(),
-        file3.absolutePath(),
-        noconfig.absolutePath()
+        file1.getProjectRelativePath(),
+        file2.getProjectRelativePath(),
+        file3.getProjectRelativePath(),
+        noconfig.getProjectRelativePath()
       );
 
     verify(bridgeServerMock, times(3)).deleteProgram(any());
@@ -818,12 +817,12 @@ class JsTsSensorTest {
       new TsConfigFile(tsconfig, emptyList(), singletonList(appTsConfig)),
       new TsConfigFile(
         appTsConfig,
-        singletonList(file1.absolutePath()),
+        singletonList(file1.getProjectRelativePath()),
         singletonList(appTsConfig2)
       ),
       new TsConfigFile(
         appTsConfig2,
-        singletonList(file1.absolutePath()),
+        singletonList(file1.getProjectRelativePath()),
         singletonList(appTsConfig)
       )
     );
@@ -835,8 +834,8 @@ class JsTsSensorTest {
     verify(bridgeServerMock, times(2)).loadTsConfig(anyString());
     verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(file1.absolutePath());
+      .extracting(JsAnalysisRequest::filePath)
+      .containsExactlyInAnyOrder(file1.getProjectRelativePath());
   }
 
   @Test

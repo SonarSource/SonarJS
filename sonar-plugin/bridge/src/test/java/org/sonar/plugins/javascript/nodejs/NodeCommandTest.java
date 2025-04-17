@@ -106,7 +106,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_min_version() throws IOException {
+  void test_min_version() {
     assertThatThrownBy(() ->
       builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
     )
@@ -117,7 +117,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_mac_default_executable_not_found() throws IOException {
+  void test_mac_default_executable_not_found() {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
     assertThatThrownBy(() ->
@@ -195,11 +195,74 @@ class NodeCommandTest {
         logTester
           .logs(LoggerLevel.INFO)
           .contains(
-            "Using Node.js executable " +
+            "Using Node.js executable '" +
             nodeExecutable +
-            " from property " +
+            "' from property '" +
             NODE_EXECUTABLE_PROPERTY +
-            "."
+            "'."
+          )
+      );
+  }
+
+  @Test
+  void test_not_find_wsl_nodejs_configuration() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+    String NODE_EXECUTE_WITH_WSL = "sonar.nodejs.executeWithWsl";
+    Path nodeExecutable = Files.createFile(tempDir.resolve("custom-node")).toAbsolutePath();
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
+    mapSettings.setProperty(NODE_EXECUTE_WITH_WSL, "true");
+    Configuration configuration = mapSettings.asConfig();
+
+    assertThatThrownBy(() ->
+      builder(mockProcessWrapper).configuration(configuration).script("not-used").build()
+    )
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageMatching("Provided Node.js executable file does not exist in WSL.");
+  }
+
+  @Test
+  void test_find_wsl_nodejs() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+    String NODE_EXECUTE_WITH_WSL = "sonar.nodejs.executeWithWsl";
+    Path nodeExecutable = Files.createFile(tempDir.resolve("custom-node")).toAbsolutePath();
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
+    mapSettings.setProperty(NODE_EXECUTE_WITH_WSL, "true");
+    Configuration configuration = mapSettings.asConfig();
+
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenAnswer(invocation -> {
+      Consumer<String> stdOutConsumer = invocation.getArgument(2);
+      stdOutConsumer.accept("true"); // Simulate WSL
+      return mock(Process.class);
+    });
+
+    NodeCommand nodeCommand = builder(mockProcessWrapper)
+      .configuration(configuration)
+      .script("not-used")
+      .build();
+
+    List<String> value = captureProcessWrapperArgument();
+    assertThat(value).contains(
+      "wsl",
+      "test",
+      "-f",
+      nodeExecutable.toString(),
+      "&&",
+      "echo",
+      "true"
+    );
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo(NODE_EXECUTABLE_PROPERTY);
+    await()
+      .until(() ->
+        logTester
+          .logs(LoggerLevel.INFO)
+          .contains(
+            "Using Node.js executable in WSL '" +
+            nodeExecutable +
+            "' from property '" +
+            NODE_EXECUTABLE_PROPERTY +
+            "'."
           )
       );
   }
@@ -223,7 +286,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_non_existing_node_file() throws Exception {
+  void test_non_existing_node_file() {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.nodejs.executable", "non-existing-file");
     NodeCommandBuilder nodeCommand = builder(mockProcessWrapper)
@@ -358,7 +421,7 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_actual_node_version() throws Exception {
+  void test_actual_node_version() {
     Consumer<String> noop = s -> {};
     NodeCommand nodeCommand = new NodeCommand(
       mockProcessWrapper,
@@ -370,7 +433,8 @@ class NodeCommandTest {
       noop,
       noop,
       Map.of(),
-      "host"
+      "host",
+      false
     );
     assertThat(nodeCommand.getActualNodeVersion().major()).isEqualTo(12);
   }
@@ -490,6 +554,33 @@ class NodeCommandTest {
       "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
       "Please use 'sonar.scanner.skipNodeProvisioning' instead."
     );
+  }
+
+  @Test
+  void test_transform_path_to_wsl() {
+    var windowsPath = "C:\\home\\test\\path\\file.css";
+
+    var result = NodeCommand.toWslPathIfNeeded(true, windowsPath);
+
+    assertThat(result).isEqualTo("/mnt/c/home/test/path/file.css");
+  }
+
+  @Test
+  void test_should_not_transform_path_to_wsl_if_wrong_path() {
+    var wrongPath = "wrong\\path\\file.css";
+
+    var result = NodeCommand.toWslPathIfNeeded(true, wrongPath);
+
+    assertThat(result).isEqualTo(wrongPath);
+  }
+
+  @Test
+  void test_should_not_transform_path_to_wsl_if_non_wsl() {
+    var windowsPath = "C:\\home\\test\\path\\file.css";
+
+    var result = NodeCommand.toWslPathIfNeeded(false, windowsPath);
+
+    assertThat(result).isEqualTo(windowsPath);
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

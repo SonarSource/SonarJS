@@ -393,7 +393,7 @@ class JavaScriptEslintBasedSensorTest {
     var inputFile = createInputFile(context);
     var tsConfigFile = new TsConfigFile(
       "/path/to/file",
-      List.of(inputFile.absolutePath()),
+      List.of(inputFile.getProjectRelativePath()),
       emptyList()
     );
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseMetrics);
@@ -651,7 +651,7 @@ class JavaScriptEslintBasedSensorTest {
 
     var tsConfigFile = new TsConfigFile(
       "/path/to/file",
-      List.of(inputFile.absolutePath()),
+      List.of(inputFile.getProjectRelativePath()),
       emptyList()
     );
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(tsConfigFile);

@@ -114,18 +114,21 @@ public class ExternalIssueRepository {
     // at that point, we have the list of issues that were persisted
     // we can now persist the ESLint issues that match none of the persisted issues
     for (var externalIssue : externalIssues) {
-      var issueKey = String.format(
-        "%s-%s-%d-%d-%d-%d",
-        externalIssue.name(),
-        externalIssue.file().absolutePath().replaceAll(Pattern.quote(File.separator), "/"),
-        externalIssue.location().start().line(),
-        externalIssue.location().start().lineOffset(),
-        externalIssue.location().end().line(),
-        externalIssue.location().end().lineOffset()
-      );
+      var absolutePath = externalIssue.file().absolutePath();
+      if (absolutePath != null) {
+        var issueKey = String.format(
+          "%s-%s-%d-%d-%d-%d",
+          externalIssue.name(),
+          absolutePath.replaceAll(Pattern.quote(File.separator), "/"),
+          externalIssue.location().start().line(),
+          externalIssue.location().start().lineOffset(),
+          externalIssue.location().end().line(),
+          externalIssue.location().end().lineOffset()
+        );
 
-      if (!normalizedIssues.contains(issueKey)) {
-        deduplicatedIssues.add(externalIssue);
+        if (!normalizedIssues.contains(issueKey)) {
+          deduplicatedIssues.add(externalIssue);
+        }
       }
     }
     return deduplicatedIssues;
