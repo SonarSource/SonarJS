@@ -11,7 +11,7 @@ If you are a [SonarQube Server](https://www.sonarsource.com/products/sonarqube/)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
-- [SonarLint](#sonarlint)
+- [SonarQube for IDE](#sonarqube-for-ide)
 - [Feedback](#feedback)
 - [Rules](#rules)
 - [ESLint rules](#eslint-rules)
@@ -93,9 +93,9 @@ You can enable some rules manually:
 
 Several rules are designed for linting both JavaScript and TypeScript code, and some even rely on type checking through TypeScript. Therefore, you will need to install the `@typescript-eslint/parser` dependency and [instruct ESLint to use this parser](https://eslint.org/docs/latest/use/configure/parser) through the `parserOptions` property.
 
-## SonarLint
+## SonarQube for IDE
 
-As an alternative to using this ESLint plugin, you can use [SonarLint](https://www.sonarsource.com/products/sonarlint/). SonarLint is an IDE extension that helps you detect and fix quality issues as you write code. It provides a broader set of rules compared to the ESLint plugin, improved versions of ESLint rules, and additional [features](https://github.com/SonarSource/SonarJS/tree/master?tab=readme-ov-file#features) that enhance your linting experience.
+As an alternative to using this ESLint plugin, you can use [SonarQube for IDE](https://www.sonarsource.com/products/sonarlint/). SonarQube for IDE is an IDE extension that helps you detect and fix quality issues as you write code. It provides a broader set of rules compared to the ESLint plugin, improved versions of ESLint rules, and additional [features](https://github.com/SonarSource/SonarJS/tree/master?tab=readme-ov-file#features) that enhance your linting experience.
 
 ## Feedback
 
