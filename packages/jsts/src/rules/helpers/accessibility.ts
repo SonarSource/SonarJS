@@ -38,7 +38,7 @@ export const getElementType = (
   context: Rule.RuleContext,
 ): ((node: TSESTree.JSXOpeningElement) => string) => {
   const { settings } = context;
-  const jsxa11ySettings = settings['jsx-a11y'] as any;
+  const jsxa11ySettings = settings['jsx-a11y'] as Record<string, any>;
   const polymorphicPropName = jsxa11ySettings?.polymorphicPropName;
   const polymorphicAllowList = jsxa11ySettings?.polymorphicAllowList;
 
