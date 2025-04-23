@@ -46,13 +46,13 @@ export const getElementType = (
 
   return (node: TSESTree.JSXOpeningElement): string => {
     const polymorphicProp = polymorphicPropName
-      ? getLiteralPropValue(getProp(node.attributes, <string>polymorphicPropName))
+      ? getLiteralPropValue(getProp(node.attributes, polymorphicPropName as string))
       : undefined;
 
     let rawType: string = elementType(node);
     if (
       polymorphicProp &&
-      (!polymorphicAllowList || (<string[]>polymorphicAllowList).includes(rawType))
+      (!polymorphicAllowList || (polymorphicAllowList as string[]).includes(rawType))
     ) {
       rawType = `${polymorphicProp}`;
     }
@@ -62,7 +62,7 @@ export const getElementType = (
     }
 
     return componentMap.hasOwnProperty(rawType)
-      ? (<Record<string, string>>componentMap)[rawType]
+      ? (componentMap as Record<string, string>)[rawType]
       : rawType;
   };
 };
