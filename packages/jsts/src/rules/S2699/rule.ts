@@ -21,7 +21,10 @@ import {
   Chai,
   childrenOf,
   generateMeta,
+  getSymbolAtLocation,
   isFunctionCall,
+  isMethodCall,
+  isRequiredParserServices,
   Mocha,
   resolveFunction,
   Sinon,
@@ -29,6 +32,7 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
+import { type ImportClause, SyntaxKind } from 'typescript';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -103,14 +107,14 @@ class TestCaseAssertionVisitor {
       this.hasAssertions = true;
       return;
     }
+
+    if (isGlobalAssertion(context, node)) {
+      this.hasAssertions = true;
+      return;
+    }
+
     if (isFunctionCall(node)) {
       const { callee } = node;
-
-      if (callee.name === 'expect') {
-        this.hasAssertions = true;
-        return;
-      }
-
       const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
         this.visit(context, functionDef.body, visitedNodes);
@@ -124,4 +128,36 @@ class TestCaseAssertionVisitor {
   missingAssertions() {
     return !this.hasAssertions;
   }
+}
+
+function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (isFunctionCall(node)) {
+    const { callee } = node;
+    if (callee.name === 'expect' || callee.name === 'assert') {
+      return true;
+    }
+    // check if parserServices are present and see if the callee is from the node:assert module
+    const parserServices = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(parserServices)) {
+      return false;
+    }
+    const symbol = getSymbolAtLocation(node.callee, parserServices);
+    const declarations = symbol?.getDeclarations();
+    if (
+      declarations &&
+      declarations.length > 0 &&
+      declarations[0].kind === SyntaxKind.ImportSpecifier &&
+      declarations[0].parent?.kind === SyntaxKind.NamedImports &&
+      declarations[0].parent.parent?.kind === SyntaxKind.ImportClause
+    ) {
+      const moduleName = (declarations[0].parent.parent as ImportClause).name;
+      if (moduleName && ['assert', 'node:assert'].includes(moduleName.escapedText as string)) {
+        return true;
+      }
+    }
+  } else if (node.type === 'CallExpression' && isMethodCall(node)) {
+    const { callee } = node;
+    return callee.object.type === 'Identifier' && callee.object.name === 'assert';
+  }
+  return false;
 }
