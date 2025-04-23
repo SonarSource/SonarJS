@@ -38,18 +38,22 @@ export const getElementType = (
   context: Rule.RuleContext,
 ): ((node: TSESTree.JSXOpeningElement) => string) => {
   const { settings } = context;
-  const polymorphicPropName = settings['jsx-a11y']?.polymorphicPropName;
-  const polymorphicAllowList = settings['jsx-a11y']?.polymorphicAllowList;
+  const jsxa11ySettings = settings['jsx-a11y'] as Record<string, unknown>;
+  const polymorphicPropName = jsxa11ySettings?.polymorphicPropName;
+  const polymorphicAllowList = jsxa11ySettings?.polymorphicAllowList;
 
-  const componentMap = settings['jsx-a11y']?.components;
+  const componentMap = jsxa11ySettings?.components;
 
   return (node: TSESTree.JSXOpeningElement): string => {
     const polymorphicProp = polymorphicPropName
-      ? getLiteralPropValue(getProp(node.attributes, polymorphicPropName))
+      ? getLiteralPropValue(getProp(node.attributes, polymorphicPropName as string))
       : undefined;
 
     let rawType: string = elementType(node);
-    if (polymorphicProp && (!polymorphicAllowList || polymorphicAllowList.includes(rawType))) {
+    if (
+      polymorphicProp &&
+      (!polymorphicAllowList || (polymorphicAllowList as string[]).includes(rawType))
+    ) {
       rawType = `${polymorphicProp}`;
     }
 
@@ -57,6 +61,8 @@ export const getElementType = (
       return rawType;
     }
 
-    return componentMap.hasOwnProperty(rawType) ? componentMap[rawType] : rawType;
+    return componentMap.hasOwnProperty(rawType)
+      ? (componentMap as Record<string, string>)[rawType]
+      : rawType;
   };
 };

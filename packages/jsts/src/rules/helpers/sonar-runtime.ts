@@ -17,5 +17,5 @@
 import { Rule } from 'eslint';
 
 export function isSonarRuntime(context: Rule.RuleContext): boolean {
-  return context.settings.sonarRuntime ?? false;
+  return context.settings.sonarRuntime ? (context.settings.sonarRuntime as boolean) : false;
 }
