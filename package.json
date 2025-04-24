@@ -129,7 +129,7 @@
     "lodash.merge": "4.6.2",
     "minimatch": "9.0.5",
     "module-alias": "2.2.3",
-    "patch-package": "6.0.0",
+    "patch-package": "6.5.1",
     "postcss": "8.5.3",
     "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
