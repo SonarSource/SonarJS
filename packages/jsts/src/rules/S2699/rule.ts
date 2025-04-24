@@ -32,14 +32,13 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
-import {
+import ts, {
   CallExpression,
   Identifier,
   type ImportClause,
   StringLiteral,
   SyntaxKind,
   VariableDeclaration,
-  Symbol,
 } from 'typescript';
 
 /**
@@ -163,7 +162,7 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, callee: estree.
   return !!moduleName && ['assert', 'node:assert'].includes(moduleName);
 }
 
-function getSymbolModuleSource(symbol: Symbol | undefined) {
+function getSymbolModuleSource(symbol: ts.Symbol | undefined) {
   const declarations = symbol?.getDeclarations();
   if (!declarations || declarations.length === 0) {
     return undefined;
@@ -182,21 +181,21 @@ function getSymbolModuleSource(symbol: Symbol | undefined) {
   if (
     declaration.kind === SyntaxKind.BindingElement &&
     declaration.parent?.kind === SyntaxKind.ObjectBindingPattern &&
-    declaration.parent.parent?.kind === SyntaxKind.VariableDeclaration
+    declaration.parent.parent?.kind === SyntaxKind.VariableDeclaration &&
+    (declaration.parent.parent as VariableDeclaration).initializer?.kind ===
+      SyntaxKind.CallExpression &&
+    ((declaration.parent.parent as VariableDeclaration).initializer as CallExpression).expression
+      ?.kind === SyntaxKind.Identifier
   ) {
-    const variableDeclaration = declaration.parent.parent as VariableDeclaration;
-    if (variableDeclaration.initializer?.kind === SyntaxKind.CallExpression) {
-      const initializer = variableDeclaration.initializer as CallExpression;
-      if (initializer.expression.kind === SyntaxKind.Identifier) {
-        const identifier = initializer.expression as Identifier;
-        if (
-          (identifier.escapedText as string) === 'require' &&
-          initializer.arguments.length === 1 &&
-          initializer.arguments[0].kind === SyntaxKind.StringLiteral
-        ) {
-          moduleName = (initializer.arguments[0] as StringLiteral).text;
-        }
-      }
+    const initializer = (declaration.parent.parent as VariableDeclaration)
+      .initializer as CallExpression;
+    const identifier = initializer.expression as Identifier;
+    if (
+      (identifier.escapedText as string) === 'require' &&
+      initializer.arguments.length === 1 &&
+      initializer.arguments[0].kind === SyntaxKind.StringLiteral
+    ) {
+      moduleName = (initializer.arguments[0] as StringLiteral).text;
     }
   }
   return moduleName;
