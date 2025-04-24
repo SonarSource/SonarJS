@@ -21,10 +21,8 @@ import {
   Chai,
   childrenOf,
   generateMeta,
-  getSymbolAtLocation,
+  getFullyQualifiedName,
   isFunctionCall,
-  isMethodCall,
-  isRequiredParserServices,
   Mocha,
   resolveFunction,
   Sinon,
@@ -32,14 +30,6 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
-import ts, {
-  CallExpression,
-  Identifier,
-  type ImportClause,
-  StringLiteral,
-  SyntaxKind,
-  VariableDeclaration,
-} from 'typescript';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -138,65 +128,13 @@ class TestCaseAssertionVisitor {
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (isFunctionCall(node)) {
-    const { callee } = node;
-    if (callee.name === 'expect' || callee.name === 'assert') {
-      return true;
-    }
-    // check if parserServices are present and see if the callee is from the node:assert module
-    return isFunctionCallFromNodeAssert(context, callee);
-  } else if (node.type === 'CallExpression' && isMethodCall(node)) {
-    const { callee } = node;
-    return callee.object.type === 'Identifier' && callee.object.name === 'assert';
+  if (isFunctionCall(node) && node.callee.name === 'expect') {
+    return true;
   }
-  return false;
+  return isFunctionCallFromNodeAssert(context, node);
 }
 
-function isFunctionCallFromNodeAssert(context: Rule.RuleContext, callee: estree.Identifier) {
-  const parserServices = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(parserServices)) {
-    return false;
-  }
-  const symbol = getSymbolAtLocation(callee, parserServices);
-  const moduleName = getSymbolModuleSource(symbol);
-  return !!moduleName && ['assert', 'node:assert'].includes(moduleName);
-}
-
-function getSymbolModuleSource(symbol: ts.Symbol | undefined) {
-  const declarations = symbol?.getDeclarations();
-  if (!declarations || declarations.length === 0) {
-    return undefined;
-  }
-  const declaration = declarations[0];
-  let moduleName;
-  // using esm destructuring import
-  if (
-    declaration.kind === SyntaxKind.ImportSpecifier &&
-    declaration.parent?.kind === SyntaxKind.NamedImports &&
-    declaration.parent.parent?.kind === SyntaxKind.ImportClause
-  ) {
-    moduleName = (declarations[0].parent.parent as ImportClause).name?.escapedText;
-  }
-  // using commonjs destructuring import
-  if (
-    declaration.kind === SyntaxKind.BindingElement &&
-    declaration.parent?.kind === SyntaxKind.ObjectBindingPattern &&
-    declaration.parent.parent?.kind === SyntaxKind.VariableDeclaration &&
-    (declaration.parent.parent as VariableDeclaration).initializer?.kind ===
-      SyntaxKind.CallExpression &&
-    ((declaration.parent.parent as VariableDeclaration).initializer as CallExpression).expression
-      ?.kind === SyntaxKind.Identifier
-  ) {
-    const initializer = (declaration.parent.parent as VariableDeclaration)
-      .initializer as CallExpression;
-    const identifier = initializer.expression as Identifier;
-    if (
-      (identifier.escapedText as string) === 'require' &&
-      initializer.arguments.length === 1 &&
-      initializer.arguments[0].kind === SyntaxKind.StringLiteral
-    ) {
-      moduleName = (initializer.arguments[0] as StringLiteral).text;
-    }
-  }
-  return moduleName;
+function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
+  const fullyQualifiedName = getFullyQualifiedName(context, node);
+  return !!fullyQualifiedName && fullyQualifiedName.split('.')[0] === 'assert';
 }
