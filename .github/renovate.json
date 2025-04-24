@@ -40,13 +40,20 @@
       "enabled": false
     },
     {
-      "packageRules": [
-        {
-          "matchUpdateTypes": ["minor", "patch"],
-          "matchCurrentVersion": "!/^0/",
-          "automerge": false
-        }
-      ]
+      "matchDatasources": ["npm"],
+      "registryUrls": ["https://repox.jfrog.io/artifactory/api/npm/npm"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": false
+    }
+  ],
+  "hostRules": [
+    {
+      "hostType": "npm",
+      "endpoint": "https://repox.jfrog.io/artifactory/api/npm/npm",
+      "token": "{{ secrets.REPOX_TOKEN }}"
     }
   ]
 }
