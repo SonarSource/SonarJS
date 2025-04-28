@@ -52,28 +52,24 @@ describe('S3735', () => {
             void (() => 42) ()
             `,
         },
+        {
+          code: `
+            const f = () => {};
+            void f(); // FN: should raise since 'f()' is not a promise but we are missing type information`,
+        },
       ],
       invalid: [
         {
-          code: `
-            foo(void 42);
-            `,
+          code: `void 42;`,
           errors: [
             {
               message: `Remove this use of the \"void\" operator.`,
-              line: 2,
-              endLine: 2,
-              column: 17,
-              endColumn: 21,
+              line: 1,
+              endLine: 1,
+              column: 1,
+              endColumn: 5,
             },
           ],
-        },
-        {
-          code: `
-            const f = () => { return new Promise(() => {}); };
-            void f(); // FP: should be ignored since 'f()' is a promise but we are missing type information
-            `,
-          errors: 1,
         },
       ],
     });
