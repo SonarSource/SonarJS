@@ -473,7 +473,6 @@ class JsTsSensorTest {
   @Test
   void should_not_send_the_skipAst_flag_when_there_are_consumers() throws Exception {
     var ctx = createSensorContext(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.jasmin.internal.enabled", "true"));
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
@@ -533,7 +532,7 @@ class JsTsSensorTest {
   void should_send_the_skipAst_flag_when_there_are_consumers_but_jasmin_is_disabled()
     throws Exception {
     var ctx = createSensorContext(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.jasmin.internal.enabled", "false"));
+    ctx.setSettings(new MapSettings().setProperty("sonar.jasmin.internal.disabled", "true"));
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();

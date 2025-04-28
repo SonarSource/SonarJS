@@ -55,8 +55,8 @@ public class JsTsContext<T extends SensorContext> {
   @Deprecated(forRemoval = true)
   private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
 
-  /* Internal property to enable Jasmin (disabled by default) */
-  private static final String JASMIN_INTERNAL_ENABLED = "sonar.jasmin.internal.enabled";
+  /* Internal property to disabled Jasmin (enabled by default) */
+  private static final String JASMIN_INTERNAL_DISABLED = "sonar.jasmin.internal.disabled";
 
   /* Internal property to enable JaRED (disabled by default) */
   private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
@@ -104,7 +104,7 @@ public class JsTsContext<T extends SensorContext> {
   }
 
   private boolean isSonarJasminEnabled() {
-    return context.config().getBoolean(JASMIN_INTERNAL_ENABLED).orElse(false);
+    return !context.config().getBoolean(JASMIN_INTERNAL_DISABLED).orElse(false);
   }
 
   private boolean isSonarJaredEnabled() {
