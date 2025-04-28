@@ -580,7 +580,9 @@ class BridgeServerImplTest {
 
     assertThatThrownBy(() -> bridgeServer.loadTsConfig("any.ts"))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("The bridge server is unresponsive");
+      .hasMessage(
+        "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"
+      );
   }
 
   @Test
