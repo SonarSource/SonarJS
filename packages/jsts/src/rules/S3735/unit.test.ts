@@ -54,8 +54,8 @@ describe('S3735', () => {
         },
         {
           code: `
-            const f = () => { return new Promise(() => {}); };
-            void f(); // FN: should be ignored since 'f()' is a promise but we are missing type information`,
+            const f = () => {};
+            void f(); // FN: should raise since 'f()' is not a promise but we are missing type information`,
         },
       ],
       invalid: [
