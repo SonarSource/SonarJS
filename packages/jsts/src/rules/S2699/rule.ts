@@ -128,7 +128,7 @@ class TestCaseAssertionVisitor {
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (isFunctionCall(node) && (node.callee.name === 'expect' || node.callee.name === 'assert')) {
+  if (isFunctionCall(node) && node.callee.name === 'expect') {
     return true;
   }
   return isFunctionCallFromNodeAssert(context, node);
