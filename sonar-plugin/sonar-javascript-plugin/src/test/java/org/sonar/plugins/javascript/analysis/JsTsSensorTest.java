@@ -513,7 +513,9 @@ class JsTsSensorTest {
   void should_send_the_skipAst_flag_when_there_are_consumers_but_armor_is_disabled()
     throws Exception {
     var ctx = createSensorContext(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.armor.internal.enabled", "false"));
+    ctx.setSettings(new MapSettings()
+      .setProperty("sonar.armor.internal.enabled", "false")
+      .setProperty("sonar.jasmin.internal.disabled", "true"));
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
