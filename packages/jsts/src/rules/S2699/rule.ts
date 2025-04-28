@@ -21,6 +21,7 @@ import {
   Chai,
   childrenOf,
   generateMeta,
+  getFullyQualifiedName,
   isFunctionCall,
   Mocha,
   resolveFunction,
@@ -103,14 +104,14 @@ class TestCaseAssertionVisitor {
       this.hasAssertions = true;
       return;
     }
+
+    if (isGlobalAssertion(context, node)) {
+      this.hasAssertions = true;
+      return;
+    }
+
     if (isFunctionCall(node)) {
       const { callee } = node;
-
-      if (callee.name === 'expect') {
-        this.hasAssertions = true;
-        return;
-      }
-
       const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
         this.visit(context, functionDef.body, visitedNodes);
@@ -124,4 +125,16 @@ class TestCaseAssertionVisitor {
   missingAssertions() {
     return !this.hasAssertions;
   }
+}
+
+function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (isFunctionCall(node) && node.callee.name === 'expect') {
+    return true;
+  }
+  return isFunctionCallFromNodeAssert(context, node);
+}
+
+function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
+  const fullyQualifiedName = getFullyQualifiedName(context, node);
+  return fullyQualifiedName?.split('.')[0] === 'assert';
 }
