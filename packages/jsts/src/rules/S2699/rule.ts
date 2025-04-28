@@ -136,5 +136,5 @@ function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolea
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
   const fullyQualifiedName = getFullyQualifiedName(context, node);
-  return !!fullyQualifiedName && fullyQualifiedName.split('.')[0] === 'assert';
+  return fullyQualifiedName?.split('.')[0] === 'assert';
 }
