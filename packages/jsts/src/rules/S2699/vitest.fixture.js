@@ -1,6 +1,6 @@
 // sum.test.js
 const vitest = require('vitest');
-const { describe, expect, it } = require('vitest');
+const { describe, expect, it, expectTypeOf, assertType } = require('vitest');
 
 describe('vitest test cases', () => {
   it('no assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
@@ -17,6 +17,18 @@ describe('vitest test cases', () => {
 
   it('transitive assertion', () => { // Compliant
     check();
+  });
+
+  it('expectTypeOf works properly', () => {
+    vitest.expectTypeOf(it).toBeFunction()
+  });
+
+  it('destructured expectTypeOf works properly', () => {
+    expectTypeOf(it).toBeFunction()
+  });
+
+  it('assertType works properly', () => {
+    assertType(mount({ name: 42 }));
   });
 
   function check() {

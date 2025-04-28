@@ -28,12 +28,9 @@ export namespace Vitest {
   }
 
   export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-    return isExpectUsage(context, node);
-  }
-
-  function isExpectUsage(context: Rule.RuleContext, node: estree.Node) {
-    // expect(), vitest.expect()
-    return extractFQNforCallExpression(context, node) === 'vitest.expect';
+    const validAssertionCalls = ['vitest.expect', 'vitest.expectTypeOf', 'vitest.assertType'];
+    const fullyQualifiedName = extractFQNforCallExpression(context, node);
+    return !!fullyQualifiedName && validAssertionCalls.includes(fullyQualifiedName);
   }
 
   function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
