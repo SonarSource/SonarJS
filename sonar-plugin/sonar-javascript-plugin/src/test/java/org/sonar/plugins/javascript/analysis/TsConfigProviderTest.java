@@ -78,9 +78,11 @@ class TsConfigProviderTest {
     Path subdir = baseDir.resolve("subdir");
     Files.createDirectory(subdir);
     Files.createDirectory(subdir.resolve("node_modules"));
+    Files.createDirectory(subdir.resolve(".git"));
     Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
     // these should not be taken into account
     Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
+    Files.createFile(subdir.resolve(".git/tsconfig.json"));
     Files.createFile(subdir.resolve("base.tsconfig.json"));
 
     var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));

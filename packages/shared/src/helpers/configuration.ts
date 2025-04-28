@@ -150,6 +150,7 @@ export const DEFAULT_EXCLUSIONS = [
   '**/.*',
   '**/.*/**',
   '**/*.d.ts',
+  '**/.git/**',
   '**/node_modules/**',
   '**/bower_components/**',
   '**/dist/**',

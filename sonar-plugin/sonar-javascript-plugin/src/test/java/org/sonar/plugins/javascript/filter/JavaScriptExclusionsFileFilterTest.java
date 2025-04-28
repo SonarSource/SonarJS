@@ -65,6 +65,7 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("dist/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("external/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("contrib/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile(".git/another.js"))).isFalse();
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
     );
