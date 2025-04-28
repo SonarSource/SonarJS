@@ -52,7 +52,7 @@
   "hostRules": [
     {
       "hostType": "npm",
-      "endpoint": "https://repox.jfrog.io/artifactory/api/npm/npm",
+      "matchHost": "https://repox.jfrog.io/artifactory/api/npm/npm/",
       "token": "{{ secrets.REPOX_TOKEN }}"
     }
   ]
