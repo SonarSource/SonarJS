@@ -22,7 +22,9 @@ import {
   childrenOf,
   generateMeta,
   getFullyQualifiedName,
+  getSignatureFromCallee,
   isFunctionCall,
+  isRequiredParserServices,
   Mocha,
   resolveFunction,
   Sinon,
@@ -30,6 +32,8 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
+import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import ts from 'typescript';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -39,13 +43,14 @@ import * as meta from './generated-meta.js';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    const visitedNodes: Set<estree.Node> = new Set();
+    const visitedNodes: Map<estree.Node, boolean> = new Map();
+    const visitedTSNodes: Map<ts.Node, boolean> = new Map();
     const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          checkAssertions(testCase, context, potentialIssues, visitedNodes);
+          checkAssertions(testCase, context, potentialIssues, visitedNodes, visitedTSNodes);
         }
       },
       'Program:exit': () => {
@@ -68,11 +73,12 @@ function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
   potentialIssues: Rule.ReportDescriptor[],
-  visitedNodes: Set<estree.Node>,
+  visitedNodes: Map<estree.Node, boolean>,
+  visitedTSNodes: Map<ts.Node, boolean>,
 ) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
-  visitor.visit(context, callback.body, visitedNodes);
+  visitor.visit(context, callback.body, visitedNodes, visitedTSNodes);
   if (visitor.missingAssertions()) {
     potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
   }
@@ -87,44 +93,103 @@ class TestCaseAssertionVisitor {
     this.hasAssertions = false;
   }
 
-  visit(context: Rule.RuleContext, node: estree.Node, visitedNodes: Set<estree.Node>) {
+  visitTSNode(
+    services: ParserServicesWithTypeInformation,
+    node: ts.Node,
+    visitedTSNodes: Map<ts.Node, boolean>,
+  ): boolean {
+    if (visitedTSNodes.has(node)) {
+      return visitedTSNodes.get(node)!;
+    }
+    visitedTSNodes.set(node, false);
+    if (isGlobalTSAssertion(node)) {
+      this.hasAssertions = true;
+      visitedTSNodes.set(node, true);
+      return true;
+    }
+
+    let nodeHasAssertions = false;
+    if (node.kind === ts.SyntaxKind.CallExpression) {
+      const callNode = services.program
+        .getTypeChecker()
+        .getResolvedSignature(node as ts.CallLikeExpression);
+      if (callNode?.declaration) {
+        nodeHasAssertions ||= this.visitTSNode(services, callNode.declaration, visitedTSNodes);
+      }
+    }
+
+    node.forEachChild(child => {
+      nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
+    });
+    visitedTSNodes.set(node, nodeHasAssertions);
+    this.hasAssertions = this.hasAssertions || nodeHasAssertions;
+    return nodeHasAssertions;
+  }
+
+  visit(
+    context: Rule.RuleContext,
+    node: estree.Node,
+    visitedNodes: Map<estree.Node, boolean>,
+    visitedTSNodes: Map<ts.Node, boolean>,
+  ): boolean {
     if (visitedNodes.has(node)) {
-      return;
+      return visitedNodes.get(node)!;
     }
-    visitedNodes.add(node);
-    if (this.hasAssertions) {
-      return;
-    }
+    visitedNodes.set(node, false);
     if (
       Chai.isAssertion(context, node) ||
       Sinon.isAssertion(context, node) ||
       Vitest.isAssertion(context, node) ||
-      Supertest.isAssertion(context, node)
+      Supertest.isAssertion(context, node) ||
+      isGlobalAssertion(context, node)
     ) {
+      visitedNodes.set(node, true);
       this.hasAssertions = true;
-      return;
+      return true;
     }
 
-    if (isGlobalAssertion(context, node)) {
-      this.hasAssertions = true;
-      return;
-    }
-
+    let nodeHasAssertions = false;
     if (isFunctionCall(node)) {
       const { callee } = node;
       const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
-        this.visit(context, functionDef.body, visitedNodes);
+        nodeHasAssertions ||= this.visit(context, functionDef.body, visitedNodes, visitedTSNodes);
+      }
+      const parserServices = context.sourceCode.parserServices;
+      if (isRequiredParserServices(parserServices)) {
+        const signature = getSignatureFromCallee(node, parserServices);
+        if (signature?.getDeclaration()) {
+          nodeHasAssertions ||= this.visitTSNode(
+            parserServices,
+            signature.getDeclaration(),
+            visitedTSNodes,
+          );
+        }
       }
     }
     for (const child of childrenOf(node, this.visitorKeys)) {
-      this.visit(context, child, visitedNodes);
+      nodeHasAssertions ||= this.visit(context, child, visitedNodes, visitedTSNodes);
     }
+    visitedNodes.set(node, nodeHasAssertions);
+    this.hasAssertions = this.hasAssertions || nodeHasAssertions;
+    return nodeHasAssertions;
   }
 
   missingAssertions() {
     return !this.hasAssertions;
   }
+}
+
+function isGlobalTSAssertion(node: ts.Node) {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
+  }
+  const callExpressionNode = node as ts.CallExpression;
+  if (callExpressionNode.expression.kind !== ts.SyntaxKind.Identifier) {
+    return false;
+  }
+  const identifierNode = callExpressionNode.expression as ts.Identifier;
+  return identifierNode.text === 'expect' || identifierNode.text === 'assert';
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
