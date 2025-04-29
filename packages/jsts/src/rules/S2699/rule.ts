@@ -78,19 +78,17 @@ function checkAssertions(
 ) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
-  visitor.visit(context, callback.body, visitedNodes, visitedTSNodes);
-  if (visitor.missingAssertions()) {
+  const hasAssertions = visitor.visit(context, callback.body, visitedNodes, visitedTSNodes);
+  if (!hasAssertions) {
     potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
   }
 }
 
 class TestCaseAssertionVisitor {
   private readonly visitorKeys: SourceCode.VisitorKeys;
-  private hasAssertions: boolean;
 
   constructor(private readonly context: Rule.RuleContext) {
     this.visitorKeys = context.sourceCode.visitorKeys;
-    this.hasAssertions = false;
   }
 
   visitTSNode(
@@ -103,10 +101,10 @@ class TestCaseAssertionVisitor {
     }
     visitedTSNodes.set(node, false);
     if (isGlobalTSAssertion(node)) {
-      this.hasAssertions = true;
       visitedTSNodes.set(node, true);
       return true;
     }
+    // TODO(JS-705): Add checks to other test frameworks
 
     let nodeHasAssertions = false;
     if (node.kind === ts.SyntaxKind.CallExpression) {
@@ -122,7 +120,6 @@ class TestCaseAssertionVisitor {
       nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
     });
     visitedTSNodes.set(node, nodeHasAssertions);
-    this.hasAssertions ||= nodeHasAssertions;
     return nodeHasAssertions;
   }
 
@@ -144,7 +141,6 @@ class TestCaseAssertionVisitor {
       isGlobalAssertion(context, node)
     ) {
       visitedNodes.set(node, true);
-      this.hasAssertions = true;
       return true;
     }
 
@@ -171,12 +167,7 @@ class TestCaseAssertionVisitor {
       nodeHasAssertions ||= this.visit(context, child, visitedNodes, visitedTSNodes);
     }
     visitedNodes.set(node, nodeHasAssertions);
-    this.hasAssertions ||= nodeHasAssertions;
     return nodeHasAssertions;
-  }
-
-  missingAssertions() {
-    return !this.hasAssertions;
   }
 }
 
