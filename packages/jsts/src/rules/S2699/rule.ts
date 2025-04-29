@@ -122,7 +122,7 @@ class TestCaseAssertionVisitor {
       nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
     });
     visitedTSNodes.set(node, nodeHasAssertions);
-    this.hasAssertions = this.hasAssertions || nodeHasAssertions;
+    this.hasAssertions ||= nodeHasAssertions;
     return nodeHasAssertions;
   }
 
@@ -171,7 +171,7 @@ class TestCaseAssertionVisitor {
       nodeHasAssertions ||= this.visit(context, child, visitedNodes, visitedTSNodes);
     }
     visitedNodes.set(node, nodeHasAssertions);
-    this.hasAssertions = this.hasAssertions || nodeHasAssertions;
+    this.hasAssertions ||= nodeHasAssertions;
     return nodeHasAssertions;
   }
 
