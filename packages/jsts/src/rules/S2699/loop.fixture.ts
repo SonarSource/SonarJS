@@ -1,3 +1,4 @@
+const assert = require('assert');
 const chai = require('chai');
 
 // this file tests an infinite loop issue that was introduced in 7e1b24d2019921c6c46440579274541c3f3ddde4
@@ -9,12 +10,20 @@ describe('test cases', () => {
   it('should reflect a single argument', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     expectParameter(args[0], 'bar', 'Bar');
   });
+
+  it('should follow functions in file', () => {
+    functionWithAssertion();
+  });
 });
 
 function expectParameter(
   param: CtorParameter, name: string, type?: string|{name: string, moduleName: string},
   decorator?: string, decoratorFrom?: string): void {
     argExpressionToString(param.typeValueReference.expression);
+}
+
+function functionWithAssertion() {
+  assert(true);
 }
 
 function argExpressionToString(name: ts.Node|null): string {
