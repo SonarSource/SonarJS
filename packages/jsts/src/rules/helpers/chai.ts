@@ -20,8 +20,11 @@ import {
   getFullyQualifiedName,
   getImportDeclarations,
   getRequireCalls,
+  getTSFullyQualifiedName,
   isIdentifier,
 } from './index.js';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import ts from 'typescript';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {
@@ -30,6 +33,14 @@ export namespace Chai {
         r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
       ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
     );
+  }
+
+  export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+    const fqn = getTSFullyQualifiedName(services, node);
+    if (!fqn) {
+      return false;
+    }
+    return fqn.startsWith('chai.assert') || fqn.startsWith('chai.expect') || fqn.includes('should');
   }
 
   export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {

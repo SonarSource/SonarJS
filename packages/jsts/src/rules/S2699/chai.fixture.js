@@ -60,6 +60,10 @@ describe('chai test cases', () => {
     check();
   });
 
+  it('no assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
+    alert('msg');
+  });
+
   function check() {
     expect(1).to.equal(2);
   }

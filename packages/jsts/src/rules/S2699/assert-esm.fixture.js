@@ -1,4 +1,4 @@
-import assert, { deepStrictEqual } from "assert";
+import assert, { deepStrictEqual } from "node:assert";
 import vitest from 'vitest';
 
 describe('global assert', () => {

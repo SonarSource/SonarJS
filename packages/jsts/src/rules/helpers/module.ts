@@ -16,8 +16,10 @@
  */
 import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
+import ts from 'typescript';
+import { getSignatureFromCallee } from './type.js';
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
@@ -106,6 +108,128 @@ export function getFullyQualifiedName(
   scope?: Scope.Scope,
 ): string | null {
   return removeNodePrefixIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
+}
+
+export function getTSFullyQualifiedName(
+  services: ParserServicesWithTypeInformation,
+  rootNode: ts.Node,
+): string | null {
+  function visit(node: ts.Node | undefined): string[] | null {
+    if (!node) {
+      return null;
+    }
+    let fqn: string[] | null = [];
+    switch (node.kind) {
+      case ts.SyntaxKind.CallExpression: {
+        const callExpressionNode = node as ts.CallExpression;
+        const signature = services.program
+          .getTypeChecker()
+          .getResolvedSignature(callExpressionNode);
+        if (signature?.declaration) {
+          return visit(signature.declaration);
+        } else if (callExpressionNode.expression.kind === ts.SyntaxKind.Identifier) {
+          // ts was not able to resolve the import, lets try looking through the Identifier
+          const identifierSymbol = services.program
+            .getTypeChecker()
+            .getSymbolAtLocation(callExpressionNode.expression);
+          return visit(identifierSymbol?.declarations?.at(0));
+        } else if (callExpressionNode.expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
+          return visit(callExpressionNode.expression);
+        } else {
+          return null;
+        }
+      }
+      case ts.SyntaxKind.FunctionDeclaration: {
+        const functionDeclarationNode = node as ts.FunctionDeclaration;
+        const parentFQN = visit(functionDeclarationNode.parent);
+        const name = visit(functionDeclarationNode.name);
+        if (name && parentFQN) {
+          return [...parentFQN, ...name];
+        }
+        return null;
+      }
+      case ts.SyntaxKind.PropertyAccessExpression: {
+        const propertyAccessExpression = node as ts.PropertyAccessExpression;
+        const lhsFQN = visit(propertyAccessExpression.expression);
+        const rhsFQN = visit(propertyAccessExpression.name);
+        if (lhsFQN && rhsFQN) {
+          return [...lhsFQN, ...rhsFQN];
+        }
+        return null;
+      }
+      case ts.SyntaxKind.ModuleDeclaration: {
+        const moduleName = (node as ts.ModuleDeclaration).name;
+        return [moduleName.text];
+      }
+      case ts.SyntaxKind.ImportDeclaration: {
+        return visit((node as ts.ImportDeclaration).moduleSpecifier);
+      }
+      case ts.SyntaxKind.SourceFile: {
+        // Don't generate fqn for local files
+        return null;
+      }
+      case ts.SyntaxKind.BindingElement: {
+        const bindingElement = node as ts.BindingElement;
+        const identifier = bindingElement.propertyName
+          ? visit(bindingElement.propertyName)
+          : visit(bindingElement.name);
+        const moduleSource = visit(node.parent);
+        if (identifier && moduleSource) {
+          return [...moduleSource, ...identifier];
+        }
+        return null;
+      }
+      case ts.SyntaxKind.VariableDeclaration: {
+        const variableDeclaration = node as ts.VariableDeclaration;
+        if (variableDeclaration.initializer?.kind === ts.SyntaxKind.Identifier) {
+          const idenfifierSymbol = services.program
+            .getTypeChecker()
+            .getSymbolAtLocation(variableDeclaration.initializer);
+          return visit(idenfifierSymbol?.declarations?.at(0));
+        } else {
+          const requireText = extractRequire(node as ts.VariableDeclaration);
+          if (requireText) {
+            fqn.push(requireText);
+          }
+          return fqn;
+        }
+      }
+      case ts.SyntaxKind.Identifier: {
+        return [(node as ts.Identifier).text];
+      }
+      case ts.SyntaxKind.StringLiteral: {
+        return [(node as ts.StringLiteral).text];
+      }
+      default: {
+        return visit(node.parent);
+      }
+    }
+  }
+  const fqnParts = visit(rootNode);
+  if (!fqnParts) return null;
+  return removeNodePrefixIfExists(fqnParts.join('.'));
+}
+
+function extractRequire(variableDeclaration: ts.VariableDeclaration) {
+  if (variableDeclaration.initializer?.kind !== ts.SyntaxKind.CallExpression) {
+    return null;
+  }
+  const initializer = variableDeclaration.initializer as ts.CallExpression;
+  if (
+    initializer.expression.kind !== ts.SyntaxKind.Identifier ||
+    initializer.arguments.length !== 1
+  ) {
+    return null;
+  }
+  const identifier = initializer.expression as ts.Identifier;
+  if (identifier.text !== 'require') {
+    return null;
+  }
+  const argument = initializer.arguments.at(0);
+  if (argument?.kind !== ts.SyntaxKind.StringLiteral) {
+    return null;
+  }
+  return (argument as ts.StringLiteral).text;
 }
 
 /**
