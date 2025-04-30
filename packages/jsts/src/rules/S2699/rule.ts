@@ -22,7 +22,6 @@ import {
   childrenOf,
   generateMeta,
   getFullyQualifiedName,
-  getSignatureFromCallee,
   getTSFullyQualifiedName,
   isFunctionCall,
   isRequiredParserServices,
@@ -44,26 +43,23 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
+    if (
+      !(
+        Chai.isImported(context) ||
+        Sinon.isImported(context) ||
+        Vitest.isImported(context) ||
+        Supertest.isImported(context)
+      )
+    ) {
+      return {};
+    }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
     const visitedTSNodes: Map<ts.Node, boolean> = new Map();
-    const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          checkAssertions(testCase, context, potentialIssues, visitedNodes, visitedTSNodes);
-        }
-      },
-      'Program:exit': () => {
-        if (
-          Chai.isImported(context) ||
-          Sinon.isImported(context) ||
-          Vitest.isImported(context) ||
-          Supertest.isImported(context)
-        ) {
-          potentialIssues.forEach(issue => {
-            context.report(issue);
-          });
+          checkAssertions(testCase, context, visitedNodes, visitedTSNodes);
         }
       },
     };
@@ -73,7 +69,6 @@ export const rule: Rule.RuleModule = {
 function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
-  potentialIssues: Rule.ReportDescriptor[],
   visitedNodes: Map<estree.Node, boolean>,
   visitedTSNodes: Map<ts.Node, boolean>,
 ) {
@@ -85,10 +80,10 @@ function checkAssertions(
     const tsNode = parserServices.esTreeNodeToTSNodeMap.get(callback as TSESTree.Node);
     hasAssertions = visitor.visitTSNode(parserServices, tsNode, visitedTSNodes);
   } else {
-    hasAssertions = visitor.visit(context, callback.body, visitedNodes, visitedTSNodes);
+    hasAssertions = visitor.visit(context, callback.body, visitedNodes);
   }
   if (!hasAssertions) {
-    potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
+    context.report({ node, message: 'Add at least one assertion to this test case.' });
   }
 }
 
@@ -140,7 +135,6 @@ class TestCaseAssertionVisitor {
     context: Rule.RuleContext,
     node: estree.Node,
     visitedNodes: Map<estree.Node, boolean>,
-    visitedTSNodes: Map<ts.Node, boolean>,
   ): boolean {
     if (visitedNodes.has(node)) {
       return visitedNodes.get(node)!;
@@ -162,22 +156,11 @@ class TestCaseAssertionVisitor {
       const { callee } = node;
       const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
-        nodeHasAssertions ||= this.visit(context, functionDef.body, visitedNodes, visitedTSNodes);
-      }
-      const parserServices = context.sourceCode.parserServices;
-      if (isRequiredParserServices(parserServices)) {
-        const signature = getSignatureFromCallee(node, parserServices);
-        if (signature?.getDeclaration()) {
-          nodeHasAssertions ||= this.visitTSNode(
-            parserServices,
-            signature.getDeclaration(),
-            visitedTSNodes,
-          );
-        }
+        nodeHasAssertions ||= this.visit(context, functionDef.body, visitedNodes);
       }
     }
     for (const child of childrenOf(node, this.visitorKeys)) {
-      nodeHasAssertions ||= this.visit(context, child, visitedNodes, visitedTSNodes);
+      nodeHasAssertions ||= this.visit(context, child, visitedNodes);
     }
     visitedNodes.set(node, nodeHasAssertions);
     return nodeHasAssertions;
