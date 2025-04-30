@@ -19,7 +19,6 @@ import estree from 'estree';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
 import ts from 'typescript';
-import { getSignatureFromCallee } from './type.js';
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
