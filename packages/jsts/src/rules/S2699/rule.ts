@@ -122,11 +122,10 @@ class TestCaseAssertionVisitor {
       if (callNode?.declaration) {
         nodeHasAssertions ||= this.visitTSNode(services, callNode.declaration, visitedTSNodes);
       }
-    } else {
-      node.forEachChild(child => {
-        nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
-      });
     }
+    node.forEachChild(child => {
+      nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
+    });
     visitedTSNodes.set(node, nodeHasAssertions);
     return nodeHasAssertions;
   }

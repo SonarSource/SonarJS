@@ -160,6 +160,15 @@ export function getTSFullyQualifiedName(
         const moduleName = (node as ts.ModuleDeclaration).name;
         return [moduleName.text];
       }
+      case ts.SyntaxKind.ImportSpecifier: {
+        const importSpecifier = node as ts.ImportSpecifier;
+        const moduleName = visit(importSpecifier.parent);
+        const identifierName = visit(importSpecifier.name);
+        if (moduleName && identifierName) {
+          return [...moduleName, ...identifierName];
+        }
+        return null;
+      }
       case ts.SyntaxKind.ImportDeclaration: {
         return visit((node as ts.ImportDeclaration).moduleSpecifier);
       }
