@@ -42,6 +42,9 @@ export namespace Sinon {
     services: ParserServicesWithTypeInformation,
     node: ts.Node,
   ): boolean {
+    if (node.kind !== ts.SyntaxKind.CallExpression) {
+      return false;
+    }
     const fqn = getTSFullyQualifiedName(services, node);
     return fqn !== null && fqn.startsWith('sinon.assert');
   }

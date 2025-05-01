@@ -40,6 +40,9 @@ export namespace Vitest {
   }
 
   export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+    if (node.kind !== ts.SyntaxKind.CallExpression) {
+      return false;
+    }
     const fqn = getTSFullyQualifiedName(services, node);
     return isFQNAssertion(fqn);
   }

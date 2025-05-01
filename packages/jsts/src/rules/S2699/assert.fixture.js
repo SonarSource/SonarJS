@@ -20,8 +20,7 @@ describe('global assert', () => {
     ok(true);
   });
 
-  it('should recognize issue', () => {
-    // Noncompliant {{Add at least one assertion to this test case.}}
+  it('should recognize issue', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     const x = 10;
   });
 });

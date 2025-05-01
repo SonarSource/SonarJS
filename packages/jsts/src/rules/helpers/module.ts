@@ -121,17 +121,16 @@ export function getTSFullyQualifiedName(
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
         const callExpressionNode = node as ts.CallExpression;
+        const identifierSymbol = services.program
+          .getTypeChecker()
+          .getSymbolAtLocation(callExpressionNode.expression);
         const signature = services.program
           .getTypeChecker()
           .getResolvedSignature(callExpressionNode);
-        if (signature?.declaration) {
-          return visit(signature.declaration);
-        } else if (callExpressionNode.expression.kind === ts.SyntaxKind.Identifier) {
-          // ts was not able to resolve the import, lets try looking through the Identifier
-          const identifierSymbol = services.program
-            .getTypeChecker()
-            .getSymbolAtLocation(callExpressionNode.expression);
+        if (identifierSymbol?.declarations?.at(0)) {
           return visit(identifierSymbol?.declarations?.at(0));
+        } else if (signature?.declaration) {
+          return visit(signature.declaration);
         } else if (callExpressionNode.expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
           return visit(callExpressionNode.expression);
         } else {
@@ -208,13 +207,24 @@ export function getTSFullyQualifiedName(
       case ts.SyntaxKind.StringLiteral: {
         return [(node as ts.StringLiteral).text];
       }
-      default: {
+      case ts.SyntaxKind.ImportClause: // Fallthrough
+      case ts.SyntaxKind.ObjectBindingPattern: // Fallthrough
+      case ts.SyntaxKind.Block: // Fallthrough
+      case ts.SyntaxKind.ArrowFunction: // Fallthrough
+      case ts.SyntaxKind.ExpressionStatement: // Fallthrough
+      case ts.SyntaxKind.NamedImports: // Fallthrough
+      case ts.SyntaxKind.ModuleBlock: {
         return visit(node.parent);
+      }
+      default: {
+        return null;
       }
     }
   }
   const fqnParts = visit(rootNode);
-  if (!fqnParts) return null;
+  if (!fqnParts) {
+    return null;
+  }
   return removeNodePrefixIfExists(fqnParts.join('.'));
 }
 
