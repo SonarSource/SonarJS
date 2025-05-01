@@ -46,12 +46,16 @@ export namespace Sinon {
       return false;
     }
     const fqn = getTSFullyQualifiedName(services, node);
-    return fqn !== null && fqn.startsWith('sinon.assert');
+    return isFQNAssertion(fqn);
   }
 
   function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
     // assert.<expr>(), sinon.assert.<expr>()
     const fqn = extractFQNforCallExpression(context, node);
+    return isFQNAssertion(fqn);
+  }
+
+  function isFQNAssertion(fqn: string | null | undefined) {
     if (!fqn) {
       return false;
     }

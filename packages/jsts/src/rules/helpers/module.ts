@@ -117,7 +117,6 @@ export function getTSFullyQualifiedName(
     if (!node) {
       return null;
     }
-    let fqn: string[] | null = [];
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
         const callExpressionNode = node as ts.CallExpression;
@@ -202,9 +201,9 @@ export function getTSFullyQualifiedName(
         } else {
           const requireText = extractRequire(node as ts.VariableDeclaration);
           if (requireText) {
-            fqn.push(requireText);
+            return [requireText];
           }
-          return fqn;
+          return null;
         }
       }
       case ts.SyntaxKind.Identifier: {
