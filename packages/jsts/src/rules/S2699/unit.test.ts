@@ -31,7 +31,17 @@ describe('chai test cases', () => {
   it('expect', () => {
     expect(1).to.equal(2);
   });
+  if('should go into function', () => {
+    funcWithExpect();
+  });
+  if('repeated function calls should work', () => {
+    funcWithExpect();
+  });
 });
+
+function funcWithExpect() {
+  expect(1).to.equal(2);
+}
           `,
         },
       ],
