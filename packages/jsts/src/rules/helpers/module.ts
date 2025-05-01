@@ -123,15 +123,10 @@ export function getTSFullyQualifiedName(
         const identifierSymbol = services.program
           .getTypeChecker()
           .getSymbolAtLocation(callExpressionNode.expression);
-        const signature = services.program
-          .getTypeChecker()
-          .getResolvedSignature(callExpressionNode);
         if (isRequireCall(callExpressionNode)) {
           return visit(callExpressionNode.arguments.at(0));
         } else if (identifierSymbol?.declarations?.at(0)) {
           return visit(identifierSymbol?.declarations?.at(0));
-        } else if (signature?.declaration) {
-          return visit(signature.declaration);
         } else if (callExpressionNode.expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
           return visit(callExpressionNode.expression);
         } else {
