@@ -1,5 +1,6 @@
 const chai = require('chai');
-const { assert, expect, should } = chai;
+const chaiExpect = require('chai').expect;
+const { assert, expect, should, expect: chaiExpectRenamed } = chai;
 
 should();
 
@@ -30,6 +31,14 @@ describe('test cases', () => {
 describe('chai test cases', () => {
   it('expect', () => { // Compliant
     expect(1).to.equal(2);
+  });
+
+  it('expect', () => { // Compliant
+    chaiExpect(1).to.equal(2);
+  });
+
+  it('expect', () => { // Compliant
+    chaiExpectRenamed(1).to.equal(2);
   });
 
   it('chai.expect', () => { // Compliant

@@ -127,7 +127,9 @@ export function getTSFullyQualifiedName(
         const signature = services.program
           .getTypeChecker()
           .getResolvedSignature(callExpressionNode);
-        if (identifierSymbol?.declarations?.at(0)) {
+        if (isRequireCall(callExpressionNode)) {
+          return visit(callExpressionNode.arguments.at(0));
+        } else if (identifierSymbol?.declarations?.at(0)) {
           return visit(identifierSymbol?.declarations?.at(0));
         } else if (signature?.declaration) {
           return visit(signature.declaration);
@@ -189,10 +191,14 @@ export function getTSFullyQualifiedName(
       case ts.SyntaxKind.VariableDeclaration: {
         const variableDeclaration = node as ts.VariableDeclaration;
         if (variableDeclaration.initializer?.kind === ts.SyntaxKind.Identifier) {
-          const idenfifierSymbol = services.program
+          const identifierSymbol = services.program
             .getTypeChecker()
             .getSymbolAtLocation(variableDeclaration.initializer);
-          return visit(idenfifierSymbol?.declarations?.at(0));
+          return visit(identifierSymbol?.declarations?.at(0));
+        } else if (
+          variableDeclaration.initializer?.kind === ts.SyntaxKind.PropertyAccessExpression
+        ) {
+          return visit(variableDeclaration.initializer);
         } else {
           const requireText = extractRequire(node as ts.VariableDeclaration);
           if (requireText) {
@@ -226,6 +232,14 @@ export function getTSFullyQualifiedName(
     return null;
   }
   return removeNodePrefixIfExists(fqnParts.join('.'));
+}
+
+function isRequireCall(callExpression: ts.CallExpression) {
+  return (
+    callExpression.expression.kind === ts.SyntaxKind.Identifier &&
+    (callExpression.expression as ts.Identifier).text === 'require' &&
+    callExpression.arguments.length === 1
+  );
 }
 
 function extractRequire(variableDeclaration: ts.VariableDeclaration) {
