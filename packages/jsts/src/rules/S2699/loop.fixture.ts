@@ -6,6 +6,7 @@ const chai = require('chai');
 // https://github.com/angular/angular/blob/440684ddb4a2b651e4fbd301978b7895f1750c1b/packages/compiler-cli/src/ngtsc/reflection/test/ts_host_spec.ts#L38
 
 describe('test cases', () => {
+
   it('should reflect a single argument', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     expectParameter(args[0], 'bar', 'Bar');
   });

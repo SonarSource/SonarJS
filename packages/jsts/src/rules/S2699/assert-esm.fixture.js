@@ -6,7 +6,7 @@ describe('global assert', () => {
     assert(4);
   });
 
-  it('should recognize assert.XXX methods', () => { // Compliant
+  it('should recognize assert.XXX methods', () => {  // Compliant
     deepStrictEqual({ a: 1 }, { a: '1' });
   });
 
