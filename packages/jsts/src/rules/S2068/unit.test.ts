@@ -23,7 +23,7 @@ describe('S2068', () => {
   it('S2068', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    const options = [{ passwordWords: ['password', 'pwd', 'passwd'] }];
+    const options = [{ passwordWords: ['password', 'pwd', 'passwd', 'passphrase'] }];
 
     ruleTester.run('Hard-coded passwords should be avoided', rule, {
       valid: [
@@ -57,6 +57,21 @@ describe('S2068', () => {
           errors: 1,
         },
         {
+          code: `let PASSWORD = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let PASSword = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let passphrase = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
           code: `
       let my_pwd;
       my_pwd = "foo";
@@ -71,6 +86,16 @@ describe('S2068', () => {
         },
         {
           code: `let url = "https://example.com?password=hl2OAIXXZ60";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let url = "https://example.com?PASSWORD=hl2OAIXXZ60";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let url = "https://example.com?PASSword=hl2OAIXXZ60";`,
           options,
           errors: 1,
         },

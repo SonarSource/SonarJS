@@ -23,7 +23,7 @@ import path from 'path';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
-const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
+const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
 
 const messages = {
   reviewPassword: 'Review this potentially hard-coded password.',
@@ -72,7 +72,7 @@ function checkAssignment(
     initializer &&
     isStringLiteral(initializer) &&
     (initializer.value as string).length > 0 &&
-    patterns.some(pattern => context.sourceCode.getText(variable).includes(pattern))
+    patterns.some(pattern => context.sourceCode.getText(variable).toLowerCase().includes(pattern))
   ) {
     context.report({
       messageId: 'reviewPassword',
@@ -82,7 +82,10 @@ function checkAssignment(
 }
 
 function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
-  if (isStringLiteral(literal) && patterns.some(pattern => pattern.test(literal.value as string))) {
+  if (
+    isStringLiteral(literal) &&
+    patterns.some(pattern => pattern.test((literal.value as string).toLowerCase()))
+  ) {
     context.report({
       messageId: 'reviewPassword',
       node: literal,
