@@ -1,5 +1,11 @@
 {
 "courselit:apps/web/config/strings.ts": [
 12
+],
+"courselit:apps/web/ui-config/strings.ts": [
+6,
+52,
+59,
+224
 ]
 }
