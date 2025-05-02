@@ -120,34 +120,27 @@ export function getTSFullyQualifiedName(
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
         const callExpressionNode = node as ts.CallExpression;
-        const identifierSymbol = services.program
-          .getTypeChecker()
-          .getSymbolAtLocation(callExpressionNode.expression);
         if (isRequireCall(callExpressionNode)) {
           return visit(callExpressionNode.arguments.at(0));
-        } else if (identifierSymbol?.declarations?.at(0)) {
-          return visit(identifierSymbol?.declarations?.at(0));
-        } else if (callExpressionNode.expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
-          return visit(callExpressionNode.expression);
         } else {
-          return null;
+          return visit(callExpressionNode.expression);
         }
       }
       case ts.SyntaxKind.FunctionDeclaration: {
         const functionDeclarationNode = node as ts.FunctionDeclaration;
         const parentFQN = visit(functionDeclarationNode.parent);
-        const name = visit(functionDeclarationNode.name);
+        const name = functionDeclarationNode.name?.text;
         if (name && parentFQN) {
-          return [...parentFQN, ...name];
+          return [...parentFQN, name];
         }
         return null;
       }
       case ts.SyntaxKind.PropertyAccessExpression: {
         const propertyAccessExpression = node as ts.PropertyAccessExpression;
         const lhsFQN = visit(propertyAccessExpression.expression);
-        const rhsFQN = visit(propertyAccessExpression.name);
+        const rhsFQN = propertyAccessExpression.name.text;
         if (lhsFQN && rhsFQN) {
-          return [...lhsFQN, ...rhsFQN];
+          return [...lhsFQN, rhsFQN];
         }
         return null;
       }
@@ -158,9 +151,9 @@ export function getTSFullyQualifiedName(
       case ts.SyntaxKind.ImportSpecifier: {
         const importSpecifier = node as ts.ImportSpecifier;
         const moduleName = visit(importSpecifier.parent);
-        const identifierName = visit(importSpecifier.name);
+        const identifierName = importSpecifier.propertyName?.text ?? importSpecifier.name.text;
         if (moduleName && identifierName) {
-          return [...moduleName, ...identifierName];
+          return [...moduleName, identifierName];
         }
         return null;
       }
@@ -173,25 +166,21 @@ export function getTSFullyQualifiedName(
       }
       case ts.SyntaxKind.BindingElement: {
         const bindingElement = node as ts.BindingElement;
-        const identifier = bindingElement.propertyName
-          ? visit(bindingElement.propertyName)
-          : visit(bindingElement.name);
+        let identifier;
+        if (bindingElement.propertyName && 'text' in bindingElement.propertyName) {
+          identifier = bindingElement.propertyName.text;
+        } else if ('text' in bindingElement.name) {
+          identifier = bindingElement.name.text;
+        }
         const moduleSource = visit(node.parent);
         if (identifier && moduleSource) {
-          return [...moduleSource, ...identifier];
+          return [...moduleSource, identifier];
         }
         return null;
       }
       case ts.SyntaxKind.VariableDeclaration: {
         const variableDeclaration = node as ts.VariableDeclaration;
-        if (variableDeclaration.initializer?.kind === ts.SyntaxKind.Identifier) {
-          const identifierSymbol = services.program
-            .getTypeChecker()
-            .getSymbolAtLocation(variableDeclaration.initializer);
-          return visit(identifierSymbol?.declarations?.at(0));
-        } else if (
-          variableDeclaration.initializer?.kind === ts.SyntaxKind.PropertyAccessExpression
-        ) {
+        if (variableDeclaration.initializer) {
           return visit(variableDeclaration.initializer);
         } else {
           const requireText = extractRequire(node as ts.VariableDeclaration);
@@ -202,7 +191,12 @@ export function getTSFullyQualifiedName(
         }
       }
       case ts.SyntaxKind.Identifier: {
-        return [(node as ts.Identifier).text];
+        const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
+        if (identifierSymbol?.declarations?.at(0)) {
+          return visit(identifierSymbol.declarations.at(0));
+        } else {
+          return [(node as ts.Identifier).text];
+        }
       }
       case ts.SyntaxKind.StringLiteral: {
         return [(node as ts.StringLiteral).text];
