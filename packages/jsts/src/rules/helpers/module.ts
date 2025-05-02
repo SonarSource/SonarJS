@@ -226,7 +226,8 @@ export function getTSFullyQualifiedName(
   return null;
 
   function returnResult() {
-    return removeNodePrefixIfExists(result.toReversed().join('.'));
+    result.reverse();
+    return removeNodePrefixIfExists(result.join('.'));
   }
 }
 
