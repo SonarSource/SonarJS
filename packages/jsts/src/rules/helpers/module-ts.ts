@@ -149,23 +149,19 @@ function isRequireCall(callExpression: ts.CallExpression) {
 }
 
 function extractRequire(variableDeclaration: ts.VariableDeclaration) {
-  if (variableDeclaration.initializer?.kind !== ts.SyntaxKind.CallExpression) {
-    return null;
-  }
-  const initializer = variableDeclaration.initializer as ts.CallExpression;
   if (
-    initializer.expression.kind !== ts.SyntaxKind.Identifier ||
-    initializer.arguments.length !== 1
+    variableDeclaration.initializer?.kind === ts.SyntaxKind.CallExpression &&
+    (variableDeclaration.initializer as ts.CallExpression).expression.kind ===
+      ts.SyntaxKind.Identifier &&
+    ((variableDeclaration.initializer as ts.CallExpression).expression as ts.Identifier).text ===
+      'require' &&
+    (variableDeclaration.initializer as ts.CallExpression).arguments.length === 1 &&
+    (variableDeclaration.initializer as ts.CallExpression).arguments.at(0)?.kind ===
+      ts.SyntaxKind.StringLiteral
   ) {
-    return null;
+    return (
+      (variableDeclaration.initializer as ts.CallExpression).arguments.at(0) as ts.StringLiteral
+    ).text;
   }
-  const identifier = initializer.expression as ts.Identifier;
-  if (identifier.text !== 'require') {
-    return null;
-  }
-  const argument = initializer.arguments.at(0);
-  if (argument?.kind !== ts.SyntaxKind.StringLiteral) {
-    return null;
-  }
-  return (argument as ts.StringLiteral).text;
+  return null;
 }
