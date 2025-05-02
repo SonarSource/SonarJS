@@ -31,10 +31,10 @@ describe('chai test cases', () => {
   it('expect', () => {
     expect(1).to.equal(2);
   });
-  if('should go into function', () => {
+  it('should go into function', () => {
     funcWithExpect();
   });
-  if('repeated function calls should work', () => {
+  it('repeated function calls should work', () => {
     funcWithExpect();
   });
 });
@@ -43,6 +43,25 @@ function funcWithExpect() {
   expect(1).to.equal(2);
 }
           `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('global expect', () => {
+  it('expect', () => {
+    expect(5).toEqual(4);
+  });
+});
+          `,
+        },
+        {
+          code: `
+describe('no import from test library', () => {
+  it('should not fail', () => {
+    // no-op
+  });
+});
+`,
         },
       ],
       invalid: [

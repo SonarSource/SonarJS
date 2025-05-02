@@ -113,52 +113,52 @@ export function getTSFullyQualifiedName(
   services: ParserServicesWithTypeInformation,
   rootNode: ts.Node,
 ): string | null {
-  function visit(node: ts.Node | undefined): string[] | null {
-    if (!node) {
-      return null;
-    }
+  let result: string[] = [];
+  let node: ts.Node | undefined = rootNode;
+  while (node) {
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
         const callExpressionNode = node as ts.CallExpression;
         if (isRequireCall(callExpressionNode)) {
-          return visit(callExpressionNode.arguments.at(0));
+          node = callExpressionNode.arguments.at(0);
         } else {
-          return visit(callExpressionNode.expression);
+          node = callExpressionNode.expression;
         }
+        break;
       }
       case ts.SyntaxKind.FunctionDeclaration: {
         const functionDeclarationNode = node as ts.FunctionDeclaration;
-        const parentFQN = visit(functionDeclarationNode.parent);
         const name = functionDeclarationNode.name?.text;
-        if (name && parentFQN) {
-          return [...parentFQN, name];
+        if (!name) {
+          return null;
         }
-        return null;
+        result.push(name);
+        node = functionDeclarationNode.parent;
+        break;
       }
       case ts.SyntaxKind.PropertyAccessExpression: {
         const propertyAccessExpression = node as ts.PropertyAccessExpression;
-        const lhsFQN = visit(propertyAccessExpression.expression);
         const rhsFQN = propertyAccessExpression.name.text;
-        if (lhsFQN && rhsFQN) {
-          return [...lhsFQN, rhsFQN];
+        if (!rhsFQN) {
+          return null;
         }
-        return null;
-      }
-      case ts.SyntaxKind.ModuleDeclaration: {
-        const moduleName = (node as ts.ModuleDeclaration).name;
-        return [moduleName.text];
+        result.push(rhsFQN);
+        node = propertyAccessExpression.expression;
+        break;
       }
       case ts.SyntaxKind.ImportSpecifier: {
         const importSpecifier = node as ts.ImportSpecifier;
-        const moduleName = visit(importSpecifier.parent);
         const identifierName = importSpecifier.propertyName?.text ?? importSpecifier.name.text;
-        if (moduleName && identifierName) {
-          return [...moduleName, identifierName];
+        if (!identifierName) {
+          return null;
         }
-        return null;
+        result.push(identifierName);
+        node = importSpecifier.parent;
+        break;
       }
       case ts.SyntaxKind.ImportDeclaration: {
-        return visit((node as ts.ImportDeclaration).moduleSpecifier);
+        node = (node as ts.ImportDeclaration).moduleSpecifier;
+        break;
       }
       case ts.SyntaxKind.SourceFile: {
         // Don't generate fqn for local files
@@ -172,34 +172,40 @@ export function getTSFullyQualifiedName(
         } else if ('text' in bindingElement.name) {
           identifier = bindingElement.name.text;
         }
-        const moduleSource = visit(node.parent);
-        if (identifier && moduleSource) {
-          return [...moduleSource, identifier];
+        if (!identifier) {
+          return null;
         }
-        return null;
+        result.push(identifier);
+        node = node.parent;
+        break;
       }
       case ts.SyntaxKind.VariableDeclaration: {
         const variableDeclaration = node as ts.VariableDeclaration;
         if (variableDeclaration.initializer) {
-          return visit(variableDeclaration.initializer);
+          node = variableDeclaration.initializer;
+          break;
         } else {
           const requireText = extractRequire(node as ts.VariableDeclaration);
-          if (requireText) {
-            return [requireText];
+          if (!requireText) {
+            return null;
           }
-          return null;
+          result.push(requireText);
+          return returnResult();
         }
       }
       case ts.SyntaxKind.Identifier: {
         const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
         if (identifierSymbol?.declarations?.at(0)) {
-          return visit(identifierSymbol.declarations.at(0));
+          node = identifierSymbol.declarations.at(0);
+          break;
         } else {
-          return [(node as ts.Identifier).text];
+          result.push((node as ts.Identifier).text);
+          return returnResult();
         }
       }
       case ts.SyntaxKind.StringLiteral: {
-        return [(node as ts.StringLiteral).text];
+        result.push((node as ts.StringLiteral).text);
+        return returnResult();
       }
       case ts.SyntaxKind.ImportClause: // Fallthrough
       case ts.SyntaxKind.ObjectBindingPattern: // Fallthrough
@@ -208,18 +214,20 @@ export function getTSFullyQualifiedName(
       case ts.SyntaxKind.ExpressionStatement: // Fallthrough
       case ts.SyntaxKind.NamedImports: // Fallthrough
       case ts.SyntaxKind.ModuleBlock: {
-        return visit(node.parent);
+        node = node.parent;
+        break;
       }
       default: {
         return null;
       }
     }
   }
-  const fqnParts = visit(rootNode);
-  if (!fqnParts) {
-    return null;
+
+  return null;
+
+  function returnResult() {
+    return removeNodePrefixIfExists(result.toReversed().join('.'));
   }
-  return removeNodePrefixIfExists(fqnParts.join('.'));
 }
 
 function isRequireCall(callExpression: ts.CallExpression) {
