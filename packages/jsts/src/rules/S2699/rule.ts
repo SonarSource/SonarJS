@@ -22,7 +22,7 @@ import {
   childrenOf,
   generateMeta,
   getFullyQualifiedName,
-  getTSFullyQualifiedName,
+  getFullyQualifiedNameTS,
   isFunctionCall,
   isRequiredParserServices,
   Mocha,
@@ -197,7 +197,7 @@ function isFunctionCallFromNodeAssertTS(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
-  const fqn = getTSFullyQualifiedName(services, node);
+  const fqn = getFullyQualifiedNameTS(services, node);
   return fqn ? fqn?.startsWith('assert') : false;
 }
 

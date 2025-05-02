@@ -19,7 +19,7 @@ import {
   getFullyQualifiedName,
   getImportDeclarations,
   getRequireCalls,
-  getTSFullyQualifiedName,
+  getFullyQualifiedNameTS,
 } from './index.js';
 import estree from 'estree';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -43,7 +43,7 @@ export namespace Supertest {
     if (node.kind !== ts.SyntaxKind.CallExpression) {
       return false;
     }
-    const fqn = getTSFullyQualifiedName(services, node);
+    const fqn = getFullyQualifiedNameTS(services, node);
     return isFQNAssertion(fqn);
   }
 

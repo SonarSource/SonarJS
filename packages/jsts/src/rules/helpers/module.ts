@@ -16,9 +16,8 @@
  */
 import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
-import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
-import ts from 'typescript';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
@@ -107,158 +106,6 @@ export function getFullyQualifiedName(
   scope?: Scope.Scope,
 ): string | null {
   return removeNodePrefixIfExists(getFullyQualifiedNameRaw(context, node, fqn, scope));
-}
-
-export function getTSFullyQualifiedName(
-  services: ParserServicesWithTypeInformation,
-  rootNode: ts.Node,
-): string | null {
-  let result: string[] = [];
-  let node: ts.Node | undefined = rootNode;
-  while (node) {
-    switch (node.kind) {
-      case ts.SyntaxKind.CallExpression: {
-        const callExpressionNode = node as ts.CallExpression;
-        if (isRequireCall(callExpressionNode)) {
-          node = callExpressionNode.arguments.at(0);
-        } else {
-          node = callExpressionNode.expression;
-        }
-        break;
-      }
-      case ts.SyntaxKind.FunctionDeclaration: {
-        const functionDeclarationNode = node as ts.FunctionDeclaration;
-        const name = functionDeclarationNode.name?.text;
-        if (!name) {
-          return null;
-        }
-        result.push(name);
-        node = functionDeclarationNode.parent;
-        break;
-      }
-      case ts.SyntaxKind.PropertyAccessExpression: {
-        const propertyAccessExpression = node as ts.PropertyAccessExpression;
-        const rhsFQN = propertyAccessExpression.name.text;
-        if (!rhsFQN) {
-          return null;
-        }
-        result.push(rhsFQN);
-        node = propertyAccessExpression.expression;
-        break;
-      }
-      case ts.SyntaxKind.ImportSpecifier: {
-        const importSpecifier = node as ts.ImportSpecifier;
-        const identifierName = importSpecifier.propertyName?.text ?? importSpecifier.name.text;
-        if (!identifierName) {
-          return null;
-        }
-        result.push(identifierName);
-        node = importSpecifier.parent;
-        break;
-      }
-      case ts.SyntaxKind.ImportDeclaration: {
-        node = (node as ts.ImportDeclaration).moduleSpecifier;
-        break;
-      }
-      case ts.SyntaxKind.SourceFile: {
-        // Don't generate fqn for local files
-        return null;
-      }
-      case ts.SyntaxKind.BindingElement: {
-        const bindingElement = node as ts.BindingElement;
-        let identifier;
-        if (bindingElement.propertyName && 'text' in bindingElement.propertyName) {
-          identifier = bindingElement.propertyName.text;
-        } else if ('text' in bindingElement.name) {
-          identifier = bindingElement.name.text;
-        }
-        if (!identifier) {
-          return null;
-        }
-        result.push(identifier);
-        node = node.parent;
-        break;
-      }
-      case ts.SyntaxKind.VariableDeclaration: {
-        const variableDeclaration = node as ts.VariableDeclaration;
-        if (variableDeclaration.initializer) {
-          node = variableDeclaration.initializer;
-          break;
-        } else {
-          const requireText = extractRequire(node as ts.VariableDeclaration);
-          if (!requireText) {
-            return null;
-          }
-          result.push(requireText);
-          return returnResult();
-        }
-      }
-      case ts.SyntaxKind.Identifier: {
-        const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
-        if (identifierSymbol?.declarations?.at(0)) {
-          node = identifierSymbol.declarations.at(0);
-          break;
-        } else {
-          result.push((node as ts.Identifier).text);
-          return returnResult();
-        }
-      }
-      case ts.SyntaxKind.StringLiteral: {
-        result.push((node as ts.StringLiteral).text);
-        return returnResult();
-      }
-      case ts.SyntaxKind.ImportClause: // Fallthrough
-      case ts.SyntaxKind.ObjectBindingPattern: // Fallthrough
-      case ts.SyntaxKind.Block: // Fallthrough
-      case ts.SyntaxKind.ArrowFunction: // Fallthrough
-      case ts.SyntaxKind.ExpressionStatement: // Fallthrough
-      case ts.SyntaxKind.NamedImports: // Fallthrough
-      case ts.SyntaxKind.ModuleBlock: {
-        node = node.parent;
-        break;
-      }
-      default: {
-        return null;
-      }
-    }
-  }
-
-  return null;
-
-  function returnResult() {
-    result.reverse();
-    return removeNodePrefixIfExists(result.join('.'));
-  }
-}
-
-function isRequireCall(callExpression: ts.CallExpression) {
-  return (
-    callExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    (callExpression.expression as ts.Identifier).text === 'require' &&
-    callExpression.arguments.length === 1
-  );
-}
-
-function extractRequire(variableDeclaration: ts.VariableDeclaration) {
-  if (variableDeclaration.initializer?.kind !== ts.SyntaxKind.CallExpression) {
-    return null;
-  }
-  const initializer = variableDeclaration.initializer as ts.CallExpression;
-  if (
-    initializer.expression.kind !== ts.SyntaxKind.Identifier ||
-    initializer.arguments.length !== 1
-  ) {
-    return null;
-  }
-  const identifier = initializer.expression as ts.Identifier;
-  if (identifier.text !== 'require') {
-    return null;
-  }
-  const argument = initializer.arguments.at(0);
-  if (argument?.kind !== ts.SyntaxKind.StringLiteral) {
-    return null;
-  }
-  return (argument as ts.StringLiteral).text;
 }
 
 /**
@@ -425,7 +272,7 @@ function checkFqnFromRequire(
  * @param fqn Fully Qualified Name (ex.: `node:https.request`)
  * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
  */
-function removeNodePrefixIfExists(fqn: string | null) {
+export function removeNodePrefixIfExists(fqn: string | null) {
   if (fqn === null) {
     return null;
   }

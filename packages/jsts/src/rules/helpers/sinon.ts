@@ -20,7 +20,7 @@ import {
   getFullyQualifiedName,
   getImportDeclarations,
   getRequireCalls,
-  getTSFullyQualifiedName,
+  getFullyQualifiedNameTS,
 } from './index.js';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
@@ -45,7 +45,7 @@ export namespace Sinon {
     if (node.kind !== ts.SyntaxKind.CallExpression) {
       return false;
     }
-    const fqn = getTSFullyQualifiedName(services, node);
+    const fqn = getFullyQualifiedNameTS(services, node);
     return isFQNAssertion(fqn);
   }
 

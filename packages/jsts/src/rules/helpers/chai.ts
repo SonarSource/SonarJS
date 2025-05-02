@@ -18,9 +18,9 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import {
   getFullyQualifiedName,
+  getFullyQualifiedNameTS,
   getImportDeclarations,
   getRequireCalls,
-  getTSFullyQualifiedName,
   isIdentifier,
 } from './index.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -39,7 +39,7 @@ export namespace Chai {
     if (node.kind !== ts.SyntaxKind.CallExpression) {
       return false;
     }
-    const fqn = getTSFullyQualifiedName(services, node);
+    const fqn = getFullyQualifiedNameTS(services, node);
     if (!fqn) {
       return false;
     }
