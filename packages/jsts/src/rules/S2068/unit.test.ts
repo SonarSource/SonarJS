@@ -23,7 +23,7 @@ describe('S2068', () => {
   it('S2068', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    const options = [{ passwordWords: ['password', 'pwd', 'passwd'] }];
+    const options = [{ passwordWords: ['password', 'pwd', 'passwd', 'passphrase'] }];
 
     ruleTester.run('Hard-coded passwords should be avoided', rule, {
       valid: [
@@ -57,6 +57,21 @@ describe('S2068', () => {
           errors: 1,
         },
         {
+          code: `let PASSWORD = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let PASSword = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let passphrase = "foo";`,
+          options,
+          errors: 1,
+        },
+        {
           code: `
       let my_pwd;
       my_pwd = "foo";
@@ -75,13 +90,46 @@ describe('S2068', () => {
           errors: 1,
         },
         {
+          code: `let url = "https://example.com?PASSWORD=hl2OAIXXZ60";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: `let url = "https://example.com?PASSword=hl2OAIXXZ60";`,
+          options,
+          errors: 1,
+        },
+        {
           code: `let secret = "foo"`,
           options: [{ passwordWords: ['secret'] }],
           errors: 1,
         },
         {
+          code: `let secret = "foo"`,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
+          code: `
+      let my_secret;
+      my_secret = "foo";
+      `,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
+          code: `let data = { user: "foo", secret: "bar" };`,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
           code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
           options: [{ passwordWords: ['token'] }],
+          errors: 1,
+        },
+        {
+          code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
+          options: [{ passwordWords: ['TOKEN'] }],
           errors: 1,
         },
         {

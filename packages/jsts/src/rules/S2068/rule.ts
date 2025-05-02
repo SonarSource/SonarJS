@@ -23,7 +23,7 @@ import path from 'path';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
-const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
+const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
 
 const messages = {
   reviewPassword: 'Review this potentially hard-coded password.',
@@ -40,19 +40,20 @@ export const rule: Rule.RuleModule = {
 
     const variableNames =
       (context.options as FromSchema<typeof meta.schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
-    const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
+    const lowerCaseVariableNames = variableNames.map(name => name.toLowerCase());
+    const literalRegExp = lowerCaseVariableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {
         const declaration = node as estree.VariableDeclarator;
-        checkAssignment(context, variableNames, declaration.id, declaration.init);
+        checkAssignment(context, lowerCaseVariableNames, declaration.id, declaration.init);
       },
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        checkAssignment(context, variableNames, assignment.left, assignment.right);
+        checkAssignment(context, lowerCaseVariableNames, assignment.left, assignment.right);
       },
       Property: (node: estree.Node) => {
         const property = node as estree.Property;
-        checkAssignment(context, variableNames, property.key, property.value);
+        checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
       },
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
@@ -72,7 +73,7 @@ function checkAssignment(
     initializer &&
     isStringLiteral(initializer) &&
     (initializer.value as string).length > 0 &&
-    patterns.some(pattern => context.sourceCode.getText(variable).includes(pattern))
+    patterns.some(pattern => context.sourceCode.getText(variable).toLowerCase().includes(pattern))
   ) {
     context.report({
       messageId: 'reviewPassword',
@@ -82,7 +83,10 @@ function checkAssignment(
 }
 
 function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
-  if (isStringLiteral(literal) && patterns.some(pattern => pattern.test(literal.value as string))) {
+  if (
+    isStringLiteral(literal) &&
+    patterns.some(pattern => pattern.test((literal.value as string).toLowerCase()))
+  ) {
     context.report({
       messageId: 'reviewPassword',
       node: literal,

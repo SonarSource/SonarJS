@@ -26,7 +26,7 @@ export const fields = [
         type: 'string',
       },
       description: 'Comma separated list of words identifying potential passwords.',
-      default: ['password', 'pwd', 'passwd'],
+      default: ['password', 'pwd', 'passwd', 'passphrase'],
     },
   ],
 ] as const satisfies ESLintConfiguration;
