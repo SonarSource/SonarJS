@@ -105,8 +105,31 @@ describe('S2068', () => {
           errors: 1,
         },
         {
+          code: `let secret = "foo"`,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
+          code: `
+      let my_secret;
+      my_secret = "foo";
+      `,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
+          code: `let data = { user: "foo", secret: "bar" };`,
+          options: [{ passwordWords: ['SECRET'] }],
+          errors: 1,
+        },
+        {
           code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
           options: [{ passwordWords: ['token'] }],
+          errors: 1,
+        },
+        {
+          code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
+          options: [{ passwordWords: ['TOKEN'] }],
           errors: 1,
         },
         {

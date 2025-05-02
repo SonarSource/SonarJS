@@ -40,19 +40,20 @@ export const rule: Rule.RuleModule = {
 
     const variableNames =
       (context.options as FromSchema<typeof meta.schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
-    const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
+    const lowerCaseVariableNames = variableNames.map(name => name.toLowerCase());
+    const literalRegExp = lowerCaseVariableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {
         const declaration = node as estree.VariableDeclarator;
-        checkAssignment(context, variableNames, declaration.id, declaration.init);
+        checkAssignment(context, lowerCaseVariableNames, declaration.id, declaration.init);
       },
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        checkAssignment(context, variableNames, assignment.left, assignment.right);
+        checkAssignment(context, lowerCaseVariableNames, assignment.left, assignment.right);
       },
       Property: (node: estree.Node) => {
         const property = node as estree.Property;
-        checkAssignment(context, variableNames, property.key, property.value);
+        checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
       },
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
