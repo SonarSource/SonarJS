@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { ESLintConfiguration } from './configs.js';
-import merge from 'lodash.merge';
+import { merge } from 'lodash';
 
 export type SonarMeta = {
   meta: Rule.RuleMetaData & { docs?: { requiresTypeChecking?: boolean } };
