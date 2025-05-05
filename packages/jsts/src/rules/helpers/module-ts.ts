@@ -94,12 +94,7 @@ export function getFullyQualifiedNameTS(
           node = variableDeclaration.initializer;
           break;
         } else {
-          const requireText = extractRequire(node as ts.VariableDeclaration);
-          if (!requireText) {
-            return null;
-          }
-          result.push(requireText);
-          return returnResult();
+          return null;
         }
       }
       case ts.SyntaxKind.Identifier: {
@@ -146,22 +141,4 @@ function isRequireCall(callExpression: ts.CallExpression) {
     (callExpression.expression as ts.Identifier).text === 'require' &&
     callExpression.arguments.length === 1
   );
-}
-
-function extractRequire(variableDeclaration: ts.VariableDeclaration) {
-  if (
-    variableDeclaration.initializer?.kind === ts.SyntaxKind.CallExpression &&
-    (variableDeclaration.initializer as ts.CallExpression).expression.kind ===
-      ts.SyntaxKind.Identifier &&
-    ((variableDeclaration.initializer as ts.CallExpression).expression as ts.Identifier).text ===
-      'require' &&
-    (variableDeclaration.initializer as ts.CallExpression).arguments.length === 1 &&
-    (variableDeclaration.initializer as ts.CallExpression).arguments.at(0)?.kind ===
-      ts.SyntaxKind.StringLiteral
-  ) {
-    return (
-      (variableDeclaration.initializer as ts.CallExpression).arguments.at(0) as ts.StringLiteral
-    ).text;
-  }
-  return null;
 }
