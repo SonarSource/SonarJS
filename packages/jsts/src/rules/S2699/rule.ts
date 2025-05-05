@@ -22,7 +22,7 @@ import {
   childrenOf,
   generateMeta,
   getFullyQualifiedName,
-  getSignatureFromCallee,
+  getFullyQualifiedNameTS,
   isFunctionCall,
   isRequiredParserServices,
   Mocha,
@@ -32,7 +32,7 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
-import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
 /**
@@ -43,26 +43,23 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
+    if (
+      !(
+        Chai.isImported(context) ||
+        Sinon.isImported(context) ||
+        Vitest.isImported(context) ||
+        Supertest.isImported(context)
+      )
+    ) {
+      return {};
+    }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
     const visitedTSNodes: Map<ts.Node, boolean> = new Map();
-    const potentialIssues: Rule.ReportDescriptor[] = [];
     return {
       'CallExpression:exit': (node: estree.Node) => {
         const testCase = Mocha.extractTestCase(node);
         if (testCase !== null) {
-          checkAssertions(testCase, context, potentialIssues, visitedNodes, visitedTSNodes);
-        }
-      },
-      'Program:exit': () => {
-        if (
-          Chai.isImported(context) ||
-          Sinon.isImported(context) ||
-          Vitest.isImported(context) ||
-          Supertest.isImported(context)
-        ) {
-          potentialIssues.forEach(issue => {
-            context.report(issue);
-          });
+          checkAssertions(testCase, context, visitedNodes, visitedTSNodes);
         }
       },
     };
@@ -72,15 +69,21 @@ export const rule: Rule.RuleModule = {
 function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
-  potentialIssues: Rule.ReportDescriptor[],
   visitedNodes: Map<estree.Node, boolean>,
   visitedTSNodes: Map<ts.Node, boolean>,
 ) {
   const { node, callback } = testCase;
   const visitor = new TestCaseAssertionVisitor(context);
-  const hasAssertions = visitor.visit(context, callback.body, visitedNodes, visitedTSNodes);
+  const parserServices = context.sourceCode.parserServices;
+  let hasAssertions = false;
+  if (isRequiredParserServices(parserServices)) {
+    const tsNode = parserServices.esTreeNodeToTSNodeMap.get(callback as TSESTree.Node);
+    hasAssertions = visitor.visitTSNode(parserServices, tsNode, visitedTSNodes);
+  } else {
+    hasAssertions = visitor.visit(context, callback.body, visitedNodes);
+  }
   if (!hasAssertions) {
-    potentialIssues.push({ node, message: 'Add at least one assertion to this test case.' });
+    context.report({ node, message: 'Add at least one assertion to this test case.' });
   }
 }
 
@@ -100,11 +103,16 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isGlobalTSAssertion(node)) {
+    if (
+      isGlobalTSAssertion(services, node) ||
+      Chai.isTSAssertion(services, node) ||
+      Sinon.isTSAssertion(services, node) ||
+      Supertest.isTSAssertion(services, node) ||
+      Vitest.isTSAssertion(services, node)
+    ) {
       visitedTSNodes.set(node, true);
       return true;
     }
-    // TODO(JS-705): Add checks to other test frameworks
 
     let nodeHasAssertions = false;
     if (node.kind === ts.SyntaxKind.CallExpression) {
@@ -115,7 +123,6 @@ class TestCaseAssertionVisitor {
         nodeHasAssertions ||= this.visitTSNode(services, callNode.declaration, visitedTSNodes);
       }
     }
-
     node.forEachChild(child => {
       nodeHasAssertions ||= this.visitTSNode(services, child, visitedTSNodes);
     });
@@ -127,7 +134,6 @@ class TestCaseAssertionVisitor {
     context: Rule.RuleContext,
     node: estree.Node,
     visitedNodes: Map<estree.Node, boolean>,
-    visitedTSNodes: Map<ts.Node, boolean>,
   ): boolean {
     if (visitedNodes.has(node)) {
       return visitedNodes.get(node)!;
@@ -149,38 +155,50 @@ class TestCaseAssertionVisitor {
       const { callee } = node;
       const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
-        nodeHasAssertions ||= this.visit(context, functionDef.body, visitedNodes, visitedTSNodes);
-      }
-      const parserServices = context.sourceCode.parserServices;
-      if (isRequiredParserServices(parserServices)) {
-        const signature = getSignatureFromCallee(node, parserServices);
-        if (signature?.getDeclaration()) {
-          nodeHasAssertions ||= this.visitTSNode(
-            parserServices,
-            signature.getDeclaration(),
-            visitedTSNodes,
-          );
-        }
+        nodeHasAssertions ||= this.visit(context, functionDef.body, visitedNodes);
       }
     }
     for (const child of childrenOf(node, this.visitorKeys)) {
-      nodeHasAssertions ||= this.visit(context, child, visitedNodes, visitedTSNodes);
+      nodeHasAssertions ||= this.visit(context, child, visitedNodes);
     }
     visitedNodes.set(node, nodeHasAssertions);
     return nodeHasAssertions;
   }
 }
 
-function isGlobalTSAssertion(node: ts.Node) {
+function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
   const callExpressionNode = node as ts.CallExpression;
-  if (callExpressionNode.expression.kind !== ts.SyntaxKind.Identifier) {
+  // check for global expect
+  if (isGlobalExpectExpression(callExpressionNode)) {
+    return true;
+  }
+  return isFunctionCallFromNodeAssertTS(services, node);
+}
+
+function isGlobalExpectExpression(node: ts.CallExpression) {
+  if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
     return false;
   }
-  const identifierNode = callExpressionNode.expression as ts.Identifier;
-  return identifierNode.text === 'expect' || identifierNode.text === 'assert';
+  const propertyAccessExpression = node.expression as ts.PropertyAccessExpression;
+  if (propertyAccessExpression.expression.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
+  }
+  const innerCallExpression = propertyAccessExpression.expression as ts.CallExpression;
+  return (
+    innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
+    (innerCallExpression.expression as ts.Identifier).text === 'expect'
+  );
+}
+
+function isFunctionCallFromNodeAssertTS(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+): boolean {
+  const fqn = getFullyQualifiedNameTS(services, node);
+  return fqn ? fqn?.startsWith('assert') : false;
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {

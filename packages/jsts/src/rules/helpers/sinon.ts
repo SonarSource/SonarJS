@@ -16,7 +16,14 @@
  */
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './index.js';
+import {
+  getFullyQualifiedName,
+  getImportDeclarations,
+  getRequireCalls,
+  getFullyQualifiedNameTS,
+} from './index.js';
+import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import ts from 'typescript';
 
 export namespace Sinon {
   export function isImported(context: Rule.RuleContext): boolean {
@@ -31,9 +38,24 @@ export namespace Sinon {
     return isAssertUsage(context, node);
   }
 
+  export function isTSAssertion(
+    services: ParserServicesWithTypeInformation,
+    node: ts.Node,
+  ): boolean {
+    if (node.kind !== ts.SyntaxKind.CallExpression) {
+      return false;
+    }
+    const fqn = getFullyQualifiedNameTS(services, node);
+    return isFQNAssertion(fqn);
+  }
+
   function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
     // assert.<expr>(), sinon.assert.<expr>()
     const fqn = extractFQNforCallExpression(context, node);
+    return isFQNAssertion(fqn);
+  }
+
+  function isFQNAssertion(fqn: string | null | undefined) {
     if (!fqn) {
       return false;
     }

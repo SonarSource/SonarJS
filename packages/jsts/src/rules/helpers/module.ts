@@ -17,7 +17,7 @@
 import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
+import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
@@ -272,7 +272,7 @@ function checkFqnFromRequire(
  * @param fqn Fully Qualified Name (ex.: `node:https.request`)
  * @returns `fqn` sanitized from `node:` prefix (ex.: `https.request`)
  */
-function removeNodePrefixIfExists(fqn: string | null) {
+export function removeNodePrefixIfExists(fqn: string | null) {
   if (fqn === null) {
     return null;
   }

@@ -18,10 +18,13 @@ import type { Rule } from 'eslint';
 import estree from 'estree';
 import {
   getFullyQualifiedName,
+  getFullyQualifiedNameTS,
   getImportDeclarations,
   getRequireCalls,
   isIdentifier,
 } from './index.js';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import ts from 'typescript';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {
@@ -30,6 +33,17 @@ export namespace Chai {
         r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
       ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
     );
+  }
+
+  export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+    if (node.kind !== ts.SyntaxKind.CallExpression) {
+      return false;
+    }
+    const fqn = getFullyQualifiedNameTS(services, node);
+    if (!fqn) {
+      return false;
+    }
+    return fqn.startsWith('chai.assert') || fqn.startsWith('chai.expect') || fqn.includes('should');
   }
 
   export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
