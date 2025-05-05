@@ -81,10 +81,14 @@ export class TsConfigCache {
     cache.initializeOriginalTsConfigs(tsConfigPaths);
   }
 
-  public cleatTsConfigCache(filename: string) {
+  public cleatTsConfigCache(filenames: string[]) {
     debug('Clearing tsconfig cache');
     this.cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
-    if (this.cacheMap.get(TsConfigOrigin.PROPERTY)!.discoveredTsConfigFiles.has(filename)) {
+    if (
+      filenames.some(tsconfig =>
+        this.cacheMap.get(TsConfigOrigin.PROPERTY)!.discoveredTsConfigFiles.has(tsconfig),
+      )
+    ) {
       this.cacheMap.get(TsConfigOrigin.PROPERTY)!.clearAll();
     }
   }
