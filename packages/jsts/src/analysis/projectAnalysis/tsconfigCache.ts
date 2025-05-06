@@ -31,7 +31,7 @@ export class TsConfigCache {
   private projectSize: number | undefined;
   private shouldClearDependenciesCache = false;
 
-  private cacheMap: Map<TsConfigOrigin, Cache> = new Map();
+  private readonly cacheMap: Map<TsConfigOrigin, Cache> = new Map();
 
   constructor() {
     this.cacheMap.set(TsConfigOrigin.PROPERTY, new Cache());

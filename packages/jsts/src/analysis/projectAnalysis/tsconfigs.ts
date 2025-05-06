@@ -19,7 +19,8 @@
  */
 import tmp from 'tmp';
 import { TsConfigJson } from 'type-fest';
-import fs from 'node:fs/promises';
+import fs, { access } from 'node:fs/promises';
+import { join } from 'node:path/posix';
 
 tmp.setGracefulCleanup();
 
@@ -103,4 +104,16 @@ export function createTSConfigFile(files?: string[], include?: string[]): TsConf
     include,
     files,
   } as TsConfigJson;
+}
+
+export async function verifyProvidedTsConfigs(baseDir: string, tsConfigPaths?: string[]) {
+  if (tsConfigPaths?.length) {
+    for (const tsConfigPath of tsConfigPaths) {
+      const tsConfig = join(baseDir, tsConfigPath.trim());
+      try {
+        await access(tsConfig);
+        addTSConfig(tsConfig);
+      } catch {}
+    }
+  }
 }
