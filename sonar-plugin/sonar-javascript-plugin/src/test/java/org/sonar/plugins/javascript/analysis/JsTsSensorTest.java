@@ -1119,7 +1119,7 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
+      analysisWithWatchProgram(),
       processAnalysis,
       new AnalysisConsumers()
     );

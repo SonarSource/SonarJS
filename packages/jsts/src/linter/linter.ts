@@ -33,7 +33,7 @@ import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions } from '../rules/helpers/configs.js';
-import { merge } from 'lodash';
+import merge from 'lodash/merge.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
