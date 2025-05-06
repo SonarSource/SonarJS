@@ -19,7 +19,7 @@ import type { Linter, Rule } from 'eslint';
 import path from 'path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
-import merge from 'lodash/merge.js';
+import merge from 'lodash.merge';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];

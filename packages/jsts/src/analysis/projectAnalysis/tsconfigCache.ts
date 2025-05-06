@@ -18,7 +18,7 @@
 import path from 'path/posix';
 import { debug, error, info } from '../../../../shared/src/helpers/logging.js';
 import { createProgramOptions } from '../../program/program.js';
-import isEqual from 'lodash/isEqual.js';
+import isEqual from 'lodash.isequal';
 
 enum TsConfigOrigin {
   PROPERTY = 'property',
