@@ -553,6 +553,7 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
+      analysisWithProgram,
       analysisProcessor,
       new AnalysisConsumers()
     );
@@ -569,6 +570,7 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
+      analysisWithProgram,
       analysisProcessor,
       new AnalysisConsumers()
     );
@@ -631,6 +633,7 @@ class JavaScriptEslintBasedSensorTest {
     new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
+      analysisWithProgram,
       analysisProcessor,
       new AnalysisConsumers()
     ).execute(context);
@@ -833,6 +836,7 @@ class JavaScriptEslintBasedSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
+      analysisWithWatchProgram,
       analysisProcessor,
       new AnalysisConsumers()
     );
@@ -842,6 +846,7 @@ class JavaScriptEslintBasedSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
+      analysisWithProgram,
       analysisProcessor,
       new AnalysisConsumers()
     );
