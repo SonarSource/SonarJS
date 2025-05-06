@@ -26,14 +26,14 @@ import { Linter } from '../../linter/linter.js';
 import { FileType, toUnixPath } from '../../../../shared/src/helpers/files.js';
 import { findFiles } from '../../../../shared/src/helpers/find-files.js';
 import { join, dirname } from 'node:path/posix';
-import { readFile, access } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import {
-  addTSConfig,
   clearTSConfigs,
   getTSConfigsCount,
   getTSConfigsIterator,
   setTSConfigs,
   TSCONFIG_JSON,
+  verifyProvidedTsConfigs,
 } from './tsconfigs.js';
 import {
   isAnalyzableFile,
@@ -135,18 +135,6 @@ export async function loadFiles(baseDir: string) {
     setTSConfigs(foundTsConfigs);
   }
   return files;
-}
-
-export async function verifyProvidedTsConfigs(baseDir: string, tsConfigPaths?: string[]) {
-  if (tsConfigPaths?.length) {
-    for (const tsConfigPath of tsConfigPaths) {
-      const tsConfig = join(baseDir, tsConfigPath.trim());
-      try {
-        await access(tsConfig);
-        addTSConfig(tsConfig);
-      } catch {}
-    }
-  }
 }
 
 function getFiletype(filePath: string, testPaths: string[] | null): FileType {

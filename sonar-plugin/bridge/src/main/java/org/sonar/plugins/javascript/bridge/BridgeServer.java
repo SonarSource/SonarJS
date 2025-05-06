@@ -20,6 +20,8 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -79,6 +81,13 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
+  ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException;
+
+  record ProjectAnalysisOutput(
+    Map<String, AnalysisResponse> files,
+    ProjectAnalysisMetaResponse meta
+  ) {}
+
   record JsAnalysisRequest(
     String filePath,
     String fileType,
@@ -92,6 +101,67 @@ public interface BridgeServer extends Startable {
     boolean shouldClearDependenciesCache,
     boolean sonarlint,
     boolean allowTsParserJsFiles
+  ) {}
+
+  record JsTsFile(
+    String filePath,
+    String fileType,
+    InputFile.Status fileStatus,
+    @Nullable String fileContent
+  ) {}
+
+  class ProjectAnalysisRequest {
+
+    private Map<String, JsTsFile> files;
+    private List<EslintRule> rules;
+    private ProjectAnalysisConfiguration configuration;
+    private String baseDir;
+    private List<String> bundles;
+    private String rulesWorkdir;
+
+    public ProjectAnalysisRequest(
+      Map<String, JsTsFile> files,
+      List<EslintRule> rules,
+      ProjectAnalysisConfiguration configuration,
+      String baseDir
+    ) {
+      this.files = files;
+      this.rules = rules;
+      this.configuration = configuration;
+      this.baseDir = baseDir;
+    }
+
+    public void setBundles(List<String> bundles) {
+      this.bundles = bundles;
+    }
+
+    public void setRulesWorkdir(String rulesWorkdir) {
+      this.rulesWorkdir = rulesWorkdir;
+    }
+  }
+
+  record ProjectAnalysisConfiguration(
+    boolean isSonarlint,
+    List<Map.Entry<String, String>> fsEvents,
+    boolean allowTsParserJsFiles,
+    AnalysisMode analysisMode,
+    Boolean skipAst,
+    boolean ignoreHeaderComments,
+    long maxFileSize,
+    int maxFilesForTypeChecking,
+    List<String> environments,
+    List<String> globals,
+    List<String> tsSuffixes,
+    List<String> jsSuffixes,
+    Set<String> tsConfigPaths,
+    List<String> jsTsExclusions
+  ) {}
+
+  record ProjectAnalysisMetaResponse(
+    boolean withProgram,
+    boolean withWatchProgram,
+    List<String> filesWithoutTypeChecking,
+    List<String> programsCreated
   ) {}
 
   record CssAnalysisRequest(
@@ -294,7 +364,10 @@ public interface BridgeServer extends Startable {
 
   record TelemetryEslintBridgeResponse(List<Dependency> dependencies) {}
 
-  record TelemetryData(List<Dependency> dependencies, RuntimeTelemetry runtimeTelemetry) {}
+  record TelemetryData(
+    List<Dependency> dependencies,
+    @Nullable RuntimeTelemetry runtimeTelemetry
+  ) {}
 
   record Dependency(String name, String version) {}
 

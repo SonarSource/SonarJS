@@ -554,6 +554,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
+      analysisProcessor,
       new AnalysisConsumers()
     );
     javaScriptEslintBasedSensor.execute(context);
@@ -570,6 +571,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
+      analysisProcessor,
       new AnalysisConsumers()
     );
     createInputFile(context);
@@ -632,6 +634,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
+      analysisProcessor,
       new AnalysisConsumers()
     ).execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -834,6 +837,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
       analysisWithWatchProgram,
+      analysisProcessor,
       new AnalysisConsumers()
     );
   }
@@ -843,6 +847,7 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
       analysisWithProgram,
+      analysisProcessor,
       new AnalysisConsumers()
     );
   }

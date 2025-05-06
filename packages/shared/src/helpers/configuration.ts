@@ -28,9 +28,14 @@ import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/anal
  */
 export type JsTsLanguage = 'js' | 'ts';
 
+type fsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
+
+type fsEvent = [string, fsEventType];
+
 export type Configuration = {
   sonarlint?: boolean;
   shouldClearDependenciesCache?: boolean;
+  fsEvents?: fsEvent[];
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
   skipAst?: boolean;
