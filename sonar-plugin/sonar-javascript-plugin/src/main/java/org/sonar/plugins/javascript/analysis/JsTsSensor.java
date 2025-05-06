@@ -43,7 +43,7 @@ import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
+import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
 public class JsTsSensor extends AbstractBridgeSensor {
@@ -53,7 +53,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
-  TsConfigCache tsConfigCache;
+  FSListener fsListener;
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -69,13 +69,13 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
     AnalysisConsumers consumers,
-    @Nullable TsConfigCache tsConfigCache
+    @Nullable FSListener fsListener
   ) {
     super(bridgeServer, "JS/TS");
     this.checks = checks;
     this.consumers = consumers;
     this.analysisProcessor = analysisProcessor;
-    this.tsConfigCache = tsConfigCache;
+    this.fsListener = fsListener;
   }
 
   @Override
@@ -128,7 +128,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
     var configuration = new BridgeServer.ProjectAnalysisConfiguration(
       context.isSonarLint(),
-      this.tsConfigCache != null && this.tsConfigCache.getAndResetShouldClearDependenciesCache(),
+      fsListener.listFSEvents(),
       context.allowTsParserJsFiles(),
       context.getAnalysisMode(),
       context.skipAst(consumers),

@@ -142,7 +142,7 @@ public interface BridgeServer extends Startable {
 
   record ProjectAnalysisConfiguration(
     boolean isSonarlint,
-    boolean shouldClearDependenciesCache,
+    List<Map.Entry<String, String>> fsEvents,
     boolean allowTsParserJsFiles,
     AnalysisMode analysisMode,
     Boolean skipAst,
