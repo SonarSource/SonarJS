@@ -45,8 +45,7 @@
     },
     {
       "matchUpdateTypes": ["minor", "patch"],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": false
+      "matchCurrentVersion": "!/^0/"
     }
   ],
   "hostRules": [
@@ -55,5 +54,7 @@
       "matchHost": "https://repox.jfrog.io/artifactory/api/npm/npm/",
       "token": "{{ secrets.REPOX_TOKEN }}"
     }
-  ]
+  ],
+  "autoApprove": true,
+  "rebaseWhen": "never"
 }
