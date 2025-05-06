@@ -43,10 +43,6 @@ describe('S1848', () => {
       `,
           },
           {
-            code: `new MyConstructor();`,
-            settings: { fileType: 'TEST' },
-          },
-          {
             code: `
       new Notification("hello there");
       `,
@@ -85,6 +81,36 @@ export class Stack extends cdk.Stack {
     new s3.Bucket(this, 'TempBucket', {});
   }
 }`,
+          },
+          {
+            code: `
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
+
+new aws.s3.Bucket("my-bucket", {
+  acl: "private",
+  tags: {
+    Environment: "Dev",
+  },
+});`,
+          },
+          {
+            code: `
+import { App, Chart } from 'cdk8s';
+import { KubeService } from 'cdk8s-plus-25';
+
+const app = new App();
+const chart = new Chart(app, 'MyChart');
+
+new KubeService(chart, 'MyService', {
+  spec: {
+    type: 'ClusterIP',
+    selector: { app: 'my-app' },
+    ports: [{ port: 80, targetPort: 80 }],
+  },
+});
+
+app.synth();`,
           },
         ],
         invalid: [

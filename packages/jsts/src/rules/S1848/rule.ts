@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     return {
       'ExpressionStatement > NewExpression': (node: estree.NewExpression) => {
-        if (context.settings['fileType'] === 'TEST' || isTryable(node, context)) {
+        if (isTryable(node, context)) {
           return;
         }
         const { callee } = node;
@@ -97,5 +97,13 @@ function isException(
   }
 
   const fqn = getFullyQualifiedName(context, node);
-  return fqn === 'vue' || fqn === '@ag-grid-community.core.Grid' || fqn?.startsWith('aws-cdk-lib');
+  if (!fqn) {
+    return false;
+  }
+  const exactExceptions = ['vue', '@ag-grid-community.core.Grid'];
+  const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi'];
+  return (
+    exactExceptions.includes(fqn) ||
+    startsWithExceptions.some(exception => fqn.startsWith(exception))
+  );
 }
