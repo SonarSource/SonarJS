@@ -28,14 +28,16 @@ import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/anal
  */
 export type JsTsLanguage = 'js' | 'ts';
 
-type fsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
+type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
 
-type fsEvent = [string, fsEventType];
+type FsEvent = [string, FsEventType];
 
 export type Configuration = {
   sonarlint?: boolean;
-  shouldClearDependenciesCache?: boolean;
-  fsEvents?: fsEvent[];
+  clearDependenciesCache?: boolean;
+  clearFileToTsConfigCache?: boolean;
+  clearTsConfigCache?: boolean;
+  fsEvents?: FsEvent[];
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
   skipAst?: boolean;
@@ -57,14 +59,18 @@ export type Configuration = {
 };
 
 import path from 'path';
+import { TSCONFIG_JSON } from '../../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
+import { PACKAGE_JSON } from '../../../jsts/src/rules/index.js';
 
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
+
 export function setGlobalConfiguration(config: Configuration) {
   configuration = { ...config };
+  digestFsEvents(configuration.fsEvents);
 }
 
 export const HTML_EXTENSIONS = ['.html', '.htm'];
@@ -144,7 +150,7 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
   allowTsParserJsFiles: configuration.allowTsParserJsFiles,
   analysisMode: configuration.analysisMode,
   ignoreHeaderComments: configuration.ignoreHeaderComments,
-  shouldClearDependenciesCache: configuration.shouldClearDependenciesCache,
+  shouldClearDependenciesCache: configuration.clearDependenciesCache,
   skipAst: configuration.skipAst,
   sonarlint: isSonarLint(),
 });
@@ -208,3 +214,22 @@ export const DEFAULT_GLOBALS = [
   '_',
   'sap',
 ];
+
+function digestFsEvents(fsEvents?: FsEvent[]) {
+  configuration.clearDependenciesCache ??= false;
+  configuration.clearFileToTsConfigCache ??= false;
+  configuration.clearTsConfigCache ??= false;
+
+  if (fsEvents) {
+    for (const fileEvent of fsEvents) {
+      const [filename, event] = fileEvent;
+      if (filename === TSCONFIG_JSON) {
+        configuration.clearTsConfigCache = true;
+      } else if (filename.endsWith(PACKAGE_JSON)) {
+        configuration.clearDependenciesCache = true;
+      } else if (isJsFile(filename) && event === 'CREATED') {
+        configuration.clearFileToTsConfigCache = true;
+      }
+    }
+  }
+}

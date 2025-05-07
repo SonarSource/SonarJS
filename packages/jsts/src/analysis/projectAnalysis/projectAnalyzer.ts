@@ -14,40 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  JsTsFiles,
-  type ProjectAnalysisInput,
-  type ProjectAnalysisOutput,
-} from './projectAnalysis.js';
+import { type ProjectAnalysisInput, type ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
-import { FileType, toUnixPath } from '../../../../shared/src/helpers/files.js';
-import { findFiles } from '../../../../shared/src/helpers/find-files.js';
-import { join, dirname } from 'node:path/posix';
-import { readFile } from 'node:fs/promises';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { getTSConfigsIterator, verifyProvidedTsConfigs } from './tsconfigs.js';
 import {
-  clearTSConfigs,
-  getTSConfigsCount,
-  getTSConfigsIterator,
-  setTSConfigs,
-  TSCONFIG_JSON,
-  verifyProvidedTsConfigs,
-} from './tsconfigs.js';
-import {
-  isAnalyzableFile,
   isJsTsFile,
   setGlobalConfiguration,
   isSonarLint,
   getGlobals,
   getEnvironments,
   maxFilesForTypeChecking,
-  getTestPaths,
-  getExclusions,
-  getMaxFileSize,
 } from '../../../../shared/src/helpers/configuration.js';
-import { accept } from './filter/filter.js';
+import { loadFiles } from './files-finder.js';
+import { getFiles } from './files.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -76,73 +59,28 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     bundles,
     baseDir: normalizedBaseDir,
   });
-  clearTSConfigs();
   await verifyProvidedTsConfigs(normalizedBaseDir, configuration.tsConfigPaths);
-  input.files = input.files ?? (await loadFiles(normalizedBaseDir));
-  const inputFilenames = Object.keys(input.files);
-  const pendingFiles: Set<string> = new Set(inputFilenames);
-  await loadFiles(normalizedBaseDir);
-  if (!inputFilenames.length) {
-    return results;
-  }
-  const tsConfigs = getTSConfigsIterator(
-    // we create the fallback tsconfig without html files, they alter the results (probably for the better)
-    inputFilenames.filter(filename => isJsTsFile(filename)),
-    normalizedBaseDir,
-    isSonarLint(),
-    maxFilesForTypeChecking(),
-  );
-  if (isSonarLint()) {
-    results.meta!.withWatchProgram = true;
-    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
-  } else {
-    results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
-  }
-
-  await analyzeWithoutProgram(pendingFiles, input.files, results);
-  return results;
-}
-
-export async function loadFiles(baseDir: string) {
-  const tests = getTestPaths();
-  const testPaths = tests ? tests.map(test => join(baseDir, test)) : null;
-
-  const files: JsTsFiles = {};
-  const foundTsConfigs: string[] = [];
-  await findFiles(
-    baseDir,
-    async file => {
-      if (isAnalyzableFile(file.name)) {
-        const filePath = toUnixPath(join(file.parentPath, file.name));
-        const fileType = getFiletype(filePath, testPaths);
-        if (isJsTsFile(file.name)) {
-          const fileContent = await readFile(filePath, 'utf8');
-          if (accept(filePath, fileContent, getMaxFileSize())) {
-            files[filePath] = { fileType, filePath, fileContent };
-          }
-        } else {
-          files[filePath] = { fileType, filePath };
-        }
-      }
-      if (file.name === TSCONFIG_JSON) {
-        foundTsConfigs.push(toUnixPath(join(file.parentPath, file.name)));
-      }
-    },
-    getExclusions(),
-  );
-  if (!getTSConfigsCount() && foundTsConfigs.length > 0) {
-    setTSConfigs(foundTsConfigs);
-  }
-  return files;
-}
-
-function getFiletype(filePath: string, testPaths: string[] | null): FileType {
-  if (testPaths?.length) {
-    const parent = dirname(filePath);
-    if (testPaths?.some(testPath => parent.startsWith(testPath))) {
-      return 'TEST';
+  const searchInputFiles = isSonarLint() || !input.files;
+  await loadFiles(normalizedBaseDir, { jsts: searchInputFiles, tsconfigs: true });
+  const filesToAnalyze = input.files ?? getFiles();
+  if (filesToAnalyze.length) {
+    const filePathsToAnalyze = Object.keys(filesToAnalyze);
+    const pendingFiles: Set<string> = new Set(filePathsToAnalyze);
+    const tsConfigs = getTSConfigsIterator(
+      // we create the fallback tsconfig without HTML files, they alter the results (probably for the better)
+      filePathsToAnalyze.filter(filename => isJsTsFile(filename)),
+      normalizedBaseDir,
+      isSonarLint(),
+      maxFilesForTypeChecking(),
+    );
+    if (isSonarLint()) {
+      results.meta!.withWatchProgram = true;
+      await analyzeWithWatchProgram(filesToAnalyze, tsConfigs, results, pendingFiles);
+    } else {
+      results.meta!.withProgram = true;
+      await analyzeWithProgram(filesToAnalyze, tsConfigs, results, pendingFiles);
     }
+    await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results);
   }
-  return 'MAIN';
+  return results;
 }

@@ -81,7 +81,7 @@ export class TsConfigCache {
     cache.initializeOriginalTsConfigs(tsConfigPaths);
   }
 
-  public cleatTsConfigCache(filenames: string[]) {
+  public clearTsConfigCache(filenames: string[]) {
     debug('Clearing tsconfig cache');
     this.cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
     if (
@@ -93,7 +93,7 @@ export class TsConfigCache {
     }
   }
 
-  public clearFileToTsConfigMap() {
+  public clearFileToTsConfigCache() {
     // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
     // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
     debug('Clearing input file to tsconfig cache');

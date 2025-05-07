@@ -23,20 +23,27 @@ import fs, { access } from 'node:fs/promises';
 import { join } from 'node:path/posix';
 
 tmp.setGracefulCleanup();
+const UNINITIALIZED_ERROR = 'TSconfig cache have not been initialized';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
-let tsConfigs: string[] = [];
+let tsConfigs: string[] | undefined;
 
-export function clearTSConfigs() {
-  tsConfigs = [];
+export function tsConfigsInitialized() {
+  return typeof tsConfigs !== 'undefined';
 }
 
 export function getTSConfigsCount() {
-  return tsConfigs.length;
+  if (tsConfigs) {
+    return tsConfigs?.length;
+  }
+  throw new Error(UNINITIALIZED_ERROR);
 }
 
 export function getTSConfigs() {
-  return tsConfigs;
+  if (tsConfigs) {
+    return tsConfigs;
+  }
+  throw new Error(UNINITIALIZED_ERROR);
 }
 
 export function setTSConfigs(newTsConfigs: string[]) {
@@ -44,14 +51,19 @@ export function setTSConfigs(newTsConfigs: string[]) {
 }
 
 export function addTSConfig(tsConfig: string) {
+  tsConfigs ??= [];
   tsConfigs.push(tsConfig);
 }
+
 export async function* getTSConfigsIterator(
   files: string[],
   baseDir: string,
   sonarLint: boolean,
   maxFilesForTypeChecking: number,
 ) {
+  if (!tsConfigs) {
+    throw new Error(UNINITIALIZED_ERROR);
+  }
   let emptyTsConfigs = true;
   if (tsConfigs.length) {
     for (const tsConfig of tsConfigs) {
