@@ -27,6 +27,8 @@ import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
+import { outputContainsAst } from '../../../bridge/src/delegate.js';
+import assert from 'assert';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -1036,7 +1038,9 @@ describe('await analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
-    const { ast } = await analyzeJSTS(await jsTsInput({ filePath }));
+    const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
+    assert(outputContainsAst(analysisResult));
+    const { ast } = analysisResult;
     const protoMessage = deserializeProtobuf(ast as Uint8Array);
     expect(protoMessage.program).toBeDefined();
     expect(protoMessage.program.body).toHaveLength(1);
@@ -1057,7 +1061,7 @@ describe('await analyzeJSTS', () => {
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
-    const { ast } = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
-    expect(ast).toBeUndefined();
+    const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
+    assert(!outputContainsAst(analysisResult));
   });
 });
