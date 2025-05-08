@@ -40,7 +40,8 @@ public class AstProtoUtils {
    */
   private static final int PROTOBUF_RECURSION_LIMIT = 300;
 
-  private AstProtoUtils() {} // Prevent instantiation
+  // Prevent instantiation
+  private AstProtoUtils() {}
 
   @CheckForNull
   public static Node parseProtobuf(String astBase64) throws IOException {

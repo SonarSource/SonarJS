@@ -123,19 +123,6 @@ public interface BridgeServer extends Startable {
     List<String> ucfgPaths,
     @Nullable Node ast
   ) {
-    public AnalysisResponse(AnalysisResponse response, @Nullable Node ast) {
-      this(
-        response.parsingError,
-        response.issues,
-        response.highlights,
-        response.highlightedSymbols,
-        response.metrics,
-        response.cpdTokens,
-        response.ucfgPaths,
-        ast
-      );
-    }
-
     public AnalysisResponse() {
       this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
     }
