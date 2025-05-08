@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import formData from 'form-data';
 import express from 'express';
 import { Worker } from 'node:worker_threads';
 import { JsTsAnalysisOutputWithAst } from '../../jsts/src/analysis/analysis.js';
@@ -67,28 +66,13 @@ function handleResult(
 ) {
   switch (message.type) {
     case 'success':
-      if (typeof message.result === 'object' && outputContainsAst(message.result)) {
-        sendFormData(message.result, response);
-      } else {
-        response.send(message.result);
-      }
+      response.send(message.result);
       break;
 
     case 'failure':
       next(message.error);
       break;
   }
-}
-
-function sendFormData(result: JsTsAnalysisOutputWithAst, response: express.Response) {
-  const { ast, ...rest } = result;
-  const fd = new formData();
-  fd.append('ast', Buffer.from(ast), { filename: 'ast' });
-  fd.append('json', JSON.stringify(rest));
-  // this adds the boundary string that will be used to separate the parts
-  response.set('Content-Type', fd.getHeaders()['content-type']);
-  response.set('Content-Length', `${fd.getLengthSync()}`);
-  fd.pipe(response);
 }
 
 export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
