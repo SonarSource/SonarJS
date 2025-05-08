@@ -20,17 +20,14 @@ import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import { toUnixPath } from '../../../../shared/src/helpers/files.js';
-import { getTSConfigsIterator, verifyProvidedTsConfigs } from './tsconfigs.js';
 import {
-  isJsTsFile,
   setGlobalConfiguration,
   isSonarLint,
   getGlobals,
   getEnvironments,
-  maxFilesForTypeChecking,
 } from '../../../../shared/src/helpers/configuration.js';
 import { loadFiles } from './files-finder.js';
-import { getFiles } from './files.js';
+import { getFiles, getFilesCount } from './files.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -59,26 +56,18 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     bundles,
     baseDir: normalizedBaseDir,
   });
-  await verifyProvidedTsConfigs(normalizedBaseDir, configuration.tsConfigPaths);
   const searchInputFiles = isSonarLint() || !input.files;
   await loadFiles(normalizedBaseDir, { jsts: searchInputFiles, tsconfigs: true });
   const filesToAnalyze = input.files ?? getFiles();
-  if (filesToAnalyze.length) {
+  if (getFilesCount()) {
     const filePathsToAnalyze = Object.keys(filesToAnalyze);
     const pendingFiles: Set<string> = new Set(filePathsToAnalyze);
-    const tsConfigs = getTSConfigsIterator(
-      // we create the fallback tsconfig without HTML files, they alter the results (probably for the better)
-      filePathsToAnalyze.filter(filename => isJsTsFile(filename)),
-      normalizedBaseDir,
-      isSonarLint(),
-      maxFilesForTypeChecking(),
-    );
     if (isSonarLint()) {
       results.meta!.withWatchProgram = true;
-      await analyzeWithWatchProgram(filesToAnalyze, tsConfigs, results, pendingFiles);
+      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles);
     } else {
       results.meta!.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, tsConfigs, results, pendingFiles);
+      await analyzeWithProgram(filesToAnalyze, results, pendingFiles);
     }
     await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results);
   }

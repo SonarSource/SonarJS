@@ -51,7 +51,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs?: string[];
   programId?: string;
   skipAst?: boolean;
-  shouldClearDependenciesCache?: boolean;
+  clearDependenciesCache?: boolean;
 }
 
 export type CompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'language' | 'fileContent'> & {

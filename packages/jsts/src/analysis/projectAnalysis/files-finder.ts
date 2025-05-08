@@ -18,6 +18,7 @@ import {
   getExclusions,
   getMaxFileSize,
   getTestPaths,
+  getTsConfigPaths,
   isAnalyzableFile,
   isJsTsFile,
 } from '../../../../shared/src/helpers/configuration.js';
@@ -27,13 +28,20 @@ import { findFiles } from '../../../../shared/src/helpers/find-files.js';
 import { FileType, toUnixPath } from '../../../../shared/src/helpers/files.js';
 import { readFile } from 'node:fs/promises';
 import { accept } from './filter/filter.js';
-import { setTSConfigs, TSCONFIG_JSON, tsConfigsInitialized } from './tsconfigs.js';
+import { initializeTsConfigs, TSCONFIG_JSON, tsConfigsInitialized } from './tsconfigs.js';
 import { filesInitialized, setFiles } from './files.js';
+import { error } from '../../../../shared/src/helpers/logging.js';
+import { Minimatch } from 'minimatch';
 
 type filterSearch = {
   jsts: boolean;
   tsconfigs: boolean;
   //we can add package.json search to the same search
+};
+
+type ProvidedTsConfig = {
+  path: string;
+  pattern: Minimatch;
 };
 
 export async function loadFiles(
@@ -51,17 +59,25 @@ export async function loadFiles(
   // if all filters are off, skip search
   if (Object.values(filterSearch).every(value => !value)) return;
 
+  const providedTsConfigs: ProvidedTsConfig[] = getTsConfigPaths().map(tsConfigPath => {
+    const tsConfig = toUnixPath(join(baseDir, tsConfigPath.trim()));
+    return {
+      path: tsConfig,
+      pattern: new Minimatch(tsConfig.trim(), { nocase: true, matchBase: true, dot: true }),
+    };
+  });
+
   const tests = getTestPaths();
   const testPaths = tests ? tests.map(test => join(baseDir, test)) : null;
 
   const files: JsTsFiles = {};
-  const foundTsConfigs: string[] = [];
+  const foundLookupTsConfigs: string[] = [];
+  const foundPropertyTsConfigs: string[] = [];
 
   await findFiles(
     baseDir,
-    async file => {
+    async (file, filePath) => {
       if (filterSearch.jsts && isAnalyzableFile(file.name)) {
-        const filePath = toUnixPath(join(file.parentPath, file.name));
         const fileType = getFiletype(filePath, testPaths);
         if (isJsTsFile(file.name)) {
           const fileContent = await readFile(filePath, 'utf8');
@@ -72,17 +88,33 @@ export async function loadFiles(
           files[filePath] = { fileType, filePath };
         }
       }
-      if (filterSearch.tsconfigs && file.name === TSCONFIG_JSON) {
-        foundTsConfigs.push(toUnixPath(join(file.parentPath, file.name)));
+
+      if (filterSearch.tsconfigs) {
+        if (providedTsConfigs.length) {
+          for (const providedTsConfig of providedTsConfigs) {
+            if (providedTsConfig.path === filePath || providedTsConfig.pattern.match(filePath)) {
+              foundPropertyTsConfigs.push(filePath);
+              break;
+            }
+          }
+        }
+        if (file.name === TSCONFIG_JSON) {
+          foundLookupTsConfigs.push(filePath);
+        }
       }
     },
     getExclusions(),
   );
-  if (!tsConfigsInitialized()) {
-    setTSConfigs(foundTsConfigs);
-  }
   if (!filesInitialized()) {
     setFiles(files);
+  }
+  if (filterSearch.tsconfigs) {
+    if (getTsConfigPaths().length && !foundPropertyTsConfigs.length) {
+      error(
+        `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
+      );
+    }
+    await initializeTsConfigs(baseDir, foundLookupTsConfigs, foundPropertyTsConfigs);
   }
 }
 

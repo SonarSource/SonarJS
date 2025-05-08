@@ -25,7 +25,7 @@ const IGNORED_PATTERNS = ['.scannerwork'];
 
 export async function findFiles(
   dir: string,
-  onFile: (file: Dirent) => Promise<void>,
+  onFile: (file: Dirent, absolutePath: string, relativePath: string) => Promise<void>,
   exclusionsArr: string[] = [],
 ) {
   const exclusions = exclusionsArr
@@ -39,7 +39,7 @@ export async function findFiles(
     const filePath = toUnixPath(join(file.parentPath, file.name));
     const relativePath = filePath.substring(prefixLength);
     if (file.isFile() && !exclusions.some(exclusion => exclusion.match(relativePath))) {
-      await onFile(file);
+      await onFile(file, filePath, relativePath);
     }
   }
 }

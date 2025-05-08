@@ -15,103 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import path from 'path/posix';
+import { dirname } from 'path/posix';
 import { debug, error, info } from '../../../../shared/src/helpers/logging.js';
 import { createProgramOptions } from '../../program/program.js';
-import isEqual from 'lodash.isequal';
 
-enum TsConfigOrigin {
-  PROPERTY = 'property',
-  LOOKUP = 'lookup',
-  FALLBACK = 'fallback',
-}
-
-export class TsConfigCache {
-  private origin: TsConfigOrigin | null = null;
-  private projectSize: number | undefined;
-  private shouldClearDependenciesCache = false;
-
-  private readonly cacheMap: Map<TsConfigOrigin, Cache> = new Map();
-
-  constructor() {
-    this.cacheMap.set(TsConfigOrigin.PROPERTY, new Cache());
-    this.cacheMap.set(TsConfigOrigin.LOOKUP, new Cache());
-    this.cacheMap.set(TsConfigOrigin.FALLBACK, new Cache());
-  }
-
-  public getTsConfigForInputFile(inputFile: string) {
-    if (!this.origin) {
-      return null;
-    }
-    return this.cacheMap.get(this.origin)!.getTsConfigForInputFile(inputFile);
-  }
-
-  public listCachedTsConfigs(tsConfigOrigin: TsConfigOrigin) {
-    const currentCache = this.cacheMap.get(tsConfigOrigin)!;
-
-    if (currentCache.initialized) {
-      debug('TsConfigCache is already initialized');
-      return currentCache.originalTsConfigFiles;
-    }
-  }
-
-  public setOrigin(tsConfigOrigin: TsConfigOrigin) {
-    this.origin = tsConfigOrigin;
-  }
-
-  public getAndResetShouldClearDependenciesCache() {
-    const result = this.shouldClearDependenciesCache;
-    this.shouldClearDependenciesCache = false;
-    return result;
-  }
-
-  public initializeWith(tsConfigPaths: string[], tsConfigOrigin: TsConfigOrigin) {
-    const cache = this.cacheMap.get(tsConfigOrigin)!;
-    if (tsConfigOrigin == TsConfigOrigin.FALLBACK && cache.initialized) {
-      return;
-    }
-    if (
-      tsConfigOrigin != TsConfigOrigin.FALLBACK &&
-      isEqual(cache.originalTsConfigFiles, tsConfigPaths)
-    ) {
-      return;
-    }
-
-    debug(`Resetting the TsConfigCache ${tsConfigOrigin}`);
-    cache.initializeOriginalTsConfigs(tsConfigPaths);
-  }
-
-  public clearTsConfigCache(filenames: string[]) {
-    debug('Clearing tsconfig cache');
-    this.cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
-    if (
-      filenames.some(tsconfig =>
-        this.cacheMap.get(TsConfigOrigin.PROPERTY)!.discoveredTsConfigFiles.has(tsconfig),
-      )
-    ) {
-      this.cacheMap.get(TsConfigOrigin.PROPERTY)!.clearAll();
-    }
-  }
-
-  public clearFileToTsConfigCache() {
-    // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
-    // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
-    debug('Clearing input file to tsconfig cache');
-    this.cacheMap.forEach(cache => cache.clearFileToTsConfigCache());
-  }
-
-  public setProjectSize(projectSize: number) {
-    this.projectSize = projectSize;
-  }
-
-  public getProjectSize() {
-    return this.projectSize;
-  }
-}
-
-class Cache {
+export class Cache {
   private readonly inputFileToTsConfigFilesMap = new Map<string, string | null>();
   public discoveredTsConfigFiles = new Set<string>();
+  private cacheKey: string;
   public originalTsConfigFiles: string[] = [];
   private pendingTsConfigFiles: string[] = [];
   public initialized = false;
@@ -174,7 +85,7 @@ class Cache {
 
   clearFileToTsConfigCache() {
     this.inputFileToTsConfigFilesMap.clear();
-    this.discoveredTsConfigFiles = new Set();
+    this.discoveredTsConfigFiles.clear();
     this.pendingTsConfigFiles = [...this.originalTsConfigFiles];
   }
 
@@ -193,7 +104,7 @@ class Cache {
     const newPendingTsConfigFiles: string[] = [];
     const notMatchingPendingTsConfigFiles: string[] = [];
     this.pendingTsConfigFiles.forEach(ts => {
-      if (inputFile.startsWith(path.dirname(ts))) {
+      if (inputFile.startsWith(dirname(ts))) {
         newPendingTsConfigFiles.push(ts);
       } else {
         notMatchingPendingTsConfigFiles.push(ts);

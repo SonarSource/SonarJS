@@ -20,20 +20,17 @@ import { JsTsFiles } from './projectAnalysis.js';
 const UNINITIALIZED_ERROR = 'Files cache have not been initialized';
 
 let files: JsTsFiles | undefined;
+let filenames: string[] | undefined;
 
 export function filesInitialized() {
   return typeof files !== 'undefined';
 }
 
-export function clearTSConfigs() {
-  files = undefined;
-}
-
 export function getFilesCount() {
-  if (!files) {
+  if (!filenames) {
     throw new Error(UNINITIALIZED_ERROR);
   }
-  return Object.keys(files).length;
+  return filenames.length;
 }
 
 export function getFiles() {
@@ -43,6 +40,14 @@ export function getFiles() {
   return files;
 }
 
+export function getFilenames() {
+  if (!filenames) {
+    throw new Error(UNINITIALIZED_ERROR);
+  }
+  return filenames;
+}
+
 export function setFiles(newFiles: JsTsFiles) {
   files = newFiles;
+  filenames = Object.keys(newFiles);
 }

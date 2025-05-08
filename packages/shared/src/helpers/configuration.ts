@@ -59,8 +59,12 @@ export type Configuration = {
 };
 
 import path from 'path';
-import { TSCONFIG_JSON } from '../../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
+import {
+  clearFileToTsConfigCache,
+  clearTsConfigCache,
+} from '../../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
 import { PACKAGE_JSON } from '../../../jsts/src/rules/index.js';
+import { basename } from 'node:path';
 
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
@@ -78,6 +82,10 @@ export const YAML_EXTENSIONS = ['.yml', '.yaml'];
 
 export function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
+}
+
+export function getTsConfigPaths() {
+  return configuration.tsConfigPaths ?? [];
 }
 
 function tsExtensions() {
@@ -150,7 +158,7 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
   allowTsParserJsFiles: configuration.allowTsParserJsFiles,
   analysisMode: configuration.analysisMode,
   ignoreHeaderComments: configuration.ignoreHeaderComments,
-  shouldClearDependenciesCache: configuration.clearDependenciesCache,
+  clearDependenciesCache: configuration.clearDependenciesCache,
   skipAst: configuration.skipAst,
   sonarlint: isSonarLint(),
 });
@@ -219,17 +227,26 @@ function digestFsEvents(fsEvents?: FsEvent[]) {
   configuration.clearDependenciesCache ??= false;
   configuration.clearFileToTsConfigCache ??= false;
   configuration.clearTsConfigCache ??= false;
+  const changedTsConfigs: string[] = [];
 
   if (fsEvents) {
     for (const fileEvent of fsEvents) {
       const [filename, event] = fileEvent;
-      if (filename === TSCONFIG_JSON) {
+      const filenameLower = basename(filename).toLowerCase();
+      if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {
+        changedTsConfigs.push(filename);
         configuration.clearTsConfigCache = true;
-      } else if (filename.endsWith(PACKAGE_JSON)) {
+      } else if (filenameLower === PACKAGE_JSON) {
         configuration.clearDependenciesCache = true;
       } else if (isJsFile(filename) && event === 'CREATED') {
         configuration.clearFileToTsConfigCache = true;
       }
     }
+  }
+  if (configuration.clearTsConfigCache) {
+    clearTsConfigCache(changedTsConfigs);
+  }
+  if (configuration.clearFileToTsConfigCache) {
+    clearFileToTsConfigCache();
   }
 }
