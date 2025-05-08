@@ -75,7 +75,7 @@ export async function analyzeJSTS(
       cognitiveComplexity,
     );
 
-    const result: JsTsAnalysisOutput = {
+    const result = {
       issues,
       ucfgPaths,
       ...extendedMetrics,
@@ -84,7 +84,10 @@ export async function analyzeJSTS(
     if (!input.skipAst) {
       const ast = serializeAst(parseResult.sourceCode, filePath);
       if (ast) {
-        result.ast = ast;
+        return {
+          ast,
+          ...result,
+        };
       }
     }
 

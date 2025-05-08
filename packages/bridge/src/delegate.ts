@@ -91,6 +91,6 @@ function sendFormData(result: JsTsAnalysisOutputWithAst, response: express.Respo
   fd.pipe(response);
 }
 
-function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
+export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
   return 'ast' in result;
 }

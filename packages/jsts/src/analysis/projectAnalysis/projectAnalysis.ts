@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from '../analysis.js';
+import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from '../analysis.js';
 import { RuleConfig } from '../../linter/config/rule-config.js';
 import { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import { ErrorCode } from '../../../../shared/src/errors/error.js';
@@ -32,6 +32,7 @@ export type ProjectAnalysisOutput = {
 
 export type FileResult =
   | JsTsAnalysisOutput
+  | JsTsAnalysisOutputWithAst
   | EmbeddedAnalysisOutput
   | ParsingError
   | { error: string };
