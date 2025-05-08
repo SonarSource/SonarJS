@@ -127,7 +127,7 @@ describe('router', () => {
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
     let data: any = { filePath, fileType, tsConfigs: [] };
-    let response: any = await request(server, '/analyze-jsts', 'POST', data);
+    let response = await request(server, '/analyze-jsts', 'POST', data);
     let {
       ast,
       issues: [issue],
@@ -150,7 +150,7 @@ describe('router', () => {
     filePath = path.join(fixtures, 'file.ts');
     fileType = 'MAIN';
     data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
-    response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    response = await request(server, '/analyze-jsts', 'POST', data);
     ({
       issues: [issue],
     } = JSON.parse(response));
