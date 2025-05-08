@@ -107,7 +107,7 @@ describe('server', () => {
 
     const {
       issues: [issue],
-    } = JSON.parse(response.get('json'));
+    } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
