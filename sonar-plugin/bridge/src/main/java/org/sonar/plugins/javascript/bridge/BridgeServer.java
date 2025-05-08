@@ -100,11 +100,18 @@ public interface BridgeServer extends Startable {
     List<StylelintRule> rules
   ) {}
 
-  record BridgeResponse(String json, @Nullable Node ast) {
-    public BridgeResponse(String json) {
-      this(json, null);
-    }
-  }
+  record BridgeResponse(String json) {}
+
+  record AnalysisResponseDTO(
+    @Nullable ParsingError parsingError,
+    List<Issue> issues,
+    List<Highlight> highlights,
+    List<HighlightedSymbol> highlightedSymbols,
+    Metrics metrics,
+    List<CpdToken> cpdTokens,
+    List<String> ucfgPaths,
+    @Nullable String ast
+  ) {}
 
   record AnalysisResponse(
     @Nullable ParsingError parsingError,
@@ -116,19 +123,6 @@ public interface BridgeServer extends Startable {
     List<String> ucfgPaths,
     @Nullable Node ast
   ) {
-    public AnalysisResponse(AnalysisResponse response, @Nullable Node ast) {
-      this(
-        response.parsingError,
-        response.issues,
-        response.highlights,
-        response.highlightedSymbols,
-        response.metrics,
-        response.cpdTokens,
-        response.ucfgPaths,
-        ast
-      );
-    }
-
     public AnalysisResponse() {
       this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
     }
@@ -151,6 +145,27 @@ public interface BridgeServer extends Startable {
       this.cpdTokens = cpdTokens != null ? cpdTokens : List.of();
       this.ucfgPaths = ucfgPaths;
       this.ast = ast;
+    }
+
+    static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
+      Node ast = null;
+      if (analysisResponseDTO.ast != null) {
+        try {
+          ast = AstProtoUtils.parseProtobuf(analysisResponseDTO.ast);
+        } catch (IOException e) {
+          throw new IllegalStateException("Failed to parse protobuf", e);
+        }
+      }
+      return new AnalysisResponse(
+        analysisResponseDTO.parsingError,
+        analysisResponseDTO.issues,
+        analysisResponseDTO.highlights,
+        analysisResponseDTO.highlightedSymbols,
+        analysisResponseDTO.metrics,
+        analysisResponseDTO.cpdTokens,
+        analysisResponseDTO.ucfgPaths,
+        ast
+      );
     }
   }
 

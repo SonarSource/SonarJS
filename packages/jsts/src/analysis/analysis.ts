@@ -75,7 +75,7 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
 }
 
 export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
-  ast: Uint8Array;
+  ast: string; // Base64 encoded Protobuf binary representation
 }
 /**
  * In SonarQube context, an analysis input includes both path and content of a file

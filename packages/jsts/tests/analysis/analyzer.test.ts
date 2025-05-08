@@ -1041,7 +1041,7 @@ describe('await analyzeJSTS', () => {
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
     assert(outputContainsAst(analysisResult));
     const { ast } = analysisResult;
-    const protoMessage = deserializeProtobuf(ast as Uint8Array);
+    const protoMessage = deserializeProtobuf(ast);
     expect(protoMessage.program).toBeDefined();
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');

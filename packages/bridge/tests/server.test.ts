@@ -107,7 +107,7 @@ describe('server', () => {
 
     const {
       issues: [issue],
-    } = JSON.parse(response.get('json'));
+    } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -181,7 +181,7 @@ describe('server', () => {
   });
 });
 
-async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
+async function requestAnalyzeJs(server: http.Server, fileType: string) {
   const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 

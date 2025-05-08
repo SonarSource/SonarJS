@@ -382,11 +382,7 @@ public class BridgeServerImpl implements BridgeServer {
   private BridgeResponse request(String json, String endpoint) {
     try {
       var response = http.post(json, url(endpoint), timeoutSeconds);
-      if (isFormData(response.contentType())) {
-        return FormDataUtils.parseFormData(response.contentType(), response.body());
-      } else {
-        return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
-      }
+      return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
@@ -395,16 +391,9 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private static boolean isFormData(@Nullable String contentTypeHeader) {
-    return contentTypeHeader != null && contentTypeHeader.contains("multipart/form-data");
-  }
-
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
     try {
-      return new AnalysisResponse(
-        GSON.fromJson(result.json(), AnalysisResponse.class),
-        result.ast()
-      );
+      return AnalysisResponse.fromDTO(GSON.fromJson(result.json(), AnalysisResponseDTO.class));
     } catch (JsonSyntaxException e) {
       String msg =
         "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";

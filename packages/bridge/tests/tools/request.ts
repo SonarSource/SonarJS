@@ -17,8 +17,6 @@
 import { AddressInfo } from 'net';
 import http from 'http';
 
-export type BridgeResponseType = 'text' | 'formdata';
-
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
  */
@@ -31,11 +29,5 @@ export async function request(server: http.Server, path: string, method: string,
     body: method !== 'GET' ? JSON.stringify(body) : undefined,
   });
 
-  const contentTypeHeader = res.headers.get('Content-Type');
-
-  if (contentTypeHeader?.includes('multipart/form-data')) {
-    return res.formData();
-  } else {
-    return res.text();
-  }
+  return res.text();
 }

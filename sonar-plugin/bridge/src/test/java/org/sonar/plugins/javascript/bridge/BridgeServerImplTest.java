@@ -21,8 +21,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
@@ -48,6 +50,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -728,6 +731,25 @@ class BridgeServerImplTest {
     Node node = response.ast();
     assertThat(node.getProgram()).isNotNull();
     assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
+  }
+
+  @Test
+  void should_handle_io_exception() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.startServer(serverConfig);
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    JsAnalysisRequest request = createRequest(inputFile);
+    try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
+      mocked
+        .when(() -> AstProtoUtils.parseProtobuf(any()))
+        .thenThrow(new IOException("Test exception"));
+      assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Failed to parse protobuf");
+    }
   }
 
   @Test

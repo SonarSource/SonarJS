@@ -127,10 +127,11 @@ describe('router', () => {
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
     let data: any = { filePath, fileType, tsConfigs: [] };
-    let response: any = await request(server, '/analyze-jsts', 'POST', data);
+    let response = await request(server, '/analyze-jsts', 'POST', data);
     let {
+      ast,
       issues: [issue],
-    } = JSON.parse(response.get('json') as string);
+    } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S6325',
@@ -141,10 +142,7 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
-    expect(response.get('ast')).toBeInstanceOf(Blob);
-    const ast = response.get('ast') as File;
-    const buffer = Buffer.from(await ast.arrayBuffer());
-    const protoMessage = deserializeProtobuf(buffer);
+    const protoMessage = deserializeProtobuf(ast);
     expect(protoMessage.type).toEqual(0);
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
@@ -152,7 +150,7 @@ describe('router', () => {
     filePath = path.join(fixtures, 'file.ts');
     fileType = 'MAIN';
     data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
-    response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
+    response = await request(server, '/analyze-jsts', 'POST', data);
     ({
       issues: [issue],
     } = JSON.parse(response));
