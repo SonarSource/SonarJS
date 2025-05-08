@@ -122,7 +122,7 @@
     "express": "5.1.0",
     "form-data": "4.0.2",
     "functional-red-black-tree": "1.0.1",
-    "globals": "16.0.0",
+    "globals": "16.1.0",
     "htmlparser2": "10.0.0",
     "http-status-codes": "^2.3.0",
     "jsx-ast-utils": "3.3.5",
