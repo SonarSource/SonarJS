@@ -21,13 +21,23 @@ import tmp from 'tmp';
 import { TsConfigJson } from 'type-fest';
 import fs from 'node:fs/promises';
 import { debug } from '../../../../shared/src/helpers/logging.js';
-import { isDeepStrictEqual } from 'node:util';
 import { Cache } from './tsconfigCache.js';
 import { getFilenames, getFilesCount } from './files.js';
 import {
+  getFsEvents,
+  getProjectBaseDir,
+  getTsConfigPaths,
+  isJsFile,
   isSonarLint,
   maxFilesForTypeChecking,
+  setClearDependenciesCache,
+  setClearFileToTsConfigCache,
+  setClearTsConfigCache,
+  shouldClearFileToTsConfigCache,
+  shouldClearTsConfigCache,
 } from '../../../../shared/src/helpers/configuration.js';
+import { basename } from 'node:path';
+import { PACKAGE_JSON } from '../../rules/index.js';
 
 tmp.setGracefulCleanup();
 const UNINITIALIZED_ERROR = 'TSconfig cache have not been initialized';
@@ -48,6 +58,7 @@ cacheMap.set(TsConfigOrigin.FALLBACK, new Cache());
 let origin: TsConfigOrigin | undefined;
 
 export function tsConfigsInitialized() {
+  dirtyCachesIfNeeded();
   return origin !== undefined && cacheMap.get(origin)!.initialized;
 }
 
@@ -70,24 +81,12 @@ export async function initializeTsConfigs(
   foundTsConfigPaths: string[],
   propertyTsConfigPaths: string[],
 ) {
-  if (
-    !isDeepStrictEqual(
-      cacheMap.get(TsConfigOrigin.LOOKUP)!.originalTsConfigFiles,
-      foundTsConfigPaths,
-    )
-  ) {
-    debug(`Resetting the TsConfigCache for TSConfig files lookup`);
-    cacheMap.get(TsConfigOrigin.LOOKUP)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
-  }
-  if (
-    !isDeepStrictEqual(
-      cacheMap.get(TsConfigOrigin.PROPERTY)!.originalTsConfigFiles,
-      propertyTsConfigPaths,
-    )
-  ) {
-    debug(`Resetting the TsConfigCache from Sonar property`);
-    cacheMap.get(TsConfigOrigin.PROPERTY)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
-  }
+  debug(`Resetting the TsConfigCache`);
+  const cacheKeys = getCacheKeys();
+  cacheMap.get(TsConfigOrigin.LOOKUP)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
+  cacheMap.get(TsConfigOrigin.LOOKUP)!.key = cacheKeys[TsConfigOrigin.LOOKUP];
+  cacheMap.get(TsConfigOrigin.PROPERTY)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
+  cacheMap.get(TsConfigOrigin.PROPERTY)!.key = cacheKeys[TsConfigOrigin.PROPERTY];
   if (propertyTsConfigPaths.length) {
     origin = TsConfigOrigin.PROPERTY;
   } else if (foundTsConfigPaths.length) {
@@ -111,22 +110,60 @@ export async function initializeTsConfigs(
 }
 
 export function clearTsConfigCache(filenames: string[]) {
-  debug('Clearing tsconfig cache');
+  debug('Clearing lookup tsconfig cache');
   cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
   if (
     filenames.some(tsconfig =>
       cacheMap.get(TsConfigOrigin.PROPERTY)!.discoveredTsConfigFiles.has(tsconfig),
     )
   ) {
+    debug('Clearing property tsconfig cache');
     cacheMap.get(TsConfigOrigin.PROPERTY)!.clearAll();
   }
 }
 
 export function clearFileToTsConfigCache() {
-  // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
-  // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
+  // When a new sourcecode file is created, the file to tsconfig cache is cleared, as potentially the
+  // tsconfig file that would cover this new file has already been processed, and we would not be aware of it.
+  // By clearing the cache, we guarantee correctness.
   debug('Clearing input file to tsconfig cache');
   cacheMap.forEach(cache => cache.clearFileToTsConfigCache());
+}
+
+function dirtyCachesIfNeeded() {
+  const newCacheKeys = getCacheKeys();
+  for (const [origin, cache] of cacheMap.entries()) {
+    if (cache.key !== newCacheKeys[origin]) {
+      cache.clearAll();
+    }
+  }
+  const changedTsConfigs: string[] = [];
+  for (const fileEvent of getFsEvents()) {
+    const [filename, event] = fileEvent;
+    const filenameLower = basename(filename).toLowerCase();
+    if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {
+      changedTsConfigs.push(filename);
+      setClearTsConfigCache(true);
+    } else if (filenameLower === PACKAGE_JSON) {
+      setClearDependenciesCache(true);
+    } else if (isJsFile(filename) && event === 'CREATED') {
+      setClearFileToTsConfigCache(true);
+    }
+  }
+  if (shouldClearTsConfigCache()) {
+    clearTsConfigCache(changedTsConfigs);
+  }
+  if (shouldClearFileToTsConfigCache()) {
+    clearFileToTsConfigCache();
+  }
+}
+
+function getCacheKeys() {
+  return {
+    [TsConfigOrigin.PROPERTY]: JSON.stringify([getProjectBaseDir(), getTsConfigPaths()]),
+    [TsConfigOrigin.LOOKUP]: getProjectBaseDir(),
+    [TsConfigOrigin.FALLBACK]: getProjectBaseDir(),
+  };
 }
 
 /**

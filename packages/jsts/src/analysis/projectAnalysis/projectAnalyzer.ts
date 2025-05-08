@@ -36,7 +36,7 @@ import { getFiles, getFilesCount } from './files.js';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, baseDir, configuration = {}, bundles = [] } = input;
+  const { rules, baseDir, files, configuration = {}, bundles = [] } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -47,7 +47,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  setGlobalConfiguration(configuration);
+  setGlobalConfiguration(baseDir, configuration);
   await Linter.initialize({
     rules,
     environments: getEnvironments(),
@@ -56,9 +56,9 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     bundles,
     baseDir: normalizedBaseDir,
   });
-  const searchInputFiles = isSonarLint() || !input.files;
+  const searchInputFiles = isSonarLint() || !files;
   await loadFiles(normalizedBaseDir, { jsts: searchInputFiles, tsconfigs: true });
-  const filesToAnalyze = input.files ?? getFiles();
+  const filesToAnalyze = files ?? getFiles();
   if (getFilesCount()) {
     const filePathsToAnalyze = Object.keys(filesToAnalyze);
     const pendingFiles: Set<string> = new Set(filePathsToAnalyze);

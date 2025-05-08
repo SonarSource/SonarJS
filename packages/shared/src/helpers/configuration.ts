@@ -16,6 +16,7 @@
  */
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import path from 'path';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -58,27 +59,24 @@ export type Configuration = {
   testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
 };
 
-import path from 'path';
-import {
-  clearFileToTsConfigCache,
-  clearTsConfigCache,
-} from '../../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
-import { PACKAGE_JSON } from '../../../jsts/src/rules/index.js';
-import { basename } from 'node:path';
-
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
+let projectBaseDir: string;
 
-export function setGlobalConfiguration(config: Configuration) {
+export function setGlobalConfiguration(baseDir: string, config: Configuration) {
   configuration = { ...config };
-  digestFsEvents(configuration.fsEvents);
+  projectBaseDir = baseDir;
 }
 
 export const HTML_EXTENSIONS = ['.html', '.htm'];
 export const YAML_EXTENSIONS = ['.yml', '.yaml'];
+
+export function getProjectBaseDir() {
+  return projectBaseDir;
+}
 
 export function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
@@ -150,8 +148,36 @@ export function getExclusions() {
   );
 }
 
+export function getFsEvents() {
+  return configuration.fsEvents ?? [];
+}
+
 export function getMaxFileSize() {
   return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
+}
+
+export function setClearDependenciesCache(value: boolean) {
+  configuration.clearDependenciesCache = value;
+}
+
+export function shouldClearDependenciesCache() {
+  return configuration.clearDependenciesCache;
+}
+
+export function setClearFileToTsConfigCache(value: boolean) {
+  configuration.clearFileToTsConfigCache = value;
+}
+
+export function shouldClearFileToTsConfigCache() {
+  return configuration.clearFileToTsConfigCache;
+}
+
+export function setClearTsConfigCache(value: boolean) {
+  configuration.clearTsConfigCache = value;
+}
+
+export function shouldClearTsConfigCache() {
+  return configuration.clearTsConfigCache;
 }
 
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
@@ -222,31 +248,3 @@ export const DEFAULT_GLOBALS = [
   '_',
   'sap',
 ];
-
-function digestFsEvents(fsEvents?: FsEvent[]) {
-  configuration.clearDependenciesCache ??= false;
-  configuration.clearFileToTsConfigCache ??= false;
-  configuration.clearTsConfigCache ??= false;
-  const changedTsConfigs: string[] = [];
-
-  if (fsEvents) {
-    for (const fileEvent of fsEvents) {
-      const [filename, event] = fileEvent;
-      const filenameLower = basename(filename).toLowerCase();
-      if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {
-        changedTsConfigs.push(filename);
-        configuration.clearTsConfigCache = true;
-      } else if (filenameLower === PACKAGE_JSON) {
-        configuration.clearDependenciesCache = true;
-      } else if (isJsFile(filename) && event === 'CREATED') {
-        configuration.clearFileToTsConfigCache = true;
-      }
-    }
-  }
-  if (configuration.clearTsConfigCache) {
-    clearTsConfigCache(changedTsConfigs);
-  }
-  if (configuration.clearFileToTsConfigCache) {
-    clearFileToTsConfigCache();
-  }
-}

@@ -22,7 +22,7 @@ import { createProgramOptions } from '../../program/program.js';
 export class Cache {
   private readonly inputFileToTsConfigFilesMap = new Map<string, string | null>();
   public discoveredTsConfigFiles = new Set<string>();
-  private cacheKey: string;
+  public key: string | undefined;
   public originalTsConfigFiles: string[] = [];
   private pendingTsConfigFiles: string[] = [];
   public initialized = false;
@@ -85,7 +85,7 @@ export class Cache {
 
   clearFileToTsConfigCache() {
     this.inputFileToTsConfigFilesMap.clear();
-    this.discoveredTsConfigFiles.clear();
+    this.discoveredTsConfigFiles = new Set<string>(this.originalTsConfigFiles);
     this.pendingTsConfigFiles = [...this.originalTsConfigFiles];
   }
 
