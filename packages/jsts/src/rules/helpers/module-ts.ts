@@ -114,7 +114,6 @@ export function getFullyQualifiedNameTS(
       case ts.SyntaxKind.ImportClause: // Fallthrough
       case ts.SyntaxKind.ObjectBindingPattern: // Fallthrough
       case ts.SyntaxKind.Block: // Fallthrough
-      case ts.SyntaxKind.ArrowFunction: // Fallthrough
       case ts.SyntaxKind.ExpressionStatement: // Fallthrough
       case ts.SyntaxKind.NamedImports: // Fallthrough
       case ts.SyntaxKind.ModuleBlock: {
