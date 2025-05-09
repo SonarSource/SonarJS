@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiExpect = require('chai').expect;
+const shouldFunc = require('chai').should();
 const { assert, expect, should, expect: chaiExpectRenamed } = chai;
 
 should();
@@ -67,6 +68,15 @@ describe('chai test cases', () => {
 
   it('transitive assertion', () => { // Compliant
     check();
+  });
+
+  const throwsTypeError = () => { throw new TypeError() }
+
+  it("uses chai 'should'", function() { // Noncompliant {{Add at least one assertion to this test case.}}
+    // The same is true for "should" assertions.
+    throwsTypeError.should.to.not.throw(ReferenceError)
+
+    // ...
   });
 
   function check() {
