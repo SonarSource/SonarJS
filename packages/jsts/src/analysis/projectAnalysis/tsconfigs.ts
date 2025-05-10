@@ -27,6 +27,7 @@ import {
   getFsEvents,
   getTsConfigPaths,
   isJsFile,
+  isJsTsFile,
   isSonarLint,
   maxFilesForTypeChecking,
   setClearDependenciesCache,
@@ -100,7 +101,9 @@ export async function initializeTsConfigs(
         fallbackTsConfigs.push(filename);
       }
     } else {
-      const { filename } = await writeTSConfigFile(createTSConfigFile(getFilenames()));
+      const { filename } = await writeTSConfigFile(
+        createTSConfigFile(getFilenames().filter(filename => isJsTsFile(filename))),
+      );
       fallbackTsConfigs.push(filename);
     }
     cacheMap.get(TsConfigOrigin.FALLBACK)!.initializeOriginalTsConfigs(fallbackTsConfigs);
