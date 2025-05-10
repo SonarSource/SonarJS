@@ -22,6 +22,11 @@ const UNINITIALIZED_ERROR = 'Files cache have not been initialized';
 let files: JsTsFiles | undefined;
 let filenames: string[] | undefined;
 
+export function clearFilesCache() {
+  files = undefined;
+  filenames = undefined;
+}
+
 export function filesInitialized() {
   return typeof files !== 'undefined';
 }

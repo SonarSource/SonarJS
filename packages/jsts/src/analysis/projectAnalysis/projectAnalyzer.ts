@@ -27,7 +27,7 @@ import {
   getEnvironments,
 } from '../../../../shared/src/helpers/configuration.js';
 import { loadFiles } from './files-finder.js';
-import { getFiles, getFilesCount } from './files.js';
+import { getFiles, getFilesCount, setFiles } from './files.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -47,7 +47,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  setGlobalConfiguration(baseDir, configuration);
+  setGlobalConfiguration(configuration);
   await Linter.initialize({
     rules,
     environments: getEnvironments(),
@@ -57,6 +57,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     baseDir: normalizedBaseDir,
   });
   const searchInputFiles = isSonarLint() || !files;
+  if (!searchInputFiles) setFiles(files);
   await loadFiles(normalizedBaseDir, { jsts: searchInputFiles, tsconfigs: true });
   const filesToAnalyze = files ?? getFiles();
   if (getFilesCount()) {

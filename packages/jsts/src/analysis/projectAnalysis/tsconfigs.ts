@@ -25,7 +25,6 @@ import { Cache } from './tsconfigCache.js';
 import { getFilenames, getFilesCount } from './files.js';
 import {
   getFsEvents,
-  getProjectBaseDir,
   getTsConfigPaths,
   isJsFile,
   isSonarLint,
@@ -57,8 +56,8 @@ cacheMap.set(TsConfigOrigin.FALLBACK, new Cache());
 
 let origin: TsConfigOrigin | undefined;
 
-export function tsConfigsInitialized() {
-  dirtyCachesIfNeeded();
+export function tsConfigsInitialized(baseDir: string) {
+  dirtyCachesIfNeeded(baseDir);
   return origin !== undefined && cacheMap.get(origin)!.initialized;
 }
 
@@ -82,8 +81,8 @@ export async function initializeTsConfigs(
   propertyTsConfigPaths: string[],
 ) {
   debug(`Resetting the TsConfigCache`);
-  const cacheKeys = getCacheKeys();
-  cacheMap.get(TsConfigOrigin.LOOKUP)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
+  const cacheKeys = getCacheKeys(baseDir);
+  cacheMap.get(TsConfigOrigin.LOOKUP)!.initializeOriginalTsConfigs(foundTsConfigPaths);
   cacheMap.get(TsConfigOrigin.LOOKUP)!.key = cacheKeys[TsConfigOrigin.LOOKUP];
   cacheMap.get(TsConfigOrigin.PROPERTY)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
   cacheMap.get(TsConfigOrigin.PROPERTY)!.key = cacheKeys[TsConfigOrigin.PROPERTY];
@@ -109,7 +108,7 @@ export async function initializeTsConfigs(
   }
 }
 
-export function clearTsConfigCache(filenames: string[]) {
+export function clearTsConfigCache(filenames: string[] = []) {
   debug('Clearing lookup tsconfig cache');
   cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
   if (
@@ -130,8 +129,8 @@ export function clearFileToTsConfigCache() {
   cacheMap.forEach(cache => cache.clearFileToTsConfigCache());
 }
 
-function dirtyCachesIfNeeded() {
-  const newCacheKeys = getCacheKeys();
+function dirtyCachesIfNeeded(baseDir: string) {
+  const newCacheKeys = getCacheKeys(baseDir);
   for (const [origin, cache] of cacheMap.entries()) {
     if (cache.key !== newCacheKeys[origin]) {
       cache.clearAll();
@@ -158,11 +157,11 @@ function dirtyCachesIfNeeded() {
   }
 }
 
-function getCacheKeys() {
+function getCacheKeys(baseDir: string) {
   return {
-    [TsConfigOrigin.PROPERTY]: JSON.stringify([getProjectBaseDir(), getTsConfigPaths()]),
-    [TsConfigOrigin.LOOKUP]: getProjectBaseDir(),
-    [TsConfigOrigin.FALLBACK]: getProjectBaseDir(),
+    [TsConfigOrigin.PROPERTY]: JSON.stringify([baseDir, getTsConfigPaths()]),
+    [TsConfigOrigin.LOOKUP]: baseDir,
+    [TsConfigOrigin.FALLBACK]: baseDir,
   };
 }
 

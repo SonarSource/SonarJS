@@ -25,14 +25,14 @@ import {
 import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
-import { clearTSConfigs } from '../../src/analysis/projectAnalysis/tsconfigs.js';
+import { clearTsConfigCache } from '../../src/analysis/projectAnalysis/tsconfigs.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    clearTSConfigs();
+    clearTsConfigCache();
   });
 
   it('should analyze the whole project with program', async () => {

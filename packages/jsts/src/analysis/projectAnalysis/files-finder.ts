@@ -48,7 +48,7 @@ export async function loadFiles(
   baseDir: string,
   filterSearch: filterSearch = { jsts: true, tsconfigs: true },
 ) {
-  if (tsConfigsInitialized()) {
+  if (tsConfigsInitialized(baseDir)) {
     filterSearch.tsconfigs = false;
   }
 
@@ -105,7 +105,7 @@ export async function loadFiles(
     },
     getExclusions(),
   );
-  if (!filesInitialized()) {
+  if (filterSearch.jsts) {
     setFiles(files);
   }
   if (filterSearch.tsconfigs) {

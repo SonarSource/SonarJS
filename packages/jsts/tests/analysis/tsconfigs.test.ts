@@ -14,40 +14,46 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import {
-  clearTSConfigs,
-  getTSConfigs,
-  getTSConfigsCount,
-  getTSConfigsIterator,
+  clearTsConfigCache,
+  getTsConfigForInputFile,
+  getTsConfigs,
   writeTSConfigFile,
 } from '../../src/analysis/projectAnalysis/tsconfigs.js';
-import {
-  loadFiles,
-  verifyProvidedTsConfigs,
-} from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
 import { expect } from 'expect';
 import { basename, join, relative } from 'node:path/posix';
 import { toUnixPath } from '../../src/rules/index.js';
 import { readFile } from 'node:fs/promises';
+import { loadFiles } from '../../src/analysis/projectAnalysis/files-finder.js';
+import {
+  setGlobalConfiguration,
+  setTsConfigPaths,
+} from '../../../shared/src/helpers/configuration.js';
+import { clearFilesCache } from '../../src/analysis/projectAnalysis/files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
 describe('tsconfigs', () => {
+  beforeEach(() => {
+    clearTsConfigCache();
+    clearFilesCache();
+  });
   it('should return the TSconfig files', async () => {
-    clearTSConfigs();
     await loadFiles(fixtures);
-    expect(getTSConfigsCount()).toEqual(3);
+    expect(getTsConfigs().length).toEqual(3);
   });
 
   it('should validate the provided TSconfig files', async () => {
-    const tsconfigs = getTSConfigs();
-    clearTSConfigs();
-    await verifyProvidedTsConfigs(
-      fixtures,
-      tsconfigs.map(tsconfig => relative(fixtures, tsconfig)).concat('fake_dir/tsconfig.json'),
+    await loadFiles(fixtures);
+    setTsConfigPaths(
+      getTsConfigs()
+        .map(tsconfig => relative(fixtures, tsconfig))
+        .concat('fake_dir/tsconfig.json'),
     );
-    expect(getTSConfigsCount()).toEqual(3);
+    clearTsConfigCache();
+    await loadFiles(fixtures);
+    expect(getTsConfigs().length).toEqual(3);
   });
 
   it('should write tsconfig file', async () => {
@@ -62,11 +68,10 @@ describe('tsconfigs', () => {
   });
 
   it('when no tsconfigs, in SonarLint should generate tsconfig with wildcard', async () => {
-    clearTSConfigs();
+    setGlobalConfiguration({ sonarlint: true });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir);
-    const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 200);
-    const tsconfig = await getAsyncIteratorValue(tsconfigs);
+    await loadFiles(baseDir);
+    const tsconfig = getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
       compilerOptions: {
@@ -75,15 +80,13 @@ describe('tsconfigs', () => {
       },
       include: [`${baseDir}/**/*`],
     });
-    expect(await getAsyncIteratorValue(tsconfigs)).toEqual(undefined);
   });
 
   it('when no tsconfigs, in SonarQube should generate tsconfig with all files', async () => {
-    clearTSConfigs();
+    setGlobalConfiguration({ sonarlint: false });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir);
-    const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, false, 200);
-    const tsconfig = await getAsyncIteratorValue(tsconfigs);
+    await loadFiles(baseDir);
+    const tsconfig = getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
       compilerOptions: {
@@ -92,29 +95,21 @@ describe('tsconfigs', () => {
       },
       files: [`${baseDir}/file.ts`, `${baseDir}/string42.ts`],
     });
-    expect(await getAsyncIteratorValue(tsconfigs)).toEqual(undefined);
   });
 
   it('should not generate tsconfig file when too many files', async () => {
-    clearTSConfigs();
+    setGlobalConfiguration({ sonarlint: true, maxFilesForTypeChecking: 1 });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    const files = await loadFiles(baseDir);
-    const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 1);
-    expect(await getAsyncIteratorValue(tsconfigs)).toEqual(undefined);
+    await loadFiles(baseDir);
+    const tsconfig = getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
+    expect(tsconfig).toEqual(null);
   });
 
   it('should not generate tsconfig file if there is already at least one', async () => {
-    clearTSConfigs();
+    setGlobalConfiguration();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
-    const files = await loadFiles(baseDir);
-    const tsconfigs = getTSConfigsIterator(Object.keys(files), baseDir, true, 1);
-    expect(await getAsyncIteratorValue(tsconfigs)).toEqual(
-      toUnixPath(join(baseDir, 'tsconfig.json')),
-    );
-    expect(await getAsyncIteratorValue(tsconfigs)).toEqual(undefined);
+    await loadFiles(baseDir);
+    const tsconfig = getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
+    expect(tsconfig).toEqual(toUnixPath(join(baseDir, 'tsconfig.json')));
   });
 });
-
-async function getAsyncIteratorValue(iterator: AsyncIterableIterator<string>) {
-  return await iterator.next().then(({ value }) => value);
-}

@@ -64,19 +64,13 @@ const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
-let projectBaseDir: string;
 
-export function setGlobalConfiguration(baseDir: string, config: Configuration) {
+export function setGlobalConfiguration(config: Configuration = {}) {
   configuration = { ...config };
-  projectBaseDir = baseDir;
 }
 
 export const HTML_EXTENSIONS = ['.html', '.htm'];
 export const YAML_EXTENSIONS = ['.yml', '.yaml'];
-
-export function getProjectBaseDir() {
-  return projectBaseDir;
-}
 
 export function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
@@ -84,6 +78,10 @@ export function jsTsExtensions() {
 
 export function getTsConfigPaths() {
   return configuration.tsConfigPaths ?? [];
+}
+
+export function setTsConfigPaths(tsconfigs: string[]) {
+  configuration.tsConfigPaths = tsconfigs;
 }
 
 function tsExtensions() {
