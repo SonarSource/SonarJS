@@ -16,7 +16,6 @@
  */
 package org.sonar.javascript.it;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.it.JsTsRulingTest.LITS_VERSION;
 
