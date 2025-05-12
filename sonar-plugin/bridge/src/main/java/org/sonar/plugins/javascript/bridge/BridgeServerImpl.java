@@ -385,7 +385,7 @@ public class BridgeServerImpl implements BridgeServer {
       return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException(
-        "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section:" +
+        "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
         "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
         e
       );
