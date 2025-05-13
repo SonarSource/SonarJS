@@ -57,9 +57,10 @@ export async function analyzeJSTS(
   const completeInput = fillLanguage(await fillFileContent(input));
   const parseResult = build(completeInput);
   try {
-    const { filePath, fileType, analysisMode, fileStatus, language, shouldClearDependenciesCache } =
-      completeInput;
-    shouldClearDependenciesCache && clearDependenciesCache();
+    const { filePath, fileType, analysisMode, fileStatus, language } = completeInput;
+    if (completeInput.clearDependenciesCache) {
+      clearDependenciesCache();
+    }
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
       parseResult,
       filePath,
