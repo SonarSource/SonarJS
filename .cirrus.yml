@@ -128,12 +128,15 @@ plugin_qa_body: &PLUGIN_QA_BODY
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
+    matrix:
+      - ANALYZE_PROJECT_ENABLED: 'true'
+      - ANALYZE_PROJECT_ENABLED: 'false'
   <<: *MAVEN_CACHE
   <<: *ORCHESTRATOR_CACHE
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.javascript.analyzeProject.enabled=${ANALYZE_PROJECT_ENABLED} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
