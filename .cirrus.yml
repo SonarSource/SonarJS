@@ -133,7 +133,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.javascript.analyzeProject.enabled=${ANALYZE_PROJECT_ENABLED} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -X -DskipTests=false -Dsonar.javascript.analyzeProject.enabled=${ANALYZE_PROJECT_ENABLED} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
@@ -149,7 +149,7 @@ plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.javascript.analyzeProject.enabled=${ANALYZE_PROJECT_ENABLED} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -X -DskipTests=false -Dsonar.javascript.analyzeProject.enabled=${ANALYZE_PROJECT_ENABLED} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
   eks_container:
@@ -279,8 +279,8 @@ plugin_qa_with_node_task:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
     matrix:
-      - ANALYZE_PROJECT_ENABLED: 'true'
-      - ANALYZE_PROJECT_ENABLED: 'false'
+      - ANALYZE_PROJECT_ENABLED: true
+      - ANALYZE_PROJECT_ENABLED: false
 
 plugin_qa_no_node_task:
   <<: *PLUGIN_QA_BODY_MONTHLY
@@ -291,8 +291,8 @@ plugin_qa_no_node_task:
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
     matrix:
-      - ANALYZE_PROJECT_ENABLED: 'true'
-      - ANALYZE_PROJECT_ENABLED: 'false'
+      - ANALYZE_PROJECT_ENABLED: true
+      - ANALYZE_PROJECT_ENABLED: false
 
 plugin_qa_no_node_alpine_task:
   <<: *PLUGIN_QA_BODY_MONTHLY
@@ -303,8 +303,8 @@ plugin_qa_no_node_alpine_task:
     SONARJS_ARTIFACT: linux-x64-musl
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
     matrix:
-      - ANALYZE_PROJECT_ENABLED: 'true'
-      - ANALYZE_PROJECT_ENABLED: 'false'
+      - ANALYZE_PROJECT_ENABLED: true
+      - ANALYZE_PROJECT_ENABLED: false
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
@@ -315,8 +315,8 @@ plugin_qa_sq_dev_task:
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
     matrix:
-      - ANALYZE_PROJECT_ENABLED: 'true'
-      - ANALYZE_PROJECT_ENABLED: 'false'
+      - ANALYZE_PROJECT_ENABLED: true
+      - ANALYZE_PROJECT_ENABLED: false
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
