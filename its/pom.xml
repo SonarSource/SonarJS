@@ -66,4 +66,18 @@
     <sonar.typescript.tsconfigPath/>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>analyze-project-disabled</id>
+      <properties>
+        <sonar.javascript.analyzeProject.enabled>false</sonar.javascript.analyzeProject.enabled>
+      </properties>
+    </profile>
+    <profile>
+      <id>analyze-project-enabled</id>
+      <properties>
+        <sonar.javascript.analyzeProject.enabled>true</sonar.javascript.analyzeProject.enabled>
+      </properties>
+    </profile>
+  </profiles>
 </project>
