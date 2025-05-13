@@ -101,6 +101,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    LOG.info("AnalyzeProjectEnabled flag: " + context.isAnalyzeProjectEnabled());
     if (!context.isAnalyzeProjectEnabled()) {
       bridgeServer.initLinter(
         checks.enabledEslintRules(),
