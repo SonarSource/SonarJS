@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
@@ -23,7 +23,7 @@ import { getTsConfigs } from './tsconfigs.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
- * included in any tsconfig from the cache will not be analyzed
+ * included in any tsconfig from the cache will not be analyzed.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
  * @param results ProjectAnalysisOutput object where the analysis results are stored

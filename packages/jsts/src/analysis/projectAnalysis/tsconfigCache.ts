@@ -60,7 +60,7 @@ export class Cache {
           .filter(refPath => !this.discoveredTsConfigFiles.has(refPath.path))
           .forEach(refPath => {
             this.discoveredTsConfigFiles.add(refPath.path);
-            this.pendingTsConfigFiles.unshift(refPath.path);
+            this.pendingTsConfigFiles.push(refPath.path);
           });
       }
       if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
@@ -115,6 +115,6 @@ export class Cache {
       }
     });
     newPendingTsConfigFiles.push(...notMatchingPendingTsConfigFiles);
-    return newPendingTsConfigFiles;
+    return newPendingTsConfigFiles.reverse();
   }
 }

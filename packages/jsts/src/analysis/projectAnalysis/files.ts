@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { JsTsFiles } from './projectAnalysis.js';
+import type { JsTsFiles } from './projectAnalysis.js';
 
-export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first';
+export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
 let files: JsTsFiles | undefined;
 let filenames: string[] | undefined;

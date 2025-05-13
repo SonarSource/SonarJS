@@ -60,7 +60,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const filesToAnalyze = files ?? getFiles();
   if (getFilesCount()) {
     const filePathsToAnalyze = Object.keys(filesToAnalyze);
-    const pendingFiles: Set<string> = new Set(filePathsToAnalyze);
+    const pendingFiles = new Set(filePathsToAnalyze);
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
       await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles);

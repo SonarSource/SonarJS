@@ -40,20 +40,16 @@ import { PACKAGE_JSON } from '../../rules/index.js';
 
 tmp.setGracefulCleanup();
 export const UNINITIALIZED_ERROR =
-  'TSConfig cache has not been initialized. Call loadFiles() first';
+  'TSConfig cache has not been initialized. Call loadFiles() first.';
 export const TSCONFIG_JSON = 'tsconfig.json';
 
-enum TsConfigOrigin {
-  PROPERTY = 'property',
-  LOOKUP = 'lookup',
-  FALLBACK = 'fallback',
-}
+type TsConfigOrigin = 'property' | 'lookup' | 'fallback';
 
-const cacheMap: Map<TsConfigOrigin, Cache> = new Map();
-
-cacheMap.set(TsConfigOrigin.PROPERTY, new Cache());
-cacheMap.set(TsConfigOrigin.LOOKUP, new Cache());
-cacheMap.set(TsConfigOrigin.FALLBACK, new Cache());
+const cacheMap: { [type in TsConfigOrigin]: Cache } = {
+  property: new Cache(),
+  lookup: new Cache(),
+  fallback: new Cache(),
+};
 
 let origin: TsConfigOrigin | undefined;
 
@@ -65,43 +61,43 @@ export function getCurrentCache() {
   if (!origin) {
     throw new Error(UNINITIALIZED_ERROR);
   }
-  return cacheMap.get(origin)!;
+  return cacheMap[origin];
 }
 
 export function tsConfigCacheInitialized(baseDir: string) {
   dirtyCachesIfNeeded(baseDir);
-  return origin !== undefined && cacheMap.get(origin)!.initialized;
+  return origin !== undefined && cacheMap[origin].initialized;
 }
 
 export function getTsConfigs() {
   if (!origin) {
     throw new Error(UNINITIALIZED_ERROR);
   }
-  return cacheMap.get(origin)!.originalTsConfigFiles;
+  return cacheMap[origin].originalTsConfigFiles;
 }
 
 export function getTsConfigForInputFile(inputFile: string) {
   if (!origin) {
     throw new Error(UNINITIALIZED_ERROR);
   }
-  return cacheMap.get(origin)!.getTsConfigForInputFile(inputFile);
+  return cacheMap[origin].getTsConfigForInputFile(inputFile);
 }
 
 export async function initializeTsConfigs(
   baseDir: string,
-  foundTsConfigPaths: string[],
-  propertyTsConfigPaths: string[],
+  foundLookupTsConfigPaths: string[],
+  foundPropertyTsConfigPaths: string[],
 ) {
   debug(`Resetting the TsConfigCache`);
   const cacheKeys = getCacheKeys(baseDir);
-  cacheMap.get(TsConfigOrigin.LOOKUP)!.initializeOriginalTsConfigs(foundTsConfigPaths);
-  cacheMap.get(TsConfigOrigin.LOOKUP)!.key = cacheKeys[TsConfigOrigin.LOOKUP];
-  cacheMap.get(TsConfigOrigin.PROPERTY)!.initializeOriginalTsConfigs(propertyTsConfigPaths);
-  cacheMap.get(TsConfigOrigin.PROPERTY)!.key = cacheKeys[TsConfigOrigin.PROPERTY];
-  if (propertyTsConfigPaths.length) {
-    origin = TsConfigOrigin.PROPERTY;
-  } else if (foundTsConfigPaths.length) {
-    origin = TsConfigOrigin.LOOKUP;
+  cacheMap.lookup.initializeOriginalTsConfigs(foundLookupTsConfigPaths);
+  cacheMap.lookup.key = cacheKeys.lookup;
+  cacheMap.property.initializeOriginalTsConfigs(foundPropertyTsConfigPaths);
+  cacheMap.property.key = cacheKeys.property;
+  if (foundPropertyTsConfigPaths.length) {
+    origin = 'property';
+  } else if (foundLookupTsConfigPaths.length) {
+    origin = 'lookup';
   } else {
     const fallbackTsConfigs = [];
     if (isSonarLint()) {
@@ -117,21 +113,17 @@ export async function initializeTsConfigs(
       );
       fallbackTsConfigs.push(filename);
     }
-    cacheMap.get(TsConfigOrigin.FALLBACK)!.initializeOriginalTsConfigs(fallbackTsConfigs);
-    origin = TsConfigOrigin.FALLBACK;
+    cacheMap.fallback.initializeOriginalTsConfigs(fallbackTsConfigs);
+    origin = 'fallback';
   }
 }
 
 export function clearTsConfigCache(filenames: string[] = []) {
   debug('Clearing lookup tsconfig cache');
-  cacheMap.get(TsConfigOrigin.LOOKUP)!.clearAll();
-  if (
-    filenames.some(tsconfig =>
-      cacheMap.get(TsConfigOrigin.PROPERTY)!.discoveredTsConfigFiles.has(tsconfig),
-    )
-  ) {
+  cacheMap.lookup.clearAll();
+  if (filenames.some(tsconfig => cacheMap.property.discoveredTsConfigFiles.has(tsconfig))) {
     debug('Clearing property tsconfig cache');
-    cacheMap.get(TsConfigOrigin.PROPERTY)!.clearAll();
+    cacheMap.property.clearAll();
   }
 }
 
@@ -140,13 +132,13 @@ export function clearFileToTsConfigCache() {
   // tsconfig file that would cover this new file has already been processed, and we would not be aware of it.
   // By clearing the cache, we guarantee correctness.
   debug('Clearing input file to tsconfig cache');
-  cacheMap.forEach(cache => cache.clearFileToTsConfigCache());
+  Object.values(cacheMap).forEach(cache => cache.clearFileToTsConfigCache());
 }
 
 export function dirtyCachesIfNeeded(baseDir: string) {
   const newCacheKeys = getCacheKeys(baseDir);
-  for (const [cacheOrigin, cache] of cacheMap.entries()) {
-    if (cache.initialized && cache.key !== newCacheKeys[cacheOrigin]) {
+  for (const [cacheOrigin, cache] of Object.entries(cacheMap)) {
+    if (cache.initialized && cache.key !== newCacheKeys[cacheOrigin as keyof typeof cacheMap]) {
       cache.clearAll();
       origin = undefined;
     }
@@ -172,11 +164,11 @@ export function dirtyCachesIfNeeded(baseDir: string) {
   }
 }
 
-function getCacheKeys(baseDir: string) {
+function getCacheKeys(baseDir: string): { [type in TsConfigOrigin]: string } {
   return {
-    [TsConfigOrigin.PROPERTY]: JSON.stringify([baseDir, getTsConfigPaths()]),
-    [TsConfigOrigin.LOOKUP]: baseDir,
-    [TsConfigOrigin.FALLBACK]: baseDir,
+    property: JSON.stringify([baseDir, getTsConfigPaths()]),
+    lookup: baseDir,
+    fallback: baseDir,
   };
 }
 
