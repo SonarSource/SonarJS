@@ -484,12 +484,25 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public TelemetryData getTelemetry() {
+    if (nodeCommand == null) {
+      return new TelemetryData(getTelemetryEslintBridgeResponse().dependencies(), null);
+    }
     return new TelemetryData(
       getTelemetryEslintBridgeResponse().dependencies(),
       new RuntimeTelemetry(
         nodeCommand.getActualNodeVersion(),
         nodeCommand.getNodeExecutableOrigin()
       )
+    );
+  }
+
+  @Override
+  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException {
+    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
+    request.setRulesWorkdir(workdir);
+    var response = request(GSON.toJson(request), "analyze-project");
+    return ProjectAnalysisOutput.fromDTO(
+      GSON.fromJson(response.json(), ProjectAnalysisOutputDTO.class)
     );
   }
 
