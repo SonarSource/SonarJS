@@ -404,7 +404,7 @@ ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn test -X -Dtest=JsTsRulingTest -P${ANALYZE_PROJECT_ENABLED} -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn test -X -Dtest=JsTsRulingTest -P${ANALYZE_PROJECT_PROFILE} -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
