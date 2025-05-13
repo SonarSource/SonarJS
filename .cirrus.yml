@@ -128,11 +128,11 @@ plugin_qa_body: &PLUGIN_QA_BODY
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-    matrix:
-      - ANALYZE_PROJECT_ENABLED: 'true'
-      - ANALYZE_PROJECT_ENABLED: 'false'
   <<: *MAVEN_CACHE
   <<: *ORCHESTRATOR_CACHE
+  matrix:
+    - ANALYZE_PROJECT_ENABLED: 'true'
+    - ANALYZE_PROJECT_ENABLED: 'false'
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
