@@ -16,6 +16,7 @@
  */
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { extname } from 'node:path/posix';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -28,9 +29,21 @@ import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/anal
  */
 export type JsTsLanguage = 'js' | 'ts';
 
+type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
+/** Data filled in file watcher FSListenerImpl.java
+ *
+ * Duple [filePath, event] containing all the file events occurred
+ * between two analysis requests, used to know if we need to clear
+ * tsconfig.json cache or the mapping between input files and tsconfigs
+ */
+type FsEvent = [string, FsEventType];
+
 export type Configuration = {
   sonarlint?: boolean;
-  shouldClearDependenciesCache?: boolean;
+  clearDependenciesCache?: boolean;
+  clearFileToTsConfigCache?: boolean;
+  clearTsConfigCache?: boolean;
+  fsEvents?: FsEvent[];
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
   skipAst?: boolean;
@@ -51,14 +64,13 @@ export type Configuration = {
   testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
 };
 
-import path from 'path';
-
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
-export function setGlobalConfiguration(config: Configuration) {
+
+export function setGlobalConfiguration(config: Configuration = {}) {
   configuration = { ...config };
 }
 
@@ -67,6 +79,14 @@ export const YAML_EXTENSIONS = ['.yml', '.yaml'];
 
 export function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
+}
+
+export function getTsConfigPaths() {
+  return configuration.tsConfigPaths ?? [];
+}
+
+export function setTsConfigPaths(tsconfigs: string[]) {
+  configuration.tsConfigPaths = tsconfigs;
 }
 
 function tsExtensions() {
@@ -78,11 +98,11 @@ function jsExtensions() {
 }
 
 export function isJsFile(filePath: string) {
-  return jsExtensions().includes(path.posix.extname(filePath).toLowerCase());
+  return jsExtensions().includes(extname(filePath).toLowerCase());
 }
 
 export function isTsFile(filePath: string, contents: string) {
-  const extension = path.posix.extname(filePath).toLowerCase();
+  const extension = extname(filePath).toLowerCase();
   return (
     tsExtensions().includes(extension) ||
     (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
@@ -90,15 +110,15 @@ export function isTsFile(filePath: string, contents: string) {
 }
 
 export function isHtmlFile(filePath: string) {
-  return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+  return HTML_EXTENSIONS.includes(extname(filePath).toLowerCase());
 }
 
 export function isYamlFile(filePath: string) {
-  return YAML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+  return YAML_EXTENSIONS.includes(extname(filePath).toLowerCase());
 }
 
 export function isJsTsFile(filePath: string) {
-  return jsTsExtensions().includes(path.posix.extname(filePath).toLowerCase());
+  return jsTsExtensions().includes(extname(filePath).toLowerCase());
 }
 
 export function isAnalyzableFile(filePath: string) {
@@ -131,15 +151,43 @@ export function getExclusions() {
   );
 }
 
+export function getFsEvents() {
+  return configuration.fsEvents ?? [];
+}
+
 export function getMaxFileSize() {
   return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
+}
+
+export function setClearDependenciesCache(value: boolean) {
+  configuration.clearDependenciesCache = value;
+}
+
+export function shouldClearDependenciesCache() {
+  return configuration.clearDependenciesCache;
+}
+
+export function setClearFileToTsConfigCache(value: boolean) {
+  configuration.clearFileToTsConfigCache = value;
+}
+
+export function shouldClearFileToTsConfigCache() {
+  return configuration.clearFileToTsConfigCache;
+}
+
+export function setClearTsConfigCache(value: boolean) {
+  configuration.clearTsConfigCache = value;
+}
+
+export function shouldClearTsConfigCache() {
+  return configuration.clearTsConfigCache;
 }
 
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
   allowTsParserJsFiles: configuration.allowTsParserJsFiles,
   analysisMode: configuration.analysisMode,
   ignoreHeaderComments: configuration.ignoreHeaderComments,
-  shouldClearDependenciesCache: configuration.shouldClearDependenciesCache,
+  clearDependenciesCache: configuration.clearDependenciesCache,
   skipAst: configuration.skipAst,
   sonarlint: isSonarLint(),
 });

@@ -14,29 +14,28 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
+import { getTsConfigs } from './tsconfigs.js';
 
 /**
- * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files
- * belonging to the given tsconfig.json files will be analyzed.
+ * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
+ * included in any tsconfig from the cache will not be analyzed.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
- * @param tsConfigs list of tsconfig.json files to use for the analysis
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,
-  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for await (const tsConfig of tsConfigs) {
+  for (const tsConfig of getTsConfigs()) {
     await analyzeProgram(files, tsConfig, results, pendingFiles);
     if (!pendingFiles.size) {
       break;
