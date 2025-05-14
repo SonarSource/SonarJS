@@ -44,7 +44,7 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class JsTsContext<T extends SensorContext> {
 
-  private static final String ANALYZE_PROJECT_ENABLED = "sonar.javascript.analyzeProject.enabled";
+  public static final String ANALYZE_PROJECT_ENABLED = "sonar.javascript.analyzeProject.enabled";
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
