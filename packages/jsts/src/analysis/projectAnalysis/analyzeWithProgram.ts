@@ -17,7 +17,7 @@
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
 
@@ -35,8 +35,9 @@ export async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
+  const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of getTsConfigs()) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles);
+    await analyzeProgram(files, tsConfig, results, pendingFiles, processedTSConfigs);
     if (!pendingFiles.size) {
       break;
     }
@@ -48,7 +49,15 @@ async function analyzeProgram(
   tsConfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  processedTSConfigs: Set<string>,
 ) {
+  if (processedTSConfigs.has(tsConfig)) {
+    return;
+  }
+  processedTSConfigs.add(tsConfig);
+  console.info('in analyze program ' + JSON.stringify(files));
+  info('Creating TypeScript program');
+  info(`TypeScript configuration file ${tsConfig}`);
   let filenames, programId, projectReferences;
   try {
     ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
@@ -71,6 +80,6 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles);
+    await analyzeProgram(files, reference, results, pendingFiles, processedTSConfigs);
   }
 }
