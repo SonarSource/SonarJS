@@ -16,16 +16,19 @@
  */
 package org.sonar.plugins.javascript.analysis.cache;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
+  private final ProtobufSerialization<Node> astSerialization;
 
   CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
@@ -36,11 +39,27 @@ public class CacheAnalysisSerialization extends CacheSerialization {
       context,
       cacheKey.forFileMetadata()
     );
+    astSerialization = new ProtobufSerialization<>(
+      Node.class,
+      bytes -> {
+        try {
+          return Node.parseFrom(bytes);
+        } catch (InvalidProtocolBufferException e) {
+          throw new RuntimeException("Failed to parse Node from protobuf", e);
+        }
+      },
+      context,
+      cacheKey.forAst()
+    );
   }
 
   @Override
   boolean isInCache() {
-    return ucfgFileSerialization.isInCache() && cpdSerialization.isInCache();
+    return (
+      ucfgFileSerialization.isInCache() &&
+      astSerialization.isInCache() &&
+      cpdSerialization.isInCache()
+    );
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {
@@ -55,13 +74,17 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.readFromCache();
 
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(cpdData.getCpdTokens());
+    var ast = astSerialization.readFromCache();
+    return CacheAnalysis.fromCache(cpdData.getCpdTokens(), ast);
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
     cpdSerialization.writeToCache(new CpdData(analysis.getCpdTokens()));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
+    if (analysis.getAst() != null) {
+      astSerialization.writeToCache(analysis.getAst());
+    }
   }
 
   @Override

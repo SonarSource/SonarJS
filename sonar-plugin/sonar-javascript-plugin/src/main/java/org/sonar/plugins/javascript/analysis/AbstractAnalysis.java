@@ -101,10 +101,10 @@ public abstract class AbstractAnalysis {
 
         issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
+          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
           file
         );
-        acceptAstResponse(response, file);
+        acceptAstResponse(response.ast(), file);
       } catch (Exception e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
@@ -113,13 +113,14 @@ public abstract class AbstractAnalysis {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
+      // Also provide AST to consumers when using cached analysis
+      acceptAstResponse(cacheAnalysis.getAst(), file);
     }
 
     return issues;
   }
 
-  private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
-    Node responseAst = response.ast();
+  private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
     if (responseAst != null) {
       // When we haven't serialized the AST:
       // either because no consumer is listening

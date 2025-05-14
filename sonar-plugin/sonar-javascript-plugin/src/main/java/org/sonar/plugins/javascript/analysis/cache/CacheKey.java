@@ -62,6 +62,10 @@ class CacheKey {
     return withPrefix("js", "filemetadata");
   }
 
+  public CacheKey forAst() {
+    return withPrefix("js", "ast");
+  }
+
   CacheKey withPrefix(String... prefixes) {
     return new CacheKey(
       Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).toList(),
