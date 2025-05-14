@@ -88,6 +88,9 @@ public interface BridgeServer extends Startable {
     Map<String, AnalysisResponse> files,
     ProjectAnalysisMetaResponse meta
   ) {
+    public ProjectAnalysisOutput() {
+      this(Map.of(), new ProjectAnalysisMetaResponse());
+    }
     static ProjectAnalysisOutput fromDTO(ProjectAnalysisOutputDTO projectAnalysisOutputDTO) {
       return new ProjectAnalysisOutput(
         projectAnalysisOutputDTO.files
@@ -199,7 +202,11 @@ public interface BridgeServer extends Startable {
     boolean withWatchProgram,
     List<String> filesWithoutTypeChecking,
     List<String> programsCreated
-  ) {}
+  ) {
+    public ProjectAnalysisMetaResponse() {
+      this(false, false, List.of(), List.of());
+    }
+  }
 
   record CssAnalysisRequest(
     String filePath,
