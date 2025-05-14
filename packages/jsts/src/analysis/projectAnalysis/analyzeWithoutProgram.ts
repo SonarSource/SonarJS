@@ -31,10 +31,12 @@ export async function analyzeWithoutProgram(
   results: ProjectAnalysisOutput,
 ) {
   for (const filename of filenames) {
+    console.log('will analyze file: ' + filename);
     results.meta?.filesWithoutTypeChecking.push(filename);
     results.files[filename] = await analyzeFile({
       ...files[filename],
       ...fieldsForJsTsAnalysisInput(),
     });
+    console.log('finished file: ' + filename);
   }
 }

@@ -100,7 +100,9 @@ export async function handleRequest(
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
+        logHeapStatistics(workerData?.debugMemory);
         const output = await analyzeProject(request.data);
+        logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
       }
       case 'on-get-telemetry': {
