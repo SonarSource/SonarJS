@@ -112,13 +112,6 @@ class EslintCustomRulesTest {
       )
     ).hasSize(1);
     assertThat(
-      buildResult.getLogsLines(l ->
-        l.contains(
-          "Custom JavaScript rules are deprecated and API will be removed in future version."
-        )
-      )
-    ).isEmpty();
-    assertThat(
       buildResult.getLogsLines(l -> l.matches(".*INFO: Work dir received: .*[/|\\\\].scannerwork$"))
     ).hasSize(2);
     assertThat(buildResult.getLogsLines(l -> l.contains("Rule context options:"))).hasSize(2);

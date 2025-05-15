@@ -116,7 +116,7 @@ class TsConfigProviderTest {
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
-      "Resolving TSConfig files using 'custom.tsconfig.json' from property " + TSCONFIG_PATHS
+      "Resolving provided TSConfig files using 'custom.tsconfig.json'"
     );
   }
 
@@ -159,8 +159,7 @@ class TsConfigProviderTest {
       baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
     );
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
-      "Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " +
-      TSCONFIG_PATHS
+      "Resolving provided TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json'"
     );
   }
 
@@ -202,7 +201,7 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(ctx, this::tsConfigFileCreator);
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
-      "Resolving TSConfig files using 'tsconfig.json' from property " + TSCONFIG_PATHS
+      "Resolving provided TSConfig files using 'tsconfig.json'"
     );
   }
 

@@ -20,7 +20,7 @@
 import tmp from 'tmp';
 import { TsConfigJson } from 'type-fest';
 import fs from 'node:fs/promises';
-import { debug } from '../../../../shared/src/helpers/logging.js';
+import { debug, info } from '../../../../shared/src/helpers/logging.js';
 import { Cache } from './tsconfigCache.js';
 import { getFilenames, getFilesCount } from './files.js';
 import {
@@ -99,22 +99,27 @@ export async function initializeTsConfigs(
   } else if (foundLookupTsConfigPaths.length) {
     origin = 'lookup';
   } else {
-    const fallbackTsConfigs = [];
-    if (isSonarLint()) {
-      if (getFilesCount() < maxFilesForTypeChecking()) {
-        const { filename } = await writeTSConfigFile(
-          createTSConfigFile(undefined, [baseDir + '/**/*']),
-        );
-        fallbackTsConfigs.push(filename);
-      }
-    } else {
-      const { filename } = await writeTSConfigFile(
-        createTSConfigFile(getFilenames().filter(filename => isJsTsFile(filename))),
-      );
-      fallbackTsConfigs.push(filename);
-    }
-    cacheMap.fallback.initializeOriginalTsConfigs(fallbackTsConfigs);
+    cacheMap.fallback.initializeOriginalTsConfigs(await getFallbackTsConfig(baseDir));
     origin = 'fallback';
+  }
+  info(`Found ${getTsConfigs().length} tsconfig.json file(s): [${getTsConfigs().join(', ')}]`);
+}
+
+async function getFallbackTsConfig(baseDir: string): Promise<string | undefined> {
+  if (isSonarLint()) {
+    if (getFilesCount() < maxFilesForTypeChecking()) {
+      const { filename } = await writeTSConfigFile(
+        createTSConfigFile(undefined, [baseDir + '/**/*']),
+      );
+      info(`Using generated tsconfig.json file ${filename}`);
+      return filename;
+    }
+  } else {
+    const { filename } = await writeTSConfigFile(
+      createTSConfigFile(getFilenames().filter(filename => isJsTsFile(filename))),
+    );
+    info(`Using generated tsconfig.json file using wildcards ${filename}`);
+    return filename;
   }
 }
 

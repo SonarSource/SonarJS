@@ -114,13 +114,11 @@ class TypeScriptAnalysisTest {
     Path tsconfig = PROJECT_DIR.getCanonicalFile().toPath().resolve("custom.tsconfig.json");
     assertThat(
       result.getLogsLines(l ->
-        l.contains(
-          "Resolving TSConfig files using 'custom.tsconfig.json' from property sonar.typescript.tsconfigPath"
-        )
+        l.contains("Resolving provided TSConfig files using 'custom.tsconfig.json'")
       )
     ).hasSize(1);
     assertThat(
-      result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]"))
+      result.getLogsLines(l -> l.contains("Found 1 tsconfig.json file(s): [" + tsconfig + "]"))
     ).hasSize(1);
   }
 
@@ -152,7 +150,7 @@ class TypeScriptAnalysisTest {
       projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json"))
     );
     assertThat(
-      result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): " + tsconfigs))
+      result.getLogsLines(l -> l.contains("Found 2 tsconfig.json file(s): " + tsconfigs))
     ).hasSize(1);
   }
 
