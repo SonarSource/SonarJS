@@ -86,6 +86,21 @@ describe('analyzeProject', () => {
       }),
     );
   });
+
+  it('should handle references in tsconfig.json', async () => {
+    const baseDir = join(fixtures, 'referenced-tsconfigs');
+    const result = await analyzeProject({
+      rules: defaultRules,
+      baseDir,
+    });
+    expect(result.meta.withProgram).toEqual(true);
+    expect(Object.keys(result.files)).toEqual(
+      expect.arrayContaining([
+        toUnixPath(join(baseDir, 'dir/file.ts')),
+        toUnixPath(join(baseDir, 'file.ts')),
+      ]),
+    );
+  });
 });
 
 const defaultRules: RuleConfig[] = [
