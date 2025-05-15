@@ -496,7 +496,6 @@ promote_task:
     - plugin_qa_with_node
     - plugin_qa_no_node
     - plugin_qa_no_node_alpine
-    - plugin_qa_sq_dev
     - plugin_qa_win
     - plugin_qa_win_sonarlint
     - css_ruling
