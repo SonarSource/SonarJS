@@ -31,7 +31,7 @@ const eslintPluginDependencies = [
 ];
 
 const fixedVersions = {
-  typescript: '^5',
+  typescript: '>=5',
 };
 
 const mainPackageJson = JSON.parse(
