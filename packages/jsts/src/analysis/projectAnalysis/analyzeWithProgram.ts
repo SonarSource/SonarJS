@@ -20,6 +20,7 @@ import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
+import ts from 'typescript';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -56,7 +57,7 @@ async function analyzeProgram(
   }
   processedTSConfigs.add(tsConfig);
   info('Creating TypeScript program');
-  info(`TypeScript configuration file ${tsConfig}`);
+  info(`TypeScript(${ts.version}) configuration file ${tsConfig}`);
   let filenames, programId, projectReferences, missingTsConfig;
   try {
     ({
@@ -67,6 +68,9 @@ async function analyzeProgram(
     } = createAndSaveProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
+    results.meta.warnings.push(
+      `Failed to create TypeScript program with TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}.`,
+    );
     return;
   }
   if (missingTsConfig) {
