@@ -18,7 +18,7 @@
     "create-rule-indexes": "tsx tools/generate-rule-indexes.ts",
     "bridge:compile": "tsc -b packages && npm run _:bridge:copy-protofiles",
     "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test --test-concurrency=4 --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
-    "bridge:test:js": "tsx tools/copy-test-resources.ts && node --test --test-concurrency=4 --test-reporter spec --test-reporter-destination stdout \"lib/*/src/rules/*[!node_modules]/**/*.test.js\" \"lib/*[!ruling]/tests/**/*.test.js\"",
+    "bridge:test:js": "tsx tools/copy-test-resources.ts && node --test --enable-source-maps --test-concurrency=4 --test-reporter spec --test-reporter-destination stdout \"lib/*/src/rules/*[!node_modules]/**/*.test.js\" \"lib/*[!ruling]/tests/**/*.test.js\"",
     "bridge:test:cov": "cross-env 'NODE_OPTIONS=--import ./tools/nyc-esm-hook-loader.js' nyc npm run bridge:test:js",
     "bridge:bundle": "node esbuild.mjs",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
