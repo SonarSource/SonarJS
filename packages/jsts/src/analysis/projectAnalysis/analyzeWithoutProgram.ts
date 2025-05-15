@@ -17,7 +17,7 @@
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
-import { info } from '../../../../shared/src/helpers/logging.js';
+import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 
 /**
@@ -34,7 +34,7 @@ export async function analyzeWithoutProgram(
   baseDir: string,
 ) {
   for (const filename of filenames) {
-    info(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
+    debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
     results.meta?.filesWithoutTypeChecking.push(filename);
     results.files[filename] = await analyzeFile({
       ...files[filename],

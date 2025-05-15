@@ -38,7 +38,6 @@ import { info } from '../../../../shared/src/helpers/logging.js';
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
-  info(`${Object.keys(files ?? {}).length} source files to be analyzed`);
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -60,7 +59,8 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     rulesWorkdir,
   });
   await loadFiles(normalizedBaseDir, files);
-  const filesToAnalyze = files ?? getFiles();
+  const filesToAnalyze = getFiles();
+  info(`${getFilesCount()} source files to be analyzed`);
   if (getFilesCount()) {
     const filePathsToAnalyze = Object.keys(filesToAnalyze);
     const pendingFiles = new Set(filePathsToAnalyze);
