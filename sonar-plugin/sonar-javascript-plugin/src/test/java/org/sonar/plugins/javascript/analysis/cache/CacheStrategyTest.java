@@ -123,7 +123,8 @@ class CacheStrategyTest {
     context = new JsTsContext<SensorContext>(sensorContext);
     serialization = new CacheAnalysisSerialization(
       sensorContext,
-      CacheKey.forFile(inputFile, PLUGIN_VERSION)
+      CacheKey.forFile(inputFile, PLUGIN_VERSION),
+      false
     );
 
     jsonCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION)

@@ -22,9 +22,13 @@ import com.google.protobuf.MessageLite;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 
 public class ProtobufSerialization<T extends MessageLite> extends CacheSerialization {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ProtobufSerialization.class);
 
   private final Class<T> clazz;
   private final Function<byte[], T> parser;
@@ -49,9 +53,8 @@ public class ProtobufSerialization<T extends MessageLite> extends CacheSerializa
     }
   }
 
-  void writeToCache(T message) throws IOException {
-    //        writeToFile(message.toByteArray());
+  void writeToCache(T message) {
     getContext().nextCache().write(getCacheKey().toString(), message.toByteArray());
-    //        getContext().nextCache().copyFromPrevious(getCacheKey().toString());
+    LOG.debug("Cache entry created for key '{}'", getCacheKey());
   }
 }

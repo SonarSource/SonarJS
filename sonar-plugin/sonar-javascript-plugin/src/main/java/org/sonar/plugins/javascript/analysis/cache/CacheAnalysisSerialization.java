@@ -29,8 +29,9 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
   private final ProtobufSerialization<Node> astSerialization;
+  private final boolean needsAsts;
 
-  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
+  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey, boolean needsAsts) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
@@ -51,15 +52,18 @@ public class CacheAnalysisSerialization extends CacheSerialization {
       context,
       cacheKey.forAst()
     );
+    this.needsAsts = needsAsts;
   }
 
   @Override
   boolean isInCache() {
-    return (
-      ucfgFileSerialization.isInCache() &&
-      astSerialization.isInCache() &&
-      cpdSerialization.isInCache()
-    );
+    boolean result = cpdSerialization.isInCache();
+    if (needsAsts) {
+      result = result && astSerialization.isInCache();
+    } else {
+      result = result && ucfgFileSerialization.isInCache();
+    }
+    return result;
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {

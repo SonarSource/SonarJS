@@ -103,7 +103,7 @@ public class JsTsContext<T extends SensorContext> {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 
-  private boolean isSonarJasminEnabled() {
+  public boolean isSonarJasminEnabled() {
     return !context.config().getBoolean(JASMIN_INTERNAL_DISABLED).orElse(false);
   }
 

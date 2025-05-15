@@ -76,7 +76,11 @@ public class CacheStrategies {
     }
 
     var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
-    var serialization = new CacheAnalysisSerialization(context.getSensorContext(), cacheKey);
+    var serialization = new CacheAnalysisSerialization(
+      context.getSensorContext(),
+      cacheKey,
+      context.isSonarJasminEnabled()
+    );
 
     if (context.getAnalysisMode() == AnalysisMode.DEFAULT) {
       var strategy = writeOnly(serialization);
