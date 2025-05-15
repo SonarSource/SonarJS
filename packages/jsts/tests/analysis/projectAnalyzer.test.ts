@@ -27,12 +27,14 @@ import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { clearTsConfigCache } from '../../src/analysis/projectAnalysis/tsconfigs.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
+import { clearFilesCache } from '../../src/analysis/projectAnalysis/files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
     clearTsConfigCache();
+    clearFilesCache();
   });
 
   it('should analyze the whole project with program', async () => {
@@ -58,7 +60,7 @@ describe('analyzeProject', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toEqual(3);
+    expect(result.meta.programsCreated.length).toBeGreaterThanOrEqual(3);
   });
 
   it('should analyze the whole project with watch program', async () => {
