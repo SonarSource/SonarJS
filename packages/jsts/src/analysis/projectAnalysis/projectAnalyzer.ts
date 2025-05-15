@@ -27,7 +27,7 @@ import {
   getEnvironments,
 } from '../../../../shared/src/helpers/configuration.js';
 import { loadFiles } from './files-finder.js';
-import { getFiles, getFilesCount } from './files.js';
+import { getFiles, getFilesCount, getFilenames } from './files.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
@@ -63,8 +63,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const filesToAnalyze = getFiles();
   const progressReport = new ProgressReport(getFilesCount());
   if (getFilesCount()) {
-    const filePathsToAnalyze = Object.keys(filesToAnalyze);
-    const pendingFiles = new Set(filePathsToAnalyze);
+    const pendingFiles = new Set(getFilenames());
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
       await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);
