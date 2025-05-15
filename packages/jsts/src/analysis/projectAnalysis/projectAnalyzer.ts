@@ -29,6 +29,7 @@ import {
 import { loadFiles } from './files-finder.js';
 import { getFiles, getFilesCount } from './files.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
+import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -60,25 +61,24 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   });
   await loadFiles(normalizedBaseDir, files);
   const filesToAnalyze = getFiles();
-  info(`${getFilesCount()} source files to be analyzed`);
+  const progressReport = new ProgressReport(getFilesCount());
   if (getFilesCount()) {
     const filePathsToAnalyze = Object.keys(filesToAnalyze);
     const pendingFiles = new Set(filePathsToAnalyze);
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
-      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles);
+      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);
     } else {
       results.meta.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, results, pendingFiles);
+      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport);
     }
     if (pendingFiles.size) {
       info(
         `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
       );
-      await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results, baseDir);
+      await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results, baseDir, progressReport);
     }
   }
-  const analyzedFileCount = Object.keys(results.files).length;
-  info(`${analyzedFileCount}/${analyzedFileCount} source files have been analyzed`);
+  progressReport.stop();
   return results;
 }
