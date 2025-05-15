@@ -197,7 +197,7 @@ public class EmbeddedNode {
         extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
       }
       // we try to run 'node -v' to test that node is working
-      var detected = NodeVersion.getVersion(processWrapper, binary().toString());
+      var detected = NodeVersion.getVersion(processWrapper, binary().toString(), false);
       LOG.debug("Deployed node version {}", detected);
       isAvailable = true;
     } catch (Exception e) {

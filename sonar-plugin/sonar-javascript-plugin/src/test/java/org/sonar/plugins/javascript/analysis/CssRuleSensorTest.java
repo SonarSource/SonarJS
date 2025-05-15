@@ -99,7 +99,7 @@ class CssRuleSensorTest {
   private CssRuleSensor sensor;
 
   @BeforeEach
-  public void setUp() throws IOException {
+  void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeCss(any())).thenReturn(
@@ -179,7 +179,7 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void test_execute() throws IOException {
+  void test_execute() {
     addInputFile("file.css");
     sensor.execute(context);
 
@@ -267,14 +267,35 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void should_not_analyze_files_with_not_file_uri() throws URISyntaxException, IOException {
+  void should_not_analyze_non_file_input() throws URISyntaxException {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
+    when(httpFile.relativePath()).thenReturn(
+      new URI("http://lost-on-earth.com/file.css").toString()
+    );
     sensor.analyzeFile(httpFile, new JsTsContext<SensorContext>(context), Collections.emptyList());
     assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
-      .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
+      .matches("(?s).*Skipping \\S*file.css as it is not a file.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");
+  }
+
+  @Test
+  void should_analyze_input_file_with_different_scheme() throws URISyntaxException {
+    InputFile tmpFile = mock(DefaultInputFile.class);
+    when(tmpFile.filename()).thenReturn("file.css");
+    when(tmpFile.uri()).thenReturn(new URI("tmp://file.css"));
+    when(tmpFile.relativePath()).thenReturn(new URI("tmp://file.css").toString());
+    when(tmpFile.isFile()).thenReturn(true);
+    sensor.analyzeFile(tmpFile, new JsTsContext<SensorContext>(context), Collections.emptyList());
+
+    assertThat(context.allIssues()).hasSize(1);
+    assertThat(context.allIssues())
+      .extracting("primaryLocation.message")
+      .containsOnly("Unexpected empty block");
+    assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
+      .matches("(?s).*Analyzing file: \\S*file\\.css.*")
+      .matches("(?s).*Found 1 issue\\(s\\).*");
   }
 
   @Test
