@@ -16,22 +16,20 @@
  */
 package org.sonar.plugins.javascript.analysis.cache;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
-  private final ProtobufSerialization<Node> astSerialization;
-  private final boolean needsAsts;
+  private final AstProtobufSerialization astSerialization;
+  private final boolean needsAstsOverUcfgs;
 
-  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey, boolean needsAsts) {
+  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey, boolean needsAstsOverUcfgs) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
@@ -40,27 +38,14 @@ public class CacheAnalysisSerialization extends CacheSerialization {
       context,
       cacheKey.forFileMetadata()
     );
-    // TODO: no need to make it generic for now
-    astSerialization = new ProtobufSerialization<>(
-      Node.class,
-      bytes -> {
-        try {
-          // TODO: check if something needs to be done regarding recursion limit
-          return Node.parseFrom(bytes);
-        } catch (InvalidProtocolBufferException e) {
-          throw new RuntimeException("Failed to parse Node from protobuf", e);
-        }
-      },
-      context,
-      cacheKey.forAst()
-    );
-    this.needsAsts = needsAsts;
+    astSerialization = new AstProtobufSerialization(context, cacheKey.forAst());
+    this.needsAstsOverUcfgs = needsAstsOverUcfgs;
   }
 
   @Override
   boolean isInCache() {
     boolean result = cpdSerialization.isInCache();
-    if (needsAsts) {
+    if (needsAstsOverUcfgs) {
       result = result && astSerialization.isInCache();
     } else {
       result = result && ucfgFileSerialization.isInCache();
