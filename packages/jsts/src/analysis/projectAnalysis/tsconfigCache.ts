@@ -75,9 +75,13 @@ export class Cache {
     return null;
   }
 
-  initializeOriginalTsConfigs(tsconfigs: string[]) {
+  initializeOriginalTsConfigs(tsconfigs: string[] | string | undefined) {
     this.initialized = true;
-    this.originalTsConfigFiles = tsconfigs;
+    if (tsconfigs) {
+      this.originalTsConfigFiles = Array.isArray(tsconfigs) ? tsconfigs : [tsconfigs];
+    } else {
+      this.originalTsConfigFiles = [];
+    }
     this.clearFileToTsConfigCache();
   }
 

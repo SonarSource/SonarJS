@@ -140,11 +140,7 @@ public class TsConfigProvider {
       if (tsconfigPaths.isEmpty()) {
         return emptyList();
       }
-      LOG.info(
-        "Resolving TSConfig files using '{}' from property {}",
-        String.join(",", tsconfigPaths),
-        TSCONFIG_PATHS
-      );
+      LOG.info("Resolving provided TSConfig files using '{}'", String.join(",", tsconfigPaths));
       File baseDir = context.getSensorContext().fileSystem().baseDir();
 
       List<String> tsconfigs = new ArrayList<>();
@@ -165,7 +161,7 @@ public class TsConfigProvider {
           tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).toList());
         }
       }
-      LOG.info("Found {} TSConfig file(s): {}", tsconfigs.size(), tsconfigs);
+      LOG.info("Found {} tsconfig.json file(s): {}", tsconfigs.size(), tsconfigs);
 
       return tsconfigs;
     }

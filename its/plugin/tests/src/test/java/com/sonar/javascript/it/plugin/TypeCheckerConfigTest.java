@@ -75,7 +75,7 @@ class TypeCheckerConfigTest {
       "tsconfig.json,tsconfig.es6.json"
     );
     BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
-      .logsOnce("Found 2 TSConfig file(s)")
+      .logsOnce("Found 2 tsconfig.json file(s)")
       .doesNotLog("INFO: Skipped");
 
     assertThat(getIssues(key))
@@ -109,7 +109,7 @@ class TypeCheckerConfigTest {
       "src/tsconfig.json"
     );
     BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild)).logsOnce(
-      "Found 1 TSConfig file(s)"
+      "Found 1 tsconfig.json file(s)"
     );
 
     assertThat(getIssues(key))

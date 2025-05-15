@@ -28,6 +28,7 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { loadFiles } from './files-finder.js';
 import { getFiles, getFilesCount } from './files.js';
+import { info } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -36,7 +37,8 @@ import { getFiles, getFilesCount } from './files.js';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, baseDir, files, configuration = {}, bundles = [] } = input;
+  const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
+  info(`${Object.keys(files ?? {}).length} source files to be analyzed`);
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
@@ -55,6 +57,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     sonarlint: isSonarLint(),
     bundles,
     baseDir: normalizedBaseDir,
+    rulesWorkdir,
   });
   await loadFiles(normalizedBaseDir, files);
   const filesToAnalyze = files ?? getFiles();
@@ -68,7 +71,14 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       results.meta.withProgram = true;
       await analyzeWithProgram(filesToAnalyze, results, pendingFiles);
     }
-    await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results);
+    if (pendingFiles.size) {
+      info(
+        `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
+      );
+      await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results, baseDir);
+    }
   }
+  const analyzedFileCount = Object.keys(results.files).length;
+  info(`${analyzedFileCount}/${analyzedFileCount} source files have been analyzed`);
   return results;
 }

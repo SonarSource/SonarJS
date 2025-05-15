@@ -17,6 +17,8 @@
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
+import { info } from '../../../../shared/src/helpers/logging.js';
+import { relative } from 'node:path/posix';
 
 /**
  * Analyzes files without type-checking.
@@ -29,14 +31,14 @@ export async function analyzeWithoutProgram(
   filenames: Set<string>,
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
+  baseDir: string,
 ) {
   for (const filename of filenames) {
-    console.log('will analyze file: ' + filename);
+    info(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
     results.meta?.filesWithoutTypeChecking.push(filename);
     results.files[filename] = await analyzeFile({
       ...files[filename],
       ...fieldsForJsTsAnalysisInput(),
     });
-    console.log('finished file: ' + filename);
   }
 }

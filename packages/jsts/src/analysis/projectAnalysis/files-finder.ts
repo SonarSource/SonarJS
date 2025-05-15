@@ -31,7 +31,7 @@ import { readFile } from 'node:fs/promises';
 import { accept } from './filter/filter.js';
 import { initializeTsConfigs, TSCONFIG_JSON, tsConfigCacheInitialized } from './tsconfigs.js';
 import { fileCacheInitialized, setFiles } from './files.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { Minimatch } from 'minimatch';
 
 type FilterSearch = {
@@ -62,6 +62,9 @@ export async function loadFiles(baseDir: string, inputFiles?: JsTsFiles) {
       pattern: new Minimatch(tsConfig.trim(), { nocase: true, matchBase: true, dot: true }),
     };
   });
+  if (providedTsConfigs.length) {
+    info(`Resolving provided TSConfig files using '${getTsConfigPaths().join(',')}'`);
+  }
 
   const testPaths = getTestPaths()?.map(test => toUnixPath(join(baseDir, test)));
 

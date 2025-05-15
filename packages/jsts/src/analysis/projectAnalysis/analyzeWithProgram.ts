@@ -17,7 +17,7 @@
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
-import { error, info } from '../../../../shared/src/helpers/logging.js';
+import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
 
@@ -55,15 +55,24 @@ async function analyzeProgram(
     return;
   }
   processedTSConfigs.add(tsConfig);
-  console.info('in analyze program ' + JSON.stringify(files));
   info('Creating TypeScript program');
   info(`TypeScript configuration file ${tsConfig}`);
-  let filenames, programId, projectReferences;
+  let filenames, programId, projectReferences, missingTsConfig;
   try {
-    ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
+    ({
+      files: filenames,
+      programId,
+      projectReferences,
+      missingTsConfig,
+    } = createAndSaveProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
     return;
+  }
+  if (missingTsConfig) {
+    warn(
+      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
+    );
   }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
