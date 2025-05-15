@@ -133,7 +133,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -X -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
@@ -149,7 +149,7 @@ plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -X -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
   eks_container:
@@ -404,7 +404,7 @@ ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn test -X -Dtest=JsTsRulingTest -P${ANALYZE_PROJECT_PROFILE} -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn test -Dtest=JsTsRulingTest -P${ANALYZE_PROJECT_PROFILE} -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
