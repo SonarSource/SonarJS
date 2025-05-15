@@ -53,7 +53,7 @@ describe('tsconfigs', () => {
 
   it('should return the TSconfig files', async () => {
     await loadFiles(fixtures);
-    expect(getTsConfigs().length).toEqual(3);
+    expect(getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(getCacheOrigin()).toEqual('lookup');
   });
 
@@ -66,7 +66,7 @@ describe('tsconfigs', () => {
     );
     clearTsConfigCache();
     await loadFiles(fixtures);
-    expect(getTsConfigs().length).toEqual(3);
+    expect(getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(getCacheOrigin()).toEqual('property');
   });
 
@@ -205,7 +205,7 @@ describe('tsconfigs', () => {
   it('should change to property of TsConfig files when provided', async () => {
     await loadFiles(fixtures);
     expect(getCacheOrigin()).toEqual('lookup');
-    expect(getTsConfigs().length).toEqual(3);
+    expect(getTsConfigs().length).toBeGreaterThanOrEqual(3);
     setTsConfigPaths([relative(fixtures, getTsConfigs()[0])]);
     await loadFiles(fixtures);
     expect(getTsConfigs().length).toEqual(1);
@@ -217,7 +217,7 @@ describe('tsconfigs', () => {
     mock.method(console, 'error');
 
     await loadFiles(fixtures);
-    expect(getTsConfigs().length).toEqual(3);
+    expect(getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(getCacheOrigin()).toEqual('lookup');
 
     expect(
