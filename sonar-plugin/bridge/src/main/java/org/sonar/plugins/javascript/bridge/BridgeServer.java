@@ -135,7 +135,7 @@ public interface BridgeServer extends Startable {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
-    private ProjectAnalysisConfiguration configuration;
+    public ProjectAnalysisConfiguration configuration;
     private String baseDir;
     private List<String> bundles;
     private String rulesWorkdir;
