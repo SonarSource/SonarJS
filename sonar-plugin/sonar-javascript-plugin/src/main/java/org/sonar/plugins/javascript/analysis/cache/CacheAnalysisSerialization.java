@@ -40,10 +40,12 @@ public class CacheAnalysisSerialization extends CacheSerialization {
       context,
       cacheKey.forFileMetadata()
     );
+    // TODO: no need to make it generic for now
     astSerialization = new ProtobufSerialization<>(
       Node.class,
       bytes -> {
         try {
+          // TODO: check if something needs to be done regarding recursion limit
           return Node.parseFrom(bytes);
         } catch (InvalidProtocolBufferException e) {
           throw new RuntimeException("Failed to parse Node from protobuf", e);
