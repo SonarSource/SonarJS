@@ -15,45 +15,39 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { createProgramOptions } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
-import { clearTypeScriptESLintParserCaches } from '../../parsers/eslint.js';
-import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
+import {
+  fieldsForJsTsAnalysisInput,
+  isJsTsFile,
+} from '../../../../shared/src/helpers/configuration.js';
+import { getTsConfigForInputFile } from './tsconfigs.js';
 
 /**
- * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files
- * belonging to the given tsconfig.json files will be analyzed. We rely on the
- * typescript-eslint programCreation for this.
+ * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
+ * of creating the program manually.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
- * @param tsConfigs list of tsconfig.json files to use for the analysis
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  */
 export async function analyzeWithWatchProgram(
   files: JsTsFiles,
-  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for await (const tsConfig of tsConfigs) {
-    const options = createProgramOptions(tsConfig);
-    const filenames = options.rootNames;
-    for (const filename of filenames) {
-      // only analyze files which are requested
-      if (files[filename] && pendingFiles.has(filename)) {
-        results.files[filename] = await analyzeFile({
-          ...files[filename],
-          tsConfigs: [tsConfig],
-          ...fieldsForJsTsAnalysisInput(),
-        });
-        pendingFiles.delete(filename);
+  for (const [filename, file] of Object.entries(files)) {
+    if (isJsTsFile(filename)) {
+      const tsconfig = getTsConfigForInputFile(filename);
+      results.files[filename] = await analyzeFile({
+        ...file,
+        tsConfigs: tsconfig ? [tsconfig] : undefined,
+        ...fieldsForJsTsAnalysisInput(),
+      });
+      pendingFiles.delete(filename);
+      if (!pendingFiles.size) {
+        break;
       }
-    }
-    clearTypeScriptESLintParserCaches();
-    if (!pendingFiles.size) {
-      break;
     }
   }
 }

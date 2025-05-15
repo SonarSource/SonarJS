@@ -22,7 +22,7 @@ import { Configuration } from 'shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisOutput = {
   files: { [key: string]: FileResult };
-  meta?: {
+  meta: {
     withProgram: boolean;
     withWatchProgram: boolean;
     filesWithoutTypeChecking: string[];
