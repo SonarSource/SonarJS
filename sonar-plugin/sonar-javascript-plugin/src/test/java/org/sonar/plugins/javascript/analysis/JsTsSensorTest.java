@@ -40,8 +40,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +94,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisOutput;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
@@ -102,6 +106,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
@@ -149,6 +154,7 @@ class JsTsSensorTest {
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(new ProjectAnalysisOutput());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
@@ -340,6 +346,70 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_analyse_project() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+    DefaultInputFile inputFile = createInputFile(ctx);
+
+    var expectedResponse = createProjectResponse(List.of(inputFile));
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(expectedResponse);
+
+    sensor.execute(ctx);
+    assertThat(ctx.allIssues()).hasSize(
+      expectedResponse.files().get(inputFile.absolutePath()).issues().size()
+    );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      String.format("Saving issue for rule S3923 on file %s at line 1", inputFile)
+    );
+
+    Iterator<Issue> issues = ctx.allIssues().iterator();
+    Issue firstIssue = issues.next();
+    Issue secondIssue = issues.next();
+
+    IssueLocation location = firstIssue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Issue message");
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4))
+    );
+
+    location = secondIssue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Line issue message");
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9))
+    );
+
+    assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
+    assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
+
+    assertThat(ctx.highlightingTypeAt(inputFile.key(), 1, 0)).isNotEmpty();
+    assertThat(ctx.highlightingTypeAt(inputFile.key(), 1, 0).get(0)).isEqualTo(TypeOfText.KEYWORD);
+    assertThat(ctx.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
+    assertThat(ctx.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(TypeOfText.CONSTANT);
+    assertThat(ctx.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
+
+    Collection<TextRange> symbols = ctx.referencesForSymbolAt(inputFile.key(), 1, 3);
+    assertThat(symbols).hasSize(1);
+    assertThat(symbols.iterator().next()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(2, 1), new DefaultTextPointer(2, 5))
+    );
+
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.STATEMENTS).value()).isEqualTo(2);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.CLASSES).value()).isEqualTo(3);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(3);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
+    assertThat(ctx.measure(inputFile.key(), CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(5);
+
+    assertThat(ctx.cpdTokens(inputFile.key())).hasSize(2);
+  }
+
+  @Test
   void should_explode_if_no_response() throws Exception {
     createVueInputFile();
     when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IllegalStateException("error"));
@@ -357,6 +427,25 @@ class JsTsSensorTest {
       "Failed to get response while analyzing " + inputFile.uri()
     );
     assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void should_explode_if_no_response_from_project_analysis() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    createVueInputFile();
+    when(bridgeServerMock.analyzeProject(any())).thenThrow(new IllegalStateException("error"));
+
+    JsTsSensor sensor = createProjectSensor();
+    DefaultInputFile inputFile = createInputFile(ctx);
+    assertThatThrownBy(() -> sensor.execute(ctx))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed");
+
+    assertThat(logTester.logs(Level.ERROR)).contains("Failed to get response from analysis");
+    assertThat(ctx.allIssues()).isEmpty();
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
@@ -513,9 +602,11 @@ class JsTsSensorTest {
   void should_send_the_skipAst_flag_when_there_are_consumers_but_armor_is_disabled()
     throws Exception {
     var ctx = createSensorContext(baseDir);
-    ctx.setSettings(new MapSettings()
-      .setProperty("sonar.armor.internal.enabled", "false")
-      .setProperty("sonar.jasmin.internal.disabled", "true"));
+    ctx.setSettings(
+      new MapSettings()
+        .setProperty("sonar.armor.internal.enabled", "false")
+        .setProperty("sonar.jasmin.internal.disabled", "true")
+    );
     var inputFile = createInputFile(ctx);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
@@ -990,6 +1081,7 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers(List.of(consumer))
     );
 
@@ -1071,6 +1163,109 @@ class JsTsSensorTest {
     );
   }
 
+  @Test
+  void should_invoke_analysis_consumers_when_analyzing_project() throws Exception {
+    var consumer = new JsAnalysisConsumer() {
+      final List<JsFile> files = new ArrayList<>();
+      boolean done;
+
+      @Override
+      public void accept(JsFile jsFile) {
+        files.add(jsFile);
+      }
+
+      @Override
+      public void doneAnalysis() {
+        done = true;
+      }
+    };
+
+    var sensor = new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      null,
+      processAnalysis,
+      new AnalysisConsumers(List.of(consumer)),
+      new FSListenerImpl()
+    );
+
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+
+    var inputFile = createInputFile(ctx);
+
+    Program program = Program.newBuilder().build();
+    Node placeHolderNode = Node.newBuilder()
+      .setType(NodeType.ProgramType)
+      .setProgram(program)
+      .setLoc(
+        SourceLocation.newBuilder()
+          .setStart(Position.newBuilder().setLine(1).setColumn(1))
+          .setEnd(Position.newBuilder().setLine(1).setColumn(1))
+      )
+      .build();
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+      createProjectResponseWithAst(inputFile, placeHolderNode)
+    );
+
+    sensor.execute(ctx);
+    var captor = ArgumentCaptor.forClass(ProjectAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeProject(captor.capture());
+    assertThat(captor.getValue().configuration.skipAst()).isFalse();
+    assertThat(consumer.files).hasSize(1);
+    assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
+    assertThat(consumer.done).isTrue();
+  }
+
+  @Test
+  void should_not_invoke_analysis_consumers_when_cannot_deserialize_project_analysis()
+    throws Exception {
+    var consumer = new JsAnalysisConsumer() {
+      final List<JsFile> files = new ArrayList<>();
+      boolean done;
+
+      @Override
+      public void accept(JsFile jsFile) {
+        files.add(jsFile);
+      }
+
+      @Override
+      public void doneAnalysis() {
+        done = true;
+      }
+    };
+
+    var sensor = new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      null,
+      processAnalysis,
+      new AnalysisConsumers(List.of(consumer)),
+      new FSListenerImpl()
+    );
+
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
+    var inputFile = createInputFile(ctx);
+
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+      createProjectResponseWithAst(inputFile, erroneousNode)
+    );
+
+    sensor.execute(ctx);
+    assertThat(consumer.files).isEmpty();
+    assertThat(consumer.done).isTrue();
+
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Failed to deserialize AST for file: " + inputFile.uri()
+    );
+  }
+
   private JsAnalysisConsumer createConsumer() {
     return new JsAnalysisConsumer() {
       final List<JsFile> files = new ArrayList<>();
@@ -1097,6 +1292,7 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers(List.of(consumer))
     );
   }
@@ -1106,6 +1302,7 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
+      processAnalysis,
       new AnalysisConsumers()
     );
   }
@@ -1115,7 +1312,19 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithWatchProgram(),
+      processAnalysis,
       new AnalysisConsumers()
+    );
+  }
+
+  private JsTsSensor createProjectSensor() {
+    return new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      null,
+      processAnalysis,
+      new AnalysisConsumers(),
+      new FSListenerImpl()
     );
   }
 
@@ -1130,6 +1339,42 @@ class JsTsSensorTest {
       analysisWarnings,
       tsConfigCache
     );
+  }
+
+  private ProjectAnalysisOutput createProjectResponse(List<InputFile> files) {
+    return new ProjectAnalysisOutput(
+      createFilesMap(files),
+      new BridgeServer.ProjectAnalysisMetaResponse()
+    );
+  }
+
+  private ProjectAnalysisOutput createProjectResponseWithAst(InputFile inputFile, Node node) {
+    var analysisResponse = new AnalysisResponse(
+      null,
+      List.of(),
+      List.of(),
+      List.of(),
+      new BridgeServer.Metrics(),
+      List.of(),
+      List.of(),
+      node
+    );
+
+    var files = new HashMap<String, AnalysisResponse>() {
+      {
+        put(inputFile.absolutePath(), analysisResponse);
+      }
+    };
+
+    return new ProjectAnalysisOutput(files, new BridgeServer.ProjectAnalysisMetaResponse());
+  }
+
+  private Map<String, AnalysisResponse> createFilesMap(List<InputFile> files) {
+    return new HashMap<String, AnalysisResponse>() {
+      {
+        files.forEach(file -> put(file.absolutePath(), createResponse()));
+      }
+    };
   }
 
   private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {

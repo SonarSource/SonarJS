@@ -17,7 +17,7 @@
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
 
@@ -35,8 +35,9 @@ export async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
+  const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of getTsConfigs()) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles);
+    await analyzeProgram(files, tsConfig, results, pendingFiles, processedTSConfigs);
     if (!pendingFiles.size) {
       break;
     }
@@ -48,13 +49,30 @@ async function analyzeProgram(
   tsConfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  processedTSConfigs: Set<string>,
 ) {
-  let filenames, programId, projectReferences;
+  if (processedTSConfigs.has(tsConfig)) {
+    return;
+  }
+  processedTSConfigs.add(tsConfig);
+  info('Creating TypeScript program');
+  info(`TypeScript configuration file ${tsConfig}`);
+  let filenames, programId, projectReferences, missingTsConfig;
   try {
-    ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
+    ({
+      files: filenames,
+      programId,
+      projectReferences,
+      missingTsConfig,
+    } = createAndSaveProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
     return;
+  }
+  if (missingTsConfig) {
+    warn(
+      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
+    );
   }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
@@ -71,6 +89,6 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles);
+    await analyzeProgram(files, reference, results, pendingFiles, processedTSConfigs);
   }
 }

@@ -53,6 +53,7 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
+import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 public class JavaScriptPlugin implements Plugin {
@@ -347,7 +348,12 @@ public class JavaScriptPlugin implements Plugin {
       SonarLintPluginAPIVersion sonarLintPluginAPIVersion
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtensions(TsConfigCacheImpl.class, AnalysisWithWatchProgram.class);
+        //TODO feature flags should be used to just enable one of the file event listeners
+        context.addExtensions(
+          TsConfigCacheImpl.class,
+          AnalysisWithWatchProgram.class,
+          FSListenerImpl.class
+        );
       } else {
         LOG.debug("Error while trying to inject SonarLint extensions");
       }

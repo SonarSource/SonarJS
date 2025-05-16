@@ -133,7 +133,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   depends_on:
@@ -149,7 +149,7 @@ plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -P${ANALYZE_PROJECT_PROFILE} -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
   eks_container:
@@ -278,6 +278,9 @@ plugin_qa_with_node_task:
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
+    matrix:
+      - ANALYZE_PROJECT_PROFILE: analyze-project-enabled
+      - ANALYZE_PROJECT_PROFILE: analyze-project-disabled
 
 plugin_qa_no_node_task:
   <<: *PLUGIN_QA_BODY_MONTHLY
@@ -287,6 +290,9 @@ plugin_qa_no_node_task:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+    matrix:
+      - ANALYZE_PROJECT_PROFILE: analyze-project-enabled
+      - ANALYZE_PROJECT_PROFILE: analyze-project-disabled
 
 plugin_qa_no_node_alpine_task:
   <<: *PLUGIN_QA_BODY_MONTHLY
@@ -296,6 +302,9 @@ plugin_qa_no_node_alpine_task:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: linux-x64-musl
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+    matrix:
+      - ANALYZE_PROJECT_PROFILE: analyze-project-enabled
+      - ANALYZE_PROJECT_PROFILE: analyze-project-disabled
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
@@ -305,6 +314,9 @@ plugin_qa_sq_dev_task:
     SQ_VERSION: 'DEV'
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+    matrix:
+      - ANALYZE_PROJECT_PROFILE: analyze-project-enabled
+      - ANALYZE_PROJECT_PROFILE: analyze-project-disabled
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
@@ -382,6 +394,9 @@ ruling_task:
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
+    matrix:
+      - ANALYZE_PROJECT_PROFILE: analyze-project-enabled
+      - ANALYZE_PROJECT_PROFILE: analyze-project-disabled
   <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
@@ -389,7 +404,7 @@ ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn test -Dtest=JsTsRulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn test -Dtest=JsTsRulingTest -P${ANALYZE_PROJECT_PROFILE} -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
@@ -485,6 +500,7 @@ promote_task:
     - plugin_qa_win
     - plugin_qa_win_sonarlint
     - css_ruling
+    - ruling
     - js_ts_ruling
     - analyze
   <<: *ONLY_SONARSOURCE_QA

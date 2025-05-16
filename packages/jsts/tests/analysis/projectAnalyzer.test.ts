@@ -27,12 +27,14 @@ import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { clearTsConfigCache } from '../../src/analysis/projectAnalysis/tsconfigs.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
+import { clearFilesCache } from '../../src/analysis/projectAnalysis/files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
     clearTsConfigCache();
+    clearFilesCache();
   });
 
   it('should analyze the whole project with program', async () => {
@@ -58,7 +60,7 @@ describe('analyzeProject', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toEqual(3);
+    expect(result.meta.programsCreated.length).toBeGreaterThanOrEqual(3);
   });
 
   it('should analyze the whole project with watch program', async () => {
@@ -79,11 +81,28 @@ describe('analyzeProject', () => {
 
   it('should return a default result when the project is empty', async () => {
     const result = await analyzeProject(prepareInput({}));
-    expect(result).toEqual(
-      expect.objectContaining({
-        files: {},
-        meta: expect.objectContaining({}),
+    expect(result).toEqual({
+      files: {},
+      meta: expect.objectContaining({
+        withWatchProgram: false,
+        withProgram: false,
+        programsCreated: [],
       }),
+    });
+  });
+
+  it('should handle references in tsconfig.json', async () => {
+    const baseDir = join(fixtures, 'referenced-tsconfigs');
+    const result = await analyzeProject({
+      rules: defaultRules,
+      baseDir,
+    });
+    expect(result.meta.withProgram).toEqual(true);
+    expect(Object.keys(result.files)).toEqual(
+      expect.arrayContaining([
+        toUnixPath(join(baseDir, 'dir/file.ts')),
+        toUnixPath(join(baseDir, 'file.ts')),
+      ]),
     );
   });
 });

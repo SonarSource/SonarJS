@@ -66,4 +66,26 @@
     <sonar.typescript.tsconfigPath/>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>analyze-project-disabled</id>
+    </profile>
+    <profile>
+      <id>analyze-project-enabled</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0</version>
+            <configuration>
+              <systemPropertyVariables>
+                <sonar.javascript.analyzeProject.enabled>true</sonar.javascript.analyzeProject.enabled>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
