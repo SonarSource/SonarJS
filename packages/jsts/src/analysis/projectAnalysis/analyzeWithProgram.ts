@@ -69,7 +69,7 @@ async function analyzeProgram(
   } catch (e) {
     error('Failed to create program: ' + e);
     results.meta.warnings.push(
-      `Failed to create TypeScript program with TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}.`,
+      `Failed to create TypeScript program with TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}`,
     );
     return;
   }

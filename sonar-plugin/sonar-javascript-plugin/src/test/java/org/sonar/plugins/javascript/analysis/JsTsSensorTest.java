@@ -853,7 +853,7 @@ class JsTsSensorTest {
     Assertions.assertThat(analysisWarnings.warnings).anyMatch(warning ->
       warning.matches(
         String.format(
-          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is \\d.\\d.\\d.",
+          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is \\d\\.\\d\\.\\d",
           captorProgram.getAllValues().get(2).tsConfig()
         )
       )
