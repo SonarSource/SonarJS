@@ -82,6 +82,11 @@ public class CacheTestUtils {
       new ByteArrayInputStream(new byte[0])
     );
 
+    when(cache.contains("js:ast:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("js:ast:1.0:moduleKey:" + filePath)).thenReturn(
+      new ByteArrayInputStream(new byte[0])
+    );
+
     when(cache.contains("js:cpd:DATA:1.0:moduleKey:" + filePath)).thenReturn(true);
     when(cache.contains("js:cpd:STRING_TABLE:1.0:moduleKey:" + filePath)).thenReturn(true);
 
