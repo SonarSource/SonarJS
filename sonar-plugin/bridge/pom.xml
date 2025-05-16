@@ -133,6 +133,21 @@
             </configuration>
           </execution>
           <execution>
+            <id>verify-node-modules</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <arguments>
+                <argument>ci</argument>
+                <argument>--dry-run</argument>
+              </arguments>
+              <workingDirectory>../..</workingDirectory>
+            </configuration>
+          </execution>
+          <execution>
             <id>Build the bridge</id>
             <phase>generate-resources</phase>
             <goals>
