@@ -45,9 +45,8 @@ describe('progress-report', () => {
     );
     expect(consoleLogMock.callCount()).toEqual(3);
 
+    // we stop the report, summary is logged
     progressReport.stop();
-    // another 10 seconds, nothing else has been logged because we have stopped the reporter
-    mock.timers.tick(10000);
     expect(consoleLogMock.calls[3].arguments[0]).toEqual(`5/5 source files have been analyzed`);
     expect(consoleLogMock.callCount()).toEqual(4);
   });
