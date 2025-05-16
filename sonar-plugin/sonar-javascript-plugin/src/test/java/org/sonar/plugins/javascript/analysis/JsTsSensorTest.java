@@ -44,9 +44,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.error.future.Warning;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -854,7 +854,7 @@ class JsTsSensorTest {
       warning.matches(
         String.format(
           "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is \\d\\.\\d\\.\\d",
-          captorProgram.getAllValues().get(2).tsConfig()
+          Pattern.quote(captorProgram.getAllValues().get(2).tsConfig())
         )
       )
     );
