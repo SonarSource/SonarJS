@@ -1407,42 +1407,6 @@ class JsTsSensorTest {
     };
   }
 
-  private ProjectAnalysisOutput createProjectResponse(List<InputFile> files) {
-    return new ProjectAnalysisOutput(
-      createFilesMap(files),
-      new BridgeServer.ProjectAnalysisMetaResponse()
-    );
-  }
-
-  private ProjectAnalysisOutput createProjectResponseWithAst(InputFile inputFile, Node node) {
-    var analysisResponse = new AnalysisResponse(
-      null,
-      List.of(),
-      List.of(),
-      List.of(),
-      new BridgeServer.Metrics(),
-      List.of(),
-      List.of(),
-      node
-    );
-
-    var files = new HashMap<String, AnalysisResponse>() {
-      {
-        put(inputFile.absolutePath(), analysisResponse);
-      }
-    };
-
-    return new ProjectAnalysisOutput(files, new BridgeServer.ProjectAnalysisMetaResponse());
-  }
-
-  private Map<String, AnalysisResponse> createFilesMap(List<InputFile> files) {
-    return new HashMap<String, AnalysisResponse>() {
-      {
-        files.forEach(file -> put(file.absolutePath(), createResponse()));
-      }
-    };
-  }
-
   private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {
     return new AnalysisResponse(
       null,
