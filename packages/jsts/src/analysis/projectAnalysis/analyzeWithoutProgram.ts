@@ -19,6 +19,7 @@ import { analyzeFile } from './analyzeFile.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
+import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
 /**
  * Analyzes files without type-checking.
@@ -26,15 +27,19 @@ import { relative } from 'node:path/posix';
  * @param filenames the list of files to analyze.
  * @param files the list of files objects containing the files input data.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
+ * @param baseDir the base directory of the project
+ * @param progressReport progress report to log analyzed files
  */
 export async function analyzeWithoutProgram(
   filenames: Set<string>,
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   baseDir: string,
+  progressReport: ProgressReport,
 ) {
   for (const filename of filenames) {
     debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
+    progressReport.nextFile(filename);
     results.meta?.filesWithoutTypeChecking.push(filename);
     results.files[filename] = await analyzeFile({
       ...files[filename],

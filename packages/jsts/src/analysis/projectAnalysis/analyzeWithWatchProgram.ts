@@ -21,6 +21,7 @@ import {
   isJsTsFile,
 } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigForInputFile } from './tsconfigs.js';
+import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
@@ -30,15 +31,18 @@ import { getTsConfigForInputFile } from './tsconfigs.js';
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
+ * @param progressReport progress report to log analyzed files
  */
 export async function analyzeWithWatchProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  progressReport: ProgressReport,
 ) {
   for (const [filename, file] of Object.entries(files)) {
     if (isJsTsFile(filename)) {
       const tsconfig = getTsConfigForInputFile(filename);
+      progressReport.nextFile(filename);
       results.files[filename] = await analyzeFile({
         ...file,
         tsConfigs: tsconfig ? [tsconfig] : undefined,
