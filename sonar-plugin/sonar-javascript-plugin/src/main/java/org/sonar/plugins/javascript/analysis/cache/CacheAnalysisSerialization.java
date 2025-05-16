@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
@@ -44,13 +45,13 @@ public class CacheAnalysisSerialization extends CacheSerialization {
 
   @Override
   boolean isInCache() {
-    boolean result = cpdSerialization.isInCache();
+    boolean result;
     if (needsAstsOverUcfgs) {
-      result = result && astSerialization.isInCache();
+      result = astSerialization.isInCache();
     } else {
-      result = result && ucfgFileSerialization.isInCache();
+      result = ucfgFileSerialization.isInCache();
     }
-    return result;
+    return result && cpdSerialization.isInCache();
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {
@@ -62,25 +63,34 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   }
 
   CacheAnalysis readFromCache() throws IOException {
-    ucfgFileSerialization.readFromCache();
-
+    Node ast = null;
+    if (needsAstsOverUcfgs) {
+      ast = astSerialization.readFromCache();
+    } else {
+      ucfgFileSerialization.readFromCache();
+    }
     var cpdData = cpdSerialization.readFromCache();
-    var ast = astSerialization.readFromCache();
+
     return CacheAnalysis.fromCache(cpdData.getCpdTokens(), ast);
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
-    ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
+    if (needsAstsOverUcfgs && analysis.getAst() != null) {
+      astSerialization.writeToCache(analysis.getAst());
+    } else {
+      ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
+    }
     cpdSerialization.writeToCache(new CpdData(analysis.getCpdTokens()));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
-    if (analysis.getAst() != null) {
-      astSerialization.writeToCache(analysis.getAst());
-    }
   }
 
   @Override
   void copyFromPrevious() {
-    ucfgFileSerialization.copyFromPrevious();
+    if (needsAstsOverUcfgs) {
+      astSerialization.copyFromPrevious();
+    } else {
+      ucfgFileSerialization.copyFromPrevious();
+    }
     cpdSerialization.copyFromPrevious();
   }
 }

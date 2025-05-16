@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.analysis.cache;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 class AstProtobufSerialization extends CacheSerialization {
@@ -28,12 +29,11 @@ class AstProtobufSerialization extends CacheSerialization {
   }
 
   Node readFromCache() throws IOException {
-    try {
-      // TODO: do we have to set a deeper recursion limit?
-      return Node.parseFrom(readBytesFromCache());
-    } catch (InvalidProtocolBufferException e) {
-      throw new RuntimeException("Failed to parse Node from protobuf", e);
+    Node node = AstProtoUtils.parseProtobuf(readBytesFromCache());
+    if (node == null) {
+      throw new IOException("The AST is null for key " + getCacheKey());
     }
+    return node;
   }
 
   void writeToCache(Node node) {

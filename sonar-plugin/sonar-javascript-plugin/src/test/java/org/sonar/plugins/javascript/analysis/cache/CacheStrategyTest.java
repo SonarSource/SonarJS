@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.apache.commons.compress.utils.CountingInputStream;
 import org.apache.commons.io.input.InfiniteCircularInputStream;
@@ -61,6 +62,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
@@ -155,6 +157,9 @@ class CacheStrategyTest {
     when(sensorContext.previousCache()).thenReturn(previousCache);
     when(sensorContext.nextCache()).thenReturn(nextCache);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
+    var mockedConfig = mock(Configuration.class);
+    when(mockedConfig.getBoolean("sonar.jasmin.internal.disabled")).thenReturn(Optional.of(true));
+    when(sensorContext.config()).thenReturn(mockedConfig);
 
     when(previousCache.contains(metadataCacheKey)).thenReturn(true);
     var metadata = inputStream(new Gson().toJson(FileMetadata.from(inputFile)));

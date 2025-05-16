@@ -45,7 +45,10 @@ public class AstProtoUtils {
 
   @CheckForNull
   public static Node parseProtobuf(String astBase64) throws IOException {
-    byte[] ast = Base64.getDecoder().decode(astBase64);
+    return parseProtobuf(Base64.getDecoder().decode(astBase64));
+  }
+
+  public static Node parseProtobuf(byte[] ast) throws IOException {
     try {
       CodedInputStream input = CodedInputStream.newInstance(ast);
       input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);

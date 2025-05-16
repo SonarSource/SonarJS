@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -744,7 +745,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
-        .when(() -> AstProtoUtils.parseProtobuf(any()))
+        .when(() -> AstProtoUtils.parseProtobuf(anyString()))
         .thenThrow(new IOException("Test exception"));
       assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request))
         .isInstanceOf(IllegalStateException.class)
