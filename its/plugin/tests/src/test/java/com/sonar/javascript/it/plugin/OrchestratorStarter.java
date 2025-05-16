@@ -108,7 +108,8 @@ public final class OrchestratorStarter
    * make sure that whole test suite uses the same version of the scanner
    */
   static SonarScanner getSonarScanner() {
-    return SonarScanner.create().setScannerVersion(SCANNER_VERSION);
+    return SonarScanner.create().setScannerVersion(SCANNER_VERSION)
+      .setProperty("sonar.scanner.skipJreProvisioning", "true");
   }
 
   @Override
