@@ -67,7 +67,7 @@ class HtmlSecurityTest {
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-      .setEdition(Edition.DEVELOPER)
+      .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(
