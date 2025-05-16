@@ -74,9 +74,10 @@ async function analyzeProgram(
     return;
   }
   if (missingTsConfig) {
-    warn(
-      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
-    );
+    const msg =
+      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+    warn(msg);
+    results.meta.warnings.push(msg);
   }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {

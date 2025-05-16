@@ -1,3 +1,6 @@
 {
-  "files": ["file.ts"]
+  "files": ["file.ts"],
+  "compilerOptions": {
+    "unknownCompilerOption": true
+  }
 }
