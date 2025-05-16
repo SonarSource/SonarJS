@@ -28,6 +28,7 @@ import { join, extname } from 'node:path/posix';
 import { clearTsConfigCache } from '../../src/analysis/projectAnalysis/tsconfigs.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { clearFilesCache } from '../../src/analysis/projectAnalysis/files.js';
+import ts from 'typescript';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
@@ -39,6 +40,7 @@ describe('analyzeProject', () => {
 
   it('should analyze the whole project with program', async () => {
     const files: JsTsFiles = {};
+    const baseDir = join(fixtures, 'module');
     await findFiles(fixtures, async file => {
       const filePath = toUnixPath(join(file.parentPath, file.name));
       if (['.js', '.ts'].includes(extname(file.name).toLowerCase())) {
@@ -48,7 +50,7 @@ describe('analyzeProject', () => {
         };
       }
     });
-    const result = await analyzeProject(prepareInput(files));
+    const result = await analyzeProject(prepareInput(baseDir, files));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -60,14 +62,15 @@ describe('analyzeProject', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toBeGreaterThanOrEqual(3);
+    expect(result.meta.programsCreated.length).toEqual(1);
   });
 
   it('should analyze the whole project with watch program', async () => {
-    const result = await analyzeProject(prepareInput(undefined, true));
+    const baseDir = join(fixtures, 'with-parsing-error');
+    const result = await analyzeProject(prepareInput(baseDir, undefined, true));
     expect(result).toBeDefined();
 
-    expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
+    expect(result.files[toUnixPath(join(baseDir, 'parsing-error.js'))]).toMatchObject({
       parsingError: {
         code: ErrorCode.Parsing,
         message: 'Unexpected token (3:0)',
@@ -80,7 +83,8 @@ describe('analyzeProject', () => {
   });
 
   it('should return a default result when the project is empty', async () => {
-    const result = await analyzeProject(prepareInput({}));
+    const baseDir = join(fixtures, 'empty-folder');
+    const result = await analyzeProject(prepareInput(baseDir, {}));
     expect(result).toEqual({
       files: {},
       meta: expect.objectContaining({
@@ -103,6 +107,32 @@ describe('analyzeProject', () => {
         toUnixPath(join(baseDir, 'dir/file.ts')),
         toUnixPath(join(baseDir, 'file.ts')),
       ]),
+    );
+  });
+
+  it('should handle handle program creation with grace', async () => {
+    const baseDir = join(fixtures, 'simple-tsconfig');
+    const result = await analyzeProject({
+      baseDir,
+      rules: defaultRules,
+    });
+    expect(result.meta.warnings.length).toEqual(1);
+    const resultWarning = result.meta.warnings.at(0);
+    expect(resultWarning).toEqual(
+      `Failed to create TypeScript program with TSConfig file ${join(baseDir, 'tsconfig.json')}. Highest TypeScript supported version is ${ts.version}`,
+    );
+  });
+
+  it('should handle add warning on missing tsconfig', async () => {
+    const baseDir = join(fixtures, 'tsconfig-with-extends-missing');
+    const result = await analyzeProject({
+      baseDir,
+      rules: defaultRules,
+    });
+    expect(result.meta.warnings.length).toEqual(1);
+    const resultWarning = result.meta.warnings.at(0);
+    expect(resultWarning).toEqual(
+      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
     );
   });
 });
@@ -243,10 +273,10 @@ const defaultRules: RuleConfig[] = [
   },
 ];
 
-function prepareInput(files?: JsTsFiles, sonarlint = false): ProjectAnalysisInput {
+function prepareInput(baseDir: string, files?: JsTsFiles, sonarlint = false): ProjectAnalysisInput {
   return {
     rules: defaultRules,
-    baseDir: fixtures,
+    baseDir,
     files,
     configuration: {
       sonarlint,

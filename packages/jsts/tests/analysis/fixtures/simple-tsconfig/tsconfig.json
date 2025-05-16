@@ -1,0 +1,6 @@
+{
+  "files": ["file.ts"],
+  "compilerOptions": {
+    "unknownCompilerOption": true
+  }
+}

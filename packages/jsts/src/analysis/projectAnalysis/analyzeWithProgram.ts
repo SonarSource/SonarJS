@@ -20,8 +20,8 @@ import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
+import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
  * included in any tsconfig from the cache will not be analyzed.
@@ -67,7 +67,7 @@ async function analyzeProgram(
   }
   processedTSConfigs.add(tsConfig);
   info('Creating TypeScript program');
-  info(`TypeScript configuration file ${tsConfig}`);
+  info(`TypeScript(${ts.version}) configuration file ${tsConfig}`);
   let filenames, programId, projectReferences, missingTsConfig;
   try {
     ({
@@ -78,12 +78,16 @@ async function analyzeProgram(
     } = createAndSaveProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
+    results.meta.warnings.push(
+      `Failed to create TypeScript program with TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}`,
+    );
     return;
   }
   if (missingTsConfig) {
-    warn(
-      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
-    );
+    const msg =
+      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+    warn(msg);
+    results.meta.warnings.push(msg);
   }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {

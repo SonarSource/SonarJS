@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -407,6 +408,32 @@ class JsTsSensorTest {
     assertThat(ctx.measure(inputFile.key(), CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(5);
 
     assertThat(ctx.cpdTokens(inputFile.key())).hasSize(2);
+  }
+
+  @Test
+  void should_handle_warnings() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+    DefaultInputFile inputFile = createInputFile(ctx);
+
+    var warningMessage = "warning message";
+    var expectedResponse = new ProjectAnalysisOutput(
+      createFilesMap(List.of(inputFile)),
+      new BridgeServer.ProjectAnalysisMetaResponse(
+        true,
+        false,
+        List.of(),
+        List.of(),
+        List.of(warningMessage)
+      )
+    );
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(expectedResponse);
+
+    sensor.execute(ctx);
+    assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
   }
 
   @Test
@@ -823,11 +850,12 @@ class JsTsSensorTest {
       "Failed to create program: something went wrong"
     );
 
-    Assertions.assertThat(analysisWarnings.warnings).contains(
-      String.format(
-        "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-        captorProgram.getAllValues().get(2).tsConfig(),
-        JavaScriptPlugin.TYPESCRIPT_VERSION
+    Assertions.assertThat(analysisWarnings.warnings).anyMatch(warning ->
+      warning.matches(
+        String.format(
+          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is \\d\\.\\d\\.\\d",
+          Pattern.quote(captorProgram.getAllValues().get(2).tsConfig())
+        )
       )
     );
   }
@@ -1082,6 +1110,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       analysisWithProgram(),
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers(List.of(consumer))
     );
 
@@ -1185,6 +1214,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       null,
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers(List.of(consumer)),
       new FSListenerImpl()
     );
@@ -1242,6 +1272,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       null,
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers(List.of(consumer)),
       new FSListenerImpl()
     );
@@ -1293,6 +1324,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       analysisWithProgram(),
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers(List.of(consumer))
     );
   }
@@ -1303,6 +1335,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       analysisWithProgram(),
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers()
     );
   }
@@ -1313,6 +1346,7 @@ class JsTsSensorTest {
       bridgeServerMock,
       analysisWithWatchProgram(),
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers()
     );
   }
@@ -1323,22 +1357,18 @@ class JsTsSensorTest {
       bridgeServerMock,
       null,
       processAnalysis,
+      analysisWarnings,
       new AnalysisConsumers(),
       new FSListenerImpl()
     );
   }
 
   private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(bridgeServerMock, processAnalysis, analysisWarnings);
+    return new AnalysisWithProgram(bridgeServerMock, processAnalysis);
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(
-      bridgeServerMock,
-      processAnalysis,
-      analysisWarnings,
-      tsConfigCache
-    );
+    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, tsConfigCache);
   }
 
   private ProjectAnalysisOutput createProjectResponse(List<InputFile> files) {

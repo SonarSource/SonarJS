@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -54,6 +55,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
+  private final AnalysisWarningsWrapper analysisWarnings;
   FSListener fsListener;
 
   public JsTsSensor(
@@ -61,9 +63,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers
   ) {
-    this(checks, bridgeServer, analysis, analysisProcessor, consumers, null);
+    this(checks, bridgeServer, analysis, analysisProcessor, analysisWarnings, consumers, null);
   }
 
   public JsTsSensor(
@@ -71,6 +74,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     @Nullable FSListener fsListener
   ) {
@@ -80,6 +84,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.analysisProcessor = analysisProcessor;
     this.fsListener = fsListener;
     this.analysis = analysis;
+    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -110,7 +115,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         context.isSonarLint()
       );
 
-      analysis.initialize(context, checks, consumers);
+      analysis.initialize(context, checks, consumers, analysisWarnings);
       var issues = analysis.analyzeFiles(inputFiles);
       consumers.doneAnalysis();
 
@@ -182,6 +187,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         );
         acceptAstResponse(response, file);
       }
+      projectResponse.meta().warnings().forEach(analysisWarnings::addUnique);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);

@@ -47,24 +47,25 @@ public abstract class AbstractAnalysis {
   JsTsContext<?> context;
   JsTsChecks checks;
   ProgressReport progressReport;
-  protected final AnalysisWarningsWrapper analysisWarnings;
+  protected AnalysisWarningsWrapper analysisWarnings;
   private AnalysisConsumers consumers;
 
-  AbstractAnalysis(
-    BridgeServer bridgeServer,
-    AnalysisProcessor analysisProcessor,
-    AnalysisWarningsWrapper analysisWarnings
-  ) {
+  AbstractAnalysis(BridgeServer bridgeServer, AnalysisProcessor analysisProcessor) {
     this.bridgeServer = bridgeServer;
     this.analysisProcessor = analysisProcessor;
-    this.analysisWarnings = analysisWarnings;
   }
 
-  void initialize(JsTsContext<?> context, JsTsChecks checks, AnalysisConsumers consumers) {
+  void initialize(
+    JsTsContext<?> context,
+    JsTsChecks checks,
+    AnalysisConsumers consumers,
+    AnalysisWarningsWrapper analysisWarnings
+  ) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     this.checks = checks;
     this.consumers = consumers;
+    this.analysisWarnings = analysisWarnings;
   }
 
   abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException;

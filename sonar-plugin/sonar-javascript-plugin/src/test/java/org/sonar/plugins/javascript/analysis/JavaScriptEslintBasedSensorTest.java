@@ -125,6 +125,7 @@ class JavaScriptEslintBasedSensorTest {
   private AnalysisProcessor analysisProcessor;
   private AnalysisWithProgram analysisWithProgram;
   private AnalysisWithWatchProgram analysisWithWatchProgram;
+  private AnalysisWarningsWrapper analysisWarnings;
   private TsProgram tsProgram;
 
   @BeforeEach
@@ -166,18 +167,13 @@ class JavaScriptEslintBasedSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
-    var analysisWarnings = new AnalysisWarningsWrapper();
+    analysisWarnings = new AnalysisWarningsWrapper();
     var tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
 
-    analysisWithProgram = new AnalysisWithProgram(
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings
-    );
+    analysisWithProgram = new AnalysisWithProgram(bridgeServerMock, analysisProcessor);
     analysisWithWatchProgram = new AnalysisWithWatchProgram(
       bridgeServerMock,
       analysisProcessor,
-      analysisWarnings,
       tsConfigCache
     );
   }
@@ -555,6 +551,7 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWithProgram,
       analysisProcessor,
+      analysisWarnings,
       new AnalysisConsumers()
     );
     javaScriptEslintBasedSensor.execute(context);
@@ -572,6 +569,7 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWithProgram,
       analysisProcessor,
+      analysisWarnings,
       new AnalysisConsumers()
     );
     createInputFile(context);
@@ -635,6 +633,7 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWithProgram,
       analysisProcessor,
+      analysisWarnings,
       new AnalysisConsumers()
     ).execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -838,6 +837,7 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWithWatchProgram,
       analysisProcessor,
+      analysisWarnings,
       new AnalysisConsumers()
     );
   }
@@ -848,6 +848,7 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWithProgram,
       analysisProcessor,
+      analysisWarnings,
       new AnalysisConsumers()
     );
   }

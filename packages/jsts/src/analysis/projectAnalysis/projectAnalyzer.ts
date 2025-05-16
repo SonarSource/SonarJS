@@ -47,6 +47,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       withWatchProgram: false,
       filesWithoutTypeChecking: [],
       programsCreated: [],
+      warnings: [],
     },
   };
   setGlobalConfiguration(configuration);
