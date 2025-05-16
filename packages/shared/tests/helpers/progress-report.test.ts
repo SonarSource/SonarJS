@@ -31,15 +31,19 @@ describe('progress-report', () => {
     // passing next file should not trigger a console.log
     expect(consoleLogMock.callCount()).toEqual(1);
 
-    // after 10 seconds have passed, there is a new log
-    mock.timers.tick(10000);
+    // after INTERVAL - 1ms has passed, still no new log
+    mock.timers.tick(ProgressReport.INTERVAL - 1);
+    expect(consoleLogMock.callCount()).toEqual(1);
+
+    // one more ms and the INTERVAL has passed, there is a new log
+    mock.timers.tick(1);
     expect(consoleLogMock.calls[1].arguments[0]).toEqual(
       `1/5 file analyzed, current file: file1.ts`,
     );
     expect(consoleLogMock.callCount()).toEqual(2);
 
-    // another 10 seconds, we should log next file
-    mock.timers.tick(10000);
+    // another INTERVAL, we should log next file
+    mock.timers.tick(ProgressReport.INTERVAL);
     expect(consoleLogMock.calls[2].arguments[0]).toEqual(
       `1/5 file analyzed, current file: file1.ts`,
     );

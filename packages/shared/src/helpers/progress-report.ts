@@ -23,7 +23,7 @@ import { info } from './logging.js';
 export class ProgressReport {
   private counter = 0;
   private currentFilename = '';
-  private readonly interval = 10_000;
+  public static readonly INTERVAL = 10_000;
   private intervalId: NodeJS.Timeout | undefined = undefined;
 
   constructor(private readonly total: number) {
@@ -39,7 +39,7 @@ export class ProgressReport {
       info(
         `${this.counter}/${this.total} ${this.pluralizeFile(this.counter)} analyzed, current file: ${this.currentFilename}`,
       );
-    }, this.interval);
+    }, ProgressReport.INTERVAL);
   }
 
   nextFile(currentFilename: string) {
