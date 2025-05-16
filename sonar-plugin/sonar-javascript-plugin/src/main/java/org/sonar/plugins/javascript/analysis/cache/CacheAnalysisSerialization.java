@@ -20,14 +20,17 @@ import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
+  private final AstProtobufSerialization astSerialization;
+  private final boolean needsAstsOverUcfgs;
 
-  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
+  CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey, boolean needsAstsOverUcfgs) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
@@ -36,11 +39,19 @@ public class CacheAnalysisSerialization extends CacheSerialization {
       context,
       cacheKey.forFileMetadata()
     );
+    astSerialization = new AstProtobufSerialization(context, cacheKey.forAst());
+    this.needsAstsOverUcfgs = needsAstsOverUcfgs;
   }
 
   @Override
   boolean isInCache() {
-    return ucfgFileSerialization.isInCache() && cpdSerialization.isInCache();
+    boolean result;
+    if (needsAstsOverUcfgs) {
+      result = astSerialization.isInCache();
+    } else {
+      result = ucfgFileSerialization.isInCache();
+    }
+    return result && cpdSerialization.isInCache();
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {
@@ -52,21 +63,34 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   }
 
   CacheAnalysis readFromCache() throws IOException {
-    ucfgFileSerialization.readFromCache();
-
+    Node ast = null;
+    if (needsAstsOverUcfgs) {
+      ast = astSerialization.readFromCache();
+    } else {
+      ucfgFileSerialization.readFromCache();
+    }
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(cpdData.getCpdTokens());
+
+    return CacheAnalysis.fromCache(cpdData.getCpdTokens(), ast);
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
-    ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
+    if (needsAstsOverUcfgs && analysis.getAst() != null) {
+      astSerialization.writeToCache(analysis.getAst());
+    } else {
+      ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
+    }
     cpdSerialization.writeToCache(new CpdData(analysis.getCpdTokens()));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
 
   @Override
   void copyFromPrevious() {
-    ucfgFileSerialization.copyFromPrevious();
+    if (needsAstsOverUcfgs) {
+      astSerialization.copyFromPrevious();
+    } else {
+      ucfgFileSerialization.copyFromPrevious();
+    }
     cpdSerialization.copyFromPrevious();
   }
 }

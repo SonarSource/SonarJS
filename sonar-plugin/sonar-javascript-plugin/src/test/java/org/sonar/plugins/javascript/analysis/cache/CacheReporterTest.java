@@ -106,6 +106,6 @@ class CacheReporterTest {
   }
 
   private CacheAnalysisSerialization createSerialization() {
-    return new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile, null));
+    return new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile, null), false);
   }
 }

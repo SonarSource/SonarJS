@@ -19,23 +19,46 @@ package org.sonar.plugins.javascript.analysis.cache;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysis {
 
   private final List<String> ucfgPaths;
   private final List<CpdToken> cpdTokens;
+  private final Node ast;
 
   public CacheAnalysis(@Nullable List<String> ucfgPaths, List<CpdToken> cpdTokens) {
+    this(ucfgPaths, cpdTokens, null);
+  }
+
+  public CacheAnalysis(
+    @Nullable List<String> ucfgPaths,
+    List<CpdToken> cpdTokens,
+    @Nullable Node ast
+  ) {
     this.ucfgPaths = ucfgPaths;
     this.cpdTokens = cpdTokens;
+    this.ast = ast;
   }
 
   public static CacheAnalysis fromResponse(List<String> ucfgPaths, List<CpdToken> cpdTokens) {
-    return new CacheAnalysis(ucfgPaths, cpdTokens);
+    return fromResponse(ucfgPaths, cpdTokens, null);
+  }
+
+  public static CacheAnalysis fromResponse(
+    List<String> ucfgPaths,
+    List<CpdToken> cpdTokens,
+    @Nullable Node ast
+  ) {
+    return new CacheAnalysis(ucfgPaths, cpdTokens, ast);
   }
 
   static CacheAnalysis fromCache(List<CpdToken> cpdTokens) {
-    return new CacheAnalysis(null, cpdTokens);
+    return fromCache(cpdTokens, null);
+  }
+
+  static CacheAnalysis fromCache(List<CpdToken> cpdTokens, @Nullable Node ast) {
+    return new CacheAnalysis(null, cpdTokens, ast);
   }
 
   @Nullable
@@ -45,5 +68,10 @@ public class CacheAnalysis {
 
   public List<CpdToken> getCpdTokens() {
     return cpdTokens;
+  }
+
+  @Nullable
+  public Node getAst() {
+    return ast;
   }
 }
