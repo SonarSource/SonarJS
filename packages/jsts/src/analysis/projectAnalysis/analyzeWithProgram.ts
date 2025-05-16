@@ -21,7 +21,7 @@ import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigs } from './tsconfigs.js';
 import ts from 'typescript';
-
+import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
  * included in any tsconfig from the cache will not be analyzed.
@@ -30,15 +30,24 @@ import ts from 'typescript';
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
+ * @param progressReport progress report to log analyzed files
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  progressReport: ProgressReport,
 ) {
   const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of getTsConfigs()) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles, processedTSConfigs);
+    await analyzeProgram(
+      files,
+      tsConfig,
+      results,
+      pendingFiles,
+      processedTSConfigs,
+      progressReport,
+    );
     if (!pendingFiles.size) {
       break;
     }
@@ -51,6 +60,7 @@ async function analyzeProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   processedTSConfigs: Set<string>,
+  progressReport: ProgressReport,
 ) {
   if (processedTSConfigs.has(tsConfig)) {
     return;
@@ -83,6 +93,7 @@ async function analyzeProgram(
   for (const filename of filenames) {
     // only analyze files which are requested
     if (files[filename] && pendingFiles.has(filename)) {
+      progressReport.nextFile(filename);
       results.files[filename] = await analyzeFile({
         ...files[filename],
         programId,
@@ -94,6 +105,13 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles, processedTSConfigs);
+    await analyzeProgram(
+      files,
+      reference,
+      results,
+      pendingFiles,
+      processedTSConfigs,
+      progressReport,
+    );
   }
 }

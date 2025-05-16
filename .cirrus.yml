@@ -500,6 +500,7 @@ promote_task:
     - plugin_qa_win
     - plugin_qa_win_sonarlint
     - css_ruling
+    - ruling
     - js_ts_ruling
     - analyze
   <<: *ONLY_SONARSOURCE_QA
