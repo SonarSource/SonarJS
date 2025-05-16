@@ -17,21 +17,17 @@
 import { info } from './logging.js';
 
 /**
- * Logs the current file being analyzed every N seconds
- *
- * @param interval the interval between two logs, in milliseconds
+ * Logs the current file being analyzed every 10 seconds
  */
 
 export class ProgressReport {
-  private currentFileNumber = 0;
+  private counter = 0;
   private currentFilename = '';
+  private readonly interval = 10_000;
   private intervalId: NodeJS.Timeout | undefined = undefined;
 
-  constructor(
-    private readonly count: number,
-    private readonly interval: number = 10_000,
-  ) {
-    info(`${this.count} source ${this.pluralizeFile(this.count)} to be analyzed.`);
+  constructor(private readonly total: number) {
+    info(`${this.total} source ${this.pluralizeFile(this.total)} to be analyzed`);
   }
 
   pluralizeFile(count: number) {
@@ -41,13 +37,13 @@ export class ProgressReport {
   start() {
     this.intervalId = setInterval(() => {
       info(
-        `${this.currentFileNumber}/${this.count} ${this.pluralizeFile(this.currentFileNumber)} analyzed, current file: ${this.currentFilename}`,
+        `${this.counter}/${this.total} ${this.pluralizeFile(this.counter)} analyzed, current file: ${this.currentFilename}`,
       );
     }, this.interval);
   }
 
   nextFile(currentFilename: string) {
-    this.currentFileNumber++;
+    this.counter++;
     this.currentFilename = currentFilename;
     if (!this.intervalId) {
       this.start();
@@ -57,11 +53,7 @@ export class ProgressReport {
   stop() {
     clearInterval(this.intervalId);
     info(
-      `${this.count}/${this.count} source ${this.pluralizeFile(this.count)} ${this.count === 1 ? 'has' : 'have'} been analyzed.`,
+      `${this.total}/${this.total} source ${this.pluralizeFile(this.total)} ${this.total === 1 ? 'has' : 'have'} been analyzed`,
     );
-  }
-
-  cancel() {
-    clearInterval(this.intervalId);
   }
 }
