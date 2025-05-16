@@ -22,6 +22,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
 import { mkdir } from 'node:fs/promises';
+import prettierPluginJava from 'prettier-plugin-java';
 
 export const ruleRegex = /^S\d+/;
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -185,7 +186,7 @@ export async function writePrettyFile(filepath: string, contents: string) {
       await prettier.format(contents, {
         ...(prettierOpts as prettier.Options),
         filepath,
-        plugins: ['prettier-plugin-java'],
+        plugins: [prettierPluginJava],
       }),
     ),
   );
