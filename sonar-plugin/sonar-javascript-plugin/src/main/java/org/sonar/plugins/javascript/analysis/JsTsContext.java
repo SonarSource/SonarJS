@@ -172,7 +172,13 @@ public class JsTsContext<T extends SensorContext> {
   }
 
   public boolean cacheNeedsAstsOverUcfgs(AnalysisConsumers consumers) {
-    return isSonarJasminEnabled() && consumers.hasConsumers();
+    return (
+      isSonarJasminEnabled() &&
+      consumers
+        .getConsumers()
+        .stream()
+        .anyMatch(c -> c.getClass().getName().startsWith("com.sonar.plugins.jasmin"))
+    );
   }
 
   public Set<String> getTsConfigPaths() {
