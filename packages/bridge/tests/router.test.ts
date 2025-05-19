@@ -18,16 +18,13 @@ import http from 'http';
 import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
-import fs from 'fs';
-import { describe, before, after, it, type Mock } from 'node:test';
+import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
-import assert from 'node:assert';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
-import { createAndSaveProgram } from '../../jsts/src/program/program.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 
@@ -166,39 +163,6 @@ describe('router', () => {
     );
   });
 
-  it('should route /analyze-with-program requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S4621',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'ts',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    const filePath = path.join(fixtures, 'file.ts');
-    const fileType = 'MAIN';
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = JSON.parse(
-      (await request(server, '/create-program', 'POST', { tsConfig })) as string,
-    );
-    const data = { filePath, fileType, programId, skipAst: true };
-    const response = (await request(server, '/analyze-jsts', 'POST', data)) as string;
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'S4621',
-        line: 1,
-        column: 28,
-        endLine: 1,
-        endColumn: 35,
-        message: `Remove this duplicated type or replace with another one.`,
-      }),
-    );
-  });
-
   it('should route /analyze-yaml requests', async () => {
     await requestInitLinter(server, [
       {
@@ -264,90 +228,15 @@ describe('router', () => {
     });
   });
 
-  it('should route /create-program requests', async () => {
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const programId = Number(JSON.parse(response).programId);
-    expect(programId).toBeDefined();
-    expect(programId).toBeGreaterThan(0);
-  });
-
-  it('should forward /create-program failures', async ({ mock }) => {
-    console.error = mock.fn(console.error);
-    const tsConfig = path.join(fixtures, 'malformed.json');
-    const data = { tsConfig };
-    const response = (await request(server, '/create-program', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
-    expect(error).toBeDefined();
-    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
-  });
-
-  it('should route /delete-program requests', async () => {
-    const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
-    const data = { programId };
-    const response = (await request(server, '/delete-program', 'POST', data)) as string;
-    expect(response).toEqual('OK');
-  });
-
   it('should route /init-linter requests', async () => {
     const data = { rules: [], environments: [], globals: [] };
     const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK');
   });
 
-  it('should route /new-tsconfig requests', async () => {
-    const data = {};
-    const response = await request(server, '/new-tsconfig', 'POST', data);
-    expect(response).toEqual('OK');
-  });
-
   it('should route /status requests', async () => {
     const response = await request(server, '/status', 'GET');
     expect(response).toEqual('OK');
-  });
-
-  it('should route /tsconfig-files requests', async () => {
-    const file = toUnixPath(path.join(fixtures, 'file.ts'));
-
-    const tsconfig1 = path.join(fixtures, 'tsconfig.json');
-    const response1 = (await request(server, '/tsconfig-files', 'POST', {
-      tsConfig: tsconfig1,
-    })) as string;
-    expect(JSON.parse(response1)).toEqual({
-      files: [file],
-      projectReferences: [],
-    });
-
-    const tsconfig2 = path.join(fixtures, 'tsconfig-references.json');
-    const response2 = (await request(server, '/tsconfig-files', 'POST', {
-      tsConfig: tsconfig2,
-    })) as string;
-    expect(JSON.parse(response2)).toEqual({
-      files: [file],
-      projectReferences: [toUnixPath(tsconfig1)],
-    });
-  });
-
-  it('should forward /tsconfig-files failures', async ({ mock }) => {
-    console.error = mock.fn(console.error);
-    const tsConfig = toUnixPath(path.join(fixtures, 'malformed.json'));
-    const data = { tsConfig };
-    const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
-    const { error } = JSON.parse(response);
-    expect(error).toContain("']' expected.");
-    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
-  });
-
-  it('should write tsconfig.json file', async () => {
-    const response = (await request(server, '/create-tsconfig-file', 'POST', {
-      include: ['/path/to/project/**/*'],
-    })) as string;
-    const json = JSON.parse(response);
-    expect(json).toBeTruthy();
-    expect(json.filename).toBeTruthy();
-    expect(fs.existsSync(json.filename)).toBe(true);
   });
 
   it('should return empty get-telemetry on fresh server', async () => {

@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
