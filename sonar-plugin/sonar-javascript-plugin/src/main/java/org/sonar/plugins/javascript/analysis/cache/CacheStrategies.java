@@ -61,12 +61,21 @@ public class CacheStrategies {
 
   public static CacheStrategy getStrategyFor(JsTsContext<?> context, InputFile inputFile)
     throws IOException {
-    return getStrategyFor(context, inputFile, PluginInfo.getVersion());
+    return getStrategyFor(context, inputFile, true);
+  }
+
+  public static CacheStrategy getStrategyFor(
+    JsTsContext<?> context,
+    InputFile inputFile,
+    boolean skipAst
+  ) throws IOException {
+    return getStrategyFor(context, inputFile, skipAst, PluginInfo.getVersion());
   }
 
   static CacheStrategy getStrategyFor(
     JsTsContext<?> context,
     InputFile inputFile,
+    boolean skipAst,
     @Nullable String pluginVersion
   ) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
@@ -79,7 +88,7 @@ public class CacheStrategies {
     var serialization = new CacheAnalysisSerialization(
       context.getSensorContext(),
       cacheKey,
-      context.isSonarJasminEnabled()
+      !skipAst
     );
 
     if (context.getAnalysisMode() == AnalysisMode.DEFAULT) {
