@@ -225,7 +225,7 @@ public interface BridgeServer extends Startable {
     Metrics metrics,
     List<CpdToken> cpdTokens,
     List<String> ucfgPaths,
-    @Nullable String ast
+    @Nullable String astFilePath
   ) {}
 
   record AnalysisResponse(
@@ -264,9 +264,9 @@ public interface BridgeServer extends Startable {
 
     static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
       Node ast = null;
-      if (analysisResponseDTO.ast != null) {
+      if (analysisResponseDTO.astFilePath != null) {
         try {
-          ast = AstProtoUtils.parseProtobuf(analysisResponseDTO.ast);
+          ast = AstProtoUtils.readProtobuf(analysisResponseDTO.astFilePath);
         } catch (IOException e) {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }

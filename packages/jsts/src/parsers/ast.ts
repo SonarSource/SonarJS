@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import protobuf from 'protobufjs';
-import base64 from '@protobufjs/base64';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 import path from 'path';
@@ -28,7 +27,7 @@ const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 const unsupportedNodeTypes = new Map<string, number>();
 
-export function serializeInProtobuf(ast: TSESTree.Program, filePath: string): string {
+export function serializeInProtobuf(ast: TSESTree.Program, filePath: string) {
   unsupportedNodeTypes.clear();
   const protobufAST = parseInProtobuf(ast);
   if (unsupportedNodeTypes.size > 0) {
@@ -39,8 +38,7 @@ export function serializeInProtobuf(ast: TSESTree.Program, filePath: string): st
           .join(', '),
     );
   }
-  const binaryArray = NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
-  return base64.encode(binaryArray, 0, binaryArray.length);
+  return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
 }
 
 /**
@@ -55,10 +53,7 @@ export function parseInProtobuf(ast: TSESTree.Program) {
 /**
  * Only used for tests
  */
-export function deserializeProtobuf(serialized: string): any {
-  const computedLength = base64.length(serialized);
-  const buffer = new Uint8Array(computedLength);
-  base64.decode(serialized, buffer, 0);
+export function deserializeProtobuf(buffer: Uint8Array<ArrayBufferLike>): any {
   return NODE_TYPE.decode(buffer);
 }
 

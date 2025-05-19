@@ -76,5 +76,5 @@ function handleResult(
 }
 
 export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
-  return 'ast' in result;
+  return 'astFilePath' in result;
 }

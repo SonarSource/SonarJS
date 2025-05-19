@@ -29,6 +29,8 @@ import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import { outputContainsAst } from '../../../bridge/src/delegate.js';
 import assert from 'assert';
+import fs from 'node:fs';
+import { join } from 'node:path/posix';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -1034,13 +1036,14 @@ describe('await analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ rules });
+    await Linter.initialize({ rules, rulesWorkdir: join(currentPath, '.scannerwork') });
 
-    const filePath = path.join(currentPath, 'fixtures', 'code.js');
+    const filePath = join(currentPath, 'fixtures', 'code.js');
 
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
     assert(outputContainsAst(analysisResult));
-    const { ast } = analysisResult;
+    const { astFilePath } = analysisResult;
+    const ast = fs.readFileSync(astFilePath);
     const protoMessage = deserializeProtobuf(ast);
     expect(protoMessage.program).toBeDefined();
     expect(protoMessage.program.body).toHaveLength(1);
