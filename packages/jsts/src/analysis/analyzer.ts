@@ -86,11 +86,7 @@ export async function analyzeJSTS(
     };
 
     if (!input.skipAst) {
-      const astFilePath = await serializeAst(
-        parseResult.sourceCode,
-        filePath,
-        Linter.rulesWorkdir!,
-      );
+      const astFilePath = await serializeAst(parseResult.sourceCode, filePath, Linter.rulesWorkdir);
       if (astFilePath) {
         return {
           ...result,
@@ -116,7 +112,10 @@ function generateRandomFilename(extension: string) {
   return randomName + extension;
 }
 
-async function serializeAst(sourceCode: SourceCode, filePath: string, workdir: string) {
+async function serializeAst(sourceCode: SourceCode, filePath: string, workdir: string | undefined) {
+  if (!workdir) {
+    return null;
+  }
   try {
     const serializedAST = serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
     const astDir = join(workdir, 'asts');
