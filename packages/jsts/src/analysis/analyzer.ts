@@ -34,6 +34,9 @@ import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
 import { fillFileContent } from '../../../shared/src/types/analysis.js';
+import { writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path/posix';
+import { randomBytes } from 'node:crypto';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -83,11 +86,11 @@ export async function analyzeJSTS(
     };
 
     if (!input.skipAst) {
-      const ast = serializeAst(parseResult.sourceCode, filePath);
-      if (ast) {
+      const astFilePath = await serializeAst(parseResult.sourceCode, filePath, Linter.rulesWorkdir);
+      if (astFilePath) {
         return {
-          ast,
           ...result,
+          astFilePath,
         };
       }
     }
@@ -103,13 +106,27 @@ export async function analyzeJSTS(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: string) {
-  try {
-    return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
-  } catch (e) {
-    info(`Failed to serialize AST for file "${filePath}"`);
+function generateRandomFilename(extension: string) {
+  // 16 bytes = 32 hex characters
+  const randomName = randomBytes(16).toString('hex');
+  return randomName + extension;
+}
+
+async function serializeAst(sourceCode: SourceCode, filePath: string, workdir: string | undefined) {
+  if (!workdir) {
     return null;
   }
+  try {
+    const serializedAST = serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
+    const astDir = join(workdir, 'asts');
+    await mkdir(astDir, { recursive: true });
+    const astFilePath = join(astDir, generateRandomFilename('.ast'));
+    await writeFile(astFilePath, serializedAST);
+    return astFilePath;
+  } catch (e) {
+    info(`Failed to serialize AST for file "${filePath}"`);
+  }
+  return null;
 }
 
 /**

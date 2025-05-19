@@ -24,11 +24,12 @@ import { APIError } from '../../../shared/src/errors/error.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
-import { deserializeProtobuf } from '../../src/parsers/ast.js';
+import { readProtobufFromFilePath } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import { outputContainsAst } from '../../../bridge/src/delegate.js';
 import assert from 'assert';
+import { join } from 'node:path/posix';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -1034,17 +1035,17 @@ describe('await analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ rules });
+    await Linter.initialize({ rules, rulesWorkdir: join(currentPath, '.scannerwork') });
 
-    const filePath = path.join(currentPath, 'fixtures', 'code.js');
+    const filePath = join(currentPath, 'fixtures', 'code.js');
 
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
     assert(outputContainsAst(analysisResult));
-    const { ast } = analysisResult;
-    const protoMessage = deserializeProtobuf(ast);
-    expect(protoMessage.program).toBeDefined();
-    expect(protoMessage.program.body).toHaveLength(1);
-    expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
+    const { astFilePath } = analysisResult;
+    const ast = await readProtobufFromFilePath(astFilePath);
+    expect(ast.program).toBeDefined();
+    expect(ast.program.body).toHaveLength(1);
+    expect(ast.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
   });
 
   it('should not return the AST if the skipAst flag is set', async () => {

@@ -18,9 +18,9 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Base64;
-import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -43,11 +43,9 @@ public class AstProtoUtils {
   // Prevent instantiation
   private AstProtoUtils() {}
 
-  @CheckForNull
-  public static Node parseProtobuf(String astBase64) throws IOException {
-    byte[] ast = Base64.getDecoder().decode(astBase64);
-    try {
-      CodedInputStream input = CodedInputStream.newInstance(ast);
+  public static Node readProtobuf(String filepath) throws IOException {
+    try (FileInputStream fileInputStream = new FileInputStream(filepath)) {
+      CodedInputStream input = CodedInputStream.newInstance(fileInputStream);
       input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);
       return Node.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
