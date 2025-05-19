@@ -148,7 +148,7 @@ public class YamlSensor extends AbstractBridgeSensor {
   private List<BridgeServer.Issue> analyze(InputFile file) throws IOException {
     List<BridgeServer.Issue> issues = new ArrayList<>();
 
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, false);
     // When there is no analysis required, the sensor doesn't need to do anything as the CPD tokens are handled by the sonar-iac plugin.
     // See AnalysisProcessor for more details.
     if (cacheStrategy.isAnalysisRequired()) {

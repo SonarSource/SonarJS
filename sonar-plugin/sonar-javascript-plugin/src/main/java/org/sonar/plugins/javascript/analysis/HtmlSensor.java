@@ -82,7 +82,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
           );
         }
         progressReport.nextFile(inputFile.toString());
-        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile, false);
         if (cacheStrategy.isAnalysisRequired()) {
           issues.addAll(analyze(inputFile, cacheStrategy));
         }

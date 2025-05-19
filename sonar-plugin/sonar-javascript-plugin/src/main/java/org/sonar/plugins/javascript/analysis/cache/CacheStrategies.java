@@ -59,11 +59,6 @@ public class CacheStrategies {
     return logBuilder.toString();
   }
 
-  public static CacheStrategy getStrategyFor(JsTsContext<?> context, InputFile inputFile)
-    throws IOException {
-    return getStrategyFor(context, inputFile, true);
-  }
-
   public static CacheStrategy getStrategyFor(
     JsTsContext<?> context,
     InputFile inputFile,
