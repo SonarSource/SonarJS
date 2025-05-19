@@ -51,7 +51,7 @@ export function parseInProtobuf(ast: TSESTree.Program) {
   return protobufType.create(protobufShapedAST);
 }
 
-function deserializeProtobuf(buffer: Uint8Array) {
+export function deserializeProtobuf(buffer: Uint8Array) {
   return NODE_TYPE.decode(buffer);
 }
 
