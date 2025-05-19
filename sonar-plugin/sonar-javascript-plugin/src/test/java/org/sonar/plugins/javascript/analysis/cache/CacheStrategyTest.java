@@ -191,7 +191,7 @@ class CacheStrategyTest {
       )
     );
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(sensorContext, never()).nextCache();
@@ -202,7 +202,7 @@ class CacheStrategyTest {
   void should_not_fail_in_sonarlint() throws Exception {
     when(sensorContext.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
     assertThat(strategy.isAnalysisRequired()).isTrue();
     verify(sensorContext, never()).nextCache();
@@ -224,7 +224,7 @@ class CacheStrategyTest {
 
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -272,7 +272,7 @@ class CacheStrategyTest {
     when(previousCache.contains(anyString())).thenReturn(false);
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -313,7 +313,7 @@ class CacheStrategyTest {
 
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -331,7 +331,7 @@ class CacheStrategyTest {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.READ_AND_WRITE);
     assertThat(strategy.isAnalysisRequired()).isFalse();
 
@@ -371,7 +371,7 @@ class CacheStrategyTest {
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(InputStream.nullInputStream());
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -393,7 +393,7 @@ class CacheStrategyTest {
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(jsonCacheKey)).thenReturn(inputStream("invalid-json"));
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -418,7 +418,7 @@ class CacheStrategyTest {
       inputStream("invalid-cpd-stringTable")
     );
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -499,7 +499,7 @@ class CacheStrategyTest {
     when(previousCache.read(seqCacheKey)).thenReturn(InputStream.nullInputStream());
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
   }
@@ -515,7 +515,7 @@ class CacheStrategyTest {
     );
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
   }
@@ -528,7 +528,7 @@ class CacheStrategyTest {
 
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -565,7 +565,7 @@ class CacheStrategyTest {
 
     when(sensorContext.canSkipUnchangedFiles()).thenReturn(false);
 
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, true, PLUGIN_VERSION);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, false, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
@@ -643,7 +643,7 @@ class CacheStrategyTest {
     when(previousCache.read(metadataKey)).thenReturn(
       inputStream(new Gson().toJson(FileMetadata.from(inputFile)))
     );
-    CacheStrategies.getStrategyFor(context, inputFile, true, pluginVersion);
+    CacheStrategies.getStrategyFor(context, inputFile, false, pluginVersion);
 
     verify(previousCache).contains(metadataKey);
     verify(previousCache).read(metadataKey);

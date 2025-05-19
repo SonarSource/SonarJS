@@ -82,7 +82,11 @@ public abstract class AbstractAnalysis {
         "Analysis interrupted because the SensorContext is in cancelled state"
       );
     }
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file, context.skipAst(consumers));
+    var cacheStrategy = CacheStrategies.getStrategyFor(
+      context,
+      file,
+      context.cacheNeedsAstsOverUcfgs(consumers)
+    );
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());

@@ -103,7 +103,7 @@ public class JsTsContext<T extends SensorContext> {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 
-  public boolean isSonarJasminEnabled() {
+  private boolean isSonarJasminEnabled() {
     return !context.config().getBoolean(JASMIN_INTERNAL_DISABLED).orElse(false);
   }
 
@@ -169,6 +169,10 @@ public class JsTsContext<T extends SensorContext> {
       !consumers.hasConsumers() ||
       !(isSonarArmorEnabled() || isSonarJasminEnabled() || isSonarJaredEnabled())
     );
+  }
+
+  public boolean cacheNeedsAstsOverUcfgs(AnalysisConsumers consumers) {
+    return isSonarJasminEnabled() && consumers.hasConsumers();
   }
 
   public Set<String> getTsConfigPaths() {
