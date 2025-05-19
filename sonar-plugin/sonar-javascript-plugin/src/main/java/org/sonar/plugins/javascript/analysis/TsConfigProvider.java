@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.analysis;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
-import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS;
 import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.FileFilter;
 import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.PathFilter;
 
