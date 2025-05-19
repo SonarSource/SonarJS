@@ -427,62 +427,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public boolean newTsConfig() {
-    var response = request("", "new-tsconfig").json();
-    return "OK".equals(response);
-  }
-
-  TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
-    String result = null;
-    try {
-      TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
-      return GSON.fromJson(result, TsConfigResponse.class);
-    } catch (JsonSyntaxException e) {
-      LOG.error(
-        "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}",
-        tsconfigAbsolutePath,
-        result,
-        e.getMessage()
-      );
-    }
-    return new TsConfigResponse(emptyList(), emptyList(), result, null);
-  }
-
-  @Override
-  public TsConfigFile loadTsConfig(String filename) {
-    var tsConfigResponse = tsConfigFiles(filename);
-    if (tsConfigResponse.error != null) {
-      LOG.error(tsConfigResponse.error);
-    }
-    LOG.debug("tsconfig {} files {}", filename, tsConfigResponse.files);
-    return new TsConfigFile(
-      filename,
-      emptyListIfNull(tsConfigResponse.files),
-      emptyListIfNull(tsConfigResponse.projectReferences)
-    );
-  }
-
-  @Override
-  public TsProgram createProgram(TsProgramRequest tsProgramRequest) {
-    var response = request(GSON.toJson(tsProgramRequest), "create-program");
-    return GSON.fromJson(response.json(), TsProgram.class);
-  }
-
-  @Override
-  public boolean deleteProgram(TsProgram tsProgram) {
-    var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program").json();
-    return "OK".equals(response);
-  }
-
-  @Override
-  public TsConfigFile createTsConfigFile(String content) {
-    var response = request(content, "create-tsconfig-file");
-    return GSON.fromJson(response.json(), TsConfigFile.class);
-  }
-
-  @Override
   public TelemetryData getTelemetry() {
     if (nodeCommand == null) {
       return new TelemetryData(getTelemetryEslintBridgeResponse().dependencies(), null);

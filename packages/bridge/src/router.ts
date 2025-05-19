@@ -30,12 +30,7 @@ export default function (worker: Worker | undefined, workerData: WorkerData): ex
   router.post('/analyze-jsts', delegate('on-analyze-jsts'));
   router.post('/analyze-html', delegate('on-analyze-html'));
   router.post('/analyze-yaml', delegate('on-analyze-yaml'));
-  router.post('/create-program', delegate('on-create-program'));
-  router.post('/create-tsconfig-file', delegate('on-create-tsconfig-file'));
-  router.post('/delete-program', delegate('on-delete-program'));
   router.post('/init-linter', delegate('on-init-linter'));
-  router.post('/new-tsconfig', delegate('on-new-tsconfig'));
-  router.post('/tsconfig-files', delegate('on-tsconfig-files'));
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
   /** Endpoints running on the main thread */

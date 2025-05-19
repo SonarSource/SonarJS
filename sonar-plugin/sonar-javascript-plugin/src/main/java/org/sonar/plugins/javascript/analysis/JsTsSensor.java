@@ -51,7 +51,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
 
-  private final AbstractAnalysis analysis;
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
@@ -61,18 +60,16 @@ public class JsTsSensor extends AbstractBridgeSensor {
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers
   ) {
-    this(checks, bridgeServer, analysis, analysisProcessor, analysisWarnings, consumers, null);
+    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, null);
   }
 
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
@@ -83,7 +80,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.consumers = consumers;
     this.analysisProcessor = analysisProcessor;
     this.fsListener = fsListener;
-    this.analysis = analysis;
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -106,21 +102,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    if (!context.isAnalyzeProjectEnabled()) {
-      bridgeServer.initLinter(
-        checks.enabledEslintRules(),
-        context.getEnvironments(),
-        context.getGlobals(),
-        context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),
-        context.isSonarLint()
-      );
-
-      analysis.initialize(context, checks, consumers, analysisWarnings);
-      var issues = analysis.analyzeFiles(inputFiles);
-      consumers.doneAnalysis();
-
-      return issues;
-    }
     var issues = new ArrayList<BridgeServer.Issue>();
     var filesToAnalyze = new ArrayList<InputFile>();
     var fileToInputFile = new HashMap<String, InputFile>();

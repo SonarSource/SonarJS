@@ -16,6 +16,7 @@
  */
 
 import type { JsTsFiles } from './projectAnalysis.js';
+import { toUnixPath } from '../../rules/index.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -53,6 +54,12 @@ export function getFilenames() {
 }
 
 export function setFiles(newFiles: JsTsFiles) {
-  files = newFiles;
-  filenames = Object.keys(newFiles);
+  files = {};
+  filenames = [];
+  Object.entries(newFiles).forEach(([rawFilename, file]) => {
+    const filename = toUnixPath(rawFilename);
+    filenames!.push(filename);
+    file.filePath = filename;
+    files![filename] = file;
+  });
 }
