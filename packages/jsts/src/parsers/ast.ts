@@ -20,6 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { debug } from '../../../shared/src/helpers/logging.js';
+import { readFile } from 'node:fs/promises';
 
 const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
@@ -55,6 +56,10 @@ export function parseInProtobuf(ast: TSESTree.Program) {
  */
 export function deserializeProtobuf(buffer: Uint8Array<ArrayBufferLike>): any {
   return NODE_TYPE.decode(buffer);
+}
+
+export async function readProtobufFromFilePath(filePath: string) {
+  return deserializeProtobuf(await readFile(filePath));
 }
 
 // Exported for testing purpose
