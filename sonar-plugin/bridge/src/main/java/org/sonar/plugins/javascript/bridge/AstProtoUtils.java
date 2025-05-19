@@ -52,8 +52,6 @@ public class AstProtoUtils {
       // Failing to parse the protobuf message should not prevent the analysis from continuing.
       // Note: we do not print the stack trace as it is usually huge and does not contain useful information.
       LOG.error("Failed to deserialize Protobuf message: {}", e.getMessage());
-    } catch (FileNotFoundException e) {
-      LOG.error("Failed to read protobuf file: {}", filepath);
     }
     return null;
   }

@@ -110,7 +110,7 @@ export async function analyzeJSTS(
   }
 }
 
-function generateRandomFilename(extension = '') {
+function generateRandomFilename(extension: string) {
   // 16 bytes = 32 hex characters
   const randomName = randomBytes(16).toString('hex');
   return randomName + extension;

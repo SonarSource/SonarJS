@@ -51,14 +51,14 @@ export function parseInProtobuf(ast: TSESTree.Program) {
   return protobufType.create(protobufShapedAST);
 }
 
-/**
- * Only used for tests
- */
-export function deserializeProtobuf(buffer: Uint8Array<ArrayBufferLike>): any {
+function deserializeProtobuf(buffer: Uint8Array) {
   return NODE_TYPE.decode(buffer);
 }
 
-export async function readProtobufFromFilePath(filePath: string) {
+/**
+ * Only used for tests
+ */
+export async function readProtobufFromFilePath(filePath: string): Promise<any> {
   return deserializeProtobuf(await readFile(filePath));
 }
 
