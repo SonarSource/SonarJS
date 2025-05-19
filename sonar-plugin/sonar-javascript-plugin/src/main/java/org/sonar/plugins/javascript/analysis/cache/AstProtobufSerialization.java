@@ -16,7 +16,6 @@
  */
 package org.sonar.plugins.javascript.analysis.cache;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.bridge.AstProtoUtils;
