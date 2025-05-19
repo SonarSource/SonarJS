@@ -41,7 +41,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
 /**
- * Class handling the extraction of the embedded Node.JS runtime
+ * Class handling the extraction of the embedded Node.js runtime
  */
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)

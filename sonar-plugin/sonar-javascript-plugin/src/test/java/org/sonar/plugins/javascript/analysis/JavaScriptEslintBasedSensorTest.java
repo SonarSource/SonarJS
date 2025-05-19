@@ -85,13 +85,10 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class JavaScriptEslintBasedSensorTest {
 
@@ -123,10 +120,7 @@ class JavaScriptEslintBasedSensorTest {
   Path workDir;
 
   private AnalysisProcessor analysisProcessor;
-  private AnalysisWithProgram analysisWithProgram;
-  private AnalysisWithWatchProgram analysisWithWatchProgram;
   private AnalysisWarningsWrapper analysisWarnings;
-  private TsProgram tsProgram;
 
   @BeforeEach
   void setUp() throws Exception {
@@ -146,11 +140,6 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
-    when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
-      new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
-    );
-    tsProgram = new TsProgram("", new ArrayList<>(), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new TelemetryData(List.of(), new RuntimeTelemetry(Version.create(22, 9), "host"))
     );
@@ -168,14 +157,6 @@ class JavaScriptEslintBasedSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     analysisWarnings = new AnalysisWarningsWrapper();
-    var tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
-
-    analysisWithProgram = new AnalysisWithProgram(bridgeServerMock, analysisProcessor);
-    analysisWithWatchProgram = new AnalysisWithWatchProgram(
-      bridgeServerMock,
-      analysisProcessor,
-      tsConfigCache
-    );
   }
 
   @Test
@@ -387,14 +368,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_save_only_nosonar_metric_in_sonarlint() throws Exception {
     AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9]} }");
     var inputFile = createInputFile(context);
-    var tsConfigFile = new TsConfigFile(
-      "/path/to/file",
-      List.of(inputFile.absolutePath()),
-      emptyList()
-    );
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(responseMetrics);
-    when(bridgeServerMock.createTsConfigFile(any())).thenReturn(tsConfigFile);
-    when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     var sensor = createSonarLintSensor();
@@ -549,7 +523,6 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWithProgram,
       analysisProcessor,
       analysisWarnings,
       new AnalysisConsumers()
@@ -567,7 +540,6 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWithProgram,
       analysisProcessor,
       analysisWarnings,
       new AnalysisConsumers()
@@ -631,7 +603,6 @@ class JavaScriptEslintBasedSensorTest {
     new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWithProgram,
       analysisProcessor,
       analysisWarnings,
       new AnalysisConsumers()
@@ -649,15 +620,7 @@ class JavaScriptEslintBasedSensorTest {
     var ctx = SensorContextTester.create(baseDir);
     ctx.fileSystem().setWorkDir(workDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var inputFile = createInputFile(ctx);
 
-    var tsConfigFile = new TsConfigFile(
-      "/path/to/file",
-      List.of(inputFile.absolutePath()),
-      emptyList()
-    );
-    when(bridgeServerMock.createTsConfigFile(any())).thenReturn(tsConfigFile);
-    when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
 
@@ -695,7 +658,6 @@ class JavaScriptEslintBasedSensorTest {
       .setContents(content)
       .build();
     ctx.fileSystem().add(inputFile);
-    tsProgram.files().add(inputFile.absolutePath());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
@@ -743,7 +705,6 @@ class JavaScriptEslintBasedSensorTest {
       "if (cond)\ndoFoo(); \nelse \ndoFoo();",
       path
     ).setStatus(InputFile.Status.SAME);
-    tsProgram.files().add(file.absolutePath());
     var sensor = createSensor();
 
     sensor.execute(context);
@@ -811,7 +772,6 @@ class JavaScriptEslintBasedSensorTest {
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
-    tsProgram.files().add(inputFile.absolutePath());
     return inputFile;
   }
 
@@ -827,7 +787,6 @@ class JavaScriptEslintBasedSensorTest {
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
-    tsProgram.files().add(inputFile.absolutePath());
     return inputFile;
   }
 
@@ -835,7 +794,6 @@ class JavaScriptEslintBasedSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
-      analysisWithWatchProgram,
       analysisProcessor,
       analysisWarnings,
       new AnalysisConsumers()
@@ -846,7 +804,6 @@ class JavaScriptEslintBasedSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
-      analysisWithProgram,
       analysisProcessor,
       analysisWarnings,
       new AnalysisConsumers()
