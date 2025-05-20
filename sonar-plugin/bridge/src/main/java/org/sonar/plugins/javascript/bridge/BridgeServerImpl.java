@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -42,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -90,6 +93,7 @@ public class BridgeServerImpl implements BridgeServer {
   private ScheduledFuture<?> heartbeatFuture;
   private final Http http;
   private Long latestOKIsAliveTimestamp;
+  private JSWebSocketClient client;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -207,7 +211,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(BridgeServerConfig serverConfig) throws IOException {
+  void startServer(BridgeServerConfig serverConfig) throws IOException, InterruptedException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
@@ -233,6 +237,11 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
+
+    URI uri = wsUrl();
+    client = new JSWebSocketClient(uri);
+
+    client.connectBlocking(); // Wait for connection to establish
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
@@ -291,7 +300,8 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
+  public void startServerLazily(BridgeServerConfig serverConfig)
+    throws IOException, InterruptedException {
     if (status == Status.FAILED) {
       if (shouldRestartFailedServer()) {
         // Reset the status, which will cause the server to retry deployment
@@ -324,7 +334,7 @@ public class BridgeServerImpl implements BridgeServer {
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(serverConfig);
-    } catch (NodeCommandException e) {
+    } catch (NodeCommandException | InterruptedException e) {
       status = Status.FAILED;
       throw e;
     }
@@ -385,13 +395,11 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) {
+  public void analyzeProject(ProjectAnalysisRequest request, BlockingQueue<String> blockingQueue) {
+    client.setQueue(blockingQueue);
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    var response = request(GSON.toJson(request), "analyze-project");
-    return ProjectAnalysisOutput.fromDTO(
-      GSON.fromJson(response.reader(), ProjectAnalysisOutputDTO.class)
-    );
+    client.send(GSON.toJson(request));
   }
 
   private BridgeResponse request(String json, String endpoint) {
@@ -565,6 +573,14 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void stop() {
     clean();
+  }
+
+  private URI wsUrl() {
+    try {
+      return new URI("ws", null, hostAddress, port, "/ws", null, null);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
+    }
   }
 
   private URI url(String endpoint) {

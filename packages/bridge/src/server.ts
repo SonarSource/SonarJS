@@ -31,6 +31,7 @@ import {
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
+import { WebSocketServer } from 'ws';
 
 /**
  * The maximum request body size
@@ -44,7 +45,7 @@ const MAX_REQUEST_SIZE = '50mb';
  * If the Java plugin crashes, this timeout will run out and shut down
  * the bridge to prevent it from becoming an orphan process.
  */
-const SHUTDOWN_TIMEOUT = 15_000;
+const SHUTDOWN_TIMEOUT = 15_000_000;
 
 /**
  * Starts the bridge
@@ -99,6 +100,25 @@ export function start(
 
     const app = express();
     const server = http.createServer(app);
+    const wss = new WebSocketServer({ noServer: true });
+
+    server.on('upgrade', (request, socket, head) => {
+      // Only handle upgrade requests for /ws
+      console.log(
+        'called upgrade',
+        request.url,
+        request.method,
+        request.headers,
+        request.httpVersion,
+      );
+      if (request.url === '/ws') {
+        wss.handleUpgrade(request, socket, head, ws => {
+          wss.emit('connection', ws, request);
+        });
+      } else {
+        socket.destroy();
+      }
+    });
 
     /**
      * Builds a timeout middleware to shut down the server
@@ -112,7 +132,7 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
-    app.use(router(worker, { debugMemory }));
+    app.use(router(worker, { debugMemory }, wss));
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {

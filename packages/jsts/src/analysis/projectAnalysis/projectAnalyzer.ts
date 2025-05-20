@@ -30,6 +30,7 @@ import { loadFiles } from './files-finder.js';
 import { getFiles, getFilesCount, getFilenames } from './files.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import type { MessagePort } from 'node:worker_threads';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -37,7 +38,11 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
  * @param input the JavaScript / TypeScript project to analyze
  * @returns the JavaScript / TypeScript project analysis output
  */
-export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
+export async function analyzeProject(
+  input: ProjectAnalysisInput,
+  parentThread?: MessagePort,
+): Promise<ProjectAnalysisOutput> {
+  console.log('analyzeProject', input);
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
@@ -67,18 +72,37 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     const pendingFiles = new Set(getFilenames());
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
-      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithWatchProgram(
+        filesToAnalyze,
+        results,
+        pendingFiles,
+        progressReport,
+        parentThread,
+      );
     } else {
       results.meta.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport, parentThread);
     }
     if (pendingFiles.size) {
       info(
         `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
       );
-      await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results, baseDir, progressReport);
+      await analyzeWithoutProgram(
+        pendingFiles,
+        filesToAnalyze,
+        results,
+        baseDir,
+        progressReport,
+        parentThread,
+      );
     }
   }
   progressReport.stop();
+  if (parentThread) {
+    parentThread.postMessage({
+      meta: results.meta,
+      messageType: 'meta',
+    });
+  }
   return results;
 }

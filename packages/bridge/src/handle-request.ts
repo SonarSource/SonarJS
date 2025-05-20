@@ -30,10 +30,12 @@ import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
 import { BridgeRequest, RequestResult, serializeError } from './request.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
+import type { MessagePort } from 'node:worker_threads';
 
 export async function handleRequest(
   request: BridgeRequest,
   workerData: WorkerData,
+  parentThread?: MessagePort,
 ): Promise<RequestResult> {
   try {
     switch (request.type) {
@@ -101,7 +103,7 @@ export async function handleRequest(
       }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        const output = await analyzeProject(request.data);
+        const output = await analyzeProject(request.data, parentThread);
         logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
       }

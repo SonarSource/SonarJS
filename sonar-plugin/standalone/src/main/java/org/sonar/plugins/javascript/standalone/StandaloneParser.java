@@ -50,7 +50,7 @@ public class StandaloneParser implements AutoCloseable {
     this(Http.getJdkHttpClient());
   }
 
-  public StandaloneParser(Http http) {
+  public StandaloneParser(Http http) throws RuntimeException {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     bridge = new BridgeServerImpl(
@@ -74,6 +74,8 @@ public class StandaloneParser implements AutoCloseable {
       bridge.initLinter(List.of(), List.of(), List.of(), null, true);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -9,6 +9,9 @@ console.log(`debugMemory: ${process.argv[4]}`);
 
 const requestHandler = (request, response) => {
   let data = '';
+  request.on('upgrade', (request, socket) => {
+    socket.destroy();
+  });
   request.on('data', chunk => (data += chunk));
   request.on('end', () => {
     console.log(data);
@@ -59,12 +62,14 @@ const requestHandler = (request, response) => {
           meta: {},
         }),
       );
+    } else if (request.url === '/ws') {
+      response.end();
     } else {
       // /analyze-with-program
       // /analyze-js
       // /analyze-ts
       // objects are created to have test coverage
-
+      console.log(data, request.url);
       data = JSON.parse(data);
       response.end(JSON.stringify(getFakeAnalysisResponse(data.skipAst)));
     }

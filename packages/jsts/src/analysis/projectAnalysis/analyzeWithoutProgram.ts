@@ -20,6 +20,8 @@ import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/confi
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { handleFileResult } from './analyzeWithProgram.js';
+import type { MessagePort } from 'node:worker_threads';
 
 /**
  * Analyzes files without type-checking.
@@ -36,14 +38,16 @@ export async function analyzeWithoutProgram(
   results: ProjectAnalysisOutput,
   baseDir: string,
   progressReport: ProgressReport,
+  parentThread?: MessagePort,
 ) {
   for (const filename of filenames) {
     debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
     progressReport.nextFile(filename);
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = await analyzeFile({
+    const result = await analyzeFile({
       ...files[filename],
       ...fieldsForJsTsAnalysisInput(),
     });
+    handleFileResult(result, filename, results, parentThread);
   }
 }

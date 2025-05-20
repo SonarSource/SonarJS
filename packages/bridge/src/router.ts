@@ -19,8 +19,13 @@ import { Worker } from 'worker_threads';
 import { createDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
+import { RawData, WebSocketServer } from 'ws';
 
-export default function (worker: Worker | undefined, workerData: WorkerData): express.Router {
+export default function (
+  worker: Worker | undefined,
+  workerData: WorkerData,
+  wss: WebSocketServer,
+): express.Router {
   const router = express.Router();
   const delegate = createDelegator(worker, workerData);
 
@@ -38,10 +43,44 @@ export default function (worker: Worker | undefined, workerData: WorkerData): ex
   router.post('/tsconfig-files', delegate('on-tsconfig-files'));
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
+  wss.on('connection', ws => {
+    console.log('WebSocket client connected on /ws');
+
+    ws.on('message', message => {
+      console.log('Received:', message);
+      // Example: echo back
+      if (worker) {
+        worker.on('message', message => {
+          ws.send(message);
+        });
+
+        console.log('Sending message to worker');
+        const data = decodeMessage(message);
+        worker.postMessage({ type: 'on-analyze-project', data, ws: true });
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+    });
+  });
+
   /** Endpoints running on the main thread */
   router.get('/status', (_, response) => {
     response.sendStatus(StatusCodes.OK);
   });
 
   return router;
+}
+
+function decodeMessage(message: RawData) {
+  // Handle Buffer or string
+  let jsonString: string = '';
+  if (Buffer.isBuffer(message)) {
+    jsonString = message.toString('utf8');
+  } else if (Array.isArray(message)) {
+    // Rare, but possible: concatenate all buffers
+    jsonString = Buffer.concat(message).toString('utf8');
+  }
+  return JSON.parse(jsonString);
 }
