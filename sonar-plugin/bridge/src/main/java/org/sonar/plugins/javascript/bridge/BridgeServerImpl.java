@@ -24,8 +24,7 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NO
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,10 +349,15 @@ public class BridgeServerImpl implements BridgeServer {
     );
     String request = GSON.toJson(initLinterRequest);
 
-    String response = request(request, "init-linter").json();
+    String response = textResponse(request(request, "init-linter"));
     if (!"OK".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
     }
+  }
+
+  private String textResponse(BridgeResponse response) {
+    BufferedReader bufferedReader = new BufferedReader(response.reader());
+    return bufferedReader.lines().collect(Collectors.joining());
   }
 
   @Override
@@ -379,10 +384,24 @@ public class BridgeServerImpl implements BridgeServer {
     return response(request(json, "analyze-html"), request.filePath());
   }
 
+  @Override
+  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) {
+    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
+    request.setRulesWorkdir(workdir);
+    var response = request(GSON.toJson(request), "analyze-project");
+    return ProjectAnalysisOutput.fromDTO(
+      GSON.fromJson(response.reader(), ProjectAnalysisOutputDTO.class)
+    );
+  }
+
   private BridgeResponse request(String json, String endpoint) {
     try {
       var response = http.post(json, url(endpoint), timeoutSeconds);
-      return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
+      InputStreamReader reader = new InputStreamReader(
+        new ByteArrayInputStream(response.body()),
+        StandardCharsets.UTF_8
+      );
+      return new BridgeServer.BridgeResponse(reader);
     } catch (IOException e) {
       throw new IllegalStateException(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
@@ -394,7 +413,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
     try {
-      return AnalysisResponse.fromDTO(GSON.fromJson(result.json(), AnalysisResponseDTO.class));
+      return AnalysisResponse.fromDTO(GSON.fromJson(result.reader(), AnalysisResponseDTO.class));
     } catch (JsonSyntaxException e) {
       String msg =
         "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
@@ -428,7 +447,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public boolean newTsConfig() {
-    var response = request("", "new-tsconfig").json();
+    var response = textResponse(request("", "new-tsconfig"));
     return "OK".equals(response);
   }
 
@@ -436,7 +455,7 @@ public class BridgeServerImpl implements BridgeServer {
     String result = null;
     try {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
+      result = textResponse(request(GSON.toJson(tsConfigRequest), "tsconfig-files"));
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (JsonSyntaxException e) {
       LOG.error(
@@ -466,20 +485,20 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public TsProgram createProgram(TsProgramRequest tsProgramRequest) {
     var response = request(GSON.toJson(tsProgramRequest), "create-program");
-    return GSON.fromJson(response.json(), TsProgram.class);
+    return GSON.fromJson(textResponse(response), TsProgram.class);
   }
 
   @Override
   public boolean deleteProgram(TsProgram tsProgram) {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program").json();
+    var response = textResponse(request(GSON.toJson(programToDelete), "delete-program"));
     return "OK".equals(response);
   }
 
   @Override
   public TsConfigFile createTsConfigFile(String content) {
     var response = request(content, "create-tsconfig-file");
-    return GSON.fromJson(response.json(), TsConfigFile.class);
+    return GSON.fromJson(textResponse(response), TsConfigFile.class);
   }
 
   @Override
@@ -493,16 +512,6 @@ public class BridgeServerImpl implements BridgeServer {
         nodeCommand.getActualNodeVersion(),
         nodeCommand.getNodeExecutableOrigin()
       )
-    );
-  }
-
-  @Override
-  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException {
-    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
-    request.setRulesWorkdir(workdir);
-    var response = request(GSON.toJson(request), "analyze-project");
-    return ProjectAnalysisOutput.fromDTO(
-      GSON.fromJson(response.json(), ProjectAnalysisOutputDTO.class)
     );
   }
 
