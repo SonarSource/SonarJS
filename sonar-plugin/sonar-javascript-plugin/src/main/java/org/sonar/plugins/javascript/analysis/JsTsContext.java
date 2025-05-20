@@ -105,10 +105,12 @@ public class JsTsContext<T extends SensorContext> {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 
+  @Deprecated(forRemoval = true)
   private boolean isSonarJasminEnabled() {
     return !context.config().getBoolean(JASMIN_INTERNAL_DISABLED).orElse(false);
   }
 
+  @Deprecated(forRemoval = true)
   private boolean isSonarJaredEnabled() {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
   }
@@ -176,7 +178,7 @@ public class JsTsContext<T extends SensorContext> {
 
   public boolean skipAst(AnalysisConsumers consumers) {
     return (
-      !consumers.hasConsumers() ||
+      !consumers.isEnabled() ||
       !(isSonarArmorEnabled() || isSonarJasminEnabled() || isSonarJaredEnabled())
     );
   }

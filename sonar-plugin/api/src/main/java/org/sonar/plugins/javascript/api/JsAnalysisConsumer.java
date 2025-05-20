@@ -37,4 +37,14 @@ public interface JsAnalysisConsumer {
    * Called at the end of the analysis.
    */
   void doneAnalysis();
+
+  /**
+   * Called only once per analysis.
+   * If the consumer returns false it will be ignored for the analysis.
+   * @return
+   */
+  default boolean isEnabled() {
+    // For retro-compatibility Consumer is enabled by default
+    return true;
+  }
 }
