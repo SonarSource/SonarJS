@@ -18,6 +18,11 @@
         <artifactId>bridge</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.java-websocket</groupId>
+        <artifactId>Java-WebSocket</artifactId>
+        <version>1.5.7</version>
+      </dependency>
+      <dependency>
         <groupId>org.sonarsource.api.plugin</groupId>
         <artifactId>sonar-plugin-api</artifactId>
       </dependency>

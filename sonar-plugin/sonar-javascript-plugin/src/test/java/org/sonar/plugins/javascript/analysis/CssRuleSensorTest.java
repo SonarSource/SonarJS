@@ -252,7 +252,7 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void failed_server_should_log_error_with_css() throws IOException {
+  void failed_server_should_log_error_with_css() throws IOException, InterruptedException {
     doThrow(new NodeCommandException("Exception Message"))
       .when(bridgeServerMock)
       .startServerLazily(any());
