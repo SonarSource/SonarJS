@@ -43,7 +43,7 @@ public interface Http {
     private final HttpClient client;
 
     JdkHttp() {
-      this.client = HttpClient.newBuilder().build();
+      this.client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     }
 
     @Override
