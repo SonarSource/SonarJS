@@ -22,6 +22,8 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { handleFileResult } from './analyzeWithProgram.js';
+import type { MessagePort } from 'node:worker_threads';
 
 /**
  * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
@@ -38,17 +40,19 @@ export async function analyzeWithWatchProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   progressReport: ProgressReport,
+  parentThread?: MessagePort,
 ) {
   for (const [filename, file] of Object.entries(files)) {
     if (isJsTsFile(filename)) {
       const tsconfig = tsConfigStore.getTsConfigForInputFile(filename);
       progressReport.nextFile(filename);
-      results.files[filename] = await analyzeFile({
+      const result = await analyzeFile({
         ...file,
         tsConfigs: tsconfig ? [tsconfig] : undefined,
         ...fieldsForJsTsAnalysisInput(),
       });
       pendingFiles.delete(filename);
+      handleFileResult(result, filename, results, parentThread);
       if (!pendingFiles.size) {
         break;
       }

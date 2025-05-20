@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { FileResult, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
@@ -22,6 +22,7 @@ import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/confi
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import type { MessagePort } from 'node:worker_threads';
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
  * included in any tsconfig from the cache will not be analyzed.
@@ -37,6 +38,7 @@ export async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   progressReport: ProgressReport,
+  parentThread?: MessagePort,
 ) {
   const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of tsConfigStore.getTsConfigs()) {
@@ -47,6 +49,7 @@ export async function analyzeWithProgram(
       pendingFiles,
       processedTSConfigs,
       progressReport,
+      parentThread,
     );
     if (!pendingFiles.size) {
       break;
@@ -61,6 +64,7 @@ async function analyzeProgram(
   pendingFiles: Set<string>,
   processedTSConfigs: Set<string>,
   progressReport: ProgressReport,
+  parentThread?: MessagePort,
 ) {
   if (processedTSConfigs.has(tsConfig)) {
     return;
@@ -94,12 +98,13 @@ async function analyzeProgram(
     // only analyze files which are requested
     if (files[filename] && pendingFiles.has(filename)) {
       progressReport.nextFile(filename);
-      results.files[filename] = await analyzeFile({
+      const result = await analyzeFile({
         ...files[filename],
         programId,
         ...fieldsForJsTsAnalysisInput(),
       });
       pendingFiles.delete(filename);
+      handleFileResult(result, filename, results, parentThread);
     }
   }
   deleteProgram(programId);
@@ -113,5 +118,22 @@ async function analyzeProgram(
       processedTSConfigs,
       progressReport,
     );
+  }
+}
+
+export function handleFileResult(
+  result: FileResult,
+  filename: string,
+  results: ProjectAnalysisOutput,
+  parentThread?: MessagePort,
+) {
+  if (parentThread) {
+    parentThread.postMessage({
+      ...result,
+      filename,
+      messageType: 'fileResult',
+    });
+  } else {
+    results.files[filename] = result;
   }
 }

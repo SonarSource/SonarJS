@@ -29,6 +29,7 @@ import {
 import { getFilesToAnalyze, sourceFileStore } from './file-stores/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import type { MessagePort } from 'node:worker_threads';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -36,7 +37,11 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
  * @param input the JavaScript / TypeScript project to analyze
  * @returns the JavaScript / TypeScript project analysis output
  */
-export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
+export async function analyzeProject(
+  input: ProjectAnalysisInput,
+  parentThread?: MessagePort,
+): Promise<ProjectAnalysisOutput> {
+  console.log('analyzeProject', input);
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
@@ -64,10 +69,16 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   if (pendingFiles.size) {
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
-      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithWatchProgram(
+        filesToAnalyze,
+        results,
+        pendingFiles,
+        progressReport,
+        parentThread,
+      );
     } else {
       results.meta.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport, parentThread);
     }
     if (pendingFiles.size) {
       info(
@@ -79,9 +90,16 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
         results,
         normalizedBaseDir,
         progressReport,
+        parentThread,
       );
     }
   }
   progressReport.stop();
+  if (parentThread) {
+    parentThread.postMessage({
+      meta: results.meta,
+      messageType: 'meta',
+    });
+  }
   return results;
 }
