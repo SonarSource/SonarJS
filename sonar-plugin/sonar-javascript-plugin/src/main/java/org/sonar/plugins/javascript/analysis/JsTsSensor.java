@@ -16,11 +16,16 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -57,6 +62,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisProcessor analysisProcessor;
   private final AnalysisWarningsWrapper analysisWarnings;
   FSListener fsListener;
+  private static final Gson GSON = new Gson();
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -105,7 +111,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles)
+    throws IOException, InterruptedException {
     if (!context.isAnalyzeProjectEnabled()) {
       bridgeServer.initLinter(
         checks.enabledEslintRules(),
@@ -175,20 +182,31 @@ public class JsTsSensor extends AbstractBridgeSensor {
       context.getSensorContext().fileSystem().baseDir().getAbsolutePath()
     );
     try {
-      var projectResponse = bridgeServer.analyzeProject(request);
-      for (var entry : projectResponse.files().entrySet()) {
-        var filePath = entry.getKey();
-        var response = entry.getValue();
-        var file = fileToInputFile.get(filePath);
-        var cacheStrategy = fileToCacheStrategy.get(filePath);
-        issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
-          file
-        );
-        acceptAstResponse(response.ast(), file);
+      BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+      bridgeServer.analyzeProject(request, messageQueue);
+      while (true) {
+        String message = messageQueue.take();
+        JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+        var messageType = jsonObject.get("messageType").getAsString();
+        if (messageType.equals("fileResult")) {
+          var filePath = jsonObject.get("filename").getAsString();
+          var response = BridgeServer.AnalysisResponse.fromDTO(
+            GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
+          );
+          var file = fileToInputFile.get(filePath);
+          var cacheStrategy = fileToCacheStrategy.get(filePath);
+          issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
+          cacheStrategy.writeAnalysisToCache(
+            CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
+            file
+          );
+          acceptAstResponse(response.ast(), file);
+        } else {
+          var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
+          meta.warnings().forEach(analysisWarnings::addUnique);
+          break;
+        }
       }
-      projectResponse.meta().warnings().forEach(analysisWarnings::addUnique);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
