@@ -434,6 +434,25 @@ class CacheStrategyTest {
   }
 
   @Test
+  void should_handle_invalid_ast_bytes_serialization() throws IOException {
+    createUcfgFilesInCache();
+
+    when(inputFile.status()).thenReturn(InputFile.Status.SAME);
+    when(sensorContext.canSkipUnchangedFiles()).thenReturn(true);
+    when(previousCache.read(astCacheKey)).thenReturn(inputStream(new byte[] { 42 }));
+
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
+    assertThat(strategy.isAnalysisRequired()).isTrue();
+
+    verify(previousCache).read(jsonCacheKey);
+    verify(previousCache).read(seqCacheKey);
+    verify(previousCache).read(astCacheKey);
+    verify(nextCache, never()).copyFromPrevious(seqCacheKey);
+    verify(nextCache, never()).copyFromPrevious(jsonCacheKey);
+  }
+
+  @Test
   void should_handle_different_version() throws IOException {
     var pluginVersion = "1.2.3";
 

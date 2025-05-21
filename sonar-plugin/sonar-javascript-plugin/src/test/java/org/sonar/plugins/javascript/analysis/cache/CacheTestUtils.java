@@ -37,6 +37,8 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.protobuf.Program;
 
 public class CacheTestUtils {
 
@@ -106,7 +108,10 @@ public class CacheTestUtils {
     );
 
     when(cache.contains("js:ast:1.0:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("js:ast:1.0:moduleKey:" + filePath)).thenReturn(inputStream(new byte[0]));
+    Node node = Node.newBuilder().setProgram(Program.newBuilder().build()).build();
+    when(cache.read("js:ast:1.0:moduleKey:" + filePath)).thenReturn(
+      inputStream(node.toByteArray())
+    );
 
     return context;
   }
