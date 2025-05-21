@@ -19,11 +19,15 @@ package org.sonar.plugins.javascript.analysis.cache;
 import java.io.IOException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class AstProtobufSerialization extends CacheSerialization {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AstProtobufSerialization.class);
 
   AstProtobufSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
@@ -49,5 +53,6 @@ public class AstProtobufSerialization extends CacheSerialization {
       bytes = node.toByteArray();
     }
     writeToCache(bytes);
+    LOG.debug("Cache entry created for key '{}'", getCacheKey());
   }
 }
