@@ -46,7 +46,6 @@ public class AstProtobufSerialization extends CacheSerialization {
     if (node == null) {
       bytes = new byte[0];
     } else {
-      // TODO: do we need to do something with recursion limit here too?
       bytes = node.toByteArray();
     }
     writeToCache(bytes);
