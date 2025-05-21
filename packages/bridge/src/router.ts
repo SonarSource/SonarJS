@@ -50,7 +50,7 @@ export default function (
       // Example: echo back
       if (worker) {
         worker.on('message', message => {
-          // console.log('will send jsoned message', message);
+          console.log('will send jsoned message', message);
           ws.send(JSON.stringify(message));
         });
 
