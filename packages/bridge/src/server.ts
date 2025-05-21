@@ -116,6 +116,7 @@ export function start(
           wss.emit('connection', ws, request);
         });
       } else {
+        socket.write('HTTP/1.1 400 Bad Request\r\n' + 'Connection: close\r\n' + '\r\n');
         socket.destroy();
       }
     });

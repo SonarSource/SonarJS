@@ -302,6 +302,7 @@
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>
                 <exclude>**/lib/**/*</exclude>
+                <exclude>**/generated-meta.ts</exclude>
                 <!-- Fixtures -->
                 <exclude>**/fixtures/**/*</exclude>
                 <exclude>**/*.fixture.*</exclude>

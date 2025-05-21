@@ -184,6 +184,7 @@ class SonarJsIntegrationTest {
 
     String request(String json, String endpoint) throws IOException, InterruptedException {
       var request = HttpRequest.newBuilder(url(endpoint))
+        .version(HttpClient.Version.HTTP_1_1)
         .header("Content-Type", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
