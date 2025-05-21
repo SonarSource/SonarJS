@@ -57,7 +57,7 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
 
-  void clean();
+  void clean() throws InterruptedException;
 
   String getCommandInfo();
 
