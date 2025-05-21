@@ -47,8 +47,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -542,7 +540,6 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void clean() {
-    LOG.trace("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
       request("", "close");
@@ -576,6 +573,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void stop() {
+    LOG.debug("Stopping bridge server");
     clean();
   }
 
