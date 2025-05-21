@@ -32,6 +32,7 @@ import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -247,6 +248,71 @@ class PRAnalysisTest {
     }
   }
 
+  @Test
+  void should_provide_ast_consumers_with_ast_for_unchanged_files() {
+    var testProject = TestProject.fromName("js");
+    var projectKey = testProject.getProjectKey();
+    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
+
+    OrchestratorStarter.setProfiles(
+      orchestrator,
+      projectKey,
+      Map.of(testProject.getProfileName(), testProject.getLanguage())
+    );
+
+    try (var gitExecutor = testProject.createIn(projectPath)) {
+      var indexFile = "index.js";
+      var helloFile = "hello.js";
+
+      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
+      var buildResult = scanWith(getMasterScannerIn(projectPath, projectKey));
+      BuildResultAssert.assertThat(buildResult)
+        .withProjectKey(projectKey)
+        .logsAtLeastOnce(
+          "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
+        )
+        .cacheFileStrategy("WRITE_ONLY")
+        .withReason("current analysis requires all files to be analyzed")
+        .forFiles(indexFile, helloFile)
+        .withCachedFilesCounts(1, 1)
+        .isUsed()
+        .logsOnce(
+          "INFO: Hit the cache for 0 out of 2",
+          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]",
+          "Accepted file: hello.js",
+          "Accepted file: index.js",
+          "Processing file hello.js",
+          "Processing file index.js"
+        )
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+
+      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+        .withProjectKey(projectKey)
+        .logsAtLeastOnce(
+          "DEBUG: Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
+        )
+        .cacheFileStrategy("READ_AND_WRITE")
+        .forFiles(indexFile)
+        .withCachedFilesCounts(1)
+        .isUsed()
+        .cacheFileStrategy("WRITE_ONLY")
+        .withReason("the current file is changed")
+        .forFiles(helloFile)
+        .withCachedFilesCounts(1)
+        .isUsed()
+        .logsOnce(
+          "INFO: Hit the cache for 1 out of 2",
+          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]",
+          "Accepted file: hello.js",
+          "Accepted file: index.js",
+          "Processing file hello.js",
+          "Processing file index.js"
+        )
+        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+    }
+  }
+
   private static Measures getMeasures(String componentKey, String branch, String pullRequest) {
     return new Measures(orchestrator, componentKey, branch, pullRequest);
   }
@@ -257,6 +323,12 @@ class PRAnalysisTest {
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .addPlugin(
+        FileLocation.byWildcardMavenFilename(
+          new File("../plugins/consumer-plugin/target"),
+          "consumer-plugin-*.jar"
+        )
+      )
       .setEdition(Edition.DEVELOPER)
       .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
