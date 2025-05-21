@@ -102,7 +102,10 @@ class CacheReporterTest {
   }
 
   private CacheStrategy createReadAndWrite() {
-    return CacheStrategy.readAndWrite(CacheAnalysis.fromCache(List.of()), createSerialization());
+    return CacheStrategy.readAndWrite(
+      CacheAnalysis.fromCache(List.of(), null),
+      createSerialization()
+    );
   }
 
   private CacheAnalysisSerialization createSerialization() {

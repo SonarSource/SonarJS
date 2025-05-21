@@ -24,12 +24,14 @@ import org.sonar.api.batch.sensor.SensorContext;
 public class CacheAnalysisSerialization extends CacheSerialization {
 
   private final UCFGFilesSerialization ucfgFileSerialization;
+  private final AstProtobufSerialization astProtobufSerialization;
   private final CpdSerialization cpdSerialization;
   private final JsonSerialization<FileMetadata> fileMetadataSerialization;
 
   CacheAnalysisSerialization(SensorContext context, CacheKey cacheKey) {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
+    astProtobufSerialization = new AstProtobufSerialization(context, cacheKey.forAst());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
     fileMetadataSerialization = new JsonSerialization<>(
       FileMetadata.class,
@@ -40,7 +42,11 @@ public class CacheAnalysisSerialization extends CacheSerialization {
 
   @Override
   boolean isInCache() {
-    return ucfgFileSerialization.isInCache() && cpdSerialization.isInCache();
+    return (
+      ucfgFileSerialization.isInCache() &&
+      cpdSerialization.isInCache() &&
+      astProtobufSerialization.isInCache()
+    );
   }
 
   Optional<FileMetadata> fileMetadata() throws IOException {
@@ -54,12 +60,14 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   CacheAnalysis readFromCache() throws IOException {
     ucfgFileSerialization.readFromCache();
 
+    var astData = astProtobufSerialization.readFromCache();
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(cpdData.getCpdTokens());
+    return CacheAnalysis.fromCache(cpdData.getCpdTokens(), astData.orElse(null));
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
+    astProtobufSerialization.writeToCache(analysis.getAst());
     cpdSerialization.writeToCache(new CpdData(analysis.getCpdTokens()));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
@@ -67,6 +75,7 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   @Override
   void copyFromPrevious() {
     ucfgFileSerialization.copyFromPrevious();
+    astProtobufSerialization.copyFromPrevious();
     cpdSerialization.copyFromPrevious();
   }
 }

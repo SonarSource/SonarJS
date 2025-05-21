@@ -172,7 +172,7 @@ public class YamlSensor extends AbstractBridgeSensor {
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         issues = analysisProcessor.processResponse(context, checks, file, response);
         cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
+          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
           file
         );
       } catch (IOException e) {

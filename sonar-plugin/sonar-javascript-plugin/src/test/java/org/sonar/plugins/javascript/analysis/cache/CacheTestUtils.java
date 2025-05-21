@@ -105,6 +105,9 @@ public class CacheTestUtils {
       )
     );
 
+    when(cache.contains("js:ast:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("js:ast:1.0:moduleKey:" + filePath)).thenReturn(inputStream(new byte[0]));
+
     return context;
   }
 

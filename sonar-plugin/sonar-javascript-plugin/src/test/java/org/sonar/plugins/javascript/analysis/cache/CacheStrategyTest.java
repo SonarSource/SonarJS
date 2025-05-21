@@ -80,6 +80,7 @@ class CacheStrategyTest {
   String cpdDataCacheKey;
   String cpdStringTableCacheKey;
   String metadataCacheKey;
+  String astCacheKey;
 
   @TempDir
   Path baseDir;
@@ -143,6 +144,9 @@ class CacheStrategyTest {
       .withPrefix(CpdSerialization.STRING_TABLE_PREFIX)
       .toString();
     metadataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forFileMetadata().toString();
+    astCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forAst().toString();
+
+    when(sensorContext.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
 
     when(sensorContext.runtime()).thenReturn(
       SonarRuntimeImpl.forSonarQube(
@@ -158,6 +162,9 @@ class CacheStrategyTest {
     when(previousCache.contains(metadataCacheKey)).thenReturn(true);
     var metadata = inputStream(new Gson().toJson(FileMetadata.from(inputFile)));
     when(previousCache.read(metadataCacheKey)).thenReturn(metadata);
+
+    when(previousCache.contains(astCacheKey)).thenReturn(true);
+    when(previousCache.read(astCacheKey)).thenReturn(inputStream(new byte[0]));
   }
 
   @Test
@@ -222,7 +229,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, CPD_TOKENS), inputFile);
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, CPD_TOKENS, null), inputFile);
 
     var sequenceCaptor = ArgumentCaptor.forClass(InputStream.class);
     verify(nextCache).write(eq(seqCacheKey), sequenceCaptor.capture());
@@ -271,7 +278,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var generatedFiles = List.of("inexistent.ucfg");
-    var cacheAnalysis = new CacheAnalysis(generatedFiles, CPD_TOKENS);
+    var cacheAnalysis = new CacheAnalysis(generatedFiles, CPD_TOKENS, null);
     assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile)).isInstanceOf(
       UncheckedIOException.class
     );
@@ -311,7 +318,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeAnalysisToCache(CacheAnalysis.fromResponse(null, CPD_TOKENS), inputFile);
+    strategy.writeAnalysisToCache(CacheAnalysis.fromResponse(null, CPD_TOKENS, null), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -350,7 +357,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS, null), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -544,7 +551,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS, null), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -581,7 +588,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS, null), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -593,7 +600,7 @@ class CacheStrategyTest {
     when(inputFile.toString()).thenReturn("test.js");
     assertThat(
       CacheStrategies.getLogMessage(
-        readAndWrite(CacheAnalysis.fromCache(List.of()), serialization),
+        readAndWrite(CacheAnalysis.fromCache(List.of(), null), serialization),
         inputFile,
         "this is a test"
       )
@@ -684,7 +691,7 @@ class CacheStrategyTest {
 
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(sensorContext.nextCache()).thenReturn(tempCache);
-    serialization.writeToCache(CacheAnalysis.fromResponse(ucfgFiles, List.of()), inputFile);
+    serialization.writeToCache(CacheAnalysis.fromResponse(ucfgFiles, List.of(), null), inputFile);
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
     when(sensorContext.nextCache()).thenReturn(nextCache);
 
