@@ -97,7 +97,7 @@ export async function analyzeProject(
   progressReport.stop();
   if (parentThread) {
     parentThread.postMessage({
-      meta: results.meta,
+      ...results.meta,
       messageType: 'meta',
     });
   }
