@@ -39,7 +39,6 @@ public class JSWebSocketClient extends WebSocketClient {
 
   @Override
   public void onMessage(String message) {
-    LOG.debug("Received message: {}", message);
     this.queue.add(message);
   }
 

@@ -69,7 +69,6 @@ const requestHandler = (request, response) => {
       // /analyze-js
       // /analyze-ts
       // objects are created to have test coverage
-      console.log(data, request.url);
       data = JSON.parse(data);
       response.end(JSON.stringify(getFakeAnalysisResponse(data.skipAst)));
     }

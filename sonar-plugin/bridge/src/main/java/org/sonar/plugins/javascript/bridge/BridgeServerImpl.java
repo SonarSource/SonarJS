@@ -35,11 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -235,12 +231,15 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
-
-    URI uri = wsUrl();
-    client = new JSWebSocketClient(uri);
-    client.connectBlocking(); // Wait for connection to establish
+    establishWebSocketConnection();
 
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
+  }
+
+  void establishWebSocketConnection() throws InterruptedException {
+    client = new JSWebSocketClient(wsUrl());
+    client.connectBlocking(); // Wait for connection to establish
+    LOG.debug("Established WebSocket connection");
   }
 
   boolean waitServerToStart(int timeoutMs) {
@@ -315,9 +314,7 @@ public class BridgeServerImpl implements BridgeServer {
       port = providedPort;
       serverHasStarted();
       LOG.info("Using existing Node.js process on port {}", port);
-      URI uri = wsUrl();
-      client = new JSWebSocketClient(uri);
-      client.connectBlocking(); // Wait for connection to establish
+      establishWebSocketConnection();
     }
 
     try {
@@ -396,11 +393,13 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void analyzeProject(ProjectAnalysisRequest request, BlockingQueue<String> blockingQueue) {
-    client.setQueue(blockingQueue);
+  public BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) {
+    BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+    client.setQueue(messageQueue);
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
     client.send(GSON.toJson(request));
+    return messageQueue;
   }
 
   private BridgeResponse request(String json, String endpoint) {
@@ -572,7 +571,6 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void stop() {
-    LOG.debug("Stopping bridge server");
     clean();
   }
 
