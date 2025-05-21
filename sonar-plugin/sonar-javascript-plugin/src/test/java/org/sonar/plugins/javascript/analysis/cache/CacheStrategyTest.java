@@ -146,8 +146,6 @@ class CacheStrategyTest {
     metadataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forFileMetadata().toString();
     astCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forAst().toString();
 
-    when(sensorContext.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
-
     when(sensorContext.runtime()).thenReturn(
       SonarRuntimeImpl.forSonarQube(
         Version.create(9, 6),
