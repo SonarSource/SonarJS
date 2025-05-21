@@ -84,8 +84,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  void analyzeProject(ProjectAnalysisRequest request, BlockingQueue<String> blockingQueue)
-    throws IOException;
+  BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) throws IOException;
 
   record ProjectAnalysisOutput(
     Map<String, AnalysisResponse> files,

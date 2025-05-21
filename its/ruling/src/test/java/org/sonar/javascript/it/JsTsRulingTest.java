@@ -282,10 +282,10 @@ class JsTsRulingTest {
     }
 
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
-    var analyzeProjectEnabledFlag = "true";
-    //    if (analyzeProjectEnabledFlag == null) {
-    //      analyzeProjectEnabledFlag = "false";
-    //    }
+    var analyzeProjectEnabledFlag = System.getProperty(ANALYZE_PROJECT_ENABLED);
+    if (analyzeProjectEnabledFlag == null) {
+      analyzeProjectEnabledFlag = "false";
+    }
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)

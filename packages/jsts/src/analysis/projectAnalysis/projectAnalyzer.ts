@@ -35,13 +35,13 @@ import type { MessagePort } from 'node:worker_threads';
  * Analyzes a JavaScript / TypeScript project in a single run
  *
  * @param input the JavaScript / TypeScript project to analyze
+ * @param parentThread if provided, it will be propagated to accept the computation results
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(
   input: ProjectAnalysisInput,
   parentThread?: MessagePort,
 ): Promise<ProjectAnalysisOutput> {
-  console.log('analyzeProject', input);
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {

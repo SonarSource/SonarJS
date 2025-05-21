@@ -31,6 +31,7 @@ import type { MessagePort } from 'node:worker_threads';
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param baseDir the base directory of the project
  * @param progressReport progress report to log analyzed files
+ * @param parentThread if provided, send the result via this channel
  */
 export async function analyzeWithoutProgram(
   filenames: Set<string>,
