@@ -117,6 +117,7 @@ async function analyzeProgram(
       pendingFiles,
       processedTSConfigs,
       progressReport,
+      parentThread,
     );
   }
 }
