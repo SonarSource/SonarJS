@@ -47,7 +47,6 @@ export default function (
     console.log('WebSocket client connected on /ws');
 
     ws.on('message', message => {
-      console.log('Received:', message);
       // Example: echo back
       if (worker) {
         worker.on('message', message => {
