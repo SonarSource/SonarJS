@@ -180,6 +180,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
         var response = entry.getValue();
         var file = fileToInputFile.get(filePath);
         var cacheStrategy = fileToCacheStrategy.get(filePath);
+        if (file == null) {
+          LOG.warn("File is null, filepath: {}", filePath);
+        }
         issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
