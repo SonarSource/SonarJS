@@ -45,7 +45,7 @@ const MAX_REQUEST_SIZE = '50mb';
  * If the Java plugin crashes, this timeout will run out and shut down
  * the bridge to prevent it from becoming an orphan process.
  */
-const SHUTDOWN_TIMEOUT = 15_000_000;
+const SHUTDOWN_TIMEOUT = 15_000;
 
 /**
  * Starts the bridge
@@ -104,13 +104,6 @@ export function start(
 
     server.on('upgrade', (request, socket, head) => {
       // Only handle upgrade requests for /ws
-      console.log(
-        'called upgrade',
-        request.url,
-        request.method,
-        request.headers,
-        request.httpVersion,
-      );
       if (request.url === '/ws') {
         wss.handleUpgrade(request, socket, head, ws => {
           wss.emit('connection', ws, request);
@@ -179,12 +172,11 @@ export function start(
      */
     function closeServer() {
       debug('Closing server');
-      debug('shutting down server');
       wss.clients.forEach(client => {
         client.terminate(); // Immediately destroys the connection
       });
       wss.close(() => {
-        debug('closed wss');
+        debug('Closed WebSocket connection');
         unregisterGarbageCollectionObserver();
         if (server.listening) {
           while (pendingCloseRequests.length) {

@@ -32,6 +32,7 @@ import type { MessagePort } from 'node:worker_threads';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  * @param progressReport progress report to log analyzed files
+ * @param parentThread if provided, send the result via this channel
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,

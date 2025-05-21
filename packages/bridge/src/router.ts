@@ -19,7 +19,8 @@ import { Worker } from 'worker_threads';
 import { createDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
-import { RawData, WebSocketServer } from 'ws';
+import { type RawData, WebSocketServer } from 'ws';
+import { info } from '../../shared/src/helpers/logging.js';
 
 export default function (
   worker: Worker | undefined,
@@ -44,17 +45,15 @@ export default function (
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
   wss.on('connection', ws => {
-    console.log('WebSocket client connected on /ws');
+    info('WebSocket client connected on /ws');
 
     ws.on('message', message => {
       // Example: echo back
       if (worker) {
         worker.on('message', message => {
-          console.log('will send jsoned message', message);
           ws.send(JSON.stringify(message));
         });
 
-        console.log('Sending message to worker');
         const data = decodeMessage(message);
         worker.postMessage({ type: 'on-analyze-project', data, ws: true });
       }
@@ -74,13 +73,10 @@ export default function (
 }
 
 function decodeMessage(message: RawData) {
-  // Handle Buffer or string
-  let jsonString: string = '';
-  console.log(message);
+  let jsonString = '';
   if (Buffer.isBuffer(message)) {
     jsonString = message.toString('utf8');
   } else if (Array.isArray(message)) {
-    // Rare, but possible: concatenate all buffers
     jsonString = Buffer.concat(message).toString('utf8');
   }
   return JSON.parse(jsonString);
