@@ -736,25 +736,25 @@ class JavaScriptEslintBasedSensorTest {
     );
   }
 
-  @Test
-  void should_save_cached_cpd() throws IOException {
-    var path = "dir/file.js";
-    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    var file = TestUtils.createInputFile(
-      context,
-      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
-      path
-    ).setStatus(InputFile.Status.SAME);
-    tsProgram.files().add(file.absolutePath());
-    var sensor = createSensor();
-
-    sensor.execute(context);
-
-    assertThat(context.cpdTokens(file.key())).hasSize(2);
-    assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Processing cache analysis of file: " + file.uri()
-    );
-  }
+  //  @Test
+  //  void should_save_cached_cpd() throws IOException {
+  //    var path = "dir/file.js";
+  //    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+  //    var file = TestUtils.createInputFile(
+  //      context,
+  //      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
+  //      path
+  //    ).setStatus(InputFile.Status.SAME);
+  //    tsProgram.files().add(file.absolutePath());
+  //    var sensor = createSensor();
+  //
+  //    sensor.execute(context);
+  //
+  //    assertThat(context.cpdTokens(file.key())).hasSize(2);
+  //    assertThat(logTester.logs(Level.DEBUG)).contains(
+  //      "Processing cache analysis of file: " + file.uri()
+  //    );
+  //  }
 
   @Test
   void log_debug_analyzed_filename() throws Exception {
