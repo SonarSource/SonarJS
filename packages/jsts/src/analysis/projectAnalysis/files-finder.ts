@@ -33,10 +33,17 @@ import { initializeTsConfigs, TSCONFIG_JSON, tsConfigCacheInitialized } from './
 import { fileCacheInitialized, setFiles } from './files.js';
 import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { Minimatch } from 'minimatch';
+import {
+  packageJsonsCacheInitialized,
+  PackageJsonWithPath,
+  setPackageJsons,
+} from './package-jsons.js';
+import { PACKAGE_JSON, stripBOM } from '../../rules/index.js';
 
 type FilterSearch = {
   files: boolean;
   tsconfigs: boolean;
+  packageJsons: boolean;
   //we can add package.json search to the same search
 };
 
@@ -47,8 +54,9 @@ type ProvidedTsConfig = {
 
 export async function loadFiles(baseDir: string, inputFiles?: JsTsFiles) {
   const filterSearch: FilterSearch = {
-    files: shouldSearchInputFiles(inputFiles),
+    files: shouldSearchInputFiles(baseDir, inputFiles),
     tsconfigs: !tsConfigCacheInitialized(baseDir),
+    packageJsons: !packageJsonsCacheInitialized(baseDir),
   };
   // if all filters are off, skip search
   if (Object.values(filterSearch).every(value => !value)) {
@@ -69,6 +77,7 @@ export async function loadFiles(baseDir: string, inputFiles?: JsTsFiles) {
   const testPaths = getTestPaths()?.map(test => toUnixPath(join(baseDir, test)));
 
   const files: JsTsFiles = {};
+  const foundPackageJsons: PackageJsonWithPath[] = [];
   // tsconfig.json files in the project tree
   const foundLookupTsConfigs: string[] = [];
   // tsconfig.json files specified in sonar.typescript.tsconfigPaths
@@ -101,11 +110,23 @@ export async function loadFiles(baseDir: string, inputFiles?: JsTsFiles) {
           foundLookupTsConfigs.push(filePath);
         }
       }
+
+      if (filterSearch.packageJsons && file.name === PACKAGE_JSON) {
+        try {
+          const fileContent = JSON.parse(stripBOM(await readFile(filePath, 'utf8')));
+          foundPackageJsons.push({ filePath, fileContent });
+        } catch (e) {
+          error(`Error parsing package.json ${filePath}: ${e}`);
+        }
+      }
     },
     getExclusions(),
   );
   if (filterSearch.files) {
-    setFiles(files);
+    setFiles(baseDir, files);
+  }
+  if (filterSearch.packageJsons) {
+    setPackageJsons(baseDir, foundPackageJsons);
   }
   if (filterSearch.tsconfigs) {
     if (getTsConfigPaths().length && !foundPropertyTsConfigs.length) {
@@ -127,11 +148,11 @@ function getFiletype(filePath: string, testPaths?: string[]): FileType {
   return 'MAIN';
 }
 
-function shouldSearchInputFiles(files?: JsTsFiles) {
+function shouldSearchInputFiles(baseDir: string, files?: JsTsFiles) {
   if (!isSonarLint() && files) {
-    setFiles(files);
+    setFiles(baseDir, files);
     return false;
   }
-  // we just need the file cache to know how many are there to enable or disable type-checking
-  return !fileCacheInitialized();
+  // in sonarlint we just need the file cache to know how many are there to enable or disable type-checking
+  return !fileCacheInitialized(baseDir);
 }

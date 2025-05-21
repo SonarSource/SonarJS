@@ -16,18 +16,24 @@
  */
 
 import type { JsTsFiles } from './projectAnalysis.js';
+import { toUnixPath } from '../../rules/index.js';
+import { dirname } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
+let baseDir: string | undefined;
 let files: JsTsFiles | undefined;
 let filenames: string[] | undefined;
+let paths: Set<string> | undefined;
 
 export function clearFilesCache() {
   files = undefined;
   filenames = undefined;
+  paths = undefined;
 }
 
-export function fileCacheInitialized() {
+export function fileCacheInitialized(baseDir: string) {
+  dirtyCachesIfNeeded(baseDir);
   return typeof files !== 'undefined';
 }
 
@@ -52,7 +58,29 @@ export function getFilenames() {
   return filenames;
 }
 
-export function setFiles(newFiles: JsTsFiles) {
-  files = newFiles;
-  filenames = Object.keys(newFiles);
+export function getPaths() {
+  if (!paths) {
+    throw new Error(UNINITIALIZED_ERROR);
+  }
+  return paths;
+}
+
+export function setFiles(newBaseDir: string, newFiles: JsTsFiles) {
+  baseDir = newBaseDir;
+  files = {};
+  filenames = [];
+  paths = new Set<string>();
+  Object.entries(newFiles).forEach(([rawFilename, file]) => {
+    const filename = toUnixPath(rawFilename);
+    paths!.add(dirname(filename));
+    filenames!.push(filename);
+    file.filePath = filename;
+    files![filename] = file;
+  });
+}
+
+function dirtyCachesIfNeeded(currentBaseDir: string) {
+  if (currentBaseDir !== baseDir) {
+    clearFilesCache();
+  }
 }

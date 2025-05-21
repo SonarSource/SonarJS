@@ -29,14 +29,12 @@ import {
   isJsTsFile,
   isSonarLint,
   maxFilesForTypeChecking,
-  setClearDependenciesCache,
   setClearFileToTsConfigCache,
   setClearTsConfigCache,
   shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../shared/src/helpers/configuration.js';
 import { basename } from 'node:path';
-import { PACKAGE_JSON } from '../../rules/index.js';
 
 tmp.setGracefulCleanup();
 export const UNINITIALIZED_ERROR =
@@ -155,8 +153,6 @@ export function dirtyCachesIfNeeded(baseDir: string) {
     if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {
       changedTsConfigs.push(filename);
       setClearTsConfigCache(true);
-    } else if (filenameLower === PACKAGE_JSON) {
-      setClearDependenciesCache(true);
     } else if (isJsTsFile(filename) && event === 'CREATED') {
       setClearFileToTsConfigCache(true);
     }
