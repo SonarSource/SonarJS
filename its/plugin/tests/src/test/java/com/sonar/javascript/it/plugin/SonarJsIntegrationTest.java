@@ -166,7 +166,7 @@ class SonarJsIntegrationTest {
     private Process process;
 
     Bridge() {
-      this.client = HttpClient.newHttpClient();
+      this.client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     }
 
     void start(Path dest) throws IOException {
