@@ -76,6 +76,7 @@ export default function (
 function decodeMessage(message: RawData) {
   // Handle Buffer or string
   let jsonString: string = '';
+  console.log(message);
   if (Buffer.isBuffer(message)) {
     jsonString = message.toString('utf8');
   } else if (Array.isArray(message)) {
