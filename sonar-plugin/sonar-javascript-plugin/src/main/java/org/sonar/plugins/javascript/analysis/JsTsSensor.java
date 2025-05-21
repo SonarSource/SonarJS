@@ -135,6 +135,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
         var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
         analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+        acceptAstResponse(cacheAnalysis.getAst(), inputFile);
       }
     }
 
@@ -185,7 +186,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
           file
         );
-        acceptAstResponse(response, file);
+        acceptAstResponse(response.ast(), file);
       }
       projectResponse.meta().warnings().forEach(analysisWarnings::addUnique);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
@@ -205,8 +206,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     return importer.execute(context);
   }
 
-  private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
-    Node responseAst = response.ast();
+  private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
     if (responseAst != null) {
       // When we haven't serialized the AST:
       // either because no consumer is listening
