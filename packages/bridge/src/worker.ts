@@ -23,12 +23,17 @@ import { BridgeRequest } from './request.js';
  */
 if (parentPort) {
   const parentThread = parentPort;
-  parentThread.on('message', async (message: BridgeRequest | { type: 'close' }) => {
-    const { type } = message;
-    if (type === 'close') {
-      parentThread.close();
-    } else {
-      parentThread.postMessage(await handleRequest(message, workerData));
-    }
-  });
+  parentThread.on(
+    'message',
+    async (message: (BridgeRequest | { type: 'close' }) & { ws?: boolean }) => {
+      const { type, ws } = message;
+      if (type === 'close') {
+        parentThread.close();
+      } else if (ws) {
+        await handleRequest(message, workerData, parentThread);
+      } else {
+        parentThread.postMessage(await handleRequest(message, workerData));
+      }
+    },
+  );
 }

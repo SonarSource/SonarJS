@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
@@ -38,7 +39,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
-  void startServerLazily(BridgeServerConfig context) throws IOException;
+  void startServerLazily(BridgeServerConfig context) throws IOException, InterruptedException;
 
   void initLinter(
     List<EslintRule> rules,
@@ -56,7 +57,7 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
 
-  void clean();
+  void clean() throws InterruptedException;
 
   String getCommandInfo();
 
@@ -84,7 +85,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException;
+  BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) throws IOException;
 
   record ProjectAnalysisOutput(
     Map<String, AnalysisResponse> files,
@@ -264,7 +265,7 @@ public interface BridgeServer extends Startable {
       this.ast = ast;
     }
 
-    static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
+    public static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
       Node ast = null;
       if (analysisResponseDTO.astFilePath != null) {
         try {

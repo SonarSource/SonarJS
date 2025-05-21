@@ -13,6 +13,8 @@ const requestHandler = async (request, response) => {
   } else if (request.url === '/close') {
     response.end();
     server.close();
+  } else if (request.url === '/ws') {
+    response.end();
   } else {
     await sleep(1000);
   }

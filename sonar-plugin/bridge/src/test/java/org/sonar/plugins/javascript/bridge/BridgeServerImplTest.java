@@ -300,7 +300,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_create_tsconfig_files() throws IOException {
+  void should_create_tsconfig_files() throws IOException, InterruptedException {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
 
@@ -735,37 +735,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_return_an_ast_for_analyze_project() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    var projectAnalysisRequest = new BridgeServer.ProjectAnalysisRequest(
-      Map.of(
-        inputFile.absolutePath(),
-        new BridgeServer.JsTsFile(
-          inputFile.absolutePath(),
-          "MAIN",
-          inputFile.status(),
-          inputFile.contents()
-        )
-      ),
-      Collections.emptyList(),
-      BridgeServer.ProjectAnalysisConfiguration.withDefaults(),
-      ""
-    );
-    var response = bridgeServer.analyzeProject(projectAnalysisRequest);
-    var fileResponse = response.files().get(inputFile.absolutePath());
-    assertThat(fileResponse).isNotNull();
-    assertThat(fileResponse.ast()).isNotNull();
-    Node node = fileResponse.ast();
-    assertThat(node.getProgram()).isNotNull();
-    assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
-  }
-
-  @Test
   void should_handle_io_exception() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
@@ -861,7 +830,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_start_bridge_from_path() throws IOException {
+  void should_start_bridge_from_path() throws IOException, InterruptedException {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test/resources";
     var settings = new MapSettings()

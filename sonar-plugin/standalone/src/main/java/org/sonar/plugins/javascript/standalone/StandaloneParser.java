@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.api.AnalysisMode;
@@ -42,6 +44,8 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class StandaloneParser implements AutoCloseable {
 
+  private static final Logger LOG = LoggerFactory.getLogger(StandaloneParser.class);
+
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
 
   private final BridgeServerImpl bridge;
@@ -50,7 +54,7 @@ public class StandaloneParser implements AutoCloseable {
     this(Http.getJdkHttpClient());
   }
 
-  public StandaloneParser(Http http) {
+  public StandaloneParser(Http http) throws RuntimeException {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     bridge = new BridgeServerImpl(
@@ -74,6 +78,8 @@ public class StandaloneParser implements AutoCloseable {
       bridge.initLinter(List.of(), List.of(), List.of(), null, true);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -110,6 +116,7 @@ public class StandaloneParser implements AutoCloseable {
 
   @Override
   public void close() {
+    LOG.debug("Closing StandaloneParser");
     bridge.stop();
   }
 

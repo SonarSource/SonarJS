@@ -35,10 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -90,6 +87,7 @@ public class BridgeServerImpl implements BridgeServer {
   private ScheduledFuture<?> heartbeatFuture;
   private final Http http;
   private Long latestOKIsAliveTimestamp;
+  private JSWebSocketClient client;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -207,7 +205,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(BridgeServerConfig serverConfig) throws IOException {
+  void startServer(BridgeServerConfig serverConfig) throws IOException, InterruptedException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
@@ -233,7 +231,15 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
+    establishWebSocketConnection();
+
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
+  }
+
+  void establishWebSocketConnection() throws InterruptedException {
+    client = new JSWebSocketClient(wsUrl());
+    client.connectBlocking(); // Wait for connection to establish
+    LOG.debug("Established WebSocket connection");
   }
 
   boolean waitServerToStart(int timeoutMs) {
@@ -291,7 +297,8 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
+  public void startServerLazily(BridgeServerConfig serverConfig)
+    throws IOException, InterruptedException {
     if (status == Status.FAILED) {
       if (shouldRestartFailedServer()) {
         // Reset the status, which will cause the server to retry deployment
@@ -307,6 +314,7 @@ public class BridgeServerImpl implements BridgeServer {
       port = providedPort;
       serverHasStarted();
       LOG.info("Using existing Node.js process on port {}", port);
+      establishWebSocketConnection();
     }
 
     try {
@@ -324,7 +332,7 @@ public class BridgeServerImpl implements BridgeServer {
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(serverConfig);
-    } catch (NodeCommandException e) {
+    } catch (NodeCommandException | InterruptedException e) {
       status = Status.FAILED;
       throw e;
     }
@@ -385,13 +393,13 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) {
+  public BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) {
+    BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+    client.setQueue(messageQueue);
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    var response = request(GSON.toJson(request), "analyze-project");
-    return ProjectAnalysisOutput.fromDTO(
-      GSON.fromJson(response.reader(), ProjectAnalysisOutputDTO.class)
-    );
+    client.send(GSON.toJson(request));
+    return messageQueue;
   }
 
   private BridgeResponse request(String json, String endpoint) {
@@ -530,7 +538,6 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void clean() {
-    LOG.trace("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
       request("", "close");
@@ -565,6 +572,14 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void stop() {
     clean();
+  }
+
+  private URI wsUrl() {
+    try {
+      return new URI("ws", null, hostAddress, port, "/ws", null, null);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
+    }
   }
 
   private URI url(String endpoint) {
