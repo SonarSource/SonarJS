@@ -42,6 +42,7 @@ public class AstProtobufSerialization extends CacheSerialization {
     if (node == null) {
       throw new IOException("The AST is null for key " + getCacheKey());
     }
+    LOG.debug("Cache entry extracted for key '{}'", getCacheKey());
     return Optional.of(node);
   }
 
