@@ -238,8 +238,8 @@ public class BridgeServerImpl implements BridgeServer {
 
     URI uri = wsUrl();
     client = new JSWebSocketClient(uri);
-
     client.connectBlocking(); // Wait for connection to establish
+
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
@@ -315,6 +315,9 @@ public class BridgeServerImpl implements BridgeServer {
       port = providedPort;
       serverHasStarted();
       LOG.info("Using existing Node.js process on port {}", port);
+      URI uri = wsUrl();
+      client = new JSWebSocketClient(uri);
+      client.connectBlocking(); // Wait for connection to establish
     }
 
     try {
