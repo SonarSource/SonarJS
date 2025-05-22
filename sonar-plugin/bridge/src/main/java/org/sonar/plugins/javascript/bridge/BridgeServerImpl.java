@@ -24,7 +24,11 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NO
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -370,7 +374,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private String textResponse(BridgeResponse response) {
+  private static String textResponse(BridgeResponse response) {
     BufferedReader bufferedReader = new BufferedReader(response.reader());
     return bufferedReader.lines().collect(Collectors.joining());
   }
