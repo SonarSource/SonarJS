@@ -46,13 +46,17 @@ public class JSWebSocketClientImpl extends WebSocketClient implements JSWebSocke
   @Override
   public void onClose(int code, String reason, boolean remote) {
     LOG.debug("Connection closed: {}", reason);
-    queue.add(CONNECTION_CLOSED);
+    if (queue != null) {
+      queue.add(CONNECTION_CLOSED);
+    }
   }
 
   @Override
   public void onError(Exception ex) {
     LOG.error("Error: " + ex.getMessage(), ex);
-    queue.add(CONNECTION_ERROR);
+    if (queue != null) {
+      queue.add(CONNECTION_ERROR);
+    }
   }
 
   @Override
