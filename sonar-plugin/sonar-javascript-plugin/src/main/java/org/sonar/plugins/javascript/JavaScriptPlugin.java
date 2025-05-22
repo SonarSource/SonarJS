@@ -166,8 +166,7 @@ public class JavaScriptPlugin implements Plugin {
       YamlSensor.class,
       HtmlSensor.class,
       EmbeddedNode.class,
-      Environment.class,
-      JSWebSocketClientImpl.class
+      Environment.class
     );
 
     context.addExtensions(
