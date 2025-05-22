@@ -23,6 +23,7 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
 import { createWorker } from '../../shared/src/helpers/worker.js';
+import { join } from 'node:path/posix';
 
 const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
@@ -62,6 +63,77 @@ describe('server', () => {
         message: 'Linter does not exist. Did you call /init-linter?',
       },
     });
+    await request(server, '/close', 'POST');
+    await serverClosed;
+  });
+
+  it('should accept a ws request', async () => {
+    const worker = createWorker(workerPath);
+    const { server, serverClosed } = await start(port, undefined, worker);
+    const wsUrl = `ws://127.0.0.1:${(server.address() as AddressInfo)?.port}/ws`;
+    const ws = new WebSocket(wsUrl);
+    await new Promise(resolve => {
+      ws.onopen = () => {
+        resolve('Success');
+      };
+    });
+    const fixtures = join(import.meta.dirname, 'fixtures', 'router');
+    const filePath = join(fixtures, 'file.ts');
+    ws.send(
+      JSON.stringify({
+        rules: [
+          {
+            key: 'S4621',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'ts',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+        baseDir: fixtures,
+        files: {
+          [filePath]: { fileType: 'MAIN', filePath },
+        },
+      }),
+    );
+
+    const messages = [];
+    const metaResponse = await new Promise((resolve, reject) => {
+      ws.onmessage = event => {
+        const json = JSON.parse(event.data);
+        if (json.messageType === 'meta') {
+          resolve(json);
+        } else {
+          messages.push(json);
+        }
+      };
+      ws.onerror = err => {
+        reject(err); // Reject if something goes wrong
+      };
+    });
+    expect(metaResponse).toEqual({
+      messageType: 'meta',
+      filesWithoutTypeChecking: [],
+      warnings: [],
+      withProgram: true,
+      withWatchProgram: false,
+      programsCreated: [join(fixtures, 'tsconfig.json')],
+    });
+    expect(messages.length).toEqual(1);
+    const {
+      issues: [issue],
+    } = messages[0];
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'S4621',
+        line: 1,
+        column: 28,
+        endLine: 1,
+        endColumn: 35,
+        message: `Remove this duplicated type or replace with another one.`,
+      }),
+    );
+
     await request(server, '/close', 'POST');
     await serverClosed;
   });

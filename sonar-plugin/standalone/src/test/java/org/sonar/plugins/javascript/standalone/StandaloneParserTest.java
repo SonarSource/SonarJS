@@ -35,7 +35,7 @@ class StandaloneParserTest {
   private static StandaloneParser parser;
 
   @BeforeAll
-  static void setUp() {
+  static void setUp() throws InterruptedException {
     parser = new StandaloneParser();
   }
 
