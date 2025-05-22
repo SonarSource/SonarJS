@@ -61,14 +61,14 @@ describe('files', () => {
   });
 
   it('should ignore malformed the package.json files', async ({ mock }) => {
-    mock.method(console, 'error');
-    const consoleErrorMock = (console.error as Mock<typeof console.error>).mock;
+    mock.method(console, 'log');
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     await loadFiles(join(fixtures, 'package-json-malformed'));
     const filePath = join(fixtures, 'package-json-malformed', 'package.json');
     expect(getPackageJsons()).toHaveLength(0);
 
     expect(
-      consoleErrorMock.calls
+      consoleLogMock.calls
         .map(call => call.arguments[0])
         .some(log => log.match(`Error parsing package.json ${filePath}: SyntaxError`)),
     ).toEqual(true);

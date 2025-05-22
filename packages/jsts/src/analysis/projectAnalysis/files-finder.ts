@@ -31,7 +31,7 @@ import { readFile } from 'node:fs/promises';
 import { accept } from './filter/filter.js';
 import { initializeTsConfigs, TSCONFIG_JSON, tsConfigCacheInitialized } from './tsconfigs.js';
 import { fileCacheInitialized, setFiles } from './files.js';
-import { error, info } from '../../../../shared/src/helpers/logging.js';
+import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { Minimatch } from 'minimatch';
 import {
   packageJsonsCacheInitialized,
@@ -44,7 +44,6 @@ type FilterSearch = {
   files: boolean;
   tsconfigs: boolean;
   packageJsons: boolean;
-  //we can add package.json search to the same search
 };
 
 type ProvidedTsConfig = {
@@ -116,7 +115,7 @@ export async function loadFiles(baseDir: string, inputFiles?: JsTsFiles) {
           const fileContent = JSON.parse(stripBOM(await readFile(filePath, 'utf8')));
           foundPackageJsons.push({ filePath, fileContent });
         } catch (e) {
-          error(`Error parsing package.json ${filePath}: ${e}`);
+          warn(`Error parsing package.json ${filePath}: ${e}`);
         }
       }
     },
