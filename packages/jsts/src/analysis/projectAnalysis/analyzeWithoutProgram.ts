@@ -20,8 +20,8 @@ import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/confi
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { handleFileResult } from './analyzeWithProgram.js';
 import type { MessagePort } from 'node:worker_threads';
+import { handleFileResult } from './handleFileResult.js';
 
 /**
  * Analyzes files without type-checking.

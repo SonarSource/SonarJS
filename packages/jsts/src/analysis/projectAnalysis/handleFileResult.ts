@@ -14,15 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.bridge;
+import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { MessagePort } from 'node:worker_threads';
 
-import java.util.concurrent.BlockingQueue;
-import javax.annotation.Nullable;
-
-public interface JSWebSocketClient {
-  String CONNECTION_CLOSED = "CONNECTION_CLOSED";
-  String CONNECTION_ERROR = "CONNECTION_ERROR";
-
-  void send(@Nullable String message);
-  void setQueue(BlockingQueue<String> queue);
+export function handleFileResult(
+  result: FileResult,
+  filename: string,
+  results: ProjectAnalysisOutput,
+  parentThread?: MessagePort,
+) {
+  if (parentThread) {
+    parentThread.postMessage({
+      ...result,
+      filename,
+      messageType: 'fileResult',
+    });
+  } else {
+    results.files[filename] = result;
+  }
 }

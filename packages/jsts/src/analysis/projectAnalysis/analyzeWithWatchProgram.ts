@@ -22,8 +22,8 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { getTsConfigForInputFile } from './tsconfigs.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { handleFileResult } from './analyzeWithProgram.js';
 import type { MessagePort } from 'node:worker_threads';
+import { handleFileResult } from './handleFileResult.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
