@@ -231,15 +231,16 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
-    establishWebSocketConnection();
+    this.client = establishWebSocketConnection();
 
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
-  void establishWebSocketConnection() throws InterruptedException {
-    client = new JSWebSocketClient(wsUrl());
-    client.connectBlocking(); // Wait for connection to establish
+  JSWebSocketClient establishWebSocketConnection() throws InterruptedException {
+    var webSocketClient = new JSWebSocketClientImpl(wsUrl());
+    webSocketClient.connectBlocking(); // Wait for connection to establish
     LOG.debug("Established WebSocket connection");
+    return webSocketClient;
   }
 
   boolean waitServerToStart(int timeoutMs) {
@@ -314,7 +315,7 @@ public class BridgeServerImpl implements BridgeServer {
       port = providedPort;
       serverHasStarted();
       LOG.info("Using existing Node.js process on port {}", port);
-      establishWebSocketConnection();
+      this.client = establishWebSocketConnection();
     }
 
     try {

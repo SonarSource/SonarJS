@@ -57,13 +57,14 @@ public class StandaloneParser implements AutoCloseable {
   public StandaloneParser(Http http) throws RuntimeException {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
+    var temporaryFolder = new StandaloneTemporaryFolder();
     bridge = new BridgeServerImpl(
       new NodeCommandBuilderImpl(processWrapper),
       DEFAULT_TIMEOUT_SECONDS,
       new BundleImpl(),
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
-      new StandaloneTemporaryFolder(),
+      temporaryFolder,
       new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
       http
     );
@@ -71,7 +72,7 @@ public class StandaloneParser implements AutoCloseable {
       bridge.startServerLazily(
         new BridgeServerConfig(
           emptyConfiguration,
-          new File(".").getAbsolutePath(),
+          temporaryFolder.newDir().getAbsolutePath(),
           SonarProduct.SONARLINT
         )
       );
@@ -116,7 +117,6 @@ public class StandaloneParser implements AutoCloseable {
 
   @Override
   public void close() {
-    LOG.debug("Closing StandaloneParser");
     bridge.stop();
   }
 

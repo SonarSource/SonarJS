@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -44,6 +45,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
@@ -95,7 +98,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisOutput;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
@@ -128,6 +130,7 @@ class JsTsSensorTest {
   private TsConfigCache tsConfigCache;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
+  private final Gson GSON = new Gson();
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -155,7 +158,9 @@ class JsTsSensorTest {
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(new ProjectAnalysisOutput());
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+      new LinkedBlockingQueue<>(getAnalyzeProjectList(new BridgeServer.ProjectAnalysisOutputDTO()))
+    );
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
@@ -186,6 +191,24 @@ class JsTsSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
+  }
+
+  private BlockingQueue<String> getAnalyzeProjectList(
+    BridgeServer.ProjectAnalysisOutputDTO response
+  ) throws InterruptedException {
+    BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
+      String key = entry.getKey();
+      BridgeServer.AnalysisResponseDTO value = entry.getValue();
+      JsonObject json = GSON.toJsonTree(value).getAsJsonObject();
+      json.addProperty("filename", key);
+      json.addProperty("messageType", "fileResult");
+      queue.put(GSON.toJson(json));
+    }
+    JsonObject json = GSON.toJsonTree(response.meta()).getAsJsonObject();
+    json.addProperty("messageType", "meta");
+    queue.put(GSON.toJson(json));
+    return queue;
   }
 
   @Test
@@ -233,7 +256,7 @@ class JsTsSensorTest {
     var program = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
     var issueFilePath = Path.of(baseDir.toString(), "file.js").toAbsolutePath().toString();
 
-    AnalysisResponse expectedResponse = createResponse(
+    BridgeServer.AnalysisResponseDTO expectedResponse = createResponse(
       List.of(
         new BridgeServer.Issue(
           1,
@@ -266,7 +289,9 @@ class JsTsSensorTest {
       )
     );
 
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
+      AnalysisResponse.fromDTO(expectedResponse)
+    );
     when(bridgeServerMock.createProgram(any())).thenReturn(program);
 
     sensor.execute(context);
@@ -284,8 +309,10 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     createTsConfigFile();
 
-    AnalysisResponse expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
+    BridgeServer.AnalysisResponseDTO expectedResponse = createResponse();
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
+      AnalysisResponse.fromDTO(expectedResponse)
+    );
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
 
@@ -356,7 +383,9 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(ctx);
 
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+      getAnalyzeProjectList(expectedResponse)
+    );
 
     sensor.execute(ctx);
     assertThat(ctx.allIssues()).hasSize(
@@ -420,7 +449,7 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(ctx);
 
     var warningMessage = "warning message";
-    var expectedResponse = new ProjectAnalysisOutput(
+    var expectedResponse = new BridgeServer.ProjectAnalysisOutputDTO(
       createFilesMap(List.of(inputFile)),
       new BridgeServer.ProjectAnalysisMetaResponse(
         true,
@@ -430,7 +459,9 @@ class JsTsSensorTest {
         List.of(warningMessage)
       )
     );
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(expectedResponse);
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+      getAnalyzeProjectList(expectedResponse)
+    );
 
     sensor.execute(ctx);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
@@ -1055,8 +1086,10 @@ class JsTsSensorTest {
 
   @Test
   void log_debug_analyzed_filename_with_tsconfig() throws Exception {
-    AnalysisResponse expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(expectedResponse);
+    BridgeServer.AnalysisResponseDTO expectedResponse = createResponse();
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
+      AnalysisResponse.fromDTO(expectedResponse)
+    );
     var inputFile = createVueInputFile();
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
@@ -1262,7 +1295,7 @@ class JsTsSensorTest {
       )
       .build();
     when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      createProjectResponseWithAst(inputFile, placeHolderNode)
+      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, placeHolderNode))
     );
 
     sensor.execute(ctx);
@@ -1310,7 +1343,7 @@ class JsTsSensorTest {
     var inputFile = createInputFile(ctx);
 
     when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      createProjectResponseWithAst(inputFile, erroneousNode)
+      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, erroneousNode))
     );
 
     sensor.execute(ctx);
@@ -1396,15 +1429,21 @@ class JsTsSensorTest {
     return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, tsConfigCache);
   }
 
-  private ProjectAnalysisOutput createProjectResponse(List<InputFile> files) {
-    return new ProjectAnalysisOutput(
+  private BridgeServer.ProjectAnalysisOutputDTO createProjectResponse(List<InputFile> files) {
+    return new BridgeServer.ProjectAnalysisOutputDTO(
       createFilesMap(files),
       new BridgeServer.ProjectAnalysisMetaResponse()
     );
   }
 
-  private ProjectAnalysisOutput createProjectResponseWithAst(InputFile inputFile, Node node) {
-    var analysisResponse = new AnalysisResponse(
+  private BridgeServer.ProjectAnalysisOutputDTO createProjectResponseWithAst(
+    InputFile inputFile,
+    Node node
+  ) throws IOException {
+    var astFile = Files.createTempFile("filepath", "ast");
+    var content = node.toByteArray();
+    Files.write(astFile, content);
+    var analysisResponse = new BridgeServer.AnalysisResponseDTO(
       null,
       List.of(),
       List.of(),
@@ -1412,28 +1451,31 @@ class JsTsSensorTest {
       new BridgeServer.Metrics(),
       List.of(),
       List.of(),
-      node
+      astFile.toAbsolutePath().toString()
     );
 
-    var files = new HashMap<String, AnalysisResponse>() {
+    var files = new HashMap<String, BridgeServer.AnalysisResponseDTO>() {
       {
         put(inputFile.absolutePath(), analysisResponse);
       }
     };
 
-    return new ProjectAnalysisOutput(files, new BridgeServer.ProjectAnalysisMetaResponse());
+    return new BridgeServer.ProjectAnalysisOutputDTO(
+      files,
+      new BridgeServer.ProjectAnalysisMetaResponse()
+    );
   }
 
-  private Map<String, AnalysisResponse> createFilesMap(List<InputFile> files) {
-    return new HashMap<String, AnalysisResponse>() {
+  private Map<String, BridgeServer.AnalysisResponseDTO> createFilesMap(List<InputFile> files) {
+    return new HashMap<String, BridgeServer.AnalysisResponseDTO>() {
       {
         files.forEach(file -> put(file.absolutePath(), createResponse()));
       }
     };
   }
 
-  private AnalysisResponse createResponse(List<BridgeServer.Issue> issues) {
-    return new AnalysisResponse(
+  private BridgeServer.AnalysisResponseDTO createResponse(List<BridgeServer.Issue> issues) {
+    return new BridgeServer.AnalysisResponseDTO(
       null,
       issues,
       List.of(),
@@ -1445,7 +1487,7 @@ class JsTsSensorTest {
     );
   }
 
-  private AnalysisResponse createResponse() {
+  private BridgeServer.AnalysisResponseDTO createResponse() {
     return new Gson()
       .fromJson(
         "{" +
@@ -1459,7 +1501,7 @@ class JsTsSensorTest {
         "," +
         createHighlightedSymbols() +
         "}",
-        AnalysisResponse.class
+        BridgeServer.AnalysisResponseDTO.class
       );
   }
 
