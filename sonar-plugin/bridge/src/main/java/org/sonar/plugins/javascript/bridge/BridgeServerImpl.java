@@ -35,7 +35,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -238,7 +243,8 @@ public class BridgeServerImpl implements BridgeServer {
 
   JSWebSocketClient establishWebSocketConnection() throws InterruptedException {
     var webSocketClient = new JSWebSocketClientImpl(wsUrl());
-    webSocketClient.connectBlocking(); // Wait for connection to establish
+    // Wait for connection to establish
+    webSocketClient.connectBlocking();
     LOG.debug("Established WebSocket connection");
     return webSocketClient;
   }

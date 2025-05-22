@@ -16,13 +16,11 @@
  */
 package org.sonar.plugins.javascript.standalone;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.api.AnalysisMode;
@@ -44,17 +42,15 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class StandaloneParser implements AutoCloseable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(StandaloneParser.class);
-
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
 
   private final BridgeServerImpl bridge;
 
-  public StandaloneParser() {
+  public StandaloneParser() throws InterruptedException {
     this(Http.getJdkHttpClient());
   }
 
-  public StandaloneParser(Http http) throws RuntimeException {
+  public StandaloneParser(Http http) throws InterruptedException {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     var temporaryFolder = new StandaloneTemporaryFolder();
@@ -79,8 +75,6 @@ public class StandaloneParser implements AutoCloseable {
       bridge.initLinter(List.of(), List.of(), List.of(), null, true);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
     }
   }
 
