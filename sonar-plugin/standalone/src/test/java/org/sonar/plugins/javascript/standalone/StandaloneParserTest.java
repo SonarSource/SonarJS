@@ -108,13 +108,13 @@ class StandaloneParserTest {
 
   private static Stream<Arguments> provideInputsForParsingExportedNodes() {
     return Stream.of(
-      //      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
-      //      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
-      //      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
-      //      Arguments.of("export declare module 'foo'", ESTree.TSModuleDeclaration.class),
-      //      Arguments.of("export type A = { a: 42 }", ESTree.TSTypeAliasDeclaration.class),
-      //      Arguments.of("export enum A {}", ESTree.TSEnumDeclaration.class),
-      //      Arguments.of("export interface A {}", ESTree.TSInterfaceDeclaration.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class),
+      Arguments.of("export declare module 'foo'", ESTree.TSModuleDeclaration.class),
+      Arguments.of("export type A = { a: 42 }", ESTree.TSTypeAliasDeclaration.class),
+      Arguments.of("export enum A {}", ESTree.TSEnumDeclaration.class),
+      Arguments.of("export interface A {}", ESTree.TSInterfaceDeclaration.class),
       Arguments.of("export declare function foo()", ESTree.TSDeclareFunction.class)
     );
   }
