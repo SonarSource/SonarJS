@@ -27,8 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-//import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
+import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -137,7 +136,7 @@ class JavaScriptEslintBasedSensorTest {
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
     // this is required to avoid the test to use real plugin version from the manifest
-    //    PluginInfo.setVersion(PLUGIN_VERSION);
+    PluginInfo.setVersion(PLUGIN_VERSION);
 
     // Avoid shortpaths on windows
     baseDir = baseDir.toRealPath();
@@ -736,25 +735,25 @@ class JavaScriptEslintBasedSensorTest {
     );
   }
 
-  //  @Test
-  //  void should_save_cached_cpd() throws IOException {
-  //    var path = "dir/file.js";
-  //    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-  //    var file = TestUtils.createInputFile(
-  //      context,
-  //      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
-  //      path
-  //    ).setStatus(InputFile.Status.SAME);
-  //    tsProgram.files().add(file.absolutePath());
-  //    var sensor = createSensor();
-  //
-  //    sensor.execute(context);
-  //
-  //    assertThat(context.cpdTokens(file.key())).hasSize(2);
-  //    assertThat(logTester.logs(Level.DEBUG)).contains(
-  //      "Processing cache analysis of file: " + file.uri()
-  //    );
-  //  }
+  @Test
+  void should_save_cached_cpd() throws IOException {
+    var path = "dir/file.js";
+    context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    var file = TestUtils.createInputFile(
+      context,
+      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
+      path
+    ).setStatus(InputFile.Status.SAME);
+    tsProgram.files().add(file.absolutePath());
+    var sensor = createSensor();
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(file.key())).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Processing cache analysis of file: " + file.uri()
+    );
+  }
 
   @Test
   void log_debug_analyzed_filename() throws Exception {

@@ -45,6 +45,7 @@ import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -184,6 +185,13 @@ public class JsTsSensor extends AbstractBridgeSensor {
       BlockingQueue<String> messageQueue = bridgeServer.analyzeProject(request);
       while (true) {
         String message = messageQueue.take();
+        if (
+          JSWebSocketClient.CONNECTION_CLOSED.equals(message) ||
+          JSWebSocketClient.CONNECTION_ERROR.equals(message)
+        ) {
+          LOG.info("Analysis closed with message: {}", message);
+          break;
+        }
         JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
         var messageType = jsonObject.get("messageType").getAsString();
         if ("fileResult".equals(messageType)) {

@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import com.google.gson.JsonObject;
 import java.net.URI;
 import java.util.concurrent.BlockingQueue;
 import org.java_websocket.client.WebSocketClient;
@@ -45,11 +46,13 @@ public class JSWebSocketClientImpl extends WebSocketClient implements JSWebSocke
   @Override
   public void onClose(int code, String reason, boolean remote) {
     LOG.debug("Connection closed: {}", reason);
+    queue.add(CONNECTION_CLOSED);
   }
 
   @Override
   public void onError(Exception ex) {
     LOG.error("Error: " + ex.getMessage(), ex);
+    queue.add(CONNECTION_ERROR);
   }
 
   @Override
