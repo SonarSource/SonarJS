@@ -47,12 +47,12 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
 
   @Override
   public void accept(JsFile jsFile) {
-    consumers.stream().forEach(c -> c.accept(jsFile));
+    consumers.forEach(c -> c.accept(jsFile));
   }
 
   @Override
   public void doneAnalysis() {
-    consumers.stream().forEach(JsAnalysisConsumer::doneAnalysis);
+    consumers.forEach(JsAnalysisConsumer::doneAnalysis);
   }
 
   @Override
