@@ -32,6 +32,7 @@ import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,7 +89,11 @@ class PRAnalysisTest {
         .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 0 out of 2",
-          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
+          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]",
+          "Accepted file: " + helloFile,
+          "Accepted file: " + indexFile,
+          "Processing file " + helloFile,
+          "Processing file " + indexFile
         )
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
@@ -114,7 +119,11 @@ class PRAnalysisTest {
         .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 1 out of 2",
-          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"
+          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]",
+          "Accepted file: " + helloFile,
+          "Accepted file: " + indexFile,
+          "Processing file " + helloFile,
+          "Processing file " + indexFile
         )
         .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
       assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
@@ -257,6 +266,12 @@ class PRAnalysisTest {
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .addPlugin(
+        FileLocation.byWildcardMavenFilename(
+          new File("../plugins/consumer-plugin/target"),
+          "consumer-plugin-*.jar"
+        )
+      )
       .setEdition(Edition.DEVELOPER)
       .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))

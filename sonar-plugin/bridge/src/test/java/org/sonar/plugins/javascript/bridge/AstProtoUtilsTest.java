@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 class AstProtoUtilsTest {
 
@@ -47,6 +48,31 @@ class AstProtoUtilsTest {
     assertThat(logTester.logs(Level.ERROR)).containsExactly(
       "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
       "This could mean either that the input has been truncated or that an embedded message misreported its own length."
+    );
+  }
+
+  @Test
+  void should_parse_protobuf_from_bytes() throws Exception {
+    Path protoFile = Path.of("src/test/resources/files/serialized.proto");
+    byte[] validBytes = Files.readAllBytes(protoFile);
+
+    // Valid bytes
+    var node = AstProtoUtils.readProtobufFromBytes(validBytes);
+    assertThat(node).isNotNull();
+    assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
+
+    // Corrupted bytes
+    byte[] corruptedBytes = new byte[] { 42 };
+    assertThat(AstProtoUtils.readProtobufFromBytes(corruptedBytes)).isNull();
+    assertThat(logTester.logs(Level.ERROR)).containsSubsequence(
+      "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
+      "This could mean either that the input has been truncated or that an embedded message misreported its own length."
+    );
+
+    // Unserializing empty bytes returns the default instance (empty instance)
+    byte[] emptyBytes = new byte[0];
+    assertThat(AstProtoUtils.readProtobufFromBytes(emptyBytes)).isEqualTo(
+      Node.getDefaultInstance()
     );
   }
 }

@@ -45,14 +45,23 @@ public class AstProtoUtils {
 
   public static Node readProtobuf(String filepath) throws IOException {
     try (FileInputStream fileInputStream = new FileInputStream(filepath)) {
-      CodedInputStream input = CodedInputStream.newInstance(fileInputStream);
+      return readProtobuf(CodedInputStream.newInstance(fileInputStream));
+    }
+  }
+
+  public static Node readProtobufFromBytes(byte[] bytes) throws IOException {
+    return readProtobuf(CodedInputStream.newInstance(bytes));
+  }
+
+  private static Node readProtobuf(CodedInputStream input) throws IOException {
+    try {
       input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);
       return Node.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
       // Failing to parse the protobuf message should not prevent the analysis from continuing.
       // Note: we do not print the stack trace as it is usually huge and does not contain useful information.
       LOG.error("Failed to deserialize Protobuf message: {}", e.getMessage());
+      return null;
     }
-    return null;
   }
 }

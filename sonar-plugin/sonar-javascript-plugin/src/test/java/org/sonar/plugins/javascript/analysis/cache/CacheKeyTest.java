@@ -52,4 +52,9 @@ class CacheKeyTest {
       "jssecurity:ucfgs:ucfg_version:fileKey"
     );
   }
+
+  @Test
+  void test_ast_key() {
+    assertThat(CacheKey.forFile(inputFile, null).forAst()).hasToString("js:ast:fileKey");
+  }
 }

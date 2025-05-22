@@ -40,7 +40,7 @@
         <configuration>
           <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
           <pluginClass>org.sonar.samples.javascript.consumer.ConsumerPlugin</pluginClass>
-          <requiredForLanguages>js</requiredForLanguages>
+          <requiredForLanguages>js,ts</requiredForLanguages>
         </configuration>
       </plugin>
     </plugins>

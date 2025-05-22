@@ -58,6 +58,10 @@ class CacheKey {
     );
   }
 
+  CacheKey forAst() {
+    return withPrefix("js", "ast");
+  }
+
   CacheKey forFileMetadata() {
     return withPrefix("js", "filemetadata");
   }
