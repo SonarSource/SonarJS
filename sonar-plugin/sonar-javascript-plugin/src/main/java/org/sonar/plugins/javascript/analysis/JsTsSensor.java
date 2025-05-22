@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -55,6 +54,7 @@ import org.sonar.plugins.javascript.sonarlint.FSListener;
 public class JsTsSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
+  private static final Gson GSON = new Gson();
 
   private final AbstractAnalysis analysis;
   private final JsTsChecks checks;
@@ -62,7 +62,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisProcessor analysisProcessor;
   private final AnalysisWarningsWrapper analysisWarnings;
   FSListener fsListener;
-  private static final Gson GSON = new Gson();
 
   public JsTsSensor(
     JsTsChecks checks,
@@ -187,7 +186,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         String message = messageQueue.take();
         JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
         var messageType = jsonObject.get("messageType").getAsString();
-        if (messageType.equals("fileResult")) {
+        if ("fileResult".equals(messageType)) {
           var filePath = jsonObject.get("filename").getAsString();
           var response = BridgeServer.AnalysisResponse.fromDTO(
             GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
