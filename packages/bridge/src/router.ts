@@ -48,7 +48,6 @@ export default function (
     info('WebSocket client connected on /ws');
 
     ws.on('message', message => {
-      // Example: echo back
       if (worker) {
         worker.on('message', message => {
           ws.send(JSON.stringify(message));
