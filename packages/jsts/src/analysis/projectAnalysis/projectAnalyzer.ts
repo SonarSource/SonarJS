@@ -76,7 +76,13 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       info(
         `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
       );
-      await analyzeWithoutProgram(pendingFiles, filesToAnalyze, results, baseDir, progressReport);
+      await analyzeWithoutProgram(
+        pendingFiles,
+        filesToAnalyze,
+        results,
+        normalizedBaseDir,
+        progressReport,
+      );
     }
   }
   progressReport.stop();

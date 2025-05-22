@@ -43,9 +43,9 @@ export type NamedDependency = {
 type Dependency = MinimatchDependency | NamedDependency;
 
 /**
- * Cache for the available dependencies by dirname.
+ * Cache for the available dependencies by dirname. Exported for tests
  */
-const cache: Map<string, Set<Dependency>> = new Map();
+export const cache: Map<string, Set<Dependency>> = new Map();
 
 /**
  * Returns the dependencies of the root package.json file collected in the cache.
@@ -76,14 +76,17 @@ export function getAllDependencies(): NamedDependency[] {
  */
 export function getDependencies(filename: string, cwd: string) {
   const dirname = Path.dirname(toUnixPath(filename));
-  const cached = cache.get(dirname);
-  if (cached) {
-    return new Set([...cached].map(item => item.name));
+  if (!cache.get(dirname)) {
+    fillCacheWithNewPath(dirname, getManifests(dirname, cwd, fs));
   }
+  return new Set([...cache.get(dirname)!].map(item => item.name));
+}
+
+export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) {
   const result = new Set<Dependency>();
   cache.set(dirname, result);
 
-  getManifests(dirname, cwd, fs).forEach(manifest => {
+  manifests.forEach(manifest => {
     const manifestDependencies = getDependenciesFromPackageJson(manifest);
 
     manifestDependencies.forEach(dependency => {
