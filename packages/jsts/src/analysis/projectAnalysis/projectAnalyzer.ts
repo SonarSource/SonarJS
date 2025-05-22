@@ -27,7 +27,7 @@ import {
   getEnvironments,
 } from '../../../../shared/src/helpers/configuration.js';
 import { loadFiles } from './files-finder.js';
-import { getFiles, getFilesCount, getFilenames } from './files.js';
+import { filesStore } from './file-stores/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
@@ -61,10 +61,10 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     rulesWorkdir,
   });
   await loadFiles(normalizedBaseDir, files);
-  const filesToAnalyze = getFiles();
-  const progressReport = new ProgressReport(getFilesCount());
-  if (getFilesCount()) {
-    const pendingFiles = new Set(getFilenames());
+  const filesToAnalyze = filesStore.getFiles();
+  const progressReport = new ProgressReport(filesStore.getFilesCount());
+  if (filesStore.getFilesCount()) {
+    const pendingFiles = new Set(filesStore.getFilenames());
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
       await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);

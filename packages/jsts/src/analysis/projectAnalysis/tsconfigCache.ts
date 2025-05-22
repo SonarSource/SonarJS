@@ -18,7 +18,7 @@
 import { dirname } from 'node:path/posix';
 import { debug, info } from '../../../../shared/src/helpers/logging.js';
 import { createProgramOptions } from '../../program/program.js';
-import { UNINITIALIZED_ERROR } from './tsconfigs.js';
+import { UNINITIALIZED_ERROR } from './file-stores/tsconfigs.js';
 
 export class Cache {
   private readonly inputFileToTsConfigFilesMap = new Map<string, string | null>();

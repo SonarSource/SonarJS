@@ -19,7 +19,7 @@ import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
-import { getTsConfigs } from './tsconfigs.js';
+import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 /**
@@ -39,7 +39,7 @@ export async function analyzeWithProgram(
   progressReport: ProgressReport,
 ) {
   const processedTSConfigs: Set<string> = new Set();
-  for (const tsConfig of getTsConfigs()) {
+  for (const tsConfig of tsConfigStore.getTsConfigs()) {
     await analyzeProgram(
       files,
       tsConfig,
