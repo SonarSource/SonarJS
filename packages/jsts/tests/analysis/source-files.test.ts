@@ -33,9 +33,6 @@ describe('files', () => {
     expect(() => sourceFileStore.getFoundFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(() => sourceFileStore.getFoundFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(() => sourceFileStore.getFoundFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => sourceFileStore.getRequestFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => sourceFileStore.getRequestFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => sourceFileStore.getRequestFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
   });
 
   it('should return the files', async () => {
