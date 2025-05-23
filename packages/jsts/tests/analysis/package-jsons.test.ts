@@ -18,34 +18,29 @@ import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { loadFiles } from '../../src/analysis/projectAnalysis/files-finder.js';
-import {
-  clearPackageJsonsCache,
-  getPackageJsons,
-  packageJsonsCacheInitialized,
-  dirtyCachesIfNeeded,
-  UNINITIALIZED_ERROR,
-} from '../../src/analysis/projectAnalysis/package-jsons.js';
+import { packageJsonStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
 import { PackageJson } from 'type-fest';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { cache } from '../../src/rules/index.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/package-jsons.js';
 
 const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
 describe('files', () => {
   beforeEach(() => {
-    clearPackageJsonsCache();
+    packageJsonStore.clearCache();
   });
   it('should crash getting files before initializing', async () => {
-    expect(getPackageJsons).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
   });
 
   it('should return the package.json files', async () => {
     await loadFiles(join(fixtures, 'dependencies'));
     const filePath = join(fixtures, 'dependencies', 'package.json');
     const fileContent = JSON.parse(await readFile(filePath, 'utf-8')) as PackageJson;
-    expect(getPackageJsons()).toEqual([
+    expect(packageJsonStore.getPackageJsons()).toEqual([
       {
         filePath,
         fileContent,
@@ -65,7 +60,7 @@ describe('files', () => {
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     await loadFiles(join(fixtures, 'package-json-malformed'));
     const filePath = join(fixtures, 'package-json-malformed', 'package.json');
-    expect(getPackageJsons()).toHaveLength(0);
+    expect(packageJsonStore.getPackageJsons()).toHaveLength(0);
 
     expect(
       consoleLogMock.calls
@@ -78,17 +73,17 @@ describe('files', () => {
     setGlobalConfiguration();
     const baseDir = join(fixtures, 'dependencies');
     await loadFiles(baseDir);
-    expect(packageJsonsCacheInitialized(baseDir)).toEqual(true);
-    expect(getPackageJsons()).toHaveLength(1);
+    expect(packageJsonStore.isInitialized(baseDir)).toEqual(true);
+    expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
     expect(cache.size).toEqual(1);
 
-    dirtyCachesIfNeeded(baseDir);
-    expect(getPackageJsons()).toHaveLength(1);
+    packageJsonStore.dirtyCachesIfNeeded(baseDir);
+    expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
 
     // we create a file event
     setGlobalConfiguration({ fsEvents: [[join(baseDir, 'package.json'), 'MODIFIED']] });
-    dirtyCachesIfNeeded(baseDir);
-    expect(getPackageJsons).toThrow(new Error(UNINITIALIZED_ERROR));
+    packageJsonStore.dirtyCachesIfNeeded(baseDir);
+    expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(cache.size).toEqual(0);
   });
 });

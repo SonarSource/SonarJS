@@ -20,7 +20,7 @@ import {
   fieldsForJsTsAnalysisInput,
   isJsTsFile,
 } from '../../../../shared/src/helpers/configuration.js';
-import { getTsConfigForInputFile } from './tsconfigs.js';
+import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
 /**
@@ -41,7 +41,7 @@ export async function analyzeWithWatchProgram(
 ) {
   for (const [filename, file] of Object.entries(files)) {
     if (isJsTsFile(filename)) {
-      const tsconfig = getTsConfigForInputFile(filename);
+      const tsconfig = tsConfigStore.getTsConfigForInputFile(filename);
       progressReport.nextFile(filename);
       results.files[filename] = await analyzeFile({
         ...file,

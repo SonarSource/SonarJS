@@ -18,7 +18,7 @@ import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
 import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
-import { writeTSConfigFile } from '../../jsts/src/analysis/projectAnalysis/tsconfigs.js';
+import { tsConfigStore } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import {
@@ -66,7 +66,7 @@ export async function handleRequest(
       }
       case 'on-create-tsconfig-file': {
         const tsConfigContent = request.data;
-        const tsConfigFile = await writeTSConfigFile(tsConfigContent);
+        const tsConfigFile = await tsConfigStore.writeTSConfigFile(tsConfigContent);
         return { type: 'success', result: tsConfigFile };
       }
       // Clean typescript-eslint cache in SonarLint. not used currently
