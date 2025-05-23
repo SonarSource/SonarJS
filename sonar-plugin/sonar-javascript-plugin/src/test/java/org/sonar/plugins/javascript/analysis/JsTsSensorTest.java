@@ -587,6 +587,31 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_send_skipAst_flag_when_consumer_is_disabled() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
+    JsAnalysisConsumer disabled = new JsAnalysisConsumer() {
+      @Override
+      public void accept(JsFile jsFile) {}
+
+      @Override
+      public void doneAnalysis() {}
+
+      @Override
+      public boolean isEnabled() {
+        return false;
+      }
+    };
+    createSensorWithConsumer(disabled).execute(ctx);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeJsTs(captor.capture());
+    assertThat(captor.getValue().skipAst()).isTrue();
+  }
+
+  @Test
   void should_not_send_the_skipAst_flag_when_there_are_consumers() throws Exception {
     var ctx = createSensorContext(baseDir);
     var inputFile = createInputFile(ctx);

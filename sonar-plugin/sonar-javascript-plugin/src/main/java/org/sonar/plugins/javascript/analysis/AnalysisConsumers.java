@@ -38,7 +38,8 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
   }
 
   public AnalysisConsumers(List<JsAnalysisConsumer> consumers) {
-    this.consumers = List.copyOf(consumers);
+    this.consumers = consumers.stream().filter(JsAnalysisConsumer::isEnabled).toList();
+    LOG.debug("Enabled JsAnalysisConsumers {}/{}", this.consumers.size(), consumers.size());
     LOG.debug("Registered JsAnalysisConsumers {}", this.consumers);
   }
 
@@ -52,7 +53,8 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
     consumers.forEach(JsAnalysisConsumer::doneAnalysis);
   }
 
-  public boolean hasConsumers() {
+  @Override
+  public boolean isEnabled() {
     return !consumers.isEmpty();
   }
 }
