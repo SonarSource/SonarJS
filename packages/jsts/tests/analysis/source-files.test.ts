@@ -18,26 +18,29 @@ import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { loadFiles } from '../../src/analysis/projectAnalysis/files-finder.js';
-import { filesStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
+import { sourceFileStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
-import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/files.js';
+import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/source-files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
 
 describe('files', () => {
   beforeEach(() => {
-    filesStore.clearCache();
+    sourceFileStore.clearCache();
   });
   it('should crash getting files before initializing', async () => {
-    expect(() => filesStore.getFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => filesStore.getFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => filesStore.getFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getFoundFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getFoundFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getFoundFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getRequestFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getRequestFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getRequestFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
   });
 
   it('should return the files', async () => {
     await loadFiles(join(fixtures, 'paths'));
-    expect(filesStore.getFilesCount()).toEqual(2);
+    expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
   });
 
   it('should properly classify files as MAIN or TEST', async () => {
@@ -47,7 +50,7 @@ describe('files', () => {
       tests: ['subfolder'],
     });
     await loadFiles(join(fixtures, 'paths'));
-    expect(filesStore.getFiles()).toMatchObject({
+    expect(sourceFileStore.getFoundFiles()).toMatchObject({
       [file1]: {
         fileType: 'MAIN',
       },

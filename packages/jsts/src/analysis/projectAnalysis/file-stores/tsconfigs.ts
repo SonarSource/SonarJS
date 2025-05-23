@@ -14,10 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-/**
- * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
- */
-import tmp from 'tmp';
 import { TsConfigJson } from 'type-fest';
 import fs from 'node:fs/promises';
 import { debug, error, info } from '../../../../../shared/src/helpers/logging.js';
@@ -39,9 +35,13 @@ import { join } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
-import { SourceFileStore } from './files.js';
-
+import { SourceFileStore } from './source-files.js';
+/**
+ * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
+ */
+import tmp from 'tmp';
 tmp.setGracefulCleanup();
+
 export const UNINITIALIZED_ERROR =
   'TSConfig cache has not been initialized. Call loadFiles() first.';
 export const TSCONFIG_JSON = 'tsconfig.json';
@@ -57,9 +57,9 @@ export class TsConfigStore implements FileStore {
   private foundLookupTsConfigs: string[] = [];
   // tsconfig.json files specified in sonar.typescript.tsconfigPaths
   private foundPropertyTsConfigs: string[] = [];
-  private providedTsConfigs: ProvidedTsConfig[] | undefined = undefined;
+  private providedPropertyTsConfigs: ProvidedTsConfig[] | undefined = undefined;
   private origin: TsConfigOrigin | undefined = undefined;
-  private cacheMap: { [type in TsConfigOrigin]: Cache } = {
+  private readonly cacheMap: { [type in TsConfigOrigin]: Cache } = {
     property: new Cache(),
     lookup: new Cache(),
     fallback: new Cache(),
@@ -115,21 +115,22 @@ export class TsConfigStore implements FileStore {
     info(
       `Found ${this.getTsConfigs().length} tsconfig.json file(s): [${this.getTsConfigs().join(', ')}]`,
     );
+    debug(`TsConfigCache files' origin is "${this.origin}"`);
   }
 
   async getFallbackTsConfig(baseDir: string): Promise<string | undefined> {
     if (isSonarLint()) {
-      if (this.filesStore.getFilesCount() < maxFilesForTypeChecking()) {
+      if (this.filesStore.getFoundFilesCount() < maxFilesForTypeChecking()) {
         const { filename } = await this.writeTSConfigFile(
-          this.createTSConfigFile(undefined, [baseDir + '/**/*']),
+          this.createTSConfigObject(undefined, [baseDir + '/**/*']),
         );
         info(`Using generated tsconfig.json file ${filename}`);
         return filename;
       }
     } else {
       const { filename } = await this.writeTSConfigFile(
-        this.createTSConfigFile(
-          this.filesStore.getFilenames().filter(filename => isJsTsFile(filename)),
+        this.createTSConfigObject(
+          this.filesStore.getFoundFilenames().filter(filename => isJsTsFile(filename)),
         ),
       );
       info(`Using generated tsconfig.json file using wildcards ${filename}`);
@@ -204,8 +205,11 @@ export class TsConfigStore implements FileStore {
   async writeTSConfigFile(tsConfig: TsConfigJson): Promise<{ filename: string }> {
     const filename = await new Promise<string>((resolve, reject) => {
       tmp.file({ template: 'tsconfig-XXXXXX.json' }, (err, path) => {
-        if (err) reject(err);
-        else resolve(path);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(path);
+        }
       });
     });
     await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
@@ -219,7 +223,7 @@ export class TsConfigStore implements FileStore {
    * @param include inclusion paths of the TS Program
    * @returns the TSConfig object
    */
-  createTSConfigFile(files?: string[], include?: string[]): TsConfigJson {
+  createTSConfigObject(files?: string[], include?: string[]): TsConfigJson {
     return {
       compilerOptions: {
         allowJs: true,
@@ -233,20 +237,20 @@ export class TsConfigStore implements FileStore {
   setup(baseDir: string) {
     this.foundPropertyTsConfigs = [];
     this.foundLookupTsConfigs = [];
-    this.providedTsConfigs = getTsConfigPaths().map(tsConfigPath => {
+    this.providedPropertyTsConfigs = getTsConfigPaths().map(tsConfigPath => {
       const tsConfig = toUnixPath(join(baseDir, tsConfigPath.trim()));
       return {
         path: tsConfig,
         pattern: new Minimatch(tsConfig.trim(), { nocase: true, matchBase: true, dot: true }),
       };
     });
-    if (this.providedTsConfigs.length) {
+    if (this.providedPropertyTsConfigs.length) {
       info(`Resolving provided TSConfig files using '${getTsConfigPaths().join(',')}'`);
     }
   }
 
   async process(file: Dirent, filePath: string) {
-    const matches = this.providedTsConfigs?.some(
+    const matches = this.providedPropertyTsConfigs?.some(
       providedTsConfig =>
         providedTsConfig.path === filePath || providedTsConfig.pattern.match(filePath),
     );

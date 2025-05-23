@@ -15,12 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { SourceFileStore } from './files.js';
+import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
+import type { FileStore } from './store-type.js';
 
-export const filesStore = new SourceFileStore();
-export const packageJsonStore = new PackageJsonStore(filesStore);
-export const tsConfigStore = new TsConfigStore(filesStore);
+export const sourceFileStore = new SourceFileStore();
+export const packageJsonStore = new PackageJsonStore(sourceFileStore);
+export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
-export default [filesStore, packageJsonStore, tsConfigStore];
+export default [sourceFileStore, packageJsonStore, tsConfigStore] as FileStore[];

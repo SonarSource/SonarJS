@@ -28,7 +28,7 @@ import { Dirent } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { warn } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import { SourceFileStore } from './files.js';
+import { SourceFileStore } from './source-files.js';
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
@@ -95,7 +95,7 @@ export class PackageJsonStore implements FileStore {
     }
   }
 
-  postProcess() {
+  async postProcess() {
     if (!this.packageJsons) {
       throw new Error(UNINITIALIZED_ERROR);
     }

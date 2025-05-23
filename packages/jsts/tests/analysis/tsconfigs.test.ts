@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { beforeEach, describe, it, Mock } from 'node:test';
-import { tsConfigStore, filesStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
+import {
+  tsConfigStore,
+  sourceFileStore,
+} from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { basename, join, relative } from 'node:path/posix';
 import { toUnixPath } from '../../src/rules/index.js';
@@ -33,7 +36,7 @@ const fixtures = join(import.meta.dirname, 'fixtures');
 describe('tsconfigs', () => {
   beforeEach(() => {
     tsConfigStore.clearTsConfigCache();
-    filesStore.clearCache();
+    sourceFileStore.clearCache();
   });
   it('should crash getting or querying tsconfig cache before initializing', async () => {
     expect(() => tsConfigStore.getTsConfigs()).toThrow(new Error(UNINITIALIZED_ERROR));

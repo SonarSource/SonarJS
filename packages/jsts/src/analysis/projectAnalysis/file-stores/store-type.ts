@@ -18,11 +18,11 @@
 import { Dirent } from 'node:fs';
 
 export abstract class FileStore {
-  abstract isInitialized(baseDir: string): boolean;
+  abstract isInitialized(baseDir: string, inputFiles: any): boolean;
 
   abstract setup(baseDir: string): void;
 
   abstract process(file: Dirent, filePath: string): Promise<void>;
 
-  abstract postProcess(baseDir: string): void;
+  abstract postProcess(baseDir: string): Promise<void>;
 }

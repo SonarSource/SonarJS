@@ -26,15 +26,18 @@ import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyz
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
-import { filesStore, tsConfigStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
+import {
+  sourceFileStore,
+  tsConfigStore,
+} from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import ts from 'typescript';
 
-const fixtures = join(import.meta.dirname, 'fixtures');
+const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
 describe('analyzeProject', () => {
   beforeEach(() => {
     tsConfigStore.clearTsConfigCache();
-    filesStore.clearCache();
+    sourceFileStore.clearCache();
   });
 
   it('should analyze the whole project with program', async () => {

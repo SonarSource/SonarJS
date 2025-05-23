@@ -41,37 +41,63 @@ export class SourceFileStore implements FileStore {
   private filenames: string[] | undefined = undefined;
   private paths: Set<string> | undefined = undefined;
   private testPaths: string[] | undefined = undefined;
+  private requestFiles: JsTsFiles | undefined = undefined;
+  private requestFilenames: string[] | undefined = undefined;
 
   isInitialized(baseDir: string, files?: JsTsFiles) {
+    this.setRequestFiles(Object.values(files || {}));
     if (!isSonarLint() && files) {
+      //if we are in SQS files will contain already all found files
       this.setup(baseDir);
-      this.setFiles(Object.values(files));
+      this.setFoundFiles(Object.values(files || {}));
       return true;
     }
-    // in sonarlint we just need the file cache to know how many are there to enable or disable type-checking
     this.dirtyCachesIfNeeded(baseDir);
+
+    // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
     return typeof files !== 'undefined';
   }
 
-  getFilesCount() {
+  getFoundFilesCount() {
     if (!this.filenames) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     return this.filenames.length;
   }
 
-  getFiles() {
+  getFoundFiles() {
     if (!this.files) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     return this.files;
   }
 
-  getFilenames() {
+  getFoundFilenames() {
     if (!this.filenames) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     return this.filenames;
+  }
+
+  getRequestFilesCount() {
+    if (!this.requestFilenames) {
+      throw new Error(UNINITIALIZED_ERROR);
+    }
+    return this.requestFilenames.length;
+  }
+
+  getRequestFiles() {
+    if (!this.requestFiles) {
+      throw new Error(UNINITIALIZED_ERROR);
+    }
+    return this.requestFiles;
+  }
+
+  getRequestFilenames() {
+    if (!this.filenames) {
+      throw new Error(UNINITIALIZED_ERROR);
+    }
+    return this.requestFilenames;
   }
 
   getPaths() {
@@ -106,7 +132,7 @@ export class SourceFileStore implements FileStore {
     if (isAnalyzableFile(file.name)) {
       const fileType = this.getFiletype(filePath, this.testPaths);
       if (isJsTsFile(file.name)) {
-        const fileContent = await readFile(filePath, 'utf8');
+        const fileContent = await this.getFileContent(filePath);
         if (accept(filePath, fileContent, getMaxFileSize())) {
           this.newFiles.push({ fileType, filePath, fileContent });
         }
@@ -114,6 +140,11 @@ export class SourceFileStore implements FileStore {
         this.newFiles.push({ fileType, filePath });
       }
     }
+  }
+
+  // we check if we already have the contents in the HTTP request before reading FS
+  async getFileContent(filePath: string) {
+    return this.requestFiles?.[filePath]?.fileContent ?? (await readFile(filePath, 'utf8'));
   }
 
   getFiletype(filePath: string, testPaths?: string[]): FileType {
@@ -126,17 +157,28 @@ export class SourceFileStore implements FileStore {
     return 'MAIN';
   }
 
-  postProcess() {
-    this.setFiles(this.newFiles);
+  async postProcess() {
+    this.setFoundFiles(this.newFiles);
   }
 
-  setFiles(newFiles: JsTsAnalysisInput[]) {
-    newFiles.forEach(file => {
+  setFoundFiles(newFiles: JsTsAnalysisInput[]) {
+    for (const file of newFiles) {
       const filename = toUnixPath(file.filePath);
       this.paths!.add(dirname(filename));
       this.filenames!.push(filename);
       file.filePath = filename;
       this.files![filename] = file;
-    });
+    }
+  }
+
+  setRequestFiles(newFiles: JsTsAnalysisInput[]) {
+    this.requestFilenames = [];
+    this.requestFiles = {};
+    for (const file of newFiles) {
+      const filename = toUnixPath(file.filePath);
+      file.filePath = filename;
+      this.requestFilenames.push(filename);
+      this.requestFiles[filename] = file;
+    }
   }
 }
