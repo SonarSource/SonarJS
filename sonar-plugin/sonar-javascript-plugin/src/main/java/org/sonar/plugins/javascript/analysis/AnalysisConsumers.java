@@ -39,10 +39,8 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
 
   public AnalysisConsumers(List<JsAnalysisConsumer> consumers) {
     this.consumers = consumers.stream().filter(JsAnalysisConsumer::isEnabled).toList();
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Enabled JsAnalysisConsumers {}/{}", this.consumers.size(), consumers.size());
-      LOG.debug("Registered JsAnalysisConsumers {}", this.consumers);
-    }
+    LOG.debug("Enabled JsAnalysisConsumers {}/{}", this.consumers.size(), consumers.size());
+    LOG.debug("Registered JsAnalysisConsumers {}", this.consumers);
   }
 
   @Override

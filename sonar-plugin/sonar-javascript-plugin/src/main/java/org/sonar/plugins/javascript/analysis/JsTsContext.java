@@ -57,10 +57,20 @@ public class JsTsContext<T extends SensorContext> {
   @Deprecated(forRemoval = true)
   private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
 
-  /* Internal property to disabled Jasmin (enabled by default) */
+  /**
+   * Internal property to disabled Jasmin (enabled by default)
+   * @deprecated JsAnalysisConsumer consumers can override isEnabled to disable themselves
+   * @see org.sonar.plugins.javascript.api.JsAnalysisConsumer#isEnabled()
+   **/
+  @Deprecated(forRemoval = true)
   private static final String JASMIN_INTERNAL_DISABLED = "sonar.jasmin.internal.disabled";
 
-  /* Internal property to enable JaRED (disabled by default) */
+  /**
+   * Internal property to enable JaRED (disabled by default)
+   * @deprecated JsAnalysisConsumer consumers can override isEnabled to disable themselves
+   * @see org.sonar.plugins.javascript.api.JsAnalysisConsumer#isEnabled()
+   **/
+  @Deprecated(forRemoval = true)
   private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
 
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
