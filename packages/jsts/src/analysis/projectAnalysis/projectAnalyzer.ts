@@ -63,10 +63,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   await loadFiles(normalizedBaseDir, files);
   let filesToAnalyze: JsTsFiles;
   let pendingFiles: Set<string>;
+  // if the request had input files, we use them
   if (sourceFileStore.getRequestFilesCount() > 0) {
     filesToAnalyze = sourceFileStore.getRequestFiles();
     pendingFiles = new Set(sourceFileStore.getRequestFilenames());
   } else {
+    // otherwise, we analyze all found files in baseDir
     filesToAnalyze = sourceFileStore.getFoundFiles();
     pendingFiles = new Set(sourceFileStore.getFoundFilenames());
   }

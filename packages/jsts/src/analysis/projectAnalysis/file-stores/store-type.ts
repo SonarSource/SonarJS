@@ -15,10 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
+import type { JsTsFiles } from '../projectAnalysis.js';
 
 export abstract class FileStore {
-  abstract isInitialized(baseDir: string, inputFiles: any): boolean;
+  abstract isInitialized(baseDir: string, inputFiles?: JsTsFiles): boolean;
 
   abstract setup(baseDir: string): void;
 

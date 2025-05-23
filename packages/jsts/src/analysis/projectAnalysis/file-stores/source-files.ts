@@ -36,47 +36,50 @@ export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call l
 
 export class SourceFileStore implements FileStore {
   private baseDir: string | undefined = undefined;
-  private files: JsTsFiles | undefined = undefined;
+  private foundFiles: JsTsFiles | undefined = undefined;
   private newFiles: JsTsAnalysisInput[] = [];
-  private filenames: string[] | undefined = undefined;
+  private foundFilenames: string[] | undefined = undefined;
   private paths: Set<string> | undefined = undefined;
   private testPaths: string[] | undefined = undefined;
   private requestFiles: JsTsFiles | undefined = undefined;
   private requestFilenames: string[] | undefined = undefined;
 
-  isInitialized(baseDir: string, files?: JsTsFiles) {
-    this.setRequestFiles(Object.values(files || {}));
-    if (!isSonarLint() && files) {
-      //if we are in SQS files will contain already all found files
-      this.setup(baseDir);
-      this.setFoundFiles(Object.values(files || {}));
-      return true;
-    }
+  isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
-
-    // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
-    return typeof files !== 'undefined';
+    if (isSonarLint()) {
+      this.setRequestFiles(Object.values(inputFiles || {}));
+      // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
+      return typeof this.foundFiles !== 'undefined';
+    } else {
+      if (inputFiles) {
+        //if we are in SQS files will contain already all found files
+        this.setup(baseDir);
+        this.setFoundFiles(Object.values(inputFiles));
+        return true;
+      }
+      return typeof this.foundFiles !== 'undefined';
+    }
   }
 
   getFoundFilesCount() {
-    if (!this.filenames) {
+    if (!this.foundFilenames) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.filenames.length;
+    return this.foundFilenames.length;
   }
 
   getFoundFiles() {
-    if (!this.files) {
+    if (!this.foundFiles) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.files;
+    return this.foundFiles;
   }
 
   getFoundFilenames() {
-    if (!this.filenames) {
+    if (!this.foundFilenames) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.filenames;
+    return this.foundFilenames;
   }
 
   getRequestFilesCount() {
@@ -94,7 +97,7 @@ export class SourceFileStore implements FileStore {
   }
 
   getRequestFilenames() {
-    if (!this.filenames) {
+    if (!this.foundFilenames) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     return this.requestFilenames;
@@ -114,16 +117,16 @@ export class SourceFileStore implements FileStore {
   }
 
   clearCache() {
-    this.files = undefined;
-    this.filenames = undefined;
+    this.foundFiles = undefined;
+    this.foundFilenames = undefined;
     this.paths = undefined;
   }
 
   setup(baseDir: string) {
     this.baseDir = baseDir;
-    this.files = {};
+    this.foundFiles = {};
     this.newFiles = [];
-    this.filenames = [];
+    this.foundFilenames = [];
     this.paths = new Set<string>();
     this.testPaths = getTestPaths()?.map(test => toUnixPath(join(baseDir, test)));
   }
@@ -165,9 +168,9 @@ export class SourceFileStore implements FileStore {
     for (const file of newFiles) {
       const filename = toUnixPath(file.filePath);
       this.paths!.add(dirname(filename));
-      this.filenames!.push(filename);
+      this.foundFilenames!.push(filename);
       file.filePath = filename;
-      this.files![filename] = file;
+      this.foundFiles![filename] = file;
     }
   }
 
