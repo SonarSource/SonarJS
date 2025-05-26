@@ -18,12 +18,12 @@ import { beforeEach, describe, it, Mock } from 'node:test';
 import {
   tsConfigStore,
   sourceFileStore,
+  initFileStores,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { basename, join, relative } from 'node:path/posix';
 import { toUnixPath } from '../../src/rules/index.js';
 import { readFile } from 'node:fs/promises';
-import { loadFiles } from '../../src/analysis/projectAnalysis/files-finder.js';
 import {
   setGlobalConfiguration,
   setTsConfigPaths,
@@ -47,13 +47,13 @@ describe('tsconfigs', () => {
   });
 
   it('should return the TSconfig files', async () => {
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
   });
 
   it('should validate the provided TSconfig files', async () => {
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     setTsConfigPaths(
       tsConfigStore
         .getTsConfigs()
@@ -61,7 +61,7 @@ describe('tsconfigs', () => {
         .concat('fake_dir/tsconfig.json'),
     );
     tsConfigStore.clearTsConfigCache();
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
@@ -80,7 +80,7 @@ describe('tsconfigs', () => {
   it('when no tsconfigs, in SonarLint should generate tsconfig with wildcard', async () => {
     setGlobalConfiguration({ sonarlint: true });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     const tsconfig = tsConfigStore.getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
@@ -96,7 +96,7 @@ describe('tsconfigs', () => {
   it('when no tsconfigs, in SonarQube should generate tsconfig with all files', async () => {
     setGlobalConfiguration({ sonarlint: false });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     const tsconfig = tsConfigStore.getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
@@ -112,7 +112,7 @@ describe('tsconfigs', () => {
   it('should not generate tsconfig file when too many files', async () => {
     setGlobalConfiguration({ sonarlint: true, maxFilesForTypeChecking: 1 });
     const baseDir = toUnixPath(join(fixtures, 'module'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     const tsconfig = tsConfigStore.getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(tsconfig).toEqual(null);
   });
@@ -120,7 +120,7 @@ describe('tsconfigs', () => {
   it('should not generate tsconfig file if there is already at least one', async () => {
     setGlobalConfiguration();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     const tsconfig = tsConfigStore.getTsConfigForInputFile(toUnixPath(join(baseDir, 'file.ts')));
     expect(tsConfigStore.getTsConfigs()).toEqual([tsconfig]);
   });
@@ -128,7 +128,7 @@ describe('tsconfigs', () => {
   it('should use the cache', async ({ mock }) => {
     setGlobalConfiguration();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     mock.method(tsConfigStore.getCurrentCache(), 'getTsConfigMapForInputFile');
     const findTsConfigMock = (
       tsConfigStore.getCurrentCache().getTsConfigMapForInputFile as Mock<
@@ -146,7 +146,7 @@ describe('tsconfigs', () => {
     setGlobalConfiguration();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
     const file = toUnixPath(join(baseDir, 'file.ts'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     expect(tsConfigStore.isInitialized(baseDir)).toEqual(true);
 
     mock.method(tsConfigStore.getCurrentCache(), 'getTsConfigMapForInputFile');
@@ -184,7 +184,7 @@ describe('tsconfigs', () => {
   it('should clear tsconfig cache', async ({ mock }) => {
     setGlobalConfiguration();
     const baseDir = toUnixPath(join(fixtures, 'paths'));
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     expect(tsConfigStore.isInitialized(baseDir)).toEqual(true);
 
     mock.method(tsConfigStore.getCurrentCache(), 'clearFileToTsConfigCache');
@@ -207,11 +207,11 @@ describe('tsconfigs', () => {
   });
 
   it('should change to property of TsConfig files when provided', async () => {
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     setTsConfigPaths([relative(fixtures, tsConfigStore.getTsConfigs()[0])]);
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toEqual(1);
     expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
@@ -220,7 +220,7 @@ describe('tsconfigs', () => {
     setTsConfigPaths(['tsconfig.fake.json']);
     mock.method(console, 'error');
 
-    await loadFiles(fixtures);
+    await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
 

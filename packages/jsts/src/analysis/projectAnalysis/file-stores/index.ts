@@ -18,10 +18,55 @@
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import type { FileStore } from './store-type.js';
+import { JsTsFiles } from '../projectAnalysis.js';
+import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
+import { getExclusions } from '../../../../../shared/src/helpers/configuration.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore(sourceFileStore);
 export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
-export default [sourceFileStore, packageJsonStore, tsConfigStore] as FileStore[];
+export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
+  const pendingStores = [sourceFileStore, packageJsonStore, tsConfigStore].filter(
+    store => !store.isInitialized(baseDir, inputFiles),
+  );
+
+  if (!pendingStores.length) {
+    return;
+  }
+
+  for (const store of pendingStores) {
+    store.setup(baseDir);
+  }
+
+  await findFiles(
+    baseDir,
+    async (file, filePath) => {
+      for (const store of pendingStores) {
+        await store.process(file, filePath);
+      }
+    },
+    getExclusions(),
+  );
+  for (const store of pendingStores) {
+    await store.postProcess(baseDir);
+  }
+}
+
+export async function getFilesToAnalyze(baseDir: string, inputFiles?: JsTsFiles) {
+  await initFileStores(baseDir, inputFiles);
+
+  if (sourceFileStore.getRequestFilesCount() > 0) {
+    // if the request had input files, we use them
+    return {
+      filesToAnalyze: sourceFileStore.getRequestFiles(),
+      pendingFiles: new Set(sourceFileStore.getRequestFilenames()),
+    };
+  } else {
+    // otherwise, we analyze all found files in baseDir
+    return {
+      filesToAnalyze: sourceFileStore.getFoundFiles(),
+      pendingFiles: new Set(sourceFileStore.getFoundFilenames()),
+    };
+  }
+}
