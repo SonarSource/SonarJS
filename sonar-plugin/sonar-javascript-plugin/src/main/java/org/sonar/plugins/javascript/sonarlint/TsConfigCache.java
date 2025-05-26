@@ -28,6 +28,7 @@ public interface TsConfigCache {
   void setOrigin(TsConfigOrigin origin);
   boolean getAndResetShouldClearDependenciesCache();
 
+  void digestFileEvents();
   void setProjectSize(int projectSize);
   int getProjectSize();
 }

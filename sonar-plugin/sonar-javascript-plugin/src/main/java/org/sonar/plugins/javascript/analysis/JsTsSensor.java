@@ -153,7 +153,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
     var configuration = new BridgeServer.ProjectAnalysisConfiguration(
       context.isSonarLint(),
-      fsListener != null ? fsListener.listFSEvents() : List.of(),
+      fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
       context.allowTsParserJsFiles(),
       context.getAnalysisMode(),
       context.skipAst(consumers),

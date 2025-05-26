@@ -91,6 +91,7 @@ import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class JavaScriptEslintBasedSensorTest {
@@ -168,7 +169,7 @@ class JavaScriptEslintBasedSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     analysisWarnings = new AnalysisWarningsWrapper();
-    var tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+    var tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
 
     analysisWithProgram = new AnalysisWithProgram(bridgeServerMock, analysisProcessor);
     analysisWithWatchProgram = new AnalysisWithWatchProgram(

@@ -55,7 +55,7 @@ class FSListenerTest {
     var fileEvent = DefaultModuleFileEvent.of(file, operationType);
     fsListener.process(fileEvent);
 
-    assertThat(fsListener.listFSEvents()).containsExactly(
+    assertThat(fsListener.listFSEventsStringified()).containsExactly(
       new AbstractMap.SimpleEntry<>(file.absolutePath(), fileEvent.getType().name())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();

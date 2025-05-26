@@ -185,7 +185,7 @@ class JsTsSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
-    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
   }
 
   @Test

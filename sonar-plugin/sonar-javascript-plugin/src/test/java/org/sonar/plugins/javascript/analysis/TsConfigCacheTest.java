@@ -49,6 +49,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
+import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
@@ -63,6 +64,8 @@ class TsConfigCacheTest {
 
   private TsConfigCacheImpl tsConfigCache;
 
+  private FSListenerImpl fsListener;
+
   @TempDir
   Path baseDir;
 
@@ -74,7 +77,8 @@ class TsConfigCacheTest {
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+    fsListener = new FSListenerImpl();
+    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, fsListener);
     tempFolder = new DefaultTempFolder(tempDir, true);
   }
 
@@ -167,7 +171,8 @@ class TsConfigCacheTest {
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
     var fileEvent = DefaultModuleFileEvent.of(tsConfigInputFile, ModuleFileEvent.Type.MODIFIED);
-    tsConfigCache.process(fileEvent);
+    fsListener.process(fileEvent);
+    tsConfigCache.digestFileEvents();
     var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(newTsConfig).isNull();
   }
@@ -218,7 +223,8 @@ class TsConfigCacheTest {
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
     var fileEvent = DefaultModuleFileEvent.of(file1, operationType);
-    tsConfigCache.process(fileEvent);
+    fsListener.process(fileEvent);
+    tsConfigCache.digestFileEvents();
 
     var cachedOriginalTsConfigsList = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.LOOKUP);
     assertThat(cachedOriginalTsConfigsList).containsExactly(tsConfigFile.getFilename());
@@ -250,13 +256,8 @@ class TsConfigCacheTest {
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
     Path tsconfig2 = baseDir.resolve("tsconfig.app.json");
-    var tsConfigInputFile = TestInputFileBuilder.create(
-      baseDir.toString(),
-      "tsconfig.app.json"
-    ).build();
+    TestInputFileBuilder.create(baseDir.toString(), "tsconfig.app.json").build();
     Files.createFile(tsconfig2);
-    var fileEvent = DefaultModuleFileEvent.of(tsConfigInputFile, ModuleFileEvent.Type.CREATED);
-    tsConfigCache.process(fileEvent);
     var propertyCachedTsConfig = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.PROPERTY);
     assertThat(propertyCachedTsConfig).containsExactly(tsconfig1.toAbsolutePath().toString());
 
@@ -277,7 +278,8 @@ class TsConfigCacheTest {
       packageJson.getFileName().toString()
     ).build();
     var fileEvent = DefaultModuleFileEvent.of(packageJsonFileInput, ModuleFileEvent.Type.MODIFIED);
-    tsConfigCache.process(fileEvent);
+    fsListener.process(fileEvent);
+    tsConfigCache.digestFileEvents();
     // We should mark the dependency cache to be cleared
     assertThat(tsConfigCache.getAndResetShouldClearDependenciesCache()).isTrue();
     // The getAndReset... method has side effects. Calling it a second time should clear it.
@@ -293,7 +295,8 @@ class TsConfigCacheTest {
       tsconfig.getFileName().toString()
     ).build();
     var fileEvent = DefaultModuleFileEvent.of(packageJsonFileInput, ModuleFileEvent.Type.MODIFIED);
-    tsConfigCache.process(fileEvent);
+    fsListener.process(fileEvent);
+    tsConfigCache.digestFileEvents();
     assertThat(tsConfigCache.getAndResetShouldClearDependenciesCache()).isFalse();
   }
 

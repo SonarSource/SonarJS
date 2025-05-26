@@ -50,6 +50,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
@@ -349,6 +350,6 @@ class TsConfigProviderTest {
   }
 
   private TsConfigCache tsConfigCache() {
-    return new TsConfigCacheImpl(mock(BridgeServer.class));
+    return new TsConfigCacheImpl(mock(BridgeServer.class), new FSListenerImpl());
   }
 }
