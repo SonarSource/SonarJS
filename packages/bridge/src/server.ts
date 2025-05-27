@@ -32,6 +32,7 @@ import {
   logMemoryError,
 } from './memory.js';
 import { WebSocketServer } from 'ws';
+import { wsMiddleware } from './websocket.js';
 
 /**
  * The maximum request body size
@@ -102,31 +103,6 @@ export function start(
     const server = http.createServer(app);
     const wss = new WebSocketServer({ noServer: true });
 
-    server.on('upgrade', (request, socket, head) => {
-      const upgradeHeader = request.headers['upgrade']
-        ? request.headers['upgrade'].toLowerCase()
-        : '';
-
-      if (upgradeHeader === 'websocket' && request.url === '/ws') {
-        // Only handle upgrade requests for /ws
-        wss.handleUpgrade(request, socket, head, ws => {
-          wss.emit('connection', ws, request);
-        });
-      } else {
-        // Deny upgrade
-        const headers = [
-          'HTTP/1.1 400 Bad Request',
-          'Connection: close',
-          'Content-Type: text/plain',
-          'X-Content-Type-Options: nosniff',
-          'X-Supported-Protocols: HTTP/1.1, WebSocket',
-          '', // Empty line to terminate headers
-        ].join('\r\n');
-        socket.write(headers);
-        socket.end();
-      }
-    });
-
     /**
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
@@ -137,6 +113,7 @@ export function start(
      * The order of the middlewares registration is important, as the
      * error handling one should be last.
      */
+    app.use(wsMiddleware(wss));
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
     app.use(router(worker, { debugMemory }, wss));
