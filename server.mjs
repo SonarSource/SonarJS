@@ -19,10 +19,12 @@ if (isMainThread) {
   const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
 
-  start(
-    Number.parseInt(port, 10),
-    host,
-    createWorker(new URL(import.meta.url), { debugMemory }),
-    debugMemory,
-  );
+  Promise.resolve().then(async () => {
+    return start(
+      Number.parseInt(port, 10),
+      host,
+      await createWorker(new URL(import.meta.url), { debugMemory }),
+      debugMemory,
+    );
+  });
 }

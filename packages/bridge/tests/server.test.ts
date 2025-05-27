@@ -24,6 +24,7 @@ import { expect } from 'expect';
 import assert from 'node:assert';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 import { join } from 'node:path/posix';
+import { toUnixPath } from '../../shared/src/helpers/files.js';
 
 const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
@@ -67,75 +68,78 @@ describe('server', () => {
     await serverClosed;
   });
 
-  it('should accept a ws request', async () => {
-    const worker = createWorker(workerPath);
-    const { server, serverClosed } = await start(port, undefined, worker);
-    const wsUrl = `ws://127.0.0.1:${(server.address() as AddressInfo)?.port}/ws`;
-    const ws = new WebSocket(wsUrl);
-    await new Promise(resolve => {
-      ws.onopen = () => {
-        resolve('Success');
-      };
-    });
-    const fixtures = join(import.meta.dirname, 'fixtures', 'router');
-    const filePath = join(fixtures, 'file.ts');
-    ws.send(
-      JSON.stringify({
-        rules: [
-          {
-            key: 'S4621',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'ts',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
-        baseDir: fixtures,
-        files: {
-          [filePath]: { fileType: 'MAIN', filePath },
-        },
-      }),
-    );
+  it('should accept a ws request', async t => {
+    for (const worker of [await createWorker(workerPath), undefined]) {
+      await t.test(worker ? 'with worker' : 'without worker', async () => {
+        const { server, serverClosed } = await start(port, undefined, worker);
+        const wsUrl = `ws://127.0.0.1:${(server.address() as AddressInfo)?.port}/ws`;
+        const ws = new WebSocket(wsUrl);
+        await new Promise(resolve => {
+          ws.onopen = () => {
+            resolve('Success');
+          };
+        });
+        const fixtures = join(import.meta.dirname, 'fixtures', 'router');
+        const filePath = toUnixPath(join(fixtures, 'file.ts'));
 
-    const messages = [];
-    const metaResponse = await new Promise((resolve, reject) => {
-      ws.onmessage = event => {
-        const json = JSON.parse(event.data);
-        if (json.messageType === 'meta') {
-          resolve(json);
-        } else {
-          messages.push(json);
-        }
-      };
-      ws.onerror = err => {
-        reject(err); // Reject if something goes wrong
-      };
-    });
-    expect(metaResponse).toEqual({
-      messageType: 'meta',
-      filesWithoutTypeChecking: [],
-      warnings: [],
-      withProgram: true,
-      withWatchProgram: false,
-      programsCreated: [join(fixtures, 'tsconfig.json')],
-    });
-    expect(messages.length).toEqual(1);
-    const {
-      issues: [issue],
-    } = messages[0];
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'S4621',
-        line: 1,
-        column: 28,
-        endLine: 1,
-        endColumn: 35,
-        message: `Remove this duplicated type or replace with another one.`,
-      }),
-    );
+        const messages = [];
+        const metaResponse = await new Promise((resolve, reject) => {
+          ws.send(
+            JSON.stringify({
+              rules: [
+                {
+                  key: 'S4621',
+                  configurations: [],
+                  fileTypeTargets: ['MAIN'],
+                  language: 'ts',
+                  analysisModes: ['DEFAULT'],
+                },
+              ],
+              baseDir: fixtures,
+              files: {
+                [filePath]: { fileType: 'MAIN', filePath },
+              },
+            }),
+          );
+          ws.onmessage = event => {
+            const json = JSON.parse(event.data);
+            if (json.messageType === 'meta') {
+              resolve(json);
+            } else {
+              messages.push(json);
+            }
+          };
+          ws.onerror = err => {
+            reject(err); // Reject if something goes wrong
+          };
+        });
+        expect(metaResponse).toEqual({
+          messageType: 'meta',
+          filesWithoutTypeChecking: [],
+          warnings: [],
+          withProgram: true,
+          withWatchProgram: false,
+          programsCreated: [toUnixPath(join(fixtures, 'tsconfig.json'))],
+        });
+        expect(messages.length).toEqual(1);
+        const {
+          issues: [issue],
+        } = messages[0];
+        expect(issue).toEqual(
+          expect.objectContaining({
+            ruleId: 'S4621',
+            line: 1,
+            column: 28,
+            endLine: 1,
+            endColumn: 35,
+            message: `Remove this duplicated type or replace with another one.`,
+          }),
+        );
 
-    await request(server, '/close', 'POST');
-    await serverClosed;
+        await request(server, '/close', 'POST');
+        await serverClosed;
+      });
+    }
   });
 
   it('should log memory', async ({ mock }) => {
@@ -193,7 +197,7 @@ describe('server', () => {
   it('should shut down', async ({ mock }) => {
     console.log = mock.fn(console.log);
 
-    const worker = createWorker(workerPath);
+    const worker = await createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 
@@ -210,7 +214,7 @@ describe('server', () => {
   it('worker crashing should close server', async ({ mock }) => {
     console.log = mock.fn(console.log);
 
-    const worker = createWorker(workerPath);
+    const worker = await createWorker(workerPath);
     const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 

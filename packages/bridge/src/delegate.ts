@@ -57,7 +57,11 @@ function createWorkerHandler(worker: Worker, type: RequestType, listeners: Worke
     response: express.Response,
     next: express.NextFunction,
   ) => {
-    listeners.oneTimers.push(message => handleResult(message, response, next));
+    listeners.oneTimers.push(message => {
+      if (!message.ws) {
+        handleResult(message, response, next);
+      }
+    });
     worker.postMessage({ type, data: request.body });
   };
 }
@@ -91,7 +95,7 @@ export function createWsDelegator(
     if (worker) {
       listeners.permanent.push(message => {
         if (message.ws) {
-          handleWsResult(ws, message);
+          handleWsResult(ws, message.results);
         }
       });
     }

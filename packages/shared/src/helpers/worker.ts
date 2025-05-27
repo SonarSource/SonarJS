@@ -17,24 +17,27 @@
 import { SHARE_ENV, Worker } from 'node:worker_threads';
 import { debug } from './logging.js';
 
-export function createWorker(url: string, workerData?: WorkerData) {
-  const worker = new Worker(url, {
-    workerData,
-    env: SHARE_ENV,
-  });
+export async function createWorker(url: string, workerData?: WorkerData) {
+  return new Promise<Worker>((resolve, reject) => {
+    const worker = new Worker(url, {
+      workerData,
+      env: SHARE_ENV,
+    });
 
-  worker.on('online', () => {
-    debug('The worker thread is running');
-  });
+    worker.on('online', () => {
+      debug('The worker thread is running');
+      resolve(worker);
+    });
 
-  worker.on('exit', code => {
-    debug(`The worker thread exited with code ${code}`);
-  });
+    worker.on('exit', code => {
+      debug(`The worker thread exited with code ${code}`);
+    });
 
-  worker.on('error', err => {
-    debug(`The worker thread failed: ${err}`);
+    worker.on('error', err => {
+      debug(`The worker thread failed: ${err}`);
+      reject(err);
+    });
   });
-  return worker;
 }
 
 export type WorkerData = {

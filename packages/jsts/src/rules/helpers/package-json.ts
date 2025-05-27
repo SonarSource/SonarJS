@@ -20,6 +20,7 @@ import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up.js';
 import fs from 'fs';
+import { debug } from '../../../../shared/src/helpers/logging.js';
 
 export const PACKAGE_JSON = 'package.json';
 
@@ -101,7 +102,7 @@ export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) 
  * In the case of SonarIDE, when a package.json file changes, the cache can become obsolete.
  */
 export function clearDependenciesCache() {
-  console.debug('Clearing dependencies cache');
+  debug('Clearing dependencies cache');
   cache.clear();
 }
 

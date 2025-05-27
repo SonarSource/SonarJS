@@ -31,7 +31,7 @@ if (parentPort) {
         parentThread.close();
       } else if (ws) {
         await handleRequest(message, workerData, (results: WsIncrementalResult) =>
-          parentThread.postMessage(results),
+          parentThread.postMessage({ ws: true, results }),
         );
       } else {
         parentThread.postMessage(await handleRequest(message, workerData));
