@@ -130,7 +130,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     try {
-      var issues = bridgeServer.analyzeProject(createAnalyzeProjectHandler(inputFiles)).join();
+      var issues = bridgeServer
+        .analyzeProject(createAnalyzeProjectHandler(context, inputFiles))
+        .join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
       return issues;
@@ -147,12 +149,17 @@ public class JsTsSensor extends AbstractBridgeSensor {
     return importer.execute(context);
   }
 
-  AnalyzeProjectHandlerImpl createAnalyzeProjectHandler(List<InputFile> inputFiles) {
-    return new AnalyzeProjectHandlerImpl(inputFiles);
+  // Used for tests
+  AnalyzeProjectHandlerImpl createAnalyzeProjectHandler(
+    JsTsContext<?> context,
+    List<InputFile> inputFiles
+  ) {
+    return new AnalyzeProjectHandlerImpl(context, inputFiles);
   }
 
   class AnalyzeProjectHandlerImpl implements AnalyzeProjectHandler {
 
+    private final JsTsContext<?> context;
     List<InputFile> inputFiles;
     private final List<BridgeServer.Issue> issues = new ArrayList<>();
     private final List<InputFile> filesToAnalyze = new ArrayList<>();
@@ -160,8 +167,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private CompletableFuture<List<BridgeServer.Issue>> handle;
 
-    AnalyzeProjectHandlerImpl(List<InputFile> inputFiles) {
+    AnalyzeProjectHandlerImpl(JsTsContext<?> context, List<InputFile> inputFiles) {
       this.inputFiles = inputFiles;
+      this.context = context;
     }
 
     @Override
