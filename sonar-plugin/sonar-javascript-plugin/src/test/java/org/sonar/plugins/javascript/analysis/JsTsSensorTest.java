@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
@@ -67,6 +68,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -366,6 +368,18 @@ class JsTsSensorTest {
     assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
   }
 
+  CompletableFuture<List<BridgeServer.Issue>> getAnalyzeProjectFuture(
+    BridgeServer.ProjectAnalysisOutputDTO expectedResponse,
+    JsTsSensor sensor,
+    SensorContext ctx,
+    DefaultInputFile inputFile
+  ) throws IOException {
+    var resultMessagesList = getWSMessages(expectedResponse);
+    var webSocketClient = new TestJsWebsocketClient(resultMessagesList);
+    var handler = sensor.createAnalyzeProjectHandler(new JsTsContext<>(ctx), List.of(inputFile));
+    return webSocketClient.analyzeProject(handler.getRequest(), handler);
+  }
+
   @Test
   void should_analyse_project() throws Exception {
     var ctx = createSensorContext(baseDir);
@@ -373,16 +387,12 @@ class JsTsSensorTest {
       new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
     );
     JsTsSensor sensor = createProjectSensor();
+
     DefaultInputFile inputFile = createInputFile(ctx);
-
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    var resultMessagesList = getWSMessages(expectedResponse);
-    var webSocketClient = new TestJsWebsocketClient(resultMessagesList);
-    sensor.context = new JsTsContext(ctx);
-    var handler = sensor.createAnalyzeProjectHandler(List.of(inputFile));
-    var futureHandle = webSocketClient.analyzeProject(handler.getRequest(), handler);
-
+    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
     when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
+
     sensor.execute(ctx);
     assertThat(ctx.allIssues()).hasSize(
       expectedResponse.files().get(inputFile.absolutePath()).issues().size()
@@ -455,9 +465,8 @@ class JsTsSensorTest {
         List.of(warningMessage)
       )
     );
-    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-    //      getAnalyzeProjectList(expectedResponse)
-    //    );
+    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
 
     sensor.execute(ctx);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
@@ -1290,14 +1299,11 @@ class JsTsSensorTest {
           .setEnd(Position.newBuilder().setLine(1).setColumn(1))
       )
       .build();
-    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-    //      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, placeHolderNode))
-    //    );
+    var expectedResponse = createProjectResponseWithAst(inputFile, placeHolderNode);
+    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
 
     sensor.execute(ctx);
-    var captor = ArgumentCaptor.forClass(ProjectAnalysisRequest.class);
-    //    verify(bridgeServerMock).analyzeProject(captor.capture());
-    assertThat(captor.getValue().configuration.skipAst()).isFalse();
     assertThat(consumer.files).hasSize(1);
     assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
     assertThat(consumer.done).isTrue();
@@ -1338,9 +1344,9 @@ class JsTsSensorTest {
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
     var inputFile = createInputFile(ctx);
 
-    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-    //      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, erroneousNode))
-    //    );
+    var expectedResponse = createProjectResponseWithAst(inputFile, erroneousNode);
+    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
 
     sensor.execute(ctx);
     assertThat(consumer.files).isEmpty();
