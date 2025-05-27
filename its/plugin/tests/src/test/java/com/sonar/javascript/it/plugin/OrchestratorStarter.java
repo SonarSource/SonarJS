@@ -110,6 +110,7 @@ public final class OrchestratorStarter
   static SonarScanner getSonarScanner() {
     return SonarScanner.create()
       .setScannerVersion(SCANNER_VERSION)
+      .setProperty("sonar.scanner.skipJreProvisioning", "true")
       .setProperty(ANALYZE_PROJECT_ENABLED, getAnalyzeProjectEnabledFlag());
   }
 
