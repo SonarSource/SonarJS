@@ -15,16 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
-import type { MessagePort } from 'node:worker_threads';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 export function handleFileResult(
   result: FileResult,
   filename: string,
   results: ProjectAnalysisOutput,
-  parentThread?: MessagePort,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  if (parentThread) {
-    parentThread.postMessage({
+  if (incrementalResultsChannel) {
+    incrementalResultsChannel({
       ...result,
       filename,
       messageType: 'fileResult',

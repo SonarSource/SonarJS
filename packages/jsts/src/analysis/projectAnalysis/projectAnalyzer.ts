@@ -29,18 +29,18 @@ import {
 import { getFilesToAnalyze, sourceFileStore } from './file-stores/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import type { MessagePort } from 'node:worker_threads';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
  *
  * @param input the JavaScript / TypeScript project to analyze
- * @param parentThread if provided, it will be propagated to accept the computation results
+ * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(
   input: ProjectAnalysisInput,
-  parentThread?: MessagePort,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
@@ -74,11 +74,17 @@ export async function analyzeProject(
         results,
         pendingFiles,
         progressReport,
-        parentThread,
+        incrementalResultsChannel,
       );
     } else {
       results.meta.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport, parentThread);
+      await analyzeWithProgram(
+        filesToAnalyze,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+      );
     }
     if (pendingFiles.size) {
       info(
@@ -90,16 +96,11 @@ export async function analyzeProject(
         results,
         normalizedBaseDir,
         progressReport,
-        parentThread,
+        incrementalResultsChannel,
       );
     }
   }
   progressReport.stop();
-  if (parentThread) {
-    parentThread.postMessage({
-      ...results.meta,
-      messageType: 'meta',
-    });
-  }
+  incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
   return results;
 }

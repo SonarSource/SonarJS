@@ -22,8 +22,8 @@ import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/confi
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import type { MessagePort } from 'node:worker_threads';
 import { handleFileResult } from './handleFileResult.js';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -34,14 +34,14 @@ import { handleFileResult } from './handleFileResult.js';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  * @param progressReport progress report to log analyzed files
- * @param parentThread if provided, send the result via this channel
+ * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   progressReport: ProgressReport,
-  parentThread?: MessagePort,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of tsConfigStore.getTsConfigs()) {
@@ -52,7 +52,7 @@ export async function analyzeWithProgram(
       pendingFiles,
       processedTSConfigs,
       progressReport,
-      parentThread,
+      incrementalResultsChannel,
     );
     if (!pendingFiles.size) {
       break;
@@ -67,7 +67,7 @@ async function analyzeProgram(
   pendingFiles: Set<string>,
   processedTSConfigs: Set<string>,
   progressReport: ProgressReport,
-  parentThread?: MessagePort,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   if (processedTSConfigs.has(tsConfig)) {
     return;
@@ -107,7 +107,7 @@ async function analyzeProgram(
         ...fieldsForJsTsAnalysisInput(),
       });
       pendingFiles.delete(filename);
-      handleFileResult(result, filename, results, parentThread);
+      handleFileResult(result, filename, results, incrementalResultsChannel);
     }
   }
   deleteProgram(programId);
@@ -120,7 +120,7 @@ async function analyzeProgram(
       pendingFiles,
       processedTSConfigs,
       progressReport,
-      parentThread,
+      incrementalResultsChannel,
     );
   }
 }
