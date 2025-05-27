@@ -54,6 +54,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -102,6 +104,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
+import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -299,7 +302,7 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_analyse() throws Exception {
+  void should_analyze() throws Exception {
     JsTsSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     createTsConfigFile();
@@ -375,13 +378,22 @@ class JsTsSensorTest {
     DefaultInputFile inputFile
   ) throws IOException {
     var resultMessagesList = getWSMessages(expectedResponse);
-    var webSocketClient = new TestJsWebsocketClient(resultMessagesList);
+    return getAnalyzeProjectFuture(resultMessagesList, sensor, ctx, inputFile);
+  }
+
+  CompletableFuture<List<BridgeServer.Issue>> getAnalyzeProjectFuture(
+    List<String> wsMessages,
+    JsTsSensor sensor,
+    SensorContext ctx,
+    DefaultInputFile inputFile
+  ) throws IOException {
+    var webSocketClient = new TestJsWebsocketClient(wsMessages);
     var handler = sensor.createAnalyzeProjectHandler(new JsTsContext<>(ctx), List.of(inputFile));
     return webSocketClient.analyzeProject(handler.getRequest(), handler);
   }
 
   @Test
-  void should_analyse_project() throws Exception {
+  void should_analyze_project() throws Exception {
     var ctx = createSensorContext(baseDir);
     ctx.setSettings(
       new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
