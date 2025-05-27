@@ -43,13 +43,12 @@ public interface Http {
     private final HttpClient client;
 
     JdkHttp() {
-      this.client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+      this.client = HttpClient.newBuilder().build();
     }
 
     @Override
     public Response post(String json, URI uri, long timeoutSeconds) throws IOException {
       var request = HttpRequest.newBuilder()
-        .version(HttpClient.Version.HTTP_1_1)
         .uri(uri)
         .timeout(Duration.ofSeconds(timeoutSeconds))
         .header("Content-Type", "application/json")
@@ -67,7 +66,7 @@ public interface Http {
 
     @Override
     public String get(URI uri) throws IOException {
-      var request = HttpRequest.newBuilder(uri).version(HttpClient.Version.HTTP_1_1).GET().build();
+      var request = HttpRequest.newBuilder(uri).GET().build();
       try {
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         return response.body();
