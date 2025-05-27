@@ -16,17 +16,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 
-public interface JSWebSocketClient {
-  String CONNECTION_CLOSED = "CONNECTION_CLOSED";
-  String CONNECTION_ERROR = "CONNECTION_ERROR";
-
-  void send(@Nullable String message);
-  CompletableFuture<List<BridgeServer.Issue>> analyzeProject(
-    BridgeServer.ProjectAnalysisRequest request,
-    AnalyzeProjectHandler handler
-  );
+public interface AnalyzeProjectHandler {
+  BridgeServer.ProjectAnalysisRequest getRequest() throws IOException;
+  void processMessage(String message) throws IOException;
+  void setFutureHandle(CompletableFuture<List<BridgeServer.Issue>> handle);
 }

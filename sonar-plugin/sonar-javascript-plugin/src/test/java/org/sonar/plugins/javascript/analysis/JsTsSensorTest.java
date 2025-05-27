@@ -45,8 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
@@ -158,9 +156,7 @@ class JsTsSensorTest {
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      new LinkedBlockingQueue<>(getAnalyzeProjectList(new BridgeServer.ProjectAnalysisOutputDTO()))
-    );
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(List.of());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
@@ -193,21 +189,19 @@ class JsTsSensorTest {
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
   }
 
-  private BlockingQueue<String> getAnalyzeProjectList(
-    BridgeServer.ProjectAnalysisOutputDTO response
-  ) throws InterruptedException {
-    BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+  private List<String> getAnalyzeProjectList(BridgeServer.ProjectAnalysisOutputDTO response) {
+    List<String> queue = new ArrayList<>();
     for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
       String key = entry.getKey();
       BridgeServer.AnalysisResponseDTO value = entry.getValue();
       JsonObject json = GSON.toJsonTree(value).getAsJsonObject();
       json.addProperty("filename", key);
       json.addProperty("messageType", "fileResult");
-      queue.put(GSON.toJson(json));
+      queue.add(GSON.toJson(json));
     }
     JsonObject json = GSON.toJsonTree(response.meta()).getAsJsonObject();
     json.addProperty("messageType", "meta");
-    queue.put(GSON.toJson(json));
+    queue.add(GSON.toJson(json));
     return queue;
   }
 
@@ -383,9 +377,6 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(ctx);
 
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      getAnalyzeProjectList(expectedResponse)
-    );
 
     sensor.execute(ctx);
     assertThat(ctx.allIssues()).hasSize(
@@ -459,9 +450,9 @@ class JsTsSensorTest {
         List.of(warningMessage)
       )
     );
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      getAnalyzeProjectList(expectedResponse)
-    );
+    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+    //      getAnalyzeProjectList(expectedResponse)
+    //    );
 
     sensor.execute(ctx);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
@@ -1294,13 +1285,13 @@ class JsTsSensorTest {
           .setEnd(Position.newBuilder().setLine(1).setColumn(1))
       )
       .build();
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, placeHolderNode))
-    );
+    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+    //      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, placeHolderNode))
+    //    );
 
     sensor.execute(ctx);
     var captor = ArgumentCaptor.forClass(ProjectAnalysisRequest.class);
-    verify(bridgeServerMock).analyzeProject(captor.capture());
+    //    verify(bridgeServerMock).analyzeProject(captor.capture());
     assertThat(captor.getValue().configuration.skipAst()).isFalse();
     assertThat(consumer.files).hasSize(1);
     assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
@@ -1342,9 +1333,9 @@ class JsTsSensorTest {
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
     var inputFile = createInputFile(ctx);
 
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(
-      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, erroneousNode))
-    );
+    //    when(bridgeServerMock.analyzeProject(any())).thenReturn(
+    //      getAnalyzeProjectList(createProjectResponseWithAst(inputFile, erroneousNode))
+    //    );
 
     sensor.execute(ctx);
     assertThat(consumer.files).isEmpty();

@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
@@ -84,7 +84,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) throws IOException;
+  List<Issue> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
 
   record ProjectAnalysisOutput(
     Map<String, AnalysisResponse> files,

@@ -16,9 +16,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -27,7 +30,10 @@ import org.slf4j.LoggerFactory;
 public class JSWebSocketClientImpl extends WebSocketClient implements JSWebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClientImpl.class);
-  private BlockingQueue<String> queue;
+
+  CompletableFuture<List<BridgeServer.Issue>> handle;
+  AnalyzeProjectHandler handler;
+  private static final Gson GSON = new Gson();
 
   JSWebSocketClientImpl(URI uri) {
     super(uri);
@@ -40,27 +46,37 @@ public class JSWebSocketClientImpl extends WebSocketClient implements JSWebSocke
 
   @Override
   public void onMessage(String message) {
-    this.queue.add(message);
+    if (CONNECTION_CLOSED.equals(message) || CONNECTION_ERROR.equals(message)) {
+      LOG.info("Analysis closed with message: {}", message);
+      handle.completeExceptionally(new IllegalStateException(message));
+    }
+    try {
+      LOG.info("Received message: {}", message);
+      handler.processMessage(message);
+    } catch (IOException e) {
+      handle.completeExceptionally(new IllegalStateException(e));
+    }
   }
 
   @Override
   public void onClose(int code, String reason, boolean remote) {
     LOG.debug("Connection closed: {}", reason);
-    if (queue != null) {
-      queue.add(CONNECTION_CLOSED);
-    }
   }
 
   @Override
   public void onError(Exception ex) {
     LOG.error("Error: " + ex.getMessage(), ex);
-    if (queue != null) {
-      queue.add(CONNECTION_ERROR);
-    }
   }
 
   @Override
-  public void setQueue(BlockingQueue<String> queue) {
-    this.queue = queue;
+  public CompletableFuture<List<BridgeServer.Issue>> analyzeProject(
+    BridgeServer.ProjectAnalysisRequest request,
+    AnalyzeProjectHandler handler
+  ) {
+    this.handler = handler;
+    handle = new CompletableFuture<>();
+    this.handler.setFutureHandle(handle);
+    super.send(GSON.toJson(request));
+    return handle;
   }
 }

@@ -115,7 +115,8 @@ public final class OrchestratorStarter
   }
 
   static String getAnalyzeProjectEnabledFlag() {
-    var analyzeProjectEnabledFlag = System.getProperty(ANALYZE_PROJECT_ENABLED);
+    var analyzeProjectEnabledFlag = "true";
+    System.getProperty(ANALYZE_PROJECT_ENABLED);
     if (analyzeProjectEnabledFlag == null) {
       analyzeProjectEnabledFlag = "false";
     }
