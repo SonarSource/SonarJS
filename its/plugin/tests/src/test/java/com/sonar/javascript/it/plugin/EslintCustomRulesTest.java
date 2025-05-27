@@ -88,6 +88,7 @@ class EslintCustomRulesTest {
 
   static BuildResult runBuild(Orchestrator orchestrator) {
     SonarScanner build = OrchestratorStarter.createScanner()
+      .setProperty("sonar.scanner.skipJreProvisioning", "true")
       .setProjectDir(TestUtils.projectDirNoCopy("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
