@@ -15,7 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AnalysisOutput } from '../../shared/src/types/analysis.js';
-import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import {
+  type FileResult,
+  ProjectAnalysisInput,
+  ProjectAnalysisMeta,
+} from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { TsConfigJson } from 'type-fest';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
@@ -33,6 +37,10 @@ export type RequestResult =
       type: 'failure';
       error: ReturnType<typeof serializeError>;
     };
+
+export type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
+export type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
+export type WsIncrementalResult = WsFileResult | WsMetaResult;
 
 export type Telemetry = {
   dependencies: NamedDependency[];

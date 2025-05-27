@@ -16,20 +16,33 @@
  */
 import * as express from 'express';
 import { Worker } from 'worker_threads';
-import { createDelegator } from './delegate.js';
+import { createDelegator, createWsDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
-import { type RawData, WebSocketServer } from 'ws';
-import { info } from '../../shared/src/helpers/logging.js';
+import { WebSocketServer } from 'ws';
+
+export type WorkerMessageListeners = {
+  permanent: ((message: any) => void)[];
+  oneTimers: ((message: any) => void)[];
+};
 
 export default function (
   worker: Worker | undefined,
   workerData: WorkerData,
   wss: WebSocketServer,
 ): express.Router {
-  const router = express.Router();
-  const delegate = createDelegator(worker, workerData);
+  const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
+  if (worker) {
+    worker.on('message', message => {
+      workerMessageListeners.permanent.forEach(listener => listener(message));
+      workerMessageListeners.oneTimers.forEach(listener => listener(message));
+      workerMessageListeners.oneTimers = [];
+    });
+  }
 
+  const router = express.Router();
+  const delegate = createDelegator(worker, workerData, workerMessageListeners);
+  const wsDelegate = createWsDelegator(worker, workerData, workerMessageListeners);
   /** Endpoints running on the worker thread */
   router.post('/analyze-project', delegate('on-analyze-project'));
   router.post('/analyze-css', delegate('on-analyze-css'));
@@ -44,24 +57,7 @@ export default function (
   router.post('/tsconfig-files', delegate('on-tsconfig-files'));
   router.get('/get-telemetry', delegate('on-get-telemetry'));
 
-  wss.on('connection', ws => {
-    info('WebSocket client connected on /ws');
-
-    ws.on('message', message => {
-      if (worker) {
-        worker.on('message', message => {
-          ws.send(JSON.stringify(message));
-        });
-
-        const data = decodeMessage(message);
-        worker.postMessage({ type: 'on-analyze-project', data, ws: true });
-      }
-    });
-
-    ws.on('close', () => {
-      console.log('WebSocket client disconnected');
-    });
-  });
+  wss.on('connection', wsDelegate);
 
   /** Endpoints running on the main thread */
   router.get('/status', (_, response) => {
@@ -69,14 +65,4 @@ export default function (
   });
 
   return router;
-}
-
-function decodeMessage(message: RawData) {
-  let jsonString = '';
-  if (Buffer.isBuffer(message)) {
-    jsonString = message.toString('utf8');
-  } else if (Array.isArray(message)) {
-    jsonString = Buffer.concat(message).toString('utf8');
-  }
-  return JSON.parse(jsonString);
 }

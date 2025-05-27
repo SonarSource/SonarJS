@@ -27,9 +27,10 @@ import { createAndSaveProgram } from '../../src/program/program.js';
 import { readProtobufFromFilePath } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
-import { outputContainsAst } from '../../../bridge/src/delegate.js';
 import assert from 'assert';
 import { join } from 'node:path/posix';
+import { AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import { JsTsAnalysisOutputWithAst } from '../../src/analysis/analysis.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -1066,3 +1067,7 @@ describe('await analyzeJSTS', () => {
     assert(!outputContainsAst(analysisResult));
   });
 });
+
+export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
+  return 'astFilePath' in result;
+}

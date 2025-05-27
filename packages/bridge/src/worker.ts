@@ -16,7 +16,7 @@
  */
 import { parentPort, workerData } from 'worker_threads';
 import { handleRequest } from './handle-request.js';
-import { BridgeRequest } from './request.js';
+import { BridgeRequest, WsIncrementalResult } from './request.js';
 
 /**
  * Code executed by the worker thread
@@ -30,7 +30,9 @@ if (parentPort) {
       if (type === 'close') {
         parentThread.close();
       } else if (ws) {
-        await handleRequest(message, workerData, parentThread);
+        await handleRequest(message, workerData, (results: WsIncrementalResult) =>
+          parentThread.postMessage(results),
+        );
       } else {
         parentThread.postMessage(await handleRequest(message, workerData));
       }
