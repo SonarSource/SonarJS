@@ -88,31 +88,10 @@ public interface BridgeServer extends Startable {
 
   CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
 
-  record ProjectAnalysisOutput(
-    Map<String, AnalysisResponse> files,
-    ProjectAnalysisMetaResponse meta
-  ) {
-    static ProjectAnalysisOutput fromDTO(ProjectAnalysisOutputDTO projectAnalysisOutputDTO) {
-      return new ProjectAnalysisOutput(
-        projectAnalysisOutputDTO.files
-          .entrySet()
-          .stream()
-          .collect(
-            Collectors.toMap(Map.Entry::getKey, entry -> AnalysisResponse.fromDTO(entry.getValue()))
-          ),
-        projectAnalysisOutputDTO.meta
-      );
-    }
-  }
-
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
     ProjectAnalysisMetaResponse meta
-  ) {
-    public ProjectAnalysisOutputDTO() {
-      this(Map.of(), new ProjectAnalysisMetaResponse());
-    }
-  }
+  ) {}
 
   record JsAnalysisRequest(
     String filePath,

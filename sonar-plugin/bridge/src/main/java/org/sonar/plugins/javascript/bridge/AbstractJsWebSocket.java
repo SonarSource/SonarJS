@@ -23,9 +23,10 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractJsWebSocket implements JSWebSocketClient {
 
+  static final Gson GSON = new Gson();
+
   protected AnalyzeProjectHandler handler = null;
   CompletableFuture<List<BridgeServer.Issue>> handle = null;
-  static final Gson GSON = new Gson();
 
   public CompletableFuture<List<BridgeServer.Issue>> analyzeProject(
     BridgeServer.ProjectAnalysisRequest request,
