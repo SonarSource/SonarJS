@@ -39,9 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -404,13 +403,11 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public BlockingQueue<String> analyzeProject(ProjectAnalysisRequest request) {
-    BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
-    client.setQueue(messageQueue);
+  public List<Issue> analyzeProject(AnalyzeProjectHandler handler) throws IOException {
+    var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    client.send(GSON.toJson(request));
-    return messageQueue;
+    return client.analyzeProject(request, handler).join();
   }
 
   private BridgeResponse request(String json, String endpoint) {
