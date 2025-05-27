@@ -156,7 +156,6 @@ class JsTsSensorTest {
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(List.of());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
@@ -189,7 +188,7 @@ class JsTsSensorTest {
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
   }
 
-  private List<String> getAnalyzeProjectList(BridgeServer.ProjectAnalysisOutputDTO response) {
+  private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
     List<String> queue = new ArrayList<>();
     for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
       String key = entry.getKey();
@@ -377,7 +376,13 @@ class JsTsSensorTest {
     DefaultInputFile inputFile = createInputFile(ctx);
 
     var expectedResponse = createProjectResponse(List.of(inputFile));
+    var resultMessagesList = getWSMessages(expectedResponse);
+    var webSocketClient = new TestJsWebsocketClient(resultMessagesList);
+    sensor.context = new JsTsContext(ctx);
+    var handler = sensor.createAnalyzeProjectHandler(List.of(inputFile));
+    var futureHandle = webSocketClient.analyzeProject(handler.getRequest(), handler);
 
+    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
     sensor.execute(ctx);
     assertThat(ctx.allIssues()).hasSize(
       expectedResponse.files().get(inputFile.absolutePath()).issues().size()
