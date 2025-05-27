@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -53,6 +54,8 @@ class EslintCustomRulesTest {
   static OrchestratorExtension initOrchestrator(String customRulesArtifactId) {
     var orchestrator = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
+      .setEdition(Edition.ENTERPRISE_LW)
+      .activateLicense()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))

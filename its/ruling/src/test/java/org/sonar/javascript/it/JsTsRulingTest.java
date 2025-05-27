@@ -22,6 +22,7 @@ import static org.sonar.plugins.javascript.analysis.JsTsContext.ANALYZE_PROJECT_
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
@@ -68,6 +69,8 @@ class JsTsRulingTest {
   @RegisterExtension
   public static final OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
+    .setEdition(Edition.ENTERPRISE_LW)
+    .activateLicense()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(
       FileLocation.byWildcardMavenFilename(
