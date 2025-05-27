@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsFiles, ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
@@ -26,8 +26,7 @@ import {
   getGlobals,
   getEnvironments,
 } from '../../../../shared/src/helpers/configuration.js';
-import { loadFiles } from './files-finder.js';
-import { sourceFileStore } from './file-stores/index.js';
+import { getFilesToAnalyze, sourceFileStore } from './file-stores/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 
@@ -60,18 +59,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     baseDir: normalizedBaseDir,
     rulesWorkdir,
   });
-  await loadFiles(normalizedBaseDir, files);
-  let filesToAnalyze: JsTsFiles;
-  let pendingFiles: Set<string>;
-  // if the request had input files, we use them
-  if (sourceFileStore.getRequestFilesCount() > 0) {
-    filesToAnalyze = sourceFileStore.getRequestFiles();
-    pendingFiles = new Set(sourceFileStore.getRequestFilenames());
-  } else {
-    // otherwise, we analyze all found files in baseDir
-    filesToAnalyze = sourceFileStore.getFoundFiles();
-    pendingFiles = new Set(sourceFileStore.getFoundFilenames());
-  }
+  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, files);
   const progressReport = new ProgressReport(sourceFileStore.getFoundFilesCount());
   if (pendingFiles.size) {
     if (isSonarLint()) {

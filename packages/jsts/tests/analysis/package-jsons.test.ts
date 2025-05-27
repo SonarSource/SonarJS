@@ -17,8 +17,10 @@
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { loadFiles } from '../../src/analysis/projectAnalysis/files-finder.js';
-import { packageJsonStore } from '../../src/analysis/projectAnalysis/file-stores/index.js';
+import {
+  initFileStores,
+  packageJsonStore,
+} from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
 import { PackageJson } from 'type-fest';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
@@ -37,7 +39,7 @@ describe('files', () => {
   });
 
   it('should return the package.json files', async () => {
-    await loadFiles(join(fixtures, 'dependencies'));
+    await initFileStores(join(fixtures, 'dependencies'));
     const filePath = join(fixtures, 'dependencies', 'package.json');
     const fileContent = JSON.parse(await readFile(filePath, 'utf-8')) as PackageJson;
     expect(packageJsonStore.getPackageJsons()).toEqual([
@@ -50,7 +52,7 @@ describe('files', () => {
 
   it('should fill the package.json cache used for rules', async () => {
     const path = join(fixtures, 'dependencies');
-    await loadFiles(path);
+    await initFileStores(path);
     expect(cache.size).toEqual(1);
     expect(cache.has(path)).toEqual(true);
   });
@@ -58,7 +60,7 @@ describe('files', () => {
   it('should ignore malformed the package.json files', async ({ mock }) => {
     mock.method(console, 'log');
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
-    await loadFiles(join(fixtures, 'package-json-malformed'));
+    await initFileStores(join(fixtures, 'package-json-malformed'));
     const filePath = join(fixtures, 'package-json-malformed', 'package.json');
     expect(packageJsonStore.getPackageJsons()).toHaveLength(0);
 
@@ -72,7 +74,7 @@ describe('files', () => {
   it('should clear the package.json cache', async () => {
     setGlobalConfiguration();
     const baseDir = join(fixtures, 'dependencies');
-    await loadFiles(baseDir);
+    await initFileStores(baseDir);
     expect(packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
     expect(cache.size).toEqual(1);
