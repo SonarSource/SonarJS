@@ -130,7 +130,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     try {
-      var issues = bridgeServer.analyzeProject(new AnalyzeProjectHandlerImpl(inputFiles));
+      var issues = bridgeServer.analyzeProject(createAnalyzeProjectHandler(inputFiles)).join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
       return issues;
@@ -145,6 +145,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
     var importer = new EslintReportImporter();
 
     return importer.execute(context);
+  }
+
+  AnalyzeProjectHandlerImpl createAnalyzeProjectHandler(List<InputFile> inputFiles) {
+    return new AnalyzeProjectHandlerImpl(inputFiles);
   }
 
   class AnalyzeProjectHandlerImpl implements AnalyzeProjectHandler {

@@ -74,6 +74,8 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
+  JSWebSocketClient getWebSocketClient();
+
   record InitLinterRequest(
     List<EslintRule> rules,
     List<String> environments,
@@ -84,7 +86,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  List<Issue> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
+  CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
 
   record ProjectAnalysisOutput(
     Map<String, AnalysisResponse> files,

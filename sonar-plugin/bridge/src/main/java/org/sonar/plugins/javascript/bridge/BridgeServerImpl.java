@@ -244,12 +244,18 @@ public class BridgeServerImpl implements BridgeServer {
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
-  JSWebSocketClient establishWebSocketConnection() throws InterruptedException {
-    var webSocketClient = new JSWebSocketClientImpl(wsUrl());
-    // Wait for connection to establish
-    webSocketClient.connectBlocking();
-    LOG.debug("Established WebSocket connection");
-    return webSocketClient;
+  @Override
+  public JSWebSocketClient getWebSocketClient() {
+    return client;
+  }
+
+  JSWebSocketClient establishWebSocketConnection() {
+    try {
+      return new JSWebSocketClientImpl(wsUrl());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
   }
 
   boolean waitServerToStart(int timeoutMs) {
@@ -403,11 +409,12 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public List<Issue> analyzeProject(AnalyzeProjectHandler handler) throws IOException {
+  public CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler)
+    throws IOException {
     var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    return client.analyzeProject(request, handler).join();
+    return getWebSocketClient().analyzeProject(request, handler);
   }
 
   private BridgeResponse request(String json, String endpoint) {
