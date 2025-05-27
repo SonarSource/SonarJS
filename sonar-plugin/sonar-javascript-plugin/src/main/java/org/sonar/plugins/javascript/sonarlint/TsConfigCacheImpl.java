@@ -40,7 +40,7 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
-public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
+public class TsConfigCacheImpl implements TsConfigCache {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
 
@@ -48,11 +48,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   TsConfigOrigin origin;
   int projectSize;
   boolean shouldClearDependenciesCache;
+  FSListener fsListener;
 
   Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
 
-  public TsConfigCacheImpl(BridgeServer bridgeServer) {
+  public TsConfigCacheImpl(BridgeServer bridgeServer, FSListener fsListener) {
     this.bridgeServer = bridgeServer;
+    this.fsListener = fsListener;
     cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
     cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
     cacheMap.put(TsConfigOrigin.FALLBACK, new Cache());
@@ -208,30 +210,33 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   }
 
   @Override
-  public void process(ModuleFileEvent moduleFileEvent) {
-    var file = moduleFileEvent.getTarget();
-    var filename = file.absolutePath();
-    LOG.debug("Processing file event {} with event {}", filename, moduleFileEvent.getType());
-    // Look for any event on files named *tsconfig*.json
-    // Filenames other than tsconfig.json can be discovered through references
-    if (filename.endsWith("json") && file.filename().contains("tsconfig")) {
-      LOG.debug("Clearing tsconfig cache");
-      cacheMap.get(TsConfigOrigin.LOOKUP).clearAll();
-      if (cacheMap.get(TsConfigOrigin.PROPERTY).discoveredTsConfigFiles.contains(filename)) {
-        cacheMap.get(TsConfigOrigin.PROPERTY).clearAll();
+  public void digestFileEvents() {
+    for (var fsEvent : fsListener.listFSEvents()) {
+      var file = fsEvent.getKey();
+      var filename = file.absolutePath();
+      var moduleFileEvent = fsEvent.getValue();
+      LOG.debug("Processing file event {} with event {}", filename, moduleFileEvent);
+      // Look for any event on files named *tsconfig*.json
+      // Filenames other than tsconfig.json can be discovered through references
+      if (filename.endsWith("json") && file.filename().contains("tsconfig")) {
+        LOG.debug("Clearing tsconfig cache");
+        cacheMap.get(TsConfigOrigin.LOOKUP).clearAll();
+        if (cacheMap.get(TsConfigOrigin.PROPERTY).discoveredTsConfigFiles.contains(filename)) {
+          cacheMap.get(TsConfigOrigin.PROPERTY).clearAll();
+        }
+      } else if (filename.endsWith("package.json")) {
+        LOG.debug("Package json update, will clear dependency cache on next analysis request.");
+        shouldClearDependenciesCache = true;
+      } else if (
+        moduleFileEvent == ModuleFileEvent.Type.CREATED &&
+        (TypeScriptLanguage.KEY.equals(file.language()) ||
+          JavaScriptLanguage.KEY.equals(file.language()))
+      ) {
+        // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
+        // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
+        LOG.debug("Clearing input file to tsconfig cache");
+        cacheMap.values().forEach(Cache::clearFileToTsConfigCache);
       }
-    } else if (filename.endsWith("package.json")) {
-      LOG.debug("Package json update, will clear dependency cache on next analysis request.");
-      shouldClearDependenciesCache = true;
-    } else if (
-      moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED &&
-      (TypeScriptLanguage.KEY.equals(file.language()) ||
-        JavaScriptLanguage.KEY.equals(file.language()))
-    ) {
-      // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
-      // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
-      LOG.debug("Clearing input file to tsconfig cache");
-      cacheMap.values().forEach(Cache::clearFileToTsConfigCache);
     }
   }
 
