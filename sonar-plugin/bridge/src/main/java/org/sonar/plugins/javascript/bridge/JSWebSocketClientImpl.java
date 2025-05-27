@@ -18,9 +18,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -30,9 +27,6 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClientImpl.class);
   private final WebSocketClient socket;
-
-  CompletableFuture<List<BridgeServer.Issue>> handle;
-  AnalyzeProjectHandler handler;
 
   JSWebSocketClientImpl(URI uri) throws InterruptedException {
     this.socket = new WebSocketClient(uri) {
@@ -48,7 +42,6 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
           handle.completeExceptionally(new IllegalStateException(message));
         }
         try {
-          LOG.info("Received message: {}", message);
           handler.processMessage(message);
         } catch (IOException e) {
           handle.completeExceptionally(new IllegalStateException(e));
@@ -57,7 +50,7 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        LOG.debug("Connection closed: {}", reason);
+        LOG.debug("WebSocket Connection closed: {}", reason);
       }
 
       @Override
