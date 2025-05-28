@@ -32,7 +32,6 @@ import {
   logMemoryError,
 } from './memory.js';
 import { WebSocketServer } from 'ws';
-import { wsMiddleware } from './websocket.js';
 
 /**
  * The maximum request body size
@@ -103,6 +102,17 @@ export function start(
     const server = http.createServer(app);
     const wss = new WebSocketServer({ noServer: true });
 
+    server.on('upgrade', (request, socket, head) => {
+      // Only handle upgrade requests for /ws
+      if (request.headers.upgrade?.toLowerCase() === 'websocket' && request.url === '/ws') {
+        wss.handleUpgrade(request, socket, head, ws => {
+          wss.emit('connection', ws, request);
+        });
+      } else {
+        socket.destroy();
+      }
+    });
+
     /**
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
@@ -114,7 +124,6 @@ export function start(
      * error handling one should be last.
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-    app.use(wsMiddleware(wss));
     app.use(orphanTimeout.middleware);
     app.use(router(worker, { debugMemory }, wss));
     app.use(errorMiddleware);

@@ -19,7 +19,7 @@ import { Worker } from 'node:worker_threads';
 import { handleRequest } from './handle-request.js';
 import { RequestResult, RequestType, WsIncrementalResult } from './request.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
-import { info } from '../../shared/src/helpers/logging.js';
+import { info, debug, error } from '../../shared/src/helpers/logging.js';
 import type { RawData, WebSocket } from 'ws';
 import { WorkerMessageListeners } from './router.js';
 
@@ -109,8 +109,12 @@ export function createWsDelegator(
       }
     });
 
-    ws.on('close', () => {
-      console.log('WebSocket client disconnected');
+    ws.on('close', (code, reason) => {
+      debug(`WebSocket client disconnected: ${reason} with code ${code}`);
+    });
+
+    ws.on('error', err => {
+      error(`WebSocket client error: ${err}`);
     });
   };
 }
