@@ -173,11 +173,11 @@ const ShannonEntropy = {
       return 0;
     }
     const lettersTotal = str.length;
-    const occurences: Record<string, number> = {};
+    const occurrences: Record<string, number> = {};
     for (const letter of [...str]) {
-      occurences[letter] = (occurences[letter] ?? 0) + 1;
+      occurrences[letter] = (occurrences[letter] ?? 0) + 1;
     }
-    const values = Object.values(occurences);
+    const values = Object.values(occurrences);
     return (
       values
         .map(count => count / lettersTotal)

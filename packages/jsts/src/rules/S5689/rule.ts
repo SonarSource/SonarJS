@@ -44,12 +44,12 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let appInstantiation: estree.Identifier | null = null;
     let isSafe = false;
-    let isExplicitelyUnsafe = false;
+    let isExplicitlyUnsafe = false;
     return {
       Program() {
         appInstantiation = null;
         isSafe = false;
-        isExplicitelyUnsafe = true;
+        isExplicitlyUnsafe = true;
       },
       CallExpression: (node: estree.Node) => {
         if (!isSafe && appInstantiation) {
@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
             isDisabledXPoweredBy(callExpr, appInstantiation) ||
             isSetFalseXPoweredBy(callExpr, appInstantiation) ||
             isAppEscaping(callExpr, appInstantiation);
-          isExplicitelyUnsafe = isSetTrueXPoweredBy(callExpr, appInstantiation);
+          isExplicitlyUnsafe = isSetTrueXPoweredBy(callExpr, appInstantiation);
         }
       },
       VariableDeclarator: (node: estree.Node) => {
@@ -80,7 +80,7 @@ export const rule: Rule.RuleModule = {
       'Program:exit'() {
         if (!isSafe && appInstantiation) {
           let messageId = 'headerDefault';
-          if (isExplicitelyUnsafe) {
+          if (isExplicitlyUnsafe) {
             messageId = 'headerSet';
           }
           context.report({
