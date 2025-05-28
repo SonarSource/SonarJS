@@ -348,7 +348,7 @@ public class BridgeServerImpl implements BridgeServer {
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(serverConfig);
-    } catch (NodeCommandException | InterruptedException e) {
+    } catch (NodeCommandException e) {
       status = Status.FAILED;
       throw e;
     }
