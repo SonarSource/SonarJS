@@ -29,7 +29,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const overriden: Set<estree.Identifier> = new Set();
+    const overridden: Set<estree.Identifier> = new Set();
 
     function isBuiltIn(variable: Scope.Variable) {
       return globalsByLibraries.builtin.includes(variable.name);
@@ -37,10 +37,10 @@ export const rule: Rule.RuleModule = {
 
     function checkVariable(variable: Scope.Variable) {
       if (isBuiltIn(variable)) {
-        variable.defs.forEach(def => overriden.add(def.name));
+        variable.defs.forEach(def => overridden.add(def.name));
         variable.references
           .filter(ref => ref.isWrite())
-          .forEach(ref => overriden.add(ref.identifier));
+          .forEach(ref => overridden.add(ref.identifier));
       }
     }
 
@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
         checkScope(context.sourceCode.getScope(node));
       },
       'Program:exit': () => {
-        overriden.forEach(node => {
+        overridden.forEach(node => {
           if (!isTSEnumMemberId(node)) {
             context.report({
               messageId: 'removeOverride',
@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
             });
           }
         });
-        overriden.clear();
+        overridden.clear();
       },
     };
   },

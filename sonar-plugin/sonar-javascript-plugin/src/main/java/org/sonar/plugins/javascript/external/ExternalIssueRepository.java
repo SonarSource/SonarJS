@@ -95,7 +95,7 @@ public class ExternalIssueRepository {
     List<BridgeServer.Issue> issues
   ) {
     var deduplicatedIssues = new ArrayList<ExternalIssue>();
-    // normalize issues of JS/TS analyzer into set of strigs
+    // normalize issues of JS/TS analyzer into set of strings
     var normalizedIssues = new HashSet<>();
     for (BridgeServer.Issue issue : issues) {
       for (String ruleKey : issue.ruleESLintKeys()) {

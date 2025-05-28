@@ -198,7 +198,7 @@ You can find an example at [the bottom of this document](#examples).
 
 Given the above test snippet, issue messages (`{{...}}`) and quick fixes (if the rule provides them) are mandatory. The issue primary location (`// ^^^^`) and secondary location(s) (`// ^^^<`) are optional.
 
-`Noncompliant` lines will be associated by default to the line of code where they are writen. The syntax `@line_number` allows for an issue to be associated to another line:
+`Noncompliant` lines will be associated by default to the line of code where they are written. The syntax `@line_number` allows for an issue to be associated to another line:
 
 ```javascript
 // Noncompliant@2 [[qf1,qf2,...]] {{Optional message to assert}}
