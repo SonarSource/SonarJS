@@ -213,7 +213,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(BridgeServerConfig serverConfig) throws IOException, InterruptedException {
+  void startServer(BridgeServerConfig serverConfig) throws IOException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
