@@ -14,7 +14,7 @@ new Promise(function(resolve, reject) {
   reject('Something went wrong'); // Noncompliant: use Error object instead of literal
 });
 </pre>
-<p>To fix your code provide an instanse of the Error class to the promise reject function.</p>
+<p>To fix your code provide an instance of the Error class to the promise reject function.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 new Promise(function(resolve, reject) {
   reject(new Error('Network timeout'));

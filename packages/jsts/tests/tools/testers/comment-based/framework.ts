@@ -20,10 +20,10 @@
  * This utility is a TypeScript implementation of the commented-based testing framework of `sonar-analyzer-commons`,
  * which is implemented in Java. It supports most of the documented features except for the `effortToFix` feature.
  *
- * Basically, this testing framework extracts convential comments from a source file that denote expected occurences
+ * Basically, this testing framework extracts conventional comments from a source file that denote expected occurrences
  * of issues at well-located lines with expected messages and secondary locations, if any.
  *
- * As such, this testing framework cannot be used to test actual rule implementatons, as it only provides a helper
+ * As such, this testing framework cannot be used to test actual rule implementations, as it only provides a helper
  * function to extract issue expectations. To use it, please refer to `launcher.test.ts`.
  *
  * @see https://github.com/SonarSource/sonar-analyzer-commons/tree/master/test-commons

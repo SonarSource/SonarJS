@@ -1,5 +1,5 @@
 /** header */
 x;
 y; /*
-  some coment
+  some comment
 */

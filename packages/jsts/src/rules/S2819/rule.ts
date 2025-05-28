@@ -221,7 +221,7 @@ function hasVerifiedOrigin(
 }
 
 /**
- * Looks for an occurence of the provided node in an IfStatement
+ * Looks for an occurrence of the provided node in an IfStatement
  */
 function isReferenceCompared(scope: Scope.Scope | null, identifier: TSESTree.Identifier) {
   function getGrandParent(node: TSESTree.Node) {
