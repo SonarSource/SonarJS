@@ -10,7 +10,7 @@
   <artifactId>bridge</artifactId>
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
-    <protobuf.version>4.31.0</protobuf.version>
+    <protobuf.version>4.31.1</protobuf.version>
   </properties>
   <dependencies>
     <dependency>
