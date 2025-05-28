@@ -50,7 +50,7 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        if (!handle.isDone()) {
+        if (handle != null && !handle.isDone()) {
           LOG.error("WebSocket Connection closed abnormally: {} with code {}", reason, code);
           handle.completeExceptionally(
             new IllegalStateException("WebSocket connection closed abnormally: " + reason)
@@ -63,7 +63,7 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
       @Override
       public void onError(Exception ex) {
         LOG.error("WebSocket error: " + ex.getMessage(), ex);
-        if (!handle.isDone()) {
+        if (handle != null && !handle.isDone()) {
           handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
         }
       }
