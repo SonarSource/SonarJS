@@ -332,6 +332,11 @@ public class BridgeServerImpl implements BridgeServer {
       LOG.info("Using existing Node.js process on port {}", port);
       this.client = establishWebSocketConnection();
     }
+    workdir = serverConfig.workDirAbsolutePath();
+    deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
+    rulesBundles
+      .getUcfgRulesBundle()
+      .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
 
     try {
       if (isAlive()) {
@@ -342,11 +347,6 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
       deploy(serverConfig.config());
-      workdir = serverConfig.workDirAbsolutePath();
-      deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
-      rulesBundles
-        .getUcfgRulesBundle()
-        .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
       startServer(serverConfig);
     } catch (NodeCommandException e) {
       status = Status.FAILED;

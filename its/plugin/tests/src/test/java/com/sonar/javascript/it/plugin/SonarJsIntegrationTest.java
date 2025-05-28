@@ -166,7 +166,7 @@ class SonarJsIntegrationTest {
     private Process process;
 
     Bridge() {
-      this.client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+      this.client = HttpClient.newBuilder().build();
     }
 
     void start(Path dest) throws IOException {
@@ -184,7 +184,6 @@ class SonarJsIntegrationTest {
 
     String request(String json, String endpoint) throws IOException, InterruptedException {
       var request = HttpRequest.newBuilder(url(endpoint))
-        .version(HttpClient.Version.HTTP_1_1)
         .header("Content-Type", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
