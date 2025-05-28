@@ -33,6 +33,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -333,6 +334,7 @@ public class BridgeServerImpl implements BridgeServer {
       this.client = establishWebSocketConnection();
     }
     workdir = serverConfig.workDirAbsolutePath();
+    Files.createDirectories(temporaryDeployLocation.resolve("package"));
     deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
     rulesBundles
       .getUcfgRulesBundle()

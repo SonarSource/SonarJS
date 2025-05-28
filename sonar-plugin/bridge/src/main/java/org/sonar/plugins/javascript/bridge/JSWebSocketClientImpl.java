@@ -50,12 +50,22 @@ public class JSWebSocketClientImpl extends AbstractJsWebSocket {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        LOG.debug("WebSocket Connection closed: {}", reason);
+        if (!handle.isDone()) {
+          LOG.error("WebSocket Connection closed abnormally: {} with code {}", reason, code);
+          handle.completeExceptionally(
+            new IllegalStateException("WebSocket connection closed abnormally: " + reason)
+          );
+        } else {
+          LOG.debug("WebSocket Connection closed: {} with code {}", reason, code);
+        }
       }
 
       @Override
       public void onError(Exception ex) {
-        LOG.error("Error: " + ex.getMessage(), ex);
+        LOG.error("WebSocket error: " + ex.getMessage(), ex);
+        if (!handle.isDone()) {
+          handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
+        }
       }
     };
     // Wait for connection to establish
