@@ -33,6 +33,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.websocket.WebSocketMessageHandler;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -86,7 +87,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
+  void analyzeProject(WebSocketMessageHandler handler);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
@@ -115,7 +116,9 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  class ProjectAnalysisRequest {
+  public interface Request {}
+
+  class ProjectAnalysisRequest implements Request {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
