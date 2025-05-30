@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -240,19 +239,15 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
-    this.client = establishWebSocketConnection();
+    establishWebSocketConnection();
 
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
-  @Override
-  public JSWebSocketClient getWebSocketClient() {
-    return client;
-  }
-
-  JSWebSocketClient establishWebSocketConnection() {
+  void establishWebSocketConnection() {
     try {
-      return new JSWebSocketClientImpl(wsUrl());
+      this.client = new JSWebSocketClient(wsUrl());
+      this.client.connectBlocking();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
@@ -331,7 +326,7 @@ public class BridgeServerImpl implements BridgeServer {
       port = providedPort;
       serverHasStarted();
       LOG.info("Using existing Node.js process on port {}", port);
-      this.client = establishWebSocketConnection();
+      establishWebSocketConnection();
     }
     workdir = serverConfig.workDirAbsolutePath();
     Files.createDirectories(temporaryDeployLocation.resolve("package"));
@@ -411,12 +406,12 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler)
-    throws IOException {
-    var request = handler.getRequest();
+  public void analyzeProject(WebSocketMessageHandler handler) {
+    this.client.registerHandler(handler);
+    var request = (ProjectAnalysisRequest) handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    return getWebSocketClient().analyzeProject(request, handler);
+    this.client.send(GSON.toJson(request));
   }
 
   private BridgeResponse request(String json, String endpoint) {

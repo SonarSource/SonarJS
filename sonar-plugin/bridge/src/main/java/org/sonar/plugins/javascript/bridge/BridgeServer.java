@@ -23,8 +23,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -74,8 +72,6 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
-  JSWebSocketClient getWebSocketClient();
-
   record InitLinterRequest(
     List<EslintRule> rules,
     List<String> environments,
@@ -86,7 +82,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  CompletableFuture<List<Issue>> analyzeProject(AnalyzeProjectHandler handler) throws IOException;
+  void analyzeProject(WebSocketMessageHandler handler);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
@@ -115,7 +111,9 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  class ProjectAnalysisRequest {
+  interface Request {}
+
+  class ProjectAnalysisRequest implements Request {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;

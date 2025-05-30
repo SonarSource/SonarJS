@@ -18,7 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,9 +43,10 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.AnalyzeProjectHandler;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -130,9 +130,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     try {
-      var issues = bridgeServer
-        .analyzeProject(createAnalyzeProjectHandler(context, inputFiles))
-        .join();
+      var handler = createAnalyzeProjectHandler(context, inputFiles);
+      bridgeServer.analyzeProject(handler);
+      var issues = handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
       return issues;
@@ -150,14 +150,14 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   // Used for tests
-  AnalyzeProjectHandlerImpl createAnalyzeProjectHandler(
+  AnalyzeProjectHandler createAnalyzeProjectHandler(
     JsTsContext<?> context,
     List<InputFile> inputFiles
   ) {
-    return new AnalyzeProjectHandlerImpl(context, inputFiles);
+    return new AnalyzeProjectHandler(context, inputFiles);
   }
 
-  class AnalyzeProjectHandlerImpl implements AnalyzeProjectHandler {
+  class AnalyzeProjectHandler implements WebSocketMessageHandler {
 
     private final JsTsContext<?> context;
     List<InputFile> inputFiles;
@@ -165,15 +165,16 @@ public class JsTsSensor extends AbstractBridgeSensor {
     private final List<InputFile> filesToAnalyze = new ArrayList<>();
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
-    private CompletableFuture<List<BridgeServer.Issue>> handle;
+    private final CompletableFuture<List<BridgeServer.Issue>> handle;
 
-    AnalyzeProjectHandlerImpl(JsTsContext<?> context, List<InputFile> inputFiles) {
+    AnalyzeProjectHandler(JsTsContext<?> context, List<InputFile> inputFiles) {
       this.inputFiles = inputFiles;
       this.context = context;
+      this.handle = new CompletableFuture<>();
     }
 
     @Override
-    public BridgeServer.ProjectAnalysisRequest getRequest() throws IOException {
+    public ProjectAnalysisRequest getRequest() {
       var configuration = new BridgeServer.ProjectAnalysisConfiguration(
         context.isSonarLint(),
         fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
@@ -190,30 +191,35 @@ public class JsTsSensor extends AbstractBridgeSensor {
         context.getTsConfigPaths(),
         Arrays.asList(context.getExcludedPaths())
       );
-      for (InputFile inputFile : inputFiles) {
-        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-        if (cacheStrategy.isAnalysisRequired()) {
-          filesToAnalyze.add(inputFile);
-          fileToInputFile.put(inputFile.absolutePath(), inputFile);
-          fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-        } else {
-          LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
-          var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-          analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
-          acceptAstResponse(cacheAnalysis.getAst(), inputFile);
-        }
-      }
       var files = new HashMap<String, BridgeServer.JsTsFile>();
-      for (InputFile file : filesToAnalyze) {
-        files.put(
-          file.absolutePath(),
-          new BridgeServer.JsTsFile(
+      try {
+        for (InputFile inputFile : inputFiles) {
+          CacheStrategy cacheStrategy = null;
+          cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired()) {
+            filesToAnalyze.add(inputFile);
+            fileToInputFile.put(inputFile.absolutePath(), inputFile);
+            fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+          } else {
+            LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
+            var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+            analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+            acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+          }
+        }
+        for (InputFile file : filesToAnalyze) {
+          files.put(
             file.absolutePath(),
-            file.type().toString(),
-            file.status(),
-            context.shouldSendFileContent(file) ? file.contents() : null
-          )
-        );
+            new BridgeServer.JsTsFile(
+              file.absolutePath(),
+              file.type().toString(),
+              file.status(),
+              context.shouldSendFileContent(file) ? file.contents() : null
+            )
+          );
+        }
+      } catch (IOException e) {
+        handle.completeExceptionally(new IllegalStateException(e));
       }
       return new BridgeServer.ProjectAnalysisRequest(
         files,
@@ -223,9 +229,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
       );
     }
 
+    public CompletableFuture<List<BridgeServer.Issue>> getFuture() {
+      return handle;
+    }
+
     @Override
-    public void processMessage(String message) throws IOException {
-      JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+    public boolean handleMessage(JsonObject jsonObject) {
       var messageType = jsonObject.get("messageType").getAsString();
       switch (messageType) {
         case "fileResult":
@@ -236,25 +245,40 @@ public class JsTsSensor extends AbstractBridgeSensor {
           var file = fileToInputFile.get(filePath);
           var cacheStrategy = fileToCacheStrategy.get(filePath);
           issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
-          cacheStrategy.writeAnalysisToCache(
-            CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
-            file
-          );
+          try {
+            cacheStrategy.writeAnalysisToCache(
+              CacheAnalysis.fromResponse(
+                response.ucfgPaths(),
+                response.cpdTokens(),
+                response.ast()
+              ),
+              file
+            );
+          } catch (IOException e) {
+            handle.completeExceptionally(new IllegalStateException(e));
+          }
           acceptAstResponse(response.ast(), file);
-          break;
+          return true;
         case "meta":
           var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
-          handle.complete(issues);
           meta.warnings().forEach(analysisWarnings::addUnique);
-          break;
+          handle.complete(issues);
+          return true;
         default:
-          throw new IllegalStateException("Invalid message type: " + messageType);
+          return false;
       }
     }
 
     @Override
-    public void setFutureHandle(CompletableFuture<List<BridgeServer.Issue>> handle) {
-      this.handle = handle;
+    public void onClose(int code, String reason, boolean remote) {
+      handle.completeExceptionally(
+        new IllegalStateException("WebSocket connection closed abnormally: " + reason)
+      );
+    }
+
+    @Override
+    public void onError(Exception ex) {
+      handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
     }
 
     private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
