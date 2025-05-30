@@ -134,7 +134,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       bridgeServer.analyzeProject(handler);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
-      return handler.getIssues();
+      return handler.getFuture().join();
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
@@ -164,7 +164,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     private final List<InputFile> filesToAnalyze = new ArrayList<>();
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
-    private CompletableFuture<List<BridgeServer.Issue>> handle;
+    private final CompletableFuture<List<BridgeServer.Issue>> handle;
 
     AnalyzeProjectHandler(JsTsContext<?> context, List<InputFile> inputFiles) {
       this.inputFiles = inputFiles;
@@ -228,8 +228,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       );
     }
 
-    public List<BridgeServer.Issue> getIssues() {
-      return handle.join();
+    public CompletableFuture<List<BridgeServer.Issue>> getFuture() {
+      return handle;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.sonar.plugins.javascript.bridge.websocket;
 
 import com.google.gson.JsonObject;
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Request;
 
 /**
@@ -16,6 +16,13 @@ public interface WebSocketMessageHandler {
    * @return A BridgeServer.Request object
    */
   Request getRequest();
+
+  /**
+   * Get the JSON request that needs to be sent to the server
+   *
+   * @return A BridgeServer.Request object
+   */
+  CompletableFuture<?> getFuture();
 
   /**
    * Handles a text WebSocket message.

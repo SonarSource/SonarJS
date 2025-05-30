@@ -38,10 +38,14 @@ public class JSWebSocketClient extends WebSocketClient {
 
   public void registerHandler(WebSocketMessageHandler handler) {
     messageHandlers.add(handler);
-  }
-
-  public void unregisterHandler(WebSocketMessageHandler handler) {
-    messageHandlers.remove(handler);
+    handler
+      .getFuture()
+      .whenComplete((result, exception) -> {
+        messageHandlers.remove(handler);
+        if (exception != null) {
+          LOG.error("Error in handler execution", exception);
+        }
+      });
   }
 
   @Override
