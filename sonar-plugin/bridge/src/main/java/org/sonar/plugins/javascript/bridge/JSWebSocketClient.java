@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class JSWebSocketClient extends WebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
+
   private final List<WebSocketMessageHandler> messageHandlers = new CopyOnWriteArrayList<>();
 
   public JSWebSocketClient(URI serverUri) {
@@ -45,6 +46,10 @@ public class JSWebSocketClient extends WebSocketClient {
           LOG.error("Error in handler execution", exception);
         }
       });
+  }
+
+  public List<WebSocketMessageHandler> getMessageHandlers() {
+    return messageHandlers;
   }
 
   @Override

@@ -389,6 +389,7 @@ class JsTsSensorTest {
       WebSocketMessageHandler handler = invocation.getArgument(0);
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
       webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
       for (var message : getWSMessages(expectedResponse)) {
         webSocketClient.onMessage(message);
       }
@@ -398,6 +399,7 @@ class JsTsSensorTest {
       .analyzeProject(any());
 
     sensor.execute(ctx);
+    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
     assertThat(ctx.allIssues()).hasSize(
       expectedResponse.files().get(inputFile.absolutePath()).issues().size()
     );
