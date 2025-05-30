@@ -33,7 +33,7 @@ public class PluginInfo {
   public static synchronized String getVersion() {
     if (version == null) {
       version = PluginInfo.class.getPackage().getImplementationVersion();
-      LOG.debug("Plugin version: [{}]", version);
+      LOG.info("Plugin version: [{}]", version);
     }
     return version;
   }

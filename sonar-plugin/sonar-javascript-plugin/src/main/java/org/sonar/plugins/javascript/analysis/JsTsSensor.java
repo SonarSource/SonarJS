@@ -16,11 +16,15 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -40,7 +44,9 @@ import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -50,6 +56,7 @@ import org.sonar.plugins.javascript.sonarlint.FSListener;
 public class JsTsSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
+  private static final Gson GSON = new Gson();
 
   private final AbstractAnalysis analysis;
   private final JsTsChecks checks;
@@ -121,82 +128,18 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
       return issues;
     }
-    var issues = new ArrayList<BridgeServer.Issue>();
-    var filesToAnalyze = new ArrayList<InputFile>();
-    var fileToInputFile = new HashMap<String, InputFile>();
-    var fileToCacheStrategy = new HashMap<String, CacheStrategy>();
-    for (InputFile inputFile : inputFiles) {
-      var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-      if (cacheStrategy.isAnalysisRequired()) {
-        filesToAnalyze.add(inputFile);
-        fileToInputFile.put(inputFile.absolutePath(), inputFile);
-        fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-      } else {
-        LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
-        var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-        analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
-        acceptAstResponse(cacheAnalysis.getAst(), inputFile);
-      }
-    }
 
-    var files = new HashMap<String, BridgeServer.JsTsFile>();
-    for (InputFile file : filesToAnalyze) {
-      files.put(
-        file.absolutePath(),
-        new BridgeServer.JsTsFile(
-          file.absolutePath(),
-          file.type().toString(),
-          file.status(),
-          context.shouldSendFileContent(file) ? file.contents() : null
-        )
-      );
-    }
-    var configuration = new BridgeServer.ProjectAnalysisConfiguration(
-      context.isSonarLint(),
-      fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
-      context.allowTsParserJsFiles(),
-      context.getAnalysisMode(),
-      context.skipAst(consumers),
-      context.ignoreHeaderComments(),
-      context.getMaxFileSizeProperty(),
-      context.getTypeCheckingLimit(),
-      context.getEnvironments(),
-      context.getGlobals(),
-      context.getTsExtensions(),
-      context.getJsExtensions(),
-      context.getTsConfigPaths(),
-      Arrays.asList(context.getExcludedPaths())
-    );
-
-    var request = new BridgeServer.ProjectAnalysisRequest(
-      files,
-      checks.enabledEslintRules(),
-      configuration,
-      context.getSensorContext().fileSystem().baseDir().getAbsolutePath()
-    );
     try {
-      var projectResponse = bridgeServer.analyzeProject(request);
-      for (var entry : projectResponse.files().entrySet()) {
-        var filePath = entry.getKey();
-        var response = entry.getValue();
-        var file = fileToInputFile.get(filePath);
-        var cacheStrategy = fileToCacheStrategy.get(filePath);
-        issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
-          file
-        );
-        acceptAstResponse(response.ast(), file);
-      }
-      projectResponse.meta().warnings().forEach(analysisWarnings::addUnique);
+      var handler = createAnalyzeProjectHandler(context, inputFiles);
+      bridgeServer.analyzeProject(handler);
+      var issues = handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
+      consumers.doneAnalysis();
+      return issues;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
     }
-    consumers.doneAnalysis();
-
-    return issues;
   }
 
   @Override
@@ -206,16 +149,149 @@ public class JsTsSensor extends AbstractBridgeSensor {
     return importer.execute(context);
   }
 
-  private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
-    if (responseAst != null) {
-      // When we haven't serialized the AST:
-      // either because no consumer is listening
-      // or the file extension or AST nodes are unsupported
+  // Used for tests
+  AnalyzeProjectHandler createAnalyzeProjectHandler(
+    JsTsContext<?> context,
+    List<InputFile> inputFiles
+  ) {
+    return new AnalyzeProjectHandler(context, inputFiles);
+  }
+
+  class AnalyzeProjectHandler implements WebSocketMessageHandler {
+
+    private final JsTsContext<?> context;
+    List<InputFile> inputFiles;
+    private final List<BridgeServer.Issue> issues = new ArrayList<>();
+    private final List<InputFile> filesToAnalyze = new ArrayList<>();
+    private final Map<String, InputFile> fileToInputFile = new HashMap<>();
+    private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
+    private final CompletableFuture<List<BridgeServer.Issue>> handle;
+
+    AnalyzeProjectHandler(JsTsContext<?> context, List<InputFile> inputFiles) {
+      this.inputFiles = inputFiles;
+      this.context = context;
+      this.handle = new CompletableFuture<>();
+    }
+
+    @Override
+    public ProjectAnalysisRequest getRequest() {
+      var configuration = new BridgeServer.ProjectAnalysisConfiguration(
+        context.isSonarLint(),
+        fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
+        context.allowTsParserJsFiles(),
+        context.getAnalysisMode(),
+        context.skipAst(consumers),
+        context.ignoreHeaderComments(),
+        context.getMaxFileSizeProperty(),
+        context.getTypeCheckingLimit(),
+        context.getEnvironments(),
+        context.getGlobals(),
+        context.getTsExtensions(),
+        context.getJsExtensions(),
+        context.getTsConfigPaths(),
+        Arrays.asList(context.getExcludedPaths())
+      );
+      var files = new HashMap<String, BridgeServer.JsTsFile>();
       try {
-        ESTree.Program program = ESTreeFactory.from(responseAst, ESTree.Program.class);
-        consumers.accept(new JsFile(file, program));
-      } catch (Exception e) {
-        LOG.debug("Failed to deserialize AST for file: {}", file.uri(), e);
+        for (InputFile inputFile : inputFiles) {
+          CacheStrategy cacheStrategy = null;
+          cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+          if (cacheStrategy.isAnalysisRequired()) {
+            filesToAnalyze.add(inputFile);
+            fileToInputFile.put(inputFile.absolutePath(), inputFile);
+            fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+          } else {
+            LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
+            var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+            analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+            acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+          }
+        }
+        for (InputFile file : filesToAnalyze) {
+          files.put(
+            file.absolutePath(),
+            new BridgeServer.JsTsFile(
+              file.absolutePath(),
+              file.type().toString(),
+              file.status(),
+              context.shouldSendFileContent(file) ? file.contents() : null
+            )
+          );
+        }
+      } catch (IOException e) {
+        handle.completeExceptionally(new IllegalStateException(e));
+      }
+      return new BridgeServer.ProjectAnalysisRequest(
+        files,
+        checks.enabledEslintRules(),
+        configuration,
+        context.getSensorContext().fileSystem().baseDir().getAbsolutePath()
+      );
+    }
+
+    public CompletableFuture<List<BridgeServer.Issue>> getFuture() {
+      return handle;
+    }
+
+    @Override
+    public boolean handleMessage(JsonObject jsonObject) {
+      var messageType = jsonObject.get("messageType").getAsString();
+      switch (messageType) {
+        case "fileResult":
+          var filePath = jsonObject.get("filename").getAsString();
+          var response = BridgeServer.AnalysisResponse.fromDTO(
+            GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
+          );
+          var file = fileToInputFile.get(filePath);
+          var cacheStrategy = fileToCacheStrategy.get(filePath);
+          issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
+          try {
+            cacheStrategy.writeAnalysisToCache(
+              CacheAnalysis.fromResponse(
+                response.ucfgPaths(),
+                response.cpdTokens(),
+                response.ast()
+              ),
+              file
+            );
+          } catch (IOException e) {
+            handle.completeExceptionally(new IllegalStateException(e));
+          }
+          acceptAstResponse(response.ast(), file);
+          return true;
+        case "meta":
+          var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
+          meta.warnings().forEach(analysisWarnings::addUnique);
+          handle.complete(issues);
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    @Override
+    public void onClose(int code, String reason, boolean remote) {
+      handle.completeExceptionally(
+        new IllegalStateException("WebSocket connection closed abnormally: " + reason)
+      );
+    }
+
+    @Override
+    public void onError(Exception ex) {
+      handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
+    }
+
+    private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
+      if (responseAst != null) {
+        // When we haven't serialized the AST:
+        // either because no consumer is listening
+        // or the file extension or AST nodes are unsupported
+        try {
+          ESTree.Program program = ESTreeFactory.from(responseAst, ESTree.Program.class);
+          consumers.accept(new JsFile(file, program));
+        } catch (Exception e) {
+          LOG.debug("Failed to deserialize AST for file: {}", file.uri(), e);
+        }
       }
     }
   }

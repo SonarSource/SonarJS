@@ -16,19 +16,24 @@
  */
 import express from 'express';
 import { Worker } from 'node:worker_threads';
-import { JsTsAnalysisOutputWithAst } from '../../jsts/src/analysis/analysis.js';
 import { handleRequest } from './handle-request.js';
-import { AnalysisOutput } from '../../shared/src/types/analysis.js';
-import { RequestResult, RequestType } from './request.js';
+import { RequestResult, RequestType, WsIncrementalResult } from './request.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
+import { info, debug, error } from '../../shared/src/helpers/logging.js';
+import type { RawData, WebSocket } from 'ws';
+import { WorkerMessageListeners } from './router.js';
 
 /**
  * Returns a delegate function to handle an HTTP request
  */
-export function createDelegator(worker: Worker | undefined, workerData: WorkerData) {
-  return function (type: RequestType) {
-    return worker ? createWorkerHandler(worker, type) : createHandler(type, workerData);
-  };
+export function createDelegator(
+  worker: Worker | undefined,
+  workerData: WorkerData,
+  listeners: WorkerMessageListeners,
+) {
+  return worker
+    ? (type: RequestType) => createWorkerHandler(worker, type, listeners)
+    : (type: RequestType) => createHandler(type, workerData);
 }
 
 /**
@@ -46,14 +51,16 @@ function createHandler(type: RequestType, workerData: WorkerData) {
   };
 }
 
-function createWorkerHandler(worker: Worker, type: RequestType) {
+function createWorkerHandler(worker: Worker, type: RequestType, listeners: WorkerMessageListeners) {
   return async (
     request: express.Request,
     response: express.Response,
     next: express.NextFunction,
   ) => {
-    worker.once('message', message => {
-      handleResult(message, response, next);
+    listeners.oneTimers.push(message => {
+      if (!message.ws) {
+        handleResult(message, response, next);
+      }
     });
     worker.postMessage({ type, data: request.body });
   };
@@ -75,6 +82,53 @@ function handleResult(
   }
 }
 
-export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
-  return 'astFilePath' in result;
+/**
+ * Returns a delegate function to handle a web socket message
+ */
+export function createWsDelegator(
+  worker: Worker | undefined,
+  workerData: WorkerData,
+  listeners: WorkerMessageListeners,
+) {
+  return (ws: WebSocket) => {
+    info('WebSocket client connected on /ws');
+    if (worker) {
+      listeners.permanent.push(message => {
+        if (message.ws) {
+          handleWsResult(ws, message.results);
+        }
+      });
+    }
+
+    ws.on('message', async message => {
+      const data = { type: 'on-analyze-project' as const, data: decodeMessage(message), ws: true };
+      if (worker) {
+        worker.postMessage(data);
+      } else {
+        await handleRequest(data, workerData, message => handleWsResult(ws, message));
+      }
+    });
+
+    ws.on('close', (code, reason) => {
+      debug(`WebSocket client disconnected: ${reason} with code ${code}`);
+    });
+
+    ws.on('error', err => {
+      error(`WebSocket client error: ${err}`);
+    });
+  };
+}
+
+function handleWsResult(ws: WebSocket, message: WsIncrementalResult) {
+  ws.send(JSON.stringify(message));
+}
+
+function decodeMessage(message: RawData) {
+  let jsonString = '';
+  if (Buffer.isBuffer(message)) {
+    jsonString = message.toString('utf8');
+  } else if (Array.isArray(message)) {
+    jsonString = Buffer.concat(message).toString('utf8');
+  }
+  return JSON.parse(jsonString);
 }

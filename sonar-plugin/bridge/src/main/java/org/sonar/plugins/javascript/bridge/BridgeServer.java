@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,7 +36,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
-  void startServerLazily(BridgeServerConfig context) throws IOException;
+  void startServerLazily(BridgeServerConfig context) throws IOException, InterruptedException;
 
   void initLinter(
     List<EslintRule> rules,
@@ -55,7 +54,7 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
 
-  void clean();
+  void clean() throws InterruptedException;
 
   String getCommandInfo();
 
@@ -83,27 +82,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  ProjectAnalysisOutput analyzeProject(ProjectAnalysisRequest request) throws IOException;
-
-  record ProjectAnalysisOutput(
-    Map<String, AnalysisResponse> files,
-    ProjectAnalysisMetaResponse meta
-  ) {
-    public ProjectAnalysisOutput() {
-      this(Map.of(), new ProjectAnalysisMetaResponse());
-    }
-    static ProjectAnalysisOutput fromDTO(ProjectAnalysisOutputDTO projectAnalysisOutputDTO) {
-      return new ProjectAnalysisOutput(
-        projectAnalysisOutputDTO.files
-          .entrySet()
-          .stream()
-          .collect(
-            Collectors.toMap(Map.Entry::getKey, entry -> AnalysisResponse.fromDTO(entry.getValue()))
-          ),
-        projectAnalysisOutputDTO.meta
-      );
-    }
-  }
+  void analyzeProject(WebSocketMessageHandler handler);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
@@ -132,7 +111,9 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  class ProjectAnalysisRequest {
+  interface Request {}
+
+  class ProjectAnalysisRequest implements Request {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
@@ -263,7 +244,7 @@ public interface BridgeServer extends Startable {
       this.ast = ast;
     }
 
-    static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
+    public static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
       Node ast = null;
       if (analysisResponseDTO.astFilePath != null) {
         try {

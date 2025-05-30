@@ -20,6 +20,8 @@ import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/confi
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { handleFileResult } from './handleFileResult.js';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes files without type-checking.
@@ -29,6 +31,7 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param baseDir the base directory of the project
  * @param progressReport progress report to log analyzed files
+ * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithoutProgram(
   filenames: Set<string>,
@@ -36,14 +39,16 @@ export async function analyzeWithoutProgram(
   results: ProjectAnalysisOutput,
   baseDir: string,
   progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   for (const filename of filenames) {
     debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
     progressReport.nextFile(filename);
     results.meta?.filesWithoutTypeChecking.push(filename);
-    results.files[filename] = await analyzeFile({
+    const result = await analyzeFile({
       ...files[filename],
       ...fieldsForJsTsAnalysisInput(),
     });
+    handleFileResult(result, filename, results, incrementalResultsChannel);
   }
 }

@@ -107,7 +107,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
    * Analyze the passed input files, and return the list of persisted issues.
    */
   protected abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles)
-    throws IOException;
+    throws IOException, InterruptedException;
 
   protected abstract List<InputFile> getInputFiles();
 

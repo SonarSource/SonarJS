@@ -22,6 +22,8 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { handleFileResult } from './handleFileResult.js';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
@@ -32,23 +34,26 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  * @param progressReport progress report to log analyzed files
+ * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithWatchProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   for (const [filename, file] of Object.entries(files)) {
     if (isJsTsFile(filename)) {
       const tsconfig = tsConfigStore.getTsConfigForInputFile(filename);
       progressReport.nextFile(filename);
-      results.files[filename] = await analyzeFile({
+      const result = await analyzeFile({
         ...file,
         tsConfigs: tsconfig ? [tsconfig] : undefined,
         ...fieldsForJsTsAnalysisInput(),
       });
       pendingFiles.delete(filename);
+      handleFileResult(result, filename, results, incrementalResultsChannel);
       if (!pendingFiles.size) {
         break;
       }

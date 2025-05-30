@@ -16,19 +16,26 @@
  */
 import { parentPort, workerData } from 'worker_threads';
 import { handleRequest } from './handle-request.js';
-import { BridgeRequest } from './request.js';
+import { BridgeRequest, WsIncrementalResult } from './request.js';
 
 /**
  * Code executed by the worker thread
  */
 if (parentPort) {
   const parentThread = parentPort;
-  parentThread.on('message', async (message: BridgeRequest | { type: 'close' }) => {
-    const { type } = message;
-    if (type === 'close') {
-      parentThread.close();
-    } else {
-      parentThread.postMessage(await handleRequest(message, workerData));
-    }
-  });
+  parentThread.on(
+    'message',
+    async (message: (BridgeRequest | { type: 'close' }) & { ws?: boolean }) => {
+      const { type, ws } = message;
+      if (type === 'close') {
+        parentThread.close();
+      } else if (ws) {
+        await handleRequest(message, workerData, (results: WsIncrementalResult) =>
+          parentThread.postMessage({ ws: true, results }),
+        );
+      } else {
+        parentThread.postMessage(await handleRequest(message, workerData));
+      }
+    },
+  );
 }
