@@ -24,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,7 +48,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
@@ -54,8 +56,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -70,7 +70,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -100,7 +99,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
@@ -112,6 +110,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.bridge.websocket.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
@@ -139,6 +138,8 @@ class JsTsSensorTest {
   private FileLinesContextFactory fileLinesContextFactory;
 
   private SensorContextTester context;
+
+  private JSWebSocketClient webSocketClient;
 
   @TempDir
   Path tempDir;
@@ -186,6 +187,8 @@ class JsTsSensorTest {
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
     context.setNextCache(mock(WriteCache.class));
+
+    webSocketClient = new JSWebSocketClient(new URI("ws://localhost:9001/"));
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -371,27 +374,6 @@ class JsTsSensorTest {
     assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
   }
 
-  CompletableFuture<List<BridgeServer.Issue>> getAnalyzeProjectFuture(
-    BridgeServer.ProjectAnalysisOutputDTO expectedResponse,
-    JsTsSensor sensor,
-    SensorContext ctx,
-    DefaultInputFile inputFile
-  ) throws IOException {
-    var resultMessagesList = getWSMessages(expectedResponse);
-    return getAnalyzeProjectFuture(resultMessagesList, sensor, ctx, inputFile);
-  }
-
-  CompletableFuture<List<BridgeServer.Issue>> getAnalyzeProjectFuture(
-    List<String> wsMessages,
-    JsTsSensor sensor,
-    SensorContext ctx,
-    DefaultInputFile inputFile
-  ) throws IOException {
-    var webSocketClient = new TestJsWebsocketClient(wsMessages);
-    var handler = sensor.createAnalyzeProjectHandler(new JsTsContext<>(ctx), List.of(inputFile));
-    return webSocketClient.analyzeProject(handler.getRequest(), handler);
-  }
-
   @Test
   void should_analyze_project() throws Exception {
     var ctx = createSensorContext(baseDir);
@@ -402,8 +384,18 @@ class JsTsSensorTest {
 
     DefaultInputFile inputFile = createInputFile(ctx);
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      for (var message : getWSMessages(expectedResponse)) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
 
     sensor.execute(ctx);
     assertThat(ctx.allIssues()).hasSize(
@@ -477,8 +469,17 @@ class JsTsSensorTest {
         List.of(warningMessage)
       )
     );
-    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      for (var message : getWSMessages(expectedResponse)) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
 
     sensor.execute(ctx);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
@@ -511,7 +512,7 @@ class JsTsSensorTest {
       new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
     );
     createVueInputFile();
-    when(bridgeServerMock.analyzeProject(any())).thenThrow(new IllegalStateException("error"));
+    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
 
     JsTsSensor sensor = createProjectSensor();
     DefaultInputFile inputFile = createInputFile(ctx);
@@ -1311,9 +1312,18 @@ class JsTsSensorTest {
           .setEnd(Position.newBuilder().setLine(1).setColumn(1))
       )
       .build();
-    var expectedResponse = createProjectResponseWithAst(inputFile, placeHolderNode);
-    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      for (var message : getWSMessages(createProjectResponseWithAst(inputFile, placeHolderNode))) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
 
     sensor.execute(ctx);
     assertThat(consumer.files).hasSize(1);
@@ -1356,9 +1366,17 @@ class JsTsSensorTest {
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
     var inputFile = createInputFile(ctx);
 
-    var expectedResponse = createProjectResponseWithAst(inputFile, erroneousNode);
-    var futureHandle = getAnalyzeProjectFuture(expectedResponse, sensor, ctx, inputFile);
-    when(bridgeServerMock.analyzeProject(any())).thenReturn(futureHandle);
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      for (var message : getWSMessages(createProjectResponseWithAst(inputFile, erroneousNode))) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
 
     sensor.execute(ctx);
     assertThat(consumer.files).isEmpty();

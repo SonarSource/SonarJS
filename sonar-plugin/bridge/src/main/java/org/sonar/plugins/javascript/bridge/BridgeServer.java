@@ -75,8 +75,6 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
-  JSWebSocketClient getWebSocketClient();
-
   record InitLinterRequest(
     List<EslintRule> rules,
     List<String> environments,
@@ -116,7 +114,7 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  public interface Request {}
+  interface Request {}
 
   class ProjectAnalysisRequest implements Request {
 

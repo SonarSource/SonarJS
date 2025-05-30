@@ -246,11 +246,6 @@ public class BridgeServerImpl implements BridgeServer {
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
-  @Override
-  public JSWebSocketClient getWebSocketClient() {
-    return client;
-  }
-
   void establishWebSocketConnection() {
     try {
       this.client = new JSWebSocketClient(wsUrl());
