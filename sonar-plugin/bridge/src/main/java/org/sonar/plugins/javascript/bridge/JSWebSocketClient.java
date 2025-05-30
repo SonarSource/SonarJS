@@ -25,7 +25,6 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.plugins.javascript.bridge.websocket.WebSocketMessageHandler;
 
 public class JSWebSocketClient extends WebSocketClient {
 

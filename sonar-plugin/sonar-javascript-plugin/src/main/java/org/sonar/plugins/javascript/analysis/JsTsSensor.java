@@ -46,8 +46,8 @@ import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
-import org.sonar.plugins.javascript.bridge.websocket.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
@@ -132,9 +132,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
     try {
       var handler = createAnalyzeProjectHandler(context, inputFiles);
       bridgeServer.analyzeProject(handler);
+      var issues = handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
-      return handler.getFuture().join();
+      return issues;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;

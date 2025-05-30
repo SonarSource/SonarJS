@@ -23,8 +23,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,7 +31,6 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
-import org.sonar.plugins.javascript.bridge.websocket.WebSocketMessageHandler;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
