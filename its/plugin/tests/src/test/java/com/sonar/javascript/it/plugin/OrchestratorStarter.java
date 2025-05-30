@@ -81,6 +81,8 @@ public final class OrchestratorStarter
 
   public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
+//    .setEdition(Edition.DEVELOPER)
+//    .setEdition(Edition.ENTERPRISE)
     .setEdition(Edition.ENTERPRISE_LW)
     .activateLicense()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))

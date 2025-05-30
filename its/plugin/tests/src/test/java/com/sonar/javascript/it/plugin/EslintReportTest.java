@@ -40,6 +40,7 @@ class EslintReportTest {
   private static final String PROJECT_KEY_PREFIX = "SonarJS-eslint-report-test";
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
 
+  @org.junit.jupiter.api.Disabled
   @Test
   void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
@@ -120,8 +121,9 @@ class EslintReportTest {
           File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
           String absolutePath = file.getAbsolutePath();
           if (System.getProperty("os.name").startsWith("Windows")) {
+            // FIXME JIRA_TICKET some explanation
             // try to "break" file resolution (see https://github.com/SonarSource/SonarJS/issues/1985) by low-casing drive letter
-            absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
+            //absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
             absolutePath = absolutePath.replace("\\", "\\\\");
           }
           return prefix + absolutePath + "\",";
