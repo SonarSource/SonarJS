@@ -272,7 +272,7 @@ class PRAnalysisTest {
           "consumer-plugin-*.jar"
         )
       )
-      .setEdition(Edition.DEVELOPER)
+      .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(
