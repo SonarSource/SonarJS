@@ -452,6 +452,83 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_ignore_ws_messages_not_related_to_project_analysis() throws IOException {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+
+    DefaultInputFile inputFile = createInputFile(ctx);
+    var expectedResponse = createProjectResponse(List.of(inputFile));
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+      webSocketClient.onMessage("{messageType: 'unrelated_event'}");
+      for (var message : getWSMessages(expectedResponse)) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
+
+    sensor.execute(ctx);
+    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+  }
+
+  @Test
+  void should_end_analysis_error_ws_event() throws IOException {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+    DefaultInputFile inputFile = createInputFile(ctx);
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+      webSocketClient.onError(new IOException("Abnormal termination"));
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
+
+    assertThatThrownBy(() -> sensor.execute(ctx)).isInstanceOf(IllegalStateException.class);
+    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+  }
+
+  @Test
+  void should_end_analysis_close_ws_event() throws IOException {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+    DefaultInputFile inputFile = createInputFile(ctx);
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+      webSocketClient.onClose(1006, "Abnormal close event", true);
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
+
+    assertThatThrownBy(() -> sensor.execute(ctx)).isInstanceOf(IllegalStateException.class);
+    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+  }
+
+  @Test
   void should_handle_warnings() throws Exception {
     var ctx = createSensorContext(baseDir);
     ctx.setSettings(
@@ -1138,6 +1215,44 @@ class JsTsSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Processing cache analysis of file: " + file.uri()
+    );
+  }
+
+  @Test
+  void should_save_cached_cpd_in_project_analysis() throws IOException {
+    var path = "dir/file.ts";
+    var ctx = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
+    ctx.setSettings(
+      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
+    );
+    JsTsSensor sensor = createProjectSensor();
+
+    var file = TestUtils.createInputFile(
+      ctx,
+      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
+      path
+    ).setStatus(InputFile.Status.SAME);
+
+    createVueInputFile(ctx);
+    createTsConfigFile();
+
+    doAnswer(invocation -> {
+      WebSocketMessageHandler handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+      for (var message : getWSMessages(createProjectResponse(List.of()))) {
+        webSocketClient.onMessage(message);
+      }
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
+    sensor.execute(ctx);
+
+    assertThat(ctx.cpdTokens(file.key())).hasSize(2);
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Processing cache analysis of file: " + file.uri()
     );
