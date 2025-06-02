@@ -14,19 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AnalysisOutput } from '../../shared/src/types/analysis.js';
-import {
-  type FileResult,
+import type { AnalysisOutput } from '../../shared/src/types/analysis.js';
+import type {
+  FileResult,
   ProjectAnalysisInput,
   ProjectAnalysisMeta,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import { TsConfigJson } from 'type-fest';
-import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
+import type { TsConfigJson } from 'type-fest';
+import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
-import { NamedDependency } from '../../jsts/src/rules/index.js';
-import { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
-import { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
-import { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
+import type { NamedDependency } from '../../jsts/src/rules/index.js';
+import type { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
+import type { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
+import type { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
 
 export type RequestResult =
   | {

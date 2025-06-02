@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1589,9 +1590,6 @@ class JsTsSensorTest {
     InputFile inputFile,
     Node node
   ) throws IOException {
-    var astFile = Files.createTempFile("filepath", "ast");
-    var content = node.toByteArray();
-    Files.write(astFile, content);
     var analysisResponse = new BridgeServer.AnalysisResponseDTO(
       null,
       List.of(),
@@ -1600,7 +1598,7 @@ class JsTsSensorTest {
       new BridgeServer.Metrics(),
       List.of(),
       List.of(),
-      astFile.toAbsolutePath().toString()
+      Base64.getEncoder().encodeToString(node.toByteArray())
     );
 
     var files = new HashMap<String, BridgeServer.AnalysisResponseDTO>() {

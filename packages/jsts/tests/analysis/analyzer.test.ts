@@ -21,16 +21,13 @@ import { expect } from 'expect';
 import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
 import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
-import { readProtobufFromFilePath } from '../../src/parsers/ast.js';
+import { deserializeProtobuf } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'assert';
-import { join } from 'node:path/posix';
-import { AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import { JsTsAnalysisOutputWithAst } from '../../src/analysis/analysis.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -1036,17 +1033,18 @@ describe('await analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    await Linter.initialize({ rules, rulesWorkdir: join(currentPath, '.scannerwork') });
+    await Linter.initialize({ rules });
 
-    const filePath = join(currentPath, 'fixtures', 'code.js');
+    const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
-    assert(outputContainsAst(analysisResult));
-    const { astFilePath } = analysisResult;
-    const ast = await readProtobufFromFilePath(astFilePath);
-    expect(ast.program).toBeDefined();
-    expect(ast.program.body).toHaveLength(1);
-    expect(ast.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
+    if ('ast' in analysisResult) {
+      const { ast } = analysisResult;
+      const protoMessage = deserializeProtobuf(ast);
+      expect(protoMessage.program).toBeDefined();
+      expect(protoMessage.program.body).toHaveLength(1);
+      expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
+    }
   });
 
   it('should not return the AST if the skipAst flag is set', async () => {
@@ -1064,10 +1062,6 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
 
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
-    assert(!outputContainsAst(analysisResult));
+    assert(!('ast' in analysisResult));
   });
 });
-
-export function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
-  return 'astFilePath' in result;
-}

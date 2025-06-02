@@ -82,7 +82,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  void analyzeProject(WebSocketMessageHandler handler);
+  void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
@@ -111,9 +111,7 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  interface Request {}
-
-  class ProjectAnalysisRequest implements Request {
+  class ProjectAnalysisRequest {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
@@ -207,7 +205,7 @@ public interface BridgeServer extends Startable {
     Metrics metrics,
     List<CpdToken> cpdTokens,
     List<String> ucfgPaths,
-    @Nullable String astFilePath
+    @Nullable String ast
   ) {}
 
   record AnalysisResponse(
@@ -246,9 +244,9 @@ public interface BridgeServer extends Startable {
 
     public static AnalysisResponse fromDTO(AnalysisResponseDTO analysisResponseDTO) {
       Node ast = null;
-      if (analysisResponseDTO.astFilePath != null) {
+      if (analysisResponseDTO.ast != null) {
         try {
-          ast = AstProtoUtils.readProtobuf(analysisResponseDTO.astFilePath);
+          ast = AstProtoUtils.parseProtobuf(analysisResponseDTO.ast);
         } catch (IOException e) {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }

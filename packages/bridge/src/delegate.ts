@@ -15,13 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import express from 'express';
-import { Worker } from 'node:worker_threads';
 import { handleRequest } from './handle-request.js';
-import { RequestResult, RequestType, WsIncrementalResult } from './request.js';
-import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { info, debug, error } from '../../shared/src/helpers/logging.js';
+import type { Worker } from 'node:worker_threads';
+import type { RequestResult, RequestType, WsIncrementalResult } from './request.js';
+import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import type { RawData, WebSocket } from 'ws';
-import { WorkerMessageListeners } from './router.js';
+import type { WorkerMessageListeners } from './router.js';
 
 /**
  * Returns a delegate function to handle an HTTP request

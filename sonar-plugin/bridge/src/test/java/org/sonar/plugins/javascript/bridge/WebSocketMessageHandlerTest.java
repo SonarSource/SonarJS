@@ -22,15 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Request;
 
 class WebSocketMessageHandlerTest {
 
   @Test
   void testDefaultMethods() {
-    WebSocketMessageHandler handler = new WebSocketMessageHandler() {
+    var handler = new WebSocketMessageHandler<Void>() {
       @Override
-      public Request getRequest() {
+      public Void getRequest() {
         return null;
       }
 
@@ -40,9 +39,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public boolean handleMessage(JsonObject message) {
-        return false;
-      }
+      public void handleMessage(JsonObject message) {}
     };
     // The default implementation should not throw exceptions
     assertDoesNotThrow(() -> handler.onClose(1000, "Normal closure", true));
@@ -55,9 +52,9 @@ class WebSocketMessageHandlerTest {
   void testOverriddenOnCloseMethod() {
     // Create an implementation that overrides onClose
     StringBuilder log = new StringBuilder();
-    WebSocketMessageHandler handler = new WebSocketMessageHandler() {
+    var handler = new WebSocketMessageHandler<Void>() {
       @Override
-      public Request getRequest() {
+      public Void getRequest() {
         return null;
       }
 
@@ -67,9 +64,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public boolean handleMessage(JsonObject message) {
-        return false;
-      }
+      public void handleMessage(JsonObject message) {}
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
@@ -88,9 +83,9 @@ class WebSocketMessageHandlerTest {
   void testOverriddenOnErrorMethod() {
     // Create an implementation that overrides onError
     StringBuilder log = new StringBuilder();
-    WebSocketMessageHandler handler = new WebSocketMessageHandler() {
+    var handler = new WebSocketMessageHandler<Void>() {
       @Override
-      public Request getRequest() {
+      public Void getRequest() {
         return null;
       }
 
@@ -100,9 +95,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public boolean handleMessage(JsonObject message) {
-        return false;
-      }
+      public void handleMessage(JsonObject message) {}
 
       @Override
       public void onError(Exception exception) {
