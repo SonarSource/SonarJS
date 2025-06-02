@@ -52,25 +52,33 @@ class EslintReportImporterTest {
     "    }\n" +
     "};";
 
-  private SensorContextTester context = SensorContextTester.create(BASE_DIR);
+  private final SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
-  private EslintReportImporter eslintReportImporter = new EslintReportImporter();
-  private DefaultInputFile jsInputFile = createInputFile(context, CONTENT, "file.js");
-  private DefaultInputFile tsInputFile = createInputFile(context, CONTENT, "file-ts.ts");
-  private DefaultInputFile parseErrorInputFile = createInputFile(context, CONTENT, "parseError.js");
+  private final EslintReportImporter eslintReportImporter = new EslintReportImporter();
+  private final DefaultInputFile jsInputFile = createInputFile(context, CONTENT, "file.js");
+  private final DefaultInputFile tsInputFile = createInputFile(context, CONTENT, "file-ts.ts");
+  private final DefaultInputFile parseErrorInputFile = createInputFile(
+    context,
+    CONTENT,
+    "parseError.js"
+  );
 
   @Test
-  void should_create_issues_from_report() throws Exception {
+  void should_create_issues_from_report() {
     logTester.setLevel(Level.DEBUG);
     setEslintReport("eslint-report.json");
     var issues = eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
+    assertThat(issues).hasSize(2);
 
-    assertThat(issues).hasSize(4);
-    var iterator = issues.iterator();
-    var first = iterator.next();
-    var second = iterator.next();
-    var third = iterator.next();
-    var fourth = iterator.next();
+    var firstIssues = issues.get(jsInputFile.getModuleRelativePath());
+    assertThat(firstIssues).hasSize(3);
+    var first = firstIssues.get(0);
+    var second = firstIssues.get(1);
+    var third = firstIssues.get(2);
+
+    var tsIssues = issues.get(tsInputFile.getModuleRelativePath());
+    assertThat(tsIssues).hasSize(1);
+    var fourth = tsIssues.get(0);
 
     assertThat(first.type()).isEqualTo(RuleType.BUG);
     assertThat(second.type()).isEqualTo(RuleType.CODE_SMELL);
@@ -96,12 +104,12 @@ class EslintReportImporterTest {
   }
 
   @Test
-  void should_log_invalid_report() throws Exception {
+  void should_log_invalid_report() {
     setEslintReport("invalid-eslint-report.json");
     eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(0);
+    assertThat(externalIssues).isEmpty();
 
     assertThat(logTester.logs(Level.WARN)).contains(
       "No issues information will be saved as the report file can't be read."
@@ -109,12 +117,12 @@ class EslintReportImporterTest {
   }
 
   @Test
-  void should_log_not_existing_report() throws Exception {
+  void should_log_not_existing_report() {
     setEslintReport("not-existing-eslint-report.json");
     eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(0);
+    assertThat(externalIssues).isEmpty();
 
     assertThat(logTester.logs(Level.WARN)).contains(
       "No issues information will be saved as the report file can't be read."

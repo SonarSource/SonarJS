@@ -33,7 +33,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.external.ExternalIssue;
-import org.sonar.plugins.javascript.external.ExternalIssueRepository;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 public abstract class AbstractBridgeSensor implements Sensor {
@@ -54,8 +53,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
     CacheStrategies.reset();
     this.context = new JsTsContext<>(sensorContext);
 
-    var externalIssues = this.getESLintIssues(context);
-
     try {
       List<InputFile> inputFiles = getInputFiles();
       if (inputFiles.isEmpty()) {
@@ -67,8 +64,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
-      var issues = analyzeFiles(inputFiles);
-      ExternalIssueRepository.saveESLintIssues(sensorContext, externalIssues, issues);
+      analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -106,12 +102,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   /**
    * Analyze the passed input files, and return the list of persisted issues.
    */
-  protected abstract List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles)
-    throws IOException, InterruptedException;
+  protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
-
-  protected List<ExternalIssue> getESLintIssues(JsTsContext<?> context) {
-    return new ArrayList<>();
-  }
 }
