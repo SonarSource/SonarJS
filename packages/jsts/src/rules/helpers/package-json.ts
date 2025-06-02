@@ -101,7 +101,6 @@ export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) 
  * In the case of SonarIDE, when a package.json file changes, the cache can become obsolete.
  */
 export function clearDependenciesCache() {
-  console.debug('Clearing dependencies cache');
   cache.clear();
 }
 

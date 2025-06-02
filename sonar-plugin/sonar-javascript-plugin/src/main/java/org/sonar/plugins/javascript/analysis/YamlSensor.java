@@ -52,7 +52,6 @@ public class YamlSensor extends AbstractBridgeSensor {
   public YamlSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
@@ -68,9 +67,7 @@ public class YamlSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var issues = new ArrayList<BridgeServer.Issue>();
-
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
@@ -89,7 +86,7 @@ public class YamlSensor extends AbstractBridgeSensor {
           );
         }
         progressReport.nextFile(inputFile.toString());
-        issues.addAll(analyze(inputFile));
+        analyze(inputFile);
       }
       success = true;
     } finally {
@@ -99,8 +96,6 @@ public class YamlSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
-
-    return issues;
   }
 
   @Override

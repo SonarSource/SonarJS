@@ -14,32 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { SHARE_ENV, Worker } from 'node:worker_threads';
-import { debug } from './logging.js';
+package org.sonar.plugins.javascript.bridge;
 
-export async function createWorker(url: string, workerData?: WorkerData) {
-  return new Promise<Worker>((resolve, reject) => {
-    const worker = new Worker(url, {
-      workerData,
-      env: SHARE_ENV,
-    });
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-    worker.on('online', () => {
-      debug('The worker thread is running');
-      resolve(worker);
-    });
-
-    worker.on('exit', code => {
-      debug(`The worker thread exited with code ${code}`);
-    });
-
-    worker.on('error', err => {
-      debug(`The worker thread failed: ${err}`);
-      reject(err);
-    });
-  });
+public interface AnalyzeProjectHandler {
+  BridgeServer.ProjectAnalysisRequest getRequest() throws IOException;
+  void processMessage(String message) throws IOException;
+  void setFutureHandle(CompletableFuture<List<BridgeServer.Issue>> handle);
 }
-
-export type WorkerData = {
-  debugMemory: boolean;
-};

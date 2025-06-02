@@ -26,7 +26,7 @@ import {
 } from '../../../rules/index.js';
 import { Dirent } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { warn } from '../../../../../shared/src/helpers/logging.js';
+import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
 import { SourceFileStore } from './source-files.js';
 
@@ -73,6 +73,7 @@ export class PackageJsonStore implements FileStore {
   clearCache() {
     this.packageJsons = undefined;
     this.baseDir = undefined;
+    debug('Clearing dependencies cache');
     clearDependenciesCache();
   }
 

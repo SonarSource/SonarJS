@@ -95,9 +95,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var issues = new ArrayList<Issue>();
-
+  protected void analyzeFiles(List<InputFile> inputFiles) {
     ProgressReport progressReport = new ProgressReport(
       "Analysis progress",
       TimeUnit.SECONDS.toMillis(10)
@@ -113,9 +111,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        var fileIssues = analyzeFile(inputFile, context, rules);
-
-        issues.addAll(fileIssues);
+        analyzeFile(inputFile, context, rules);
 
         progressReport.nextFile(inputFile.toString());
       }
@@ -127,8 +123,6 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
-
-    return issues;
   }
 
   List<Issue> analyzeFile(InputFile inputFile, JsTsContext<?> context, List<StylelintRule> rules) {

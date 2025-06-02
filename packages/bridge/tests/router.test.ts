@@ -41,7 +41,7 @@ describe('router', () => {
   let server: http.Server;
 
   before(async () => {
-    const worker = createWorker(workerPath);
+    const worker = await createWorker(workerPath);
     const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', worker);
     server = serverInstance;
     closePromise = serverClosed;

@@ -22,7 +22,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 
@@ -74,28 +76,36 @@ public class ExternalIssueRepository {
       .save();
   }
 
-  public static void saveESLintIssues(
+  public static void dedupeAndSaveESLintIssues(
     SensorContext context,
-    List<ExternalIssue> externalIssues,
+    Map<String, List<ExternalIssue>> externalIssuesMap,
     List<BridgeServer.Issue> issues
   ) {
+    var externalIssues = externalIssuesMap.values().stream().flatMap(List::stream).toList();
     if (!externalIssues.isEmpty()) {
       var deduplicatedExternalIssues = ExternalIssueRepository.deduplicateIssues(
         externalIssues,
         issues
       );
-      for (var issue : deduplicatedExternalIssues) {
-        ExternalIssueRepository.save(issue, context);
-      }
+      saveESLintIssues(context, deduplicatedExternalIssues);
+    }
+  }
+
+  public static void saveESLintIssues(SensorContext context, List<ExternalIssue> externalIssues) {
+    for (var externalIssue : externalIssues) {
+      ExternalIssueRepository.save(externalIssue, context);
     }
   }
 
   public static List<ExternalIssue> deduplicateIssues(
-    List<ExternalIssue> externalIssues,
+    @Nullable List<ExternalIssue> externalIssues,
     List<BridgeServer.Issue> issues
   ) {
+    if (externalIssues == null) {
+      return List.of();
+    }
     var deduplicatedIssues = new ArrayList<ExternalIssue>();
-    // normalize issues of JS/TS analyzer into set of strigs
+    // normalize issues of JS/TS analyzer into a set of strings
     var normalizedIssues = new HashSet<>();
     for (BridgeServer.Issue issue : issues) {
       for (String ruleKey : issue.ruleESLintKeys()) {

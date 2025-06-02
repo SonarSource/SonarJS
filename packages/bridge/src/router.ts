@@ -16,14 +16,33 @@
  */
 import * as express from 'express';
 import { Worker } from 'worker_threads';
-import { createDelegator } from './delegate.js';
+import { createDelegator, createWsDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
+import { WebSocketServer } from 'ws';
 
-export default function (worker: Worker | undefined, workerData: WorkerData): express.Router {
+export type WorkerMessageListeners = {
+  permanent: ((message: any) => void)[];
+  oneTimers: ((message: any) => void)[];
+};
+
+export default function (
+  worker: Worker | undefined,
+  workerData: WorkerData,
+  wss: WebSocketServer,
+): express.Router {
+  const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
+  if (worker) {
+    worker.on('message', message => {
+      workerMessageListeners.permanent.forEach(listener => listener(message));
+      workerMessageListeners.oneTimers.forEach(listener => listener(message));
+      workerMessageListeners.oneTimers = [];
+    });
+  }
+
   const router = express.Router();
-  const delegate = createDelegator(worker, workerData);
-
+  const delegate = createDelegator(worker, workerData, workerMessageListeners);
+  const wsDelegate = createWsDelegator(worker, workerData, workerMessageListeners);
   /** Endpoints running on the worker thread */
   router.post('/analyze-project', delegate('on-analyze-project'));
   router.post('/analyze-css', delegate('on-analyze-css'));
@@ -37,6 +56,8 @@ export default function (worker: Worker | undefined, workerData: WorkerData): ex
   router.post('/new-tsconfig', delegate('on-new-tsconfig'));
   router.post('/tsconfig-files', delegate('on-tsconfig-files'));
   router.get('/get-telemetry', delegate('on-get-telemetry'));
+
+  wss.on('connection', wsDelegate);
 
   /** Endpoints running on the main thread */
   router.get('/status', (_, response) => {

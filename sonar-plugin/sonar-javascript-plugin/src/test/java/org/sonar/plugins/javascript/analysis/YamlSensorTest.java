@@ -60,7 +60,6 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
@@ -291,7 +290,6 @@ class YamlSensorTest {
     return new YamlSensor(
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
       bridgeServerMock,
-      new AnalysisWarningsWrapper(),
       analysisProcessor
     );
   }

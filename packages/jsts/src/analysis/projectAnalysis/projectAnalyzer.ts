@@ -29,14 +29,19 @@ import {
 import { getFilesToAnalyze, sourceFileStore } from './file-stores/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
  *
  * @param input the JavaScript / TypeScript project to analyze
+ * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  * @returns the JavaScript / TypeScript project analysis output
  */
-export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
+export async function analyzeProject(
+  input: ProjectAnalysisInput,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+): Promise<ProjectAnalysisOutput> {
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
@@ -64,10 +69,22 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   if (pendingFiles.size) {
     if (isSonarLint()) {
       results.meta.withWatchProgram = true;
-      await analyzeWithWatchProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithWatchProgram(
+        filesToAnalyze,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+      );
     } else {
       results.meta.withProgram = true;
-      await analyzeWithProgram(filesToAnalyze, results, pendingFiles, progressReport);
+      await analyzeWithProgram(
+        filesToAnalyze,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+      );
     }
     if (pendingFiles.size) {
       info(
@@ -79,9 +96,11 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
         results,
         normalizedBaseDir,
         progressReport,
+        incrementalResultsChannel,
       );
     }
   }
   progressReport.stop();
+  incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
   return results;
 }

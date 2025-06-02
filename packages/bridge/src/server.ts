@@ -31,6 +31,7 @@ import {
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
+import { WebSocketServer } from 'ws';
 
 /**
  * The maximum request body size
@@ -99,6 +100,18 @@ export function start(
 
     const app = express();
     const server = http.createServer(app);
+    const wss = new WebSocketServer({ noServer: true });
+
+    server.on('upgrade', (request, socket, head) => {
+      // Only handle upgrade requests for /ws
+      if (request.headers.upgrade?.toLowerCase() === 'websocket' && request.url === '/ws') {
+        wss.handleUpgrade(request, socket, head, ws => {
+          wss.emit('connection', ws, request);
+        });
+      } else {
+        socket.destroy();
+      }
+    });
 
     /**
      * Builds a timeout middleware to shut down the server
@@ -112,7 +125,7 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
-    app.use(router(worker, { debugMemory }));
+    app.use(router(worker, { debugMemory }, wss));
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
@@ -157,20 +170,27 @@ export function start(
      * Shutdown the server and the worker thread
      */
     function closeServer() {
-      unregisterGarbageCollectionObserver();
-      if (server.listening) {
-        while (pendingCloseRequests.length) {
-          pendingCloseRequests.pop()?.end();
+      debug('Closing server');
+      wss.clients.forEach(client => {
+        client.terminate(); // Immediately destroys the connection
+      });
+      wss.close(() => {
+        debug('Closed WebSocket connection');
+        unregisterGarbageCollectionObserver();
+        if (server.listening) {
+          while (pendingCloseRequests.length) {
+            pendingCloseRequests.pop()?.end();
+          }
+          /**
+           * At this point, the worker thread can no longer respond to any request from the plugin.
+           * If we reached this due to worker failure, existing requests are stalled until they time out.
+           * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
+           * close all connections and avoid waiting unnecessarily for them to eventually close.
+           */
+          server.closeAllConnections();
+          server.close();
         }
-        /**
-         * At this point, the worker thread can no longer respond to any request from the plugin.
-         * If we reached this due to worker failure, existing requests are stalled until they time out.
-         * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
-         * close all connections and avoid waiting unnecessarily for them to eventually close.
-         */
-        server.closeAllConnections();
-        server.close();
-      }
+      });
     }
   });
 }

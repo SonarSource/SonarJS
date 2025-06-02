@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -69,25 +71,22 @@ public class EslintReportImporter {
   /**
    * Execute the importer, and return the list of external issues found.
    */
-  public List<ExternalIssue> execute(JsTsContext<?> context) {
-    var results = new ArrayList<ExternalIssue>();
+  public Map<String, List<ExternalIssue>> execute(JsTsContext<?> context) {
+    var results = new HashMap<String, List<ExternalIssue>>();
 
     List<File> reportFiles = ExternalReportProvider.getReportFiles(
       context.getSensorContext(),
       reportsPropertyName()
     );
-    reportFiles.forEach(report -> results.addAll(importReport(report, context)));
+    reportFiles.forEach(report -> results.putAll(importReportByFilePath(report, context)));
 
     return results;
   }
 
-  /**
-   * Import the passed report, and return the list of external issues found.
-   */
-  List<ExternalIssue> importReport(File report, JsTsContext<?> context) {
-    LOG.info("Importing {}", report.getAbsoluteFile());
+  Map<String, List<ExternalIssue>> importReportByFilePath(File report, JsTsContext<?> context) {
+    LOG.info("Importing external issues from: {}", report.getAbsoluteFile());
 
-    var results = new ArrayList<ExternalIssue>();
+    var results = new HashMap<String, List<ExternalIssue>>();
     var serializer = new Gson();
 
     try (
@@ -104,6 +103,7 @@ public class EslintReportImporter {
       for (FileWithMessages fileWithMessages : filesWithMessages) {
         InputFile inputFile = getInputFile(context, fileWithMessages.filePath);
         if (inputFile != null) {
+          var externalIssuesForFile = new ArrayList<ExternalIssue>();
           for (EslintError eslintError : fileWithMessages.messages) {
             if (eslintError.ruleId == null) {
               LOG.warn(
@@ -111,8 +111,11 @@ public class EslintReportImporter {
                 inputFile.uri()
               );
             } else {
-              results.add(createIssue(eslintError, inputFile));
+              externalIssuesForFile.add(createIssue(eslintError, inputFile));
             }
+          }
+          if (!externalIssuesForFile.isEmpty()) {
+            results.put(inputFile.absolutePath(), externalIssuesForFile);
           }
         }
       }

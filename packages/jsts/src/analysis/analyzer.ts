@@ -62,6 +62,7 @@ export async function analyzeJSTS(
   try {
     const { filePath, fileType, analysisMode, fileStatus, language } = completeInput;
     if (completeInput.clearDependenciesCache) {
+      debug('Clearing dependencies cache');
       clearDependenciesCache();
     }
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
