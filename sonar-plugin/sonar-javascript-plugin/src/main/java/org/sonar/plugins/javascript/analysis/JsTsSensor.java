@@ -245,7 +245,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
             externalIssues.get(filePath),
             issues
           );
-          if (dedupedIssues != null && !dedupedIssues.isEmpty()) {
+          if (!dedupedIssues.isEmpty()) {
             ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
           }
           externalIssues.remove(filePath);
