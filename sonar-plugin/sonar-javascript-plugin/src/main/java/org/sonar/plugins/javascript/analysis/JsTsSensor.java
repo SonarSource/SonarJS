@@ -130,7 +130,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     try {
-      var handler = createAnalyzeProjectHandler(context, inputFiles);
+      var handler = new AnalyzeProjectHandler(context, inputFiles);
       bridgeServer.analyzeProject(handler);
       var issues = handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
@@ -147,14 +147,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     var importer = new EslintReportImporter();
 
     return importer.execute(context);
-  }
-
-  // Used for tests
-  AnalyzeProjectHandler createAnalyzeProjectHandler(
-    JsTsContext<?> context,
-    List<InputFile> inputFiles
-  ) {
-    return new AnalyzeProjectHandler(context, inputFiles);
   }
 
   class AnalyzeProjectHandler implements WebSocketMessageHandler {
