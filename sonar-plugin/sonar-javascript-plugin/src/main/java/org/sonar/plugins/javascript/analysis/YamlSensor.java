@@ -52,7 +52,6 @@ public class YamlSensor extends AbstractBridgeSensor {
   public YamlSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
