@@ -84,7 +84,7 @@ public class EslintReportImporter {
   }
 
   Map<String, List<ExternalIssue>> importReportByFilePath(File report, JsTsContext<?> context) {
-    LOG.info("Importing {}", report.getAbsoluteFile());
+    LOG.info("Importing external issues from: {}", report.getAbsoluteFile());
 
     var results = new HashMap<String, List<ExternalIssue>>();
     var serializer = new Gson();
@@ -115,7 +115,7 @@ public class EslintReportImporter {
             }
           }
           if (!externalIssuesForFile.isEmpty()) {
-            results.put(fileWithMessages.filePath, externalIssuesForFile);
+            results.put(inputFile.absolutePath(), externalIssuesForFile);
           }
         }
       }
