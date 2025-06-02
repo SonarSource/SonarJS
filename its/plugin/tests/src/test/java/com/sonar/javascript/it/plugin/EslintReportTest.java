@@ -120,8 +120,9 @@ class EslintReportTest {
           File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
           String absolutePath = file.getAbsolutePath();
           if (System.getProperty("os.name").startsWith("Windows")) {
+            // FIXME https://sonarsource.atlassian.net/browse/JS-747 import of ESLint report with absolute path containing lower-case drive letter does not work for SQ Developer Edition and above
             // try to "break" file resolution (see https://github.com/SonarSource/SonarJS/issues/1985) by low-casing drive letter
-            absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
+            //absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
             absolutePath = absolutePath.replace("\\", "\\\\");
           }
           return prefix + absolutePath + "\",";

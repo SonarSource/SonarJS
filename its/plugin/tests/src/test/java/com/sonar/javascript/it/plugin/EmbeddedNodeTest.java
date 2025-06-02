@@ -19,6 +19,7 @@ package com.sonar.javascript.it.plugin;
 import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -40,6 +41,8 @@ class EmbeddedNodeTest {
 
     var orchestrator = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
+      .setEdition(Edition.ENTERPRISE_LW)
+      .activateLicense()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
       .addPlugin(plugin)
