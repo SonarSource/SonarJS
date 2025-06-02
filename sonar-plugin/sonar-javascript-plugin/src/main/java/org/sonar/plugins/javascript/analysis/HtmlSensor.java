@@ -61,9 +61,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var issues = new ArrayList<BridgeServer.Issue>();
-
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
@@ -84,7 +82,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         progressReport.nextFile(inputFile.toString());
         var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
         if (cacheStrategy.isAnalysisRequired()) {
-          issues.addAll(analyze(inputFile, cacheStrategy));
+          analyze(inputFile, cacheStrategy);
         }
       }
       success = true;
@@ -95,8 +93,6 @@ public class HtmlSensor extends AbstractBridgeSensor {
         progressReport.cancel();
       }
     }
-
-    return issues;
   }
 
   @Override

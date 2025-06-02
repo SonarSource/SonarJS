@@ -50,6 +50,7 @@ import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
+import org.sonar.plugins.javascript.external.ExternalIssueRepository;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
@@ -112,7 +113,9 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected List<BridgeServer.Issue> analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var eslintImporter = new EslintReportImporter();
+    var externalIssues = eslintImporter.execute(context);
     if (!context.isAnalyzeProjectEnabled()) {
       bridgeServer.initLinter(
         checks.enabledEslintRules(),
@@ -125,44 +128,45 @@ public class JsTsSensor extends AbstractBridgeSensor {
       analysis.initialize(context, checks, consumers, analysisWarnings);
       var issues = analysis.analyzeFiles(inputFiles);
       consumers.doneAnalysis();
-
-      return issues;
+      ExternalIssueRepository.dedupeAndSaveESLintIssues(
+        this.context.getSensorContext(),
+        externalIssues,
+        issues
+      );
+      return;
     }
 
     try {
-      var handler = new AnalyzeProjectHandler(context, inputFiles);
+      var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      var issues = handler.getFuture().join();
+      handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
-      return issues;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
     }
   }
 
-  @Override
-  protected List<ExternalIssue> getESLintIssues(JsTsContext<?> context) {
-    var importer = new EslintReportImporter();
-
-    return importer.execute(context);
-  }
-
   class AnalyzeProjectHandler implements WebSocketMessageHandler {
 
     private final JsTsContext<?> context;
-    List<InputFile> inputFiles;
-    private final List<BridgeServer.Issue> issues = new ArrayList<>();
+    private final Map<String, List<ExternalIssue>> externalIssues;
+    private final List<InputFile> inputFiles;
     private final List<InputFile> filesToAnalyze = new ArrayList<>();
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
-    private final CompletableFuture<List<BridgeServer.Issue>> handle;
+    private final CompletableFuture<Void> handle;
 
-    AnalyzeProjectHandler(JsTsContext<?> context, List<InputFile> inputFiles) {
+    AnalyzeProjectHandler(
+      JsTsContext<?> context,
+      List<InputFile> inputFiles,
+      Map<String, List<ExternalIssue>> externalIssues
+    ) {
       this.inputFiles = inputFiles;
       this.context = context;
       this.handle = new CompletableFuture<>();
+      this.externalIssues = externalIssues;
     }
 
     @Override
@@ -221,7 +225,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       );
     }
 
-    public CompletableFuture<List<BridgeServer.Issue>> getFuture() {
+    public CompletableFuture<Void> getFuture() {
       return handle;
     }
 
@@ -236,7 +240,15 @@ public class JsTsSensor extends AbstractBridgeSensor {
           );
           var file = fileToInputFile.get(filePath);
           var cacheStrategy = fileToCacheStrategy.get(filePath);
-          issues.addAll(analysisProcessor.processResponse(context, checks, file, response));
+          var issues = analysisProcessor.processResponse(context, checks, file, response);
+          var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
+            externalIssues.get(filePath),
+            issues
+          );
+          if (!dedupedIssues.isEmpty()) {
+            ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+          }
+          externalIssues.remove(filePath);
           try {
             cacheStrategy.writeAnalysisToCache(
               CacheAnalysis.fromResponse(
@@ -254,7 +266,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         case "meta":
           var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
           meta.warnings().forEach(analysisWarnings::addUnique);
-          handle.complete(issues);
+          handle.complete(null);
           return true;
         default:
           return false;
