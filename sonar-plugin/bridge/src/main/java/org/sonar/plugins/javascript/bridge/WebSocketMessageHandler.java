@@ -18,7 +18,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
-import org.sonar.api.server.ws.Request;
 
 /**
  * Interface for handling WebSocket messages in a flexible WebSocket client architecture.
