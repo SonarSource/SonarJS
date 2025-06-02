@@ -16,7 +16,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +35,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public CompletableFuture<?> getFuture() {
+      public CompletableFuture<Void> getFuture() {
         return null;
       }
 
@@ -61,7 +62,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public CompletableFuture<?> getFuture() {
+      public CompletableFuture<Void> getFuture() {
         return null;
       }
 
@@ -94,7 +95,7 @@ class WebSocketMessageHandlerTest {
       }
 
       @Override
-      public CompletableFuture<?> getFuture() {
+      public CompletableFuture<Void> getFuture() {
         return null;
       }
 

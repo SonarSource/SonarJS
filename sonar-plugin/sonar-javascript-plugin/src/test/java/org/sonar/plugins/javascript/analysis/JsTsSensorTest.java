@@ -393,7 +393,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(expectedResponse)) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -471,7 +471,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(expectedResponse)) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -495,7 +495,7 @@ class JsTsSensorTest {
       webSocketClient.registerHandler(handler);
       assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
       webSocketClient.onError(new IOException("Abnormal termination"));
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -519,7 +519,7 @@ class JsTsSensorTest {
       webSocketClient.registerHandler(handler);
       assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
       webSocketClient.onClose(1006, "Abnormal close event", true);
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -555,7 +555,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(expectedResponse)) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -1246,7 +1246,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(createProjectResponse(List.of()))) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -1437,7 +1437,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(createProjectResponseWithAst(inputFile, placeHolderNode))) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());
@@ -1490,7 +1490,7 @@ class JsTsSensorTest {
       for (var message : getWSMessages(createProjectResponseWithAst(inputFile, erroneousNode))) {
         webSocketClient.onMessage(message);
       }
-      return null;
+      return handler.getFuture().join();
     })
       .when(bridgeServerMock)
       .analyzeProject(any());

@@ -38,7 +38,7 @@ public interface WebSocketMessageHandler {
    *
    * @return A BridgeServer.Request object
    */
-  CompletableFuture<?> getFuture();
+  CompletableFuture<Void> getFuture();
 
   /**
    * Handles a text WebSocket message.

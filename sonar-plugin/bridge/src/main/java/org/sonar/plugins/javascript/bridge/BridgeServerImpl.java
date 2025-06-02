@@ -412,6 +412,7 @@ public class BridgeServerImpl implements BridgeServer {
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
     this.client.send(GSON.toJson(request));
+    handler.getFuture().join();
   }
 
   private BridgeResponse request(String json, String endpoint) {

@@ -139,7 +139,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      handler.getFuture().join();
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
     } catch (Exception e) {
