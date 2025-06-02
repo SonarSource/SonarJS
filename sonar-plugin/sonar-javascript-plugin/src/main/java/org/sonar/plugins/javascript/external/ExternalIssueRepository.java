@@ -20,7 +20,6 @@ import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +105,7 @@ public class ExternalIssueRepository {
       return List.of();
     }
     var deduplicatedIssues = new ArrayList<ExternalIssue>();
-    // normalize issues of JS/TS analyzer into set of strigs
+    // normalize issues of JS/TS analyzer into a set of strings
     var normalizedIssues = new HashSet<>();
     for (BridgeServer.Issue issue : issues) {
       for (String ruleKey : issue.ruleESLintKeys()) {
