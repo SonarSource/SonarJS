@@ -229,7 +229,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     @Override
-    public boolean handleMessage(JsonObject jsonObject) {
+    public void handleMessage(JsonObject jsonObject) {
       var messageType = jsonObject.get("messageType").getAsString();
       switch (messageType) {
         case "fileResult":
@@ -261,14 +261,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
             handle.completeExceptionally(new IllegalStateException(e));
           }
           acceptAstResponse(response.ast(), file);
-          return true;
+          break;
         case "meta":
           var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
           meta.warnings().forEach(analysisWarnings::addUnique);
           handle.complete(null);
-          return true;
-        default:
-          return false;
+          break;
       }
     }
 

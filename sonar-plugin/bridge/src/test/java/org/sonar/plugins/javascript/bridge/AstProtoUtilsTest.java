@@ -34,17 +34,14 @@ public class AstProtoUtilsTest {
 
   @Test
   void should_parse_form_data_into_bridge_response() throws Exception {
-    var base64String = Base64.getEncoder().encodeToString(getSerializedProtoData());
-    var node = AstProtoUtils.parseProtobuf(base64String);
+    var node = AstProtoUtils.readProtobufFromBytes(getSerializedProtoData());
     assertThat(node).isNotNull();
     assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
   }
 
   @Test
   void should_log_error_if_ast_is_invalid() throws Exception {
-    var base64String = Base64.getEncoder().encodeToString(new byte[] { 42 });
-
-    assertThat(AstProtoUtils.parseProtobuf(base64String)).isNull();
+    assertThat(AstProtoUtils.readProtobufFromBytes(new byte[] { 42 })).isNull();
     assertThat(logTester.logs(Level.ERROR)).containsExactly(
       "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
       "This could mean either that the input has been truncated or that an embedded message misreported its own length."

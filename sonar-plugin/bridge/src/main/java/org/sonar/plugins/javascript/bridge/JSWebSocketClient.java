@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript.bridge;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.java_websocket.client.WebSocketClient;
@@ -30,13 +31,13 @@ public class JSWebSocketClient extends WebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
 
-  private final List<WebSocketMessageHandler> messageHandlers = new CopyOnWriteArrayList<>();
+  private final List<WebSocketMessageHandler<?>> messageHandlers = new ArrayList<>();
 
   public JSWebSocketClient(URI serverUri) {
     super(serverUri);
   }
 
-  public void registerHandler(WebSocketMessageHandler handler) {
+  public void registerHandler(WebSocketMessageHandler<?> handler) {
     messageHandlers.add(handler);
     handler
       .getFuture()
@@ -48,7 +49,7 @@ public class JSWebSocketClient extends WebSocketClient {
       });
   }
 
-  public List<WebSocketMessageHandler> getMessageHandlers() {
+  public List<WebSocketMessageHandler<?>> getMessageHandlers() {
     return messageHandlers;
   }
 
@@ -61,17 +62,15 @@ public class JSWebSocketClient extends WebSocketClient {
   public void onMessage(String message) {
     LOG.debug("Received WebSocket message: {}", message);
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
-    for (WebSocketMessageHandler handler : messageHandlers) {
-      if (handler.handleMessage(jsonObject)) {
-        return;
-      }
+    for (WebSocketMessageHandler<?> handler : messageHandlers) {
+      handler.handleMessage(jsonObject);
     }
   }
 
   @Override
   public void onClose(int code, String reason, boolean remote) {
     LOG.debug("WebSocket connection closed: {} (code: {})", reason, code);
-    for (WebSocketMessageHandler handler : messageHandlers) {
+    for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.onClose(code, reason, remote);
     }
   }
@@ -79,7 +78,7 @@ public class JSWebSocketClient extends WebSocketClient {
   @Override
   public void onError(Exception e) {
     LOG.error("WebSocket error occurred", e);
-    for (WebSocketMessageHandler handler : messageHandlers) {
+    for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.onError(e);
     }
   }

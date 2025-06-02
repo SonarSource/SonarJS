@@ -23,7 +23,7 @@ import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
-import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not

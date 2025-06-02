@@ -745,7 +745,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
-        .when(() -> AstProtoUtils.parseProtobuf(any()))
+        .when(() -> AstProtoUtils.readProtobufFromBytes(any()))
         .thenThrow(new IOException("Test exception"));
       assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request))
         .isInstanceOf(IllegalStateException.class)

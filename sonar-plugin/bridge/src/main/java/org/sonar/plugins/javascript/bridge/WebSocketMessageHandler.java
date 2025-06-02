@@ -18,35 +18,30 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Request;
+import org.sonar.api.server.ws.Request;
 
 /**
  * Interface for handling WebSocket messages in a flexible WebSocket client architecture.
  * Implementations of this interface can provide specialized handling for different
  * types of WebSocket messages.
  */
-public interface WebSocketMessageHandler {
+public interface WebSocketMessageHandler<T> {
   /**
-   * Get the JSON request that needs to be sent to the server
-   *
-   * @return A BridgeServer.Request object
+   * Get the request that needs to be sent to the server
    */
-  Request getRequest();
+  T getRequest();
 
   /**
-   * Get the JSON request that needs to be sent to the server
-   *
-   * @return A BridgeServer.Request object
+   * Get the internal Completable future
    */
   CompletableFuture<Void> getFuture();
 
   /**
-   * Handles a text WebSocket message.
+   * Handles a JSON WebSocket message.
    *
-   * @param message the WebSocket text message to handle
-   * @return true if the message has been consumed and no other handlers should be called, false otherwise
+   * @param message the parsed JSON object
    */
-  boolean handleMessage(JsonObject message);
+  void handleMessage(JsonObject message);
 
   /**
    * Called when the WebSocket connection is closed.

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 
 export function handleFileResult(
   result: FileResult,

@@ -20,6 +20,7 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +83,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  void analyzeProject(WebSocketMessageHandler handler);
+  void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
@@ -111,9 +112,7 @@ public interface BridgeServer extends Startable {
     @Nullable String fileContent
   ) {}
 
-  interface Request {}
-
-  class ProjectAnalysisRequest implements Request {
+  class ProjectAnalysisRequest {
 
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
@@ -248,7 +247,9 @@ public interface BridgeServer extends Startable {
       Node ast = null;
       if (analysisResponseDTO.ast != null) {
         try {
-          ast = AstProtoUtils.parseProtobuf(analysisResponseDTO.ast);
+          ast = AstProtoUtils.readProtobufFromBytes(
+            Base64.getDecoder().decode(analysisResponseDTO.ast)
+          );
         } catch (IOException e) {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }

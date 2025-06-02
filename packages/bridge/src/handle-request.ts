@@ -28,8 +28,13 @@ import {
 } from '../../jsts/src/program/program.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import { BridgeRequest, RequestResult, serializeError, WsIncrementalResult } from './request.js';
-import { WorkerData } from '../../shared/src/helpers/worker.js';
+import {
+  type BridgeRequest,
+  type RequestResult,
+  serializeError,
+  type WsIncrementalResult,
+} from './request.js';
+import type { WorkerData } from '../../shared/src/helpers/worker.js';
 
 export async function handleRequest(
   request: BridgeRequest,

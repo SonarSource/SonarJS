@@ -406,9 +406,9 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void analyzeProject(WebSocketMessageHandler handler) {
+  public void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler) {
     this.client.registerHandler(handler);
-    var request = (ProjectAnalysisRequest) handler.getRequest();
+    var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
     this.client.send(GSON.toJson(request));

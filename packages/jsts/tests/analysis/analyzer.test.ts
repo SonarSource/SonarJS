@@ -21,7 +21,7 @@ import { expect } from 'expect';
 import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
 import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';

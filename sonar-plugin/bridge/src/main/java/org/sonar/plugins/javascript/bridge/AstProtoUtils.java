@@ -18,9 +18,9 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Base64;
-import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -43,18 +43,19 @@ public class AstProtoUtils {
   // Prevent instantiation
   private AstProtoUtils() {}
 
-  @CheckForNull
-  public static Node parseProtobuf(String astBase64) throws IOException {
-    byte[] ast = Base64.getDecoder().decode(astBase64);
+  public static Node readProtobufFromBytes(byte[] bytes) throws IOException {
+    return readProtobuf(CodedInputStream.newInstance(bytes));
+  }
+
+  private static Node readProtobuf(CodedInputStream input) throws IOException {
     try {
-      CodedInputStream input = CodedInputStream.newInstance(ast);
       input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);
       return Node.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
       // Failing to parse the protobuf message should not prevent the analysis from continuing.
       // Note: we do not print the stack trace as it is usually huge and does not contain useful information.
       LOG.error("Failed to deserialize Protobuf message: {}", e.getMessage());
+      return null;
     }
-    return null;
   }
 }
