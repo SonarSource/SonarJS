@@ -70,13 +70,13 @@ class EslintReportImporterTest {
     var issues = eslintReportImporter.execute(new JsTsContext<SensorContext>(context));
     assertThat(issues).hasSize(2);
 
-    var firstIssues = issues.get(jsInputFile.getModuleRelativePath());
+    var firstIssues = issues.get(jsInputFile.absolutePath());
     assertThat(firstIssues).hasSize(3);
     var first = firstIssues.get(0);
     var second = firstIssues.get(1);
     var third = firstIssues.get(2);
 
-    var tsIssues = issues.get(tsInputFile.getModuleRelativePath());
+    var tsIssues = issues.get(tsInputFile.absolutePath());
     assertThat(tsIssues).hasSize(1);
     var fourth = tsIssues.get(0);
 
