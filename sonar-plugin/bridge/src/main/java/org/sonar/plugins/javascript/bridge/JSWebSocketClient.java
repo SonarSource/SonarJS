@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.bridge;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.java_websocket.client.WebSocketClient;
@@ -31,7 +30,8 @@ public class JSWebSocketClient extends WebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
 
-  private final List<WebSocketMessageHandler<?>> messageHandlers = new ArrayList<>();
+  // We need to use CopyOnWriteArrayList as we modify the array while iterating over it
+  private final List<WebSocketMessageHandler<?>> messageHandlers = new CopyOnWriteArrayList<>();
 
   public JSWebSocketClient(URI serverUri) {
     super(serverUri);

@@ -247,9 +247,7 @@ public interface BridgeServer extends Startable {
       Node ast = null;
       if (analysisResponseDTO.ast != null) {
         try {
-          ast = AstProtoUtils.readProtobufFromBytes(
-            Base64.getDecoder().decode(analysisResponseDTO.ast)
-          );
+          ast = AstProtoUtils.parseProtobuf(analysisResponseDTO.ast);
         } catch (IOException e) {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }

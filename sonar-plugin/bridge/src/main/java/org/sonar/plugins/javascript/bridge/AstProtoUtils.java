@@ -21,6 +21,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -42,6 +43,10 @@ public class AstProtoUtils {
 
   // Prevent instantiation
   private AstProtoUtils() {}
+
+  public static Node parseProtobuf(String astBase64) throws IOException {
+    return readProtobufFromBytes(Base64.getDecoder().decode(astBase64));
+  }
 
   public static Node readProtobufFromBytes(byte[] bytes) throws IOException {
     return readProtobuf(CodedInputStream.newInstance(bytes));
