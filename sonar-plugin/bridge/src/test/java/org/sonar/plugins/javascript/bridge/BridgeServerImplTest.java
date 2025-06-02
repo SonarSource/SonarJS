@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -744,7 +745,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
-        .when(() -> AstProtoUtils.readProtobuf(any()))
+        .when(() -> AstProtoUtils.parseProtobuf(any()))
         .thenThrow(new IOException("Test exception"));
       assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request))
         .isInstanceOf(IllegalStateException.class)

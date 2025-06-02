@@ -78,7 +78,6 @@ describe('ast', () => {
       }),
     );
   });
-
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;
     const ast = await parseSourceCode(code, parsersMap.typescript);

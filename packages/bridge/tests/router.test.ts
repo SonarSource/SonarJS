@@ -26,11 +26,10 @@ import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import assert from 'node:assert';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import { readProtobufFromFilePath } from '../../jsts/src/parsers/ast.js';
+import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { createAndSaveProgram } from '../../jsts/src/program/program.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
-import { join } from 'node:path/posix';
 
 describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
@@ -109,32 +108,28 @@ describe('router', () => {
   });
 
   it('should route /analyze-jsts requests', async () => {
-    await requestInitLinter(
-      server,
-      [
-        {
-          key: 'S6325',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-        {
-          key: 'S4621',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'ts',
-          analysisModes: ['DEFAULT'],
-        },
-      ],
-      join(fixtures, '.scannerwork'),
-    );
+    await requestInitLinter(server, [
+      {
+        key: 'S6325',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S4621',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ]);
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
     let data: any = { filePath, fileType, tsConfigs: [] };
     let response = await request(server, '/analyze-jsts', 'POST', data);
     let {
-      astFilePath,
+      ast,
       issues: [issue],
     } = JSON.parse(response);
     expect(issue).toEqual(
@@ -147,7 +142,7 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
-    const protoMessage = await readProtobufFromFilePath(astFilePath);
+    const protoMessage = deserializeProtobuf(ast);
     expect(protoMessage.type).toEqual(0);
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
@@ -362,7 +357,7 @@ describe('router', () => {
   });
 });
 
-function requestInitLinter(server: http.Server, rules: RuleConfig[], rulesWorkdir?: string) {
-  const config = { rules, rulesWorkdir };
+function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
+  const config = { rules };
   return request(server, '/init-linter', 'POST', config);
 }

@@ -92,7 +92,7 @@ export class Linter {
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for ucfg, architecture, dbd...) */
-  public static rulesWorkdir?: string;
+  private static rulesWorkdir?: string;
   /** whether we are running in sonarlint context */
   private static sonarlint: boolean;
 
