@@ -162,7 +162,7 @@ describe('S2137', () => {
         {
           code: `
         /**
-         * Destructuring patern in declaration
+         * Destructuring pattern in declaration
          */
          function fun ({eval}) {
             var {arguments, } = eval;
