@@ -19,7 +19,6 @@ package com.sonar.javascript.it.plugin;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
-import static org.sonar.plugins.javascript.analysis.JsTsContext.ANALYZE_PROJECT_ENABLED;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -113,16 +112,7 @@ public final class OrchestratorStarter
   static SonarScanner getSonarScanner() {
     return SonarScanner.create()
       .setScannerVersion(SCANNER_VERSION)
-      .setProperty("sonar.scanner.skipJreProvisioning", "true")
-      .setProperty(ANALYZE_PROJECT_ENABLED, getAnalyzeProjectEnabledFlag());
-  }
-
-  static String getAnalyzeProjectEnabledFlag() {
-    var analyzeProjectEnabledFlag = System.getProperty(ANALYZE_PROJECT_ENABLED);
-    if (analyzeProjectEnabledFlag == null) {
-      analyzeProjectEnabledFlag = "false";
-    }
-    return analyzeProjectEnabledFlag;
+      .setProperty("sonar.scanner.skipJreProvisioning", "true");
   }
 
   @Override

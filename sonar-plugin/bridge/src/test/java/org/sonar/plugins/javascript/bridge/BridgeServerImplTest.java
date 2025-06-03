@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -65,8 +63,6 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
@@ -267,61 +263,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_get_answer_from_server_for_program_based_requests() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    TsProgram programCreated = bridgeServer.createProgram(
-      new TsProgramRequest("/absolute/path/tsconfig.json")
-    );
-
-    // values from 'startServer.js'
-    assertThat(programCreated.programId()).isEqualTo("42");
-    assertThat(programCreated.projectReferences()).isEmpty();
-    assertThat(programCreated.files()).hasSize(3);
-
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      "/absolute/path/file.ts",
-      "MAIN",
-      null,
-      true,
-      null,
-      programCreated.programId(),
-      InputFile.Status.ADDED,
-      AnalysisMode.DEFAULT,
-      false,
-      false,
-      false,
-      true
-    );
-    assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
-
-    assertThat(bridgeServer.deleteProgram(programCreated)).isTrue();
-  }
-
-  @Test
-  void should_create_tsconfig_files() throws IOException, InterruptedException {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    var tsConfig = bridgeServer.createTsConfigFile("{\"include\":[\"/path/to/project/**/*\"]}");
-    assertThat(tsConfig.getFilename()).isEqualTo("/path/to/tsconfig.json");
-  }
-
-  @Test
-  void should_not_fail_when_error_during_create_program() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    TsProgram programCreated = bridgeServer.createProgram(
-      new TsProgramRequest("/absolute/path/invalid.json")
-    );
-
-    assertThat(programCreated.programId()).isNull();
-    assertThat(programCreated.error()).isEqualTo("failed to create program");
-  }
-
-  @Test
   void should_get_answer_from_server_for_css_request() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
@@ -519,70 +460,11 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_reload_tsconfig() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-    assertThat(bridgeServer.newTsConfig()).isTrue();
-  }
-
-  @Test
-  void should_return_files_for_tsconfig() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-    String tsconfig = "path/to/tsconfig.json";
-    BridgeServerImpl.TsConfigResponse tsConfigResponse = bridgeServer.tsConfigFiles(tsconfig);
-    assertThat(tsConfigResponse.files).contains(
-      "abs/path/file1",
-      "abs/path/file2",
-      "abs/path/file3"
-    );
-    assertThat(tsConfigResponse.error).isNull();
-
-    TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.getFiles()).contains(
-      "abs/path/file1",
-      "abs/path/file2",
-      "abs/path/file3"
-    );
-    assertThat(tsConfigFile.getFilename()).isEqualTo(tsconfig);
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_bad_response() throws Exception {
-    bridgeServer = createBridgeServer("badResponse.js");
-    bridgeServer.startServer(serverConfig);
-    BridgeServerImpl.TsConfigResponse response = bridgeServer.tsConfigFiles(
-      "path/to/tsconfig.json"
-    );
-    assertThat(response.files).isEmpty();
-    assertThat(response.error).isEqualTo("Invalid response");
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_no_response() throws Exception {
-    bridgeServer = createBridgeServer("badResponse.js");
-    bridgeServer.startServer(serverConfig);
-    assertThat(bridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
-    TsConfigFile tsConfigFile = bridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.getFiles()).isEmpty();
-  }
-
-  @Test
-  void should_return_no_files_for_tsconfig_on_error() throws Exception {
-    bridgeServer = createBridgeServer("tsConfigError.js");
-    bridgeServer.startServer(serverConfig);
-
-    TsConfigFile tsConfigFile = bridgeServer.loadTsConfig("path/to/tsconfig.json");
-    assertThat(tsConfigFile.getFiles()).isEmpty();
-    assertThat(logTester.logs(ERROR)).contains("Other error");
-  }
-
-  @Test
   void log_error_when_timeout() throws Exception {
     bridgeServer = createBridgeServer("timeout.js");
     bridgeServer.startServer(serverConfig);
 
-    assertThatThrownBy(() -> bridgeServer.loadTsConfig("any.ts"))
+    assertThatThrownBy(() -> bridgeServer.isAlive())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"
@@ -641,21 +523,6 @@ class BridgeServerImplTest {
     worker.join();
     long timeToInterrupt = System.currentTimeMillis() - start;
     assertThat(timeToInterrupt).isLessThan(20);
-  }
-
-  @Test
-  void test_tsProgram_toString() {
-    TsProgram tsProgram = new TsProgram(
-      "42",
-      singletonList("path/file.ts"),
-      singletonList("path/tsconfig.json")
-    );
-    assertThat(tsProgram).hasToString(
-      "TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}"
-    );
-
-    TsProgram tsProgramError = new TsProgram("failed to create program");
-    assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
   }
 
   @Test

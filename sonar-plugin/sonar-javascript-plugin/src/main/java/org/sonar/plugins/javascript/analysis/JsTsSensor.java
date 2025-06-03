@@ -59,7 +59,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
   private static final Gson GSON = new Gson();
 
-  private final AbstractAnalysis analysis;
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
@@ -69,18 +68,16 @@ public class JsTsSensor extends AbstractBridgeSensor {
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers
   ) {
-    this(checks, bridgeServer, analysis, analysisProcessor, analysisWarnings, consumers, null);
+    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, null);
   }
 
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AbstractAnalysis analysis,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
@@ -91,7 +88,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.consumers = consumers;
     this.analysisProcessor = analysisProcessor;
     this.fsListener = fsListener;
-    this.analysis = analysis;
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -116,26 +112,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(context);
-    if (!context.isAnalyzeProjectEnabled()) {
-      bridgeServer.initLinter(
-        checks.enabledEslintRules(),
-        context.getEnvironments(),
-        context.getGlobals(),
-        context.getSensorContext().fileSystem().baseDir().getAbsolutePath(),
-        context.isSonarLint()
-      );
-
-      analysis.initialize(context, checks, consumers, analysisWarnings);
-      var issues = analysis.analyzeFiles(inputFiles);
-      consumers.doneAnalysis();
-      ExternalIssueRepository.dedupeAndSaveESLintIssues(
-        this.context.getSensorContext(),
-        externalIssues,
-        issues
-      );
-      return;
-    }
-
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);

@@ -118,7 +118,11 @@ class TypeScriptAnalysisTest {
       )
     ).hasSize(1);
     assertThat(
-      result.getLogsLines(l -> l.contains("Found 1 tsconfig.json file(s): [" + tsconfig + "]"))
+      result.getLogsLines(l ->
+        l.contains(
+          "Found 1 tsconfig.json file(s): [" + tsconfig.toString().replace("\\", "/") + "]"
+        )
+      )
     ).hasSize(1);
   }
 
@@ -150,7 +154,12 @@ class TypeScriptAnalysisTest {
       projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json"))
     );
     assertThat(
-      result.getLogsLines(l -> l.contains("Found 2 tsconfig.json file(s): " + tsconfigs))
+      result.getLogsLines(l ->
+        l.contains(
+          "Found 2 tsconfig.json file(s): " +
+          tsconfigs.stream().map(tsconfig -> tsconfig.toString().replace("\\", "/")).toList()
+        )
+      )
     ).hasSize(1);
   }
 

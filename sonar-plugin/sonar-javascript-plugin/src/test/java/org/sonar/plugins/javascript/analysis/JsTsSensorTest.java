@@ -16,14 +16,11 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -42,18 +39,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -61,7 +53,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -100,12 +91,9 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
-import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
@@ -113,8 +101,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class JsTsSensorTest {
 
@@ -129,8 +115,6 @@ class JsTsSensorTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
-
-  private TsConfigCache tsConfigCache;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
   private final Gson GSON = new Gson();
@@ -170,20 +154,6 @@ class JsTsSensorTest {
         new BridgeServer.RuntimeTelemetry(Version.create(22, 9), "host")
       )
     );
-    when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
-      String tsConfigPath = (String) invocationOnMock.getArguments()[0];
-      FilePredicates predicates = context.fileSystem().predicates();
-      List<String> files = StreamSupport.stream(
-        context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(),
-        false
-      )
-        .map(InputFile::absolutePath)
-        .toList();
-      return new TsConfigFile(tsConfigPath, files, emptyList());
-    });
-    when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
-      new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
-    );
 
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));
@@ -194,7 +164,6 @@ class JsTsSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
-    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock, new FSListenerImpl());
   }
 
   private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
@@ -255,7 +224,6 @@ class JsTsSensorTest {
       content
     );
 
-    var program = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
     var issueFilePath = Path.of(baseDir.toString(), "file.js").toAbsolutePath().toString();
 
     BridgeServer.AnalysisResponseDTO expectedResponse = createResponse(
@@ -294,7 +262,6 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       AnalysisResponse.fromDTO(expectedResponse)
     );
-    when(bridgeServerMock.createProgram(any())).thenReturn(program);
 
     sensor.execute(context);
 
@@ -315,9 +282,6 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
       AnalysisResponse.fromDTO(expectedResponse)
     );
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-
     sensor.execute(context);
     verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), anyBoolean());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues().size());
@@ -570,8 +534,6 @@ class JsTsSensorTest {
     createVueInputFile();
     when(bridgeServerMock.analyzeJsTs(any())).thenThrow(new IllegalStateException("error"));
 
-    var tsProgram = new TsProgram("1", List.of(), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     createTsConfigFile();
     JsTsSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -652,8 +614,6 @@ class JsTsSensorTest {
         .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
     );
     createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(2);
@@ -673,9 +633,6 @@ class JsTsSensorTest {
     setSonarLintRuntime(ctx);
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
-    when(bridgeServerMock.loadTsConfig(any())).thenReturn(
-      new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList())
-    );
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSonarLintSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJsTs(captor.capture());
@@ -688,26 +645,17 @@ class JsTsSensorTest {
   void should_not_send_content() throws Exception {
     var ctx = createSensorContext(baseDir);
     var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     createTsConfigFile();
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     verify(bridgeServerMock).analyzeJsTs(captor.capture());
     assertThat(captor.getValue().fileContent()).isNull();
-
-    var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
-    verify(bridgeServerMock).deleteProgram(deleteCaptor.capture());
-    assertThat(deleteCaptor.getValue().programId()).isEqualTo(tsProgram.programId());
   }
 
   @Test
   void should_send_skipAst_flag_when_there_are_no_consumers() throws Exception {
     var ctx = createSensorContext(baseDir);
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
@@ -718,9 +666,6 @@ class JsTsSensorTest {
   @Test
   void should_send_skipAst_flag_when_consumer_is_disabled() throws Exception {
     var ctx = createSensorContext(baseDir);
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     JsAnalysisConsumer disabled = new JsAnalysisConsumer() {
       @Override
@@ -743,11 +688,8 @@ class JsTsSensorTest {
   @Test
   void should_not_send_the_skipAst_flag_when_there_are_consumers() throws Exception {
     var ctx = createSensorContext(baseDir);
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
@@ -761,11 +703,8 @@ class JsTsSensorTest {
   void should_not_send_the_skipAst_flag_when_jared_is_enabled() throws Exception {
     var ctx = createSensorContext(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.jared.internal.enabled", "true"));
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
@@ -788,11 +727,8 @@ class JsTsSensorTest {
         .setProperty("sonar.armor.internal.enabled", "false")
         .setProperty("sonar.jasmin.internal.disabled", "true")
     );
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
@@ -807,11 +743,8 @@ class JsTsSensorTest {
     throws Exception {
     var ctx = createSensorContext(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.jasmin.internal.disabled", "true"));
-    var inputFile = createInputFile(ctx);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
     var consumer = createConsumer();
     var sensor = createSensorWithConsumer(consumer);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
     sensor.execute(ctx);
 
@@ -826,18 +759,6 @@ class JsTsSensorTest {
     var ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
     String content = "if (cond)\ndoFoo(); \nelse \nanotherFoo();";
-    DefaultInputFile inputFile = createInputFile(
-      ctx,
-      "dir/file.ts",
-      StandardCharsets.ISO_8859_1,
-      baseDir,
-      content
-    );
-
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    createTsConfigFile();
-
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock, times(2)).analyzeJsTs(captor.capture());
@@ -853,14 +774,6 @@ class JsTsSensorTest {
     );
     var parseError = new AnalysisResponse(err, null, null, null, null, null, null, null);
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(parseError);
-    var file1 = createInputFile(context, "dir/file1.ts");
-    var file2 = createInputFile(context, "dir/file2.ts");
-    var tsProgram = new TsProgram(
-      "1",
-      List.of(file1.absolutePath(), file2.absolutePath()),
-      List.of()
-    );
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     createVueInputFile();
     createSensor().execute(context);
     assertThat(logTester.logs(Level.ERROR)).contains(
@@ -869,248 +782,6 @@ class JsTsSensorTest {
     assertThat(logTester.logs(Level.ERROR)).contains(
       "Failed to analyze file [dir/file2.ts] from TypeScript: Debug Failure. False expression."
     );
-  }
-
-  @Test
-  void should_analyze_by_tsconfig() throws Exception {
-    baseDir = Paths.get("src/test/resources/multi-tsconfig");
-    context = createSensorContext(baseDir);
-    setSonarLintRuntime(context);
-
-    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
-    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
-    DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
-    var noconfig = inputFileFromResource(context, baseDir, "noconfig.ts");
-
-    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
-    when(bridgeServerMock.loadTsConfig(tsconfig1)).thenReturn(
-      new TsConfigFile(tsconfig1, singletonList(file1.absolutePath()), emptyList())
-    );
-    String tsconfig2 = absolutePath(baseDir, "dir2/tsconfig.json");
-    when(bridgeServerMock.loadTsConfig(tsconfig2)).thenReturn(
-      new TsConfigFile(tsconfig2, singletonList(file2.absolutePath()), emptyList())
-    );
-    String tsconfig3 = absolutePath(baseDir, "dir3/tsconfig.json");
-    when(bridgeServerMock.loadTsConfig(tsconfig3)).thenReturn(
-      new TsConfigFile(tsconfig3, singletonList(file3.absolutePath()), emptyList())
-    );
-
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSonarLintSensor().execute(context);
-    verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
-    assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(
-        file1.absolutePath(),
-        file2.absolutePath(),
-        file3.absolutePath(),
-        noconfig.absolutePath()
-      );
-  }
-
-  @Test
-  void should_analyze_by_program_on_missing_extended_tsconfig() throws Exception {
-    baseDir = Paths.get("src/test/resources/external-tsconfig").toAbsolutePath();
-    context = createSensorContext(baseDir);
-
-    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/main.ts");
-
-    String tsconfig = absolutePath(baseDir, "tsconfig.json");
-
-    when(bridgeServerMock.createProgram(any())).thenReturn(
-      new TsProgram(
-        "1",
-        Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"),
-        emptyList(),
-        true
-      )
-    );
-
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(context);
-    verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
-    assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(file1.absolutePath());
-
-    verify(bridgeServerMock, times(1)).deleteProgram(any());
-    assertThat(logTester.logs(Level.WARN)).contains(
-      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
-    );
-    Assertions.assertThat(analysisWarnings.warnings).contains(
-      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
-    );
-  }
-
-  @Test
-  void should_analyze_by_program() throws Exception {
-    baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
-    context = createSensorContext(baseDir);
-
-    var file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
-    var file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
-    var file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
-    var noconfig = inputFileFromResource(context, baseDir, "noconfig.ts");
-
-    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
-
-    when(bridgeServerMock.createProgram(any())).thenReturn(
-      new TsProgram(
-        "1",
-        Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"),
-        emptyList()
-      ),
-      new TsProgram(
-        "2",
-        singletonList(file2.absolutePath()),
-        singletonList("some-other-tsconfig.json")
-      ),
-      new TsProgram("something went wrong"),
-      new TsProgram(
-        "3",
-        Arrays.asList(file2.absolutePath(), file3.absolutePath()),
-        singletonList(tsconfig1)
-      )
-    );
-
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
-      TsProgramRequest.class
-    );
-    createSensor().execute(context);
-    verify(bridgeServerMock, times(4)).analyzeJsTs(captor.capture());
-    verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
-    assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(
-        file1.absolutePath(),
-        file2.absolutePath(),
-        file3.absolutePath(),
-        noconfig.absolutePath()
-      );
-
-    verify(bridgeServerMock, times(3)).deleteProgram(any());
-
-    assertThat(logTester.logs(Level.DEBUG)).contains(
-      "File already analyzed: '" +
-      file2.absolutePath() +
-      "'. Check your project configuration to avoid files being part of multiple projects."
-    );
-    assertThat(logTester.logs(Level.ERROR)).contains(
-      "Failed to create program: something went wrong"
-    );
-
-    Assertions.assertThat(analysisWarnings.warnings).anyMatch(warning ->
-      warning.matches(
-        String.format(
-          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is \\d\\.\\d\\.\\d",
-          Pattern.quote(captorProgram.getAllValues().get(2).tsConfig())
-        )
-      )
-    );
-  }
-
-  @Test
-  void should_not_analyze_references_twice() throws Exception {
-    baseDir = Paths.get("src/test/resources/referenced-tsconfigs").toAbsolutePath();
-    context = createSensorContext(baseDir);
-
-    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "file.ts");
-    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir/file.ts");
-
-    String tsconfig1 = absolutePath(baseDir, "tsconfig.json");
-    String tsconfig2 = absolutePath(baseDir, "dir/tsconfig.json");
-
-    when(bridgeServerMock.createProgram(any())).thenReturn(
-      new TsProgram(
-        "1",
-        singletonList(file1.absolutePath()),
-        singletonList(tsconfig2.replaceAll("[\\\\/]", "/"))
-      ),
-      new TsProgram(
-        "2",
-        singletonList(file2.absolutePath()),
-        singletonList(tsconfig1.replaceAll("[\\\\/]", "/"))
-      )
-    );
-
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-
-    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
-      TsProgramRequest.class
-    );
-    createSensor().execute(context);
-    verify(bridgeServerMock, times(2)).createProgram(captorProgram.capture());
-    assertThat(captorProgram.getAllValues())
-      .extracting(TsProgramRequest::tsConfig)
-      .isEqualTo(List.of(tsconfig1, tsconfig2));
-
-    verify(bridgeServerMock, times(2)).deleteProgram(any());
-
-    assertThat(logTester.logs(Level.INFO)).containsOnlyOnce(
-      "TypeScript configuration file " + tsconfig1
-    );
-    assertThat(logTester.logs(Level.INFO)).containsOnlyOnce(
-      "TypeScript configuration file " + tsconfig2
-    );
-  }
-
-  // This test will be removed when logic is moved to Node
-  @Test
-  @Disabled
-  void should_do_nothing_when_no_tsconfig_when_analysis_with_program() throws IOException {
-    var ctx = createSensorContext(baseDir);
-    createInputFile(ctx);
-    createSensor().execute(ctx);
-
-    assertThat(logTester.logs(Level.INFO)).contains("No tsconfig.json file found");
-    assertThat(logTester.logs(Level.INFO)).contains(
-      "Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)"
-    );
-    assertThat(logTester.logs(Level.DEBUG)).contains(
-      "File not part of any tsconfig.json: dir/file.ts"
-    );
-  }
-
-  @Test
-  void should_resolve_project_references_from_tsconfig() throws Exception {
-    baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    context = createSensorContext(baseDir);
-    setSonarLintRuntime(context);
-    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
-
-    String tsconfig = absolutePath(baseDir, "tsconfig.json");
-    String appTsConfig = absolutePath(baseDir, "src/tsconfig.app.json");
-    String appTsConfig2 = absolutePath(baseDir, "src/tsconfig.app2.json");
-
-    // we intentionally create cycle between appTsConfig and appTsConfig2
-    when(bridgeServerMock.loadTsConfig(anyString())).thenReturn(
-      new TsConfigFile(tsconfig, emptyList(), singletonList(appTsConfig)),
-      new TsConfigFile(
-        appTsConfig,
-        singletonList(file1.absolutePath()),
-        singletonList(appTsConfig2)
-      ),
-      new TsConfigFile(
-        appTsConfig2,
-        singletonList(file1.absolutePath()),
-        singletonList(appTsConfig)
-      )
-    );
-
-    ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSonarLintSensor().execute(context);
-
-    // Only 2 calls, as we already find the necessary tsconfig (src/tsconfig.app.json) on the 2nd call
-    verify(bridgeServerMock, times(2)).loadTsConfig(anyString());
-    verify(bridgeServerMock, times(1)).analyzeJsTs(captor.capture());
-    assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath())
-      .containsExactlyInAnyOrder(file1.absolutePath());
   }
 
   @Test
@@ -1146,8 +817,6 @@ class JsTsSensorTest {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
@@ -1161,41 +830,11 @@ class JsTsSensorTest {
     JsTsSensor sensor = createSonarLintSensor();
     createInputFile(context);
     setSonarLintRuntime(context);
-    createTsConfigFile();
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(logTester.logs(Level.INFO)).contains(
       "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
     );
-  }
-
-  @Test
-  void log_debug_analyzed_filename_with_program() throws Exception {
-    JsTsSensor sensor = createSensor();
-    createTsConfigFile();
-    DefaultInputFile inputFile = createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(new AnalysisResponse());
-
-    sensor.execute(context);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
-  }
-
-  @Test
-  void log_debug_analyzed_filename_with_tsconfig() throws Exception {
-    BridgeServer.AnalysisResponseDTO expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
-      AnalysisResponse.fromDTO(expectedResponse)
-    );
-    var inputFile = createVueInputFile();
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    JsTsSensor sensor = createSensor();
-    createTsConfigFile();
-
-    sensor.execute(context);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
   @Test
@@ -1210,9 +849,6 @@ class JsTsSensorTest {
     var sensor = createSensor();
 
     createVueInputFile(context);
-    createTsConfigFile();
-    var tsProgram = new TsProgram("1", List.of(file.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
@@ -1270,10 +906,6 @@ class JsTsSensorTest {
     ).setStatus(InputFile.Status.SAME);
     var sensor = createSensor();
 
-    createTsConfigFile();
-    var tsProgram = new TsProgram("1", List.of(file.absolutePath()), List.of());
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
@@ -1283,71 +915,8 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_invoke_analysis_consumers() throws Exception {
-    var consumer = new JsAnalysisConsumer() {
-      final List<JsFile> files = new ArrayList<>();
-      boolean done;
-
-      @Override
-      public void accept(JsFile jsFile) {
-        files.add(jsFile);
-      }
-
-      @Override
-      public void doneAnalysis() {
-        done = true;
-      }
-    };
-
-    var sensor = new JsTsSensor(
-      checks(ESLINT_BASED_RULE, "S2260"),
-      bridgeServerMock,
-      analysisWithProgram(),
-      processAnalysis,
-      analysisWarnings,
-      new AnalysisConsumers(List.of(consumer))
-    );
-
-    var inputFile = createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-
-    Program program = Program.newBuilder().build();
-    Node placeHolderNode = Node.newBuilder()
-      .setType(NodeType.ProgramType)
-      .setProgram(program)
-      .setLoc(
-        SourceLocation.newBuilder()
-          .setStart(Position.newBuilder().setLine(1).setColumn(1))
-          .setEnd(Position.newBuilder().setLine(1).setColumn(1))
-      )
-      .build();
-
-    when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
-      new AnalysisResponse(
-        null,
-        List.of(),
-        List.of(),
-        List.of(),
-        new BridgeServer.Metrics(),
-        List.of(),
-        List.of(),
-        placeHolderNode
-      )
-    );
-
-    sensor.execute(context);
-    assertThat(consumer.files).hasSize(1);
-    assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
-    assertThat(consumer.done).isTrue();
-  }
-
-  @Test
   void should_not_invoke_analysis_consumers_when_cannot_deserialize() throws Exception {
     var inputFile = createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
 
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
@@ -1406,7 +975,6 @@ class JsTsSensorTest {
     var sensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      null,
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers(List.of(consumer)),
@@ -1432,7 +1000,9 @@ class JsTsSensorTest {
       .build();
 
     doAnswer(invocation -> {
-      WebSocketMessageHandler handler = invocation.getArgument(0);
+      WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
+        0
+      );
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
       webSocketClient.registerHandler(handler);
       for (var message : getWSMessages(createProjectResponseWithAst(inputFile, placeHolderNode))) {
@@ -1470,7 +1040,6 @@ class JsTsSensorTest {
     var sensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      null,
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers(List.of(consumer)),
@@ -1485,7 +1054,9 @@ class JsTsSensorTest {
     var inputFile = createInputFile(ctx);
 
     doAnswer(invocation -> {
-      WebSocketMessageHandler handler = invocation.getArgument(0);
+      WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
+        0
+      );
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
       webSocketClient.registerHandler(handler);
       for (var message : getWSMessages(createProjectResponseWithAst(inputFile, erroneousNode))) {
@@ -1530,7 +1101,6 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers(List.of(consumer))
@@ -1541,7 +1111,6 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithProgram(),
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers()
@@ -1552,7 +1121,6 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWithWatchProgram(),
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers()
@@ -1563,20 +1131,11 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      null,
       processAnalysis,
       analysisWarnings,
       new AnalysisConsumers(),
       new FSListenerImpl()
     );
-  }
-
-  private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(bridgeServerMock, processAnalysis);
-  }
-
-  private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, tsConfigCache);
   }
 
   private BridgeServer.ProjectAnalysisOutputDTO createProjectResponse(List<InputFile> files) {

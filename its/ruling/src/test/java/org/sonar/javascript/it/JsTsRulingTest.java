@@ -17,7 +17,6 @@
 package org.sonar.javascript.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.analysis.JsTsContext.ANALYZE_PROJECT_ENABLED;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -282,10 +281,6 @@ class JsTsRulingTest {
     }
 
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
-    var analyzeProjectEnabledFlag = System.getProperty(ANALYZE_PROJECT_ENABLED);
-    if (analyzeProjectEnabledFlag == null) {
-      analyzeProjectEnabledFlag = "false";
-    }
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -307,8 +302,7 @@ class JsTsRulingTest {
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.internal.analysis.failFast", "true")
-      .setProperty(ANALYZE_PROJECT_ENABLED, analyzeProjectEnabledFlag);
+      .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");

@@ -60,16 +60,6 @@ public interface BridgeServer extends Startable {
 
   boolean isAlive();
 
-  boolean newTsConfig();
-
-  TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
-
-  TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException;
-
-  boolean deleteProgram(TsProgram tsProgram) throws IOException;
-
-  TsConfigFile createTsConfigFile(String content) throws IOException;
-
   TelemetryData getTelemetry();
 
   record InitLinterRequest(
@@ -331,76 +321,6 @@ public interface BridgeServer extends Startable {
   }
 
   record CpdToken(Location location, String image) {}
-
-  class TsConfigResponse {
-
-    final List<String> files;
-    final List<String> projectReferences;
-    final String error;
-    final ParsingErrorCode errorCode;
-
-    TsConfigResponse(
-      List<String> files,
-      List<String> projectReferences,
-      @Nullable String error,
-      @Nullable ParsingErrorCode errorCode
-    ) {
-      this.files = files;
-      this.projectReferences = projectReferences;
-      this.error = error;
-      this.errorCode = errorCode;
-    }
-  }
-
-  record TsProgram(
-    @Nullable String programId,
-    @Nullable List<String> files,
-    @Nullable List<String> projectReferences,
-    boolean missingTsConfig,
-    @Nullable String error
-  ) {
-    public TsProgram(
-      String programId,
-      @Nullable List<String> files,
-      @Nullable List<String> projectReferences
-    ) {
-      this(programId, files, projectReferences, false, null);
-    }
-
-    public TsProgram(
-      String programId,
-      List<String> files,
-      List<String> projectReferences,
-      boolean missingTsConfig
-    ) {
-      this(programId, files, projectReferences, missingTsConfig, null);
-    }
-
-    public TsProgram(String error) {
-      this(null, null, null, false, error);
-    }
-
-    @Override
-    public String toString() {
-      if (error == null) {
-        return (
-          "TsProgram{" +
-          "programId='" +
-          programId +
-          '\'' +
-          ", files=" +
-          files +
-          ", projectReferences=" +
-          projectReferences +
-          '}'
-        );
-      } else {
-        return "TsProgram{ error='" + error + "'}";
-      }
-    }
-  }
-
-  record TsProgramRequest(String tsConfig) {}
 
   record TelemetryEslintBridgeResponse(List<Dependency> dependencies) {}
 
