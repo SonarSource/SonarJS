@@ -36,7 +36,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
-  void startServerLazily(BridgeServerConfig context) throws IOException, InterruptedException;
+  void startServerLazily(BridgeServerConfig context) throws IOException;
 
   void initLinter(
     List<EslintRule> rules,

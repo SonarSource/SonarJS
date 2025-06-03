@@ -309,8 +309,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void startServerLazily(BridgeServerConfig serverConfig)
-    throws IOException, InterruptedException {
+  public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
     if (status == Status.FAILED) {
       if (shouldRestartFailedServer()) {
         // Reset the status, which will cause the server to retry deployment
