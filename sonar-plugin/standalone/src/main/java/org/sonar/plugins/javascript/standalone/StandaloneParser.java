@@ -45,11 +45,11 @@ public class StandaloneParser implements AutoCloseable {
 
   private final BridgeServerImpl bridge;
 
-  public StandaloneParser() throws InterruptedException {
+  public StandaloneParser() {
     this(Http.getJdkHttpClient());
   }
 
-  public StandaloneParser(Http http) throws InterruptedException {
+  public StandaloneParser(Http http) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     var temporaryFolder = new StandaloneTemporaryFolder();
