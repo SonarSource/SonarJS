@@ -147,7 +147,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
   }
 
-  class AnalyzeProjectHandler implements WebSocketMessageHandler {
+  class AnalyzeProjectHandler implements WebSocketMessageHandler<ProjectAnalysisRequest> {
 
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
@@ -231,42 +231,35 @@ public class JsTsSensor extends AbstractBridgeSensor {
     @Override
     public void handleMessage(JsonObject jsonObject) {
       var messageType = jsonObject.get("messageType").getAsString();
-      switch (messageType) {
-        case "fileResult":
-          var filePath = jsonObject.get("filename").getAsString();
-          var response = BridgeServer.AnalysisResponse.fromDTO(
-            GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
+      if ("fileResult".equals(messageType)) {
+        var filePath = jsonObject.get("filename").getAsString();
+        var response = BridgeServer.AnalysisResponse.fromDTO(
+          GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
+        );
+        var file = fileToInputFile.get(filePath);
+        var cacheStrategy = fileToCacheStrategy.get(filePath);
+        var issues = analysisProcessor.processResponse(context, checks, file, response);
+        var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
+          externalIssues.get(filePath),
+          issues
+        );
+        if (!dedupedIssues.isEmpty()) {
+          ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+        }
+        externalIssues.remove(filePath);
+        try {
+          cacheStrategy.writeAnalysisToCache(
+            CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
+            file
           );
-          var file = fileToInputFile.get(filePath);
-          var cacheStrategy = fileToCacheStrategy.get(filePath);
-          var issues = analysisProcessor.processResponse(context, checks, file, response);
-          var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
-            externalIssues.get(filePath),
-            issues
-          );
-          if (!dedupedIssues.isEmpty()) {
-            ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
-          }
-          externalIssues.remove(filePath);
-          try {
-            cacheStrategy.writeAnalysisToCache(
-              CacheAnalysis.fromResponse(
-                response.ucfgPaths(),
-                response.cpdTokens(),
-                response.ast()
-              ),
-              file
-            );
-          } catch (IOException e) {
-            handle.completeExceptionally(new IllegalStateException(e));
-          }
-          acceptAstResponse(response.ast(), file);
-          break;
-        case "meta":
-          var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
-          meta.warnings().forEach(analysisWarnings::addUnique);
-          handle.complete(null);
-          break;
+        } catch (IOException e) {
+          handle.completeExceptionally(new IllegalStateException(e));
+        }
+        acceptAstResponse(response.ast(), file);
+      } else if ("meta".equals(messageType)) {
+        var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
+        meta.warnings().forEach(analysisWarnings::addUnique);
+        handle.complete(null);
       }
     }
 

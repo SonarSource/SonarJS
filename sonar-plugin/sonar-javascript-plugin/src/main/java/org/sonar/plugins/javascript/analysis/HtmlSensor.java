@@ -17,7 +17,6 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;

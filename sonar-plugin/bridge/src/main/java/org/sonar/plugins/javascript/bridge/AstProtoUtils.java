@@ -18,8 +18,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Base64;
 import org.slf4j.Logger;
