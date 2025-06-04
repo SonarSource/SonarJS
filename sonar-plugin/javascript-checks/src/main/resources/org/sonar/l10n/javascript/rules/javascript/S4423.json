@@ -17,8 +17,9 @@
     "privacy"
   ],
   "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
   },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4423",

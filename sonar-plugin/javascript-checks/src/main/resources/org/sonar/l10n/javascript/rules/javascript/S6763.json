@@ -9,6 +9,11 @@
   "tags": [
     "react"
   ],
+  "extra": {
+    "requiredDependency": [
+      "react"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6763",
   "sqKey": "S6763",

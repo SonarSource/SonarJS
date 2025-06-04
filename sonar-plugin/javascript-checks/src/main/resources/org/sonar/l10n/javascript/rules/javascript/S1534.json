@@ -19,6 +19,9 @@
     "replacementRules": [],
     "legacyKeys": [
       "DuplicatePropertyName"
+    ],
+    "requiredDependency": [
+      "react"
     ]
   },
   "defaultSeverity": "Major",

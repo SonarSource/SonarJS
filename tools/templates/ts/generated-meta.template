@@ -21,3 +21,4 @@ export const meta = {
 export const sonarKey = '___RULE_KEY___';
 export const scope = '___SCOPE___';
 export const languages: ('js' | 'ts')[] = ___LANGUAGES___;
+export const requiredDependency = ___REQUIRED_DEPENDENCY___;
