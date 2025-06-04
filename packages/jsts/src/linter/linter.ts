@@ -22,7 +22,7 @@ import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
-import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import { getAllDependencies, rules as internalRules, toUnixPath } from '../rules/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
 import { ParseResult } from '../parsers/parse.js';
@@ -242,6 +242,9 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
+      const allDependencies = new Set(
+        getAllDependencies().map(namedDependency => namedDependency.name),
+      );
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           key,
@@ -256,11 +259,20 @@ export class Linter {
           : analysisModes;
         // TODO: remove when sonar-security overrides the blacklistedExtensions method
         const blacklist = blacklistedExtensions ?? (key === 'ucfg' ? ['.htm', '.html'] : []);
+        const ruleMeta =
+          ruleConfig.key in ruleMetas
+            ? ruleMetas[ruleConfig.key as keyof typeof ruleMetas]
+            : undefined;
+        const satisfiesRequiredDependency =
+          !ruleMeta ||
+          ruleMeta.requiredDependency.length === 0 ||
+          ruleMeta.requiredDependency.some(dependency => allDependencies.has(dependency));
         return (
           fileTypeTargets.includes(fileType) &&
           effectiveAnalysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !blacklist.includes(extname(toUnixPath(filePath)))
+          !blacklist.includes(extname(toUnixPath(filePath))) &&
+          satisfiesRequiredDependency
         );
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));

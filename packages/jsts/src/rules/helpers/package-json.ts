@@ -48,7 +48,7 @@ type Dependency = MinimatchDependency | NamedDependency;
 export const cache: Map<string, Set<Dependency>> = new Map();
 
 /**
- * Returns the dependencies of the root package.json file collected in the cache.
+ * Returns the dependencies of all package.json files inside the root folder, collected in the cache.
  * As the cache is populated lazily, it could be null in case no rule execution has touched it.
  * This removes duplicate dependencies and keeps the last occurrence.
  */
