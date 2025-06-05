@@ -78,7 +78,9 @@ export function getClosestPackageJSONDir(filename: string, cwd: string): string 
     // take the longest filepath as that will be the closest package.json to the provided file
     dirNameToClosestPackageJSONCache.set(
       dirname,
-      files.sort((a, b) => b.path.length - a.path.length).at(0)?.path ?? cwd,
+      files
+        .map(file => file.path)
+        .reduce((prev, current) => (prev.length > current.length ? prev : current), cwd),
     );
   }
   return dirNameToClosestPackageJSONCache.get(dirname)!;
