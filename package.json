@@ -91,7 +91,7 @@
     "memfs": "4.17.2",
     "nyc": "17.1.0",
     "prettier": "3.5.3",
-    "prettier-plugin-java": "2.6.7",
+    "prettier-plugin-java": "2.6.8",
     "pretty-quick": "4.2.2",
     "rimraf": "6.0.1",
     "tsx": "4.19.4",
