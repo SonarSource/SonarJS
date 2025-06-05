@@ -1,5 +1,5 @@
 {
-  "title": "Redundant React fragments should be removed",
+  "title": "Redundant JSX fragments should be removed",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
