@@ -40,13 +40,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -85,8 +85,6 @@ import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
@@ -99,6 +97,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.sonarlint.FSListener;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 
 class JsTsSensorTest {
@@ -198,12 +197,6 @@ class JsTsSensorTest {
     assertThat(descriptor.languages()).containsOnly("js", "ts");
   }
 
-  /**
-   * todo
-   *
-   * this test should belong to the test suite of the component that actually does the deduplication - namely `AbstractBridgeSensor`;
-   * but there is no test suite for this component.
-   */
   @Test
   void should_de_duplicate_issues() throws Exception {
     baseDir = Paths.get("src/test/resources/de-duplicate-issues");
@@ -264,19 +257,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
 
     var issues = context.allIssues();
     var externalIssues = context.allExternalIssues();
@@ -287,24 +268,9 @@ class JsTsSensorTest {
 
   @Test
   void should_analyze_project() {
-    JsTsSensor sensor = createSensor();
     var expectedResponse = createProjectResponse(List.of(inputFile));
+    executeSensorMockingResponse(expectedResponse);
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    sensor.execute(context);
-    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
     assertThat(context.allIssues()).hasSize(
       expectedResponse.files().get(inputFile.absolutePath()).issues().size()
     );
@@ -364,68 +330,34 @@ class JsTsSensorTest {
 
   @Test
   void should_ignore_ws_messages_not_related_to_project_analysis() {
-    JsTsSensor sensor = createSensor();
-    var expectedResponse = createProjectResponse(List.of(inputFile));
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+    executeSensorMockingEvents(() -> {
       webSocketClient.onMessage("{messageType: 'unrelated_event'}");
-      for (var message : getWSMessages(expectedResponse)) {
+      for (var message : getWSMessages(createProjectResponse(List.of(inputFile)))) {
         webSocketClient.onMessage(message);
       }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    sensor.execute(context);
-    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+    });
   }
 
   @Test
   void should_end_analysis_error_ws_event() {
-    JsTsSensor sensor = createSensor();
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      webSocketClient.onError(new IOException("Abnormal termination"));
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    assertThatThrownBy(() -> sensor.execute(context)).isInstanceOf(IllegalStateException.class);
-    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+    assertThatThrownBy(() ->
+      executeSensorMockingEvents(() -> {
+        webSocketClient.onError(new IOException("Abnormal termination"));
+      })
+    ).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   void should_end_analysis_close_ws_event() {
-    JsTsSensor sensor = createSensor();
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      webSocketClient.onClose(1006, "Abnormal close event", true);
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    assertThatThrownBy(() -> sensor.execute(context)).isInstanceOf(IllegalStateException.class);
-    assertThat(webSocketClient.getMessageHandlers()).hasSize(0);
+    assertThatThrownBy(() ->
+      executeSensorMockingEvents(() -> {
+        webSocketClient.onClose(1006, "Abnormal close event", true);
+      })
+    ).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   void should_handle_warnings() {
-    JsTsSensor sensor = createSensor();
-
     var warningMessage = "warning message";
     var expectedResponse = new BridgeServer.ProjectAnalysisOutputDTO(
       createFilesMap(List.of(inputFile)),
@@ -437,26 +369,15 @@ class JsTsSensorTest {
         List.of(warningMessage)
       )
     );
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    sensor.execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
   }
 
   @Test
   void should_explode_if_no_response_from_project_analysis() {
     doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
-    assertThatThrownBy(() -> createSensor().execute(context))
+    var sensor = createSensor();
+    assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
 
@@ -480,20 +401,7 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
@@ -521,27 +429,10 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    new JsTsSensor(
-      checks("S3923", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers()
-    ).execute(context);
+    executeSensorMockingResponse(
+      createSensor(checks("S3923", "S1451"), new AnalysisConsumers(), null),
+      expectedResponse
+    );
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -566,20 +457,7 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
@@ -602,19 +480,8 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_send_skipAst_flag_when_consumer_is_disabled() throws Exception {
-    JsAnalysisConsumer disabled = new JsAnalysisConsumer() {
-      @Override
-      public void accept(JsFile jsFile) {}
-
-      @Override
-      public void doneAnalysis() {}
-
-      @Override
-      public boolean isEnabled() {
-        return false;
-      }
-    };
+  void should_send_skipAst_flag_when_consumer_is_disabled() {
+    JsAnalysisConsumer disabled = createConsumer(false);
     assertThat(
       executeSensorAndCaptureHandler(createSensorWithConsumer(disabled), context)
         .getRequest()
@@ -676,7 +543,6 @@ class JsTsSensorTest {
 
   @Test
   void should_not_send_content() {
-    var inputFile = createInputFile(context);
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
@@ -688,11 +554,9 @@ class JsTsSensorTest {
 
   @Test
   void should_send_content_on_sonarlint() throws Exception {
-    SensorContextTester ctx = createSensorContext(baseDir);
-    setSonarLintRuntime(ctx);
-    var inputFile = createInputFile(ctx);
+    setSonarLintRuntime(context);
     assertThat(
-      executeSensorAndCaptureHandler(createSensor(), ctx)
+      executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getFiles()
         .get(inputFile.absolutePath())
@@ -722,20 +586,8 @@ class JsTsSensorTest {
     ).isEqualTo(content);
   }
 
-  private JsTsSensor.AnalyzeProjectHandler executeSensorAndCaptureHandler(
-    JsTsSensor sensor,
-    SensorContextTester ctx
-  ) {
-    ArgumentCaptor<JsTsSensor.AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
-      JsTsSensor.AnalyzeProjectHandler.class
-    );
-    sensor.execute(ctx);
-    verify(bridgeServerMock).analyzeProject(captor.capture());
-    return captor.getValue();
-  }
-
   @Test
-  void should_log_when_failing_typescript() throws Exception {
+  void should_log_when_failing_typescript() {
     var expectedResponse = createProjectResponse(
       new HashMap<>() {
         {
@@ -744,7 +596,7 @@ class JsTsSensorTest {
             new Gson()
               .fromJson(
                 "{ parsingError: { message: \"Debug Failure. False expression.\", code: \"" +
-                ParsingErrorCode.FAILING_TYPESCRIPT +
+                BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
                 "\"} }",
                 BridgeServer.AnalysisResponseDTO.class
               )
@@ -752,20 +604,7 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(logTester.logs(Level.ERROR)).contains(
       "Failed to analyze file [dir/file.ts] from TypeScript: Debug Failure. False expression."
     );
@@ -773,8 +612,7 @@ class JsTsSensorTest {
 
   @Test
   void should_stop_when_no_input_files() throws Exception {
-    context = createSensorContext(tempDir);
-    createSensor().execute(context);
+    createSensor().execute(createSensorContext(baseDir));
     assertThat(logTester.logs()).contains(
       "No input files found for analysis",
       "Hit the cache for 0 out of 0",
@@ -783,9 +621,10 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_fail_fast() throws Exception {
+  void should_fail_fast() {
     doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
-    assertThatThrownBy(() -> createSensor().execute(context))
+    var sensor = createSensor();
+    assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
   }
@@ -809,19 +648,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    assertThatThrownBy(() -> createSensor().execute(context))
+    assertThatThrownBy(() -> executeSensorMockingResponse(expectedResponse))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
     assertThat(logTester.logs(Level.ERROR)).contains(
@@ -847,21 +674,9 @@ class JsTsSensorTest {
       workDir,
       inputFile.getModuleRelativePath()
     );
-    inputFile = createInputFile(context).setStatus(InputFile.Status.SAME);
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(createProjectResponse(List.of()))) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-    createSensor().execute(context);
-
+    context.fileSystem().add(inputFile);
+    inputFile.setStatus(InputFile.Status.SAME);
+    executeSensor();
     assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Processing cache analysis of file: " + inputFile.uri()
@@ -869,38 +684,11 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_not_invoke_analysis_consumers_when_cannot_deserialize() throws Exception {
+  void should_not_invoke_analysis_consumers_when_cannot_deserialize() {
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
-
-    var consumer = new JsAnalysisConsumer() {
-      final List<JsFile> files = new ArrayList<>();
-      boolean done;
-
-      @Override
-      public void accept(JsFile jsFile) {
-        files.add(jsFile);
-      }
-
-      @Override
-      public void doneAnalysis() {
-        done = true;
-      }
-    };
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
-        0
-      );
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      for (var message : getWSMessages(createProjectResponseWithAst(inputFile, erroneousNode))) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensorWithConsumer(consumer).execute(context);
+    var consumer = createConsumer();
+    var expectedResponse = createProjectResponseWithAst(inputFile, erroneousNode);
+    executeSensorMockingResponse(createSensorWithConsumer(consumer), expectedResponse);
     assertThat(consumer.files).isEmpty();
     assertThat(consumer.done).isTrue();
 
@@ -910,30 +698,8 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_invoke_analysis_consumers_when_analyzing_project() throws Exception {
-    var consumer = new JsAnalysisConsumer() {
-      final List<JsFile> files = new ArrayList<>();
-      boolean done;
-
-      @Override
-      public void accept(JsFile jsFile) {
-        files.add(jsFile);
-      }
-
-      @Override
-      public void doneAnalysis() {
-        done = true;
-      }
-    };
-
-    var sensor = new JsTsSensor(
-      checks("S3923", "S2260", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers(List.of(consumer)),
-      new FSListenerImpl()
-    );
+  void should_invoke_analysis_consumers_when_analyzing_project() {
+    var consumer = createConsumer();
 
     Program program = Program.newBuilder().build();
     Node placeHolderNode = Node.newBuilder()
@@ -946,75 +712,25 @@ class JsTsSensorTest {
       )
       .build();
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
-        0
-      );
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      for (var message : getWSMessages(createProjectResponseWithAst(inputFile, placeHolderNode))) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    sensor.execute(context);
+    executeSensorMockingResponse(
+      createSensorWithConsumer(consumer),
+      createProjectResponseWithAst(inputFile, placeHolderNode)
+    );
     assertThat(consumer.files).hasSize(1);
     assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
     assertThat(consumer.done).isTrue();
   }
 
   @Test
-  void should_not_invoke_analysis_consumers_when_cannot_deserialize_project_analysis()
-    throws Exception {
-    var consumer = new JsAnalysisConsumer() {
-      final List<JsFile> files = new ArrayList<>();
-      boolean done;
+  void should_not_invoke_analysis_consumers_when_cannot_deserialize_project_analysis() {
+    var consumer = createConsumer();
 
-      @Override
-      public void accept(JsFile jsFile) {
-        files.add(jsFile);
-      }
-
-      @Override
-      public void doneAnalysis() {
-        done = true;
-      }
-    };
-
-    var sensor = new JsTsSensor(
-      checks("S3923", "S2260", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers(List.of(consumer)),
-      new FSListenerImpl()
-    );
-
-    var ctx = createSensorContext(baseDir);
-    ctx.setSettings(
-      new MapSettings().setProperty("sonar.javascript.analyzeProject.enabled", "true")
-    );
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
-    var inputFile = createInputFile(ctx);
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
-        0
-      );
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      for (var message : getWSMessages(createProjectResponseWithAst(inputFile, erroneousNode))) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    sensor.execute(ctx);
+    executeSensorMockingResponse(
+      createSensorWithConsumer(consumer),
+      createProjectResponseWithAst(inputFile, erroneousNode)
+    );
     assertThat(consumer.files).isEmpty();
     assertThat(consumer.done).isTrue();
 
@@ -1044,21 +760,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
-
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -1113,22 +815,7 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
-
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(1);
     var issue = context.allIssues().iterator().next();
     assertThat(issue.isQuickFixAvailable()).isTrue();
@@ -1154,20 +841,6 @@ class JsTsSensorTest {
         }
       }
     );
-
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
     context.setRuntime(
       SonarRuntimeImpl.forSonarQube(
         Version.create(9, 1),
@@ -1175,8 +848,7 @@ class JsTsSensorTest {
         SonarEdition.COMMUNITY
       )
     );
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(1);
     var issue = context.allIssues().iterator().next();
     assertThat(issue.isQuickFixAvailable()).isFalse();
@@ -1204,20 +876,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(1);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -1262,20 +921,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(1);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -1303,20 +949,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.allIssues()).hasSize(1);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -1350,20 +983,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(inputFile.key(), CoreMetrics.STATEMENTS).value()).isEqualTo(2);
     assertThat(context.measure(inputFile.key(), CoreMetrics.CLASSES).value()).isEqualTo(3);
@@ -1392,21 +1012,8 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    createSonarLintSensor().execute(context);
+    executeSensorMockingResponse(createSonarLintSensor(), expectedResponse);
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
     assertThat(context.measures(inputFile.key())).isEmpty();
@@ -1439,20 +1046,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(testInputFile.hasNoSonarAt(7)).isTrue();
     assertThat(context.measures(testInputFile.key())).isEmpty();
     assertThat((context.cpdTokens(testInputFile.key()))).isNull();
@@ -1479,20 +1073,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isNotEmpty();
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0).get(0)).isEqualTo(
       TypeOfText.KEYWORD
@@ -1517,20 +1098,7 @@ class JsTsSensorTest {
       }
     );
 
-    doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-      return handler.getFuture().join();
-    })
-      .when(bridgeServerMock)
-      .analyzeProject(any());
-
-    createSensor().execute(context);
+    executeSensorMockingResponse(expectedResponse);
     assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
   }
 
@@ -1541,8 +1109,6 @@ class JsTsSensorTest {
       .startServerLazily(any());
 
     var sensor = createSensor();
-    createInputFile(context);
-
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
@@ -1602,16 +1168,8 @@ class JsTsSensorTest {
       .when(bridgeServerMock)
       .startServerLazily(any());
 
-    var javaScriptEslintBasedSensor = new JsTsSensor(
-      checks("S3923"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers()
-    );
-    createInputFile(context);
-
-    assertThatThrownBy(() -> javaScriptEslintBasedSensor.execute(context))
+    var sensor = createSensor();
+    assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(nodeExceptionMessage);
 
@@ -1620,12 +1178,8 @@ class JsTsSensorTest {
 
   @Test
   void log_debug_if_already_failed_server() throws Exception {
-    Mockito.doThrow(new ServerAlreadyFailedException())
-      .when(bridgeServerMock)
-      .startServerLazily(any());
-    var javaScriptEslintBasedSensor = createSensor();
-    createInputFile(context);
-    javaScriptEslintBasedSensor.execute(context);
+    doThrow(new ServerAlreadyFailedException()).when(bridgeServerMock).startServerLazily(any());
+    createSensor().execute(context);
 
     assertThat(logTester.logs()).contains(
       "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore",
@@ -1643,7 +1197,7 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_add_telemetry_for_scanner_analysis() throws Exception {
+  void should_add_telemetry_for_scanner_analysis() {
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
         List.of(new BridgeServer.Dependency("pkg1", "1.1.0")),
@@ -1661,6 +1215,58 @@ class JsTsSensorTest {
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Telemetry saved: {javascript.runtime.major-version=22, javascript.runtime.version=22.9, javascript.runtime.node-executable-origin=embedded}"
     );
+  }
+
+  private AnalyzeProjectHandler executeSensorAndCaptureHandler(
+    JsTsSensor sensor,
+    SensorContextTester ctx
+  ) {
+    ArgumentCaptor<AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
+      AnalyzeProjectHandler.class
+    );
+    sensor.execute(ctx);
+    verify(bridgeServerMock).analyzeProject(captor.capture());
+    return captor.getValue();
+  }
+
+  private void executeSensor() {
+    executeSensorMockingResponse(createSensor(), createProjectResponse(List.of()));
+  }
+
+  private void executeSensorMockingResponse(
+    BridgeServer.ProjectAnalysisOutputDTO expectedResponse
+  ) {
+    executeSensorMockingResponse(createSensor(), expectedResponse);
+  }
+
+  private void executeSensorMockingResponse(
+    JsTsSensor sensor,
+    BridgeServer.ProjectAnalysisOutputDTO expectedResponse
+  ) {
+    executeSensorMockingEvents(sensor, () -> {
+      for (var message : getWSMessages(expectedResponse)) {
+        webSocketClient.onMessage(message);
+      }
+    });
+  }
+
+  private void executeSensorMockingEvents(Runnable events) {
+    executeSensorMockingEvents(createSensor(), events);
+  }
+
+  private void executeSensorMockingEvents(JsTsSensor sensor, Runnable events) {
+    doAnswer(invocation -> {
+      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
+      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
+      webSocketClient.registerHandler(handler);
+      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
+      events.run();
+      return handler.getFuture().join();
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any());
+    sensor.execute(context);
+    assertThat(webSocketClient.getMessageHandlers()).isEmpty();
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
@@ -1694,65 +1300,50 @@ class JsTsSensorTest {
     return inputFile;
   }
 
-  private JsAnalysisConsumer createConsumer() {
-    return new JsAnalysisConsumer() {
-      final List<JsFile> files = new ArrayList<>();
-      boolean done;
-
-      @Override
-      public void accept(JsFile jsFile) {
-        files.add(jsFile);
-      }
-
-      @Override
-      public void doneAnalysis() {
-        done = true;
-      }
-
-      public List<JsFile> getFiles() {
-        return this.files;
-      }
-    };
+  private TestJsAnalysisConsumer createConsumer() {
+    return createConsumer(true);
   }
 
-  private JsTsSensor createSensorWithConsumer(JsAnalysisConsumer consumer) {
-    return new JsTsSensor(
-      checks("S3923", "S2260", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers(List.of(consumer))
-    );
+  private TestJsAnalysisConsumer createConsumer(boolean enabled) {
+    return new TestJsAnalysisConsumer(enabled);
   }
 
   private JsTsSensor createSensorWithConsumer() {
-    return new JsTsSensor(
+    return createSensorWithConsumer(createConsumer());
+  }
+
+  private JsTsSensor createSensorWithConsumer(JsAnalysisConsumer consumer) {
+    return createSensor(
       checks("S3923", "S2260", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers(List.of(createConsumer()))
+      new AnalysisConsumers(List.of(consumer)),
+      null
     );
   }
 
   private JsTsSensor createSensor() {
-    return new JsTsSensor(
-      checks("S3923", "S2260", "S1451"),
-      bridgeServerMock,
-      analysisProcessor,
-      analysisWarnings,
-      new AnalysisConsumers()
-    );
+    return createSensor(checks("S3923", "S2260", "S1451"), new AnalysisConsumers(), null);
   }
 
   private JsTsSensor createSonarLintSensor() {
-    return new JsTsSensor(
+    return createSensor(
       checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      new FSListenerImpl()
+    );
+  }
+
+  private JsTsSensor createSensor(
+    JsTsChecks checks,
+    AnalysisConsumers consumers,
+    @Nullable FSListener fsListener
+  ) {
+    return new JsTsSensor(
+      checks,
       bridgeServerMock,
       analysisProcessor,
       analysisWarnings,
-      new AnalysisConsumers(),
-      new FSListenerImpl()
+      consumers,
+      fsListener
     );
   }
 
@@ -1972,5 +1563,35 @@ class JsTsSensorTest {
       );
     }
     return new JsTsChecks(new CheckFactory(builder.build()));
+  }
+
+  class TestJsAnalysisConsumer implements JsAnalysisConsumer {
+
+    public final List<JsFile> files = new ArrayList<>();
+    public boolean done;
+    public boolean enabled;
+
+    TestJsAnalysisConsumer() {
+      this(true);
+    }
+
+    TestJsAnalysisConsumer(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    @Override
+    public void accept(JsFile jsFile) {
+      files.add(jsFile);
+    }
+
+    @Override
+    public void doneAnalysis() {
+      done = true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+      return this.enabled;
+    }
   }
 }
