@@ -46,6 +46,10 @@ type Dependency = MinimatchDependency | NamedDependency;
  * Cache for the available dependencies by dirname. Exported for tests
  */
 export const cache: Map<string, Set<Dependency>> = new Map();
+/**
+ * Cache for dirName (of a source file) to the dirName of the closest package.json
+ */
+const dirNameToClosestPackageJSONCache: Map<string, string> = new Map();
 
 /**
  * Returns the dependencies of all package.json files inside the root folder, collected in the cache.
@@ -67,6 +71,19 @@ export function getAllDependencies(): NamedDependency[] {
   );
 }
 
+export function getClosestPackageJSONDir(filename: string, cwd: string): string {
+  const dirname = Path.dirname(toUnixPath(filename));
+  if (!dirNameToClosestPackageJSONCache.has(dirname)) {
+    const files = findPackageJsons(dirname, cwd, fs);
+    // take the longest filepath as that will be the closest package.json to the provided file
+    dirNameToClosestPackageJSONCache.set(
+      dirname,
+      files.sort((a, b) => b.path.length - a.path.length).at(-1)?.path ?? cwd,
+    );
+  }
+  return dirNameToClosestPackageJSONCache.get(dirname)!;
+}
+
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
@@ -75,11 +92,14 @@ export function getAllDependencies(): NamedDependency[] {
  * @returns
  */
 export function getDependencies(filename: string, cwd: string) {
-  const dirname = Path.dirname(toUnixPath(filename));
-  if (!cache.get(dirname)) {
-    fillCacheWithNewPath(dirname, getManifests(dirname, cwd, fs));
+  const closestPackageJSONDirName = getClosestPackageJSONDir(filename, cwd);
+  if (!cache.has(closestPackageJSONDirName)) {
+    fillCacheWithNewPath(
+      closestPackageJSONDirName,
+      getManifests(closestPackageJSONDirName, cwd, fs),
+    );
   }
-  return new Set([...cache.get(dirname)!].map(item => item.name));
+  return new Set([...cache.get(closestPackageJSONDirName)!].map(item => item.name));
 }
 
 export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) {
