@@ -39,6 +39,7 @@ describe('analyzeYAML', () => {
 
   it('should analyze YAML file', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S3923',
@@ -68,6 +69,7 @@ describe('analyzeYAML', () => {
 
   it('should return an empty issues list on parsing error', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S3923',
@@ -86,6 +88,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S1116',
@@ -122,6 +125,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using "S3723" rule', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S3723',
@@ -157,6 +161,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S2251',
@@ -188,6 +193,7 @@ describe('analyzeYAML', () => {
 
   it('should not break when using a regex rule', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S6326',
@@ -217,6 +223,7 @@ describe('analyzeYAML', () => {
 
   it('should not return issues outside of the embedded JS', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S1131',
@@ -259,6 +266,7 @@ describe('analyzeYAML', () => {
     };
     Linter.rules[rule.key] = rule.module;
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: rule.key,

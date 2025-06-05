@@ -78,7 +78,7 @@ export function getClosestPackageJSONDir(filename: string, cwd: string): string 
     // take the longest filepath as that will be the closest package.json to the provided file
     dirNameToClosestPackageJSONCache.set(
       dirname,
-      files.sort((a, b) => b.path.length - a.path.length).at(-1)?.path ?? cwd,
+      files.sort((a, b) => b.path.length - a.path.length).at(0)?.path ?? cwd,
     );
   }
   return dirNameToClosestPackageJSONCache.get(dirname)!;
@@ -122,6 +122,7 @@ export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) 
  */
 export function clearDependenciesCache() {
   cache.clear();
+  dirNameToClosestPackageJSONCache.clear();
 }
 
 export function getDependenciesFromPackageJson(content: PackageJson) {
