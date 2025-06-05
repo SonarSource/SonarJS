@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "strictNullChecks": false,
+    "lib": ["ES2024"],
     "noImplicitAny": false,
     "resolveJsonModule": true
   },

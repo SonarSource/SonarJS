@@ -173,11 +173,7 @@ class BridgeServerImplTest {
   void should_get_answer_from_server() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    JsAnalysisRequest request = createRequest(inputFile);
+    JsAnalysisRequest request = createRequest();
     var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.issues()).hasSize(1);
   }
@@ -242,6 +238,16 @@ class BridgeServerImplTest {
       .build();
     var request = createRequest(inputFile);
     assertThat(bridgeServer.analyzeYaml(request).issues()).hasSize(1);
+  }
+
+  private static DefaultInputFile createInputFile() {
+    return TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+  }
+
+  private static JsAnalysisRequest createRequest() {
+    return createRequest(createInputFile());
   }
 
   @Nonnull
@@ -425,9 +431,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer("badResponse.js");
     bridgeServer.startServerLazily(serverConfig);
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
+    DefaultInputFile inputFile = createInputFile();
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
@@ -464,7 +468,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer("timeout.js");
     bridgeServer.startServer(serverConfig);
 
-    assertThatThrownBy(() -> bridgeServer.isAlive())
+    assertThatThrownBy(() -> bridgeServer.analyzeYaml(createRequest()))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"
@@ -589,11 +593,7 @@ class BridgeServerImplTest {
   void should_return_an_ast() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    JsAnalysisRequest request = createRequest(inputFile);
+    JsAnalysisRequest request = createRequest();
     var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.ast()).isNotNull();
     Node node = response.ast();
@@ -605,11 +605,7 @@ class BridgeServerImplTest {
   void should_handle_io_exception() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    JsAnalysisRequest request = createRequest(inputFile);
+    JsAnalysisRequest request = createRequest();
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
         .when(() -> AstProtoUtils.parseProtobuf(any()))
@@ -625,9 +621,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
 
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
+    DefaultInputFile inputFile = createInputFile();
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),

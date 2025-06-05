@@ -145,7 +145,7 @@ describe('server', () => {
   it('should log memory', async ({ mock }) => {
     console.log = mock.fn(console.log);
     const { server, serverClosed } = await start(port, undefined, undefined, true);
-    await request(server, '/create-program', 'POST', {
+    await request(server, '/analyze-project', 'POST', {
       tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
     });
     await request(server, '/close', 'POST');

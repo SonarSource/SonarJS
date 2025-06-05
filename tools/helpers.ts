@@ -191,3 +191,7 @@ export async function writePrettyFile(filepath: string, contents: string) {
     ),
   );
 }
+
+export function toUnixPath(path: string) {
+  return path.replace(/[\\/]+/g, '/');
+}
