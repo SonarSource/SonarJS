@@ -71,7 +71,13 @@ public class StandaloneParser implements AutoCloseable {
           SonarProduct.SONARLINT
         )
       );
-      bridge.initLinter(List.of(), List.of(), List.of(), null, true);
+      bridge.initLinter(
+        List.of(),
+        List.of(),
+        List.of(),
+        temporaryFolder.newDir().getAbsolutePath(),
+        true
+      );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
