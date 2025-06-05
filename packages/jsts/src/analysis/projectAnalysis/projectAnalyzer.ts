@@ -55,6 +55,7 @@ export async function analyzeProject(
     },
   };
   setGlobalConfiguration(configuration);
+  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, files);
   await Linter.initialize({
     rules,
     environments: getEnvironments(),
@@ -64,7 +65,6 @@ export async function analyzeProject(
     baseDir: normalizedBaseDir,
     rulesWorkdir,
   });
-  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, files);
   const progressReport = new ProgressReport(sourceFileStore.getFoundFilesCount());
   if (pendingFiles.size) {
     if (isSonarLint()) {

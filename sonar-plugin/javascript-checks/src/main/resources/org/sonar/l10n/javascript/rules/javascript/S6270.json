@@ -17,8 +17,9 @@
     "cwe"
   ],
   "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
   },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6270",

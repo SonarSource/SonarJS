@@ -17,6 +17,11 @@
     "jsx",
     "performance"
   ],
+  "extra": {
+    "requiredDependency": [
+      "react"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6481",
   "sqKey": "S6481",

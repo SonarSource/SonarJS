@@ -22,7 +22,12 @@ import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
-import { rules as internalRules, toUnixPath } from '../rules/index.js';
+import {
+  getClosestPackageJSONDir,
+  getDependencies,
+  rules as internalRules,
+  toUnixPath,
+} from '../rules/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
 import { ParseResult } from '../parsers/parse.js';
@@ -39,7 +44,7 @@ interface InitializeParams {
   rules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
-  baseDir?: string;
+  baseDir: string;
   sonarlint?: boolean;
   bundles?: string[];
   rulesWorkdir?: string;
@@ -95,6 +100,7 @@ export class Linter {
   private static rulesWorkdir?: string;
   /** whether we are running in sonarlint context */
   private static sonarlint: boolean;
+  private static baseDir: string;
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -134,6 +140,7 @@ export class Linter {
     Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
     Linter.rulesConfigCache.clear();
+    Linter.baseDir = baseDir;
     /**
      * Context bundles define a set of external custom rules (like the taint analysis rule)
      * including rule keys and rule definitions that cannot be provided to the linter
@@ -235,13 +242,20 @@ export class Linter {
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
   ) {
-    const linterConfigKey = createLinterConfigKey(filePath, fileType, fileLanguage, analysisMode);
+    const linterConfigKey = createLinterConfigKey(
+      filePath,
+      Linter.baseDir,
+      fileType,
+      fileLanguage,
+      analysisMode,
+    );
     if (!Linter.rulesConfigCache.has(linterConfigKey)) {
       /**
        * Creates the wrapper's linting configurations
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
+      const dependencies = getDependencies(filePath, Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           key,
@@ -256,11 +270,20 @@ export class Linter {
           : analysisModes;
         // TODO: remove when sonar-security overrides the blacklistedExtensions method
         const blacklist = blacklistedExtensions ?? (key === 'ucfg' ? ['.htm', '.html'] : []);
+        const ruleMeta =
+          ruleConfig.key in ruleMetas
+            ? ruleMetas[ruleConfig.key as keyof typeof ruleMetas]
+            : undefined;
+        const satisfiesRequiredDependency =
+          !ruleMeta ||
+          ruleMeta.requiredDependency.length === 0 ||
+          ruleMeta.requiredDependency.some(dependency => dependencies.has(dependency));
         return (
           fileTypeTargets.includes(fileType) &&
           effectiveAnalysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !blacklist.includes(extname(toUnixPath(filePath)))
+          !blacklist.includes(extname(toUnixPath(filePath))) &&
+          satisfiesRequiredDependency
         );
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
@@ -320,9 +343,11 @@ export class Linter {
 
 function createLinterConfigKey(
   filePath: string,
+  baseDir: string,
   fileType: FileType,
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
-  return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}`;
+  const packageJsonDirName = getClosestPackageJSONDir(filePath, baseDir);
+  return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
 }

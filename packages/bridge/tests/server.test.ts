@@ -266,6 +266,7 @@ async function requestAnalyzeJs(server: http.Server, fileType: string) {
 
 function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
   const config = {
+    baseDir: import.meta.dirname,
     rules: [
       {
         key: ruleId,

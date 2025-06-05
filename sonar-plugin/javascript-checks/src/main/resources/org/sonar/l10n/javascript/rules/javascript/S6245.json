@@ -10,8 +10,9 @@
   "status": "deprecated",
   "tags": [],
   "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
   },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6245",

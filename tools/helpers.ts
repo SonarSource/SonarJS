@@ -61,6 +61,9 @@ type rspecMeta = {
   tags: string[];
   scope: 'Main' | 'Tests' | 'All';
   compatibleLanguages: ('js' | 'ts')[];
+  extra?: {
+    requiredDependency?: string[];
+  };
 };
 
 // Array sorter for Sonar rule IDs

@@ -15,6 +15,11 @@
   "tags": [
     "react"
   ],
+  "extra": {
+    "requiredDependency": [
+      "react"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6441",
   "sqKey": "S6441",
