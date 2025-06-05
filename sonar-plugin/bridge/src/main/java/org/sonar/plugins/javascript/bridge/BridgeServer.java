@@ -122,6 +122,14 @@ public interface BridgeServer extends Startable {
       this.baseDir = baseDir;
     }
 
+    public Map<String, JsTsFile> getFiles() {
+      return files;
+    }
+
+    public ProjectAnalysisConfiguration getConfiguration() {
+      return configuration;
+    }
+
     public void setBundles(List<String> bundles) {
       this.bundles = bundles;
     }

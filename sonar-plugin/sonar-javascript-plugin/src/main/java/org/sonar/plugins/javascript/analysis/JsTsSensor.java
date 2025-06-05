@@ -109,7 +109,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   }
 
   @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  protected void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(context);
     try {
