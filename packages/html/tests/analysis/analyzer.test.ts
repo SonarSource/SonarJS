@@ -27,6 +27,7 @@ describe('analyzeHTML', () => {
 
   it('should analyze HTML file', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S3923',
@@ -56,6 +57,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a rule with a quickfix', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S1116',
@@ -93,6 +95,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using "S3723" rule', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S3723',
@@ -128,6 +131,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a rule with secondary locations', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S2251',
@@ -159,6 +163,7 @@ describe('analyzeHTML', () => {
 
   it('should not break when using a regex rule', async () => {
     await Linter.initialize({
+      baseDir: fixturesPath,
       rules: [
         {
           key: 'S6326',
