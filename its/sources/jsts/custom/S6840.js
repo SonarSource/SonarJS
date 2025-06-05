@@ -1,3 +1,3 @@
 function MyInput() {
-    return <input type="text" autocomplete="foo" />; // Noncompliant
+    return <input type="text" autoComplete="foo" />; // Noncompliant
 }

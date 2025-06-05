@@ -1,0 +1,7 @@
+{
+  "name": "custom",
+  "dependencies": {
+    "react": "19.1.0",
+    "aws-cdk-lib": "2.200.1"
+  }
+}

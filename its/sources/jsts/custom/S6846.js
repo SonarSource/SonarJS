@@ -1,3 +1,3 @@
 function div() {
-    return <div accesskey="h" />;
+    return <div accessKey="h" />;
 }
