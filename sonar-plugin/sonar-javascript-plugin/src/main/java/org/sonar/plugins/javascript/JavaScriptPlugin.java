@@ -30,8 +30,6 @@ import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
-import org.sonar.plugins.javascript.analysis.AnalysisWithProgram;
-import org.sonar.plugins.javascript.analysis.AnalysisWithWatchProgram;
 import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
@@ -54,7 +52,6 @@ import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -287,8 +284,7 @@ public class JavaScriptPlugin implements Plugin {
         CoverageSensor.class,
         EslintRulesDefinition.class,
         TslintReportSensor.class,
-        TslintRulesDefinition.class,
-        AnalysisWithProgram.class
+        TslintRulesDefinition.class
       );
 
       context.addExtension(
@@ -349,11 +345,7 @@ public class JavaScriptPlugin implements Plugin {
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         //TODO feature flags should be used to just enable one of the file event listeners
-        context.addExtensions(
-          TsConfigCacheImpl.class,
-          AnalysisWithWatchProgram.class,
-          FSListenerImpl.class
-        );
+        context.addExtension(FSListenerImpl.class);
       } else {
         LOG.debug("Error while trying to inject SonarLint extensions");
       }

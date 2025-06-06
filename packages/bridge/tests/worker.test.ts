@@ -34,57 +34,67 @@ describe('worker', () => {
   });
 
   it('should post back results', async () => {
-    let resolver: (value?: unknown) => void;
-    const p = new Promise(resolve => {
-      resolver = resolve;
-    });
+    let { promise, resolve, reject } = Promise.withResolvers<void>();
     worker.once('message', message => {
-      expect(message).toEqual({
-        type: 'success',
-        result: 'OK',
-      });
-      resolver();
+      try {
+        expect(message).toEqual({
+          type: 'success',
+          result: {
+            dependencies: [],
+          },
+        });
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
 
-    worker.postMessage({ type: 'on-new-tsconfig' });
-    await p;
+    worker.postMessage({ type: 'on-get-telemetry' });
+    await promise;
   });
 
   it('should post back stringified results', async () => {
-    let resolver: (value?: unknown) => void;
-    const p = new Promise(resolve => {
-      resolver = resolve;
-    });
+    let { promise, resolve, reject } = Promise.withResolvers<void>();
     const input = {
       filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
       rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
     };
     worker.once('message', message => {
       const { type, result } = message;
-      expect(type).toEqual('success');
-      expect(result).toEqual({
-        issues: [
-          expect.objectContaining({
-            ruleId: 'no-duplicate-selectors',
-          }),
-        ],
-      });
-      resolver();
+      try {
+        expect(type).toEqual('success');
+        expect(result).toEqual({
+          issues: [
+            expect.objectContaining({
+              ruleId: 'no-duplicate-selectors',
+            }),
+          ],
+        });
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
 
     worker.postMessage({ type: 'on-analyze-css', data: input });
-    await p;
+    await promise;
   });
 
-  it('should post back errors', () => {
-    const tsconfig = path.resolve('does', 'not', 'exist');
+  it('should post back errors', async () => {
+    let { promise, resolve, reject } = Promise.withResolvers<void>();
     worker.once('message', message => {
       const { type, error } = message;
-      expect(type).toEqual('failure');
-      expect(error.code).toEqual(ErrorCode.Unexpected);
-      expect(error.message).toEqual(`Cannot read file '${tsconfig}'.`);
+      try {
+        expect(type).toEqual('failure');
+        expect(error.code).toEqual(ErrorCode.Unexpected);
+        expect(error.message).toEqual("Cannot read properties of undefined (reading 'replace')"); //baseDir undefined
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     });
 
-    worker.postMessage({ type: 'on-tsconfig-files', data: { tsconfig } });
+    worker.postMessage({ type: 'on-analyze-project', data: {} });
+    await promise;
   });
 });

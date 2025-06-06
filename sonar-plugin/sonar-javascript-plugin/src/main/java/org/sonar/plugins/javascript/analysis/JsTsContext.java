@@ -44,8 +44,6 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public class JsTsContext<T extends SensorContext> {
 
-  public static final String ANALYZE_PROJECT_ENABLED = "sonar.javascript.analyzeProject.enabled";
-
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
    * @deprecated Kept for backwards compatibility until SonarArmor has been renamed to Jasmin, to allow for a smooth transition. Roadmap:
@@ -123,10 +121,6 @@ public class JsTsContext<T extends SensorContext> {
   @Deprecated(forRemoval = true)
   private boolean isSonarJaredEnabled() {
     return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
-  }
-
-  public boolean isAnalyzeProjectEnabled() {
-    return context.config().getBoolean(ANALYZE_PROJECT_ENABLED).orElse(false);
   }
 
   public boolean allowTsParserJsFiles() {

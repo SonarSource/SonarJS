@@ -20,7 +20,6 @@ import type {
   ProjectAnalysisInput,
   ProjectAnalysisMeta,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import type { TsConfigJson } from 'type-fest';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
 import type { NamedDependency } from '../../jsts/src/rules/index.js';
@@ -53,12 +52,7 @@ export type BridgeRequest =
   | JsTsRequest
   | EmbeddedRequest
   | ProjectAnalysisRequest
-  | CreateProgramRequest
-  | CreateTsConfigFileRequest
-  | DeleteProgramRequest
   | InitLinterRequest
-  | NewTsConfigRequest
-  | TsConfigFilesRequest
   | GetTelemetryRequest;
 
 type CssRequest = {
@@ -81,21 +75,6 @@ type ProjectAnalysisRequest = {
   data: ProjectAnalysisInput;
 };
 
-type CreateProgramRequest = {
-  type: 'on-create-program';
-  data: { tsConfig: string };
-};
-
-type CreateTsConfigFileRequest = {
-  type: 'on-create-tsconfig-file';
-  data: TsConfigJson;
-};
-
-type DeleteProgramRequest = {
-  type: 'on-delete-program';
-  data: { programId: string };
-};
-
 type InitLinterRequest = {
   type: 'on-init-linter';
   data: {
@@ -107,13 +86,6 @@ type InitLinterRequest = {
     bundles: string[];
     rulesWorkdir: string;
   };
-};
-type NewTsConfigRequest = {
-  type: 'on-new-tsconfig';
-};
-type TsConfigFilesRequest = {
-  type: 'on-tsconfig-files';
-  data: { tsConfig: string };
 };
 type GetTelemetryRequest = {
   type: 'on-get-telemetry';
