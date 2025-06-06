@@ -676,7 +676,7 @@ class JsTsSensorTest {
       var messages = getWSMessages(expectedResponse);
       context.setCancelled(true);
       spyClient.onMessage(messages.get(0));
-      Mockito.verify(spyClient).send("{type: 'on-cancel-analysis'}");
+      Mockito.verify(spyClient).send("{\"type\": \"on-cancel-analysis\"}");
       spyClient.onMessage("{messageType: 'cancelled'}");
     });
     assertThat(logTester.logs(Level.INFO)).contains(
