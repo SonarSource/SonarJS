@@ -54,7 +54,7 @@ public class JSWebSocketClient extends WebSocketClient {
   }
 
   @Override
-  public void onOpen(ServerHandshake handshakedata) {
+  public void onOpen(ServerHandshake handshakeData) {
     LOG.debug("WebSocket connection opened: {}", uri);
   }
 
@@ -64,6 +64,9 @@ public class JSWebSocketClient extends WebSocketClient {
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.handleMessage(jsonObject);
+      if (handler.getContext().isCancelled()) {
+        this.send("{type: 'on-cancel-analysis'}");
+      }
     }
   }
 

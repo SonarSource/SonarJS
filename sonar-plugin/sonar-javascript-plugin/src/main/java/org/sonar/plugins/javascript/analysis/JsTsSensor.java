@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -33,7 +34,9 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
@@ -117,6 +120,11 @@ public class JsTsSensor extends AbstractBridgeSensor {
       bridgeServer.analyzeProject(handler);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
+    } catch (CompletionException e) {
+      if (e.getCause() instanceof CancellationException) {
+        throw (CancellationException) e.getCause();
+      }
+      throw e;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
@@ -205,6 +213,11 @@ public class JsTsSensor extends AbstractBridgeSensor {
     }
 
     @Override
+    public SensorContext getContext() {
+      return context.getSensorContext();
+    }
+
+    @Override
     public void handleMessage(JsonObject jsonObject) {
       var messageType = jsonObject.get("messageType").getAsString();
       if ("fileResult".equals(messageType)) {
@@ -236,6 +249,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
         var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
         meta.warnings().forEach(analysisWarnings::addUnique);
         handle.complete(null);
+      } else if ("cancelled".equals(messageType)) {
+        handle.completeExceptionally(
+          new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          )
+        );
       }
     }
 

@@ -22,6 +22,7 @@ import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import { isAnalysisCancelled } from './projectAnalyzer.js';
 
 /**
  * Analyzes files without type-checking.
@@ -42,6 +43,9 @@ export async function analyzeWithoutProgram(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   for (const filename of filenames) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
     debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
     progressReport.nextFile(filename);
     results.meta?.filesWithoutTypeChecking.push(filename);

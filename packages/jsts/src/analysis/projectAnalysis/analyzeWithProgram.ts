@@ -24,6 +24,7 @@ import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import { isAnalysisCancelled } from './projectAnalyzer.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -45,6 +46,9 @@ export async function analyzeWithProgram(
 ) {
   const processedTSConfigs: Set<string> = new Set();
   for (const tsConfig of tsConfigStore.getTsConfigs()) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
     await analyzeProgram(
       files,
       tsConfig,
@@ -69,7 +73,7 @@ async function analyzeProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  if (processedTSConfigs.has(tsConfig)) {
+  if (isAnalysisCancelled() || processedTSConfigs.has(tsConfig)) {
     return;
   }
   processedTSConfigs.add(tsConfig);
@@ -98,6 +102,9 @@ async function analyzeProgram(
   }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
     // only analyze files which are requested
     if (files[filename] && pendingFiles.has(filename)) {
       progressReport.nextFile(filename);
@@ -113,6 +120,9 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
     await analyzeProgram(
       files,
       reference,

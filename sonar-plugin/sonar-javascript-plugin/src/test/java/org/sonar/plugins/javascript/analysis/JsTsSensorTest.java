@@ -47,6 +47,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -656,16 +657,32 @@ class JsTsSensorTest {
     );
   }
 
-  //  @Test
-  //  void stop_analysis_if_cancelled() {
-  //    var sensor = createSensor();
-  //    createInputFile(context);
-  //    context.setCancelled(true);
-  //    sensor.execute(context);
-  //    assertThat(logTester.logs(Level.INFO)).contains(
-  //      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-  //    );
-  //  }
+  @Test
+  void do_not_start_analysis_if_cancelled() {
+    context.setCancelled(true);
+    createSensor().execute(context);
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
+  }
+
+  @Test
+  void stop_analysis_if_cancelled() {
+    var expectedResponse = createProjectResponse(List.of(inputFile));
+    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
+    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
+
+    executeSensorMockingEvents(() -> {
+      var messages = getWSMessages(expectedResponse);
+      context.setCancelled(true);
+      spyClient.onMessage(messages.get(0));
+      Mockito.verify(spyClient).send("{type: 'on-cancel-analysis'}");
+      spyClient.onMessage("{messageType: 'cancelled'}");
+    });
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
+  }
 
   @Test
   void should_save_cached_cpd() throws IOException {
