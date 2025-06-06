@@ -104,7 +104,7 @@ class CssRuleSensorTest {
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeCss(any())).thenReturn(
       response(
-        "{ issues: [{\"line\":1,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
+        "{ issues: [{'line':1,'ruleId':'block-no-empty','message':'Unexpected empty block'}]}"
       )
     );
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
@@ -196,7 +196,7 @@ class CssRuleSensorTest {
   @Test
   void should_trim_rule_key_from_message() throws IOException {
     AnalysisResponse responseIssues = response(
-      "{ issues: [{\"line\":2,\"ruleId\":\"color-no-invalid-hex\",\"message\":\"some message (color-no-invalid-hex)\"}]}"
+      "{ issues: [{'line':2,'ruleId':'color-no-invalid-hex','message':'some message (color-no-invalid-hex)'}]}"
     );
     when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
@@ -291,7 +291,7 @@ class CssRuleSensorTest {
   @Test
   void test_syntax_error() throws IOException {
     AnalysisResponse responseIssues = response(
-      "{ issues: [{\"line\":2,\"ruleId\":\"CssSyntaxError\",\"message\":\"Missed semicolon (CssSyntaxError)\"}]}"
+      "{ issues: [{'line':2,'ruleId':'CssSyntaxError','message':'Missed semicolon (CssSyntaxError)'}]}"
     );
     when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
@@ -310,7 +310,7 @@ class CssRuleSensorTest {
   @Test
   void test_unknown_rule() throws IOException {
     AnalysisResponse responseIssues = response(
-      "{ issues: [{\"line\":2,\"ruleId\":\"unknown-rule-key\",\"message\":\"Some message\"}]}"
+      "{ issues: [{'line':2,'ruleId':'unknown-rule-key','message':'Some message'}]}"
     );
     when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
