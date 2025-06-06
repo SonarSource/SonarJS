@@ -410,7 +410,7 @@ public class BridgeServerImpl implements BridgeServer {
     var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    this.client.send("{type: 'on-analyze-project', data: " + GSON.toJson(request + "}"));
+    this.client.send("{type: 'on-analyze-project', data: " + GSON.toJson(request) + "}");
     handler.getFuture().join();
   }
 

@@ -22,8 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.google.gson.JsonObject;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 class WebSocketMessageHandlerTest {
@@ -31,7 +33,13 @@ class WebSocketMessageHandlerTest {
   @TempDir
   Path baseDir;
 
-  SensorContextTester ctx = SensorContextTester.create(baseDir);
+  SensorContextTester ctx;
+
+  @BeforeEach
+  void setUp() throws Exception {
+    MockitoAnnotations.openMocks(this).close();
+    ctx = SensorContextTester.create(baseDir);
+  }
 
   @Test
   void testDefaultMethods() {

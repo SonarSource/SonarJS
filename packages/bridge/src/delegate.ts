@@ -103,7 +103,7 @@ export function createWsDelegator(
     ws.on('message', async message => {
       const data: BridgeRequest = decodeMessage(message);
       if (worker) {
-        worker.postMessage(data);
+        worker.postMessage({ ws: true, ...data });
       } else {
         await handleRequest(data, workerData, message => handleWsResult(ws, message));
       }
