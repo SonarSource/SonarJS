@@ -17,7 +17,10 @@
 import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
 import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
-import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import {
+  analyzeProject,
+  cancelAnalysis,
+} from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
@@ -65,6 +68,10 @@ export async function handleRequest(
         const output = await analyzeProject(request.data, incrementalResultsChannel);
         logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
+      }
+      case 'on-cancel-analysis': {
+        cancelAnalysis();
+        return { type: 'success', result: 'OK' };
       }
       case 'on-get-telemetry': {
         const output = getTelemetry();

@@ -37,9 +37,10 @@ export type RequestResult =
       error: ReturnType<typeof serializeError>;
     };
 
+export type WsAnalysisCancelled = { messageType: 'cancelled' };
 export type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
 export type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
-export type WsIncrementalResult = WsFileResult | WsMetaResult;
+export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancelled;
 
 export type Telemetry = {
   dependencies: NamedDependency[];
@@ -52,6 +53,7 @@ export type BridgeRequest =
   | JsTsRequest
   | EmbeddedRequest
   | ProjectAnalysisRequest
+  | CancellationRequest
   | InitLinterRequest
   | GetTelemetryRequest;
 
@@ -73,6 +75,10 @@ type JsTsRequest = {
 type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
   data: ProjectAnalysisInput;
+};
+
+type CancellationRequest = {
+  type: 'on-cancel-analysis';
 };
 
 type InitLinterRequest = {

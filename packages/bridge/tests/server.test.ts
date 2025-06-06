@@ -86,18 +86,21 @@ describe('server', () => {
         const metaResponse = await new Promise((resolve, reject) => {
           ws.send(
             JSON.stringify({
-              rules: [
-                {
-                  key: 'S4621',
-                  configurations: [],
-                  fileTypeTargets: ['MAIN'],
-                  language: 'ts',
-                  analysisModes: ['DEFAULT'],
+              type: 'on-analyze-project',
+              data: {
+                rules: [
+                  {
+                    key: 'S4621',
+                    configurations: [],
+                    fileTypeTargets: ['MAIN'],
+                    language: 'ts',
+                    analysisModes: ['DEFAULT'],
+                  },
+                ],
+                baseDir: fixtures,
+                files: {
+                  [filePath]: { fileType: 'MAIN', filePath },
                 },
-              ],
-              baseDir: fixtures,
-              files: {
-                [filePath]: { fileType: 'MAIN', filePath },
               },
             }),
           );

@@ -27,9 +27,21 @@ import {
   getEnvironments,
 } from '../../../../shared/src/helpers/configuration.js';
 import { getFilesToAnalyze, sourceFileStore } from './file-stores/index.js';
-import { info } from '../../../../shared/src/helpers/logging.js';
+import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+
+const analysisStatus = {
+  cancelled: false,
+};
+
+export function cancelAnalysis() {
+  analysisStatus.cancelled = true;
+}
+
+export function isAnalysisCancelled() {
+  return analysisStatus.cancelled;
+}
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -42,6 +54,7 @@ export async function analyzeProject(
   input: ProjectAnalysisInput,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
+  analysisStatus.cancelled = false;
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
@@ -101,6 +114,11 @@ export async function analyzeProject(
     }
   }
   progressReport.stop();
-  incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
+  if (analysisStatus.cancelled) {
+    error('Analysis has been cancelled');
+    incrementalResultsChannel?.({ messageType: 'cancelled' });
+  } else {
+    incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
+  }
   return results;
 }

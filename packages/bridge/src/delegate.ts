@@ -18,7 +18,7 @@ import express from 'express';
 import { handleRequest } from './handle-request.js';
 import { info, debug, error } from '../../shared/src/helpers/logging.js';
 import type { Worker } from 'node:worker_threads';
-import type { RequestResult, RequestType, WsIncrementalResult } from './request.js';
+import type { BridgeRequest, RequestResult, RequestType, WsIncrementalResult } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import type { RawData, WebSocket } from 'ws';
 import type { WorkerMessageListeners } from './router.js';
@@ -101,9 +101,9 @@ export function createWsDelegator(
     }
 
     ws.on('message', async message => {
-      const data = { type: 'on-analyze-project' as const, data: decodeMessage(message), ws: true };
+      const data: BridgeRequest = decodeMessage(message);
       if (worker) {
-        worker.postMessage(data);
+        worker.postMessage({ ws: true, ...data });
       } else {
         await handleRequest(data, workerData, message => handleWsResult(ws, message));
       }
