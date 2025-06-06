@@ -121,8 +121,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
     } catch (CompletionException e) {
-      if (e.getCause() instanceof CancellationException) {
-        throw (CancellationException) e.getCause();
+      if (e.getCause() instanceof CancellationException nestedException) {
+        throw nestedException;
       }
       throw e;
     } catch (Exception e) {

@@ -16,10 +16,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -65,7 +67,7 @@ public class JSWebSocketClient extends WebSocketClient {
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.handleMessage(jsonObject);
       if (handler.getContext().isCancelled()) {
-        this.send("{\"type\": \"on-cancel-analysis\"}");
+        this.send(new Gson().toJson(Map.of("type", "on-cancel-analysis")));
       }
     }
   }
