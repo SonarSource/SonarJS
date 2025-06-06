@@ -123,8 +123,8 @@ class YamlSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse expectedResponse = response(
       "{ issues: [" +
-      "{'line':1,'column':2,'endLine':3,'endColumn':4,'ruleId':'S3923','language':'js','message':'Issue message', 'secondaryLocations': []}," +
-      "{'line':1,'column':1,'ruleId':'S3923','language':'js','message':'Line issue message', 'secondaryLocations': []}" +
+      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
     when(bridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
@@ -166,7 +166,7 @@ class YamlSensorTest {
     when(bridgeServerMock.analyzeYaml(any())).thenReturn(
       new Gson()
         .fromJson(
-          "{ parsingError: { line: 1, message: 'Parse error message', code: 'Parsing'} }",
+          "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
           AnalysisResponse.class
         )
     );

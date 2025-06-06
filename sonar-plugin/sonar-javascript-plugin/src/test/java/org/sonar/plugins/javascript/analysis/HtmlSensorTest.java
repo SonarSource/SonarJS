@@ -123,8 +123,8 @@ class HtmlSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse expectedResponse = response(
       "{ issues: [" +
-      "{'line':1,'column':2,'endLine':3,'endColumn':4,'ruleId':'S3923','language':'js','message':'Issue message', 'secondaryLocations': []}," +
-      "{'line':1,'column':1,'ruleId':'S3923','language':'js','message':'Line issue message', 'secondaryLocations': []}" +
+      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
@@ -196,7 +196,7 @@ class HtmlSensorTest {
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(
       new Gson()
         .fromJson(
-          "{ parsingError: { line: 1, message: 'Parse error message', code: 'Parsing'} }",
+          "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
           AnalysisResponse.class
         )
     );
@@ -292,7 +292,7 @@ class HtmlSensorTest {
   private static String getInputFileContent() {
     return (
       "<!doctype html>\n" +
-      "<html lang='en'>\n" +
+      "<html lang=\"en\">\n" +
       "<script>\n" +
       "  if (foo()) bar(); else bar();\n" +
       "</script>\n" +
