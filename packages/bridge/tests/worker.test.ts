@@ -87,7 +87,7 @@ describe('worker', () => {
       try {
         expect(type).toEqual('failure');
         expect(error.code).toEqual(ErrorCode.Unexpected);
-        expect(error.message).toEqual('baseDir is required');
+        expect(error.message).toEqual("Cannot read properties of undefined (reading 'replace')"); //baseDir undefined
         resolve();
       } catch (e) {
         reject(e);

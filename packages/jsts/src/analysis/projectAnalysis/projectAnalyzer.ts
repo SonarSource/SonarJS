@@ -43,9 +43,6 @@ export async function analyzeProject(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   const { rules, baseDir, files, configuration = {}, bundles = [], rulesWorkdir } = input;
-  if (!baseDir) {
-    throw new Error('baseDir is required');
-  }
   const normalizedBaseDir = toUnixPath(baseDir);
   const results: ProjectAnalysisOutput = {
     files: {},
