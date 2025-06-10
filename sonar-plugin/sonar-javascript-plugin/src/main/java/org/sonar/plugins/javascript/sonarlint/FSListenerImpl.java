@@ -16,9 +16,11 @@
  */
 package org.sonar.plugins.javascript.sonarlint;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -32,10 +34,23 @@ public class FSListenerImpl implements FSListener, ModuleFileListener {
 
   Map<String, String> changedFilesMap = new HashMap<>();
 
-  public List<Map.Entry<String, String>> listFSEvents() {
-    var result = changedFilesMap.entrySet().stream().toList();
+  public List<List<String>> listFSEvents() {
+    var result = changedFilesMap
+      .entrySet()
+      .stream()
+      .map(e -> Arrays.asList(e.getKey(), e.getValue()))
+      .collect(Collectors.toList());
     changedFilesMap.clear();
     return result;
+  }
+
+  public String convertWithStream(Map<String, String> map) {
+    String mapAsString = map
+      .keySet()
+      .stream()
+      .map(key -> key + "=" + map.get(key))
+      .collect(Collectors.joining(", ", "{", "}"));
+    return mapAsString;
   }
 
   @Override

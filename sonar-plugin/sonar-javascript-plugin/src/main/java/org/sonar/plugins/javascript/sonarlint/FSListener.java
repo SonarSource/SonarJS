@@ -22,5 +22,5 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
 public interface FSListener {
-  List<Map.Entry<String, String>> listFSEvents();
+  List<List<String>> listFSEvents();
 }
