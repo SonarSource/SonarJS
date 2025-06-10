@@ -64,7 +64,7 @@
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
     <assertj.version>3.27.3</assertj.version>
-    <jgit.version>7.2.1.202505142326-r</jgit.version>
+    <jgit.version>7.3.0.202506031305-r</jgit.version>
     <junit.version>5.13.1</junit.version>
     <mockito.version>5.18.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
