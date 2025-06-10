@@ -67,7 +67,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
+      LOG.info("Will start analysis");
       analyzeFiles(inputFiles);
+      LOG.info("FINISHED ANALYSIS");
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());

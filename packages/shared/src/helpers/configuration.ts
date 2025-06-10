@@ -159,14 +159,6 @@ export function getMaxFileSize() {
   return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
 }
 
-export function setClearDependenciesCache(value: boolean) {
-  configuration.clearDependenciesCache = value;
-}
-
-export function shouldClearDependenciesCache() {
-  return configuration.clearDependenciesCache;
-}
-
 export function setClearFileToTsConfigCache(value: boolean) {
   configuration.clearFileToTsConfigCache = value;
 }

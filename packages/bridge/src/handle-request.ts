@@ -37,6 +37,7 @@ export async function handleRequest(
   workerData: WorkerData,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<RequestResult> {
+  console.log('handle request: ', request);
   try {
     switch (request.type) {
       case 'on-init-linter': {

@@ -18,6 +18,7 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,10 +56,12 @@ class FSListenerTest {
     var fileEvent = DefaultModuleFileEvent.of(file, operationType);
     fsListener.process(fileEvent);
 
-    assertThat(fsListener.listFSEventsStringified()).containsExactly(
+    assertThat(fsListener.listFSEvents()).containsExactly(
       new AbstractMap.SimpleEntry<>(file.absolutePath(), fileEvent.getType().name())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();
+    var events = new Gson().toJson(fsListener.listFSEvents());
+    assertThat(events).isEqualTo("[]");
   }
 
   private InputFile prepareFile(String filename) {

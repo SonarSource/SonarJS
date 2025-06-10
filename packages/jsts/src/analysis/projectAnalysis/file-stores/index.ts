@@ -27,9 +27,10 @@ export const packageJsonStore = new PackageJsonStore(sourceFileStore);
 export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
 export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
-  const pendingStores = [sourceFileStore, packageJsonStore, tsConfigStore].filter(
-    store => !store.isInitialized(baseDir, inputFiles),
-  );
+  const pendingStores = [sourceFileStore, packageJsonStore, tsConfigStore].filter((store, idx) => {
+    console.log('filtering store', idx);
+    return !store.isInitialized(baseDir, inputFiles);
+  });
 
   if (!pendingStores.length) {
     return;
@@ -54,7 +55,9 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
 }
 
 export async function getFilesToAnalyze(baseDir: string, inputFiles?: JsTsFiles) {
+  console.log('before init file stores');
   await initFileStores(baseDir, inputFiles);
+  console.log('after init file stores');
 
   if (sourceFileStore.getRequestFilesCount() > 0) {
     // if the request had input files, we use them

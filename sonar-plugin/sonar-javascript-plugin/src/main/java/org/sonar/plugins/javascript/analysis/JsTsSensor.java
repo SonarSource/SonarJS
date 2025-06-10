@@ -154,9 +154,14 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
     @Override
     public ProjectAnalysisRequest getRequest() {
+      List<Map.Entry<String, String>> fileEvents = fsListener != null
+        ? fsListener.listFSEvents()
+        : List.of();
+      //      LOG.info("fsevents: ", GSON.toJson(fileEvents));
+
       var configuration = new BridgeServer.ProjectAnalysisConfiguration(
         context.isSonarLint(),
-        fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
+        fileEvents,
         context.allowTsParserJsFiles(),
         context.getAnalysisMode(),
         context.skipAst(consumers),
