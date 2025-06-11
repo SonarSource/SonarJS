@@ -22,7 +22,10 @@ import {
   JsTsFiles,
   ProjectAnalysisInput,
 } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
-import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
+import {
+  analyzeProject,
+  cancelAnalysis,
+} from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
@@ -82,6 +85,24 @@ describe('analyzeProject', () => {
     expect(result.meta.withWatchProgram).toBeTruthy();
     expect(result.meta.withProgram).toBeFalsy();
     expect(result.meta.programsCreated.length).toEqual(0);
+  });
+
+  it('should cancel analysis in sonarlint', async () => {
+    const baseDir = join(fixtures, 'with-parsing-error');
+    const analysisPromise = analyzeProject(prepareInput(baseDir, undefined, true), message => {
+      expect(message).toEqual({ messageType: 'cancelled' });
+    });
+    cancelAnalysis();
+    await analysisPromise;
+  });
+
+  it('should cancel analysis in sonarqube', async () => {
+    const baseDir = join(fixtures, 'with-parsing-error');
+    const analysisPromise = analyzeProject(prepareInput(baseDir), message => {
+      expect(message).toEqual({ messageType: 'cancelled' });
+    });
+    cancelAnalysis();
+    await analysisPromise;
   });
 
   it('should return a default result when the project is empty', async () => {

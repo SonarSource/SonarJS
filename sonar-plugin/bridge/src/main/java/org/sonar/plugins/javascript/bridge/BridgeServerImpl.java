@@ -410,7 +410,7 @@ public class BridgeServerImpl implements BridgeServer {
     var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);
-    this.client.send(GSON.toJson(request));
+    this.client.send(GSON.toJson(Map.of("type", "on-analyze-project", "data", request)));
     handler.getFuture().join();
   }
 
@@ -486,10 +486,6 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       return new TelemetryEslintBridgeResponse(List.of());
     }
-  }
-
-  private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
-    return list == null ? emptyList() : list;
   }
 
   @Override

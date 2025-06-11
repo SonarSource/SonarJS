@@ -18,6 +18,7 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
+import org.sonar.api.batch.sensor.SensorContext;
 
 /**
  * Interface for handling WebSocket messages in a flexible WebSocket client architecture.
@@ -29,6 +30,11 @@ public interface WebSocketMessageHandler<T> {
    * Get the request that needs to be sent to the server
    */
   T getRequest();
+
+  /**
+   * Get the Context of the Sensor owning the handler
+   */
+  SensorContext getContext();
 
   /**
    * Get the internal Completable future

@@ -45,6 +45,7 @@ export default function (
   const wsDelegate = createWsDelegator(worker, workerData, workerMessageListeners);
   /** Endpoints running on the worker thread */
   router.post('/analyze-project', delegate('on-analyze-project'));
+  router.post('/cancel-analysis', delegate('on-cancel-analysis'));
   router.post('/analyze-css', delegate('on-analyze-css'));
   router.post('/analyze-jsts', delegate('on-analyze-jsts'));
   router.post('/analyze-html', delegate('on-analyze-html'));

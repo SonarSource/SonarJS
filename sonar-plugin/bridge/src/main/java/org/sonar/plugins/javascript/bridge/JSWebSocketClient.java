@@ -16,10 +16,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class JSWebSocketClient extends WebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
+  private static final Gson GSON = new Gson();
 
   // We need to use CopyOnWriteArrayList as we modify the array while iterating over it
   private final List<WebSocketMessageHandler<?>> messageHandlers = new CopyOnWriteArrayList<>();
@@ -54,7 +57,7 @@ public class JSWebSocketClient extends WebSocketClient {
   }
 
   @Override
-  public void onOpen(ServerHandshake handshakedata) {
+  public void onOpen(ServerHandshake handshakeData) {
     LOG.debug("WebSocket connection opened: {}", uri);
   }
 
@@ -64,6 +67,9 @@ public class JSWebSocketClient extends WebSocketClient {
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.handleMessage(jsonObject);
+      if (handler.getContext().isCancelled()) {
+        this.send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
+      }
     }
   }
 

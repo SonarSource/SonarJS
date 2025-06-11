@@ -20,10 +20,26 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.gson.JsonObject;
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 class WebSocketMessageHandlerTest {
+
+  @TempDir
+  Path baseDir;
+
+  SensorContextTester ctx;
+
+  @BeforeEach
+  void setUp() throws Exception {
+    MockitoAnnotations.openMocks(this).close();
+    ctx = SensorContextTester.create(baseDir);
+  }
 
   @Test
   void testDefaultMethods() {
@@ -40,6 +56,11 @@ class WebSocketMessageHandlerTest {
 
       @Override
       public void handleMessage(JsonObject message) {}
+
+      @Override
+      public SensorContextTester getContext() {
+        return ctx;
+      }
     };
     // The default implementation should not throw exceptions
     assertDoesNotThrow(() -> handler.onClose(1000, "Normal closure", true));
@@ -69,6 +90,11 @@ class WebSocketMessageHandlerTest {
       @Override
       public void onClose(int code, String reason, boolean remote) {
         log.append("Closed: ").append(code).append(" - ").append(reason);
+      }
+
+      @Override
+      public SensorContextTester getContext() {
+        return ctx;
       }
     };
 
@@ -100,6 +126,11 @@ class WebSocketMessageHandlerTest {
       @Override
       public void onError(Exception exception) {
         log.append("Error: ").append(exception.getMessage());
+      }
+
+      @Override
+      public SensorContextTester getContext() {
+        return ctx;
       }
     };
 

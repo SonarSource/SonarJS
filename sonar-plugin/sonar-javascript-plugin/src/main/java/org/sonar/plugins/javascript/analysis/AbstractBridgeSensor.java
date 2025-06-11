@@ -57,6 +57,11 @@ public abstract class AbstractBridgeSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
+      if (context.getSensorContext().isCancelled()) {
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
+        );
+      }
       var msg = context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
         ? "Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
