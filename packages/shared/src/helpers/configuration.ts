@@ -32,18 +32,18 @@ export type JsTsLanguage = 'js' | 'ts';
 type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
 /** Data filled in file watcher FSListenerImpl.java
  *
- * Duple [filePath, event] containing all the file events occurred
+ * Map entry {filePath => event} containing all the file events occurred
  * between two analysis requests, used to know if we need to clear
  * tsconfig.json cache or the mapping between input files and tsconfigs
  */
-type FsEvent = [string, FsEventType];
+type FsEvents = { [key: string]: FsEventType };
 
 export type Configuration = {
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
   clearFileToTsConfigCache?: boolean;
   clearTsConfigCache?: boolean;
-  fsEvents?: FsEvent[];
+  fsEvents?: FsEvents;
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
   skipAst?: boolean;
@@ -152,7 +152,7 @@ export function getExclusions() {
 }
 
 export function getFsEvents() {
-  return configuration.fsEvents ?? [];
+  return configuration.fsEvents ?? {};
 }
 
 export function getMaxFileSize() {

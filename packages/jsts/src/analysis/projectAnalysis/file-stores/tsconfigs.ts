@@ -167,7 +167,7 @@ export class TsConfigStore implements FileStore {
       }
     }
     const changedTsConfigs: string[] = [];
-    for (const fileEvent of getFsEvents()) {
+    for (const fileEvent of Object.entries(getFsEvents())) {
       const [filename, event] = fileEvent;
       const filenameLower = basename(filename).toLowerCase();
       if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {

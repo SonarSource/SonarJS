@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -58,7 +59,7 @@ class FSListenerTest {
     fsListener.process(fileEvent);
 
     assertThat(fsListener.listFSEvents()).containsExactly(
-      List.of(file.absolutePath(), fileEvent.getType().name())
+      Map.entry(file.absolutePath(), fileEvent.getType().toString())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();
     fsListener.process(fileEvent);

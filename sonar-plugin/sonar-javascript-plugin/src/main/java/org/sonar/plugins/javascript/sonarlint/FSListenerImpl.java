@@ -34,23 +34,10 @@ public class FSListenerImpl implements FSListener, ModuleFileListener {
 
   Map<String, String> changedFilesMap = new HashMap<>();
 
-  public List<List<String>> listFSEvents() {
-    var result = changedFilesMap
-      .entrySet()
-      .stream()
-      .map(e -> Arrays.asList(e.getKey(), e.getValue()))
-      .collect(Collectors.toList());
+  public Map<String, String> listFSEvents() {
+    var result = new HashMap<>(changedFilesMap);
     changedFilesMap.clear();
     return result;
-  }
-
-  public String convertWithStream(Map<String, String> map) {
-    String mapAsString = map
-      .keySet()
-      .stream()
-      .map(key -> key + "=" + map.get(key))
-      .collect(Collectors.joining(", ", "{", "}"));
-    return mapAsString;
   }
 
   @Override

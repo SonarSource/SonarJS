@@ -64,7 +64,7 @@ export class PackageJsonStore implements FileStore {
       return;
     }
     console.log('have fs events', getFsEvents());
-    for (const fileEvent of getFsEvents()) {
+    for (const fileEvent of Object.entries(getFsEvents())) {
       const [filename] = fileEvent;
       console.log(fileEvent, filename);
       const filenameLower = basename(filename).toLowerCase();
