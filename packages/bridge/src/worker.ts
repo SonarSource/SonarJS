@@ -27,7 +27,6 @@ if (parentPort) {
     'message',
     async (message: (BridgeRequest | { type: 'close' }) & { ws?: boolean }) => {
       const { type, ws } = message;
-      console.log('worker thread received: ', message, type, ws);
       if (type === 'close') {
         parentThread.close();
       } else if (ws) {
@@ -35,7 +34,6 @@ if (parentPort) {
           parentThread.postMessage({ ws: true, results }),
         );
       } else {
-        console.log('Will handle request', message, workerData);
         parentThread.postMessage(await handleRequest(message, workerData));
       }
     },
