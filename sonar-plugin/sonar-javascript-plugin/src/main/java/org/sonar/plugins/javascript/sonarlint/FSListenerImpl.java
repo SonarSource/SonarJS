@@ -16,11 +16,8 @@
  */
 package org.sonar.plugins.javascript.sonarlint;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonarsource.api.sonarlint.SonarLintSide;
