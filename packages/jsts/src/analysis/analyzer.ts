@@ -156,7 +156,6 @@ function computeExtendedMetrics(
 }
 
 export function getTelemetry(): Telemetry {
-  console.log('getting telemetry');
   return {
     dependencies: getAllDependencies(),
   };

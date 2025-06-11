@@ -62,7 +62,6 @@ function createWorkerHandler(worker: Worker, type: RequestType, listeners: Worke
         handleResult(message, response, next);
       }
     });
-    console.log('in worker handler', type);
     worker.postMessage({ type, data: request.body });
   };
 }
