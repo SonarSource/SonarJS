@@ -68,9 +68,7 @@ export async function analyzeProject(
     },
   };
   setGlobalConfiguration(configuration);
-  console.log('before stores');
   const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, files);
-  console.log('after stores');
   await Linter.initialize({
     rules,
     environments: getEnvironments(),

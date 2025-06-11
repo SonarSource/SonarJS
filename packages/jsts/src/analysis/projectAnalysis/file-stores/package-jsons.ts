@@ -57,16 +57,12 @@ export class PackageJsonStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(currentBaseDir: string) {
-    console.log(currentBaseDir, this.baseDir);
     if (currentBaseDir !== this.baseDir) {
-      console.log('clear cache');
       this.clearCache();
       return;
     }
-    console.log('have fs events', getFsEvents());
     for (const fileEvent of Object.entries(getFsEvents())) {
       const [filename] = fileEvent;
-      console.log(fileEvent, filename);
       const filenameLower = basename(filename).toLowerCase();
       if (filenameLower === PACKAGE_JSON) {
         this.clearCache();

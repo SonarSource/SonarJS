@@ -30,15 +30,20 @@ public class PluginTelemetry {
   private static final String RUNTIME_PREFIX = KEY_PREFIX + "runtime.";
 
   private final BridgeServer server;
-  private final SensorContext ctx;
+  private final JsTsContext<?> ctx;
 
-  public PluginTelemetry(SensorContext ctx, BridgeServer server) {
+  public PluginTelemetry(JsTsContext<?> ctx, BridgeServer server) {
     this.ctx = ctx;
     this.server = server;
   }
 
   void reportTelemetry() {
+    if (ctx.isSonarLint()) {
+      // Not enabled for SonarLint
+      return;
+    }
     var isTelemetrySupported = ctx
+      .getSensorContext()
       .runtime()
       .getApiVersion()
       .isGreaterThanOrEqual(Version.create(10, 9));
@@ -62,7 +67,7 @@ public class PluginTelemetry {
         RUNTIME_PREFIX + "major-version",
         Integer.toString(telemetry.runtimeTelemetry().version().major())
       );
-      keyMapToSave.forEach(ctx::addTelemetryProperty);
+      keyMapToSave.forEach(ctx.getSensorContext()::addTelemetryProperty);
       LOG.debug("Telemetry saved: {}", keyMapToSave);
     }
   }

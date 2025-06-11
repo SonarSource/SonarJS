@@ -46,7 +46,6 @@ public class JSWebSocketClient extends WebSocketClient {
       .getFuture()
       .whenComplete((result, exception) -> {
         messageHandlers.remove(handler);
-        LOG.info("WebSocket message handler for {} completed", handler);
         if (exception != null) {
           LOG.error("Error in handler execution", exception);
         }
