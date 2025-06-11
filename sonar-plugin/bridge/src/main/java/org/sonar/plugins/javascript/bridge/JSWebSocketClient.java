@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class JSWebSocketClient extends WebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
+  private static final Gson GSON = new Gson();
 
   // We need to use CopyOnWriteArrayList as we modify the array while iterating over it
   private final List<WebSocketMessageHandler<?>> messageHandlers = new CopyOnWriteArrayList<>();
@@ -67,7 +68,7 @@ public class JSWebSocketClient extends WebSocketClient {
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.handleMessage(jsonObject);
       if (handler.getContext().isCancelled()) {
-        this.send(new Gson().toJson(Map.of("type", "on-cancel-analysis")));
+        this.send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
       }
     }
   }

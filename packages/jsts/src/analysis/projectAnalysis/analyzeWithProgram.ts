@@ -73,7 +73,7 @@ async function analyzeProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  if (isAnalysisCancelled() || processedTSConfigs.has(tsConfig)) {
+  if (processedTSConfigs.has(tsConfig)) {
     return;
   }
   processedTSConfigs.add(tsConfig);

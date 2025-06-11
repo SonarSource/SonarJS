@@ -29,6 +29,7 @@ import org.sonar.css.CssRules;
 class CssRuleTest {
 
   private static final int RULES_PROPERTIES_COUNT = 9;
+  private static final Gson GSON = new Gson();
 
   @Test
   void class_name_should_match_stylelint_key()
@@ -89,18 +90,18 @@ class CssRuleTest {
   @Test
   void selector_pseudo_class_options() {
     SelectorPseudoClassNoUnknown selectorPseudoClassNoUnknown = new SelectorPseudoClassNoUnknown();
-    String optionsAsJson = new Gson().toJson(selectorPseudoClassNoUnknown.stylelintOptions());
+    String optionsAsJson = GSON.toJson(selectorPseudoClassNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignorePseudoClasses\":[\"local\",\"global\",\"export\",\"import\",\"deep\"]}]"
     );
     selectorPseudoClassNoUnknown.ignoredPseudoClasses = "foo,/^bar/";
-    optionsAsJson = new Gson().toJson(selectorPseudoClassNoUnknown.stylelintOptions());
+    optionsAsJson = GSON.toJson(selectorPseudoClassNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoClasses\":[\"foo\",\"/^bar/\"]}]");
   }
 
   @Test
   void property_no_unknown_options() {
-    String optionsAsJson = new Gson().toJson(new PropertyNoUnknown().stylelintOptions());
+    String optionsAsJson = GSON.toJson(new PropertyNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreProperties\":[\"composes\",\"/^mso-/\"],\"ignoreSelectors\":[\"/^:export.*/\",\"/^:import.*/\"]}]"
     );
@@ -108,7 +109,7 @@ class CssRuleTest {
 
   @Test
   void selector_type_no_unknown_default() {
-    String optionsAsJson = new Gson().toJson(new SelectorTypeNoUnknown().stylelintOptions());
+    String optionsAsJson = GSON.toJson(new SelectorTypeNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreTypes\":[\"/^(mat|md|fa)-/\"],\"ignore\":[\"custom-elements\"]}]"
     );
@@ -119,7 +120,7 @@ class CssRuleTest {
     SelectorTypeNoUnknown selectorTypeNoUnknown = new SelectorTypeNoUnknown();
     selectorTypeNoUnknown.ignoreTypes = "/^(mat|md|fa)-/";
     selectorTypeNoUnknown.ignore = "custom-elements, default-namespace";
-    String optionsAsJson = new Gson().toJson(selectorTypeNoUnknown.stylelintOptions());
+    String optionsAsJson = GSON.toJson(selectorTypeNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreTypes\":[\"/^(mat|md|fa)-/\"],\"ignore\":[\"custom-elements\",\"default-namespace\"]}]"
     );
@@ -127,8 +128,7 @@ class CssRuleTest {
 
   @Test
   void selector_pseudo_element_no_unknown_default() {
-    String optionsAsJson = new Gson()
-      .toJson(new SelectorPseudoElementNoUnknown().stylelintOptions());
+    String optionsAsJson = GSON.toJson(new SelectorPseudoElementNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignorePseudoElements\":[\"ng-deep\",\"v-deep\",\"deep\"]}]"
     );
@@ -139,7 +139,7 @@ class CssRuleTest {
     SelectorPseudoElementNoUnknown selectorPseudoElementNoUnknown =
       new SelectorPseudoElementNoUnknown();
     selectorPseudoElementNoUnknown.ignorePseudoElements = "ng-deep, /^custom-/";
-    String optionsAsJson = new Gson().toJson(selectorPseudoElementNoUnknown.stylelintOptions());
+    String optionsAsJson = GSON.toJson(selectorPseudoElementNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignorePseudoElements\":[\"ng-deep\",\"/^custom-/\"]}]"
     );
@@ -147,7 +147,7 @@ class CssRuleTest {
 
   @Test
   void at_rule_unknown_default() {
-    String optionsAsJson = new Gson().toJson(new AtRuleNoUnknown().stylelintOptions());
+    String optionsAsJson = GSON.toJson(new AtRuleNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"forward\",\"tailwind\",\"apply\",\"layer\",\"container\",\"/^@.*/\"]}]"
     );
@@ -157,14 +157,15 @@ class CssRuleTest {
   void at_rule_unknown_custom() {
     AtRuleNoUnknown instance = new AtRuleNoUnknown();
     instance.ignoredAtRules = "foo, bar";
-    String optionsAsJson = new Gson().toJson(instance.stylelintOptions());
+    String optionsAsJson = GSON.toJson(instance.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreAtRules\":[\"foo\",\"bar\"]}]");
   }
 
   @Test
   void declaration_block_no_duplicate_properties_default() {
-    String optionsAsJson = new Gson()
-      .toJson(new DeclarationBlockNoDuplicateProperties().stylelintOptions());
+    String optionsAsJson = GSON.toJson(
+      new DeclarationBlockNoDuplicateProperties().stylelintOptions()
+    );
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]"
     );
@@ -179,8 +180,9 @@ class CssRuleTest {
 
   @Test
   void font_family_no_missing_generic_family_keyword_default() {
-    String optionsAsJson = new Gson()
-      .toJson(new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions());
+    String optionsAsJson = GSON.toJson(
+      new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions()
+    );
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[]}]");
   }
 
@@ -189,7 +191,7 @@ class CssRuleTest {
     FontFamilyNoMissingGenericFamilyKeyword instance =
       new FontFamilyNoMissingGenericFamilyKeyword();
     instance.ignoreFontFamilies = "Icon Font, /icon$/";
-    String optionsAsJson = new Gson().toJson(instance.stylelintOptions());
+    String optionsAsJson = GSON.toJson(instance.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreFontFamilies\":[\"Icon Font\",\"/icon$/\"]}]"
     );
