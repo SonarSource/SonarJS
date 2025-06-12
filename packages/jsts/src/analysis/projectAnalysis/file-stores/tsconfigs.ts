@@ -29,7 +29,7 @@ import {
   shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { basename } from 'node:path';
+import { basename, normalize } from 'node:path';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
 import { join } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
@@ -122,7 +122,7 @@ export class TsConfigStore implements FileStore {
     if (isSonarLint()) {
       if (this.filesStore.getFoundFilesCount() < maxFilesForTypeChecking()) {
         const { filename } = await this.writeTSConfigFile(
-          this.createTSConfigObject(undefined, [baseDir + '/**/*']),
+          this.createTSConfigObject(undefined, [normalize(baseDir) + '/**/*']),
         );
         info(`Using generated tsconfig.json file ${filename}`);
         return filename;
