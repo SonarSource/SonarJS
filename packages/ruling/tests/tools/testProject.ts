@@ -48,6 +48,7 @@ const expectedPathBase = join(
 const actualPathBase = join(currentPath, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
+export const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
 type ProjectsData = {
   name: string;
@@ -97,7 +98,9 @@ export async function testProject(projectName: string) {
     configuration: {
       baseDir,
       tests: testDir ? [testDir] : undefined,
-      jsTsExclusions: exclusions?.split(','),
+      exclusions: exclusions
+        ? DEFAULT_EXCLUSIONS.concat(exclusions.split(','))
+        : DEFAULT_EXCLUSIONS,
     },
   });
 
