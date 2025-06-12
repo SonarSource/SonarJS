@@ -212,10 +212,7 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
 
 const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
-export const HIDDEN_FILES = ['**/.*', '**/.*/**'];
-
 export const DEFAULT_EXCLUSIONS = [
-  ...HIDDEN_FILES,
   '**/*.d.ts',
   '**/.git/**',
   '**/node_modules/**',
