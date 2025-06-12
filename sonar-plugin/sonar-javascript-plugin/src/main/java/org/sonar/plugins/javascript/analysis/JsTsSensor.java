@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,24 +153,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
     @Override
     public ProjectAnalysisRequest getRequest() {
-      Map<String, String> fileEvents = fsListener != null ? fsListener.listFSEvents() : Map.of();
-
-      var configuration = new BridgeServer.ProjectAnalysisConfiguration(
-        context.isSonarLint(),
-        fileEvents,
-        context.allowTsParserJsFiles(),
-        context.getAnalysisMode(),
-        context.skipAst(consumers),
-        context.ignoreHeaderComments(),
-        context.getMaxFileSizeProperty(),
-        context.getTypeCheckingLimit(),
-        context.getEnvironments(),
-        context.getGlobals(),
-        context.getTsExtensions(),
-        context.getJsExtensions(),
-        context.getTsConfigPaths(),
-        Arrays.asList(context.getExcludedPaths())
-      );
       var files = new HashMap<String, BridgeServer.JsTsFile>();
       try {
         for (InputFile inputFile : inputFiles) {
@@ -202,11 +183,14 @@ public class JsTsSensor extends AbstractBridgeSensor {
       } catch (IOException e) {
         handle.completeExceptionally(new IllegalStateException(e));
       }
+      if (fsListener != null) {
+        configuration.setFsEvents(fsListener.listFSEvents());
+      }
+      configuration.setSkipAst(context.skipAst(consumers));
       return new BridgeServer.ProjectAnalysisRequest(
         files,
         checks.enabledEslintRules(),
-        configuration,
-        context.getSensorContext().fileSystem().baseDir().getAbsolutePath()
+        configuration
       );
     }
 

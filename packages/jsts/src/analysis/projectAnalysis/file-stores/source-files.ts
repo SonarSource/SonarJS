@@ -19,18 +19,16 @@ import type { JsTsFiles } from '../projectAnalysis.js';
 import { toUnixPath } from '../../../rules/index.js';
 import { dirname, join } from 'node:path/posix';
 import {
-  getMaxFileSize,
   getTestPaths,
   isAnalyzableFile,
-  isJsTsFile,
   isSonarLint,
 } from '../../../../../shared/src/helpers/configuration.js';
 import { readFile } from 'node:fs/promises';
-import { accept } from '../filter/filter.js';
 import { Dirent } from 'node:fs';
 import { FileType } from '../../../../../shared/src/helpers/files.js';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
+import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -133,13 +131,9 @@ export class SourceFileStore implements FileStore {
   async process(file: Dirent, filePath: string) {
     if (isAnalyzableFile(file.name)) {
       const fileType = this.getFiletype(filePath, this.testPaths);
-      if (isJsTsFile(file.name)) {
-        const fileContent = await this.getFileContent(filePath);
-        if (accept(filePath, fileContent, getMaxFileSize())) {
-          this.newFiles.push({ fileType, filePath, fileContent });
-        }
-      } else {
-        this.newFiles.push({ fileType, filePath });
+      const fileContent = await this.getFileContent(filePath);
+      if (accept(filePath, fileContent)) {
+        this.newFiles.push({ fileType, filePath, fileContent });
       }
     }
   }

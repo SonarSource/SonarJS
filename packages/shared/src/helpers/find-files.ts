@@ -16,29 +16,20 @@
  */
 import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { Minimatch } from 'minimatch';
 import { toUnixPath } from './files.js';
 import { join } from 'node:path/posix';
-
-// Patterns enforced to be ignored no matter what the user configures on sonar.properties
-const IGNORED_PATTERNS = ['.scannerwork'];
 
 export async function findFiles(
   dir: string,
   onFile: (file: Dirent, absolutePath: string, relativePath: string) => Promise<void>,
-  exclusionsArr: string[] = [],
 ) {
-  const exclusions = exclusionsArr
-    .concat(IGNORED_PATTERNS)
-    .map(pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true, dot: true }));
-
   const prefixLength = dir.length + 1;
   const files = await fs.readdir(dir, { recursive: true, withFileTypes: true });
 
   for (const file of files) {
     const filePath = toUnixPath(join(file.parentPath, file.name));
     const relativePath = filePath.substring(prefixLength);
-    if (file.isFile() && !exclusions.some(exclusion => exclusion.match(relativePath))) {
+    if (file.isFile()) {
       await onFile(file, filePath, relativePath);
     }
   }

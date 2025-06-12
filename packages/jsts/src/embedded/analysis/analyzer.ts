@@ -22,6 +22,8 @@ import { CompleteEmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysi
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
+import { accept } from '../../../../shared/src/helpers/filter/filter.js';
+import { setGlobalConfiguration } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -48,6 +50,13 @@ export function analyzeEmbedded(
   input: CompleteEmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): EmbeddedAnalysisOutput {
+  const { filePath, fileContent, configuration } = input;
+  if (configuration) {
+    setGlobalConfiguration(configuration);
+    if (!accept(filePath, fileContent)) {
+      return { issues: [], metrics: { ncloc: [] } };
+    }
+  }
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
   const aggregatedIssues: Issue[] = [];
