@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -56,7 +57,7 @@ class FSListenerTest {
     fsListener.process(fileEvent);
 
     assertThat(fsListener.listFSEvents()).containsExactly(
-      new AbstractMap.SimpleEntry<>(file.absolutePath(), fileEvent.getType().name())
+      Map.entry(file.absolutePath(), fileEvent.getType().toString())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();
   }

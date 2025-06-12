@@ -65,19 +65,25 @@ public class JSWebSocketClient extends WebSocketClient {
   public void onMessage(String message) {
     LOG.debug("Received WebSocket message: {}", message);
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+
+    if (jsonObject.get("messageType").getAsString().equals("error")) {
+      handleError(jsonObject.get("error").getAsJsonObject().toString());
+      return;
+    }
+
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
-      if (jsonObject.get("messageType").getAsString().equals("error")) {
-        var errorMessage = String.format(
-          "Received error from bridge: %s",
-          jsonObject.get("error").getAsJsonObject().toString()
-        );
-        handler.getFuture().completeExceptionally(new RuntimeException(errorMessage));
+      if (handler.getContext().isCancelled()) {
+        this.send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
       } else {
         handler.handleMessage(jsonObject);
-        if (handler.getContext().isCancelled()) {
-          this.send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
-        }
       }
+    }
+  }
+
+  private void handleError(String message) {
+    var errorMessage = String.format("Received error from bridge: %s", message);
+    for (WebSocketMessageHandler<?> handler : messageHandlers) {
+      handler.getFuture().completeExceptionally(new RuntimeException(errorMessage));
     }
   }
 
