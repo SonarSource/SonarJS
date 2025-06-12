@@ -79,6 +79,12 @@ export async function handleRequest(
       }
     }
   } catch (err) {
+    if (incrementalResultsChannel) {
+      incrementalResultsChannel({
+        messageType: 'error',
+        error: serializeError(err),
+      });
+    }
     return { type: 'failure', error: serializeError(err) };
   }
 }
