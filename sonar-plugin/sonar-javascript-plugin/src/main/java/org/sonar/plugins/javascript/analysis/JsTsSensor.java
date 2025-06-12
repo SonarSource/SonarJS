@@ -118,7 +118,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
+      new PluginTelemetry(context, bridgeServer).reportTelemetry();
       consumers.doneAnalysis();
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
@@ -154,9 +154,11 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
     @Override
     public ProjectAnalysisRequest getRequest() {
+      Map<String, String> fileEvents = fsListener != null ? fsListener.listFSEvents() : Map.of();
+
       var configuration = new BridgeServer.ProjectAnalysisConfiguration(
         context.isSonarLint(),
-        fsListener != null ? fsListener.listFSEventsStringified() : List.of(),
+        fileEvents,
         context.allowTsParserJsFiles(),
         context.getAnalysisMode(),
         context.skipAst(consumers),

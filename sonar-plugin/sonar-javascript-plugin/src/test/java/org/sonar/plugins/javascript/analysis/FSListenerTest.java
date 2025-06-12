@@ -19,7 +19,7 @@ package org.sonar.plugins.javascript.analysis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
-import java.util.AbstractMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -55,10 +55,11 @@ class FSListenerTest {
     var fileEvent = DefaultModuleFileEvent.of(file, operationType);
     fsListener.process(fileEvent);
 
-    assertThat(fsListener.listFSEventsStringified()).containsExactly(
-      new AbstractMap.SimpleEntry<>(file.absolutePath(), fileEvent.getType().name())
+    assertThat(fsListener.listFSEvents()).containsExactly(
+      Map.entry(file.absolutePath(), fileEvent.getType().toString())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();
+    fsListener.process(fileEvent);
   }
 
   private InputFile prepareFile(String filename) {

@@ -140,8 +140,8 @@ public interface BridgeServer extends Startable {
   }
 
   record ProjectAnalysisConfiguration(
-    boolean isSonarlint,
-    List<Map.Entry<String, String>> fsEvents,
+    boolean sonarlint,
+    Map<String, String> fsEvents,
     boolean allowTsParserJsFiles,
     AnalysisMode analysisMode,
     Boolean skipAst,
@@ -154,26 +154,7 @@ public interface BridgeServer extends Startable {
     List<String> jsSuffixes,
     Set<String> tsConfigPaths,
     List<String> jsTsExclusions
-  ) {
-    public static ProjectAnalysisConfiguration withDefaults() {
-      return new ProjectAnalysisConfiguration(
-        false,
-        List.of(),
-        true,
-        AnalysisMode.DEFAULT,
-        false,
-        true,
-        1_000_000_000,
-        1_000_000,
-        List.of(),
-        List.of(),
-        List.of(),
-        List.of(),
-        Set.of(),
-        List.of()
-      );
-    }
-  }
+  ) {}
 
   record ProjectAnalysisMetaResponse(
     boolean withProgram,

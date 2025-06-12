@@ -169,7 +169,7 @@ describe('tsconfigs', () => {
     expect(findTsConfigMock.callCount()).toEqual(1);
 
     // we create a file event
-    setGlobalConfiguration({ fsEvents: [[toUnixPath(join(baseDir, 'file2.ts')), 'CREATED']] });
+    setGlobalConfiguration({ fsEvents: { [toUnixPath(join(baseDir, 'file2.ts'))]: 'CREATED' } });
     // clear map has not been called yet
     expect(clearTsConfigMapMock.callCount()).toEqual(0);
     tsConfigStore.dirtyCachesIfNeeded(baseDir);
@@ -197,7 +197,7 @@ describe('tsconfigs', () => {
     const clearAll = (tsConfigStore.getCurrentCache().clearAll as Mock<Cache['clearAll']>).mock;
 
     // we create a file event
-    setGlobalConfiguration({ fsEvents: [[tsConfigStore.getTsConfigs()[0], 'CREATED']] });
+    setGlobalConfiguration({ fsEvents: { [tsConfigStore.getTsConfigs()[0]]: 'CREATED' } });
     // clear map has not been called yet
     expect(clearTsConfigMapMock.callCount()).toEqual(0);
     expect(clearAll.callCount()).toEqual(0);

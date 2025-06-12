@@ -35,14 +35,17 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
 class PluginTelemetryTest {
 
+  private JsTsContext<SensorContext> jsTsContext;
   private SensorContext ctx;
   private PluginTelemetry pluginTelemetry;
 
   @BeforeEach
   void setUp() {
+    jsTsContext = mock(JsTsContext.class);
     ctx = mock(SensorContext.class);
     SonarRuntime sonarRuntime = mock(SonarRuntime.class);
     when(ctx.runtime()).thenReturn(sonarRuntime);
+    when(jsTsContext.getSensorContext()).thenReturn(ctx);
 
     BridgeServer server = mock(BridgeServer.class);
     when(server.getTelemetry()).thenReturn(
@@ -51,7 +54,7 @@ class PluginTelemetryTest {
         new RuntimeTelemetry(Version.create(22, 9), "embedded")
       )
     );
-    pluginTelemetry = new PluginTelemetry(ctx, server);
+    pluginTelemetry = new PluginTelemetry(jsTsContext, server);
   }
 
   @Test
