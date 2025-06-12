@@ -122,7 +122,7 @@ describe('analyzeProject', () => {
     const baseDir = join(fixtures, 'referenced-tsconfigs');
     const result = await analyzeProject({
       rules: defaultRules,
-      baseDir,
+      configuration: { baseDir },
     });
     expect(result.meta.withProgram).toEqual(true);
     expect(Object.keys(result.files)).toEqual(
@@ -136,7 +136,7 @@ describe('analyzeProject', () => {
   it('should handle handle program creation with grace', async () => {
     const baseDir = join(fixtures, 'simple-tsconfig');
     const result = await analyzeProject({
-      baseDir,
+      configuration: { baseDir },
       rules: defaultRules,
     });
     expect(result.meta.warnings.length).toEqual(1);
@@ -149,7 +149,7 @@ describe('analyzeProject', () => {
   it('should handle add warning on missing tsconfig', async () => {
     const baseDir = join(fixtures, 'tsconfig-with-extends-missing');
     const result = await analyzeProject({
-      baseDir,
+      configuration: { baseDir },
       rules: defaultRules,
     });
     expect(result.meta.warnings.length).toEqual(1);
@@ -299,10 +299,10 @@ const defaultRules: RuleConfig[] = [
 function prepareInput(baseDir: string, files?: JsTsFiles, sonarlint = false): ProjectAnalysisInput {
   return {
     rules: defaultRules,
-    baseDir,
     files,
     configuration: {
       sonarlint,
+      baseDir,
     },
   };
 }

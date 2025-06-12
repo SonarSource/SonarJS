@@ -94,8 +94,8 @@ export async function testProject(projectName: string) {
 
   const results = await analyzeProject({
     rules,
-    baseDir,
     configuration: {
+      baseDir,
       tests: testDir ? [testDir] : undefined,
       jsTsExclusions: exclusions?.split(','),
     },

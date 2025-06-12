@@ -139,7 +139,8 @@ public class CssRuleSensor extends AbstractBridgeSensor {
       CssAnalysisRequest request = new CssAnalysisRequest(
         new File(uri).getAbsolutePath(),
         fileContent,
-        rules
+        rules,
+        configuration
       );
       var analysisResponse = bridgeServer.analyzeCss(request);
 

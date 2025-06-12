@@ -20,7 +20,6 @@ import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
-import { getExclusions } from '../../../../../shared/src/helpers/configuration.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore(sourceFileStore);
@@ -39,15 +38,11 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
     store.setup(baseDir);
   }
 
-  await findFiles(
-    baseDir,
-    async (file, filePath) => {
-      for (const store of pendingStores) {
-        await store.process(file, filePath);
-      }
-    },
-    getExclusions(),
-  );
+  await findFiles(baseDir, async (file, filePath) => {
+    for (const store of pendingStores) {
+      await store.process(file, filePath);
+    }
+  });
   for (const store of pendingStores) {
     await store.postProcess(baseDir);
   }

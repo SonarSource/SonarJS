@@ -16,10 +16,7 @@
  */
 package org.sonar.plugins.javascript.sonarlint;
 
-import java.util.List;
 import java.util.Map;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
 public interface FSListener {
   Map<String, String> listFSEvents();

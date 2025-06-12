@@ -72,8 +72,8 @@ describe('files', () => {
   });
 
   it('should clear the package.json cache', async () => {
-    setGlobalConfiguration();
     const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     expect(packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
@@ -83,7 +83,7 @@ describe('files', () => {
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
 
     // we create a file event
-    setGlobalConfiguration({ fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' } });
+    setGlobalConfiguration({ baseDir, fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' } });
     packageJsonStore.dirtyCachesIfNeeded(baseDir);
     expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(cache.size).toEqual(0);

@@ -61,7 +61,9 @@ describe('router', () => {
           analysisModes: ['DEFAULT'],
         },
       ],
-      baseDir: fixtures,
+      configuration: {
+        baseDir: fixtures,
+      },
       files: {
         [filePath]: { fileType: 'MAIN', filePath },
       },

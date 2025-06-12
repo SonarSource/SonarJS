@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile } from '../helpers/files.js';
+import { Configuration } from '../helpers/configuration.js';
 
 /**
  * An analysis function
@@ -40,6 +41,7 @@ export interface AnalysisInput {
   filePath: string;
   fileContent?: string;
   sonarlint?: boolean;
+  configuration?: Configuration;
 }
 
 /**
