@@ -17,7 +17,7 @@
 import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from '../data/projects.json' with { type: 'json' };
-import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';

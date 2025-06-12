@@ -24,7 +24,7 @@ import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { isAnalysisCancelled } from './projectAnalyzer.js';
+import { isAnalysisCancelled } from './analyzeProject.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
