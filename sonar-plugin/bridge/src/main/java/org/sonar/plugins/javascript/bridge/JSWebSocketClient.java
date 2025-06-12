@@ -72,10 +72,9 @@ public class JSWebSocketClient extends WebSocketClient {
     }
 
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
+      handler.handleMessage(jsonObject);
       if (handler.getContext().isCancelled()) {
         this.send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
-      } else {
-        handler.handleMessage(jsonObject);
       }
     }
   }
