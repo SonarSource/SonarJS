@@ -36,7 +36,7 @@ import org.sonar.api.utils.Version;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 35;
+  private static final int BASE_EXTENSIONS = 34;
   private static final int SCANNER_EXTENSIONS = 9;
   private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 1;
 

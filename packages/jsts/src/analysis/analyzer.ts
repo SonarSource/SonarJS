@@ -34,6 +34,8 @@ import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
 import { Telemetry } from '../../../bridge/src/request.js';
 import { fillFileContent } from '../../../shared/src/types/analysis.js';
+import { accept } from '../../../shared/src/helpers/filter/filter.js';
+import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -55,9 +57,16 @@ export async function analyzeJSTS(
 ): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
   debug(`Analyzing file "${input.filePath}"`);
   const completeInput = fillLanguage(await fillFileContent(input));
+  const { filePath, fileContent, fileType, analysisMode, fileStatus, language, configuration } =
+    completeInput;
+  if (configuration) {
+    setGlobalConfiguration(configuration);
+    if (!accept(filePath, fileContent)) {
+      return { issues: [] };
+    }
+  }
   const parseResult = build(completeInput);
   try {
-    const { filePath, fileType, analysisMode, fileStatus, language } = completeInput;
     if (completeInput.clearDependenciesCache) {
       debug('Clearing dependencies cache');
       clearDependenciesCache();

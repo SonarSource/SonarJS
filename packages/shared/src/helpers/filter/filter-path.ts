@@ -14,14 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { filterBundle } from './filter-bundle.js';
-import { filterMinified } from './filter-minified.js';
-import { filterSize } from './filter-size.js';
 
-export function accept(filePath: string, fileContent: string, maxSize: number) {
-  return (
-    filterBundle(fileContent) &&
-    filterMinified(filePath, fileContent) &&
-    filterSize(fileContent, maxSize)
-  );
+import type { Minimatch } from 'minimatch';
+
+export function filterPath(exclusions: Minimatch[], relativePath: string) {
+  return !exclusions.some(exclusion => exclusion.match(relativePath));
 }

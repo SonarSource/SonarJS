@@ -17,6 +17,8 @@
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
 import { extname } from 'node:path/posix';
+import { setFiltersParams } from './filter/filter.js';
+import { toUnixPath } from './files.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -39,6 +41,7 @@ type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
 type FsEvents = { [key: string]: FsEventType };
 
 export type Configuration = {
+  baseDir?: string;
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
   clearFileToTsConfigCache?: boolean;
@@ -54,6 +57,7 @@ export type Configuration = {
   globals?: string[] /* sonar.javascript.globals */;
   tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
   jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
+  cssSuffixes?: string[] /* sonar.css.file.suffixes */;
   tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
   jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
   sources?: string[] /* sonar.sources property, relative path to baseDir to look for files. NOT YET SUPPORTED, we are based on baseDir */;
@@ -66,12 +70,26 @@ export type Configuration = {
 
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
+
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
 
 export function setGlobalConfiguration(config: Configuration = {}) {
   configuration = { ...config };
+  if (!config.baseDir) {
+    throw new Error('baseDir is required');
+  }
+  configuration.baseDir = toUnixPath(config.baseDir);
+  setFiltersParams(configuration.baseDir, getExclusions(), getMaxFileSize());
+}
+
+export function getBaseDir() {
+  if (!configuration.baseDir) {
+    throw new Error('baseDir is not set');
+  }
+  return configuration.baseDir;
 }
 
 export const HTML_EXTENSIONS = ['.html', '.htm'];
@@ -97,6 +115,10 @@ function jsExtensions() {
   return configuration.jsSuffixes?.length ? configuration.jsSuffixes : DEFAULT_JS_EXTENSIONS;
 }
 
+function cssExtensions() {
+  return configuration.cssSuffixes?.length ? configuration.cssSuffixes : DEFAULT_CSS_EXTENSIONS;
+}
+
 export function isJsFile(filePath: string) {
   return jsExtensions().includes(extname(filePath).toLowerCase());
 }
@@ -119,6 +141,10 @@ export function isYamlFile(filePath: string) {
 
 export function isJsTsFile(filePath: string) {
   return jsTsExtensions().includes(extname(filePath).toLowerCase());
+}
+
+export function isCssFile(filePath: string) {
+  return cssExtensions().includes(extname(filePath).toLowerCase());
 }
 
 export function isAnalyzableFile(filePath: string) {
@@ -186,9 +212,10 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
 
 const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
+export const HIDDEN_FILES = ['**/.*', '**/.*/**'];
+
 export const DEFAULT_EXCLUSIONS = [
-  '**/.*',
-  '**/.*/**',
+  ...HIDDEN_FILES,
   '**/*.d.ts',
   '**/.git/**',
   '**/node_modules/**',

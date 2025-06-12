@@ -37,12 +37,14 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.AnalysisMode;
+import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 
-public class JsTsContext<T extends SensorContext> {
+public class JsTsContext<T extends SensorContext> implements AnalysisConfiguration {
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
@@ -85,7 +87,7 @@ public class JsTsContext<T extends SensorContext> {
     return context;
   }
 
-  boolean isSonarLint() {
+  public boolean isSonarLint() {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
@@ -231,8 +233,20 @@ public class JsTsContext<T extends SensorContext> {
     return extensions;
   }
 
-  public String[] getExcludedPaths() {
-    return getExcludedPaths(context.config());
+  public List<String> getCssExtensions() {
+    return getCssExtensions(context.config());
+  }
+
+  public static List<String> getCssExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(CssLanguage.FILE_SUFFIXES_KEY)
+        ? config.getStringArray(CssLanguage.FILE_SUFFIXES_KEY)
+        : CssLanguage.DEFAULT_FILE_SUFFIXES.split(",")
+    );
+  }
+
+  public List<String> getExcludedPaths() {
+    return Arrays.asList(getExcludedPaths(context.config()));
   }
 
   public static String[] getExcludedPaths(Configuration configuration) {

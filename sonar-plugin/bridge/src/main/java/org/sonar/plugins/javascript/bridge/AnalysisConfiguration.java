@@ -14,9 +14,36 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.filter;
+package org.sonar.plugins.javascript.bridge;
 
-import java.util.function.Predicate;
-import org.sonar.api.batch.fs.InputFile;
+import java.util.List;
+import java.util.Set;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 
-public interface Assessor extends Predicate<InputFile> {}
+public interface AnalysisConfiguration {
+  boolean isSonarLint();
+
+  boolean allowTsParserJsFiles();
+
+  AnalysisMode getAnalysisMode();
+
+  boolean ignoreHeaderComments();
+
+  long getMaxFileSizeProperty();
+
+  int getTypeCheckingLimit();
+
+  List<String> getEnvironments();
+
+  List<String> getGlobals();
+
+  List<String> getTsExtensions();
+
+  List<String> getJsExtensions();
+
+  List<String> getCssExtensions();
+
+  Set<String> getTsConfigPaths();
+
+  List<String> getExcludedPaths();
+}

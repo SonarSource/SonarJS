@@ -20,6 +20,8 @@ import { createStylelintConfig } from '../linter/config.js';
 import { fillFileContent } from '../../../shared/src/types/analysis.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
+import { accept } from '../../../shared/src/helpers/filter/filter.js';
+import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -32,7 +34,13 @@ import { error } from '../../../shared/src/helpers/logging.js';
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules } = await fillFileContent(input);
+  const { filePath, fileContent, rules, configuration } = await fillFileContent(input);
+  if (configuration) {
+    setGlobalConfiguration(configuration);
+    if (!accept(filePath, fileContent)) {
+      return { issues: [] };
+    }
+  }
   const config = createStylelintConfig(rules);
   const sanitizedCode = fileContent.replace(/[\u2000-\u200F]/g, ' ');
 
