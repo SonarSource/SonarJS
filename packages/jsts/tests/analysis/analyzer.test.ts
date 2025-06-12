@@ -364,14 +364,8 @@ describe('await analyzeJSTS', () => {
     const { programId } = createAndSaveProgram(tsConfig);
     const language = 'ts';
 
-    const {
-      issues: [issue],
-    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
-    expect(issue).toEqual(
-      expect.not.objectContaining({
-        ruleId: 'S3003',
-      }),
-    );
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    expect(issues).toHaveLength(0);
   });
 
   it('different tsconfig module resolution affects files included in program', async () => {

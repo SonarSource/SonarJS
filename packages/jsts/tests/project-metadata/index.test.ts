@@ -104,7 +104,7 @@ describe('isSupported()', () => {
   });
 
   it('should throw an error when a version is invalid', () => {
-    expect(() => isSupported('index.js', { node: 'invalid' })).toThrowError(
+    expect(() => isSupported('index.js', { node: 'invalid' })).toThrow(
       'Invalid semver version: "invalid" for "node"',
     );
   });
