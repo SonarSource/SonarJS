@@ -63,9 +63,7 @@ describe('program', () => {
 
   it('should fail creating a program with a semantically incorrect tsconfig', () => {
     const tsConfig = path.join(import.meta.dirname, 'fixtures', 'tsconfig.semantic.json');
-    expect(() => createProgram(tsConfig)).toThrowError(
-      /^Unknown compiler option 'targetSomething'./,
-    );
+    expect(() => createProgram(tsConfig)).toThrow(/^Unknown compiler option 'targetSomething'./);
   });
 
   it('should still create a program when extended tsconfig does not exist', () => {
