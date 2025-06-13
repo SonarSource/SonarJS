@@ -24,7 +24,7 @@ import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { isAnalysisCancelled } from './projectAnalyzer.js';
+import { isAnalysisCancelled } from './analyzeProject.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead

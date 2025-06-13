@@ -20,7 +20,7 @@ import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
 import {
   analyzeProject,
   cancelAnalysis,
-} from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+} from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import { Linter } from '../../jsts/src/linter/linter.js';

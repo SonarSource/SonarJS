@@ -25,7 +25,7 @@ import {
 import {
   analyzeProject,
   cancelAnalysis,
-} from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
+} from '../../src/analysis/projectAnalysis/analyzeProject.js';
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
