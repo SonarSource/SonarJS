@@ -241,7 +241,7 @@ export class TsConfigStore implements FileStore {
       const tsConfig = toUnixPath(join(baseDir, tsConfigPath.trim()));
       return {
         path: tsConfig,
-        pattern: new Minimatch(tsConfig.trim(), { nocase: true, matchBase: true, dot: true }),
+        pattern: new Minimatch(tsConfig, { nocase: true, matchBase: true, dot: true }),
       };
     });
     if (this.providedPropertyTsConfigs.length) {

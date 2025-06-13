@@ -18,43 +18,37 @@ import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { filterPath } from './filter-path.js';
-import { Minimatch } from 'minimatch';
-import { HIDDEN_FILES, isCssFile, isJsTsFile } from '../configuration.js';
-
-// Patterns enforced to be ignored no matter what the user configures on sonar.properties
-const IGNORED_PATTERNS = ['.scannerwork'];
-
-const hiddenFilesExclusions = HIDDEN_FILES.concat(IGNORED_PATTERNS).map(
-  pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true, dot: true }),
-);
-
-let exclusions: Minimatch[] = [];
-let prefixLength = 0;
-let maxSize = Number.MAX_SAFE_INTEGER;
-
-export function setFiltersParams(dir: string, exclusionsArr: string[], maxSizeParam: number) {
-  exclusions = exclusionsArr
-    .concat(IGNORED_PATTERNS)
-    .map(pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true, dot: true }));
-  prefixLength = dir.length + 1;
-  maxSize = maxSizeParam;
-}
+import {
+  getBaseDir,
+  getExclusions,
+  getMaxFileSize,
+  isCssFile,
+  isJsTsFile,
+} from '../configuration.js';
 
 export function accept(filePath: string, fileContent: string) {
+  if (fileIsExcluded(filePath)) {
+    return false;
+  }
+  let prefixLength = getBaseDir().length + 1;
   if (isJsTsFile(filePath)) {
     return (
       filterBundle(fileContent) &&
       filterMinified(filePath, fileContent) &&
-      filterSize(fileContent, maxSize) &&
-      filterPath(exclusions, filePath.substring(prefixLength))
+      filterSize(fileContent, getMaxFileSize()) &&
+      filterPath(getExclusions(), filePath.substring(prefixLength))
     );
   } else if (isCssFile(filePath)) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
     return (
       filterBundle(fileContent) &&
       filterMinified(filePath, fileContent) &&
-      filterPath(exclusions, filePath.substring(prefixLength))
+      filterPath(getExclusions(), filePath.substring(prefixLength))
     );
   }
-  return filterPath(hiddenFilesExclusions, filePath.substring(prefixLength));
+  return true;
+}
+
+function fileIsExcluded(_filePath: string) {
+  return true;
 }
