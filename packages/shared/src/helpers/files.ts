@@ -79,11 +79,11 @@ export function stripBOM(str: string) {
 }
 /**
  * Converts a path to Unix format
- * @param path the path to convert
+ * @param filePath the path to convert
  * @returns the converted path
  */
-export function toUnixPath(path: string) {
-  return path.replace(/[\\/]+/g, '/');
+export function toUnixPath(filePath: string) {
+  return filePath.replace(/[\\/]+/g, '/');
 }
 
 /**

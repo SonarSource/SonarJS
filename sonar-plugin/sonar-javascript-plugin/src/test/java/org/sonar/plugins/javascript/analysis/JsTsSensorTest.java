@@ -18,6 +18,7 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -676,6 +677,26 @@ class JsTsSensorTest {
     });
     assertThat(logTester.logs(Level.INFO)).contains(
       "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
+  }
+
+  @Test
+  void handle_errors_gracefully_during_analyze_project() {
+    var jsError = "{\"code\":\"GENERAL_ERROR\",\"message\":\"Fake error message\"}";
+    var message = String.format("{messageType: 'error', error: %s}", jsError);
+    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
+    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
+
+    var exception = catchThrowable(() ->
+      executeSensorMockingEvents(() -> {
+        spyClient.onMessage(message);
+      })
+    );
+    assertThat(exception)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed");
+    assertThat(exception.getCause().getMessage()).isEqualTo(
+      String.format("java.lang.RuntimeException: Received error from bridge: %s", jsError)
     );
   }
 

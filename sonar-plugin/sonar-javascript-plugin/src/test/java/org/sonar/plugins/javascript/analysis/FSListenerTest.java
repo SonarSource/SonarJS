@@ -59,7 +59,6 @@ class FSListenerTest {
       Map.entry(file.absolutePath(), fileEvent.getType().toString())
     );
     assertThat(fsListener.listFSEvents()).isEmpty();
-    fsListener.process(fileEvent);
   }
 
   private InputFile prepareFile(String filename) {

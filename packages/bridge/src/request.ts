@@ -40,7 +40,8 @@ export type RequestResult =
 export type WsAnalysisCancelled = { messageType: 'cancelled' };
 export type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
 export type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
-export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancelled;
+export type WsError = { messageType: 'error'; error: unknown };
+export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancelled | WsError;
 
 export type Telemetry = {
   dependencies: NamedDependency[];

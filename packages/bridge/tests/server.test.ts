@@ -25,12 +25,13 @@ import assert from 'node:assert';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 import { join } from 'node:path/posix';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { BridgeRequest } from '../src/request.js';
+import { Worker } from 'node:worker_threads';
 
 const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
+const port = 0;
 
 describe('server', () => {
-  const port = 0;
-
   it('should start', async ({ mock }) => {
     console.log = mock.fn(console.log);
 
@@ -71,52 +72,29 @@ describe('server', () => {
   it('should accept a ws request', async t => {
     for (const worker of [await createWorker(workerPath), undefined]) {
       await t.test(worker ? 'with worker' : 'without worker', async () => {
-        const { server, serverClosed } = await start(port, undefined, worker);
-        const wsUrl = `ws://127.0.0.1:${(server.address() as AddressInfo)?.port}/ws`;
-        const ws = new WebSocket(wsUrl);
-        await new Promise(resolve => {
-          ws.onopen = () => {
-            resolve('Success');
-          };
-        });
         const fixtures = join(import.meta.dirname, 'fixtures', 'router');
         const filePath = toUnixPath(join(fixtures, 'file.ts'));
 
-        const messages = [];
-        const metaResponse = await new Promise((resolve, reject) => {
-          ws.send(
-            JSON.stringify({
-              type: 'on-analyze-project',
-              data: {
-                rules: [
-                  {
-                    key: 'S4621',
-                    configurations: [],
-                    fileTypeTargets: ['MAIN'],
-                    language: 'ts',
-                    analysisModes: ['DEFAULT'],
-                  },
-                ],
-                baseDir: fixtures,
-                files: {
-                  [filePath]: { fileType: 'MAIN', filePath },
-                },
+        const { response, messages } = await testWSWithTypedRequest(worker, {
+          type: 'on-analyze-project',
+          data: {
+            rules: [
+              {
+                key: 'S4621',
+                configurations: [],
+                fileTypeTargets: ['MAIN'],
+                language: 'ts',
+                analysisModes: ['DEFAULT'],
               },
-            }),
-          );
-          ws.onmessage = event => {
-            const json = JSON.parse(event.data);
-            if (json.messageType === 'meta') {
-              resolve(json);
-            } else {
-              messages.push(json);
-            }
-          };
-          ws.onerror = err => {
-            reject(err); // Reject if something goes wrong
-          };
+            ],
+            baseDir: fixtures,
+            files: {
+              [filePath]: { fileType: 'MAIN', filePath },
+            },
+          },
         });
-        expect(metaResponse).toEqual({
+
+        expect(response).toEqual({
           messageType: 'meta',
           filesWithoutTypeChecking: [],
           warnings: [],
@@ -138,9 +116,26 @@ describe('server', () => {
             message: `Remove this duplicated type or replace with another one.`,
           }),
         );
+      });
+    }
+  });
 
-        await request(server, '/close', 'POST');
-        await serverClosed;
+  it('should handle errors in ws communication', async t => {
+    for (const worker of [await createWorker(workerPath), undefined]) {
+      await t.test(worker ? 'with worker' : 'without worker', async () => {
+        const { response, messages } = await testWSWithWorker(
+          worker,
+          JSON.stringify({
+            type: 'on-analyze-project',
+            data: {},
+          }),
+        );
+        expect(response).toMatchObject({
+          error: {
+            code: 'GENERAL_ERROR',
+          },
+        });
+        expect(messages.length).toEqual(0);
       });
     }
   });
@@ -259,6 +254,44 @@ describe('server', () => {
     expect(server.listening).toBeFalsy();
   });
 });
+
+async function testWSWithTypedRequest(worker: Worker | undefined, requestData: BridgeRequest) {
+  return await testWSWithWorker(worker, JSON.stringify(requestData));
+}
+
+async function testWSWithWorker(worker: Worker | undefined, requestJSON: string) {
+  const { server, serverClosed } = await start(port, undefined, worker);
+  const wsUrl = `ws://127.0.0.1:${(server.address() as AddressInfo)?.port}/ws`;
+  const ws = new WebSocket(wsUrl);
+  await new Promise(resolve => {
+    ws.onopen = () => {
+      resolve('Success');
+    };
+  });
+
+  const messages = [];
+  const response = await new Promise((resolve, reject) => {
+    ws.send(requestJSON);
+    ws.onmessage = event => {
+      const json = JSON.parse(event.data);
+      if (json.messageType === 'fileResult') {
+        messages.push(json);
+      } else {
+        resolve(json);
+      }
+    };
+    ws.onerror = err => {
+      reject(err); // Reject if something goes wrong
+    };
+  });
+
+  await request(server, '/close', 'POST');
+  await serverClosed;
+  return {
+    response,
+    messages,
+  };
+}
 
 async function requestAnalyzeJs(server: http.Server, fileType: string) {
   const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');

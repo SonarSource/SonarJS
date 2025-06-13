@@ -117,10 +117,6 @@ public class AnalysisProcessor {
     return issues;
   }
 
-  public int parsingErrorFilesCount() {
-    return uniqueParsingErrors.size();
-  }
-
   void processCacheAnalysis(JsTsContext<?> context, InputFile file, CacheAnalysis cacheAnalysis) {
     this.file = file;
 
