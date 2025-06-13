@@ -66,7 +66,7 @@ public class JSWebSocketClient extends WebSocketClient {
     LOG.debug("Received WebSocket message: {}", message);
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
 
-    if (jsonObject.get("messageType").getAsString().equals("error")) {
+    if ("error".equals(jsonObject.get("messageType").getAsString())) {
       handleError(jsonObject.get("error").getAsJsonObject().toString());
       return;
     }
