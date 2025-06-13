@@ -22,7 +22,6 @@ import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
@@ -169,7 +168,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
         .name("LCOV Files")
         .description("Paths (absolute or relative) to the files with LCOV data.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .category(JS_TS_CATEGORY)
         .multiValues(true)
@@ -181,7 +180,7 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .multiValues(true)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(TypeScriptLanguage.DEFAULT_FILE_SUFFIXES)
@@ -189,13 +188,13 @@ public class JavaScriptPlugin implements Plugin {
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .multiValues(true)
         .build(),
       PropertyDefinition.builder(TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
         .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(TS_SUB_CATEGORY)
         .category(JS_TS_CATEGORY)
         .multiValues(true)
@@ -206,7 +205,7 @@ public class JavaScriptPlugin implements Plugin {
           "Threshold for the maximum size of analyzed files (in kilobytes). " +
           "Files that are larger are excluded from the analysis."
         )
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.INTEGER)
@@ -216,7 +215,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
@@ -230,7 +229,7 @@ public class JavaScriptPlugin implements Plugin {
           String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) +
           "."
         )
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JS_TS_CATEGORY)
@@ -239,7 +238,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JS_TS_CATEGORY)
@@ -252,7 +251,7 @@ public class JavaScriptPlugin implements Plugin {
             "Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."
           )
         )
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
@@ -273,7 +272,7 @@ public class JavaScriptPlugin implements Plugin {
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(CSS_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .multiValues(true)
         .build()
     );
@@ -290,7 +289,7 @@ public class JavaScriptPlugin implements Plugin {
         PropertyDefinition.builder(ESLINT_REPORT_PATHS)
           .name("ESLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
-          .onQualifiers(Qualifiers.PROJECT)
+          .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
           .multiValues(true)
@@ -301,7 +300,7 @@ public class JavaScriptPlugin implements Plugin {
         PropertyDefinition.builder(TSLINT_REPORT_PATHS)
           .name("TSLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with TSLint issues.")
-          .onQualifiers(Qualifiers.PROJECT)
+          .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
           .multiValues(true)
@@ -315,7 +314,7 @@ public class JavaScriptPlugin implements Plugin {
           .defaultValue(StylelintReportSensor.STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
           .name("Stylelint Report Files")
           .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
-          .onQualifiers(Qualifiers.PROJECT)
+          .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory("CSS")
           .multiValues(true)
