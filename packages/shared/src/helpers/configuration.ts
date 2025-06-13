@@ -16,9 +16,10 @@
  */
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
-import { extname } from 'node:path/posix';
-import { setFiltersParams } from './filter/filter.js';
+import { extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
+import { isAbsolute as isWinAbsolute } from 'node:path/win32';
 import { toUnixPath } from './files.js';
+import { Minimatch } from 'minimatch';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -60,13 +61,21 @@ export type Configuration = {
   cssSuffixes?: string[] /* sonar.css.file.suffixes */;
   tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
   jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  sources?: string[] /* sonar.sources property, relative path to baseDir to look for files. NOT YET SUPPORTED, we are based on baseDir */;
-  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
-  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
-  tests?: string[] /* sonar.tests property, relative path to baseDir to look for test files */;
-  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
-  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
+  normalizedJsTsExclusions?: Minimatch[];
+  sources?: string[] /* sonar.sources property, absolute or relative path to baseDir to look for files. we are based on baseDir */;
+  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. */;
+  normalizedInclusions?: Minimatch[];
+  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. */;
+  normalizedExclusions?: Minimatch[];
+  tests?: string[] /* sonar.tests property, absolute or relative path to baseDir to look for test files */;
+  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. */;
+  normalizedTestInclusions?: Minimatch[];
+  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
+  normalizedTestExclusions?: Minimatch[];
 };
+
+// Patterns enforced to be ignored no matter what the user configures on sonar.properties
+const IGNORED_PATTERNS = ['.scannerwork'];
 
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
@@ -81,8 +90,14 @@ export function setGlobalConfiguration(config: Configuration = {}) {
   if (!config.baseDir) {
     throw new Error('baseDir is required');
   }
-  configuration.baseDir = toUnixPath(config.baseDir);
-  setFiltersParams(configuration.baseDir, getExclusions(), getMaxFileSize());
+  configuration.baseDir = normalizePath(config.baseDir, false);
+  setSourcesPaths(configuration.sources);
+  setTestPaths(configuration.tests);
+  setJsTsExclusions(configuration.jsTsExclusions);
+  setExclusions(configuration.exclusions);
+  setInclusions(configuration.inclusions);
+  setTestExclusions(configuration.testExclusions);
+  setTestInclusions(configuration.testInclusions);
 }
 
 export function getBaseDir() {
@@ -167,14 +182,62 @@ export function maxFilesForTypeChecking() {
   return configuration.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 }
 
+export function setTestPaths(testPaths: string[] | undefined) {
+  configuration.tests = normalizePaths(testPaths);
+}
+
 export function getTestPaths() {
   return configuration.tests;
 }
 
-export function getExclusions() {
-  return DEFAULT_EXCLUSIONS.concat(configuration.exclusions ?? []).concat(
-    configuration.jsTsExclusions ?? [],
+export function setSourcesPaths(sourcesPaths: string[] | undefined) {
+  configuration.sources = normalizePaths(sourcesPaths);
+}
+
+export function getSourcesPaths() {
+  return configuration.sources;
+}
+
+function setJsTsExclusions(jsTsExclusions: string[] | undefined) {
+  configuration.normalizedJsTsExclusions = normalizeGlobs(
+    (jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
   );
+}
+
+export function getJsTsExclusions() {
+  return configuration.normalizedJsTsExclusions;
+}
+
+function setExclusions(exclusions: string[] | undefined) {
+  configuration.normalizedExclusions = normalizeGlobs(exclusions);
+}
+
+export function getExclusions() {
+  return configuration.normalizedExclusions || [];
+}
+
+function setInclusions(inclusions: string[] | undefined) {
+  configuration.normalizedInclusions = normalizeGlobs(inclusions);
+}
+
+export function getInclusions() {
+  return configuration.normalizedInclusions;
+}
+
+function setTestExclusions(testExclusions: string[] | undefined) {
+  configuration.normalizedTestExclusions = normalizeGlobs(testExclusions);
+}
+
+export function getTestExclusions() {
+  return configuration.normalizedTestExclusions;
+}
+
+function setTestInclusions(testInclusions: string[] | undefined) {
+  configuration.normalizedTestInclusions = normalizeGlobs(testInclusions);
+}
+
+export function getTestInclusions() {
+  return configuration.normalizedTestInclusions;
 }
 
 export function getFsEvents() {
@@ -267,3 +330,27 @@ export const DEFAULT_GLOBALS = [
   '_',
   'sap',
 ];
+
+function normalizeGlobs(globs: string[] | undefined) {
+  return normalizePaths(globs).map(
+    pattern => new Minimatch(pattern, { nocase: true, matchBase: true, dot: true }),
+  );
+}
+
+function normalizePaths(paths: string[] | undefined) {
+  return (paths || []).map(path => normalizePath(path, true));
+}
+
+function normalizePath(path: string, makeRelativeToBaseDir = true) {
+  const normalized = toUnixPath(path.trim());
+  if (makeRelativeToBaseDir && isAbsolutePath(normalized)) {
+    return normalized.startsWith(getBaseDir())
+      ? normalized.substring(getBaseDir().length + 1)
+      : normalized;
+  }
+  return normalized;
+}
+
+function isAbsolutePath(path: string) {
+  return isUnixAbsolute(path) || isWinAbsolute(path.replace(/[\\/]+/g, '\\'));
+}
