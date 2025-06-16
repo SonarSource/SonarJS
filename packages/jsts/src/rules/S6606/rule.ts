@@ -57,7 +57,7 @@ export const rule = interceptReport(
         isTypeUnknownType(leftOperandType) ||
         (leftOperandType.isUnion() &&
           leftOperandType.types.some(isNullOrUndefinedType) &&
-          (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType)))
+          leftOperandType.types.some(isObjectType))
       ) {
         return;
       }

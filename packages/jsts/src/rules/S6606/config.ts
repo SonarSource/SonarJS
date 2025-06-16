@@ -38,9 +38,7 @@ export const fields = [
     },
     {
       field: 'ignorePrimitives',
-      default: {
-        string: true,
-      },
+      default: true,
     },
   ],
 ] as const satisfies ESLintConfiguration;
