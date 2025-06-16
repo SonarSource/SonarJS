@@ -20,7 +20,7 @@ import { extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
 import { isAbsolute as isWinAbsolute } from 'node:path/win32';
 import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
-import { join } from 'path';
+import { join } from 'node:path/posix';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -90,6 +90,8 @@ export function setGlobalConfiguration(config: Configuration = {}) {
   configuration = { ...config };
   if (!config.baseDir) {
     throw new Error('baseDir is required');
+  } else if (!isAbsolutePath(config.baseDir)) {
+    throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
   }
   configuration.baseDir = normalizePath(config.baseDir);
   setSourcesPaths(configuration.sources);
@@ -102,8 +104,8 @@ export function setGlobalConfiguration(config: Configuration = {}) {
 }
 
 export function getBaseDir() {
-  if (!configuration.baseDir || !isAbsolutePath(configuration.baseDir)) {
-    throw new Error('baseDir is not set or is not an absolute path');
+  if (!configuration.baseDir) {
+    throw new Error('baseDir is not set');
   }
   return configuration.baseDir;
 }
@@ -196,7 +198,7 @@ export function setSourcesPaths(sourcesPaths: string[] | undefined) {
 }
 
 export function getSourcesPaths() {
-  return configuration.sources;
+  return configuration.sources?.length ? configuration.sources : [getBaseDir()];
 }
 
 function setJsTsExclusions(jsTsExclusions: string[] | undefined) {

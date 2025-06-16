@@ -48,22 +48,22 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
       return 'TEST';
     }
   }
+
   const sourcesPaths = getSourcesPaths();
-  if (sourcesPaths?.length) {
-    if (sourcesPaths.some(sourcePath => parent.startsWith(sourcePath))) {
-      if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
-        return undefined;
-      }
-      const inclusions = getInclusions();
-      if (inclusions?.length) {
-        if (inclusions.some(inclusion => inclusion.match(filePath))) {
-          return 'MAIN';
-        }
-        return undefined;
-      }
-      return 'MAIN';
-    }
+  if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
     return undefined;
   }
-  return 'MAIN';
+
+  if (sourcesPaths.some(sourcePath => parent.startsWith(sourcePath))) {
+    const inclusions = getInclusions();
+    if (inclusions?.length) {
+      if (inclusions.some(inclusion => inclusion.match(filePath))) {
+        return 'MAIN';
+      }
+      return undefined;
+    }
+    return 'MAIN';
+  } else {
+    return undefined;
+  }
 }
