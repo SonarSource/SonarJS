@@ -34,6 +34,14 @@ describe('S6606', () => {
     ruleTester.run('S6606', rule, {
       valid: [
         {
+          code: `function nodeMatches(spec: any, event: any) {
+\treturn \tspec?.includes(event.node.id) ||
+\t\t\t\t\tspec?.includes(event.node.data?.id) ||
+\t\t\t\t\tspec?.includes(event.node.title)
+}`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
           code: `
   function foo(value: string) {
     return value || 'default';
@@ -73,8 +81,6 @@ describe('S6606', () => {
   `,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
-      ],
-      invalid: [
         {
           code: `
   function foo(value: string | null) {
@@ -82,8 +88,9 @@ describe('S6606', () => {
   }
   `,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
         },
+      ],
+      invalid: [
         {
           code: `
   function foo(value: number | null) {

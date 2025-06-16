@@ -26,6 +26,7 @@ import {
 } from '../helpers/index.js';
 import { type LogicalExpression } from 'estree';
 import * as meta from './generated-meta.js';
+import { isTypeUnknownType, isTypeAnyType } from '@typescript-eslint/type-utils';
 
 const preferNullishCoalescingRule = rules['prefer-nullish-coalescing'];
 
@@ -52,9 +53,11 @@ export const rule = interceptReport(
       const leftOperandType = getTypeFromTreeNode(leftOperand, services);
 
       if (
-        leftOperandType.isUnion() &&
-        leftOperandType.types.some(isNullOrUndefinedType) &&
-        (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType))
+        isTypeAnyType(leftOperandType) ||
+        isTypeUnknownType(leftOperandType) ||
+        (leftOperandType.isUnion() &&
+          leftOperandType.types.some(isNullOrUndefinedType) &&
+          (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType)))
       ) {
         return;
       }
