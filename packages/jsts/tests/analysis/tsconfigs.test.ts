@@ -47,12 +47,14 @@ describe('tsconfigs', () => {
   });
 
   it('should return the TSconfig files', async () => {
+    setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
   });
 
   it('should validate the provided TSconfig files', async () => {
+    setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     setTsConfigPaths(
       tsConfigStore

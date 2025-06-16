@@ -39,7 +39,9 @@ describe('files', () => {
   });
 
   it('should return the package.json files', async () => {
-    await initFileStores(join(fixtures, 'dependencies'));
+    const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     const filePath = join(fixtures, 'dependencies', 'package.json');
     const fileContent = JSON.parse(await readFile(filePath, 'utf-8')) as PackageJson;
     expect(packageJsonStore.getPackageJsons()).toEqual([
@@ -51,10 +53,11 @@ describe('files', () => {
   });
 
   it('should fill the package.json cache used for rules', async () => {
-    const path = join(fixtures, 'dependencies');
-    await initFileStores(path);
+    const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     expect(cache.size).toEqual(1);
-    expect(cache.has(path)).toEqual(true);
+    expect(cache.has(baseDir)).toEqual(true);
   });
 
   it('should ignore malformed the package.json files', async ({ mock }) => {

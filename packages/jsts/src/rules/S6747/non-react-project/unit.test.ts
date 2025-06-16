@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from '../rule.js';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 

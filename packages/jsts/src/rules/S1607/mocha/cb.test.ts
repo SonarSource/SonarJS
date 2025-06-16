@@ -17,7 +17,7 @@
 import { check } from '../../../../tests/tools/testers/comment-based/index.js';
 import { rule } from '../rule.js';
 import { describe } from 'node:test';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import * as meta from '../generated-meta.js';
 
 const _dirname = join(import.meta.dirname, 'fixtures');

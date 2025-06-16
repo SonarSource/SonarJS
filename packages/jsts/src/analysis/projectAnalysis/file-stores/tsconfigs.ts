@@ -29,9 +29,8 @@ import {
   shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { basename, normalize } from 'node:path';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import { join } from 'node:path/posix';
+import { join, basename, normalize } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';

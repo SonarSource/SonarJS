@@ -38,7 +38,9 @@ describe('files', () => {
   });
 
   it('should return the files', async () => {
-    await initFileStores(join(fixtures, 'paths'));
+    const baseDir = join(fixtures, 'paths');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
   });
 
