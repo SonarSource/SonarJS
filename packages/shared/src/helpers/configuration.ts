@@ -20,6 +20,7 @@ import { extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
 import { isAbsolute as isWinAbsolute } from 'node:path/win32';
 import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
+import { join } from 'path';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -90,7 +91,7 @@ export function setGlobalConfiguration(config: Configuration = {}) {
   if (!config.baseDir) {
     throw new Error('baseDir is required');
   }
-  configuration.baseDir = normalizePath(config.baseDir, false);
+  configuration.baseDir = normalizePath(config.baseDir);
   setSourcesPaths(configuration.sources);
   setTestPaths(configuration.tests);
   setJsTsExclusions(configuration.jsTsExclusions);
@@ -101,8 +102,8 @@ export function setGlobalConfiguration(config: Configuration = {}) {
 }
 
 export function getBaseDir() {
-  if (!configuration.baseDir) {
-    throw new Error('baseDir is not set');
+  if (!configuration.baseDir || !isAbsolutePath(configuration.baseDir)) {
+    throw new Error('baseDir is not set or is not an absolute path');
   }
   return configuration.baseDir;
 }
@@ -338,15 +339,13 @@ function normalizeGlobs(globs: string[] | undefined) {
 }
 
 function normalizePaths(paths: string[] | undefined) {
-  return (paths || []).map(path => normalizePath(path, true));
+  return (paths || []).map(path => normalizePath(path));
 }
 
-function normalizePath(path: string, makeRelativeToBaseDir = true) {
+function normalizePath(path: string) {
   const normalized = toUnixPath(path.trim());
-  if (makeRelativeToBaseDir && isAbsolutePath(normalized)) {
-    return normalized.startsWith(getBaseDir())
-      ? normalized.substring(getBaseDir().length + 1)
-      : normalized;
+  if (!isAbsolutePath(normalized)) {
+    return join(getBaseDir(), normalized);
   }
   return normalized;
 }

@@ -15,8 +15,55 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Minimatch } from 'minimatch';
+import { FileType } from '../files.js';
+import { dirname } from 'node:path/posix';
+import {
+  getExclusions,
+  getInclusions,
+  getJsTsExclusions,
+  getSourcesPaths,
+  getTestExclusions,
+  getTestInclusions,
+  getTestPaths,
+} from '../configuration.js';
 
-export function filterPath(exclusions: Minimatch[], relativePath: string) {
-  return !exclusions.some(exclusion => exclusion.match(relativePath));
+export function filterPathAndGetFileType(filePath: string): FileType | undefined {
+  if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
+    return undefined;
+  }
+  const parent = dirname(filePath);
+  const testPaths = getTestPaths();
+  if (testPaths?.length) {
+    if (testPaths.some(testPath => parent.startsWith(testPath))) {
+      if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
+        return undefined;
+      }
+      const testInclusions = getTestInclusions();
+      if (testInclusions?.length) {
+        if (testInclusions.some(inclusion => inclusion.match(filePath))) {
+          return 'TEST';
+        }
+        return undefined;
+      }
+      return 'TEST';
+    }
+  }
+  const sourcesPaths = getSourcesPaths();
+  if (sourcesPaths?.length) {
+    if (sourcesPaths.some(sourcePath => parent.startsWith(sourcePath))) {
+      if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
+        return undefined;
+      }
+      const inclusions = getInclusions();
+      if (inclusions?.length) {
+        if (inclusions.some(inclusion => inclusion.match(filePath))) {
+          return 'MAIN';
+        }
+        return undefined;
+      }
+      return 'MAIN';
+    }
+    return undefined;
+  }
+  return 'MAIN';
 }
