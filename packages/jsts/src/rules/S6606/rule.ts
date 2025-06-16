@@ -20,7 +20,6 @@ import {
   generateMeta,
   getTypeFromTreeNode,
   interceptReport,
-  isBooleanType,
   isNullOrUndefinedType,
   isObjectType,
 } from '../helpers/index.js';
