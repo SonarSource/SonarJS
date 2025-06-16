@@ -24,6 +24,7 @@ import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
+import { FileType } from '../../../../../shared/src/helpers/files.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -121,11 +122,10 @@ export class SourceFileStore implements FileStore {
     this.newFiles = [];
   }
 
-  async process(file: Dirent, filePath: string) {
+  async process(file: Dirent, filePath: string, fileType: FileType) {
     if (isAnalyzableFile(file.name)) {
       const fileContent = await this.getFileContent(filePath);
-      const fileType = accept(filePath, fileContent);
-      if (fileType) {
+      if (accept(filePath, fileContent)) {
         this.newFiles.push({ fileType, filePath, fileContent });
       }
     }

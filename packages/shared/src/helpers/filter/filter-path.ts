@@ -33,35 +33,33 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
   }
   const parent = dirname(filePath);
   const testPaths = getTestPaths();
-  if (testPaths?.length) {
-    if (testPaths.some(testPath => parent.startsWith(testPath))) {
-      if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
-        return undefined;
-      }
-      const testInclusions = getTestInclusions();
-      if (testInclusions?.length) {
-        if (testInclusions.some(inclusion => inclusion.match(filePath))) {
-          return 'TEST';
-        }
-        return undefined;
-      }
-      return 'TEST';
+  if (testPaths?.length && testPaths.some(testPath => parent.startsWith(testPath))) {
+    if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
+      return undefined;
     }
+    const testInclusions = getTestInclusions();
+    if (testInclusions?.length) {
+      if (testInclusions.some(inclusion => inclusion.match(filePath))) {
+        return 'TEST';
+      }
+      return undefined;
+    }
+    return 'TEST';
   }
 
-  const sourcesPaths = getSourcesPaths();
   if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
     return undefined;
   }
 
-  if (sourcesPaths.some(sourcePath => parent.startsWith(sourcePath))) {
-    const inclusions = getInclusions();
-    if (inclusions?.length) {
-      if (inclusions.some(inclusion => inclusion.match(filePath))) {
-        return 'MAIN';
-      }
-      return undefined;
+  const inclusions = getInclusions();
+  if (inclusions?.length) {
+    if (inclusions.some(inclusion => inclusion.match(filePath))) {
+      return 'MAIN';
     }
+    return undefined;
+  }
+
+  if (getSourcesPaths().some(sourcePath => parent.startsWith(sourcePath))) {
     return 'MAIN';
   } else {
     return undefined;

@@ -17,29 +17,18 @@
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import { filterPathAndGetFileType } from './filter-path.js';
 import { getMaxFileSize, isCssFile, isJsTsFile } from '../configuration.js';
-import { FileType } from '../files.js';
 
-export function accept(
-  filePath: string,
-  fileContent: string,
-  fileType?: FileType,
-): FileType | false {
-  const computedFileType = fileType ?? filterPathAndGetFileType(filePath);
-  if (!computedFileType) {
-    return false;
-  }
+export function accept(filePath: string, fileContent: string): boolean {
   if (isJsTsFile(filePath)) {
     return (
       filterBundle(fileContent) &&
       filterMinified(filePath, fileContent) &&
-      filterSize(fileContent, getMaxFileSize()) &&
-      computedFileType
+      filterSize(fileContent, getMaxFileSize())
     );
   } else if (isCssFile(filePath)) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
-    return filterBundle(fileContent) && filterMinified(filePath, fileContent) && computedFileType;
+    return filterBundle(fileContent) && filterMinified(filePath, fileContent);
   }
-  return computedFileType;
+  return true;
 }

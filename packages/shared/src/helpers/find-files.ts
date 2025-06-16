@@ -14,23 +14,28 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import fs from 'node:fs/promises';
+import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { toUnixPath } from './files.js';
+import { FileType, toUnixPath } from './files.js';
 import { join } from 'node:path/posix';
+import { filterPathAndGetFileType } from './filter/filter-path.js';
 
 export async function findFiles(
   dir: string,
-  onFile: (file: Dirent, absolutePath: string, relativePath: string) => Promise<void>,
+  onFile: (file: Dirent, filePath: string, fileType: FileType) => Promise<void>,
 ) {
-  const prefixLength = dir.length + 1;
-  const files = await fs.readdir(dir, { recursive: true, withFileTypes: true });
+  const directories = [dir];
 
-  for (const file of files) {
-    const filePath = toUnixPath(join(file.parentPath, file.name));
-    const relativePath = filePath.substring(prefixLength);
-    if (file.isFile()) {
-      await onFile(file, filePath, relativePath);
+  while (directories.length > 0) {
+    const directory = directories.shift()!;
+    for await (const file of await opendir(directory)) {
+      const filePath = join(toUnixPath(file.parentPath), file.name);
+      const fileType = filterPathAndGetFileType(filePath);
+      if (file.isDirectory() && fileType) {
+        directories.push(filePath);
+      } else if (file.isFile() && fileType) {
+        await onFile(file, filePath, fileType);
+      }
     }
   }
 }
