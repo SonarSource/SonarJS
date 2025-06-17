@@ -63,8 +63,10 @@ describe('files', () => {
   it('should ignore malformed the package.json files', async ({ mock }) => {
     mock.method(console, 'log');
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
-    await initFileStores(join(fixtures, 'package-json-malformed'));
-    const filePath = join(fixtures, 'package-json-malformed', 'package.json');
+    const baseDir = join(fixtures, 'package-json-malformed');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
+    const filePath = join(baseDir, 'package.json');
     expect(packageJsonStore.getPackageJsons()).toHaveLength(0);
 
     expect(

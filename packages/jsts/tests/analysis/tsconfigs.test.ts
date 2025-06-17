@@ -212,6 +212,7 @@ describe('tsconfigs', () => {
   });
 
   it('should change to property of TsConfig files when provided', async () => {
+    setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
@@ -222,9 +223,9 @@ describe('tsconfigs', () => {
   });
 
   it('should log when no tsconfigs are found with the provided property', async ({ mock }) => {
-    setTsConfigPaths(['tsconfig.fake.json']);
     mock.method(console, 'error');
 
+    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: ['tsconfig.fake.json'] });
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');

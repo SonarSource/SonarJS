@@ -16,7 +16,6 @@
  */
 
 import { FileType } from '../files.js';
-import { dirname } from 'node:path/posix';
 import {
   getExclusions,
   getInclusions,
@@ -31,9 +30,8 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
   if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
     return undefined;
   }
-  const parent = dirname(filePath);
   const testPaths = getTestPaths();
-  if (testPaths?.length && testPaths.some(testPath => parent.startsWith(testPath))) {
+  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(testPath))) {
     if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
       return undefined;
     }
@@ -59,7 +57,7 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
     return undefined;
   }
 
-  if (getSourcesPaths().some(sourcePath => parent.startsWith(sourcePath))) {
+  if (getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
     return 'MAIN';
   } else {
     return undefined;

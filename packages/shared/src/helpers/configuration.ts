@@ -335,7 +335,7 @@ export const DEFAULT_GLOBALS = [
 ];
 
 function normalizeGlobs(globs: string[] | undefined) {
-  return (globs || []).map(
+  return normalizePaths(globs).map(
     pattern => new Minimatch(toUnixPath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
 }
