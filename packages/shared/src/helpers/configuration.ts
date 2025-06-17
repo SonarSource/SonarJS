@@ -285,7 +285,7 @@ export function shouldClearTsConfigCache() {
 }
 
 export function shouldDetectBundles() {
-  return !!configuration.detectBundles;
+  return configuration.detectBundles !== false;
 }
 
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
