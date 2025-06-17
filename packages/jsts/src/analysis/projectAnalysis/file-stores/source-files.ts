@@ -156,10 +156,8 @@ export class SourceFileStore implements FileStore {
         // We need to apply filters if the files come from the request
         const filename = toUnixPath(file.filePath);
         file.filePath = filename;
-        if (
-          isJsTsExcluded(filename) ||
-          !accept(filename, file.fileContent ?? (await readFile(filename)))
-        ) {
+        file.fileContent = file.fileContent ?? (await readFile(filename));
+        if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {
           continue;
         }
       }
