@@ -16,7 +16,7 @@
  */
 import prettier from 'prettier';
 import { readdir, readFile, stat, writeFile } from 'fs/promises';
-import { dirname, join } from 'node:path/posix';
+import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 //@ts-ignore
 import { prettier as prettierOpts } from '../package.json';

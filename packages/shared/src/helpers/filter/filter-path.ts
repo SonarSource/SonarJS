@@ -31,7 +31,7 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
     return undefined;
   }
   const testPaths = getTestPaths();
-  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(testPath))) {
+  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(`${testPath}/`))) {
     if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
       return undefined;
     }
@@ -57,7 +57,7 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
     return undefined;
   }
 
-  if (getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
+  if (getSourcesPaths().some(sourcePath => filePath.startsWith(`${sourcePath}/`))) {
     return 'MAIN';
   } else {
     return undefined;
