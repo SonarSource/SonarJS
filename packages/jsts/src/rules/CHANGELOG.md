@@ -1,3 +1,14 @@
+## 2025-06-17, Version 3.0.3
+
+- [[JS-707](https://sonarsource.atlassian.net/browse/JS-707)] - S2068 should be case-insensitive and support "passphrase"
+- [[JS-705](https://sonarsource.atlassian.net/browse/JS-705)] - S2699: On Typescript visit identify testing frameworks assertions
+- [[JS-634](https://sonarsource.atlassian.net/browse/JS-634)] - Fix FP S6845 (`no-noninteractive-tabindex`): add recommended option to allow for `tabpanel` role
+- [[JS-633](https://sonarsource.atlassian.net/browse/JS-633)] - Fix FP S3735 (`void-use`): detect correctly when used in front of promise calls
+- [[JS-632](https://sonarsource.atlassian.net/browse/JS-632)] - Fix FP S6848 (`no-static-element-interactions`): add exceptions for <a> and <summary>
+- [[JS-628](https://sonarsource.atlassian.net/browse/JS-628)] - Fix FP S2699 (`assertions-in-tests`): handle re-exports of assertions
+- [[JS-625](https://sonarsource.atlassian.net/browse/JS-625)] - Fix FP S1848 (`constructor-for-side-effects`): Add exceptions for infrastructure-as-code constructors
+- [[JS-33](https://sonarsource.atlassian.net/browse/JS-33)] - Fix FN S4123 ("no-invalid-await"): when an async function returns a boolean
+
 ## 2025-02-13, Version 3.0.2
 
 - [[ESLINTJS-70](https://sonarsource.atlassian.net/browse/ESLINTJS-70)] - Adapt ESLint plugin to new ESLint 9 types
