@@ -6,18 +6,8 @@
 "desktop:app/src/lib/branch.ts": [
 42
 ],
-"desktop:app/src/lib/git/diff-check.ts": [
-32
-],
 "desktop:app/src/lib/git/rebase.ts": [
 572
-],
-"desktop:app/src/lib/git/status.ts": [
-104,
-117
-],
-"desktop:app/src/lib/range.ts": [
-14
 ],
 "desktop:app/src/lib/stats/stats-store.ts": [
 1921
@@ -25,9 +15,6 @@
 "desktop:app/src/lib/stores/app-store.ts": [
 1200,
 2107
-],
-"desktop:app/src/lib/stores/repositories-store.ts": [
-374
 ],
 "desktop:app/src/lib/thank-you.ts": [
 97
@@ -50,12 +37,6 @@
 ],
 "desktop:app/src/ui/lib/path-text.tsx": [
 165
-],
-"desktop:app/src/ui/repositories-list/group-repositories.ts": [
-82,
-90,
-139,
-160
 ],
 "desktop:script/build.ts": [
 155

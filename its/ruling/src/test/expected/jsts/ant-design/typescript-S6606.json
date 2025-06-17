@@ -9,9 +9,6 @@
 110,
 177
 ],
-"ant-design:components/descriptions/index.tsx": [
-76
-],
 "ant-design:components/form/FormItem.tsx": [
 367
 ],
@@ -22,20 +19,7 @@
 60,
 62
 ],
-"ant-design:components/space/index.tsx": [
-37
-],
-"ant-design:components/table/hooks/usePagination.ts": [
-81
-],
 "ant-design:components/tabs/index.tsx": [
 65
-],
-"ant-design:site/theme/template/Home/DesignPage/InteractiveIcon.tsx": [
-38
-],
-"ant-design:site/theme/template/utils.tsx": [
-31,
-31
 ]
 }
