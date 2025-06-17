@@ -16,11 +16,10 @@
  */
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
-import { extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
+import { join, extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
 import { isAbsolute as isWinAbsolute } from 'node:path/win32';
 import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
-import { join } from 'node:path/posix';
 import { debug } from './logging.js';
 
 /**

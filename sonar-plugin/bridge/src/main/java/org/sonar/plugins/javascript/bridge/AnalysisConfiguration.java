@@ -16,11 +16,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Arrays.stream;
-
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.config.Configuration;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public interface AnalysisConfiguration {
@@ -50,17 +47,17 @@ public interface AnalysisConfiguration {
 
   List<String> getJsTsExcludedPaths();
 
-  public boolean shouldDetectBundles();
+  boolean shouldDetectBundles();
 
-  public List<String> getSources();
+  List<String> getSources();
 
-  public List<String> getInclusions();
+  List<String> getInclusions();
 
-  public List<String> getExclusions();
+  List<String> getExclusions();
 
-  public List<String> getTests();
+  List<String> getTests();
 
-  public List<String> getTestInclusions();
+  List<String> getTestInclusions();
 
-  public List<String> getTestExclusions();
+  List<String> getTestExclusions();
 }
