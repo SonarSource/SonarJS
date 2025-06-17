@@ -36,5 +36,9 @@ export const fields = [
       field: 'ignoreTernaryTests',
       default: false,
     },
+    {
+      field: 'ignorePrimitives',
+      default: true,
+    },
   ],
 ] as const satisfies ESLintConfiguration;
