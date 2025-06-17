@@ -14,13 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { debug } from '../logging.js';
+
 const DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
-export function filterMinified(filename: string, input: string) {
-  return !(
-    hasMinifiedFilename(filename) ||
-    (isMinifiableFilename(filename) && hasExcessiveAverageLineLength(input))
-  );
+export function filterMinified(filePath: string, input: string) {
+  const isMinified =
+    hasMinifiedFilename(filePath) ||
+    (isMinifiableFilename(filePath) && hasExcessiveAverageLineLength(input));
+  if (isMinified) {
+    debug(`File ${filePath} was excluded because it looks minified`);
+  }
+  return !isMinified;
 }
 
 function isMinifiableFilename(filename: string) {

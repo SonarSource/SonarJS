@@ -29,9 +29,13 @@ export const packageJsonStore = new PackageJsonStore(sourceFileStore);
 export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
 export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
-  const pendingStores: FileStore[] = [sourceFileStore, packageJsonStore, tsConfigStore].filter(
-    store => !store.isInitialized(baseDir, inputFiles),
-  );
+  const pendingStores: FileStore[] = [];
+
+  for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
+    if (!(await store.isInitialized(baseDir, inputFiles))) {
+      pendingStores.push(store);
+    }
+  }
 
   if (!pendingStores.length) {
     return;

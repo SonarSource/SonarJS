@@ -15,10 +15,18 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export function filterSize(input: string, maxSize: number) {
-  return getBytes(input) <= maxSize * 1000;
+import { debug } from '../logging.js';
 
-  function getBytes(input: string) {
-    return Buffer.byteLength(input, 'utf8');
+export function filterSize(filePath: string, input: string, maxSize: number) {
+  const exceedsLimit = getBytes(input) > maxSize * 1000;
+  if (exceedsLimit) {
+    debug(
+      `File ${filePath} was excluded because it exceeds the maximum size of ${maxSize} KB. You can modify the maximum size with the property sonar.javascript.maxFileSize (in KB).`,
+    );
   }
+  return !exceedsLimit;
+}
+
+function getBytes(input: string) {
+  return Buffer.byteLength(input, 'utf8');
 }

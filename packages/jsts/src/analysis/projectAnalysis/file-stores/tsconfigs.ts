@@ -78,7 +78,7 @@ export class TsConfigStore implements FileStore {
     return this.cacheMap[this.origin];
   }
 
-  isInitialized(baseDir: string) {
+  async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
     return this.origin !== undefined && this.cacheMap[this.origin].initialized;
   }

@@ -245,11 +245,11 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     );
   }
 
-  public List<String> getExcludedPaths() {
-    return Arrays.asList(getExcludedPaths(context.config()));
+  public List<String> getJsTsExcludedPaths() {
+    return Arrays.asList(getJsTsExcludedPaths(context.config()));
   }
 
-  public static String[] getExcludedPaths(Configuration configuration) {
+  public static String[] getJsTsExcludedPaths(Configuration configuration) {
     if (isExclusionOverridden(configuration)) {
       return concat(
         stream(configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)),
@@ -268,7 +268,47 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     );
   }
 
+  public boolean shouldDetectBundles() {
+    return shouldDetectBundles(context.config());
+  }
+
   public static boolean shouldDetectBundles(Configuration config) {
     return config.getBoolean(JavaScriptPlugin.DETECT_BUNDLES_PROPERTY).orElse(true);
+  }
+
+  public List<String> getSources() {
+    return stream(this.context.config().getStringArray("sonar.sources"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getInclusions() {
+    return stream(this.context.config().getStringArray("sonar.inclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getExclusions() {
+    return stream(this.context.config().getStringArray("sonar.exclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTests() {
+    return stream(this.context.config().getStringArray("sonar.tests"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTestInclusions() {
+    return stream(this.context.config().getStringArray("sonar.test.inclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTestExclusions() {
+    return stream(this.context.config().getStringArray("sonar.test.exclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
   }
 }

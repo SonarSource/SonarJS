@@ -20,7 +20,7 @@ import type { JsTsFiles } from '../projectAnalysis.js';
 import { FileType } from '../../../../../shared/src/helpers/files.js';
 
 export abstract class FileStore {
-  abstract isInitialized(baseDir: string, inputFiles?: JsTsFiles): boolean;
+  abstract isInitialized(baseDir: string, inputFiles?: JsTsFiles): Promise<boolean>;
 
   abstract setup(baseDir: string): void;
 

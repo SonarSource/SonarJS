@@ -14,12 +14,27 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { debug, info } from '../logging.js';
+
 const READ_CHARACTERS_LIMIT = 2048;
 const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
+let isInfoLogged = false;
 
-export function filterBundle(input: string) {
+export function filterBundle(filePath: string, input: string) {
   const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
-  return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
+  if (COMMENT_OPERATOR_FUNCTION.test(firstCharacters)) {
+    debug(
+      `File ${filePath} was excluded because it looks like a bundle. (Disable detection with sonar.javascript.detectBundles=false)`,
+    );
+    if (!isInfoLogged) {
+      info(
+        'Some of the project files were automatically excluded because they looked like generated code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting sonar.javascript.detectBundles=false',
+      );
+      isInfoLogged = true;
+    }
+    return false;
+  }
+  return true;
 }
 
 function buildBundleRegex() {

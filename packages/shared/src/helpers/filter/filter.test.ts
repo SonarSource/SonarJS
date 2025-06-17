@@ -42,7 +42,7 @@ describe('assessors', () => {
         '// Use the correct document accordingly with window argument (sandbox)\n' +
         'var document = window.document;\n' +
         'var jQuery = (function() {';
-      expect(filterBundle(JQUERY)).toBeFalsy();
+      expect(filterBundle('test.ts', JQUERY)).toBeFalsy();
     });
   });
 });

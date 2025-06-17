@@ -21,6 +21,7 @@ import { isAbsolute as isWinAbsolute } from 'node:path/win32';
 import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
 import { join } from 'node:path/posix';
+import { debug } from './logging.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -73,6 +74,7 @@ export type Configuration = {
   normalizedTestInclusions?: Minimatch[];
   testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
   normalizedTestExclusions?: Minimatch[];
+  detectBundles?: boolean /* sonar.javascript.detectBundles property: whether files looking like bundled code should be ignored  */;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -186,7 +188,8 @@ export function maxFilesForTypeChecking() {
 }
 
 export function setTestPaths(testPaths: string[] | undefined) {
-  configuration.tests = normalizePaths(testPaths);
+  configuration.tests = normalizePaths(testPaths).map(path => `${path}/`.replace(/\/+$/g, '/'));
+  debug(`Setting test paths to ${configuration.tests}`);
 }
 
 export function getTestPaths() {
@@ -194,7 +197,10 @@ export function getTestPaths() {
 }
 
 export function setSourcesPaths(sourcesPaths: string[] | undefined) {
-  configuration.sources = normalizePaths(sourcesPaths);
+  configuration.sources = normalizePaths(sourcesPaths).map(path =>
+    `${path}/`.replace(/\/+$/g, '/'),
+  );
+  debug(`Setting sources paths to ${configuration.sources}`);
 }
 
 export function getSourcesPaths() {
@@ -205,6 +211,9 @@ function setJsTsExclusions(jsTsExclusions: string[] | undefined) {
   configuration.normalizedJsTsExclusions = normalizeGlobs(
     (jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
   );
+  debug(
+    `Setting js/ts exclusions to ${configuration.normalizedJsTsExclusions.map(mini => mini.pattern)}`,
+  );
 }
 
 export function getJsTsExclusions() {
@@ -213,6 +222,7 @@ export function getJsTsExclusions() {
 
 function setExclusions(exclusions: string[] | undefined) {
   configuration.normalizedExclusions = normalizeGlobs(exclusions);
+  debug(`Setting exclusions to ${configuration.normalizedExclusions.map(mini => mini.pattern)}`);
 }
 
 export function getExclusions() {
@@ -221,6 +231,7 @@ export function getExclusions() {
 
 function setInclusions(inclusions: string[] | undefined) {
   configuration.normalizedInclusions = normalizeGlobs(inclusions);
+  debug(`Setting inclusions to ${configuration.normalizedInclusions.map(mini => mini.pattern)}`);
 }
 
 export function getInclusions() {
@@ -229,6 +240,9 @@ export function getInclusions() {
 
 function setTestExclusions(testExclusions: string[] | undefined) {
   configuration.normalizedTestExclusions = normalizeGlobs(testExclusions);
+  debug(
+    `Setting test exclusions to ${configuration.normalizedTestExclusions.map(mini => mini.pattern)}`,
+  );
 }
 
 export function getTestExclusions() {
@@ -237,6 +251,9 @@ export function getTestExclusions() {
 
 function setTestInclusions(testInclusions: string[] | undefined) {
   configuration.normalizedTestInclusions = normalizeGlobs(testInclusions);
+  debug(
+    `Setting test inclusions to ${configuration.normalizedTestInclusions.map(mini => mini.pattern)}`,
+  );
 }
 
 export function getTestInclusions() {
@@ -265,6 +282,10 @@ export function setClearTsConfigCache(value: boolean) {
 
 export function shouldClearTsConfigCache() {
   return configuration.clearTsConfigCache;
+}
+
+export function shouldDetectBundles() {
+  return !!configuration.detectBundles;
 }
 
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({

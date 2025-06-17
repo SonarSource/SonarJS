@@ -17,18 +17,21 @@
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import { getMaxFileSize, isCssFile, isJsTsFile } from '../configuration.js';
+import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
 
 export function accept(filePath: string, fileContent: string): boolean {
   if (isJsTsFile(filePath)) {
     return (
-      filterBundle(fileContent) &&
+      (!shouldDetectBundles() || filterBundle(filePath, fileContent)) &&
       filterMinified(filePath, fileContent) &&
-      filterSize(fileContent, getMaxFileSize())
+      filterSize(filePath, fileContent, getMaxFileSize())
     );
   } else if (isCssFile(filePath)) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
-    return filterBundle(fileContent) && filterMinified(filePath, fileContent);
+    return (
+      (!shouldDetectBundles() || filterBundle(filePath, fileContent)) &&
+      filterMinified(filePath, fileContent)
+    );
   }
   return true;
 }

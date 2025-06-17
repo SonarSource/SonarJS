@@ -186,6 +186,13 @@ public interface BridgeServer extends Startable {
     List<String> cssSuffixes;
     Set<String> tsConfigPaths;
     List<String> jsTsExclusions;
+    List<String> sources;
+    List<String> inclusions;
+    List<String> exclusions;
+    List<String> tests;
+    List<String> testInclusions;
+    List<String> testExclusions;
+    boolean detectBundles;
 
     public ProjectAnalysisConfiguration(
       String baseDir,
@@ -206,7 +213,14 @@ public interface BridgeServer extends Startable {
       this.jsSuffixes = analysisConfiguration.getJsExtensions();
       this.cssSuffixes = analysisConfiguration.getCssExtensions();
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
-      this.jsTsExclusions = analysisConfiguration.getExcludedPaths();
+      this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
+      this.sources = analysisConfiguration.getSources();
+      this.inclusions = analysisConfiguration.getInclusions();
+      this.exclusions = analysisConfiguration.getExclusions();
+      this.tests = analysisConfiguration.getTests();
+      this.testInclusions = analysisConfiguration.getTestInclusions();
+      this.testExclusions = analysisConfiguration.getTestExclusions();
+      this.detectBundles = analysisConfiguration.shouldDetectBundles();
     }
 
     public boolean skipAst() {

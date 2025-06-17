@@ -25,14 +25,25 @@ import {
   getTestInclusions,
   getTestPaths,
 } from '../configuration.js';
+import { debug } from '../logging.js';
+
+export function isJsTsExcluded(filePath: string) {
+  if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
+    debug(`File ignored due to js/ts exclusions: ${filePath}`);
+    return true;
+  }
+  return false;
+}
 
 export function filterPathAndGetFileType(filePath: string): FileType | undefined {
-  if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
+  if (isJsTsExcluded(filePath)) {
     return undefined;
   }
+
   const testPaths = getTestPaths();
-  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(`${testPath}/`))) {
+  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(testPath))) {
     if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
+      debug(`File ignored due to test exclusions: ${filePath}`);
       return undefined;
     }
     const testInclusions = getTestInclusions();
@@ -40,12 +51,14 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
       if (testInclusions.some(inclusion => inclusion.match(filePath))) {
         return 'TEST';
       }
+      debug(`File ignored as it's not in test inclusions paths: ${filePath}`);
       return undefined;
     }
     return 'TEST';
   }
 
   if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
+    debug(`File ignored due to exclusions: ${filePath}`);
     return undefined;
   }
 
@@ -54,12 +67,14 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
     if (inclusions.some(inclusion => inclusion.match(filePath))) {
       return 'MAIN';
     }
+    debug(`File ignored as it's not in sources inclusions paths: ${filePath}`);
     return undefined;
   }
 
-  if (getSourcesPaths().some(sourcePath => filePath.startsWith(`${sourcePath}/`))) {
+  if (getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
     return 'MAIN';
   } else {
+    debug(`File ignored as it's not in sources paths: ${filePath}`);
     return undefined;
   }
 }

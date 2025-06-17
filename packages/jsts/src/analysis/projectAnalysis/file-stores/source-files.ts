@@ -19,12 +19,12 @@ import type { JsTsFiles } from '../projectAnalysis.js';
 import { toUnixPath } from '../../../rules/index.js';
 import { dirname } from 'node:path/posix';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
-import { readFile } from 'node:fs/promises';
 import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
-import { FileType } from '../../../../../shared/src/helpers/files.js';
+import { FileType, readFile } from '../../../../../shared/src/helpers/files.js';
+import { isJsTsExcluded } from '../../../../../shared/src/helpers/filter/filter-path.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -51,14 +51,14 @@ export class SourceFileStore implements FileStore {
     },
   };
 
-  isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
+  async isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
     if (isSonarLint()) {
-      this.setFiles('request', Object.values(inputFiles || {}));
+      await this.setFiles('request', Object.values(inputFiles || {}));
     } else if (inputFiles) {
       //if we are in SQS, the files in the request will already contain all found files
       this.setup(baseDir);
-      this.setFiles('found', Object.values(inputFiles));
+      await this.setFiles('found', Object.values(inputFiles));
       return true;
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
@@ -133,14 +133,18 @@ export class SourceFileStore implements FileStore {
 
   // we check if we already have the contents in the HTTP request before reading FS
   async getFileContent(filePath: string) {
-    return this.store.request.files?.[filePath]?.fileContent ?? (await readFile(filePath, 'utf8'));
+    return this.store.request.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
   async postProcess() {
-    this.setFiles('found', this.newFiles);
+    await this.setFiles('found', this.newFiles, false);
   }
 
-  setFiles(store: keyof typeof SourceFileStore.prototype.store, files: JsTsAnalysisInput[]) {
+  async setFiles(
+    store: keyof typeof SourceFileStore.prototype.store,
+    files: JsTsAnalysisInput[],
+    filter = true,
+  ) {
     this.store[store].files = {};
     this.store[store].filenames = [];
     if (store === 'found') {
@@ -148,13 +152,22 @@ export class SourceFileStore implements FileStore {
       this.paths = new Set<string>();
     }
     for (const file of files) {
-      const filename = toUnixPath(file.filePath);
-      file.filePath = filename;
-      if (store === 'found') {
-        this.paths!.add(dirname(filename));
+      if (filter) {
+        // We need to apply filters if the files come from the request
+        const filename = toUnixPath(file.filePath);
+        file.filePath = filename;
+        if (
+          isJsTsExcluded(filename) ||
+          !accept(filename, file.fileContent ?? (await readFile(filename)))
+        ) {
+          continue;
+        }
       }
-      this.store[store].filenames.push(filename);
-      this.store[store].files[filename] = file;
+      if (store === 'found') {
+        this.paths!.add(dirname(file.filePath));
+      }
+      this.store[store].filenames.push(file.filePath);
+      this.store[store].files[file.filePath] = file;
     }
   }
 }
