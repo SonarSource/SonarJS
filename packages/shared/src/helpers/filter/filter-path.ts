@@ -27,9 +27,16 @@ import {
 } from '../configuration.js';
 import { debug } from '../logging.js';
 
-export function filterPathAndGetFileType(filePath: string): FileType | undefined {
+export function isJsTsExcluded(filePath: string) {
   if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
+    return true;
+  }
+  return false;
+}
+
+export function filterPathAndGetFileType(filePath: string): FileType | undefined {
+  if (isJsTsExcluded(filePath)) {
     return undefined;
   }
 

@@ -24,6 +24,7 @@ import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
 import { FileType, readFile } from '../../../../../shared/src/helpers/files.js';
+import { isJsTsExcluded } from '../../../../../shared/src/helpers/filter/filter-path.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -155,8 +156,10 @@ export class SourceFileStore implements FileStore {
         // We need to apply filters if the files come from the request
         const filename = toUnixPath(file.filePath);
         file.filePath = filename;
-        file.fileContent = file.fileContent ?? (await readFile(filename));
-        if (!accept(filename, file.fileContent)) {
+        if (
+          isJsTsExcluded(filename) ||
+          !accept(filename, file.fileContent ?? (await readFile(filename)))
+        ) {
           continue;
         }
       }
