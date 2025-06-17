@@ -149,7 +149,7 @@ describe('tsconfigs', () => {
     setGlobalConfiguration({ baseDir });
     const file = toUnixPath(join(baseDir, 'file.ts'));
     await initFileStores(baseDir);
-    expect(tsConfigStore.isInitialized(baseDir)).toEqual(true);
+    expect(await tsConfigStore.isInitialized(baseDir)).toEqual(true);
 
     mock.method(tsConfigStore.getCurrentCache(), 'getTsConfigMapForInputFile');
     const findTsConfigMock = (
@@ -190,7 +190,7 @@ describe('tsconfigs', () => {
     const baseDir = toUnixPath(join(fixtures, 'paths'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
-    expect(tsConfigStore.isInitialized(baseDir)).toEqual(true);
+    expect(await tsConfigStore.isInitialized(baseDir)).toEqual(true);
 
     mock.method(tsConfigStore.getCurrentCache(), 'clearFileToTsConfigCache');
     const clearTsConfigMapMock = (

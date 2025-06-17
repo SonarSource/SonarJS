@@ -80,7 +80,7 @@ describe('files', () => {
     const baseDir = join(fixtures, 'dependencies');
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
-    expect(packageJsonStore.isInitialized(baseDir)).toEqual(true);
+    expect(await packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
     expect(cache.size).toEqual(1);
 
