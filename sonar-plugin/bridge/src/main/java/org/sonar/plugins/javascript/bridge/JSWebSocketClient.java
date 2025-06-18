@@ -63,7 +63,7 @@ public class JSWebSocketClient extends WebSocketClient {
 
   @Override
   public void onMessage(String message) {
-    LOG.debug("Received WebSocket message: {}", message);
+    LOG.trace("Received WebSocket message: {}", message);
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
 
     if ("error".equals(jsonObject.get("messageType").getAsString())) {
