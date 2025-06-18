@@ -28,13 +28,11 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.version.Version;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -149,7 +147,7 @@ class JsTsRulingTest {
   }
 
   private static Arguments jsTsProject(String project, String exclusions, String testDir) {
-    return jsTsProject(project, "../sources/jsts/projects/" + project, exclusions, testDir);
+    return jsTsProject(project, "jsts/projects/" + project, exclusions, testDir);
   }
 
   private static Arguments jsTsProject(
@@ -163,7 +161,7 @@ class JsTsRulingTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    cleanRootNodeModules();
+    assertSymlink();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
         .add(
@@ -223,29 +221,16 @@ class JsTsRulingTest {
     installScanner();
   }
 
-  /**
-   * Method to remove SonarJS root node_modules to avoid typescript picking up typings from SonarJS,
-   * as they are not available during CI and the results with and without node_modules are different.
-   *
-   * @throws IOException
-   */
-  private static void cleanRootNodeModules() throws IOException {
-    var nodeModules = Path.of("../../node_modules");
-    if (Files.exists(nodeModules)) {
-      var start = System.currentTimeMillis();
-      LOG.info("Cleaning node_modules");
-      try (var dirStream = Files.walk(nodeModules)) {
-        dirStream.sorted(Comparator.reverseOrder()).forEachOrdered(JsTsRulingTest::deleteUnchecked);
-      }
-      LOG.info("Done cleaning node_modules in {}ms", System.currentTimeMillis() - start);
-    }
-  }
+  public static void assertSymlink() throws Exception {
+    Path target = Path.of("..", "sources").normalize();
+    Path link = Path.of("..", "..", "..", "sonarjs-ruling-sources").normalize();
 
-  private static void deleteUnchecked(Path path) {
     try {
-      Files.delete(path);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      LOG.info("Checking symlink {} {}", target.toAbsolutePath(), link.toAbsolutePath());
+      Files.createSymbolicLink(link, target);
+    } catch (FileAlreadyExistsException e) {
+      LOG.info("File already exists exception");
+      // Ignore if the symlink already exists
     }
   }
 
@@ -257,26 +242,24 @@ class JsTsRulingTest {
   @ParameterizedTest
   @MethodSource
   @Execution(ExecutionMode.CONCURRENT)
-  void ruling(String project, String sourceDir, String exclusions, String testDir)
-    throws Exception {
+  void ruling(String project, String sourceDir, String exclusions, String testDir) {
     runRulingTest(project, sourceDir, exclusions, testDir);
   }
 
-  static void runRulingTest(String projectKey, String sources, String exclusions, String testDir)
-    throws IOException {
+  static void runRulingTest(String projectKey, String sources, String exclusions, String testDir) {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "js", "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "ts", "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "web", "empty-profile");
 
-    File sourcesLocation = FileLocation.of(sources).getFile();
+    File sourcesLocation = FileLocation.of("../../../sonarjs-ruling-sources/" + sources).getFile();
 
     String actualExclusions = DEFAULT_EXCLUSIONS;
-    if (!exclusions.equals("")) {
+    if (!exclusions.isEmpty()) {
       actualExclusions += "," + exclusions;
     }
-    if (!testDir.equals("")) {
+    if (!testDir.isEmpty()) {
       actualExclusions += "," + testDir + "/**/*";
     }
 
