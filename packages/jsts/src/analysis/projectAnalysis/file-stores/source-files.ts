@@ -16,15 +16,13 @@
  */
 
 import type { JsTsFiles } from '../projectAnalysis.js';
-import { toUnixPath } from '../../../rules/index.js';
 import { dirname } from 'node:path/posix';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
 import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
-import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
+import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
 import { FileType, readFile } from '../../../../../shared/src/helpers/files.js';
-import { isJsTsExcluded } from '../../../../../shared/src/helpers/filter/filter-path.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -54,11 +52,11 @@ export class SourceFileStore implements FileStore {
   async isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
     if (isSonarLint()) {
-      await this.setFiles('request', Object.values(inputFiles || {}));
+      await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
     } else if (inputFiles) {
       //if we are in SQS, the files in the request will already contain all found files
       this.setup(baseDir);
-      await this.setFiles('found', Object.values(inputFiles));
+      await this.filterAndSetFiles('found', Object.values(inputFiles));
       return true;
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
@@ -137,35 +135,50 @@ export class SourceFileStore implements FileStore {
   }
 
   async postProcess() {
-    await this.setFiles('found', this.newFiles, false);
+    await this.setFiles('found', this.newFiles);
   }
 
-  async setFiles(
+  private async setFiles(
     store: keyof typeof SourceFileStore.prototype.store,
     files: JsTsAnalysisInput[],
-    filter = true,
   ) {
+    this.resetStore(store);
+    for (const file of files) {
+      this.saveFileInStore(store, file);
+    }
+  }
+
+  private async filterAndSetFiles(
+    store: keyof typeof SourceFileStore.prototype.store,
+    files: JsTsAnalysisInput[],
+  ) {
+    this.resetStore(store);
+    for (const file of files) {
+      // We need to apply filters if the files come from the request
+      if (await shouldIgnoreFile(file)) {
+        continue;
+      }
+      this.saveFileInStore(store, file);
+    }
+  }
+
+  private saveFileInStore(
+    store: keyof typeof SourceFileStore.prototype.store,
+    file: JsTsAnalysisInput,
+  ) {
+    if (store === 'found') {
+      this.paths!.add(dirname(file.filePath));
+    }
+    this.store[store].filenames!.push(file.filePath);
+    this.store[store].files![file.filePath] = file;
+  }
+
+  private resetStore(store: keyof typeof SourceFileStore.prototype.store) {
     this.store[store].files = {};
     this.store[store].filenames = [];
     if (store === 'found') {
       // in sonarlint we don't want the request files to reset paths
       this.paths = new Set<string>();
-    }
-    for (const file of files) {
-      if (filter) {
-        // We need to apply filters if the files come from the request
-        const filename = toUnixPath(file.filePath);
-        file.filePath = filename;
-        file.fileContent = file.fileContent ?? (await readFile(filename));
-        if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {
-          continue;
-        }
-      }
-      if (store === 'found') {
-        this.paths!.add(dirname(file.filePath));
-      }
-      this.store[store].filenames.push(file.filePath);
-      this.store[store].files[file.filePath] = file;
     }
   }
 }

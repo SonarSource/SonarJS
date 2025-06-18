@@ -27,7 +27,7 @@ export async function findFiles(
   const directories = [dir];
 
   while (directories.length > 0) {
-    const directory = directories.shift()!;
+    const directory = directories.pop()!;
     for await (const file of await opendir(directory)) {
       const filePath = join(toUnixPath(file.parentPath), file.name);
       const fileType = filterPathAndGetFileType(filePath);

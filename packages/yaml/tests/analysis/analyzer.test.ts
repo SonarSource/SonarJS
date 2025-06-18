@@ -29,11 +29,12 @@ describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
 
   it('should fail on uninitialized linter', async () => {
-    await expect(async () =>
-      analyzeEmbedded(
-        await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
-        parseAwsFromYaml,
-      ),
+    await expect(
+      async () =>
+        await analyzeEmbedded(
+          await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
+          parseAwsFromYaml,
+        ),
     ).rejects.toThrow(APIError.linterError('Linter does not exist. Did you call /init-linter?'));
   });
 
@@ -52,7 +53,7 @@ describe('analyzeYAML', () => {
     });
     const {
       issues: [issue],
-    } = analyzeEmbedded(
+    } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
       parseAwsFromYaml,
     );
@@ -81,7 +82,7 @@ describe('analyzeYAML', () => {
       ],
     });
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
-    expect(() => analyzeEmbedded(analysisInput, parseAwsFromYaml)).toThrow(
+    expect(async () => await analyzeEmbedded(analysisInput, parseAwsFromYaml)).rejects.toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
     );
   });
@@ -99,7 +100,7 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
       parseAwsFromYaml,
     );
@@ -136,7 +137,7 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    const { issues } = analyzeEmbedded(
+    const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.yaml') }),
       parseAwsFromYaml,
     );
@@ -172,7 +173,7 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
       parseAwsFromYaml,
     );
@@ -204,7 +205,7 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.yaml') }),
       parseAwsFromYaml,
     );
@@ -241,7 +242,7 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    const { issues } = analyzeEmbedded(
+    const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'outside.yaml') }),
       parseAwsFromYaml,
     );
@@ -277,6 +278,6 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
+    await analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
   });
 });

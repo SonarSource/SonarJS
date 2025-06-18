@@ -18,6 +18,10 @@ import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
+import { isJsTsExcluded } from './filter-path.js';
+import { toUnixPath } from '../../../../jsts/src/rules/index.js';
+import { readFile } from '../files.js';
+import { AnalysisInput } from '../../types/analysis.js';
 
 export function accept(filePath: string, fileContent: string): boolean {
   if (isJsTsFile(filePath)) {
@@ -34,4 +38,14 @@ export function accept(filePath: string, fileContent: string): boolean {
     );
   }
   return true;
+}
+
+export async function shouldIgnoreFile(file: AnalysisInput): Promise<boolean> {
+  const filename = toUnixPath(file.filePath);
+  file.filePath = filename;
+  file.fileContent = file.fileContent ?? (await readFile(filename));
+  if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {
+    return true;
+  }
+  return false;
 }

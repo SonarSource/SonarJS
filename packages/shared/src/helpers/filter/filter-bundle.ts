@@ -18,7 +18,7 @@ import { debug, info } from '../logging.js';
 
 const READ_CHARACTERS_LIMIT = 2048;
 const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
-let isInfoLogged = false;
+let hasInfoBeenLogged = false;
 
 export function filterBundle(filePath: string, input: string) {
   const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
@@ -26,11 +26,11 @@ export function filterBundle(filePath: string, input: string) {
     debug(
       `File ${filePath} was excluded because it looks like a bundle. (Disable detection with sonar.javascript.detectBundles=false)`,
     );
-    if (!isInfoLogged) {
+    if (!hasInfoBeenLogged) {
       info(
         'Some of the project files were automatically excluded because they looked like generated code. Enable debug logging to see which files were excluded. You can disable bundle detection by setting sonar.javascript.detectBundles=false',
       );
-      isInfoLogged = true;
+      hasInfoBeenLogged = true;
     }
     return false;
   }

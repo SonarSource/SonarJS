@@ -87,7 +87,10 @@ const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
 
-export function setGlobalConfiguration(config: Configuration = {}) {
+export function setGlobalConfiguration(config?: Configuration) {
+  if (!config) {
+    return;
+  }
   configuration = { ...config };
   if (!config.baseDir) {
     throw new Error('baseDir is required');
