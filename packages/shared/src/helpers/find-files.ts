@@ -16,7 +16,7 @@
  */
 import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { FileType, toUnixPath } from './files.js';
+import { type FileType, toUnixPath } from './files.js';
 import { join } from 'node:path/posix';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
 

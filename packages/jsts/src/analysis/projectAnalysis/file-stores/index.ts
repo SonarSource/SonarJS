@@ -18,10 +18,8 @@
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import { JsTsFiles } from '../projectAnalysis.js';
+import type { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
-import type { FileType } from '../../../../../shared/src/helpers/files.js';
-import type { Dirent } from 'node:fs';
 import type { FileStore } from './store-type.js';
 
 export const sourceFileStore = new SourceFileStore();
@@ -45,7 +43,7 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
     store.setup(baseDir);
   }
 
-  await findFiles(baseDir, async (file: Dirent, filePath: string, fileType: FileType) => {
+  await findFiles(baseDir, async (file, filePath, fileType) => {
     for (const store of pendingStores) {
       await store.process(file, filePath, fileType);
     }
