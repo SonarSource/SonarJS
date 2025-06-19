@@ -44,8 +44,6 @@ const MAX_REQUEST_SIZE = '50mb';
  * Normally, the Java plugin sends keepalive requests to the bridge
  * If the Java plugin crashes, this timeout will run out and shut down
  * the bridge to prevent it from becoming an orphan process.
- *
- * If provided TIMEOUT is 0, then no timeout will be enforced.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -66,7 +64,7 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * @param host only for usage from outside of Node.js - Java plugin, SonarLint, ...
  * @param worker Worker thread to handle analysis requests
  * @param debugMemory print memory usage for debugging purposes
- * @param timeout timeout in ms to shut down the server if unresponsive
+ * @param timeout timeout in ms to shut down the server if unresponsive, if 0, no timeout will be enforced
  * @returns an http server
  */
 export function start(
