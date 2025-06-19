@@ -108,7 +108,8 @@ class BridgeServerImplTest {
     context = SensorContextTester.create(moduleBase);
     context
       .setSettings(
-        new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT, DEFAULT_TEST_TIMEOUT_SECONDS)
+        new MapSettings()
+          .setProperty(BridgeServerImpl.NODE_TIMEOUT_PROPERTY, DEFAULT_TEST_TIMEOUT_SECONDS)
       )
       .fileSystem()
       .setWorkDir(workDir);
@@ -307,7 +308,7 @@ class BridgeServerImplTest {
   void should_read_timeout_from_property(int timeoutSeconds) throws IOException {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setSettings(
-      new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT, timeoutSeconds)
+      new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT_PROPERTY, timeoutSeconds)
     );
     bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
     assertThat(bridgeServer.getCommandInfo()).contains(String.valueOf(timeoutSeconds * 1000));
@@ -521,7 +522,9 @@ class BridgeServerImplTest {
 
   @Test
   void should_use_default_timeout() {
-    assertThat(BridgeServerImpl.getNodeTimeoutSeconds(mock(Configuration.class))).isEqualTo(300);
+    assertThat(BridgeServerImpl.getNodeTimeoutSeconds(mock(Configuration.class))).isEqualTo(
+      BridgeServerImpl.DEFAULT_TIMEOUT_SECONDS
+    );
   }
 
   @Test
@@ -707,7 +710,7 @@ class BridgeServerImplTest {
     var deployLocation = "src/test/resources";
     var settings = new MapSettings()
       .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation)
-      .setProperty(BridgeServerImpl.NODE_TIMEOUT, DEFAULT_TEST_TIMEOUT_SECONDS);
+      .setProperty(BridgeServerImpl.NODE_TIMEOUT_PROPERTY, DEFAULT_TEST_TIMEOUT_SECONDS);
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);

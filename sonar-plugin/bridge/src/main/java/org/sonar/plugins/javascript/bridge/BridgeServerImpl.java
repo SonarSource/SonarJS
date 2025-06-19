@@ -70,8 +70,8 @@ public class BridgeServerImpl implements BridgeServer {
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
-  // timeout in seconds for Node Bridge, 0 - indicates no timeout
-  public static final String NODE_TIMEOUT = "sonar.javascript.node.timeout";
+  // internal property to set the timeout in seconds for Node Bridge, 0 - indicates no timeout
+  public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
@@ -277,7 +277,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   public static int getNodeTimeoutSeconds(Configuration config) {
-    return config.getInt(NODE_TIMEOUT).orElse(DEFAULT_TIMEOUT_SECONDS);
+    return config.getInt(NODE_TIMEOUT_PROPERTY).orElse(DEFAULT_TIMEOUT_SECONDS);
   }
 
   private static Map<String, String> getEnv() {
