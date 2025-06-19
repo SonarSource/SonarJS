@@ -97,7 +97,7 @@ public class BridgeServerImpl implements BridgeServer {
   private Long latestOKIsAliveTimestamp;
   private JSWebSocketClient client;
 
-  BridgeServerImpl(
+  public BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
     Bundle bundle,
     RulesBundles rulesBundles,
