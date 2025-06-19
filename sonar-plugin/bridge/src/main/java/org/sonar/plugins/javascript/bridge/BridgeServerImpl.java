@@ -64,19 +64,21 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static final Logger LOG = LoggerFactory.getLogger(BridgeServerImpl.class);
 
-  private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+  public static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
+  // timeout in seconds for Node Bridge, 0 - indicates no timeout
+  public static final String NODE_TIMEOUT = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
   private final NodeCommandBuilder nodeCommandBuilder;
-  private final int timeoutSeconds;
+  private int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
   private final Bundle bundle;
   private final String hostAddress;
   private int port;
@@ -95,29 +97,8 @@ public class BridgeServerImpl implements BridgeServer {
   private Long latestOKIsAliveTimestamp;
   private JSWebSocketClient client;
 
-  // Used by pico container for dependency injection
-  public BridgeServerImpl(
-    NodeCommandBuilder nodeCommandBuilder,
-    Bundle bundle,
-    RulesBundles rulesBundles,
-    NodeDeprecationWarning deprecationWarning,
-    TempFolder tempFolder,
-    EmbeddedNode embeddedNode
-  ) {
-    this(
-      nodeCommandBuilder,
-      DEFAULT_TIMEOUT_SECONDS,
-      bundle,
-      rulesBundles,
-      deprecationWarning,
-      tempFolder,
-      embeddedNode
-    );
-  }
-
   BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
-    int timeoutSeconds,
     Bundle bundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
@@ -126,7 +107,6 @@ public class BridgeServerImpl implements BridgeServer {
   ) {
     this(
       nodeCommandBuilder,
-      timeoutSeconds,
       bundle,
       rulesBundles,
       deprecationWarning,
@@ -138,7 +118,6 @@ public class BridgeServerImpl implements BridgeServer {
 
   public BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
-    int timeoutSeconds,
     Bundle bundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
@@ -147,7 +126,6 @@ public class BridgeServerImpl implements BridgeServer {
     Http http
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
-    this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
@@ -174,10 +152,6 @@ public class BridgeServerImpl implements BridgeServer {
         TimeUnit.SECONDS
       );
     }
-  }
-
-  int getTimeoutSeconds() {
-    return timeoutSeconds;
   }
 
   /**
@@ -276,6 +250,7 @@ public class BridgeServerImpl implements BridgeServer {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
+    timeoutSeconds = getNodeTimeoutSeconds(config);
 
     nodeCommandBuilder
       .outputConsumer(new LogOutputConsumer())
@@ -285,7 +260,12 @@ public class BridgeServerImpl implements BridgeServer {
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(serverConfig.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, String.valueOf(debugMemory))
+      .scriptArgs(
+        String.valueOf(port),
+        hostAddress,
+        String.valueOf(debugMemory),
+        String.valueOf(timeoutSeconds * 1000)
+      )
       .env(getEnv());
 
     serverConfig
@@ -294,6 +274,10 @@ public class BridgeServerImpl implements BridgeServer {
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
     return nodeCommandBuilder.build();
+  }
+
+  public static int getNodeTimeoutSeconds(Configuration config) {
+    return config.getInt(NODE_TIMEOUT).orElse(DEFAULT_TIMEOUT_SECONDS);
   }
 
   private static Map<String, String> getEnv() {

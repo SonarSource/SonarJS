@@ -49,11 +49,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -73,7 +76,7 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 class BridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
-  private static final int TEST_TIMEOUT_SECONDS = 1;
+  private static final int DEFAULT_TEST_TIMEOUT_SECONDS = 1;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(DEBUG);
@@ -103,7 +106,12 @@ class BridgeServerImplTest {
   @BeforeEach
   public void setUp() {
     context = SensorContextTester.create(moduleBase);
-    context.fileSystem().setWorkDir(workDir);
+    context
+      .setSettings(
+        new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT, DEFAULT_TEST_TIMEOUT_SECONDS)
+      )
+      .fileSystem()
+      .setWorkDir(workDir);
     serverConfig = BridgeServerConfig.fromSensorContext(context);
     tempFolder = new DefaultTempFolder(tempDir, true);
     unsupportedEmbeddedRuntime = new EmbeddedNode(
@@ -145,7 +153,6 @@ class BridgeServerImplTest {
 
     bridgeServer = new BridgeServerImpl(
       nodeCommandBuilder,
-      TEST_TIMEOUT_SECONDS,
       testBundle,
       emptyRulesBundles,
       deprecationWarning,
@@ -290,7 +297,20 @@ class BridgeServerImplTest {
 
     assertThatThrownBy(() -> bridgeServer.startServer(serverConfig))
       .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
+      .hasMessage(
+        "Failed to start the bridge server (" + DEFAULT_TEST_TIMEOUT_SECONDS + "s timeout)"
+      );
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 0, 3 })
+  void should_read_timeout_from_property(int timeoutSeconds) throws IOException {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    context.setSettings(
+      new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT, timeoutSeconds)
+    );
+    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
+    assertThat(bridgeServer.getCommandInfo()).contains(String.valueOf(timeoutSeconds * 1000));
   }
 
   @Test
@@ -392,7 +412,7 @@ class BridgeServerImplTest {
   void should_throw_special_exception_when_failed_start_server_before() {
     bridgeServer = createBridgeServer("throw.js");
     String failedToStartExceptionMessage =
-      "Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
+      "Failed to start the bridge server (" + DEFAULT_TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
@@ -501,15 +521,7 @@ class BridgeServerImplTest {
 
   @Test
   void should_use_default_timeout() {
-    bridgeServer = new BridgeServerImpl(
-      builder(),
-      mock(Bundle.class),
-      mock(RulesBundles.class),
-      deprecationWarning,
-      tempFolder,
-      unsupportedEmbeddedRuntime
-    );
-    assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
+    assertThat(BridgeServerImpl.getNodeTimeoutSeconds(mock(Configuration.class))).isEqualTo(300);
   }
 
   @Test
@@ -533,7 +545,6 @@ class BridgeServerImplTest {
   void enabled_monitoring() throws Exception {
     bridgeServer = new BridgeServerImpl(
       builder(),
-      TEST_TIMEOUT_SECONDS,
       new TestBundle(START_SERVER_SCRIPT),
       emptyRulesBundles,
       deprecationWarning,
@@ -562,7 +573,6 @@ class BridgeServerImplTest {
 
     bridgeServer = new BridgeServerImpl(
       builder(),
-      TEST_TIMEOUT_SECONDS,
       new TestBundle(START_SERVER_SCRIPT),
       rulesBundles,
       deprecationWarning,
@@ -648,7 +658,8 @@ class BridgeServerImplTest {
     BridgeServerConfig serverConfigForExecutableProperty = BridgeServerConfig.fromSensorContext(
       context
     );
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfigForExecutableProperty)
+    assertThatThrownBy(() ->
+      bridgeServer.startServerLazily(serverConfigForExecutableProperty)
     ).isInstanceOf(NodeCommandException.class);
 
     assertThat(logTester.logs(INFO)).contains(
@@ -691,11 +702,12 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_start_bridge_from_path() throws IOException, InterruptedException {
+  void should_start_bridge_from_path() throws IOException {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test/resources";
     var settings = new MapSettings()
-      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation)
+      .setProperty(BridgeServerImpl.NODE_TIMEOUT, DEFAULT_TEST_TIMEOUT_SECONDS);
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);
@@ -722,7 +734,6 @@ class BridgeServerImplTest {
   private BridgeServerImpl createBridgeServer(Bundle bundle) {
     return new BridgeServerImpl(
       builder(),
-      TEST_TIMEOUT_SECONDS,
       bundle,
       emptyRulesBundles,
       deprecationWarning,
