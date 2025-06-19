@@ -44,6 +44,8 @@ const MAX_REQUEST_SIZE = '50mb';
  * Normally, the Java plugin sends keepalive requests to the bridge
  * If the Java plugin crashes, this timeout will run out and shut down
  * the bridge to prevent it from becoming an orphan process.
+ *
+ * If provided TIMEOUT is 0, then no timeout will be enforced.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
@@ -114,17 +116,21 @@ export function start(
     });
 
     /**
-     * Builds a timeout middleware to shut down the server
-     * in case the process becomes orphan.
-     */
-    const orphanTimeout = timeoutMiddleware(close, timeout);
-
-    /**
      * The order of the middlewares registration is important, as the
      * error handling one should be last.
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-    app.use(orphanTimeout.middleware);
+
+    let orphanTimeout: { middleware: any; cancel: any } | undefined;
+    if (timeout !== 0) {
+      /**
+       * Builds a timeout middleware to shut down the server
+       * in case the process becomes orphan.
+       */
+      orphanTimeout = timeoutMiddleware(close, timeout);
+      app.use(orphanTimeout.middleware);
+    }
+
     app.use(router(worker, { debugMemory }, wss));
     app.use(errorMiddleware);
 
@@ -135,7 +141,7 @@ export function start(
 
     server.on('close', () => {
       debug('The bridge server shut down');
-      orphanTimeout.cancel();
+      orphanTimeout?.cancel();
       resolveClosed();
     });
 

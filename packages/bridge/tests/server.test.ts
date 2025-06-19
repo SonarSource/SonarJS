@@ -231,29 +231,52 @@ describe('server', () => {
 
   it('should timeout', async ({ mock }) => {
     console.log = mock.fn(console.log);
+    mock.timers.enable({ apis: ['setTimeout'] });
+    const timeout = 500;
 
     const { server, serverClosed } = await start(
       port,
       '127.0.0.1',
       /* worker */ undefined,
       /* debugMemory */ false,
-      500,
+      timeout,
     );
 
-    await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
     await request(server, '/status', 'GET');
 
-    await new Promise(r => setTimeout(r, 100));
+    // After 499 ticks, the server is still running
+    mock.timers.tick(timeout - 1);
     expect(server.listening).toBeTruthy();
     await request(server, '/status', 'GET');
+
+    // The previous request, restarted the timer. We need to wait for the exact amount of time for the timeout to occur.
+    mock.timers.tick(timeout);
 
     await serverClosed;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
     expect(logs).toContain('DEBUG The bridge server shut down');
-    expect(server.listening).toBeFalsy();
+  });
+
+  it('should support no timeout', async ({ mock }) => {
+    mock.timers.enable({ apis: ['setTimeout'] });
+
+    const { server, serverClosed } = await start(
+      port,
+      '127.0.0.1',
+      /* worker */ undefined,
+      /* debugMemory */ false,
+      0,
+    );
+
+    mock.timers.tick(Number.MAX_SAFE_INTEGER);
+    expect(server.listening).toBeTruthy();
+    await request(server, '/status', 'GET');
+
+    await request(server, '/close', 'POST');
+    await serverClosed;
   });
 });
 
