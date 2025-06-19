@@ -101,7 +101,7 @@ describe('patchSourceCode', () => {
       language: 'js',
       fileType: 'MAIN',
     };
-    expect(() => buildJsTs(input)).rejects.toMatch(patchedParsingError);
+    expect(() => buildJsTs(input)).toThrow(patchedParsingError);
   });
 
   it('should patch parsing error messages', () => {
