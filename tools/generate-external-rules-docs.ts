@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { getAllRulesMetadata, RULES_FOLDER, writePrettyFile } from './helpers.js';
 
 /**

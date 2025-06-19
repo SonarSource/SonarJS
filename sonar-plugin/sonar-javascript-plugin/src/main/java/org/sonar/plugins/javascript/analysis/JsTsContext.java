@@ -37,12 +37,14 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.AnalysisMode;
+import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 
-public class JsTsContext<T extends SensorContext> {
+public class JsTsContext<T extends SensorContext> implements AnalysisConfiguration {
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
@@ -85,7 +87,7 @@ public class JsTsContext<T extends SensorContext> {
     return context;
   }
 
-  boolean isSonarLint() {
+  public boolean isSonarLint() {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
@@ -231,11 +233,23 @@ public class JsTsContext<T extends SensorContext> {
     return extensions;
   }
 
-  public String[] getExcludedPaths() {
-    return getExcludedPaths(context.config());
+  public List<String> getCssExtensions() {
+    return getCssExtensions(context.config());
   }
 
-  public static String[] getExcludedPaths(Configuration configuration) {
+  public static List<String> getCssExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(CssLanguage.FILE_SUFFIXES_KEY)
+        ? config.getStringArray(CssLanguage.FILE_SUFFIXES_KEY)
+        : CssLanguage.DEFAULT_FILE_SUFFIXES.split(",")
+    );
+  }
+
+  public List<String> getJsTsExcludedPaths() {
+    return Arrays.asList(getJsTsExcludedPaths(context.config()));
+  }
+
+  public static String[] getJsTsExcludedPaths(Configuration configuration) {
     if (isExclusionOverridden(configuration)) {
       return concat(
         stream(configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)),
@@ -254,7 +268,47 @@ public class JsTsContext<T extends SensorContext> {
     );
   }
 
+  public boolean shouldDetectBundles() {
+    return shouldDetectBundles(context.config());
+  }
+
   public static boolean shouldDetectBundles(Configuration config) {
     return config.getBoolean(JavaScriptPlugin.DETECT_BUNDLES_PROPERTY).orElse(true);
+  }
+
+  public List<String> getSources() {
+    return stream(this.context.config().getStringArray("sonar.sources"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getInclusions() {
+    return stream(this.context.config().getStringArray("sonar.inclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getExclusions() {
+    return stream(this.context.config().getStringArray("sonar.exclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTests() {
+    return stream(this.context.config().getStringArray("sonar.tests"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTestInclusions() {
+    return stream(this.context.config().getStringArray("sonar.test.inclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
+  }
+
+  public List<String> getTestExclusions() {
+    return stream(this.context.config().getStringArray("sonar.test.exclusions"))
+      .filter(x -> !x.isBlank())
+      .toList();
   }
 }

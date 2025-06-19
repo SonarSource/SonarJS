@@ -91,8 +91,40 @@ public interface BridgeServer extends Startable {
     boolean skipAst,
     boolean shouldClearDependenciesCache,
     boolean sonarlint,
-    boolean allowTsParserJsFiles
-  ) {}
+    boolean allowTsParserJsFiles,
+    @Nullable ProjectAnalysisConfiguration configuration
+  ) {
+    public JsAnalysisRequest(
+      String filePath,
+      String fileType,
+      @Nullable String fileContent,
+      boolean ignoreHeaderComments,
+      @Nullable List<String> tsConfigs,
+      @Nullable String programId,
+      InputFile.Status fileStatus,
+      AnalysisMode analysisMode,
+      boolean skipAst,
+      boolean shouldClearDependenciesCache,
+      boolean sonarlint,
+      boolean allowTsParserJsFiles
+    ) {
+      this(
+        filePath,
+        fileType,
+        fileContent,
+        ignoreHeaderComments,
+        tsConfigs,
+        programId,
+        fileStatus,
+        analysisMode,
+        skipAst,
+        shouldClearDependenciesCache,
+        sonarlint,
+        allowTsParserJsFiles,
+        null
+      );
+    }
+  }
 
   record JsTsFile(
     String filePath,
@@ -106,20 +138,17 @@ public interface BridgeServer extends Startable {
     private Map<String, JsTsFile> files;
     private List<EslintRule> rules;
     public ProjectAnalysisConfiguration configuration;
-    private String baseDir;
     private List<String> bundles;
     private String rulesWorkdir;
 
     public ProjectAnalysisRequest(
       Map<String, JsTsFile> files,
       List<EslintRule> rules,
-      ProjectAnalysisConfiguration configuration,
-      String baseDir
+      ProjectAnalysisConfiguration configuration
     ) {
       this.files = files;
       this.rules = rules;
       this.configuration = configuration;
-      this.baseDir = baseDir;
     }
 
     public Map<String, JsTsFile> getFiles() {
@@ -139,22 +168,73 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ProjectAnalysisConfiguration(
-    boolean sonarlint,
-    Map<String, String> fsEvents,
-    boolean allowTsParserJsFiles,
-    AnalysisMode analysisMode,
-    Boolean skipAst,
-    boolean ignoreHeaderComments,
-    long maxFileSize,
-    int maxFilesForTypeChecking,
-    List<String> environments,
-    List<String> globals,
-    List<String> tsSuffixes,
-    List<String> jsSuffixes,
-    Set<String> tsConfigPaths,
-    List<String> jsTsExclusions
-  ) {}
+  class ProjectAnalysisConfiguration {
+
+    String baseDir;
+    boolean sonarlint;
+    Map<String, String> fsEvents;
+    boolean allowTsParserJsFiles;
+    AnalysisMode analysisMode;
+    Boolean skipAst;
+    boolean ignoreHeaderComments;
+    long maxFileSize;
+    int maxFilesForTypeChecking;
+    List<String> environments;
+    List<String> globals;
+    List<String> tsSuffixes;
+    List<String> jsSuffixes;
+    List<String> cssSuffixes;
+    Set<String> tsConfigPaths;
+    List<String> jsTsExclusions;
+    List<String> sources;
+    List<String> inclusions;
+    List<String> exclusions;
+    List<String> tests;
+    List<String> testInclusions;
+    List<String> testExclusions;
+    boolean detectBundles;
+
+    public ProjectAnalysisConfiguration(
+      String baseDir,
+      AnalysisConfiguration analysisConfiguration
+    ) {
+      this.baseDir = baseDir;
+      this.sonarlint = analysisConfiguration.isSonarLint();
+      this.fsEvents = Map.of();
+      this.allowTsParserJsFiles = analysisConfiguration.allowTsParserJsFiles();
+      this.analysisMode = analysisConfiguration.getAnalysisMode();
+      this.skipAst = true;
+      this.ignoreHeaderComments = analysisConfiguration.ignoreHeaderComments();
+      this.maxFileSize = analysisConfiguration.getMaxFileSizeProperty();
+      this.maxFilesForTypeChecking = analysisConfiguration.getTypeCheckingLimit();
+      this.environments = analysisConfiguration.getEnvironments();
+      this.globals = analysisConfiguration.getGlobals();
+      this.tsSuffixes = analysisConfiguration.getTsExtensions();
+      this.jsSuffixes = analysisConfiguration.getJsExtensions();
+      this.cssSuffixes = analysisConfiguration.getCssExtensions();
+      this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
+      this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
+      this.sources = analysisConfiguration.getSources();
+      this.inclusions = analysisConfiguration.getInclusions();
+      this.exclusions = analysisConfiguration.getExclusions();
+      this.tests = analysisConfiguration.getTests();
+      this.testInclusions = analysisConfiguration.getTestInclusions();
+      this.testExclusions = analysisConfiguration.getTestExclusions();
+      this.detectBundles = analysisConfiguration.shouldDetectBundles();
+    }
+
+    public boolean skipAst() {
+      return skipAst;
+    }
+
+    public void setSkipAst(boolean skipAst) {
+      this.skipAst = skipAst;
+    }
+
+    public void setFsEvents(Map<String, String> fsEvents) {
+      this.fsEvents = fsEvents;
+    }
+  }
 
   record ProjectAnalysisMetaResponse(
     boolean withProgram,
@@ -171,8 +251,17 @@ public interface BridgeServer extends Startable {
   record CssAnalysisRequest(
     String filePath,
     @Nullable String fileContent,
-    List<StylelintRule> rules
-  ) {}
+    List<StylelintRule> rules,
+    @Nullable ProjectAnalysisConfiguration configuration
+  ) {
+    public CssAnalysisRequest(
+      String filePath,
+      @Nullable String fileContent,
+      List<StylelintRule> rules
+    ) {
+      this(filePath, fileContent, rules, null);
+    }
+  }
 
   record BridgeResponse(InputStreamReader reader) {}
 

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { TsConfigJson } from 'type-fest';
-import fs from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { debug, error, info } from '../../../../../shared/src/helpers/logging.js';
 import { Cache } from '../tsconfigCache.js';
 import {
@@ -29,17 +29,17 @@ import {
   shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { basename, normalize } from 'node:path';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import { join } from 'node:path/posix';
+import { join, basename, normalize } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
-import { Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { SourceFileStore } from './source-files.js';
 /**
  * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
  */
 import tmp from 'tmp';
+
 tmp.setGracefulCleanup();
 
 export const UNINITIALIZED_ERROR =
@@ -78,7 +78,7 @@ export class TsConfigStore implements FileStore {
     return this.cacheMap[this.origin];
   }
 
-  isInitialized(baseDir: string) {
+  async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
     return this.origin !== undefined && this.cacheMap[this.origin].initialized;
   }
@@ -212,7 +212,7 @@ export class TsConfigStore implements FileStore {
         }
       });
     });
-    await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
+    await writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
     return { filename };
   }
 
@@ -241,7 +241,7 @@ export class TsConfigStore implements FileStore {
       const tsConfig = toUnixPath(join(baseDir, tsConfigPath.trim()));
       return {
         path: tsConfig,
-        pattern: new Minimatch(tsConfig.trim(), { nocase: true, matchBase: true, dot: true }),
+        pattern: new Minimatch(tsConfig, { nocase: true, matchBase: true, dot: true }),
       };
     });
     if (this.providedPropertyTsConfigs.length) {

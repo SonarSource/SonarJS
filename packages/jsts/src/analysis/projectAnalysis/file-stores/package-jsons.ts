@@ -15,20 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, dirname } from 'node:path/posix';
 import {
   clearDependenciesCache,
   fillCacheWithNewPath,
   PACKAGE_JSON,
-  stripBOM,
 } from '../../../rules/index.js';
-import { Dirent } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
 import { SourceFileStore } from './source-files.js';
+import { readFile } from '../../../../../shared/src/helpers/files.js';
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
@@ -44,7 +43,7 @@ export class PackageJsonStore implements FileStore {
 
   constructor(private readonly filesStore: SourceFileStore) {}
 
-  isInitialized(baseDir: string) {
+  async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
     return typeof this.packageJsons !== 'undefined';
   }
@@ -88,7 +87,7 @@ export class PackageJsonStore implements FileStore {
     }
     if (file.name === PACKAGE_JSON) {
       try {
-        const fileContent = JSON.parse(stripBOM(await readFile(filePath, 'utf8')));
+        const fileContent = JSON.parse(await readFile(filePath));
         this.packageJsons.push({ filePath, fileContent });
       } catch (e) {
         warn(`Error parsing package.json ${filePath}: ${e}`);

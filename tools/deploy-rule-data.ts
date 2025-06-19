@@ -14,17 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join, resolve, extname } from 'node:path';
+import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import {
-  copyFileSync,
-  cpSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 

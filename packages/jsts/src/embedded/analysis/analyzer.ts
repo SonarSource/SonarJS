@@ -22,6 +22,8 @@ import { CompleteEmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysi
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
+import { shouldIgnoreFile } from '../../../../shared/src/helpers/filter/filter.js';
+import { setGlobalConfiguration } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -44,10 +46,15 @@ import { debug } from '../../../../shared/src/helpers/logging.js';
  * @param languageParser the parser for the language of the file containing the JS code
  * @returns the analysis output
  */
-export function analyzeEmbedded(
+export async function analyzeEmbedded(
   input: CompleteEmbeddedAnalysisInput,
   languageParser: LanguageParser,
-): EmbeddedAnalysisOutput {
+): Promise<EmbeddedAnalysisOutput> {
+  const { filePath, fileContent, configuration } = input;
+  setGlobalConfiguration(configuration);
+  if (await shouldIgnoreFile({ filePath, fileContent })) {
+    return { issues: [], metrics: { ncloc: [] } };
+  }
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
   const aggregatedIssues: Issue[] = [];

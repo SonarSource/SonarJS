@@ -14,21 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const READ_CHARACTERS_LIMIT = 2048;
-const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
+import { filterBundle } from '../../src/helpers/filter/filter-bundle.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
-export function filterBundle(input: string) {
-  const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
-  return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
-}
-
-function buildBundleRegex() {
-  const COMMENT = '/\\*.*\\*/';
-  const OPERATOR = '[!;+(]';
-  const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
-
-  return new RegExp(
-    COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
-    's',
-  );
-}
+describe('filter bundle', () => {
+  it('should return true for a bundle file', () => {
+    const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
+    expect(filterBundle('test.ts', BUNDLE_CONTENTS)).toBeFalsy();
+  });
+  it('should return false for a non-bundled file', () => {
+    const CONTENTS = 'contents';
+    expect(filterBundle('test.ts', CONTENTS)).toBeTruthy();
+  });
+});

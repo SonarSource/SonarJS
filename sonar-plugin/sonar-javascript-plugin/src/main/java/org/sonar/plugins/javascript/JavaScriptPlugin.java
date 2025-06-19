@@ -43,7 +43,6 @@ import org.sonar.plugins.javascript.bridge.Environment;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
-import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
@@ -143,7 +142,6 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtensions(
       AnalysisConsumers.class,
       JavaScriptLanguage.class,
-      JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
       JavaScriptProfilesDefinition.class,
       NodeCommandBuilderImpl.class,

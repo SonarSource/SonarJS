@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
+import { dirname } from 'node:path/posix';
 import { FileType } from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';

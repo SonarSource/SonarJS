@@ -40,6 +40,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected final String lang;
   protected final BridgeServer bridgeServer;
   protected JsTsContext<?> context;
+  protected BridgeServer.ProjectAnalysisConfiguration configuration;
 
   protected AbstractBridgeSensor(BridgeServer bridgeServer, String lang) {
     this.bridgeServer = bridgeServer;
@@ -66,6 +67,10 @@ public abstract class AbstractBridgeSensor implements Sensor {
         ? "Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
         : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
+      configuration = new BridgeServer.ProjectAnalysisConfiguration(
+        sensorContext.fileSystem().baseDir().getAbsolutePath(),
+        context
+      );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {

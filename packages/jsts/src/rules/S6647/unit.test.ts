@@ -24,7 +24,7 @@ import { Linter } from 'eslint';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
+import { basename } from 'node:path/posix';
 import { expect } from 'expect';
 
 const ruleTester = new RuleTester({

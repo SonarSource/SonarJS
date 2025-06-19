@@ -39,7 +39,9 @@ describe('files', () => {
   });
 
   it('should return the package.json files', async () => {
-    await initFileStores(join(fixtures, 'dependencies'));
+    const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     const filePath = join(fixtures, 'dependencies', 'package.json');
     const fileContent = JSON.parse(await readFile(filePath, 'utf-8')) as PackageJson;
     expect(packageJsonStore.getPackageJsons()).toEqual([
@@ -51,17 +53,20 @@ describe('files', () => {
   });
 
   it('should fill the package.json cache used for rules', async () => {
-    const path = join(fixtures, 'dependencies');
-    await initFileStores(path);
+    const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     expect(cache.size).toEqual(1);
-    expect(cache.has(path)).toEqual(true);
+    expect(cache.has(baseDir)).toEqual(true);
   });
 
   it('should ignore malformed the package.json files', async ({ mock }) => {
     mock.method(console, 'log');
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
-    await initFileStores(join(fixtures, 'package-json-malformed'));
-    const filePath = join(fixtures, 'package-json-malformed', 'package.json');
+    const baseDir = join(fixtures, 'package-json-malformed');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
+    const filePath = join(baseDir, 'package.json');
     expect(packageJsonStore.getPackageJsons()).toHaveLength(0);
 
     expect(
@@ -72,10 +77,10 @@ describe('files', () => {
   });
 
   it('should clear the package.json cache', async () => {
-    setGlobalConfiguration();
     const baseDir = join(fixtures, 'dependencies');
+    setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
-    expect(packageJsonStore.isInitialized(baseDir)).toEqual(true);
+    expect(await packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
     expect(cache.size).toEqual(1);
 
@@ -83,7 +88,7 @@ describe('files', () => {
     expect(packageJsonStore.getPackageJsons()).toHaveLength(1);
 
     // we create a file event
-    setGlobalConfiguration({ fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' } });
+    setGlobalConfiguration({ baseDir, fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' } });
     packageJsonStore.dirtyCachesIfNeeded(baseDir);
     expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(cache.size).toEqual(0);

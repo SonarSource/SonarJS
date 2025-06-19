@@ -40,7 +40,7 @@ describe('analyzeHTML', () => {
     });
     const {
       issues: [issue],
-    } = analyzeEmbedded(
+    } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'file.html') }),
       parseHTML,
     );
@@ -68,7 +68,7 @@ describe('analyzeHTML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,
     );
@@ -106,7 +106,7 @@ describe('analyzeHTML', () => {
         },
       ],
     });
-    const { issues } = analyzeEmbedded(
+    const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
       parseHTML,
     );
@@ -142,7 +142,7 @@ describe('analyzeHTML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
       parseHTML,
     );
@@ -174,7 +174,7 @@ describe('analyzeHTML', () => {
         },
       ],
     });
-    const result = analyzeEmbedded(
+    const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
       parseHTML,
     );

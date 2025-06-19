@@ -161,7 +161,8 @@ public class YamlSensor extends AbstractBridgeSensor {
           false,
           false,
           context.isSonarLint(),
-          context.allowTsParserJsFiles()
+          context.allowTsParserJsFiles(),
+          configuration
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         issues = analysisProcessor.processResponse(context, checks, file, response);

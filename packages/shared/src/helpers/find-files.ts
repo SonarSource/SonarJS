@@ -14,32 +14,28 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import fs from 'node:fs/promises';
+import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { Minimatch } from 'minimatch';
-import { toUnixPath } from './files.js';
+import { type FileType, toUnixPath } from './files.js';
 import { join } from 'node:path/posix';
-
-// Patterns enforced to be ignored no matter what the user configures on sonar.properties
-const IGNORED_PATTERNS = ['.scannerwork'];
+import { filterPathAndGetFileType } from './filter/filter-path.js';
 
 export async function findFiles(
   dir: string,
-  onFile: (file: Dirent, absolutePath: string, relativePath: string) => Promise<void>,
-  exclusionsArr: string[] = [],
+  onFile: (file: Dirent, filePath: string, fileType: FileType) => Promise<void>,
 ) {
-  const exclusions = exclusionsArr
-    .concat(IGNORED_PATTERNS)
-    .map(pattern => new Minimatch(pattern.trim(), { nocase: true, matchBase: true, dot: true }));
+  const directories = [dir];
 
-  const prefixLength = dir.length + 1;
-  const files = await fs.readdir(dir, { recursive: true, withFileTypes: true });
-
-  for (const file of files) {
-    const filePath = toUnixPath(join(file.parentPath, file.name));
-    const relativePath = filePath.substring(prefixLength);
-    if (file.isFile() && !exclusions.some(exclusion => exclusion.match(relativePath))) {
-      await onFile(file, filePath, relativePath);
+  while (directories.length > 0) {
+    const directory = directories.pop()!;
+    for await (const file of await opendir(directory)) {
+      const filePath = join(toUnixPath(file.parentPath), file.name);
+      const fileType = filterPathAndGetFileType(filePath);
+      if (file.isDirectory() && fileType) {
+        directories.push(filePath);
+      } else if (file.isFile() && fileType) {
+        await onFile(file, filePath, fileType);
+      }
     }
   }
 }

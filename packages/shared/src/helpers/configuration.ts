@@ -16,7 +16,11 @@
  */
 
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
-import { extname } from 'node:path/posix';
+import { join, extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
+import { isAbsolute as isWinAbsolute } from 'node:path/win32';
+import { toUnixPath } from './files.js';
+import { Minimatch } from 'minimatch';
+import { debug } from './logging.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -39,6 +43,7 @@ type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
 type FsEvents = { [key: string]: FsEventType };
 
 export type Configuration = {
+  baseDir?: string;
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
   clearFileToTsConfigCache?: boolean;
@@ -54,24 +59,59 @@ export type Configuration = {
   globals?: string[] /* sonar.javascript.globals */;
   tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
   jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
+  cssSuffixes?: string[] /* sonar.css.file.suffixes */;
   tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
   jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  sources?: string[] /* sonar.sources property, relative path to baseDir to look for files. NOT YET SUPPORTED, we are based on baseDir */;
-  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
-  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. NOT YET SUPPORTED. */;
-  tests?: string[] /* sonar.tests property, relative path to baseDir to look for test files */;
-  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
-  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. NOT YET SUPPORTED. */;
+  normalizedJsTsExclusions?: Minimatch[];
+  sources?: string[] /* sonar.sources property, absolute or relative path to baseDir to look for files. we are based on baseDir */;
+  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. */;
+  normalizedInclusions?: Minimatch[];
+  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. */;
+  normalizedExclusions?: Minimatch[];
+  tests?: string[] /* sonar.tests property, absolute or relative path to baseDir to look for test files */;
+  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. */;
+  normalizedTestInclusions?: Minimatch[];
+  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
+  normalizedTestExclusions?: Minimatch[];
+  detectBundles?: boolean /* sonar.javascript.detectBundles property: whether files looking like bundled code should be ignored  */;
 };
+
+// Patterns enforced to be ignored no matter what the user configures on sonar.properties
+const IGNORED_PATTERNS = ['.scannerwork'];
 
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
+
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
 
-export function setGlobalConfiguration(config: Configuration = {}) {
+export function setGlobalConfiguration(config?: Configuration) {
+  if (!config) {
+    return;
+  }
   configuration = { ...config };
+  if (!config.baseDir) {
+    throw new Error('baseDir is required');
+  } else if (!isAbsolutePath(config.baseDir)) {
+    throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
+  }
+  configuration.baseDir = normalizePath(config.baseDir);
+  setSourcesPaths(configuration.sources);
+  setTestPaths(configuration.tests);
+  setJsTsExclusions(configuration.jsTsExclusions);
+  setExclusions(configuration.exclusions);
+  setInclusions(configuration.inclusions);
+  setTestExclusions(configuration.testExclusions);
+  setTestInclusions(configuration.testInclusions);
+}
+
+export function getBaseDir() {
+  if (!configuration.baseDir) {
+    throw new Error('baseDir is not set');
+  }
+  return configuration.baseDir;
 }
 
 export const HTML_EXTENSIONS = ['.html', '.htm'];
@@ -95,6 +135,10 @@ function tsExtensions() {
 
 function jsExtensions() {
   return configuration.jsSuffixes?.length ? configuration.jsSuffixes : DEFAULT_JS_EXTENSIONS;
+}
+
+function cssExtensions() {
+  return configuration.cssSuffixes?.length ? configuration.cssSuffixes : DEFAULT_CSS_EXTENSIONS;
 }
 
 export function isJsFile(filePath: string) {
@@ -121,6 +165,10 @@ export function isJsTsFile(filePath: string) {
   return jsTsExtensions().includes(extname(filePath).toLowerCase());
 }
 
+export function isCssFile(filePath: string) {
+  return cssExtensions().includes(extname(filePath).toLowerCase());
+}
+
 export function isAnalyzableFile(filePath: string) {
   return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
 }
@@ -141,14 +189,77 @@ export function maxFilesForTypeChecking() {
   return configuration.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 }
 
+export function setTestPaths(testPaths: string[] | undefined) {
+  configuration.tests = normalizePaths(testPaths).map(path => `${path}/`.replace(/\/+$/g, '/'));
+  debug(`Setting test paths to ${configuration.tests}`);
+}
+
 export function getTestPaths() {
   return configuration.tests;
 }
 
-export function getExclusions() {
-  return DEFAULT_EXCLUSIONS.concat(configuration.exclusions ?? []).concat(
-    configuration.jsTsExclusions ?? [],
+export function setSourcesPaths(sourcesPaths: string[] | undefined) {
+  configuration.sources = normalizePaths(sourcesPaths).map(path =>
+    `${path}/`.replace(/\/+$/g, '/'),
   );
+  debug(`Setting sources paths to ${configuration.sources}`);
+}
+
+export function getSourcesPaths() {
+  return configuration.sources?.length ? configuration.sources : [getBaseDir()];
+}
+
+function setJsTsExclusions(jsTsExclusions: string[] | undefined) {
+  configuration.normalizedJsTsExclusions = normalizeGlobs(
+    (jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+  );
+  debug(
+    `Setting js/ts exclusions to ${configuration.normalizedJsTsExclusions.map(mini => mini.pattern)}`,
+  );
+}
+
+export function getJsTsExclusions() {
+  return configuration.normalizedJsTsExclusions;
+}
+
+function setExclusions(exclusions: string[] | undefined) {
+  configuration.normalizedExclusions = normalizeGlobs(exclusions);
+  debug(`Setting exclusions to ${configuration.normalizedExclusions.map(mini => mini.pattern)}`);
+}
+
+export function getExclusions() {
+  return configuration.normalizedExclusions || [];
+}
+
+function setInclusions(inclusions: string[] | undefined) {
+  configuration.normalizedInclusions = normalizeGlobs(inclusions);
+  debug(`Setting inclusions to ${configuration.normalizedInclusions.map(mini => mini.pattern)}`);
+}
+
+export function getInclusions() {
+  return configuration.normalizedInclusions;
+}
+
+function setTestExclusions(testExclusions: string[] | undefined) {
+  configuration.normalizedTestExclusions = normalizeGlobs(testExclusions);
+  debug(
+    `Setting test exclusions to ${configuration.normalizedTestExclusions.map(mini => mini.pattern)}`,
+  );
+}
+
+export function getTestExclusions() {
+  return configuration.normalizedTestExclusions;
+}
+
+function setTestInclusions(testInclusions: string[] | undefined) {
+  configuration.normalizedTestInclusions = normalizeGlobs(testInclusions);
+  debug(
+    `Setting test inclusions to ${configuration.normalizedTestInclusions.map(mini => mini.pattern)}`,
+  );
+}
+
+export function getTestInclusions() {
+  return configuration.normalizedTestInclusions;
 }
 
 export function getFsEvents() {
@@ -175,6 +286,10 @@ export function shouldClearTsConfigCache() {
   return configuration.clearTsConfigCache;
 }
 
+export function shouldDetectBundles() {
+  return configuration.detectBundles !== false;
+}
+
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
   allowTsParserJsFiles: configuration.allowTsParserJsFiles,
   analysisMode: configuration.analysisMode,
@@ -187,8 +302,6 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
 const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
 export const DEFAULT_EXCLUSIONS = [
-  '**/.*',
-  '**/.*/**',
   '**/*.d.ts',
   '**/.git/**',
   '**/node_modules/**',
@@ -243,3 +356,25 @@ export const DEFAULT_GLOBALS = [
   '_',
   'sap',
 ];
+
+function normalizeGlobs(globs: string[] | undefined) {
+  return normalizePaths(globs).map(
+    pattern => new Minimatch(toUnixPath(pattern), { nocase: true, matchBase: true, dot: true }),
+  );
+}
+
+function normalizePaths(paths: string[] | undefined) {
+  return (paths || []).map(path => normalizePath(path));
+}
+
+function normalizePath(path: string) {
+  const normalized = toUnixPath(path.trim());
+  if (!isAbsolutePath(normalized)) {
+    return join(getBaseDir(), normalized);
+  }
+  return normalized;
+}
+
+function isAbsolutePath(path: string) {
+  return isUnixAbsolute(path) || isWinAbsolute(path.replace(/[\\/]+/g, '\\'));
+}

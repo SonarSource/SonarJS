@@ -54,7 +54,6 @@ export type ProjectAnalysisInput = {
   files?: JsTsFiles;
   rules: RuleConfig[];
   configuration?: Configuration;
-  baseDir: string;
   bundles?: string[];
   rulesWorkdir?: string;
 };

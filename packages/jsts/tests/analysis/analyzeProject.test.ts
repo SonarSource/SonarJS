@@ -34,6 +34,7 @@ import {
   tsConfigStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import ts from 'typescript';
+import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 
 const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
@@ -45,7 +46,7 @@ describe('analyzeProject', () => {
 
   it('should analyze the whole project with program', async () => {
     const files: JsTsFiles = {};
-    const baseDir = join(fixtures, 'module');
+    setGlobalConfiguration({ baseDir: fixtures });
     await findFiles(fixtures, async file => {
       const filePath = toUnixPath(join(file.parentPath, file.name));
       if (['.js', '.ts'].includes(extname(file.name).toLowerCase())) {
@@ -55,7 +56,7 @@ describe('analyzeProject', () => {
         };
       }
     });
-    const result = await analyzeProject(prepareInput(baseDir, files));
+    const result = await analyzeProject(prepareInput(fixtures, files));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -67,7 +68,7 @@ describe('analyzeProject', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toEqual(1);
+    expect(result.meta.programsCreated.length).toBeGreaterThan(1);
   });
 
   it('should analyze the whole project with watch program', async () => {
@@ -122,7 +123,7 @@ describe('analyzeProject', () => {
     const baseDir = join(fixtures, 'referenced-tsconfigs');
     const result = await analyzeProject({
       rules: defaultRules,
-      baseDir,
+      configuration: { baseDir },
     });
     expect(result.meta.withProgram).toEqual(true);
     expect(Object.keys(result.files)).toEqual(
@@ -136,7 +137,7 @@ describe('analyzeProject', () => {
   it('should handle handle program creation with grace', async () => {
     const baseDir = join(fixtures, 'simple-tsconfig');
     const result = await analyzeProject({
-      baseDir,
+      configuration: { baseDir },
       rules: defaultRules,
     });
     expect(result.meta.warnings.length).toEqual(1);
@@ -149,7 +150,7 @@ describe('analyzeProject', () => {
   it('should handle add warning on missing tsconfig', async () => {
     const baseDir = join(fixtures, 'tsconfig-with-extends-missing');
     const result = await analyzeProject({
-      baseDir,
+      configuration: { baseDir },
       rules: defaultRules,
     });
     expect(result.meta.warnings.length).toEqual(1);
@@ -299,10 +300,10 @@ const defaultRules: RuleConfig[] = [
 function prepareInput(baseDir: string, files?: JsTsFiles, sonarlint = false): ProjectAnalysisInput {
   return {
     rules: defaultRules,
-    baseDir,
     files,
     configuration: {
       sonarlint,
+      baseDir,
     },
   };
 }

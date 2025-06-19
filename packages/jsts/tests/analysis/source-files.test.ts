@@ -38,17 +38,21 @@ describe('files', () => {
   });
 
   it('should return the files', async () => {
-    await initFileStores(join(fixtures, 'paths'));
+    const baseDir = join(fixtures, 'paths');
+    setGlobalConfiguration({ baseDir });
+    await initFileStores(baseDir);
     expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
   });
 
   it('should properly classify files as MAIN or TEST', async () => {
-    const file1 = toUnixPath(join(fixtures, 'paths', 'file.ts'));
-    const file2 = toUnixPath(join(fixtures, 'paths', 'subfolder', 'index.ts'));
+    const baseDir = join(fixtures, 'paths');
+    const file1 = toUnixPath(join(baseDir, 'file.ts'));
+    const file2 = toUnixPath(join(baseDir, 'subfolder', 'index.ts'));
     setGlobalConfiguration({
+      baseDir,
       tests: ['subfolder'],
     });
-    await initFileStores(join(fixtures, 'paths'));
+    await initFileStores(baseDir);
     expect(sourceFileStore.getFoundFiles()).toMatchObject({
       [file1]: {
         fileType: 'MAIN',

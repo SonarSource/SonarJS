@@ -18,18 +18,22 @@
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import { JsTsFiles } from '../projectAnalysis.js';
+import type { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
-import { getExclusions } from '../../../../../shared/src/helpers/configuration.js';
+import type { FileStore } from './store-type.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore(sourceFileStore);
 export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
 export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
-  const pendingStores = [sourceFileStore, packageJsonStore, tsConfigStore].filter(
-    store => !store.isInitialized(baseDir, inputFiles),
-  );
+  const pendingStores: FileStore[] = [];
+
+  for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
+    if (!(await store.isInitialized(baseDir, inputFiles))) {
+      pendingStores.push(store);
+    }
+  }
 
   if (!pendingStores.length) {
     return;
@@ -39,15 +43,11 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
     store.setup(baseDir);
   }
 
-  await findFiles(
-    baseDir,
-    async (file, filePath) => {
-      for (const store of pendingStores) {
-        await store.process(file, filePath);
-      }
-    },
-    getExclusions(),
-  );
+  await findFiles(baseDir, async (file, filePath, fileType) => {
+    for (const store of pendingStores) {
+      await store.process(file, filePath, fileType);
+    }
+  });
   for (const store of pendingStores) {
     await store.postProcess(baseDir);
   }

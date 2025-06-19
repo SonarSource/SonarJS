@@ -16,7 +16,10 @@
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
-import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
+import {
+  fieldsForJsTsAnalysisInput,
+  getBaseDir,
+} from '../../../../shared/src/helpers/configuration.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -30,7 +33,6 @@ import { isAnalysisCancelled } from './analyzeProject.js';
  * @param filenames the list of files to analyze.
  * @param files the list of files objects containing the files input data.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
- * @param baseDir the base directory of the project
  * @param progressReport progress report to log analyzed files
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
@@ -38,7 +40,6 @@ export async function analyzeWithoutProgram(
   filenames: Set<string>,
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
-  baseDir: string,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
@@ -46,7 +47,7 @@ export async function analyzeWithoutProgram(
     if (isAnalysisCancelled()) {
       return;
     }
-    debug(`File not part of any tsconfig.json: ${relative(baseDir, filename)}`);
+    debug(`File not part of any tsconfig.json: ${relative(getBaseDir(), filename)}`);
     progressReport.nextFile(filename);
     results.meta?.filesWithoutTypeChecking.push(filename);
     const result = await analyzeFile({

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { checkbox, input, select } from '@inquirer/prompts';
 import {
   DIRNAME,
