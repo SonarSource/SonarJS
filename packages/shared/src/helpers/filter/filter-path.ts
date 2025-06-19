@@ -27,6 +27,13 @@ import {
 } from '../configuration.js';
 import { debug } from '../logging.js';
 
+/**
+ * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
+ * properties sonar.typescript.exclusions and sonar.javascript.exclusions wildcards.
+ *
+ * @param filePath The path of the file to be checked.
+ * @return Returns true if the file path matches any exclusion wildcard; otherwise, false.
+ */
 export function isJsTsExcluded(filePath: string) {
   if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
@@ -35,6 +42,18 @@ export function isJsTsExcluded(filePath: string) {
   return false;
 }
 
+/**
+ * Filters a given file path based on inclusion and exclusion rules and determines its type.
+ * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
+ * properties. This is only used when Node.js loops the whole project tree looking for files. This
+ * only happens in ruling tests and in SonarLint during the first lookup to count files.
+ * In SQS this will never be executed, as the request already contains the list of files as
+ * digested by the scanner engine. The only path filter that we need to run in SQS is isJsTsExcluded.
+ *
+ * @param {string} filePath - The file path to be evaluated.
+ * @return {FileType | undefined} Returns 'MAIN' if the file belongs to the main sources,
+ * 'TEST' if it belongs to the test sources, or undefined if it is excluded from analysis.
+ */
 export function filterPathAndGetFileType(filePath: string): FileType | undefined {
   if (isJsTsExcluded(filePath)) {
     return undefined;

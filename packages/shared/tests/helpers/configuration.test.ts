@@ -14,17 +14,24 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { filterBundle } from '../../src/helpers/filter/filter-bundle.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { getBaseDir, setGlobalConfiguration } from '../../src/helpers/configuration.js';
 
-describe('filter bundle', () => {
-  it('should return true for a bundle file', () => {
-    const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
-    expect(filterBundle('test.ts', BUNDLE_CONTENTS)).toBeFalsy();
+describe('global configuration', () => {
+  it('baseDir is mandatory', async () => {
+    expect(() => getBaseDir()).toThrow(new Error('baseDir is not set'));
   });
-  it('should return false for a non-bundled file', () => {
-    const CONTENTS = 'contents';
-    expect(filterBundle('test.ts', CONTENTS)).toBeTruthy();
+  it('should fail setting a non-absolute baseDir', async () => {
+    const baseDir = '../relative/path';
+    expect(() => setGlobalConfiguration({ baseDir })).toThrow(
+      new Error(`baseDir is not an absolute path: ${baseDir}`),
+    );
+  });
+  it('baseDir is mandatory', async () => {
+    expect(() => setGlobalConfiguration({})).toThrow(new Error('baseDir is required'));
+  });
+  it('baseDir is mandatory', async () => {
+    expect(() => setGlobalConfiguration({})).toThrow(new Error('baseDir is required'));
   });
 });

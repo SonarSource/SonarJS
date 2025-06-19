@@ -17,7 +17,13 @@
 import { debug, info } from '../logging.js';
 
 const READ_CHARACTERS_LIMIT = 2048;
-const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
+const COMMENT = '/\\*.*\\*/';
+const OPERATOR = '[!;+(]';
+const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
+const COMMENT_OPERATOR_FUNCTION = new RegExp(
+  COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
+  's',
+);
 let hasInfoBeenLogged = false;
 
 export function filterBundle(filePath: string, input: string) {
@@ -35,15 +41,4 @@ export function filterBundle(filePath: string, input: string) {
     return false;
   }
   return true;
-}
-
-function buildBundleRegex() {
-  const COMMENT = '/\\*.*\\*/';
-  const OPERATOR = '[!;+(]';
-  const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
-
-  return new RegExp(
-    COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
-    's',
-  );
 }

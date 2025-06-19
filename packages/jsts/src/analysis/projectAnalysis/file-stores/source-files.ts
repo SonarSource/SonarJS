@@ -123,6 +123,8 @@ export class SourceFileStore implements FileStore {
   async process(file: Dirent, filePath: string, fileType: FileType) {
     if (isAnalyzableFile(file.name)) {
       const fileContent = await this.getFileContent(filePath);
+      // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
+      // called while walking the project tree
       if (accept(filePath, fileContent)) {
         this.newFiles.push({ fileType, filePath, fileContent });
       }

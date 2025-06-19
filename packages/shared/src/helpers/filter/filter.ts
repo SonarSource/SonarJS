@@ -23,6 +23,13 @@ import { toUnixPath } from '../../../../jsts/src/rules/index.js';
 import { readFile } from '../files.js';
 import { AnalysisInput } from '../../types/analysis.js';
 
+/**
+ * Determines whether a given file should be accepted for further processing based on its content.
+ *
+ * @param {string} filePath - The path of the file to be checked.
+ * @param {string} fileContent - The content of the file to be checked.
+ * @return {boolean} Returns true if the file meets the acceptance criteria, otherwise false.
+ */
 export function accept(filePath: string, fileContent: string): boolean {
   if (isJsTsFile(filePath)) {
     return (
@@ -32,14 +39,22 @@ export function accept(filePath: string, fileContent: string): boolean {
     );
   } else if (isCssFile(filePath)) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
-    return (
-      (!shouldDetectBundles() || filterBundle(filePath, fileContent)) &&
-      filterMinified(filePath, fileContent)
-    );
+    return filterMinified(filePath, fileContent);
   }
   return true;
 }
 
+/**
+ * Determines whether a given file should be ignored based on its file path and content. This is
+ * the equivalent to the JavaScriptExclusionsFileFilter.java which was used in Java:
+ *       new PathAssessor(configuration),
+ *       new SizeAssessor(configuration),
+ *       new MinificationAssessor(),
+ *       new BundleAssessor()
+ *
+ * @param {AnalysisInput} file - The file to analyze, including its filePath and optionally its fileContent.
+ * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
+ */
 export async function shouldIgnoreFile(file: AnalysisInput): Promise<boolean> {
   const filename = toUnixPath(file.filePath);
   file.filePath = filename;
