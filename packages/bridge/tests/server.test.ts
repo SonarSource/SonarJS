@@ -273,7 +273,7 @@ describe('server', () => {
 
     mock.timers.tick(Number.MAX_SAFE_INTEGER);
     expect(server.listening).toBeTruthy();
-    await request(server, '/status', 'GET');
+    expect(await request(server, '/status', 'GET')).toEqual('OK');
 
     await request(server, '/close', 'POST');
     await serverClosed;

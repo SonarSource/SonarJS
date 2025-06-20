@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
-import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -44,10 +43,6 @@ public class StandaloneParser implements AutoCloseable {
   private final BridgeServerImpl bridge;
 
   public StandaloneParser() {
-    this(Http.getJdkHttpClient());
-  }
-
-  public StandaloneParser(Http http) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     var temporaryFolder = new StandaloneTemporaryFolder();
@@ -57,8 +52,7 @@ public class StandaloneParser implements AutoCloseable {
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
-      new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
-      http
+      new EmbeddedNode(processWrapper, new Environment(emptyConfiguration))
     );
     try {
       bridge.startServerLazily(
