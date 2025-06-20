@@ -119,12 +119,12 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
 
-    let orphanTimeout = timeout !== 0 ? timeoutMiddleware(close, timeout) : undefined;
+    /**
+     * Builds a timeout middleware to shut down the server
+     * in case the process becomes orphan.
+     */
+    const orphanTimeout = timeout !== 0 ? timeoutMiddleware(close, timeout) : undefined;
     if (orphanTimeout) {
-      /**
-       * Builds a timeout middleware to shut down the server
-       * in case the process becomes orphan.
-       */
       app.use(orphanTimeout.middleware);
     }
 
