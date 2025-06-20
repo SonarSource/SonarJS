@@ -232,7 +232,7 @@ public class BridgeServerImpl implements BridgeServer {
     try {
       Thread.sleep(sleepStep);
       while (!isAlive()) {
-        if (System.currentTimeMillis() - start > timeoutMs) {
+        if ((timeoutMs != 0) && System.currentTimeMillis() - start > timeoutMs) {
           return false;
         }
         Thread.sleep(sleepStep);
