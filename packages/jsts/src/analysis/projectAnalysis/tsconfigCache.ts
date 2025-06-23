@@ -54,9 +54,7 @@ export class Cache {
           this.inputFileToTsConfigFilesMap.set(file, tsConfigPath);
         }
       });
-      if (tsConfigFile.projectReferences?.length) {
-        await this.addReferencedTsConfig(tsConfigFile.projectReferences);
-      }
+      await this.addReferencedTsConfig(tsConfigFile.projectReferences);
       if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
         const foundTsConfigFile = this.inputFileToTsConfigFilesMap.get(inputFile)!;
         info(
@@ -69,7 +67,7 @@ export class Cache {
     return null;
   }
 
-  async addReferencedTsConfig(projectReferences: readonly ProjectReference[]) {
+  async addReferencedTsConfig(projectReferences: readonly ProjectReference[] = []) {
     for (const ref of projectReferences) {
       if (!this.discoveredTsConfigFiles.has(ref.path)) {
         const refPath = ref.path;
@@ -92,6 +90,7 @@ export class Cache {
       }
     }
   }
+
   addSanitizedReferencedTsConfig(tsconfig: string) {
     info(`Adding referenced project's tsconfigs ${tsconfig}`);
     this.discoveredTsConfigFiles.add(tsconfig);
