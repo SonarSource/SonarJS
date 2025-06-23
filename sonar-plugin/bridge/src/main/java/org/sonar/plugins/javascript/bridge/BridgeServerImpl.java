@@ -77,7 +77,7 @@ public class BridgeServerImpl implements BridgeServer {
    * If the Java plugin crashes, this timeout will run out and shut down
    * the bridge to prevent it from becoming an orphan process.
    */
-  private static final int DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS = 15_000;
+  public static final int DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS = 15_000;
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";

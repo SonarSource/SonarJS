@@ -516,13 +516,15 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_handle_empty_node_timeout() throws Exception {
+  void should_handle_no_node_timeout_provided() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServer(serverConfigForDebugMemory);
     bridgeServer.stop();
 
-    assertThat(logTester.logs()).contains("nodeTimeout: ");
+    assertThat(logTester.logs()).contains(
+      String.format("nodeTimeout: %s", BridgeServerImpl.DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS)
+    );
   }
 
   @Test
