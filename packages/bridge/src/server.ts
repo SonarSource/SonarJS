@@ -39,15 +39,6 @@ import { WebSocketServer } from 'ws';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * The default timeout to shut down server if no request is received
- *
- * Normally, the Java plugin sends keepalive requests to the bridge
- * If the Java plugin crashes, this timeout will run out and shut down
- * the bridge to prevent it from becoming an orphan process.
- */
-const SHUTDOWN_TIMEOUT = 15_000;
-
-/**
  * Starts the bridge
  *
  * The bridge is an Express.js web server that exposes several services
@@ -64,7 +55,7 @@ const SHUTDOWN_TIMEOUT = 15_000;
  * @param host only for usage from outside of Node.js - Java plugin, SonarLint, ...
  * @param worker Worker thread to handle analysis requests
  * @param debugMemory print memory usage for debugging purposes
- * @param timeout timeout in ms to shut down the server if unresponsive
+ * @param timeout timeout in ms to shut down the server if unresponsive, if 0, no timeout will be enforced
  * @returns an http server
  */
 export function start(
@@ -72,7 +63,7 @@ export function start(
   host = '127.0.0.1',
   worker?: Worker,
   debugMemory = false,
-  timeout = SHUTDOWN_TIMEOUT,
+  timeout = 0,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
   const pendingCloseRequests: express.Response[] = [];
@@ -114,17 +105,20 @@ export function start(
     });
 
     /**
-     * Builds a timeout middleware to shut down the server
-     * in case the process becomes orphan.
-     */
-    const orphanTimeout = timeoutMiddleware(close, timeout);
-
-    /**
      * The order of the middlewares registration is important, as the
      * error handling one should be last.
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-    app.use(orphanTimeout.middleware);
+
+    /**
+     * Builds a timeout middleware to shut down the server
+     * in case the process becomes orphan.
+     */
+    const orphanTimeout = timeout !== 0 ? timeoutMiddleware(close, timeout) : null;
+    if (orphanTimeout) {
+      app.use(orphanTimeout.middleware);
+    }
+
     app.use(router(worker, { debugMemory }, wss));
     app.use(errorMiddleware);
 
@@ -135,7 +129,7 @@ export function start(
 
     server.on('close', () => {
       debug('The bridge server shut down');
-      orphanTimeout.cancel();
+      orphanTimeout?.cancel();
       resolveClosed();
     });
 

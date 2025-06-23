@@ -49,6 +49,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -499,6 +501,32 @@ class BridgeServerImplTest {
     assertThat(logTester.logs()).contains("debugMemory: true");
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = { "0", "3" })
+  void should_pass_node_timeout(String nodeTimeout) throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    context.setSettings(
+      new MapSettings().setProperty(BridgeServerImpl.NODE_TIMEOUT_PROPERTY, nodeTimeout)
+    );
+    BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServer(serverConfigForDebugMemory);
+    bridgeServer.stop();
+
+    assertThat(logTester.logs()).contains(String.format("nodeTimeout: %s", nodeTimeout));
+  }
+
+  @Test
+  void should_handle_no_node_timeout_provided() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServer(serverConfigForDebugMemory);
+    bridgeServer.stop();
+
+    assertThat(logTester.logs()).contains(
+      String.format("nodeTimeout: %s", BridgeServerImpl.DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS)
+    );
+  }
+
   @Test
   void should_use_default_timeout() {
     bridgeServer = new BridgeServerImpl(
@@ -648,7 +676,8 @@ class BridgeServerImplTest {
     BridgeServerConfig serverConfigForExecutableProperty = BridgeServerConfig.fromSensorContext(
       context
     );
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfigForExecutableProperty)
+    assertThatThrownBy(() ->
+      bridgeServer.startServerLazily(serverConfigForExecutableProperty)
     ).isInstanceOf(NodeCommandException.class);
 
     assertThat(logTester.logs(INFO)).contains(
