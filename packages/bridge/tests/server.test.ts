@@ -243,12 +243,12 @@ describe('server', () => {
     );
 
     expect(server.listening).toBeTruthy();
-    await request(server, '/status', 'GET');
+    expect(await request(server, '/status', 'GET')).toEqual('OK');
 
     // After 499 ticks, the server is still running
     mock.timers.tick(timeout - 1);
     expect(server.listening).toBeTruthy();
-    await request(server, '/status', 'GET');
+    expect(await request(server, '/status', 'GET')).toEqual('OK');
 
     // The previous request, restarted the timer. We need to wait for the exact amount of time for the timeout to occur.
     mock.timers.tick(timeout);
@@ -273,9 +273,9 @@ describe('server', () => {
 
     mock.timers.tick(Number.MAX_SAFE_INTEGER);
     expect(server.listening).toBeTruthy();
-    await request(server, '/status', 'GET');
+    expect(await request(server, '/status', 'GET')).toEqual('OK');
 
-    await request(server, '/close', 'POST');
+    expect(await request(server, '/close', 'POST')).toEqual('');
     await serverClosed;
   });
 });
