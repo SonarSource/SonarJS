@@ -90,11 +90,11 @@ export class TsConfigStore implements FileStore {
     return this.cacheMap[this.origin].originalTsConfigFiles;
   }
 
-  getTsConfigForInputFile(inputFile: string) {
+  async getTsConfigForInputFile(inputFile: string) {
     if (!this.origin) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.cacheMap[this.origin].getTsConfigForInputFile(inputFile);
+    return await this.cacheMap[this.origin].getTsConfigForInputFile(inputFile);
   }
 
   async initializeTsConfigs(baseDir: string) {
