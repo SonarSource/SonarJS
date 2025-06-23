@@ -17,7 +17,7 @@
 
 import { dirname } from 'node:path/posix';
 import { stat } from 'node:fs/promises';
-import { debug, info, error } from '../../../../shared/src/helpers/logging.js';
+import { debug, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { createProgramOptions } from '../../program/program.js';
 import { UNINITIALIZED_ERROR } from './file-stores/tsconfigs.js';
 import type { ProjectReference } from 'typescript';
@@ -72,9 +72,9 @@ export class Cache {
   async addReferencedTsConfig(projectReferences: readonly ProjectReference[]) {
     for (const ref of projectReferences) {
       if (!this.discoveredTsConfigFiles.has(ref.path)) {
-        let refPath = ref.path;
+        const refPath = ref.path;
         try {
-          let refStat = await stat(refPath);
+          const refStat = await stat(refPath);
           if (refStat.isFile()) {
             this.addSanitizedReferencedTsConfig(refPath);
           }
@@ -87,7 +87,7 @@ export class Cache {
             this.addSanitizedReferencedTsConfig(tsconfig);
           }
         } catch {
-          error(`Referenced tsconfig ${refPath} not found.`);
+          warn(`Referenced tsconfig ${refPath} not found.`);
         }
       }
     }
