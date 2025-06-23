@@ -19,7 +19,7 @@ if (isMainThread) {
   const port = process.argv[2];
   const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
-  const timeoutSeconds = Number(process.argv[5]) || undefined;
+  const timeoutSeconds = Number(process.argv[5]) || 0;
 
   Promise.resolve().then(async () => {
     return start(
