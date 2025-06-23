@@ -6,6 +6,7 @@ const port = process.argv[2];
 const host = process.argv[3];
 
 console.log(`debugMemory: ${process.argv[4]}`);
+console.log(`nodeTimeout: ${process.argv[5]}`);
 
 const requestHandler = (request, response) => {
   let data = '';
