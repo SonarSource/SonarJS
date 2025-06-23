@@ -38,7 +38,7 @@ export class Cache {
       return this.inputFileToTsConfigFilesMap.get(inputFile)!;
     }
 
-    return this.getTsConfigMapForInputFile(inputFile);
+    return await this.getTsConfigMapForInputFile(inputFile);
   }
 
   async getTsConfigMapForInputFile(inputFile: string): Promise<string | null> {
