@@ -18,6 +18,9 @@ if (isMainThread) {
   const port = process.argv[2];
   const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
+  const timeoutArg = process.argv[5];
+  const timeoutSeconds =
+    timeoutArg !== undefined && !isNaN(Number(timeoutArg)) ? Number(timeoutArg) : undefined;
 
   Promise.resolve().then(async () => {
     return start(
@@ -25,6 +28,7 @@ if (isMainThread) {
       host,
       await createWorker(new URL(import.meta.url), { debugMemory }),
       debugMemory,
+      timeoutSeconds,
     );
   });
 }
