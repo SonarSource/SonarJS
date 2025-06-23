@@ -16,9 +16,11 @@
  */
 
 import { dirname } from 'node:path/posix';
-import { debug, info } from '../../../../shared/src/helpers/logging.js';
+import { stat } from 'node:fs/promises';
+import { debug, info, error } from '../../../../shared/src/helpers/logging.js';
 import { createProgramOptions } from '../../program/program.js';
 import { UNINITIALIZED_ERROR } from './file-stores/tsconfigs.js';
+import type { ProjectReference } from 'typescript';
 
 export class Cache {
   private readonly inputFileToTsConfigFilesMap = new Map<string, string | null>();
@@ -28,7 +30,7 @@ export class Cache {
   private pendingTsConfigFiles: string[] = [];
   public initialized = false;
 
-  getTsConfigForInputFile(inputFile: string) {
+  async getTsConfigForInputFile(inputFile: string) {
     if (!this.initialized) {
       throw new Error(UNINITIALIZED_ERROR);
     }
@@ -39,7 +41,7 @@ export class Cache {
     return this.getTsConfigMapForInputFile(inputFile);
   }
 
-  getTsConfigMapForInputFile(inputFile: string): string | null {
+  async getTsConfigMapForInputFile(inputFile: string): Promise<string | null> {
     this.pendingTsConfigFiles = this.getImprovedPendingTsConfigOrder(inputFile);
 
     debug(`Continuing BFS for file: ${inputFile}, pending order: ${this.pendingTsConfigFiles}`);
@@ -53,15 +55,7 @@ export class Cache {
         }
       });
       if (tsConfigFile.projectReferences?.length) {
-        info(
-          `Adding referenced project's tsconfigs ${tsConfigFile.projectReferences.map(ref => ref.path)}`,
-        );
-        tsConfigFile.projectReferences
-          .filter(refPath => !this.discoveredTsConfigFiles.has(refPath.path))
-          .forEach(refPath => {
-            this.discoveredTsConfigFiles.add(refPath.path);
-            this.pendingTsConfigFiles.push(refPath.path);
-          });
+        await this.addReferencedTsConfig(tsConfigFile.projectReferences);
       }
       if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
         const foundTsConfigFile = this.inputFileToTsConfigFilesMap.get(inputFile)!;
@@ -73,6 +67,35 @@ export class Cache {
     }
     this.inputFileToTsConfigFilesMap.set(inputFile, null);
     return null;
+  }
+
+  async addReferencedTsConfig(projectReferences: readonly ProjectReference[]) {
+    for (const ref of projectReferences) {
+      if (!this.discoveredTsConfigFiles.has(ref.path)) {
+        let refPath = ref.path;
+        try {
+          let refStat = await stat(refPath);
+          if (refStat.isFile()) {
+            this.addSanitizedReferencedTsConfig(refPath);
+          }
+          const tsconfig = `${refPath}/tsconfig.json`;
+          if (
+            !this.discoveredTsConfigFiles.has(tsconfig) &&
+            refStat.isDirectory() &&
+            (await stat(tsconfig)).isFile()
+          ) {
+            this.addSanitizedReferencedTsConfig(tsconfig);
+          }
+        } catch {
+          error(`Referenced tsconfig ${refPath} not found.`);
+        }
+      }
+    }
+  }
+  addSanitizedReferencedTsConfig(tsconfig: string) {
+    info(`Adding referenced project's tsconfigs ${tsconfig}`);
+    this.discoveredTsConfigFiles.add(tsconfig);
+    this.pendingTsConfigFiles.push(tsconfig);
   }
 
   initializeOriginalTsConfigs(tsconfigs: string[] | string | undefined) {
