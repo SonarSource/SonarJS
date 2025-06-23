@@ -70,6 +70,14 @@ public class BridgeServerImpl implements BridgeServer {
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
+  /**
+   * The default timeout to shut down server if no request is received
+   *
+   * Normally, the Java plugin sends keepalive requests to the bridge
+   * If the Java plugin crashes, this timeout will run out and shut down
+   * the bridge to prevent it from becoming an orphan process.
+   */
+  private static final int DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS = 15_000;
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
@@ -277,7 +285,7 @@ public class BridgeServerImpl implements BridgeServer {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
-    var nodeTimeout = config.get(NODE_TIMEOUT_PROPERTY).orElse("");
+    var nodeTimeout = config.getInt(NODE_TIMEOUT_PROPERTY).orElse(DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS);
 
     nodeCommandBuilder
       .outputConsumer(new LogOutputConsumer())
@@ -287,7 +295,12 @@ public class BridgeServerImpl implements BridgeServer {
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(serverConfig.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, String.valueOf(debugMemory), nodeTimeout)
+      .scriptArgs(
+        String.valueOf(port),
+        hostAddress,
+        String.valueOf(debugMemory),
+        String.valueOf(nodeTimeout)
+      )
       .env(getEnv());
 
     serverConfig

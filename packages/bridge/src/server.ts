@@ -39,15 +39,6 @@ import { WebSocketServer } from 'ws';
 const MAX_REQUEST_SIZE = '50mb';
 
 /**
- * The default timeout to shut down server if no request is received
- *
- * Normally, the Java plugin sends keepalive requests to the bridge
- * If the Java plugin crashes, this timeout will run out and shut down
- * the bridge to prevent it from becoming an orphan process.
- */
-const SHUTDOWN_TIMEOUT = 15_000;
-
-/**
  * Starts the bridge
  *
  * The bridge is an Express.js web server that exposes several services
@@ -72,7 +63,7 @@ export function start(
   host = '127.0.0.1',
   worker?: Worker,
   debugMemory = false,
-  timeout = SHUTDOWN_TIMEOUT,
+  timeout = 0,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
   const pendingCloseRequests: express.Response[] = [];

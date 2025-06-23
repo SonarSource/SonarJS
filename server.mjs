@@ -13,14 +13,13 @@ if (isMainThread) {
    * port - port number on which server.mjs should listen
    * host - host address on which server.mjs should listen
    * debugMemory - print memory usage
+   * timeoutSeconds - timeout for the node server to wait before shutting down. If not provided or 0,
    */
 
   const port = process.argv[2];
   const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
-  const timeoutArg = process.argv[5];
-  const timeoutSeconds =
-    timeoutArg !== undefined && !isNaN(Number(timeoutArg)) ? Number(timeoutArg) : undefined;
+  const timeoutSeconds = Number(process.argv[5]) || undefined;
 
   Promise.resolve().then(async () => {
     return start(
