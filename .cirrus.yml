@@ -414,7 +414,7 @@ ruling_task:
     diff_artifacts:
       path: '**/target/actual/**/*'
 
-eslint9_plugin_test_task:
+eslint9_node18_plugin_test_task:
   depends_on:
     - build_eslint
   eks_container:
@@ -435,7 +435,7 @@ eslint9_plugin_test_task:
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
-eslint8_plugin_test_task:
+eslint8_node18_plugin_test_task:
   depends_on:
     - build_eslint
   eks_container:
