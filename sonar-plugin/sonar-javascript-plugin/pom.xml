@@ -134,7 +134,7 @@
                 <artifactItem>
                   <groupId>org.sonarsource.nodejs</groupId>
                   <artifactId>nodejs-runtime</artifactId>
-                  <version>22.11.0.20</version>
+                  <version>22.16.0.28</version>
                   <type>jar</type>
                   <outputDirectory>${project.build.directory}/downloads</outputDirectory>
                   <includes>**/*.xz,**/version.txt</includes>
@@ -409,8 +409,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>65000000</minsize>
-                  <maxsize>110000000</maxsize>
+                  <minsize>100000000</minsize>
+                  <maxsize>120000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
