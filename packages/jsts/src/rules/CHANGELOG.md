@@ -7,7 +7,7 @@
 - [[JS-632](https://sonarsource.atlassian.net/browse/JS-632)] - Fix FP S6848 (`no-static-element-interactions`): add exceptions for <a> and <summary>
 - [[JS-628](https://sonarsource.atlassian.net/browse/JS-628)] - Fix FP S2699 (`assertions-in-tests`): handle re-exports of assertions
 - [[JS-625](https://sonarsource.atlassian.net/browse/JS-625)] - Fix FP S1848 (`constructor-for-side-effects`): Add exceptions for infrastructure-as-code constructors
-- [[JS-33](https://sonarsource.atlassian.net/browse/JS-33)] - Fix FN S4123 ("no-invalid-await"): when an async function returns a boolean
+- [[JS-33](https://sonarsource.atlassian.net/browse/JS-33)] - Fix FN S4123 (`no-invalid-await`): Remove in favor of `@typescript-eslint/await-thenable`
 
 ## 2025-02-13, Version 3.0.2
 
