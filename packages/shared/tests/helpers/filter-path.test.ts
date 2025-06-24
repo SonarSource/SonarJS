@@ -58,12 +58,13 @@ describe('filter path', () => {
     setGlobalConfiguration({
       baseDir: '/project',
       tests: ['test'],
-      testExclusions: ['**/excluded/**'],
+      testExclusions: ['**/test/excluded/**'],
+      exclusions: ['**/test/**'],
     });
     const result = filterPathAndGetFileType(filePath);
 
     expect(result).toBeUndefined();
-    logsContain(`DEBUG File ignored due to test exclusions: ${filePath}`);
+    logsContain(`DEBUG File ignored due to analysis scope filters: ${filePath}`);
   });
 
   it('should return TEST if file is in test paths and included by test inclusions', ({ mock }) => {
@@ -88,11 +89,12 @@ describe('filter path', () => {
       baseDir: '/project',
       tests: ['test'],
       testInclusions: ['**/included/**'],
+      exclusions: ['**/test/**'],
     });
 
     const result = filterPathAndGetFileType(filePath);
     expect(result).toBeUndefined();
-    logsContain(`DEBUG File ignored as it's not in test inclusions paths: ${filePath}`);
+    logsContain(`DEBUG File ignored due to analysis scope filters: ${filePath}`);
   });
 
   it('should return undefined if file is excluded by general exclusions', ({ mock }) => {
@@ -107,7 +109,7 @@ describe('filter path', () => {
     const result = filterPathAndGetFileType(filePath);
 
     expect(result).toBeUndefined();
-    logsContain(`DEBUG File ignored due to exclusions: ${filePath}`);
+    logsContain(`DEBUG File ignored due to analysis scope filters: ${filePath}`);
   });
 
   it('should return MAIN if file is included by source inclusions', ({ mock }) => {
@@ -135,13 +137,22 @@ describe('filter path', () => {
 
     const result = filterPathAndGetFileType(filePath);
     expect(result).toBeUndefined();
-    logsContain(`DEBUG File ignored as it's not in sources inclusions paths: ${filePath}`);
+    logsContain(`DEBUG File ignored due to analysis scope filters: ${filePath}`);
   });
 
   it('should return MAIN if file is in source paths', ({ mock }) => {
     console.log = mock.fn(console.log);
     const filePath = '/project/src/file.js';
     setGlobalConfiguration({ baseDir: '/project', sources: ['src'] });
+
+    const result = filterPathAndGetFileType(filePath);
+    expect(result).toBe('MAIN');
+  });
+
+  it('should return MAIN if file is in source paths using dot', ({ mock }) => {
+    console.log = mock.fn(console.log);
+    const filePath = '/project/src/file.js';
+    setGlobalConfiguration({ baseDir: '/project', sources: ['.'] });
 
     const result = filterPathAndGetFileType(filePath);
     expect(result).toBe('MAIN');
@@ -154,7 +165,7 @@ describe('filter path', () => {
 
     const result = filterPathAndGetFileType(filePath);
     expect(result).toBeUndefined();
-    logsContain(`DEBUG File ignored as it's not in sources paths: ${filePath}`);
+    logsContain(`DEBUG File ignored due to analysis scope filters: ${filePath}`);
   });
 
   it('should handle empty test paths array', ({ mock }) => {

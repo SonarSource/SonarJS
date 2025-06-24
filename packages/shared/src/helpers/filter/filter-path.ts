@@ -59,41 +59,43 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
     return undefined;
   }
 
-  const testPaths = getTestPaths();
-  if (testPaths?.length && testPaths.some(testPath => filePath.startsWith(testPath))) {
-    if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
-      debug(`File ignored due to test exclusions: ${filePath}`);
-      return undefined;
-    }
-    const testInclusions = getTestInclusions();
-    if (testInclusions?.length) {
-      if (testInclusions.some(inclusion => inclusion.match(filePath))) {
-        return 'TEST';
-      }
-      debug(`File ignored as it's not in test inclusions paths: ${filePath}`);
-      return undefined;
-    }
+  if (fileIsTest(filePath)) {
     return 'TEST';
   }
 
+  if (fileIsMain(filePath)) {
+    return 'MAIN';
+  }
+  debug(`File ignored due to analysis scope filters: ${filePath}`);
+}
+
+function fileIsTest(filePath: string): boolean {
+  const testPaths = getTestPaths();
+  if (!testPaths?.some(testPath => filePath.startsWith(testPath))) {
+    return false;
+  }
+  if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
+    return false;
+  }
+  const testInclusions = getTestInclusions();
+  if (testInclusions?.length) {
+    return testInclusions.some(inclusion => inclusion.match(filePath));
+  }
+  return true;
+}
+
+function fileIsMain(filePath: string): boolean {
+  if (!getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
+    return false;
+  }
+
   if (getExclusions()?.some(exclusion => exclusion.match(filePath))) {
-    debug(`File ignored due to exclusions: ${filePath}`);
-    return undefined;
+    return false;
   }
 
   const inclusions = getInclusions();
   if (inclusions?.length) {
-    if (inclusions.some(inclusion => inclusion.match(filePath))) {
-      return 'MAIN';
-    }
-    debug(`File ignored as it's not in sources inclusions paths: ${filePath}`);
-    return undefined;
+    return inclusions.some(inclusion => inclusion.match(filePath));
   }
-
-  if (getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
-    return 'MAIN';
-  } else {
-    debug(`File ignored as it's not in sources paths: ${filePath}`);
-    return undefined;
-  }
+  return true;
 }
