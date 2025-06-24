@@ -68,6 +68,11 @@ npm_cache_definition: &NPM_CACHE
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
 
+eslint_build_cache_definition: &ESLINT_BUILD_CACHE
+  eslint_build_cache:
+    folder: ${CIRRUS_WORKING_DIR}/lib
+    fingerprint_script: cat package-lock.json
+
 js_coverage_cache_definition: &JS_COVERAGE_CACHE
   js_coverage_cache:
     folder: ${CIRRUS_WORKING_DIR}/coverage/js
@@ -175,6 +180,21 @@ build_task:
     - node --version
     - npm ci
     - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
+
+build_eslint_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 22
+  <<: *NPM_CACHE
+  <<: *ESLINT_BUILD_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  build_and_deploy_script:
+    - source cirrus-env BUILD
+    - node --version
+    - npm run eslint-plugin:build
 
 test_js_task:
   eks_container:
@@ -364,7 +384,6 @@ js_ts_ruling_task:
   submodules_script:
     - git submodule update --init
   ruling_script:
-    - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
@@ -395,9 +414,9 @@ ruling_task:
     diff_artifacts:
       path: '**/target/actual/**/*'
 
-eslint_plugin_test_task:
+eslint9_node18_plugin_test_task:
   depends_on:
-    - build
+    - build_eslint
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs.Dockerfile
@@ -406,46 +425,55 @@ eslint_plugin_test_task:
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *NPM_CACHE
+  <<: *ESLINT_BUILD_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   eslint_its_script:
     - node --version
-    - . ~/.profile
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - npm run eslint-plugin:build
-    - cd its/eslint8-plugin-sonarjs
+    - cd its/eslint9-plugin-sonarjs
     - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
-    - cd ../eslint9-plugin-sonarjs
+
+eslint8_node18_plugin_test_task:
+  depends_on:
+    - build_eslint
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+    SONARSOURCE_QA: true
+  <<: *ESLINT_BUILD_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  # needed because we need to build the plugin
+  eslint_its_script:
+    - node --version
+    - cd its/eslint8-plugin-sonarjs
     - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
 eslint8_node16_plugin_test_task:
   depends_on:
-    - build
+    - build_eslint
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs16.Dockerfile
+    dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 16
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *NPM_CACHE
+  <<: *ESLINT_BUILD_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   eslint_its_script:
     - node --version
-    - . ~/.profile
     - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
     - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts

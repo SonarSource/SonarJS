@@ -87,7 +87,7 @@ function externalURL(plugin: string, key: string) {
     case 'react-hooks':
       return 'https://github.com/facebook/react/blob/main/packages/eslint-plugin-react-hooks/README.md';
     case '@stylistic/eslint-plugin-ts':
-      return 'https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/rules/${key}/README.md';
+      return `https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/rules/${key}/README.md`;
     default:
       throw new Error(`Error generating URL for unknown ESLint plugin ${plugin}`);
   }
