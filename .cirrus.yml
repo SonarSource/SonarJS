@@ -103,7 +103,7 @@ npm_cache_definition: &NPM_CACHE
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
   eslint_build_cache:
     folder: ${CIRRUS_WORKING_DIR}/lib
-    fingerprint_script: echo "JAVA$(git rev-parse HEAD)"
+    fingerprint_script: echo "ESLINT$(git rev-parse HEAD)"
 
 js_coverage_cache_definition: &JS_COVERAGE_CACHE
   js_coverage_cache:
