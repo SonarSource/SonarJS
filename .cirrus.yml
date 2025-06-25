@@ -369,7 +369,7 @@ js_ts_ruling_task:
     - npm run build:fast
     - npm run ruling
   on_failure:
-    debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
+    debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/actual/jsts
 
 ruling_task:
   depends_on:

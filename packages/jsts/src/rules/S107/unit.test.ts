@@ -88,8 +88,7 @@ describe('S107', () => {
           options: createOptions(MAX_PARAMS_3),
           errors: [
             {
-              message:
-                "Function declaration 'f' has too many parameters (5). Maximum allowed is 3.",
+              message: "Function 'f' has too many parameters (5). Maximum allowed is 3.",
               line: 1,
               column: 1,
               endLine: 1,

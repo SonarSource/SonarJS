@@ -127,7 +127,6 @@ const ruleExtension: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      TSDeclareFunction: checkFunction,
       TSEmptyBodyFunctionExpression: checkFunction,
     };
 
