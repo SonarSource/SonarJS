@@ -103,7 +103,7 @@
     "@babel/preset-react": "7.27.1",
     "@eslint-community/regexpp": "4.12.1",
     "@protobufjs/base64": "1.1.2",
-    "@stylistic/eslint-plugin-ts": "4.4.0",
+    "@stylistic/eslint-plugin-ts": "4.4.1",
     "@typescript-eslint/eslint-plugin": "8.35.0",
     "@typescript-eslint/parser": "8.35.0",
     "@typescript-eslint/type-utils": "8.35.0",
