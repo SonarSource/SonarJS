@@ -167,7 +167,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
   <<: *NODE22_CONTAINER_DEFINITION
@@ -279,6 +279,7 @@ plugin_qa_with_node_task:
   <<: *ORCHESTRATOR_CACHE_MONTHLY
   env:
     SQ_VERSION: LATEST_RELEASE
+    MVN_TEST: ''
 
 plugin_qa_no_node_task:
   <<: *PLUGIN_QA_BODY
@@ -287,6 +288,8 @@ plugin_qa_no_node_task:
   env:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: multi
+    # EslintCustomRulesTest requires Node.js in host OS
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_no_node_alpine_task:
   <<: *PLUGIN_QA_BODY
@@ -295,6 +298,8 @@ plugin_qa_no_node_alpine_task:
   env:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: linux-x64-musl
+    # EslintCustomRulesTest requires Node.js in host OS
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
@@ -303,6 +308,8 @@ plugin_qa_sq_dev_task:
   env:
     SQ_VERSION: 'DEV'
     SONARJS_ARTIFACT: multi
+    # EslintCustomRulesTest requires Node.js in host OS
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
