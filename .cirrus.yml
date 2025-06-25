@@ -16,15 +16,47 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  cluster_name: ${CIRRUS_CLUSTER_NAME}
-  builder_role: cirrus-builder
-  builder_image: docker-builder-v*
-  builder_instance_type: t3.small
-  region: eu-central-1
-  namespace: default
-  use_in_memory_disk: true
-  cpu: 10
-  memory: 40G
+  eks_container:
+    cluster_name: ${CIRRUS_CLUSTER_NAME}
+    builder_role: cirrus-builder
+    builder_image: docker-builder-v*
+    builder_instance_type: t3.small
+    region: eu-central-1
+    namespace: default
+    use_in_memory_disk: true
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    cpu: 10
+    memory: 40G
+
+alpine_container_definition: &ALPINE_CONTAINER_DEFINITION
+  <<: *CONTAINER_DEFINITION
+  eks_container:
+    dockerfile: .cirrus/alpine.Dockerfile
+
+small_container_definition: &SMALL_CONTAINER
+  <<: *CONTAINER_DEFINITION
+  eks_container:
+    cpu: 2
+    memory: 4G
+
+node18_container_definition: &NODE18_CONTAINER_DEFINITION
+  <<: *CONTAINER_DEFINITION
+  eks_container:
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+
+node22_container_definition: &NODE22_CONTAINER_DEFINITION
+  <<: *NODE18_CONTAINER_DEFINITION
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: 22
+
+node16_container_definition: &NODE16_CONTAINER_DEFINITION
+  <<: *NODE18_CONTAINER_DEFINITION
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: 16
 
 maven_cache_definition: &MAVEN_CACHE
   maven_cache:
@@ -71,7 +103,7 @@ npm_cache_definition: &NPM_CACHE
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
   eslint_build_cache:
     folder: ${CIRRUS_WORKING_DIR}/lib
-    fingerprint_script: cat package-lock.json
+    fingerprint_script: echo "JAVA$(git rev-parse HEAD)"
 
 js_coverage_cache_definition: &JS_COVERAGE_CACHE
   js_coverage_cache:
@@ -128,41 +160,17 @@ plugin_qa_body: &PLUGIN_QA_BODY
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
-  <<: *ORCHESTRATOR_CACHE
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
-
-plugin_qa_body_monthly: &PLUGIN_QA_BODY_MONTHLY
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-  env:
-    CIRRUS_CLONE_DEPTH: 10
-    SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *ORCHESTRATOR_CACHE_MONTHLY
-  qa_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
 
 build_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   env:
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
@@ -182,12 +190,7 @@ build_task:
     - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
 
 build_eslint_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   <<: *NPM_CACHE
   <<: *ESLINT_BUILD_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
@@ -197,12 +200,7 @@ build_eslint_task:
     - npm run eslint-plugin:build
 
 test_js_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   depends_on:
     - build
   <<: *NPM_CACHE
@@ -215,12 +213,7 @@ test_js_task:
     - npm run bridge:test:cov
 
 test_java_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   depends_on:
     - build
   <<: *MAVEN_CACHE
@@ -232,12 +225,7 @@ test_java_task:
     - mvn install -T1C -Pcoverage,coverage-report
 
 analyze_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   depends_on:
     - test_js
     - test_java
@@ -267,13 +255,7 @@ build_win_task:
 ws_scan_task:
   depends_on:
     - build
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-    cpu: 4
-    memory: 8G
+  <<: *NODE18_CONTAINER_DEFINITION
   # run only on master and long-term branches
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
@@ -292,39 +274,35 @@ ws_scan_task:
       path: 'whitesource/**/*'
 
 plugin_qa_with_node_task:
-  <<: *PLUGIN_QA_BODY_MONTHLY
-  eks_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
+  <<: *PLUGIN_QA_BODY
+  <<: *NODE18_CONTAINER_DEFINITION
+  <<: *ORCHESTRATOR_CACHE_MONTHLY
   env:
     SQ_VERSION: LATEST_RELEASE
-    MVN_TEST: ''
 
 plugin_qa_no_node_task:
-  <<: *PLUGIN_QA_BODY_MONTHLY
-  eks_container:
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  <<: *PLUGIN_QA_BODY
+  <<: *CONTAINER_DEFINITION
+  <<: *ORCHESTRATOR_CACHE_MONTHLY
   env:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: multi
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_no_node_alpine_task:
-  <<: *PLUGIN_QA_BODY_MONTHLY
-  eks_container:
-    dockerfile: .cirrus/alpine.Dockerfile
+  <<: *PLUGIN_QA_BODY
+  <<: *ALPINE_CONTAINER_DEFINITION
+  <<: *ORCHESTRATOR_CACHE_MONTHLY
   env:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: linux-x64-musl
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
-  eks_container:
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  <<: *CONTAINER_DEFINITION
+  <<: *ORCHESTRATOR_CACHE
   env:
     SQ_VERSION: 'DEV'
     SONARJS_ARTIFACT: multi
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
@@ -368,12 +346,7 @@ js_ts_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 22
+  <<: *NODE22_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -395,9 +368,7 @@ ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  <<: *CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
@@ -417,11 +388,7 @@ ruling_task:
 eslint9_node18_plugin_test_task:
   depends_on:
     - build_eslint
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  <<: *NODE18_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -438,11 +405,7 @@ eslint9_node18_plugin_test_task:
 eslint8_node18_plugin_test_task:
   depends_on:
     - build_eslint
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  <<: *NODE18_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -459,12 +422,7 @@ eslint8_node18_plugin_test_task:
 eslint8_node16_plugin_test_task:
   depends_on:
     - build_eslint
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: 16
+  <<: *NODE16_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -483,9 +441,7 @@ css_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  <<: *CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
@@ -517,11 +473,7 @@ promote_task:
     - js_ts_ruling
     - analyze
   <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
-    cpu: 2
-    memory: 4G
+  <<: *SMALL_CONTAINER
   env:
     ARTIFACTORY_PROMOTE_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promoter access_token]
     GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
