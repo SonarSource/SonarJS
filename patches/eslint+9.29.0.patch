@@ -1,30 +1,29 @@
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index 93946e2..75b4aa7 100644
+index db059b2..76b7a6b 100644
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
-@@ -2109,7 +2109,7 @@ class Linter {
+@@ -2074,7 +2074,7 @@ class Linter {
  						loc,
  					} of inlineConfigResult.configs) {
  						Object.keys(inlineConfig.rules).forEach(ruleId => {
--							const rule = getRuleFromConfig(ruleId, config);
-+              const rule = (providedOptions.getRule ?? getRuleFromConfig)(ruleId, config);
+-							const rule = config.getRuleDefinition(ruleId);
++              const rule = (providedOptions.getRule ?? config.getRuleDefinition)(ruleId);
  							const ruleValue = inlineConfig.rules[ruleId];
  
  							if (!rule) {
-@@ -2271,11 +2271,19 @@ class Linter {
+@@ -2233,11 +2233,18 @@ class Linter {
  			options.allowInlineConfig && !options.warnInlineConfig
  				? getDirectiveCommentsForFlatConfig(
  						sourceCode,
--						ruleId => getRuleFromConfig(ruleId, config),
-+            ruleId => (providedOptions.getRule ?? getRuleFromConfig)(ruleId, config),
+-						ruleId => config.getRuleDefinition(ruleId),
++						ruleId => (providedOptions.getRule ?? config.getRuleDefinition)(ruleId),
  						config.language,
  					)
  				: { problems: [], disableDirectives: [] };
- 
+     
 +    if (typeof providedOptions.patchInlineOptions === "function") {
 +      providedOptions.patchInlineOptions(mergedInlineConfig);
 +    }
-+
 +    if (typeof providedOptions.patchDirectives === "function") {
 +      providedOptions.patchDirectives(commentDirectives);
 +    }
