@@ -1,3 +1,7 @@
+## 2025-06-26, Version 3.0.4
+
+- [[ESLINTJS-74](https://sonarsource.atlassian.net/browse/ESLINTJS-74)] - ESLint plugin depends on `lodash.merge`
+
 ## 2025-06-17, Version 3.0.3
 
 - [[JS-707](https://sonarsource.atlassian.net/browse/JS-707)] - S2068 should be case-insensitive and support "passphrase"
