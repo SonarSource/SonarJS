@@ -44,7 +44,7 @@ export const METADATA_FOLDER = join(
   'rules',
   'javascript',
 );
-export const header = await readFile(join(DIRNAME, 'templates', 'header.template'), 'utf8');
+export const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 
 export const typeMatrix = {
   CODE_SMELL: 'suggestion',
