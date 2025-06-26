@@ -4,9 +4,11 @@
   "scripts": {
     "test": "node index.test.js"
   },
+  "dependencies": {
+    "cross-spawn": "7.0.6"
+  },
   "devDependencies": {
     "eslint-plugin-sonarjs": "file:../../lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz",
-    "cross-spawn": "7.0.6",
     "eslint": "^9",
     "typescript": "^5",
     "typescript-eslint": "^8",
