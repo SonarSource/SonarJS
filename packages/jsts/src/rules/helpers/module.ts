@@ -113,7 +113,7 @@ export function getFullyQualifiedName(
  *
  * To be used for rules that need to work with the `node:` prefix.
  */
-export function getFullyQualifiedNameRaw(
+function getFullyQualifiedNameRaw(
   context: Rule.RuleContext,
   node: estree.Node,
   fqn: string[],
@@ -301,7 +301,7 @@ export function reduceToIdentifier(node: estree.Node, fqn: string[] = []): estre
  * @param node the Node to traverse
  * @param fqn the array with the qualifiers
  */
-export function reduceTo<T extends estree.Node['type']>(
+function reduceTo<T extends estree.Node['type']>(
   type: T,
   node: estree.Node,
   fqn: string[] = [],

@@ -32,12 +32,12 @@ export interface Filesystem {
   statSync(path: string): Stats;
 }
 
-export interface File {
+interface File {
   readonly path: string;
   readonly content: Buffer | string;
 }
 
-export type FindUp = (from: string, to?: string, filesystem?: Filesystem) => Array<File>;
+type FindUp = (from: string, to?: string, filesystem?: Filesystem) => Array<File>;
 
 /**
  * Create an instance of FindUp.

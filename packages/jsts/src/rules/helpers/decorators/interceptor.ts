@@ -19,14 +19,8 @@ import estree from 'estree';
 
 const NUM_ARGS_NODE_MESSAGE = 2;
 
-export type ReportOverrider = (
-  context: Rule.RuleContext,
-  reportDescriptor: Rule.ReportDescriptor,
-) => void;
-export type ContextOverrider = (
-  context: Rule.RuleContext,
-  onReport: ReportOverrider,
-) => Rule.RuleContext;
+type ReportOverrider = (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void;
+type ContextOverrider = (context: Rule.RuleContext, onReport: ReportOverrider) => Rule.RuleContext;
 
 /**
  * Modifies the behavior of `context.report(descriptor)` for a given rule.

@@ -37,10 +37,10 @@ export type RequestResult =
       error: ReturnType<typeof serializeError>;
     };
 
-export type WsAnalysisCancelled = { messageType: 'cancelled' };
-export type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
-export type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
-export type WsError = { messageType: 'error'; error: unknown };
+type WsAnalysisCancelled = { messageType: 'cancelled' };
+type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
+type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
+type WsError = { messageType: 'error'; error: unknown };
 export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancelled | WsError;
 
 export type Telemetry = {
@@ -103,13 +103,12 @@ type GetTelemetryRequest = {
  * to (de)serialize Error instances. To address this, we turn those instances into
  * regular JavaScript objects.
  */
-export function serializeError(err: any) {
-  switch (true) {
-    case err instanceof APIError:
-      return { code: err.code, message: err.message, stack: err.stack, data: err.data };
-    case err instanceof Error:
-      return { code: ErrorCode.Unexpected, message: err.message, stack: err.stack };
-    default:
-      return { code: ErrorCode.Unexpected, message: err };
+export function serializeError(err: APIError | Error | any) {
+  if (err instanceof APIError) {
+    return { code: err.code, message: err.message, stack: err.stack, data: err.data };
+  } else if (err instanceof Error) {
+    return { code: ErrorCode.Unexpected, message: err.message, stack: err.stack };
+  } else {
+    return { code: ErrorCode.Unexpected, message: err };
   }
 }

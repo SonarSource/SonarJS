@@ -62,7 +62,7 @@ export function encodeContents(
  * @param cost the optional cost to fix
  * @returns the encoded message with secondary locations
  */
-export function toEncodedMessage(
+function toEncodedMessage(
   reportDescriptor: Rule.ReportDescriptor,
   secondaryLocations?: IssueLocation[],
   cost?: number,

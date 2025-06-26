@@ -102,7 +102,7 @@ export function fillLanguage(
   throw new Error(`Unable to find language for file ${input.filePath}`);
 }
 
-export function isCompleteJsTsAnalysisInput<T extends AnalysisInput>(
+function isCompleteJsTsAnalysisInput<T extends AnalysisInput>(
   input: T,
 ): input is T & { language: string } {
   return 'language' in input;

@@ -32,7 +32,7 @@ import { readFile } from '../../../../../shared/src/helpers/files.js';
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
 
-export type PackageJsonWithPath = {
+type PackageJsonWithPath = {
   filePath: string;
   fileContent: PackageJson;
 };

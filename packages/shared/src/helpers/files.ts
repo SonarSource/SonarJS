@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import fs, { constants } from 'fs';
+import fs from 'fs';
 import path from 'path';
 
 /**
@@ -71,7 +71,7 @@ export function readFileSync(filePath: string) {
  * @param str the input string
  * @returns the stripped string
  */
-export function stripBOM(str: string) {
+function stripBOM(str: string) {
   if (str.charCodeAt(0) === BOM_BYTE) {
     return str.slice(1);
   }
@@ -100,20 +100,5 @@ export function addTsConfigIfDirectory(tsConfig: string) {
     return tsConfig;
   } catch {
     return null;
-  }
-}
-
-/**
- * Asynchronous check if file is readable.
- *
- * @param path the file path
- * @returns true if file is readable. false otherwise
- */
-export async function fileReadable(path: string) {
-  try {
-    await fs.promises.access(path, constants.R_OK);
-    return true;
-  } catch {
-    return false;
   }
 }

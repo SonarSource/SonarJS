@@ -14,9 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-/**
- * `module-alias` must be imported first for module aliasing to work.
- */
 
 import express from 'express';
 import * as http from 'http';

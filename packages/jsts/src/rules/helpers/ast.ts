@@ -34,7 +34,7 @@ const MODULE_DECLARATION_NODES = [
   'ExportAllDeclaration',
 ];
 
-export function isModuleDeclaration(
+function isModuleDeclaration(
   node: estree.Node | undefined,
 ): node is
   | estree.ExportAllDeclaration
@@ -141,10 +141,6 @@ export function isBinaryPlus(
   return node.type === 'BinaryExpression' && node.operator === '+';
 }
 
-export function isUnaryExpression(node: estree.Node | undefined): node is estree.UnaryExpression {
-  return node !== undefined && node.type === 'UnaryExpression';
-}
-
 export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
   return node !== undefined && node.type === 'ArrayExpression';
 }
@@ -203,12 +199,6 @@ export function isMethodCall(callExpr: estree.CallExpression): callExpr is estre
   );
 }
 
-export function isVariableDeclaration(
-  node: TSESTree.Node | undefined,
-): node is TSESTree.VariableDeclaration {
-  return node !== undefined && node.type === 'VariableDeclaration';
-}
-
 export function isCallingMethod(
   callExpr: estree.CallExpression,
   arity: number,
@@ -220,18 +210,6 @@ export function isCallingMethod(
     isMethodCall(callExpr) &&
     callExpr.arguments.length === arity &&
     methodNames.includes(callExpr.callee.property.name)
-  );
-}
-
-export function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
-  return importDeclaration.specifiers.some(
-    ({ type, local }) => type === 'ImportNamespaceSpecifier' && local.name === name,
-  );
-}
-
-export function isDefaultSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
-  return importDeclaration.specifiers.some(
-    ({ type, local }) => type === 'ImportDefaultSpecifier' && local.name === name,
   );
 }
 

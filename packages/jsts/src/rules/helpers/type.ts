@@ -60,7 +60,7 @@ export const UTILITY_TYPES = new Set([
  * JavaScript typed arrays
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays
  */
-export const TYPED_ARRAY_TYPES = [
+const TYPED_ARRAY_TYPES = [
   'Int8Array',
   'Uint8Array',
   'Uint8ClampedArray',
@@ -128,7 +128,7 @@ export function isUnion(node: estree.Node, services: RequiredParserServices) {
  * @param type A TypeScript type.
  * @return An array of types. It's never empty.
  */
-export function getUnionTypes(type: ts.Type): ts.Type[] {
+function getUnionTypes(type: ts.Type): ts.Type[] {
   return type.isUnion() ? type.types : [type];
 }
 
@@ -279,7 +279,7 @@ export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) 
   return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
 }
 
-export function isBooleanLiteralType(type: ts.Type): type is ts.Type & {
+function isBooleanLiteralType(type: ts.Type): type is ts.Type & {
   intrinsicName: 'true' | 'false';
 } {
   return type.flags === ts.TypeFlags.BooleanLiteral;

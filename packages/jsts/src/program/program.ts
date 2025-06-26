@@ -34,7 +34,7 @@ import {
   addTsConfigIfDirectory,
 } from '../../../shared/src/helpers/files.js';
 
-export type ProgramResult = {
+type ProgramResult = {
   files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;

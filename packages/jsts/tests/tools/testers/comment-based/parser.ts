@@ -24,7 +24,7 @@ import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module
  */
-export function parseForESLint(
+function parseForESLint(
   fileContent: string,
   options: { filePath: string },
   fileType: FileType = 'MAIN',

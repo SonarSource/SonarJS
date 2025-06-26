@@ -37,7 +37,7 @@ const message =
 /**
  * A suspect test node is a test node that is the only child of a function body
  */
-export const S2301: Rule.RuleModule = {
+export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       message,
@@ -158,5 +158,3 @@ export const S2301: Rule.RuleModule = {
     };
   },
 };
-
-export const rule = S2301;

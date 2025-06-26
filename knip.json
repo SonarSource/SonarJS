@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "its/sources/**/*",
+    "packages/jsts/src/rules/*/meta.ts",
+    "packages/jsts/src/rules/*/config.ts",
+    "packages/jsts/src/rules/plugin.ts",
+    "packages/jsts/src/rules/*/*.fixture.*",
+    "**/fixtures/**"
+  ],
+  "project": ["packages/**/*.ts", "tools/**/*.ts"]
+}

@@ -44,7 +44,7 @@ tmp.setGracefulCleanup();
 
 export const UNINITIALIZED_ERROR =
   'TSConfig cache has not been initialized. Call loadFiles() first.';
-export const TSCONFIG_JSON = 'tsconfig.json';
+const TSCONFIG_JSON = 'tsconfig.json';
 
 type ProvidedTsConfig = {
   path: string;

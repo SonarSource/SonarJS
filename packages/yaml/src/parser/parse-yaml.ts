@@ -33,12 +33,12 @@ export type ParsingContext = {
 /**
  * A function predicate to select a YAML node containing JS code
  */
-export type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
+type YamlVisitorPredicate = (key: any, node: any, ancestors: any) => boolean;
 
 /**
  * A function that picks extra data to save in EmbeddedJS
  */
-export type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
+type ExtrasPicker = (key: any, node: any, ancestors: any) => {};
 
 /**
  * Parses YAML file and extracts JS code according to the provided predicate
