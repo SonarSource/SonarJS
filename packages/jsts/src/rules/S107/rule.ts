@@ -68,6 +68,9 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
     if ('node' in descriptor) {
       const functionLike = descriptor.node as TSESTree.FunctionLike;
       if (!isException(functionLike)) {
+        if ((descriptor.node as TSESTree.Node).type === 'TSFunctionType' && 'loc' in descriptor) {
+          descriptor.loc = descriptor.node.loc;
+        }
         context.report(descriptor);
       }
     }
@@ -127,65 +130,39 @@ const ruleExtension: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      TSEmptyBodyFunctionExpression: checkFunction,
+      TSEmptyBodyFunctionExpression: (functionLike: TSESTree.TSEmptyBodyFunctionExpression) => {
+        const parent = functionLike.parent;
+        let name = 'Empty function';
+        if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {
+          name = `Empty function '${parent.key.name}'`;
+        }
+        const max = getMax(context.options[0]);
+        const numParams = functionLike.params.length;
+        if (numParams > max) {
+          context.report({
+            messageId: 'exceed',
+            loc: getFunctionHeaderLocation(context, functionLike),
+            data: {
+              name,
+              count: numParams.toString(),
+              max: max.toString(),
+            },
+          });
+        }
+      },
     };
-
-    function checkFunction(node: estree.Node) {
-      const functionLike = node as unknown as TSESTree.FunctionLike;
-      const max = getMax(context.options[0]);
-      const numParams = functionLike.params.length;
-      if (numParams > max) {
-        context.report({
-          messageId: 'exceed',
-          loc: getFunctionHeaderLocation(functionLike),
-          data: {
-            name: getFunctionNameWithKind(functionLike),
-            count: numParams.toString(),
-            max: max.toString(),
-          },
-        });
-      }
-
-      function getFunctionHeaderLocation(functionLike: TSESTree.FunctionLike) {
-        const sourceCode = context.sourceCode;
-        const functionNode = (
-          functionLike.type === 'TSEmptyBodyFunctionExpression'
-            ? functionLike.parent!
-            : functionLike
-        ) as estree.Node;
-        const headerStart = sourceCode.getFirstToken(functionNode)!;
-        const headerEnd = sourceCode.getFirstToken(functionNode, token => token.value === '(')!;
-        return {
-          start: headerStart.loc.start,
-          end: headerEnd.loc.start,
-        };
-      }
-
-      function getFunctionNameWithKind(functionLike: TSESTree.FunctionLike) {
-        let name: string | undefined;
-        let kind = 'function';
-        switch (functionLike.type) {
-          case 'TSDeclareFunction':
-            kind = 'Function declaration';
-            if (functionLike.id) {
-              name = functionLike.id.name;
-            }
-            break;
-          case 'TSEmptyBodyFunctionExpression': {
-            kind = 'Empty function';
-            const parent = functionLike.parent;
-            if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {
-              name = parent.key.name;
-            }
-            break;
-          }
-        }
-        if (name) {
-          return `${kind} '${name}'`;
-        } else {
-          return kind;
-        }
-      }
-    }
   },
 };
+
+function getFunctionHeaderLocation(context: Rule.RuleContext, functionLike: TSESTree.FunctionLike) {
+  const sourceCode = context.sourceCode;
+  const functionNode = (
+    functionLike.type === 'TSEmptyBodyFunctionExpression' ? functionLike.parent! : functionLike
+  ) as estree.Node;
+  const headerStart = sourceCode.getFirstToken(functionNode)!;
+  const headerEnd = sourceCode.getFirstToken(functionNode, token => token.value === '(')!;
+  return {
+    start: headerStart.loc.start,
+    end: headerEnd.loc.start,
+  };
+}
