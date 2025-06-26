@@ -205,7 +205,7 @@ knip_task:
     - build
   <<: *NPM_CACHE
   knip_script:
-    - knip
+    - npx knip
 
 test_js_task:
   <<: *NODE22_CONTAINER_DEFINITION
