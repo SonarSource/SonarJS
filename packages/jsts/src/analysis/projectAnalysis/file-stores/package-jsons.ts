@@ -39,9 +39,7 @@ export type PackageJsonWithPath = {
 export class PackageJsonStore implements FileStore {
   private packageJsons: PackageJsonWithPath[] | undefined = undefined;
   private baseDir: string | undefined = undefined;
-  private paths = new Set<string>();
-
-  constructor() {}
+  private readonly paths = new Set<string>();
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);

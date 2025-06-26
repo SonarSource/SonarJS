@@ -23,6 +23,7 @@ import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
 import { readFile, toUnixPath } from '../../../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
+import { dirname } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -126,7 +127,7 @@ export class SourceFileStore implements FileStore {
   }
 
   processDirectory(dir: string) {
-    if (!this.anyParentIsIgnored(dir) && !filterPathAndGetFileType(dir)) {
+    if (this.anyParentIsIgnored(dir) || !filterPathAndGetFileType(dir)) {
       this.ignoredPaths.add(dir);
     }
   }
@@ -179,11 +180,6 @@ export class SourceFileStore implements FileStore {
   }
 
   private anyParentIsIgnored(filePath: string) {
-    for (const ignoredPath of this.ignoredPaths) {
-      if (filePath.startsWith(ignoredPath)) {
-        return true;
-      }
-    }
-    return false;
+    return this.ignoredPaths.has(dirname(filePath));
   }
 }
