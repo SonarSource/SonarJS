@@ -33,6 +33,10 @@ import { fileURLToPath } from 'node:url';
 
 const version = process.argv[2];
 
+if (!version) {
+  throw new Error('Please provide a version');
+}
+
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const changelogPath = join(DIRNAME, '..', 'packages', 'jsts', 'src', 'rules', 'CHANGELOG.md');
 const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
