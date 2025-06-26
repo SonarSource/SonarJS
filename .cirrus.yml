@@ -199,6 +199,14 @@ build_eslint_task:
     - node --version
     - npm run eslint-plugin:build
 
+knip_task:
+  <<: *NODE22_CONTAINER_DEFINITION
+  depends_on:
+    - build
+  <<: *NPM_CACHE
+  knip_script:
+    - knip
+
 test_js_task:
   <<: *NODE22_CONTAINER_DEFINITION
   depends_on:
