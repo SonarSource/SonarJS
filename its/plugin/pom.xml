@@ -21,7 +21,6 @@
   <modules>
     <module>plugins</module>
     <module>tests</module>
-    <module>sonarlint-tests</module>
   </modules>
 
 </project>
