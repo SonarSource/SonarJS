@@ -306,7 +306,7 @@ plugin_qa_sq_dev_task:
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
-# Plugin QA for Windows is split into 3 parts to make it faster
+# Plugin QA for Windows is split into 2 parts to make it faster
 plugin_qa_win_task:
   depends_on:
     - build
@@ -327,22 +327,6 @@ plugin_qa_win_task:
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
     - mvn test -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V surefire-report:report
-
-# Plugin QA for Windows is split into 3 parts to make it faster
-plugin_qa_win_sonarlint_task:
-  depends_on:
-    - build
-  <<: *WINDOWS_VM_DEFINITION
-  <<: *ONLY_SONARSOURCE_QA
-  env:
-    SONARSOURCE_QA: true
-    SQ_VERSION: LATEST_RELEASE
-  <<: *WIN_SSD_AND_CLONE
-  <<: *MAVEN_CACHE
-  qa_script:
-    - source /c/buildTools-docker/bin/cirrus-env QA
-    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - mvn test -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V surefire-report:report
 
 js_ts_ruling_task:
   depends_on:
