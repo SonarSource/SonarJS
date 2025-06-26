@@ -16,13 +16,14 @@
  */
 
 import type { JsTsFiles } from '../projectAnalysis.js';
-import { dirname } from 'node:path/posix';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
 import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
-import { FileType, readFile } from '../../../../../shared/src/helpers/files.js';
+import { readFile, toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
+import { dirname } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -34,7 +35,7 @@ type SourceFilesData = {
 export class SourceFileStore implements FileStore {
   private baseDir: string | undefined = undefined;
   private newFiles: JsTsAnalysisInput[] = [];
-  private paths: Set<string> | undefined = undefined;
+  private readonly ignoredPaths = new Set<string>();
   private readonly store: {
     found: SourceFilesData;
     request: SourceFilesData;
@@ -96,13 +97,6 @@ export class SourceFileStore implements FileStore {
     return this.store.request.filenames!;
   }
 
-  getPaths() {
-    if (!this.paths) {
-      throw new Error(UNINITIALIZED_ERROR);
-    }
-    return this.paths;
-  }
-
   dirtyCachesIfNeeded(currentBaseDir: string) {
     if (currentBaseDir !== this.baseDir) {
       this.clearCache();
@@ -112,7 +106,7 @@ export class SourceFileStore implements FileStore {
   clearCache() {
     this.store.found.files = undefined;
     this.store.found.filenames = undefined;
-    this.paths = undefined;
+    this.ignoredPaths.clear();
   }
 
   setup(baseDir: string) {
@@ -120,14 +114,21 @@ export class SourceFileStore implements FileStore {
     this.newFiles = [];
   }
 
-  async process(file: Dirent, filePath: string, fileType: FileType) {
-    if (isAnalyzableFile(file.name)) {
+  async processFile(file: Dirent, filePath: string) {
+    if (isAnalyzableFile(file.name) && !this.anyParentIsIgnored(filePath)) {
       const fileContent = await this.getFileContent(filePath);
+      const fileType = filterPathAndGetFileType(filePath);
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
-      if (accept(filePath, fileContent)) {
+      if (fileType && accept(filePath, fileContent)) {
         this.newFiles.push({ fileType, filePath, fileContent });
       }
+    }
+  }
+
+  processDirectory(dir: string) {
+    if (this.anyParentIsIgnored(dir) || !filterPathAndGetFileType(dir)) {
+      this.ignoredPaths.add(dir);
     }
   }
 
@@ -168,9 +169,7 @@ export class SourceFileStore implements FileStore {
     store: keyof typeof SourceFileStore.prototype.store,
     file: JsTsAnalysisInput,
   ) {
-    if (store === 'found') {
-      this.paths!.add(dirname(file.filePath));
-    }
+    file.filePath = toUnixPath(file.filePath);
     this.store[store].filenames!.push(file.filePath);
     this.store[store].files![file.filePath] = file;
   }
@@ -178,9 +177,9 @@ export class SourceFileStore implements FileStore {
   private resetStore(store: keyof typeof SourceFileStore.prototype.store) {
     this.store[store].files = {};
     this.store[store].filenames = [];
-    if (store === 'found') {
-      // in sonarlint we don't want the request files to reset paths
-      this.paths = new Set<string>();
-    }
+  }
+
+  private anyParentIsIgnored(filePath: string) {
+    return this.ignoredPaths.has(dirname(filePath));
   }
 }

@@ -55,10 +55,6 @@ export function isJsTsExcluded(filePath: string) {
  * 'TEST' if it belongs to the test sources, or undefined if it is excluded from analysis.
  */
 export function filterPathAndGetFileType(filePath: string): FileType | undefined {
-  if (isJsTsExcluded(filePath)) {
-    return undefined;
-  }
-
   if (fileIsTest(filePath)) {
     return 'TEST';
   }

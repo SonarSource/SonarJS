@@ -16,13 +16,13 @@
  */
 import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { type FileType, toUnixPath } from './files.js';
+import { toUnixPath } from './files.js';
 import { join } from 'node:path/posix';
-import { filterPathAndGetFileType } from './filter/filter-path.js';
+import { isJsTsExcluded } from './filter/filter-path.js';
 
 export async function findFiles(
   dir: string,
-  onFile: (file: Dirent, filePath: string, fileType: FileType) => Promise<void>,
+  onEntry: (file: Dirent, filePath: string) => Promise<void>,
 ) {
   const directories = [dir];
 
@@ -30,11 +30,11 @@ export async function findFiles(
     const directory = directories.pop()!;
     for await (const file of await opendir(directory)) {
       const filePath = join(toUnixPath(file.parentPath), file.name);
-      const fileType = filterPathAndGetFileType(filePath);
-      if (file.isDirectory() && fileType) {
-        directories.push(filePath);
-      } else if (file.isFile() && fileType) {
-        await onFile(file, filePath, fileType);
+      if (!isJsTsExcluded(filePath)) {
+        if (file.isDirectory()) {
+          directories.push(filePath);
+        }
+        await onEntry(file, filePath);
       }
     }
   }

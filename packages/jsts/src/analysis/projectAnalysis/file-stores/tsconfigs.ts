@@ -249,7 +249,7 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  async process(file: Dirent, filePath: string) {
+  async processFile(file: Dirent, filePath: string) {
     const matches = this.providedPropertyTsConfigs?.some(
       providedTsConfig =>
         providedTsConfig.path === filePath || providedTsConfig.pattern.match(filePath),
