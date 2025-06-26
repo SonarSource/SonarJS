@@ -201,10 +201,11 @@ build_eslint_task:
 
 knip_task:
   <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NPMRC_SCRIPT_DEFINITION
   depends_on:
     - build
   knip_script:
-    - npm install
+    - npm install -D knip
     - npx knip
 
 test_js_task:
