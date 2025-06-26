@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path/posix';
 import { checkbox, input, select } from '@inquirer/prompts';
 import {
-  DIRNAME,
+  header,
   inflateTemplateToFile,
   ruleRegex,
   RULES_FOLDER,
@@ -27,8 +27,6 @@ import {
 } from './helpers.js';
 import { generateMetaForRule } from './generate-eslint-meta.js';
 import { generateJavaCheckClass } from './generate-java-rule-classes.js';
-
-const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 
 const sonarKey = await input({ message: 'Enter the Sonar key for the new rule (SXXXX)' });
 const eslintId = await input({ message: 'Enter the ESLint ID for the rule' });

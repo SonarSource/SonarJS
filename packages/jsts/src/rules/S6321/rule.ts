@@ -328,7 +328,7 @@ function getArgumentValue(
   return argument ? getLiteralValue(ctx, argument) : undefined;
 }
 
-export function getPropertyValue(
+function getPropertyValue(
   ctx: Rule.RuleContext,
   node: estree.ObjectExpression,
   propertyName: string,

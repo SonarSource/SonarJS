@@ -27,7 +27,7 @@ const assignedValues = (val: LiteralValue) => new AssignedValues([val]);
 interface UnknownValue {
   type: 'UnknownValue';
 }
-export const unknownValue: UnknownValue = {
+const unknownValue: UnknownValue = {
   type: 'UnknownValue',
 };
 

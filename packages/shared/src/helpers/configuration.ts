@@ -114,10 +114,10 @@ export function getBaseDir() {
   return configuration.baseDir;
 }
 
-export const HTML_EXTENSIONS = ['.html', '.htm'];
-export const YAML_EXTENSIONS = ['.yml', '.yaml'];
+const HTML_EXTENSIONS = ['.html', '.htm'];
+const YAML_EXTENSIONS = ['.yml', '.yaml'];
 
-export function jsTsExtensions() {
+function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
 }
 
@@ -189,7 +189,7 @@ export function maxFilesForTypeChecking() {
   return configuration.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 }
 
-export function setTestPaths(testPaths: string[] | undefined) {
+function setTestPaths(testPaths: string[] | undefined) {
   configuration.tests = normalizePaths(testPaths).map(path => `${path}/`.replace(/\/+$/g, '/'));
   debug(`Setting test paths to ${configuration.tests}`);
 }
@@ -198,7 +198,7 @@ export function getTestPaths() {
   return configuration.tests;
 }
 
-export function setSourcesPaths(sourcesPaths: string[] | undefined) {
+function setSourcesPaths(sourcesPaths: string[] | undefined) {
   configuration.sources = normalizePaths(sourcesPaths).map(path =>
     `${path}/`.replace(/\/+$/g, '/'),
   );
@@ -301,7 +301,7 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
 
 const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
-export const DEFAULT_EXCLUSIONS = [
+const DEFAULT_EXCLUSIONS = [
   '**/*.d.ts',
   '**/.git/**',
   '**/node_modules/**',
@@ -312,9 +312,9 @@ export const DEFAULT_EXCLUSIONS = [
   '**/contrib/**',
 ];
 
-export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
+const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
-export const DEFAULT_ENVIRONMENTS = [
+const DEFAULT_ENVIRONMENTS = [
   'amd',
   'applescript',
   'atomtest',
@@ -341,7 +341,7 @@ export const DEFAULT_ENVIRONMENTS = [
   'worker',
 ];
 
-export const DEFAULT_GLOBALS = [
+const DEFAULT_GLOBALS = [
   'angular',
   'goog',
   'google',

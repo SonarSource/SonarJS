@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export type Default = string | boolean | number | string[] | number[] | Object;
+type Default = string | boolean | number | string[] | number[] | Object;
 
 type ESLintConfigurationDefaultProperty = {
   default: Default;

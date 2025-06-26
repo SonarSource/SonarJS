@@ -40,7 +40,7 @@ await symlink(join(SONARJS_ROOT, 'its', 'sources'), sourcesPath).catch(err => {
   }
 });
 
-export const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
+const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
 type ProjectsData = {
   name: string;

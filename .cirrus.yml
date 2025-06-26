@@ -199,6 +199,16 @@ build_eslint_task:
     - node --version
     - npm run eslint-plugin:build
 
+knip_task:
+  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NPMRC_SCRIPT_DEFINITION
+  depends_on:
+    - build
+  knip_script:
+    - npm install --no-package-lock
+    - npm run bbf
+    - npx knip
+
 test_js_task:
   <<: *NODE22_CONTAINER_DEFINITION
   depends_on:

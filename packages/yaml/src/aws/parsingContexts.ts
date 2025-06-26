@@ -93,7 +93,7 @@ function hasType(ancestors: any[], value: string, level = 5) {
 /**
  * Picks the embeddedJS resource name for AWS lambdas and serverless functions
  */
-export function pickResourceName(level: number, _key: any, _pair: any, ancestors: any) {
+function pickResourceName(level: number, _key: any, _pair: any, ancestors: any) {
   const ancestorsAtResourcesLevel = ancestors[ancestors.length - level];
   return {
     resourceName: ancestorsAtResourcesLevel.key.value,

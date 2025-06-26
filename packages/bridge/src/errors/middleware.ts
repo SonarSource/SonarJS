@@ -50,7 +50,7 @@ export function handleError(err: any) {
   }
 }
 
-export function generateParsingError(error: {
+function generateParsingError(error: {
   message: string;
   code: ErrorCode;
   data?: { line: number };

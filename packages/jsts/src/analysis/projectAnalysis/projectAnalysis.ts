@@ -18,7 +18,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from
 import { RuleConfig } from '../../linter/config/rule-config.js';
 import { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import { ErrorCode } from '../../../../shared/src/errors/error.js';
-import { Configuration } from 'shared/src/helpers/configuration.js';
+import { Configuration } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
   withProgram: boolean;
@@ -40,7 +40,7 @@ export type FileResult =
   | ParsingError
   | { error: string };
 
-export type ParsingError = {
+type ParsingError = {
   parsingError: {
     message: string;
     code: ErrorCode;

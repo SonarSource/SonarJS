@@ -18,8 +18,8 @@ import stylelint from 'stylelint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
-export type ValidAssertion = { description: string; code: string };
-export type InvalidAssertion = {
+type ValidAssertion = { description: string; code: string };
+type InvalidAssertion = {
   description: string;
   code: string;
   errors: { text?: string; line?: number; column?: number }[];

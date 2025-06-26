@@ -18,17 +18,6 @@ import { readFile } from '../helpers/files.js';
 import { Configuration } from '../helpers/configuration.js';
 
 /**
- * An analysis function
- *
- * Every analysis consumes an input and produces an output regardless of whether
- * the analysis denotes a CSS analysis, a JavaScript one or another kind.
- *
- * _The return type is a JavaScript Promise to have a common API between all
- * types of analysis, especially because of CSS analyses which uses Stylelint._
- */
-export type Analysis = (input: AnalysisInput) => Promise<AnalysisOutput>;
-
-/**
  * An analysis input
  *
  * An analysis always operates on a file, be it from its path
@@ -68,7 +57,7 @@ export async function fillFileContent<T extends AnalysisInput>(
   return input;
 }
 
-export function isCompleteAnalysisInput<T extends AnalysisInput>(
+function isCompleteAnalysisInput<T extends AnalysisInput>(
   input: T,
 ): input is T & { fileContent: string } {
   return 'fileContent' in input;

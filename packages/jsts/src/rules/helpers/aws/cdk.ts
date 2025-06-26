@@ -34,7 +34,7 @@ const AWS_OPTIONS_ARGUMENT_POSITION = 2;
  * A symbol fully qualified name, e.g. `aws-cdk-lib.aws_sns.Topic`.
  */
 export type FullyQualifiedName = string;
-export type AwsCdkCallback = {
+type AwsCdkCallback = {
   functionName?: string;
   methods?: string[];
   callExpression(expr: estree.CallExpression, ctx: Rule.RuleContext, fqn?: string): void;
@@ -56,7 +56,7 @@ type NodeAndReport = {
   nodeToReport: estree.Node;
 };
 
-export type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
+type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
 
 /**
  * A rule template for AWS CDK resources
