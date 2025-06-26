@@ -25,7 +25,7 @@ import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
 
 export const ruleRegex = /^S\d+/;
-export const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
@@ -44,7 +44,7 @@ export const METADATA_FOLDER = join(
   'rules',
   'javascript',
 );
-export const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
+export const header = await readFile(join(DIRNAME, 'header.template'), 'utf8');
 
 export const typeMatrix = {
   CODE_SMELL: 'suggestion',

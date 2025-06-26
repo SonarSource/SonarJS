@@ -1,11 +1,14 @@
 {
   "ignore": [
-    "its/sources/**/*",
     "packages/jsts/src/rules/*/meta.ts",
     "packages/jsts/src/rules/*/config.ts",
     "packages/jsts/src/rules/plugin.ts",
     "packages/jsts/src/rules/*/*.fixture.*",
-    "**/fixtures/**"
+    "**/fixtures/**",
+    "packages/bridge/src/worker.ts",
+    "its/**"
   ],
-  "project": ["packages/**/*.ts", "tools/**/*.ts"]
+  "project": ["packages/**/*.ts", "tools/**/*.ts"],
+  "ignoreDependencies": ["nyc", "@istanbuljs/esm-loader-hook"],
+  "ignoreBinaries": ["mvn", "NODE_OPTIONS=--import ./tools/nyc-esm-hook-loader.js"]
 }

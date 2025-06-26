@@ -21,7 +21,7 @@ import type {
   ProjectAnalysisMeta,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
-import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
+import { APIError, ErrorCode, ErrorData } from '../../shared/src/errors/error.js';
 import type { NamedDependency } from '../../jsts/src/rules/index.js';
 import type { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
 import type { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
@@ -34,7 +34,7 @@ export type RequestResult =
     }
   | {
       type: 'failure';
-      error: ReturnType<typeof serializeError>;
+      error: SerializedError;
     };
 
 type WsAnalysisCancelled = { messageType: 'cancelled' };
@@ -98,12 +98,19 @@ type GetTelemetryRequest = {
   type: 'on-get-telemetry';
 };
 
+type SerializedError = {
+  code: ErrorCode;
+  message: unknown;
+  stack?: string;
+  data?: ErrorData;
+};
+
 /**
  * The default (de)serialization mechanism of the Worker Thread API cannot be used
  * to (de)serialize Error instances. To address this, we turn those instances into
  * regular JavaScript objects.
  */
-export function serializeError(err: APIError | Error | any) {
+export function serializeError(err: unknown): SerializedError {
   if (err instanceof APIError) {
     return { code: err.code, message: err.message, stack: err.stack, data: err.data };
   } else if (err instanceof Error) {
