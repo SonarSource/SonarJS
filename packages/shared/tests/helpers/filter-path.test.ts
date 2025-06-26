@@ -16,7 +16,7 @@
  */
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { filterPathAndGetFileType } from '../../src/helpers/filter/filter-path.js';
+import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/helpers/filter/filter-path.js';
 import { setGlobalConfiguration } from '../../src/helpers/configuration.js';
 
 function logsContain(message: string) {
@@ -36,9 +36,9 @@ describe('filter path', () => {
     const filePath = '/project/src/excluded/file.js';
     setGlobalConfiguration({ baseDir: '/project/', jsTsExclusions: ['**/excluded/**'] });
 
-    const result = filterPathAndGetFileType(filePath);
+    const result = isJsTsExcluded(filePath);
 
-    expect(result).toBeUndefined();
+    expect(result).toBe(true);
     logsContain(`DEBUG File ignored due to js/ts exclusions: ${filePath}`);
   });
 
