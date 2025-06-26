@@ -202,11 +202,10 @@ build_eslint_task:
 knip_task:
   <<: *NODE22_CONTAINER_DEFINITION
   <<: *NPMRC_SCRIPT_DEFINITION
-  <<: *NPM_CACHE
   depends_on:
     - build
   knip_script:
-    - npm install -D oxc-parser
+    - npm install
     - npx knip
 
 test_js_task:
