@@ -203,8 +203,8 @@ knip_task:
   <<: *NODE22_CONTAINER_DEFINITION
   depends_on:
     - build
-  <<: *NPM_CACHE
   knip_script:
+    - npm install
     - npx knip
 
 test_js_task:
