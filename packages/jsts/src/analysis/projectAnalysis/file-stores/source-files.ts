@@ -22,7 +22,8 @@ import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
-import { FileType, readFile } from '../../../../../shared/src/helpers/files.js';
+import { readFile } from '../../../../../shared/src/helpers/files.js';
+import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -120,12 +121,13 @@ export class SourceFileStore implements FileStore {
     this.newFiles = [];
   }
 
-  async process(file: Dirent, filePath: string, fileType: FileType) {
+  async process(file: Dirent, filePath: string) {
     if (isAnalyzableFile(file.name)) {
       const fileContent = await this.getFileContent(filePath);
+      const fileType = filterPathAndGetFileType(filePath);
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
-      if (accept(filePath, fileContent)) {
+      if (fileType && accept(filePath, fileContent)) {
         this.newFiles.push({ fileType, filePath, fileContent });
       }
     }

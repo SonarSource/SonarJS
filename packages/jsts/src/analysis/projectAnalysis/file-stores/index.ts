@@ -43,9 +43,9 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
     store.setup(baseDir);
   }
 
-  await findFiles(baseDir, async (file, filePath, fileType) => {
+  await findFiles(baseDir, async (file, filePath) => {
     for (const store of pendingStores) {
-      await store.process(file, filePath, fileType);
+      await store.process(file, filePath);
     }
   });
   for (const store of pendingStores) {

@@ -17,14 +17,13 @@
 
 import type { Dirent } from 'node:fs';
 import type { JsTsFiles } from '../projectAnalysis.js';
-import { FileType } from '../../../../../shared/src/helpers/files.js';
 
 export abstract class FileStore {
   abstract isInitialized(baseDir: string, inputFiles?: JsTsFiles): Promise<boolean>;
 
   abstract setup(baseDir: string): void;
 
-  abstract process(file: Dirent, filePath: string, fileType: FileType): Promise<void>;
+  abstract process(file: Dirent, filePath: string): Promise<void>;
 
   abstract postProcess(baseDir: string): Promise<void>;
 }
