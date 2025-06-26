@@ -6,7 +6,8 @@
     "packages/jsts/src/rules/*/*.fixture.*",
     "**/fixtures/**",
     "packages/bridge/src/worker.ts",
-    "its/**"
+    "its/**",
+    "tools/header.ts"
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": ["nyc", "@istanbuljs/esm-loader-hook"],

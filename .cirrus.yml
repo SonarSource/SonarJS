@@ -205,8 +205,7 @@ knip_task:
   depends_on:
     - build
   knip_script:
-    - rm package-lock.json
-    - npm install
+    - npm install --no-package-lock
     - npm run bbf
     - npx knip
 

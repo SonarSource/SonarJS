@@ -80,7 +80,6 @@
     "eslint-doc-generator": "2.2.2",
     "esprima": "4.0.1",
     "expect": "30.0.2",
-    "fs-extra": "11.3.0",
     "glob": "11.0.3",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
