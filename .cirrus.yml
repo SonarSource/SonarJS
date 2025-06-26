@@ -207,6 +207,7 @@ knip_task:
   knip_script:
     - rm package-lock.json
     - npm install
+    - npm run bbf
     - npx knip
 
 test_js_task:
