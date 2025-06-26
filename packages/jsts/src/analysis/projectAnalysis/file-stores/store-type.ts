@@ -23,7 +23,9 @@ export abstract class FileStore {
 
   abstract setup(baseDir: string): void;
 
-  abstract process(file: Dirent, filePath: string): Promise<void>;
+  abstract processFile(file: Dirent, filePath: string): Promise<void>;
 
   abstract postProcess(baseDir: string): Promise<void>;
+
+  abstract processDirectory?(dir: string): void;
 }

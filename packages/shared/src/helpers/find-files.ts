@@ -22,7 +22,7 @@ import { isJsTsExcluded } from './filter/filter-path.js';
 
 export async function findFiles(
   dir: string,
-  onFile: (file: Dirent, filePath: string) => Promise<void>,
+  onEntry: (file: Dirent, filePath: string) => Promise<void>,
 ) {
   const directories = [dir];
 
@@ -33,9 +33,8 @@ export async function findFiles(
       if (!isJsTsExcluded(filePath)) {
         if (file.isDirectory()) {
           directories.push(filePath);
-        } else if (file.isFile()) {
-          await onFile(file, filePath);
         }
+        await onEntry(file, filePath);
       }
     }
   }

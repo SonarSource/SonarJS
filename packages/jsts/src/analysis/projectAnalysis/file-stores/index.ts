@@ -23,7 +23,7 @@ import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 
 export const sourceFileStore = new SourceFileStore();
-export const packageJsonStore = new PackageJsonStore(sourceFileStore);
+export const packageJsonStore = new PackageJsonStore();
 export const tsConfigStore = new TsConfigStore(sourceFileStore);
 
 export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
@@ -45,9 +45,15 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
 
   await findFiles(baseDir, async (file, filePath) => {
     for (const store of pendingStores) {
-      await store.process(file, filePath);
+      if (file.isFile()) {
+        await store.processFile(file, filePath);
+      }
+      if (file.isDirectory()) {
+        store.processDirectory?.(filePath);
+      }
     }
   });
+
   for (const store of pendingStores) {
     await store.postProcess(baseDir);
   }

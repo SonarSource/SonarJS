@@ -26,7 +26,6 @@ import {
 import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import { SourceFileStore } from './source-files.js';
 import { readFile } from '../../../../../shared/src/helpers/files.js';
 
 export const UNINITIALIZED_ERROR =
@@ -40,8 +39,9 @@ export type PackageJsonWithPath = {
 export class PackageJsonStore implements FileStore {
   private packageJsons: PackageJsonWithPath[] | undefined = undefined;
   private baseDir: string | undefined = undefined;
+  private paths = new Set<string>();
 
-  constructor(private readonly filesStore: SourceFileStore) {}
+  constructor() {}
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
@@ -72,16 +72,18 @@ export class PackageJsonStore implements FileStore {
   clearCache() {
     this.packageJsons = undefined;
     this.baseDir = undefined;
+    this.paths.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
   }
 
   setup(baseDir: string) {
     this.baseDir = baseDir;
+    this.paths.add(baseDir);
     this.packageJsons = [];
   }
 
-  async process(file: Dirent, filePath: string) {
+  async processFile(file: Dirent, filePath: string) {
     if (!this.packageJsons) {
       throw new Error(UNINITIALIZED_ERROR);
     }
@@ -95,11 +97,15 @@ export class PackageJsonStore implements FileStore {
     }
   }
 
+  processDirectory(dir: string) {
+    this.paths.add(dir);
+  }
+
   async postProcess() {
     if (!this.packageJsons) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    for (const projectPath of this.filesStore.getPaths()) {
+    for (const projectPath of this.paths) {
       fillCacheWithNewPath(
         projectPath,
         this.packageJsons
