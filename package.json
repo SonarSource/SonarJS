@@ -92,7 +92,7 @@
     "rimraf": "6.0.1",
     "tsx": "4.20.3",
     "type-fest": "4.41.0",
-    "typedoc": "0.28.5"
+    "typedoc": "0.28.6"
   },
   "dependencies": {
     "@babel/core": "7.27.7",
