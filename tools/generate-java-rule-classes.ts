@@ -197,7 +197,7 @@ function generateBody(
     const defaultValue = getDefaultValueString();
     imports.add('import org.sonar.check.RuleProperty;');
     result.push(
-      `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue})`,
+      `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue}, type="${property.fieldType || ''}")`,
     );
     result.push(`${getJavaType()} ${defaultFieldName} = ${getDefaultValue()};`);
     hasSQProperties = true;
