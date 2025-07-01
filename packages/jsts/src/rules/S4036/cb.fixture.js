@@ -1,33 +1,33 @@
 const cp = require('child_process');
-cp.exec('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.exec('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //      ^^^^^^^^^^
-cp.execSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.execSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //          ^^^^^^^^^^
-cp.spawn('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.spawn('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //       ^^^^^^^^^^
-cp.spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //           ^^^^^^^^^^
-cp.execFile('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.execFile('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //          ^^^^^^^^^^
-cp.execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+cp.execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //              ^^^^^^^^^^
 
 const { exec, execSync, spawn, spawnSync, execFile, execFileSync } = require('child_process');
-exec('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+exec('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //   ^^^^^^^^^^
-execSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+execSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //       ^^^^^^^^^^
-spawn('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+spawn('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //    ^^^^^^^^^^
-spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //        ^^^^^^^^^^
-execFile('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+execFile('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //       ^^^^^^^^^^
-execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //           ^^^^^^^^^^
 
 const command = 'file.exe';
-exec(command);  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
+exec(command);  // Noncompliant {{Make sure the "PATH" variable only contains fixed, unwriteable directories.}}
 //   ^^^^^^^
 
 cp.exec('./usr/bin/file.exe');
