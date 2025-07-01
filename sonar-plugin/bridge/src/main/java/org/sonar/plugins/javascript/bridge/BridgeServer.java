@@ -236,15 +236,9 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ProjectAnalysisMetaResponse(
-    boolean withProgram,
-    boolean withWatchProgram,
-    List<String> filesWithoutTypeChecking,
-    List<String> programsCreated,
-    List<String> warnings
-  ) {
+  record ProjectAnalysisMetaResponse(List<String> warnings) {
     public ProjectAnalysisMetaResponse() {
-      this(false, false, List.of(), List.of(), List.of());
+      this(List.of());
     }
   }
 

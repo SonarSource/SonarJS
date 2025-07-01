@@ -59,10 +59,6 @@ export async function analyzeProject(
   const results: ProjectAnalysisOutput = {
     files: {},
     meta: {
-      withProgram: false,
-      withWatchProgram: false,
-      filesWithoutTypeChecking: [],
-      programsCreated: [],
       warnings: [],
     },
   };
@@ -80,7 +76,6 @@ export async function analyzeProject(
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
     if (isSonarLint()) {
-      results.meta.withWatchProgram = true;
       await analyzeWithWatchProgram(
         filesToAnalyze,
         results,
@@ -89,7 +84,6 @@ export async function analyzeProject(
         incrementalResultsChannel,
       );
     } else {
-      results.meta.withProgram = true;
       await analyzeWithProgram(
         filesToAnalyze,
         results,

@@ -21,10 +21,6 @@ import { ErrorCode } from '../../../../shared/src/errors/error.js';
 import { Configuration } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
-  withProgram: boolean;
-  withWatchProgram: boolean;
-  filesWithoutTypeChecking: string[];
-  programsCreated: string[];
   warnings: string[];
 };
 

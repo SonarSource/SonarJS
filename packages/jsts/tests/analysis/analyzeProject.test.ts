@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { toUnixPath } from '../../src/rules/helpers/index.js';
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import {
@@ -35,6 +35,7 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import ts from 'typescript';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import assert from 'node:assert';
 
 const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
@@ -45,6 +46,7 @@ describe('analyzeProject', () => {
   });
 
   it('should analyze the whole project with program', async () => {
+    console.log = mock.fn(console.log);
     const files: JsTsFiles = {};
     setGlobalConfiguration({ baseDir: fixtures });
     await findFiles(fixtures, async file => {
@@ -56,7 +58,9 @@ describe('analyzeProject', () => {
         };
       }
     });
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const result = await analyzeProject(prepareInput(fixtures, files));
+    assert(consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -66,14 +70,14 @@ describe('analyzeProject', () => {
         line: 3,
       },
     });
-    expect(result.meta.withWatchProgram).toBeFalsy();
-    expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toBeGreaterThan(1);
   });
 
   it('should analyze the whole project with watch program', async () => {
     const baseDir = join(fixtures, 'with-parsing-error');
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const result = await analyzeProject(prepareInput(baseDir, undefined, true));
+    assert(!consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(baseDir, 'parsing-error.js'))]).toMatchObject({
@@ -83,9 +87,6 @@ describe('analyzeProject', () => {
         line: 3,
       },
     });
-    expect(result.meta.withWatchProgram).toBeTruthy();
-    expect(result.meta.withProgram).toBeFalsy();
-    expect(result.meta.programsCreated.length).toEqual(0);
   });
 
   it('should cancel analysis in sonarlint', async () => {
@@ -111,11 +112,9 @@ describe('analyzeProject', () => {
     const result = await analyzeProject(prepareInput(baseDir, {}));
     expect(result).toEqual({
       files: {},
-      meta: expect.objectContaining({
-        withWatchProgram: false,
-        withProgram: false,
-        programsCreated: [],
-      }),
+      meta: {
+        warnings: [],
+      },
     });
   });
 
@@ -125,7 +124,6 @@ describe('analyzeProject', () => {
       rules: defaultRules,
       configuration: { baseDir },
     });
-    expect(result.meta.withProgram).toEqual(true);
     expect(Object.keys(result.files)).toEqual(
       expect.arrayContaining([
         toUnixPath(join(baseDir, 'dir/file.ts')),

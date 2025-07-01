@@ -49,7 +49,6 @@ export async function analyzeWithoutProgram(
     }
     debug(`File not part of any tsconfig.json: ${relative(getBaseDir(), filename)}`);
     progressReport.nextFile(filename);
-    results.meta?.filesWithoutTypeChecking.push(filename);
     const result = await analyzeFile({
       ...files[filename],
       ...fieldsForJsTsAnalysisInput(),
