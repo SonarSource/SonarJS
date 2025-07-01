@@ -55,8 +55,7 @@ export type BridgeRequest =
   | EmbeddedRequest
   | ProjectAnalysisRequest
   | CancellationRequest
-  | InitLinterRequest
-  | GetTelemetryRequest;
+  | InitLinterRequest;
 
 type CssRequest = {
   type: 'on-analyze-css';
@@ -93,9 +92,6 @@ type InitLinterRequest = {
     bundles: string[];
     rulesWorkdir: string;
   };
-};
-type GetTelemetryRequest = {
-  type: 'on-get-telemetry';
 };
 
 type SerializedError = {

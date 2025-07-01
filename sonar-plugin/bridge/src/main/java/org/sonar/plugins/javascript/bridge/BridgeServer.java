@@ -400,14 +400,7 @@ public interface BridgeServer extends Startable {
 
   record CpdToken(Location location, String image) {}
 
-  record TelemetryEslintBridgeResponse(List<Dependency> dependencies) {}
-
-  record TelemetryData(
-    List<Dependency> dependencies,
-    @Nullable RuntimeTelemetry runtimeTelemetry
-  ) {}
-
-  record Dependency(String name, String version) {}
+  record TelemetryData(@Nullable RuntimeTelemetry runtimeTelemetry) {}
 
   record RuntimeTelemetry(Version version, String nodeExecutableOrigin) {}
 }

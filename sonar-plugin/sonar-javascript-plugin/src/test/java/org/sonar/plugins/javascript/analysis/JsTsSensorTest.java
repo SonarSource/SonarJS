@@ -153,7 +153,6 @@ class JsTsSensorTest {
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
-        List.of(),
         new BridgeServer.RuntimeTelemetry(Version.create(22, 9), "host")
       )
     );
@@ -1222,7 +1221,6 @@ class JsTsSensorTest {
   void should_add_telemetry_for_scanner_analysis() {
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
-        List.of(new BridgeServer.Dependency("pkg1", "1.1.0")),
         new BridgeServer.RuntimeTelemetry(Version.create(22, 9), "embedded")
       )
     );

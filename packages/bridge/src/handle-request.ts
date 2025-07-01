@@ -16,7 +16,7 @@
  */
 import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
-import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
+import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
 import {
   analyzeProject,
   cancelAnalysis,
@@ -72,10 +72,6 @@ export async function handleRequest(
       case 'on-cancel-analysis': {
         cancelAnalysis();
         return { type: 'success', result: 'OK' };
-      }
-      case 'on-get-telemetry': {
-        const output = getTelemetry();
-        return { type: 'success', result: output };
       }
     }
   } catch (err) {

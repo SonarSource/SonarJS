@@ -51,26 +51,6 @@ export const cache: Map<string, Set<Dependency>> = new Map();
  */
 const dirNameToClosestPackageJSONCache: Map<string, string> = new Map();
 
-/**
- * Returns the dependencies of all package.json files inside the root folder, collected in the cache.
- * As the cache is populated lazily, it could be null in case no rule execution has touched it.
- * This removes duplicate dependencies and keeps the last occurrence.
- */
-export function getAllDependencies(): NamedDependency[] {
-  const dependencies = [...cache.values()]
-    .flatMap(dependencies => [...dependencies])
-    .filter((dependency): dependency is NamedDependency => typeof dependency.name === 'string');
-  return Object.values(
-    dependencies.reduce(
-      (result, dependency) => ({
-        ...result,
-        [dependency.name]: dependency,
-      }),
-      {},
-    ),
-  );
-}
-
 export function getClosestPackageJSONDir(filename: string, cwd: string): string {
   const dirname = Path.dirname(toUnixPath(filename));
   if (!dirNameToClosestPackageJSONCache.has(dirname)) {
