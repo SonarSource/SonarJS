@@ -51,7 +51,6 @@ export default function (
   router.post('/analyze-html', delegate('on-analyze-html'));
   router.post('/analyze-yaml', delegate('on-analyze-yaml'));
   router.post('/init-linter', delegate('on-init-linter'));
-  router.get('/get-telemetry', delegate('on-get-telemetry'));
 
   wss.on('connection', wsDelegate);
 
