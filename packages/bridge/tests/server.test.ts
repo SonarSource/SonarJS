@@ -98,7 +98,6 @@ describe('server', () => {
 
         expect(response).toEqual({
           messageType: 'meta',
-          filesWithoutTypeChecking: [],
           warnings: [],
           withProgram: true,
           withWatchProgram: false,

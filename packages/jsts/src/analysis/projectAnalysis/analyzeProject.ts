@@ -61,7 +61,6 @@ export async function analyzeProject(
     meta: {
       withProgram: false,
       withWatchProgram: false,
-      filesWithoutTypeChecking: [],
       programsCreated: [],
       warnings: [],
     },
