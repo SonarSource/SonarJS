@@ -100,6 +100,11 @@ npm_cache_definition: &NPM_CACHE
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
 
+npm_win_cache_definition: &NPM_WIN_CACHE
+  npm_win_cache:
+    folder: ${CIRRUS_WORKING_DIR}/node_modules
+    fingerprint_script: cat package-lock.json
+
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
   eslint_build_cache:
     folder: ${CIRRUS_WORKING_DIR}/lib
@@ -257,6 +262,7 @@ build_win_task:
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *NPM_WIN_CACHE
   build_script:
     - source cirrus-env BUILD
     - npm ci
