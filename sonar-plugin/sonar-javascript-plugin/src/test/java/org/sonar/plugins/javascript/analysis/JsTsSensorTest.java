@@ -363,7 +363,7 @@ class JsTsSensorTest {
     var warningMessage = "warning message";
     var expectedResponse = new BridgeServer.ProjectAnalysisOutputDTO(
       createFilesMap(List.of(inputFile)),
-      new BridgeServer.ProjectAnalysisMetaResponse(true, false, List.of(), List.of(warningMessage))
+      new BridgeServer.ProjectAnalysisMetaResponse(List.of(warningMessage))
     );
     executeSensorMockingResponse(expectedResponse);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));

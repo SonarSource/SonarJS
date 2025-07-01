@@ -100,7 +100,6 @@ async function analyzeProgram(
     warn(msg);
     results.meta.warnings.push(msg);
   }
-  results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     if (isAnalysisCancelled()) {
       return;

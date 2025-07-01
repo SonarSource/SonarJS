@@ -66,9 +66,6 @@ describe('analyzeProject', () => {
         line: 3,
       },
     });
-    expect(result.meta.withWatchProgram).toBeFalsy();
-    expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated.length).toBeGreaterThan(1);
   });
 
   it('should analyze the whole project with watch program', async () => {
@@ -83,9 +80,6 @@ describe('analyzeProject', () => {
         line: 3,
       },
     });
-    expect(result.meta.withWatchProgram).toBeTruthy();
-    expect(result.meta.withProgram).toBeFalsy();
-    expect(result.meta.programsCreated.length).toEqual(0);
   });
 
   it('should cancel analysis in sonarlint', async () => {
@@ -125,7 +119,6 @@ describe('analyzeProject', () => {
       rules: defaultRules,
       configuration: { baseDir },
     });
-    expect(result.meta.withProgram).toEqual(true);
     expect(Object.keys(result.files)).toEqual(
       expect.arrayContaining([
         toUnixPath(join(baseDir, 'dir/file.ts')),
