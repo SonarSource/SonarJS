@@ -95,10 +95,26 @@ orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
     fingerprint_script: echo ${TODAY}
     reupload_on_changes: 'true'
 
+npmrc_script_definition: &NPMRC_SCRIPT_DEFINITION
+  npmrc_script:
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/packages/jsts/src/rules/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint8-plugin-sonarjs/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint9-plugin-sonarjs/.npmrc
+
 npm_cache_definition: &NPM_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   npm_cache:
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
+    populate_script: npm ci
+
+npm_win_cache_definition: &NPM_WIN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  npm_win_cache:
+    folder: ${CIRRUS_WORKING_DIR}/node_modules
+    fingerprint_script: echo "WIN$(cat package-lock.json)"
+    populate_script: npm ci
 
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
   eslint_build_cache:
@@ -126,13 +142,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     type: c6id.4xlarge
     preemptible: false
     use_ssd: true
-
-npmrc_script_definition: &NPMRC_SCRIPT_DEFINITION
-  npmrc_script:
-    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/.npmrc
-    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/packages/jsts/src/rules/.npmrc
-    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint8-plugin-sonarjs/.npmrc
-    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint9-plugin-sonarjs/.npmrc
 
 win_ssd_and_clone:
   &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
@@ -182,18 +191,15 @@ build_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
-    - npm ci
     - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
 
 build_eslint_task:
   <<: *NODE22_CONTAINER_DEFINITION
   <<: *NPM_CACHE
   <<: *ESLINT_BUILD_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
@@ -214,7 +220,6 @@ test_js_task:
   depends_on:
     - build
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   <<: *JS_COVERAGE_CACHE
   test_js_script:
     - source cirrus-env QA
@@ -228,7 +233,6 @@ test_java_task:
     - build
   <<: *MAVEN_CACHE
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   <<: *JAVA_COVERAGE_CACHE
   test_java_script:
     - source cirrus-env QA
@@ -245,7 +249,6 @@ analyze_task:
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
   <<: *MAVEN_CACHE
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   <<: *JS_COVERAGE_CACHE
   <<: *JAVA_COVERAGE_CACHE
   analyze_script:
@@ -256,10 +259,9 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *NPM_WIN_CACHE
   build_script:
     - source cirrus-env BUILD
-    - npm ci
     - mvn clean install -e
 
 ws_scan_task:
@@ -272,11 +274,9 @@ ws_scan_task:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
   <<: *MAVEN_CACHE
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm ci
     - source ws_scan.sh
   allow_failures: 'true'
   always:
@@ -353,7 +353,6 @@ js_ts_ruling_task:
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
   <<: *NPM_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   submodules_script:
     - git submodule update --init
