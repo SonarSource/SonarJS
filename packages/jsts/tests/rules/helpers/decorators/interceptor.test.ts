@@ -16,7 +16,7 @@
  */
 import { Rule } from 'eslint';
 import { NoTypeCheckingRuleTester, Tests } from '../../../tools/testers/rule-tester.js';
-import { interceptReport } from '../../../../src/rules/index.js';
+import { interceptReport } from '../../../../src/rules/helpers/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
 // Covers `getFilename`

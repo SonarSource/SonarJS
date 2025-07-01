@@ -17,7 +17,7 @@
 import { visit } from '../../../src/linter/visitors/visitor.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
-import { childrenOf } from '../../../src/rules/index.js';
+import { childrenOf } from '../../../src/rules/helpers/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

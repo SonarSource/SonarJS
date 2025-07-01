@@ -21,7 +21,7 @@ import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import { SonarMeta } from '../../rules/index.js';
+import { SonarMeta } from '../../rules/helpers/index.js';
 
 /**
  * The result of linting a source code

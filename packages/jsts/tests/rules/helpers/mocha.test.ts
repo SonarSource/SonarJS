@@ -16,7 +16,7 @@
  */
 import esprima from 'esprima';
 import estree from 'estree';
-import { Mocha } from '../../../src/rules/index.js';
+import { Mocha } from '../../../src/rules/helpers/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

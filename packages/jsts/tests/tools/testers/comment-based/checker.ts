@@ -19,7 +19,7 @@ import path from 'path';
 import { Rule, RuleTester } from 'eslint';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
-import { SonarMeta } from '../../../../src/rules/index.js';
+import { SonarMeta } from '../../../../src/rules/helpers/index.js';
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.

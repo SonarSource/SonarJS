@@ -15,5 +15,3 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 export * as rules from './rules.js';
-
-export * from './helpers/index.js';

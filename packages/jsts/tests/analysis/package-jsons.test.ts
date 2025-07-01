@@ -24,7 +24,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import { PackageJson } from 'type-fest';
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
-import { cache } from '../../src/rules/index.js';
+import { cache } from '../../src/rules/helpers/index.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/package-jsons.js';
 
