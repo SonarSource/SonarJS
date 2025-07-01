@@ -32,7 +32,7 @@ const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      issue: 'Make sure the "PATH" used to find this command includes only what you intend.',
+      issue: 'Make sure the "PATH" variable only contains fixed, unwriteable directories.',
     },
   }),
   create(context: Rule.RuleContext) {
