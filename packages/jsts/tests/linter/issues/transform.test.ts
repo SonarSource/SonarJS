@@ -21,7 +21,7 @@ import {
   parseTypeScriptSourceFile,
 } from '../../tools/helpers/parsing.js';
 import { transformMessages } from '../../../src/linter/issues/transform.js';
-import { rules } from '../../../src/rules/index.js';
+import * as rules from '../../../src/rules/rules.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { dirname } from 'node:path/posix';

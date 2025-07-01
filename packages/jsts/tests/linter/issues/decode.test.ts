@@ -17,7 +17,7 @@
 import { decodeSecondaryLocations } from '../../../src/linter/issues/decode.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { SonarMeta } from '../../../src/rules/index.js';
+import { SonarMeta } from '../../../src/rules/helpers/index.js';
 import { Issue } from '../../../src/linter/issues/issue.js';
 
 describe('decodeSecondaryLocations', () => {

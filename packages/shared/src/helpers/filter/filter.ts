@@ -19,7 +19,7 @@ import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
-import { toUnixPath } from '../../../../jsts/src/rules/index.js';
+import { toUnixPath } from '../../../../jsts/src/rules/helpers/index.js';
 import { readFile } from '../files.js';
 import { AnalysisInput } from '../../types/analysis.js';
 

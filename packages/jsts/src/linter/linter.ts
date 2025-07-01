@@ -22,12 +22,8 @@ import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
-import {
-  getClosestPackageJSONDir,
-  getDependencies,
-  rules as internalRules,
-  toUnixPath,
-} from '../rules/index.js';
+import * as internalRules from '../rules/rules.js';
+import { getClosestPackageJSONDir, getDependencies, toUnixPath } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
 import { ParseResult } from '../parsers/parse.js';

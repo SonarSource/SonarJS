@@ -22,7 +22,7 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { basename, join, relative } from 'node:path/posix';
-import { toUnixPath } from '../../src/rules/index.js';
+import { toUnixPath } from '../../src/rules/helpers/index.js';
 import { readFile } from 'node:fs/promises';
 import {
   setGlobalConfiguration,

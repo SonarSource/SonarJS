@@ -22,7 +22,7 @@ import {
   clearDependenciesCache,
   fillCacheWithNewPath,
   PACKAGE_JSON,
-} from '../../../rules/index.js';
+} from '../../../rules/helpers/index.js';
 import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';

@@ -19,7 +19,7 @@ import { Linter, Rule } from 'eslint';
 import type estree from 'estree';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import * as ruleMetas from '../rules/metas.js';
-import { rules } from '../rules/index.js';
+import * as rules from '../rules/rules.js';
 
 const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
 

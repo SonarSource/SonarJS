@@ -17,7 +17,7 @@
 import path from 'path';
 
 import { Linter, Rule } from 'eslint';
-import { getProperty } from '../../../src/rules/index.js';
+import { getProperty } from '../../../src/rules/helpers/index.js';
 
 import { describe, test } from 'node:test';
 import { expect } from 'expect';

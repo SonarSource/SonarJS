@@ -23,7 +23,7 @@ import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../jsts/src/rules/metas.js';
-import { SonarMeta } from '../jsts/src/rules/index.js';
+import { SonarMeta } from '../jsts/src/rules/helpers/index.js';
 import { symlink } from 'node:fs/promises';
 
 const currentPath = toUnixPath(import.meta.dirname);
