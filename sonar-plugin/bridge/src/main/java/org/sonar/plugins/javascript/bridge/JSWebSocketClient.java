@@ -38,6 +38,7 @@ public class JSWebSocketClient extends WebSocketClient {
 
   public JSWebSocketClient(URI serverUri) {
     super(serverUri);
+    this.setConnectionLostTimeout(0);
   }
 
   public void registerHandler(WebSocketMessageHandler<?> handler) {
