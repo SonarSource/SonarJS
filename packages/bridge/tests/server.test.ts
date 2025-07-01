@@ -99,9 +99,6 @@ describe('server', () => {
         expect(response).toEqual({
           messageType: 'meta',
           warnings: [],
-          withProgram: true,
-          withWatchProgram: false,
-          programsCreated: [toUnixPath(join(fixtures, 'tsconfig.json'))],
         });
         expect(messages.length).toEqual(1);
         const {
