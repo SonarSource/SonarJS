@@ -113,7 +113,7 @@ npm_win_cache_definition: &NPM_WIN_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   npm_win_cache:
     folder: ${CIRRUS_WORKING_DIR}/node_modules
-    fingerprint_script: echo "WIN" && cat package-lock.json
+    fingerprint_script: echo "WIN$(cat package-lock.json)"
     populate_script: npm ci
 
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
@@ -273,11 +273,10 @@ ws_scan_task:
   env:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
   <<: *MAVEN_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
+  <<: *NPM_CACHE
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm ci
     - source ws_scan.sh
   allow_failures: 'true'
   always:
