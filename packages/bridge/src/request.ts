@@ -22,7 +22,6 @@ import type {
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { APIError, ErrorCode, ErrorData } from '../../shared/src/errors/error.js';
-import type { NamedDependency } from '../../jsts/src/rules/index.js';
 import type { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
 import type { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
 import type { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
@@ -30,7 +29,7 @@ import type { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/ana
 export type RequestResult =
   | {
       type: 'success';
-      result: string | AnalysisOutput | Telemetry;
+      result: string | AnalysisOutput;
     }
   | {
       type: 'failure';
@@ -42,10 +41,6 @@ type WsMetaResult = { messageType: 'meta' } & ProjectAnalysisMeta;
 type WsFileResult = { filename: string; messageType: 'fileResult' } & FileResult;
 type WsError = { messageType: 'error'; error: unknown };
 export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancelled | WsError;
-
-export type Telemetry = {
-  dependencies: NamedDependency[];
-};
 
 export type RequestType = BridgeRequest['type'];
 

@@ -35,7 +35,7 @@ type MinimatchDependency = {
   version?: string;
 };
 
-export type NamedDependency = {
+type NamedDependency = {
   name: string;
   version?: string;
 };
