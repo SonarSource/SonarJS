@@ -39,9 +39,7 @@ describe('worker', () => {
       try {
         expect(message).toEqual({
           type: 'success',
-          result: {
-            dependencies: [],
-          },
+          result: 'OK',
         });
         resolve();
       } catch (e) {
@@ -49,7 +47,7 @@ describe('worker', () => {
       }
     });
 
-    worker.postMessage({ type: 'on-get-telemetry' });
+    worker.postMessage({ type: 'on-init-linter', data: { rules: [] } });
     await promise;
   });
 

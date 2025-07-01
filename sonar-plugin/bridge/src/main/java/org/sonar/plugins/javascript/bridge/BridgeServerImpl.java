@@ -481,24 +481,14 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public TelemetryData getTelemetry() {
     if (nodeCommand == null) {
-      return new TelemetryData(getTelemetryEslintBridgeResponse().dependencies(), null);
+      return new TelemetryData(null);
     }
     return new TelemetryData(
-      getTelemetryEslintBridgeResponse().dependencies(),
       new RuntimeTelemetry(
         nodeCommand.getActualNodeVersion(),
         nodeCommand.getNodeExecutableOrigin()
       )
     );
-  }
-
-  private TelemetryEslintBridgeResponse getTelemetryEslintBridgeResponse() {
-    try {
-      var result = http.get(url("get-telemetry"));
-      return GSON.fromJson(result, TelemetryEslintBridgeResponse.class);
-    } catch (IOException e) {
-      return new TelemetryEslintBridgeResponse(List.of());
-    }
   }
 
   @Override

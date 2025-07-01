@@ -18,8 +18,8 @@ import path from 'path/posix';
 import { Linter as ESLintLinter } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
-import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
+import { getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
+import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
@@ -946,58 +946,6 @@ describe('await analyzeJSTS', () => {
     });
     expect(vueIssues).toHaveLength(1);
     expect(vueIssues[0].message).toEqual('call');
-  });
-
-  it('should populate dependencies after analysis', async () => {
-    const baseDir = path.join(currentPath, 'fixtures', 'dependencies');
-    const linter = new ESLintLinter();
-    const linterConfig: ESLintLinter.Config = {
-      plugins: {
-        sonarjs: {
-          rules: {
-            'custom-rule-file': {
-              create(context) {
-                return {
-                  CallExpression(node) {
-                    // Necessarily call 'getDependencies' to populate the cache of dependencies
-                    const dependencies = getDependencies(toUnixPath(context.filename), baseDir);
-                    if (dependencies.size) {
-                      context.report({
-                        node: node.callee,
-                        message: 'call',
-                      });
-                    }
-                  },
-                };
-              },
-            },
-          },
-        },
-      },
-      rules: { 'sonarjs/custom-rule-file': 'error' },
-      files: ['**/*.js'],
-    };
-    const filePath = path.join(currentPath, 'fixtures', 'dependencies', 'index.js');
-    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
-    linter.verify(sourceCode, linterConfig, {
-      filename: filePath,
-      allowInlineConfig: false,
-    });
-    const { dependencies } = getTelemetry();
-    expect(dependencies).toStrictEqual([
-      {
-        name: 'test-module',
-        version: '*',
-      },
-      {
-        name: 'pkg1',
-        version: '1.0.0',
-      },
-      {
-        name: 'pkg2',
-        version: '2.0.0',
-      },
-    ]);
   });
 
   it('should return the AST along with the issues', async () => {

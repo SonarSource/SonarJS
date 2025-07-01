@@ -22,26 +22,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
 class PluginTelemetryTest {
 
-  private JsTsContext<SensorContext> jsTsContext;
   private SensorContext ctx;
   private PluginTelemetry pluginTelemetry;
 
   @BeforeEach
   void setUp() {
-    jsTsContext = mock(JsTsContext.class);
+    JsTsContext<SensorContext> jsTsContext = mock(JsTsContext.class);
     ctx = mock(SensorContext.class);
     SonarRuntime sonarRuntime = mock(SonarRuntime.class);
     when(ctx.runtime()).thenReturn(sonarRuntime);
@@ -49,10 +46,7 @@ class PluginTelemetryTest {
 
     BridgeServer server = mock(BridgeServer.class);
     when(server.getTelemetry()).thenReturn(
-      new TelemetryData(
-        List.of(new Dependency("pkg1", "1.0.0")),
-        new RuntimeTelemetry(Version.create(22, 9), "embedded")
-      )
+      new TelemetryData(new RuntimeTelemetry(Version.create(22, 9), "embedded"))
     );
     pluginTelemetry = new PluginTelemetry(jsTsContext, server);
   }
