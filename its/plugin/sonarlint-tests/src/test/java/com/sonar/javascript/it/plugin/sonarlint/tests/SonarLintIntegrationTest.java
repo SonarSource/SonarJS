@@ -101,7 +101,7 @@ class SonarLintIntegrationTest {
     assertThat(raisedIssuesDto).hasSize(1);
     assertThat(raisedIssuesDto.get(0).getRuleKey()).isEqualTo("typescript:S3923");
 
-    editFile(baseDir, "foo.ts", "x = true ? 41 : 41;");
+    editFile(baseDir, "foo.ts", "x = true ? 42 : 41;");
 
     backend
       .getFileService()
