@@ -9,12 +9,12 @@
 794
 ],
 "TypeScript:src/compiler/binder.ts": [
-67
+92
 ],
 "TypeScript:src/compiler/checker.ts": [
 211,
-340,
-469,
+400,
+472,
 2121,
 2161,
 10021
@@ -67,8 +67,8 @@
 "TypeScript:src/compiler/core.ts": [
 155,
 1248,
-2120,
-2234
+2125,
+2238
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 170
@@ -76,12 +76,12 @@
 "TypeScript:src/compiler/emitter.ts": [
 49,
 212,
-2905,
-2911
+2908,
+2985
 ],
 "TypeScript:src/compiler/parser.ts": [
 5854,
-6329
+6332
 ],
 "TypeScript:src/compiler/program.ts": [
 875
@@ -99,15 +99,15 @@
 435
 ],
 "TypeScript:src/compiler/transformer.ts": [
-34
+36
 ],
 "TypeScript:src/compiler/transformers/destructuring.ts": [
-19
+21
 ],
 "TypeScript:src/compiler/transformers/es2015.ts": [
-7,
-142,
-169,
+11,
+163,
+261,
 269,
 1137,
 2357,
@@ -117,41 +117,41 @@
 688
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
-144,
-209
+146,
+217
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
 26
 ],
 "TypeScript:src/compiler/types.ts": [
-430,
-464,
-488,
-565,
-1342,
-2430,
-2472,
-2639,
-2656,
-2724,
-2778,
-2942,
-3261,
-3296,
-3388,
-3512,
-3528,
-3550,
-3560,
-3566,
-3582,
-3631,
-3866,
-3954,
-4032
+461,
+485,
+495,
+570,
+1349,
+2433,
+2482,
+2653,
+2668,
+2740,
+2859,
+2963,
+3263,
+3298,
+3391,
+3518,
+3530,
+3557,
+3562,
+3568,
+3584,
+3764,
+3937,
+3981,
+4036
 ],
 "TypeScript:src/compiler/utilities.ts": [
-1952
+1957
 ],
 "TypeScript:src/harness/fourslash.ts": [
 117,
@@ -161,7 +161,7 @@
 3205
 ],
 "TypeScript:src/harness/harness.ts": [
-54,
+56,
 1152
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
@@ -218,7 +218,7 @@
 450
 ],
 "TypeScript:src/services/formatting/formattingScanner.ts": [
-24
+30
 ],
 "TypeScript:src/services/jsDoc.ts": [
 119
@@ -231,10 +231,10 @@
 1460
 ],
 "TypeScript:src/services/types.ts": [
-411,
-491,
-647,
-657,
-841
+414,
+513,
+654,
+666,
+865
 ]
 }
