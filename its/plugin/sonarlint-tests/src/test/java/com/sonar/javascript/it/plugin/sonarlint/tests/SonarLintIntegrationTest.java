@@ -77,7 +77,7 @@ class SonarLintIntegrationTest {
               .toAbsolutePath()
               .normalize()
               .toFile(),
-            new RegexFileFilter("^sonar-javascript-plugin-([0-9.]+)(-SNAPSHOT)*.jar$"),
+            new RegexFileFilter("^sonar-javascript-plugin-([0-9.]+)(-SNAPSHOT)-multi.jar$"),
             FalseFileFilter.FALSE
           )
             .iterator()
