@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import pkg from 'jsx-ast-utils';
-const { getProp, getLiteralPropValue, elementType } = pkg;
+import { getProp, getLiteralPropValue, elementType } from 'jsx-ast-utils';
 import type { TSESTree } from '@typescript-eslint/utils';
+import type { JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
@@ -25,7 +25,7 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   if (type.toLowerCase() !== 'table') {
     return false;
   }
-  const role = getProp(node.attributes, 'role');
+  const role = getProp((node as JSXOpeningElement).attributes, 'role');
   if (!role) {
     return false;
   }
@@ -45,11 +45,12 @@ export const getElementType = (
   const componentMap = jsxa11ySettings?.components;
 
   return (node: TSESTree.JSXOpeningElement): string => {
-    const polymorphicProp = polymorphicPropName
-      ? getLiteralPropValue(getProp(node.attributes, polymorphicPropName as string))
+    const prop = polymorphicPropName
+      ? getProp((node as JSXOpeningElement).attributes, polymorphicPropName as string)
       : undefined;
+    const polymorphicProp = prop ? getLiteralPropValue(prop) : undefined;
 
-    let rawType: string = elementType(node);
+    let rawType = elementType(node as JSXOpeningElement);
     if (
       polymorphicProp &&
       (!polymorphicAllowList || (polymorphicAllowList as string[]).includes(rawType))

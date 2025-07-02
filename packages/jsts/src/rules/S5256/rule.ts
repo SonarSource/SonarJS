@@ -19,12 +19,12 @@
 import estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import pkg from 'jsx-ast-utils';
-const { getLiteralPropValue, getProp } = pkg;
+import { getLiteralPropValue, getProp } from 'jsx-ast-utils';
 
 import { computeGrid } from '../helpers/table.js';
 import { generateMeta, isPresentationTable, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+import { JSXOpeningElement } from 'estree-jsx';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -58,7 +58,10 @@ export const rule: Rule.RuleModule = {
           if (isPresentationTable(context, tree.openingElement)) {
             return;
           }
-          const ariaHidden = getProp(tree.openingElement.attributes, 'aria-hidden');
+          const ariaHidden = getProp(
+            (tree.openingElement as JSXOpeningElement).attributes,
+            'aria-hidden',
+          );
           if (ariaHidden && getLiteralPropValue(ariaHidden) === true) {
             return;
           }
