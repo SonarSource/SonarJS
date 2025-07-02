@@ -18,7 +18,7 @@ import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import pkg from 'jsx-ast-utils';
 const { hasAnyProp } = pkg;
-import type { TSESTree } from '@typescript-eslint/utils';
+import type { JSXOpeningElement } from 'estree-jsx';
 import * as meta from './generated-meta.js';
 
 /**
@@ -41,7 +41,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+      const node = (reportDescriptor as any).node as JSXOpeningElement;
 
       if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
         return;

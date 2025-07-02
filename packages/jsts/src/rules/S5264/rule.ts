@@ -23,6 +23,7 @@ import { generateMeta, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
+import { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -43,7 +44,7 @@ export const rule: Rule.RuleModule = {
           case 'JSXElement':
             return !isHiddenFromScreenReader(
               elementType(child.openingElement),
-              child.openingElement.attributes,
+              (child.openingElement as JSXOpeningElement).attributes,
             );
           case 'JSXExpressionContainer':
             if (child.expression.type === 'Identifier') {
@@ -78,16 +79,19 @@ export const rule: Rule.RuleModule = {
 
 const isHiddenFromScreenReader = (
   type: string,
-  attributes: (TSESTree.JSXAttribute | TSESTree.JSXSpreadAttribute)[],
+  attributes: (JSXAttribute | JSXSpreadAttribute)[],
 ) => {
   if (type.toUpperCase() === 'INPUT') {
-    const hidden = getLiteralPropValue(getProp(attributes, 'type'));
+    const prop = getProp(attributes, 'type');
+    if (prop) {
+      const hidden = getLiteralPropValue(prop);
 
-    if (typeof hidden === 'string' && hidden.toUpperCase?.() === 'HIDDEN') {
-      return true;
+      if (typeof hidden === 'string' && hidden.toUpperCase?.() === 'HIDDEN') {
+        return true;
+      }
     }
   }
 
-  const ariaHidden = getPropValue(getProp(attributes, 'aria-hidden'));
-  return ariaHidden === true;
+  const prop = getProp(attributes, 'aria-hidden');
+  return prop && getPropValue(prop) === true;
 };

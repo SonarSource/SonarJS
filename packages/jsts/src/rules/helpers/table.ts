@@ -20,6 +20,7 @@ const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
 import { isHtmlElement } from './isHtmlElement.js';
 import { getElementType } from './accessibility.js';
+import { JSXOpeningElement } from 'estree-jsx';
 
 export type TableCell = {
   isHeader: boolean;
@@ -39,7 +40,7 @@ const KNOWN_TABLE_STRUCTURE_ELEMENTS = ['thead', 'tbody', 'tfoot'];
 
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   let span = 1;
-  const spanAttr = getProp(tree.openingElement.attributes, spanKey);
+  const spanAttr = getProp((tree.openingElement as JSXOpeningElement).attributes, spanKey);
   if (spanAttr) {
     span = parseInt(String(getLiteralPropValue(spanAttr)));
   }
@@ -63,7 +64,7 @@ function colSpan(tree: TSESTree.JSXElement): number {
 }
 
 function getHeaders(tree: TSESTree.JSXElement): string[] | undefined {
-  const headers = getProp(tree.openingElement.attributes, 'headers');
+  const headers = getProp((tree.openingElement as JSXOpeningElement).attributes, 'headers');
   if (headers) {
     const headerVal = getLiteralPropValue(headers);
     if (headerVal && String(headerVal).trim() !== '') {
@@ -74,7 +75,7 @@ function getHeaders(tree: TSESTree.JSXElement): string[] | undefined {
 }
 
 function getID(tree: TSESTree.JSXElement): string | undefined {
-  const id = getProp(tree.openingElement.attributes, 'id');
+  const id = getProp((tree.openingElement as JSXOpeningElement).attributes, 'id');
   if (id) {
     return String(getLiteralPropValue(id));
   }
