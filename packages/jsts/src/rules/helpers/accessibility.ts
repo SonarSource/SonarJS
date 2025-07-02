@@ -14,7 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { getProp, getLiteralPropValue, elementType } from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils';
+const { getProp, getLiteralPropValue, elementType } = pkg;
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';

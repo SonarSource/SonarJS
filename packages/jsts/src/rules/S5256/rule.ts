@@ -19,7 +19,8 @@
 import estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getLiteralPropValue, getProp } from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils';
+const { getLiteralPropValue, getProp } = pkg;
 
 import { computeGrid } from '../helpers/table.js';
 import { generateMeta, isPresentationTable, getElementType } from '../helpers/index.js';

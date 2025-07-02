@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getLiteralPropValue, getProp } from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils';
+const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
 import { isHtmlElement } from './isHtmlElement.js';
 import { getElementType } from './accessibility.js';
