@@ -147,7 +147,7 @@
 652
 ],
 "desktop:app/src/lib/2fa.ts": [
-11
+19
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 19,
@@ -165,7 +165,7 @@
 737
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-pipeline-commands.ts": [
-3,
+11,
 17,
 30,
 43,
@@ -176,13 +176,13 @@
 123
 ],
 "desktop:app/src/lib/actions-log-parser/actions-log-parser-objects.ts": [
-1
+13
 ],
 "desktop:app/src/lib/api.ts": [
 10,
-87,
-291,
-298,
+89,
+294,
+306,
 782,
 792,
 863,
@@ -203,7 +203,7 @@
 1336,
 1460,
 1470,
-1515,
+1527,
 1570,
 1574,
 1599,
@@ -220,12 +220,12 @@
 23,
 35,
 47,
-51,
-304,
-341,
-580,
-661,
-671
+54,
+308,
+343,
+582,
+663,
+673
 ],
 "desktop:app/src/lib/branch.ts": [
 5
@@ -432,7 +432,7 @@
 ],
 "desktop:app/src/lib/git/cherry-pick.ts": [
 6,
-26,
+55,
 89,
 124,
 148,
@@ -466,7 +466,7 @@
 465
 ],
 "desktop:app/src/lib/git/diff-index.ts": [
-8,
+16,
 89
 ],
 "desktop:app/src/lib/git/diff.ts": [
@@ -522,7 +522,7 @@
 203
 ],
 "desktop:app/src/lib/git/merge.ts": [
-8,
+19,
 37,
 81
 ],
@@ -543,7 +543,7 @@
 "desktop:app/src/lib/git/rebase.ts": [
 11,
 23,
-34,
+61,
 244,
 246,
 306,
@@ -571,7 +571,7 @@
 48
 ],
 "desktop:app/src/lib/git/reset.ts": [
-6,
+24,
 89
 ],
 "desktop:app/src/lib/git/rev-list.ts": [
@@ -779,17 +779,17 @@
 43
 ],
 "desktop:app/src/lib/shells/darwin.ts": [
-7,
+14,
 64,
 72
 ],
 "desktop:app/src/lib/shells/linux.ts": [
-7,
+20,
 82,
 96
 ],
 "desktop:app/src/lib/shells/win32.ts": [
-11,
+21,
 38,
 39,
 46,
@@ -1286,8 +1286,8 @@
 "desktop:app/src/lib/stores/sign-in-store.ts": [
 8,
 19,
-38,
-173,
+42,
+183,
 299,
 386,
 401,
@@ -1321,7 +1321,7 @@
 ],
 "desktop:app/src/lib/text-token-parser.ts": [
 4,
-9,
+22,
 231,
 242
 ],
@@ -1334,11 +1334,11 @@
 ],
 "desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
 5,
-8,
+13,
 154
 ],
 "desktop:app/src/lib/trampoline/trampoline-command.ts": [
-1
+2
 ],
 "desktop:app/src/lib/trampoline/trampoline-environment.ts": [
 9,
@@ -1402,7 +1402,7 @@
 91
 ],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
-29,
+32,
 44,
 66,
 73,
@@ -1512,92 +1512,92 @@
 36
 ],
 "desktop:app/src/models/banner.ts": [
-3
+17
 ],
 "desktop:app/src/models/branch.ts": [
-8,
-39
+10,
+44
 ],
 "desktop:app/src/models/branches-tab.ts": [
-2
+4
 ],
 "desktop:app/src/models/clone-repository-tab.ts": [
-1
+4
 ],
 "desktop:app/src/models/commit-message.ts": [
 9
 ],
 "desktop:app/src/models/computed-action.ts": [
-4
+12
 ],
 "desktop:app/src/models/diff/diff-data.ts": [
-9
+21
 ],
 "desktop:app/src/models/diff/diff-line.ts": [
-2
-],
-"desktop:app/src/models/diff/diff-selection.ts": [
 6
 ],
+"desktop:app/src/models/diff/diff-selection.ts": [
+12
+],
 "desktop:app/src/models/diff/image-diff.ts": [
-2
+13
 ],
 "desktop:app/src/models/diff/raw-diff.ts": [
-3
+26
 ],
 "desktop:app/src/models/drag-drop.ts": [
-18,
-29,
-35
+19,
+32,
+39
 ],
 "desktop:app/src/models/fetch.ts": [
-5
+7
 ],
 "desktop:app/src/models/manual-conflict-resolution.ts": [
-4
+6
 ],
 "desktop:app/src/models/multi-commit-operation.ts": [
-13,
-38,
+18,
+89,
 233,
 241
 ],
 "desktop:app/src/models/popup.ts": [
 4,
-25
+86
 ],
 "desktop:app/src/models/preferences.ts": [
-1
+7
 ],
 "desktop:app/src/models/publish-settings.ts": [
-7
+9
 ],
 "desktop:app/src/models/repository.ts": [
 7
 ],
 "desktop:app/src/models/retry-actions.ts": [
-8
+20
 ],
 "desktop:app/src/models/stash-entry.ts": [
-18
+21
 ],
 "desktop:app/src/models/status.ts": [
-6,
-19,
-124
+15,
+26,
+131
 ],
 "desktop:app/src/models/tip.ts": [
-4
+8
 ],
 "desktop:app/src/models/tutorial-step.ts": [
-1,
+10,
 35
 ],
 "desktop:app/src/models/uncommitted-changes-strategy.ts": [
-1
+4
 ],
 "desktop:app/src/models/workflow-preferences.ts": [
-1
+3
 ],
 "desktop:app/src/ui/about/about.tsx": [
 9,
@@ -1826,7 +1826,7 @@
 749
 ],
 "desktop:app/src/ui/changes/commit-warning.tsx": [
-6
+8
 ],
 "desktop:app/src/ui/changes/no-changes.tsx": [
 154,
@@ -1971,13 +1971,13 @@
 225
 ],
 "desktop:app/src/ui/diff/diff-explorer.ts": [
-6,
+12,
 123
 ],
 "desktop:app/src/ui/diff/diff-helpers.tsx": [
 9,
-24,
-32,
+29,
+34,
 238,
 239,
 244,
@@ -1992,7 +1992,7 @@
 37
 ],
 "desktop:app/src/ui/diff/diff-syntax-mode.ts": [
-34,
+38,
 45,
 135
 ],
@@ -2338,7 +2338,7 @@
 "desktop:app/src/ui/lib/application-theme.ts": [
 3,
 8,
-29
+33
 ],
 "desktop:app/src/ui/lib/author-input.tsx": [
 7,
@@ -2368,7 +2368,7 @@
 122
 ],
 "desktop:app/src/ui/lib/checkbox.tsx": [
-5
+8
 ],
 "desktop:app/src/ui/lib/color-manipulation.ts": [
 31
@@ -2424,7 +2424,7 @@
 35
 ],
 "desktop:app/src/ui/lib/list/list-item-insertion-overlay.tsx": [
-7,
+10,
 41,
 72,
 81,
@@ -2460,8 +2460,8 @@
 499
 ],
 "desktop:app/src/ui/lib/popover.tsx": [
-18,
-27,
+24,
+28,
 49
 ],
 "desktop:app/src/ui/lib/radio-button.tsx": [
@@ -2488,7 +2488,7 @@
 42
 ],
 "desktop:app/src/ui/lib/tooltip.tsx": [
-9,
+17,
 172,
 226,
 406,
@@ -2515,7 +2515,7 @@
 ],
 "desktop:app/src/ui/lib/update-store.ts": [
 14,
-31,
+45,
 136,
 146
 ],
@@ -2595,7 +2595,7 @@
 ],
 "desktop:app/src/ui/no-repositories/no-repositories-view.tsx": [
 8,
-70,
+72,
 125
 ],
 "desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
@@ -2852,7 +2852,7 @@
 16
 ],
 "desktop:app/src/ui/preferences/accounts.tsx": [
-21,
+23,
 48
 ],
 "desktop:app/src/ui/preferences/advanced.tsx": [
@@ -2906,7 +2906,7 @@
 ],
 "desktop:app/src/ui/publish-repository/publish.tsx": [
 16,
-20,
+22,
 95,
 103,
 105,
@@ -2946,7 +2946,7 @@
 ],
 "desktop:app/src/ui/repositories-list/group-repositories.ts": [
 4,
-19,
+21,
 39,
 103,
 167,
@@ -2983,13 +2983,13 @@
 163
 ],
 "desktop:app/src/ui/repository-settings/git-config.tsx": [
-23
+25
 ],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
 12,
 25,
 29,
-42,
+46,
 91,
 143,
 278,
@@ -2998,7 +2998,7 @@
 ],
 "desktop:app/src/ui/repository.tsx": [
 17,
-102,
+104,
 123,
 131,
 246,
@@ -3016,7 +3016,7 @@
 50
 ],
 "desktop:app/src/ui/stash-changes/stash-and-switch-branch-dialog.tsx": [
-15,
+17,
 53,
 104,
 109,
@@ -3036,7 +3036,7 @@
 77
 ],
 "desktop:app/src/ui/tab-bar-type.ts": [
-2
+10
 ],
 "desktop:app/src/ui/thank-you/thank-you.tsx": [
 5
@@ -3051,7 +3051,7 @@
 297
 ],
 "desktop:app/src/ui/toolbar/button.tsx": [
-11
+16
 ],
 "desktop:app/src/ui/toolbar/dropdown.tsx": [
 199,
@@ -3077,7 +3077,7 @@
 4
 ],
 "desktop:app/src/ui/welcome/welcome.tsx": [
-15,
+19,
 63,
 199
 ],
