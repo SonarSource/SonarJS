@@ -24,20 +24,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonarsource.sonarlint.core.rpc.protocol.backend.analysis.AnalyzeFilesAndTrackParams;
+import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidOpenFileParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidUpdateFileSystemParams;
-import org.sonarsource.sonarlint.core.rpc.protocol.client.issue.RaisedIssueDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.ClientFileDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Language;
-import org.sonarsource.sonarlint.core.test.utils.SonarLintBackendFixture;
 import org.sonarsource.sonarlint.core.test.utils.junit5.SonarLintTest;
 import org.sonarsource.sonarlint.core.test.utils.junit5.SonarLintTestHarness;
 import org.sonarsource.sonarlint.core.test.utils.plugins.Plugin;
@@ -51,15 +47,26 @@ class SonarLintIntegrationTest {
     SonarLintTestHarness harness,
     @TempDir Path baseDir
   ) {
-    var fileIssue = createFile(
-      baseDir,
-      "foo.ts",
-      """
-      x = true ? 42 : 42
-      """
-    );
+    var fileIssue = createFile(baseDir, "foo.ts", "x = true ? 42 : 42");
     var fileIssueUri = fileIssue.toUri();
-    var client = harness.newFakeClient().build();
+
+    var fileDTO = new ClientFileDto(
+      fileIssueUri,
+      baseDir.relativize(fileIssue),
+      CONFIG_SCOPE_ID,
+      false,
+      null,
+      fileIssue,
+      null,
+      null,
+      true
+    );
+
+    var client = harness
+      .newFakeClient()
+      .withInitialFs(CONFIG_SCOPE_ID, baseDir, List.of(fileDTO))
+      .build();
+
     var backend = harness
       .newBackend()
       .withStandaloneEmbeddedPluginAndEnabledLanguage(
@@ -82,68 +89,28 @@ class SonarLintIntegrationTest {
       )
       .withUnboundConfigScope(CONFIG_SCOPE_ID)
       .start(client);
-    var analysisId = UUID.randomUUID();
 
-    var result = backend
-      .getAnalysisService()
-      .analyzeFilesAndTrack(
-        new AnalyzeFilesAndTrackParams(
-          CONFIG_SCOPE_ID,
-          analysisId,
-          List.of(fileIssueUri),
-          Map.of(),
-          false,
-          System.currentTimeMillis()
-        )
-      )
-      .join();
+    backend.getFileService().didOpenFile(new DidOpenFileParams(CONFIG_SCOPE_ID, fileIssueUri));
 
-    assertThat(result.getFailedAnalysisFiles()).isEmpty();
     await()
-      .during(2, TimeUnit.SECONDS)
+      .atMost(15, TimeUnit.SECONDS)
       .untilAsserted(() ->
-        assertThat(client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID)).isEmpty()
+        assertThat(client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID)).isNotEmpty()
       );
+    var raisedIssuesDto = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
+    assertThat(raisedIssuesDto).hasSize(1);
+    assertThat(raisedIssuesDto.get(0).getRuleKey()).isEqualTo("typescript:S3923");
+
+    editFile(baseDir, "foo.ts", "x = true ? 41 : 41;");
 
     backend
       .getFileService()
-      .didUpdateFileSystem(
-        new DidUpdateFileSystemParams(
-          List.of(
-            new ClientFileDto(
-              fileIssueUri,
-              baseDir.relativize(fileIssue),
-              CONFIG_SCOPE_ID,
-              false,
-              null,
-              fileIssue,
-              null,
-              null,
-              true
-            )
-          ),
-          List.of(),
-          List.of()
-        )
+      .didUpdateFileSystem(new DidUpdateFileSystemParams(List.of(), List.of(fileDTO), List.of()));
+    await()
+      .atMost(15, TimeUnit.SECONDS)
+      .untilAsserted(() ->
+        assertThat(client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID)).isEmpty()
       );
-
-    result = backend
-      .getAnalysisService()
-      .analyzeFilesAndTrack(
-        new AnalyzeFilesAndTrackParams(
-          CONFIG_SCOPE_ID,
-          analysisId,
-          List.of(fileIssueUri),
-          Map.of(),
-          false,
-          System.currentTimeMillis()
-        )
-      )
-      .join();
-
-    assertThat(result.getFailedAnalysisFiles()).isEmpty();
-    var raisedIssueDto = awaitRaisedIssuesNotification(client, CONFIG_SCOPE_ID).get(0);
-    assertThat(raisedIssueDto.getRuleKey()).isEqualTo("typescript:S3923");
   }
 
   private static Path createFile(Path folderPath, String fileName, String content) {
@@ -172,17 +139,5 @@ class SonarLintIntegrationTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private static List<RaisedIssueDto> awaitRaisedIssuesNotification(
-    SonarLintBackendFixture.FakeSonarLintRpcClient client,
-    String configScopeId
-  ) {
-    await()
-      .atMost(5, TimeUnit.SECONDS)
-      .untilAsserted(() ->
-        assertThat(client.getRaisedIssuesForScopeIdAsList(configScopeId)).isNotEmpty()
-      );
-    return client.getRaisedIssuesForScopeIdAsList(configScopeId);
   }
 }
