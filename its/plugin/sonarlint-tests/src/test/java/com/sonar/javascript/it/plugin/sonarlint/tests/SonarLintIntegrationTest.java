@@ -72,17 +72,7 @@ class SonarLintIntegrationTest {
       .withStandaloneEmbeddedPluginAndEnabledLanguage(
         new Plugin(
           Set.of(Language.JS, Language.TS, Language.CSS),
-          FileUtils.listFiles(
-            Paths.get("../../../sonar-plugin/sonar-javascript-plugin/target/")
-              .toAbsolutePath()
-              .normalize()
-              .toFile(),
-            new RegexFileFilter("^sonar-javascript-plugin-([0-9.]+)(-SNAPSHOT)-multi.jar$"),
-            FalseFileFilter.FALSE
-          )
-            .iterator()
-            .next()
-            .toPath(),
+          TestUtils.JAVASCRIPT_PLUGIN_LOCATION,
           "",
           ""
         )
