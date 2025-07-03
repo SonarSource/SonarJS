@@ -33,7 +33,7 @@ public class TestUtils {
   private static final File HOME;
 
   static {
-    HOME = Path.of("../").toFile();
+    HOME = Path.of("../").toFile().getAbsoluteFile();
   }
 
   public static File homeDir() {
