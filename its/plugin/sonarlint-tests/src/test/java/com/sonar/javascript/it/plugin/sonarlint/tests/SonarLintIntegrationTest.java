@@ -16,24 +16,29 @@
  */
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
+import static com.sonar.javascript.it.plugin.sonarlint.tests.TestUtils.usingEmbeddedNode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidCloseFileParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidOpenFileParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidUpdateFileSystemParams;
+import org.sonarsource.sonarlint.core.rpc.protocol.client.issue.QuickFixDto;
+import org.sonarsource.sonarlint.core.rpc.protocol.client.issue.RaisedIssueDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.ClientFileDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Language;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.TextRangeDto;
+import org.sonarsource.sonarlint.core.test.utils.SonarLintBackendFixture;
+import org.sonarsource.sonarlint.core.test.utils.SonarLintTestRpcServer;
 import org.sonarsource.sonarlint.core.test.utils.junit5.SonarLintTest;
 import org.sonarsource.sonarlint.core.test.utils.junit5.SonarLintTestHarness;
 import org.sonarsource.sonarlint.core.test.utils.plugins.Plugin;
@@ -41,33 +46,308 @@ import org.sonarsource.sonarlint.core.test.utils.plugins.Plugin;
 class SonarLintIntegrationTest {
 
   private static final String CONFIG_SCOPE_ID = "CONFIG_SCOPE_ID";
+  private SonarLintBackendFixture.FakeSonarLintRpcClient client;
+  private SonarLintTestRpcServer backend;
 
   @SonarLintTest
-  void it_should_report_multi_file_issues_for_files_added_after_initialization(
+  void should_report_issues(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var fileDTO = createFile(baseDir, "foo.ts", "x = true ? 42 : 42");
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3923");
+    });
+    assertThat(client.getLogMessages()).doesNotContain(
+      "The bridge server is up, no need to start."
+    );
+
+    triggerAnalysisByFileChanged(fileDTO, "x = true ? 42 : 43");
+
+    assertResults(results -> {
+      assertThat(results).isEmpty();
+    });
+
+    assertThat(client.getLogMessages()).contains("The bridge server is up, no need to start.");
+    if (!usingEmbeddedNode()) {
+      assertThat(
+        client
+          .getLogMessages()
+          .stream()
+          .anyMatch(s ->
+            s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
+          )
+      ).isTrue();
+    }
+  }
+
+  @SonarLintTest
+  void should_analyze_vue(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var fileDTO = createFile(
+      baseDir,
+      "foo.vue",
+      """
+      <script>
+      if (cond) {
+        foo();
+      } else {
+        foo();
+      }
+      </script>
+            """
+    );
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3923");
+    });
+  }
+
+  @SonarLintTest
+  void should_analyze_js_with_typed_rules_except_vue(
     SonarLintTestHarness harness,
     @TempDir Path baseDir
   ) {
-    var fileIssue = createFile(baseDir, "foo.ts", "x = true ? 42 : 42");
-    var fileIssueUri = fileIssue.toUri();
+    var contents = "var xs = [\"a\", \"b\", \"c\", \"d\"];\ndelete xs[2];\n";
+    var jsFileDTO = createFile(baseDir, "foo.js", contents);
+    var vueFileDTO = createFile(baseDir, "foo.vue", "<script>" + contents + "</script>");
+    initWithFiles(harness, baseDir, jsFileDTO, vueFileDTO);
 
-    var fileDTO = new ClientFileDto(
-      fileIssueUri,
-      baseDir.relativize(fileIssue),
+    triggerAnalysisByFileOpened(vueFileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3504");
+    });
+
+    triggerAnalysisByFileOpened(jsFileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(2);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3504");
+      assertThat(results.get(1).getRuleKey()).isEqualTo("javascript:S2870");
+    });
+  }
+
+  @SonarLintTest
+  void should_react_to_changes_in_tsconfigs(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var jsFileDTO = createFile(
+      baseDir,
+      "foo.ts",
+      "var xs = [\"a\", \"b\", \"c\", \"d\"];\ndelete xs[2];\n"
+    );
+    var tsconfigDTO = createFile(baseDir, "tsconfig.json", "{\"files\": [\"foo.ts\"]}");
+    initWithFiles(harness, baseDir, jsFileDTO, tsconfigDTO);
+
+    triggerAnalysisByFileOpened(jsFileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(2);
+      assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
+      assertThat(client.getLogMessages()).contains(
+        "Using tsConfig " +
+        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+        " for file source file " +
+        jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+        " (0/1 tsconfigs not yet checked)"
+      );
+      assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
+      assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
+    });
+    backend
+      .getFileService()
+      .didCloseFile(new DidCloseFileParams(CONFIG_SCOPE_ID, jsFileDTO.getUri()));
+    client.clearLogs();
+
+    triggerAnalysisByFileOpened(jsFileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(2);
+      assertThat(client.getLogMessages()).doesNotContain("Resetting the TsConfigCache");
+      assertThat(client.getLogMessages()).doesNotContain(
+        "Using tsConfig " +
+        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+        "  for file source file " +
+        jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+        " (0/1 tsconfigs not yet checked)"
+      );
+    });
+    backend
+      .getFileService()
+      .didCloseFile(new DidCloseFileParams(CONFIG_SCOPE_ID, jsFileDTO.getUri()));
+    client.clearLogs();
+
+    // changed tsconfig to not contain the file
+    triggerAnalysisByFileChanged(tsconfigDTO, "{\"files\": [\"another_foo.ts\"]}");
+
+    assertResults(results -> {
+      assertThat(client.getLogMessages()).contains(
+        "Processing file event " +
+        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+        " with event MODIFIED"
+      );
+    });
+
+    triggerAnalysisByFileOpened(jsFileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
+      assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
+    });
+  }
+
+  @SonarLintTest
+  void should_analyze_css(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var fileDTO = createFile(
+      baseDir,
+      "foo.css",
+      """
+      @import "foo.css";
+      @import "foo.css";    /* S1128 | no-duplicate-at-import-rules */
+      a {
+        color: pink;;       /* S1116 | no-extra-semicolons */
+      }
+      a::pseudo {           /* S4660 | selector-pseudo-element-no-unknown */
+        color: red;
+      }
+            """
+    );
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(3);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("css:S1128");
+      assertThat(results.get(1).getRuleKey()).isEqualTo("css:S1116");
+      assertThat(results.get(2).getRuleKey()).isEqualTo("css:S4660");
+    });
+  }
+
+  @SonarLintTest
+  void should_apply_quick_fix(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var fileDTO = createFile(baseDir, "foo.js", "this.foo = 1;");
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S2990");
+      assertQuickFix(results.get(0).getQuickFixes().get(0), "Remove \"this\"", "foo", 1, 0, 1, 8);
+    });
+  }
+
+  @SonarLintTest
+  void should_apply_quick_fix_from_not_core_eslint_rule(
+    SonarLintTestHarness harness,
+    @TempDir Path baseDir
+  ) {
+    var fileDTO = createFile(baseDir, "foo.js", "for (;i < 0;) { foo(i); }");
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S1264");
+      assertQuickFix(
+        results.get(0).getQuickFixes().get(0),
+        "Replace with 'while' loop",
+        "while (i < 0)",
+        1,
+        0,
+        1,
+        13
+      );
+    });
+  }
+
+  @SonarLintTest
+  void should_apply_quickfix_from_suggestions(SonarLintTestHarness harness, @TempDir Path baseDir) {
+    var fileDTO = createFile(baseDir, "foo.js", "if (!5 instanceof number) f()");
+    initWithFiles(harness, baseDir, fileDTO);
+
+    triggerAnalysisByFileOpened(fileDTO);
+
+    assertResults(results -> {
+      assertThat(results).hasSize(1);
+      assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3812");
+      assertThat(results.get(0).getQuickFixes()).hasSize(2);
+      assertQuickFix(
+        results.get(0).getQuickFixes().get(0),
+        "Negate 'instanceof' expression instead of its left operand. This changes the current behavior.",
+        "(5 instanceof number)",
+        1,
+        5,
+        1,
+        24
+      );
+      assertQuickFix(
+        results.get(0).getQuickFixes().get(1),
+        "Wrap negation in '()' to make the intention explicit. This preserves the current behavior.",
+        "(!5)",
+        1,
+        4,
+        1,
+        6
+      );
+    });
+  }
+
+  private static ClientFileDto createFile(Path folderPath, String fileName, String content) {
+    var filePath = folderPath.resolve(fileName);
+    try {
+      Files.writeString(filePath, content);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return new ClientFileDto(
+      filePath.toUri(),
+      folderPath.relativize(filePath),
       CONFIG_SCOPE_ID,
       false,
       null,
-      fileIssue,
+      filePath,
       null,
       null,
       true
     );
+  }
 
-    var client = harness
+  private void triggerAnalysisByFileOpened(ClientFileDto fileDTO) {
+    backend.getFileService().didOpenFile(new DidOpenFileParams(CONFIG_SCOPE_ID, fileDTO.getUri()));
+  }
+
+  private void triggerAnalysisByFileChanged(ClientFileDto fileDTO, String content) {
+    try {
+      Files.writeString(fileDTO.getFsPath(), content);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    backend
+      .getFileService()
+      .didUpdateFileSystem(new DidUpdateFileSystemParams(List.of(), List.of(fileDTO), List.of()));
+  }
+
+  private void initWithFiles(
+    SonarLintTestHarness harness,
+    Path baseDir,
+    ClientFileDto... fileDTOs
+  ) {
+    client = harness
       .newFakeClient()
-      .withInitialFs(CONFIG_SCOPE_ID, baseDir, List.of(fileDTO))
+      .withInitialFs(CONFIG_SCOPE_ID, baseDir, Arrays.asList(fileDTOs))
       .build();
 
-    var backend = harness
+    backend = harness
       .newBackend()
       .withStandaloneEmbeddedPluginAndEnabledLanguage(
         new Plugin(
@@ -79,55 +359,39 @@ class SonarLintIntegrationTest {
       )
       .withUnboundConfigScope(CONFIG_SCOPE_ID)
       .start(client);
+  }
 
-    backend.getFileService().didOpenFile(new DidOpenFileParams(CONFIG_SCOPE_ID, fileIssueUri));
-
+  private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
     await()
       .atMost(15, TimeUnit.SECONDS)
-      .untilAsserted(() ->
-        assertThat(client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID)).isNotEmpty()
-      );
-    var raisedIssuesDto = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
-    assertThat(raisedIssuesDto).hasSize(1);
-    assertThat(raisedIssuesDto.get(0).getRuleKey()).isEqualTo("typescript:S3923");
-
-    editFile(baseDir, "foo.ts", "x = true ? 42 : 41;");
-
-    backend
-      .getFileService()
-      .didUpdateFileSystem(new DidUpdateFileSystemParams(List.of(), List.of(fileDTO), List.of()));
-    await()
-      .atMost(15, TimeUnit.SECONDS)
-      .untilAsserted(() ->
-        assertThat(client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID)).isEmpty()
-      );
+      .untilAsserted(() -> {
+        var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
+        assertionLambda.accept(results);
+      });
   }
 
-  private static Path createFile(Path folderPath, String fileName, String content) {
-    var filePath = folderPath.resolve(fileName);
-    try {
-      Files.writeString(filePath, content);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return filePath;
-  }
-
-  private static void editFile(Path folderPath, String fileName, String content) {
-    var filePath = folderPath.resolve(fileName);
-    try {
-      Files.writeString(filePath, content);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static void removeFile(Path folderPath, String fileName) {
-    var filePath = folderPath.resolve(fileName);
-    try {
-      Files.deleteIfExists(filePath);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  private void assertQuickFix(
+    QuickFixDto quickFix,
+    String message,
+    String code,
+    int line,
+    int column,
+    int endLine,
+    int endColumn
+  ) {
+    assertThat(quickFix.message()).isEqualTo(message);
+    assertThat(quickFix.fileEdits()).hasSize(1);
+    var fileEdit = quickFix.fileEdits().get(0);
+    assertThat(fileEdit.textEdits()).hasSize(1);
+    var textEdit = fileEdit.textEdits().get(0);
+    assertThat(textEdit.newText()).isEqualTo(code);
+    assertThat(textEdit.range())
+      .extracting(
+        TextRangeDto::getStartLine,
+        TextRangeDto::getStartLineOffset,
+        TextRangeDto::getEndLine,
+        TextRangeDto::getEndLineOffset
+      )
+      .containsExactly(line, column, endLine, endColumn);
   }
 }
