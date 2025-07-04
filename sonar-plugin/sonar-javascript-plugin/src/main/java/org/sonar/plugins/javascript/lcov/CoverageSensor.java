@@ -32,15 +32,15 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.FileProvider;
 
-public class CoverageSensor implements Sensor {
+public class CoverageSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
 

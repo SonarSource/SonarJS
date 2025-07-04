@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-abstract class AbstractExternalIssuesSensor implements Sensor {
+abstract class AbstractExternalIssuesSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractExternalIssuesSensor.class);
   static final Gson gson = new Gson();
