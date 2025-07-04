@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 class JsTsChecksTest {
@@ -133,7 +134,7 @@ class JsTsChecksTest {
   public static class TsRepository implements CustomRuleRepository {
 
     @Override
-    public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
+    public Set<Language> compatibleLanguages() {
       return EnumSet.of(TYPESCRIPT);
     }
 
