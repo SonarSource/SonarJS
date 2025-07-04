@@ -32,7 +32,7 @@ public class TsRepository implements CustomRuleRepository {
   public static final String REPOSITORY_KEY = "ts-custom-rules";
 
   @Override
-  public Set<Language> languages() {
+  public Set<Language> compatibleLanguages() {
     return EnumSet.of(Language.TYPESCRIPT);
   }
 
