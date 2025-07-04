@@ -26,7 +26,6 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
@@ -34,10 +33,11 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.Version;
 import org.sonar.css.CssLanguage;
 
-public class CssMetricSensor implements Sensor {
+public class CssMetricSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CssMetricSensor.class);
 

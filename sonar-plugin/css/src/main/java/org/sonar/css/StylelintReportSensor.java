@@ -34,17 +34,17 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.css.StylelintReport.Issue;
 import org.sonar.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class StylelintReportSensor implements Sensor {
+public class StylelintReportSensor implements ProjectSensor {
 
   public static final String STYLELINT = "stylelint";
   public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
@@ -88,15 +88,17 @@ public class StylelintReportSensor implements Sensor {
       BOMInputStream bomInputStream = BOMInputStream.builder()
         .setInputStream(Files.newInputStream(report.toPath()))
         .setByteOrderMarks(BYTE_ORDER_MARKS)
-        .get()
+        .get();
     ) {
       String charsetName = bomInputStream.getBOMCharsetName();
       if (charsetName == null) {
         charsetName = StandardCharsets.UTF_8.name();
       }
 
-      IssuesPerFile[] issues = new Gson()
-        .fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
+      IssuesPerFile[] issues = new Gson().fromJson(
+        new InputStreamReader(bomInputStream, charsetName),
+        IssuesPerFile[].class
+      );
       for (IssuesPerFile issuesPerFile : issues) {
         InputFile inputFile = getInputFile(context, issuesPerFile.source);
         if (inputFile != null) {

@@ -23,8 +23,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.api.AnalysisMode;
@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
-public abstract class AbstractBridgeSensor implements Sensor {
+public abstract class AbstractBridgeSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBridgeSensor.class);
 
