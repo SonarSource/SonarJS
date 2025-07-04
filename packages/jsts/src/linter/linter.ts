@@ -254,18 +254,11 @@ export class Linter {
       const dependencies = getDependencies(filePath, Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
-          key,
           fileTypeTargets,
           analysisModes,
           language = 'js',
           blacklistedExtensions,
         } = ruleConfig;
-        // TODO: remove when sonar-security and sonar-architecture rules override the analysisModes method
-        const effectiveAnalysisModes = ['ucfg', 'sonar-architecture-ir'].includes(key)
-          ? (['DEFAULT', 'SKIP_UNCHANGED'] as const)
-          : analysisModes;
-        // TODO: remove when sonar-security overrides the blacklistedExtensions method
-        const blacklist = blacklistedExtensions ?? (key === 'ucfg' ? ['.htm', '.html'] : []);
         const ruleMeta =
           ruleConfig.key in ruleMetas
             ? ruleMetas[ruleConfig.key as keyof typeof ruleMetas]
@@ -276,9 +269,9 @@ export class Linter {
           ruleMeta.requiredDependency.some(dependency => dependencies.has(dependency));
         return (
           fileTypeTargets.includes(fileType) &&
-          effectiveAnalysisModes.includes(analysisMode) &&
+          analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !blacklist.includes(extname(toUnixPath(filePath))) &&
+          !(blacklistedExtensions || []).includes(extname(toUnixPath(filePath))) &&
           satisfiesRequiredDependency
         );
       });
