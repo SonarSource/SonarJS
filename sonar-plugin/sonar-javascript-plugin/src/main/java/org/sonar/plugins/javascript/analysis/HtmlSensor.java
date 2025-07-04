@@ -56,7 +56,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.onlyOnLanguage(LANGUAGE).name("JavaScript inside HTML analysis");
+    descriptor.global().onlyOnLanguage(LANGUAGE).name("JavaScript inside HTML analysis");
   }
 
   @Override

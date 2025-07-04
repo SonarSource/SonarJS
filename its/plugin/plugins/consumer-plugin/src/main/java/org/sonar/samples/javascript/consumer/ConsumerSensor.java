@@ -45,7 +45,7 @@ public class ConsumerSensor implements ProjectSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("Consumer Sensor");
+    descriptor.global().name("Consumer Sensor");
   }
 
   @Override

@@ -54,7 +54,7 @@ public class CssMetricSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("CSS Metrics").onlyOnLanguage(CssLanguage.KEY);
+    descriptor.global().name("CSS Metrics").onlyOnLanguage(CssLanguage.KEY);
     processesFilesIndependently(descriptor);
   }
 
