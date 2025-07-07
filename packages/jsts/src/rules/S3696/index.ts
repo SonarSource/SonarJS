@@ -19,6 +19,6 @@ import { decorate } from './decorator.js';
 
 /**
  * TypeScript ESLint implementation of 'no-throw-literal' does not support JavaScript code.
- * Therefore, we decorate ESLint's implemention of the rule.
+ * Therefore, we decorate ESLint's implementation of the rule.
  */
 export const rule = decorate(getESLintCoreRule('no-throw-literal'));

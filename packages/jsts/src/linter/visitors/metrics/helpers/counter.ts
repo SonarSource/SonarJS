@@ -20,7 +20,7 @@ import { visit } from '../../visitor.js';
 
 /**
  * Counts the number of nodes matching a predicate
- * @param sourceCode the source code to vist
+ * @param sourceCode the source code to visit
  * @param predicate the condition to count the node
  * @returns the number of nodes matching the predicate
  */

@@ -30,7 +30,7 @@ type ContextOverrider = (context: Rule.RuleContext, onReport: ReportOverrider) =
  * @param rule the original rule
  * @param onReport replacement for `context.report(descr)`
  *                 invocations used inside of the rule
- * @param contextOverrider optional function to change the default context overridding mechanism
+ * @param contextOverrider optional function to change the default context overriding mechanism
  */
 export function interceptReport(
   rule: Rule.RuleModule,

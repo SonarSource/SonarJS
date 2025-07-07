@@ -22,7 +22,7 @@ import org.sonar.api.config.Configuration;
 
 /**
  * {@link BridgeServerImpl} requires information from {@link org.sonar.api.batch.sensor.SensorContext}.
- * Hovewer, {@link org.sonar.api.batch.sensor.SensorContext} is a big object, containing more than what we need.
+ * However, {@link org.sonar.api.batch.sensor.SensorContext} is a big object, containing more than what we need.
  * This class will contain only information required by {@link BridgeServerImpl}.
  * This will reduce the dependency on external API, and ease the testing.
  */

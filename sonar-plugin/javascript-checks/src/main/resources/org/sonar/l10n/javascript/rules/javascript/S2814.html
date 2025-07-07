@@ -12,7 +12,7 @@ variable and function redeclarations are allowed but can lead to unexpected beha
 misleading and could have been made by mistake, the developer not realizing that the new assignment overwrites the symbol value.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 var a = 'foo';
-function a() {} // Noncompliant: Overriden by the variable 'a'
+function a() {} // Noncompliant: Overridden by the variable 'a'
 console.log(a); // prints "foo"
 
 function myFunc(arg) {

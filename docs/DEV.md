@@ -140,7 +140,6 @@ It will also update some files which are not tracked by Git as they are automati
       ]
      ```
 4. Implement the rule logic in `S1234/rule.ts`
-
    - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    - Note that there are some helper functions in `src/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
    - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
@@ -196,7 +195,7 @@ You can find an example at [the bottom of this document](#examples).
 
 Given the above test snippet, issue messages (`{{...}}`) and quick fixes (if the rule provides them) are mandatory. The issue primary location (`// ^^^^`) and secondary location(s) (`// ^^^<`) are optional.
 
-`Noncompliant` lines will be associated by default to the line of code where they are writen. The syntax `@line_number` allows for an issue to be associated to another line:
+`Noncompliant` lines will be associated by default to the line of code where they are written. The syntax `@line_number` allows for an issue to be associated to another line:
 
 ```javascript
 // Noncompliant@2 [[qf1,qf2,...]] {{Optional message to assert}}
