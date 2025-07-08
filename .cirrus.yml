@@ -143,6 +143,19 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     preemptible: false
     use_ssd: true
 
+analyze_definition: &ANALYZE_DEFINITION
+  <<: *NODE22_CONTAINER_DEFINITION
+  depends_on:
+    - test_js
+    - test_java
+  <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
+  <<: *JS_COVERAGE_CACHE
+  <<: *JAVA_COVERAGE_CACHE
+  analyze_script:
+    - source cirrus-env BUILD
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dsonar.projectKey="${SONAR_PROJECT_KEY}" -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
+
 win_ssd_and_clone:
   &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
   prepare_disk_script:
@@ -238,22 +251,50 @@ test_java_task:
     - source cirrus-env QA
     - mvn install -T1C -Pcoverage,coverage-report
 
-analyze_task:
-  <<: *NODE22_CONTAINER_DEFINITION
-  depends_on:
-    - test_js
-    - test_java
+analyze_next_task:
+  <<: *ANALYZE_DEFINITION
   env:
     # analysis on next
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
-  <<: *MAVEN_CACHE
-  <<: *NPM_CACHE
-  <<: *JS_COVERAGE_CACHE
-  <<: *JAVA_COVERAGE_CACHE
-  analyze_script:
-    - source cirrus-env BUILD
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests
+    SONAR_PROJECT_KEY: org.sonarsource.javascript:javascript
+
+analyze_SQC_EU_shadow_task:
+  <<: *ANALYZE_DEFINITION
+  #only_if: $CIRRUS_CRON == "nightly"
+  env:
+    SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
+    SONAR_HOST_URL: https://sonarcloud.io
+    SONAR_PROJECT_KEY: SonarSource_SonarJS
+
+analyze_SQC_US_shadow_task:
+  <<: *ANALYZE_DEFINITION
+  #only_if: $CIRRUS_CRON == "nightly"
+  env:
+    SONAR_TOKEN: VAULT[development/kv/data/sonarqube-us data.token]
+    SONAR_HOST_URL: https://sonarqube.us
+    SONAR_PROJECT_KEY: SonarSource_SonarJS
+
+run_iris_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+  #only_if: $CIRRUS_CRON == "nightly"
+  depends_on:
+    - analyze_next
+    - analyze_SQC_EU_shadow
+    - analyze_SQC_US_shadow
+  env:
+    SONAR_SQC_EU_URL: 'https://sonarcloud.io'
+    SONAR_IRIS_SQC_EU_TOKEN: VAULT[development/kv/data/iris data.sqc-eu]
+    SONAR_SQC_US_URL: 'https://sonarqube.us'
+    SONAR_IRIS_SQC_US_TOKEN: VAULT[development/kv/data/iris data.sqc-us]
+    SONAR_NEXT_URL: 'https://next.sonarqube.com/sonarqube'
+    SONAR_IRIS_NEXT_TOKEN: VAULT[development/kv/data/iris data.next]
+    ARTIFACTORY_USERNAME: $REPOX_PRIVATE_READER_USERNAME
+    ARTIFACTORY_ACCESS_TOKEN: $REPOX_PRIVATE_READER_PASSWORD
+    ARTIFACTORY_URL: VAULT[development/kv/data/repox data.artifactory_url]
+  script:
+    - source .cirrus/run-iris.sh
 
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
@@ -486,7 +527,9 @@ promote_task:
     - css_ruling
     - ruling
     - js_ts_ruling
-    - analyze
+    - analyze_next
+    - analyze_SQC_EU_shadow
+    - analyze_SQC_US_shadow
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:
