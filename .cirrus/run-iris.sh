@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-: "${ARTIFACTORY_PRIVATE_USERNAME?}" "${ARTIFACTORY_PRIVATE_ACCESS_TOKEN?}" "${ARTIFACTORY_URL?}"
+: "${ARTIFACTORY_PRIVATE_USERNAME?}" "${ARTIFACTORY_ACCESS_TOKEN?}" "${ARTIFACTORY_URL?}"
 : "${SONAR_SOURCE_IRIS_TOKEN?}" "${SONAR_TARGET_IRIS_TOKEN?}" "${SONAR_TARGET_URL?}"
 
 function run_iris () {
@@ -24,7 +24,7 @@ HTTP_CODE=$(\
     --write-out '%{http_code}' \
     --location \
     --remote-name \
-    --user "$ARTIFACTORY_PRIVATE_USERNAME:$ARTIFACTORY_PRIVATE_ACCESS_TOKEN" \
+    --user "$ARTIFACTORY_PRIVATE_USERNAME:$ARTIFACTORY_ACCESS_TOKEN" \
     "$ARTIFACTORY_URL/sonarsource-private-releases/com/sonarsource/iris/iris/$VERSION/iris-$VERSION-jar-with-dependencies.jar"\
 )
 
