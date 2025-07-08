@@ -276,8 +276,7 @@ analyze_SQC_US_shadow_task:
     SONAR_PROJECT_KEY: SonarSource_SonarJS
 
 run_iris_task:
-  eks_container:
-    <<: *CONTAINER_DEFINITION
+  <<: *CONTAINER_DEFINITION
   #only_if: $CIRRUS_CRON == "nightly"
   depends_on:
     - promote
