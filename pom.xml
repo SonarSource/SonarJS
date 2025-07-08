@@ -1,19 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
     <version>83.0.0.2369</version>
   </parent>
-
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
-
   <name>SonarJS</name>
   <description>SonarQube JavaScript/TypeScript/CSS Analyzer</description>
   <inceptionYear>2011</inceptionYear>
@@ -40,12 +35,11 @@
       <organization>SonarSource</organization>
     </developer>
   </developers>
-
   <modules>
     <module>sonar-plugin</module>
     <module>its</module>
+    <module>license-formatter-maven-plugin</module>
   </modules>
-
   <scm>
     <connection>scm:git:git@github.com:SonarSource/sonar-javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-javascript.git</developerConnection>
@@ -55,14 +49,12 @@
   <issueManagement>
     <url>https://github.com/SonarSource/sonar-javascript/issues</url>
   </issueManagement>
-
   <properties>
     <revision>11.1.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
-
     <assertj.version>3.27.3</assertj.version>
     <jgit.version>7.3.0.202506031305-r</jgit.version>
     <junit.version>5.13.3</junit.version>
@@ -75,17 +67,14 @@
     <analyzer-commons.version>2.18.0.3393</analyzer-commons.version>
     <sslr.version>1.24.0.633</sslr.version>
     <sonarlint.plugin.api.version>10.24.0.81415</sonarlint.plugin.api.version>
-
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <maven.compiler.release>17</maven.compiler.release>
     <jdk.min.version>17</jdk.min.version>
     <version.surefire.plugin>3.1.2</version.surefire.plugin>
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/coverage/java/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
-
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
     <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
@@ -98,10 +87,8 @@
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
     <sonar.coverage.exclusions>packages/ruling/**/*,packages/*/tests/**/*,resources/org/sonar/l10n/javascript/rules/javascript/**</sonar.coverage.exclusions>
   </properties>
-
   <dependencyManagement>
     <dependencies>
-
       <!-- Default dependencies (compile) -->
       <dependency>
         <groupId>${project.groupId}</groupId>
@@ -174,8 +161,6 @@
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
-
-
       <!-- Test dependencies -->
       <dependency>
         <groupId>org.junit</groupId>
@@ -226,7 +211,6 @@
         <version>4.3.0</version>
         <scope>test</scope>
       </dependency>
-
       <!-- Provided dependencies -->
       <dependency>
         <groupId>org.sonarsource.api.plugin</groupId>
@@ -253,18 +237,14 @@
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
-
-
       <dependency>
         <groupId>org.sonarsource.api.plugin</groupId>
         <artifactId>sonar-plugin-api-test-fixtures</artifactId>
         <version>${sonar.api.version}</version>
         <scope>test</scope>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
-
   <build>
     <plugins>
       <plugin>
