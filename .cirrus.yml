@@ -3,7 +3,7 @@ env:
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
   CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
 
-  ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
+  ARTIFACTORY_URL: VAULT[development/kv/data/repox data.artifactory_url]
   ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
   ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   ARTIFACTORY_DEPLOY_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer
@@ -280,19 +280,18 @@ run_iris_task:
     <<: *CONTAINER_DEFINITION
   #only_if: $CIRRUS_CRON == "nightly"
   depends_on:
-    - analyze_next
-    - analyze_SQC_EU_shadow
-    - analyze_SQC_US_shadow
+    - promote
   env:
-    SONAR_SQC_EU_URL: 'https://sonarcloud.io'
-    SONAR_IRIS_SQC_EU_TOKEN: VAULT[development/kv/data/iris data.sqc-eu]
-    SONAR_SQC_US_URL: 'https://sonarqube.us'
-    SONAR_IRIS_SQC_US_TOKEN: VAULT[development/kv/data/iris data.sqc-us]
-    SONAR_NEXT_URL: 'https://next.sonarqube.com/sonarqube'
-    SONAR_IRIS_NEXT_TOKEN: VAULT[development/kv/data/iris data.next]
-    ARTIFACTORY_USERNAME: $REPOX_PRIVATE_READER_USERNAME
-    ARTIFACTORY_ACCESS_TOKEN: $REPOX_PRIVATE_READER_PASSWORD
-    ARTIFACTORY_URL: VAULT[development/kv/data/repox data.artifactory_url]
+    SONAR_SOURCE_IRIS_TOKEN: VAULT[development/kv/data/iris data.next]
+  matrix:
+    - name: 'IRIS SQ NEXT -> Sonarcloud.io'
+      env:
+        SONAR_TARGET_URL: https://sonarcloud.io
+        SONAR_TARGET_IRIS_TOKEN: VAULT[development/kv/data/iris data.sqc-eu]
+    - name: 'IRIS SQ NEXT -> SonarQube.us'
+      env:
+        SONAR_TARGET_URL: https://sonarqube.us
+        SONAR_TARGET_IRIS_TOKEN: VAULT[development/kv/data/iris data.sqc-us]
   script:
     - source .cirrus/run-iris.sh
 
