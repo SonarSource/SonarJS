@@ -37,7 +37,7 @@ public class LicenseProcessorMojo extends AbstractMojo {
   private File licensesSourceDir;
 
   @Parameter(
-    defaultValue = "${project.build.directory}/licenses",
+    defaultValue = "${project.build.directory}/classes/licenses",
     property = "license.output.dir",
     required = true
   )

@@ -131,7 +131,7 @@
               <goal>download-licenses</goal>
             </goals>
             <configuration>
-              <!-- We only need the XML and the raw files, not the organized output -->
+<!--              <errorRemedy>failFast</errorRemedy>-->
               <licensesOutputDirectory>${project.build.directory}/temp-licenses</licensesOutputDirectory>
               <licensesOutputFile>${project.build.directory}/licenses.xml</licensesOutputFile>
               <organizeLicensesByDependencies>true</organizeLicensesByDependencies>
@@ -158,6 +158,7 @@
                   <replacement>https://raw.githubusercontent.com/github/choosealicense.com/refs/heads/gh-pages/_licenses/lgpl-3.0.txt</replacement>
                 </licenseUrlReplacement>
               </licenseUrlReplacements>
+              <licensesConfigFile>licenses-config-file.xml</licensesConfigFile>
               <licenseContentSanitizers>
                 <licenseContentSanitizer>
                   <id>strip-headers</id>
