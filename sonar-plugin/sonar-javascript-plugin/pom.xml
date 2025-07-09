@@ -163,7 +163,7 @@
                   <replacement>https://spdx.org/licenses/LGPL-3.0.txt</replacement>
                 </licenseUrlReplacement>
               </licenseUrlReplacements>
-              <licensesConfigFile>licenses-config-file.xml</licensesConfigFile>
+              <licensesConfigFile>${project.basedir}/src/main/resources/licenses/missing-licenses-config-file.xml</licensesConfigFile>
               <licenseUrlFileNameSanitizers>
                 <LicenseUrlReplacement>
                   <regexp>.txt</regexp>
