@@ -120,121 +120,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>2.6.0</version>
-        <executions>
-          <execution>
-            <id>download-licenses</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>download-licenses</goal>
-            </goals>
-            <configuration>
-              <errorRemedy>failFast</errorRemedy>
-              <writeVersions>false</writeVersions>
-              <licensesOutputDirectory>${project.basedir}/src/main/resources/licenses/THIRD_PARTY_LICENSES</licensesOutputDirectory>
-              <licensesOutputFile>${project.build.directory}/licenses.xml</licensesOutputFile>
-              <organizeLicensesByDependencies>true</organizeLicensesByDependencies>
-              <excludedGroups>org.sonarsource.javascript|org.sonarsource.analyzer-commons|org.sonarsource.sslr</excludedGroups>
-              <licenseUrlReplacements>
-                <licenseUrlReplacement>
-                  <regexp>https?://www.apache.org/licenses/LICENSE-2.0.txt</regexp>
-                  <replacement>file://${basedir}/src/main/license-resources/Apache-2.0.txt</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
-                  <regexp>https://asm.ow2.io/license.html</regexp>
-                  <replacement>https://gitlab.ow2.org/asm/asm/-/raw/master/LICENSE.txt</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
-                  <regexp>https://opensource.org/licenses/BSD-3-Clause</regexp>
-                  <replacement>https://spdx.org/licenses/BSD-3-Clause.txt</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
-                  <regexp>https://github.com/TooTallNate/Java-WebSocket/blob/master/LICENSE</regexp>
-                  <replacement>https://raw.githubusercontent.com/TooTallNate/Java-WebSocket/refs/heads/master/LICENSE</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
-                  <regexp>https://opensource.org/license/mit</regexp>
-                  <replacement>https://spdx.org/licenses/MIT.txt</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
-                  <regexp>http://www.gnu.org/licenses/lgpl.txt</regexp>
-                  <replacement>https://spdx.org/licenses/LGPL-3.0.txt</replacement>
-                </licenseUrlReplacement>
-              </licenseUrlReplacements>
-              <licensesConfigFile>${project.basedir}/src/main/license-resources/missing-licenses-config-file.xml</licensesConfigFile>
-              <licenseUrlFileNameSanitizers>
-                <LicenseUrlReplacement>
-                  <regexp>.txt</regexp>
-                </LicenseUrlReplacement>
-<!--                 Append .txt -->
-                <LicenseUrlReplacement>
-                  <regexp>$</regexp>
-                  <replacement>.txt</replacement>
-                </LicenseUrlReplacement>
-              </licenseUrlFileNameSanitizers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
-        <executions>
-          <execution>
-            <id>copy-main-license</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>../..</directory>
-                  <includes>
-                    <include>LICENSE.txt</include>
-                  </includes>
-                </resource>
-              </resources>
-              <outputDirectory>src/main/resources/licenses</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>check-license-files</id>
-            <phase>verify</phase>
-            <configuration>
-              <target>
-                <fileset id="invalid.files" dir="${project.build.outputDirectory}/licenses">
-                  <exclude name="**/*.txt"/>
-                  <include name="**/*"/>
-                </fileset>
-                <condition property="has.invalid.files">
-                  <resourcecount refid="invalid.files" when="greater" count="0"/>
-                </condition>
-                <fail message="There are files in ${project.build.outputDirectory}/licenses that do not end with .txt">
-                  <condition>
-                    <isset property="has.invalid.files"/>
-                  </condition>
-                </fail>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -555,4 +440,126 @@
 
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>license-regeneration</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>2.6.0</version>
+            <configuration>
+              <errorRemedy>failFast</errorRemedy>
+              <writeVersions>false</writeVersions>
+              <licensesOutputDirectory>${project.basedir}/src/main/resources/licenses/THIRD_PARTY_LICENSES</licensesOutputDirectory>
+              <licensesOutputFile>${project.build.directory}/licenses.xml</licensesOutputFile>
+              <organizeLicensesByDependencies>true</organizeLicensesByDependencies>
+              <excludedGroups>org.sonarsource.javascript|org.sonarsource.analyzer-commons|org.sonarsource.sslr</excludedGroups>
+              <licenseUrlReplacements>
+                <licenseUrlReplacement>
+                  <regexp>https?://www.apache.org/licenses/LICENSE-2.0.txt</regexp>
+                  <replacement>file://${basedir}/src/main/license-resources/Apache-2.0.txt</replacement>
+                </licenseUrlReplacement>
+                <licenseUrlReplacement>
+                  <regexp>https://asm.ow2.io/license.html</regexp>
+                  <replacement>https://gitlab.ow2.org/asm/asm/-/raw/master/LICENSE.txt</replacement>
+                </licenseUrlReplacement>
+                <licenseUrlReplacement>
+                  <regexp>https://opensource.org/licenses/BSD-3-Clause</regexp>
+                  <replacement>https://spdx.org/licenses/BSD-3-Clause.txt</replacement>
+                </licenseUrlReplacement>
+                <licenseUrlReplacement>
+                  <regexp>https://github.com/TooTallNate/Java-WebSocket/blob/master/LICENSE</regexp>
+                  <replacement>https://raw.githubusercontent.com/TooTallNate/Java-WebSocket/refs/heads/master/LICENSE</replacement>
+                </licenseUrlReplacement>
+                <licenseUrlReplacement>
+                  <regexp>https://opensource.org/license/mit</regexp>
+                  <replacement>https://spdx.org/licenses/MIT.txt</replacement>
+                </licenseUrlReplacement>
+                <licenseUrlReplacement>
+                  <regexp>http://www.gnu.org/licenses/lgpl.txt</regexp>
+                  <replacement>https://spdx.org/licenses/LGPL-3.0.txt</replacement>
+                </licenseUrlReplacement>
+              </licenseUrlReplacements>
+              <licensesConfigFile>${project.basedir}/src/main/license-resources/missing-licenses-config-file.xml</licensesConfigFile>
+              <licenseUrlFileNameSanitizers>
+                <LicenseUrlReplacement>
+                  <regexp>.txt</regexp>
+                </LicenseUrlReplacement>
+                <!--                 Append .txt -->
+                <LicenseUrlReplacement>
+                  <regexp>$</regexp>
+                  <replacement>.txt</replacement>
+                </LicenseUrlReplacement>
+              </licenseUrlFileNameSanitizers>
+            </configuration>
+            <executions>
+              <execution>
+                <id>download-licenses</id>
+                <goals>
+                  <goal>download-licenses</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+              <execution>
+                <id>copy-main-license</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>../..</directory>
+                      <includes>
+                        <include>LICENSE.txt</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                  <outputDirectory>src/main/resources/licenses</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>check-license-files</id>
+                <phase>verify</phase>
+                <configuration>
+                  <target>
+                    <fileset id="invalid.files" dir="${project.build.outputDirectory}/licenses">
+                      <exclude name="**/*.txt"/>
+                      <include name="**/*"/>
+                    </fileset>
+                    <condition property="has.invalid.files">
+                      <resourcecount refid="invalid.files" when="greater" count="0"/>
+                    </condition>
+                    <fail message="There are files in ${project.build.outputDirectory}/licenses that do not end with .txt">
+                      <condition>
+                        <isset property="has.invalid.files"/>
+                      </condition>
+                    </fail>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
