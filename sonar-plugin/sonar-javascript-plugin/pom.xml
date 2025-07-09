@@ -133,14 +133,14 @@
             <configuration>
               <errorRemedy>failFast</errorRemedy>
               <writeVersions>false</writeVersions>
-              <licensesOutputDirectory>${project.build.outputDirectory}/licenses/THIRD_PARTY_LICENSES</licensesOutputDirectory>
+              <licensesOutputDirectory>${project.basedir}/src/main/resources/licenses/THIRD_PARTY_LICENSES</licensesOutputDirectory>
               <licensesOutputFile>${project.build.directory}/licenses.xml</licensesOutputFile>
               <organizeLicensesByDependencies>true</organizeLicensesByDependencies>
               <excludedGroups>org.sonarsource.javascript|org.sonarsource.analyzer-commons|org.sonarsource.sslr</excludedGroups>
               <licenseUrlReplacements>
                 <licenseUrlReplacement>
                   <regexp>https?://www.apache.org/licenses/LICENSE-2.0.txt</regexp>
-                  <replacement>file://${basedir}/src/main/resources/licenses/Apache-2.0.txt</replacement>
+                  <replacement>file://${basedir}/src/main/license-resources/Apache-2.0.txt</replacement>
                 </licenseUrlReplacement>
                 <licenseUrlReplacement>
                   <regexp>https://asm.ow2.io/license.html</regexp>
@@ -163,7 +163,7 @@
                   <replacement>https://spdx.org/licenses/LGPL-3.0.txt</replacement>
                 </licenseUrlReplacement>
               </licenseUrlReplacements>
-              <licensesConfigFile>${project.basedir}/src/main/resources/licenses/missing-licenses-config-file.xml</licensesConfigFile>
+              <licensesConfigFile>${project.basedir}/src/main/license-resources/missing-licenses-config-file.xml</licensesConfigFile>
               <licenseUrlFileNameSanitizers>
                 <LicenseUrlReplacement>
                   <regexp>.txt</regexp>
@@ -174,6 +174,31 @@
                   <replacement>.txt</replacement>
                 </LicenseUrlReplacement>
               </licenseUrlFileNameSanitizers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>copy-main-license</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>../..</directory>
+                  <includes>
+                    <include>LICENSE.txt</include>
+                  </includes>
+                </resource>
+              </resources>
+              <outputDirectory>src/main/resources/licenses</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -208,32 +233,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
-        <executions>
-          <execution>
-            <id>copy-main-license</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>../..</directory>
-                  <includes>
-                    <include>LICENSE.txt</include>
-                  </includes>
-                </resource>
-              </resources>
-              <outputDirectory>${project.build.outputDirectory}/licenses</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
