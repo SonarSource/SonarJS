@@ -261,7 +261,7 @@ analyze_next_task:
 
 analyze_SQC_EU_shadow_task:
   <<: *ANALYZE_DEFINITION
-  #only_if: $CIRRUS_CRON == "nightly"
+  only_if: $CIRRUS_CRON == "nightly"
   env:
     SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
     SONAR_HOST_URL: https://sonarcloud.io
@@ -269,7 +269,7 @@ analyze_SQC_EU_shadow_task:
 
 analyze_SQC_US_shadow_task:
   <<: *ANALYZE_DEFINITION
-  #only_if: $CIRRUS_CRON == "nightly"
+  only_if: $CIRRUS_CRON == "nightly"
   env:
     SONAR_TOKEN: VAULT[development/kv/data/sonarqube-us data.token]
     SONAR_HOST_URL: https://sonarqube.us
@@ -277,9 +277,10 @@ analyze_SQC_US_shadow_task:
 
 run_iris_task:
   <<: *CONTAINER_DEFINITION
-  #only_if: $CIRRUS_CRON == "nightly"
+  only_if: $CIRRUS_CRON == "nightly"
   depends_on:
-    - promote
+    - analyze_SQC_EU_shadow
+    - analyze_SQC_US_shadow
   env:
     SONAR_SOURCE_IRIS_TOKEN: VAULT[development/kv/data/iris data.next]
   matrix:
