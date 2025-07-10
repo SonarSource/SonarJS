@@ -64,7 +64,7 @@ class NodeDeprecationWarningTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = { "18.18.0", "20.13.0", "22.11.0" })
+  @ValueSource(strings = { "18.20.0", "20.13.0", "22.11.0" })
   void test_supported(String version) {
     var parsedVersion = Version.parse(version);
     deprecationWarning.logNodeDeprecation(parsedVersion);
