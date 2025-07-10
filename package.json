@@ -29,7 +29,7 @@
     "td": "npm run generate-meta && npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && node tools/sync-nodejs-versions.mjs",
     "count-rules": "tsx tools/count-rules.ts",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",
@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": ">=22"
+    "node": "^18.17.0 || ^20.12.0 || >=22.11.0"
   },
   "type": "module",
   "devDependencies": {

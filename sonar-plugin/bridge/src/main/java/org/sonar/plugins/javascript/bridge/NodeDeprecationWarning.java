@@ -16,7 +16,11 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
@@ -28,29 +32,46 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class NodeDeprecationWarning {
 
   private static final Logger LOG = LoggerFactory.getLogger(NodeDeprecationWarning.class);
+  private static final String NODE_PROPERTIES_FILE = "/node-info.properties";
+  static final Version MIN_SUPPORTED_NODE_VERSION;
+  private static final List<String> RECOMMENDED_NODE_VERSIONS;
+  public static final Version RECOMMENDED_NODE_VERSION;
 
-  /**
-   * This version should be kept in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion.
-   * <p>
-   * The minor version is a requirement from the ESLint version that the bridge uses.
-   */
-  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 20, 0);
+  static {
+    Properties props = new Properties();
+    try (
+      InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(
+        NODE_PROPERTIES_FILE
+      );
+    ) {
+      if (inputStream != null) {
+        props.load(inputStream);
+      }
+    } catch (IOException ex) {
+      throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
+    }
+    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
+    RECOMMENDED_NODE_VERSIONS = Arrays.asList(
+      props.getProperty("node.recommended.versions").split(",")
+    );
+    RECOMMENDED_NODE_VERSION = Version.parse(
+      RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
+    );
+  }
 
-  private static final int MIN_RECOMMENDED_NODE_VERSION = 20;
-  private static final List<String> RECOMMENDED_NODE_VERSIONS = List.of("^20.12.0", "^22.11.0");
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
   }
 
-  void logNodeDeprecation(int actualNodeVersion) {
-    if (actualNodeVersion < MIN_RECOMMENDED_NODE_VERSION) {
+  void logNodeDeprecation(Version actualNodeVersion) {
+    if (!actualNodeVersion.isGreaterThanOrEqual(RECOMMENDED_NODE_VERSION)) {
       String msg = String.format(
-        "Using Node.js version %d to execute analysis is not supported. " +
+        "Using Node.js version %s to execute analysis is not recommended. " +
         "Please upgrade to a newer LTS version of Node.js: %s.",
         actualNodeVersion,
-        RECOMMENDED_NODE_VERSIONS
+        RECOMMENDED_NODE_VERSION
       );
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);

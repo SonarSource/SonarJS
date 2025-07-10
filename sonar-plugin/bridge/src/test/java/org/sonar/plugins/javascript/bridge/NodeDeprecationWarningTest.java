@@ -20,10 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.api.utils.Version;
 
 class NodeDeprecationWarningTest {
 
@@ -43,25 +45,39 @@ class NodeDeprecationWarningTest {
   TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
   NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
 
-  @Test
-  void test_unsupported() {
-    deprecationWarning.logNodeDeprecation(16);
+  /**
+   * These situations should not be reachable in production. We have separate tests for unsupported
+   * versions of NodeJS. Here we should only care about the deprecation warnings.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = { "16.10.0", "18.16.0", "20.11.9", "22.10.0" })
+  void test_unsupported(String version) {
+    deprecationWarning.logNodeDeprecation(Version.parse(version));
     assertWarnings(
-      "Using Node.js version 16 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.12.0, ^22.11.0]."
+      String.format(
+        "Using Node.js version %s to execute analysis is not recommended. " +
+        "Please upgrade to a newer LTS version of Node.js: %s.",
+        Version.parse(version),
+        NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
+      )
     );
   }
 
-  @Test
-  void test_supported() {
-    deprecationWarning.logNodeDeprecation(18);
-    deprecationWarning.logNodeDeprecation(20);
-    deprecationWarning.logNodeDeprecation(21);
-    deprecationWarning.logNodeDeprecation(22);
-    assertWarnings(
-      "Using Node.js version 18 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.12.0, ^22.11.0]."
-    );
+  @ParameterizedTest
+  @ValueSource(strings = { "18.18.0", "20.13.0", "22.11.0" })
+  void test_supported(String version) {
+    var parsedVersion = Version.parse(version);
+    deprecationWarning.logNodeDeprecation(parsedVersion);
+    if (parsedVersion.major() < NodeDeprecationWarning.RECOMMENDED_NODE_VERSION.major()) {
+      assertWarnings(
+        String.format(
+          "Using Node.js version %s to execute analysis is not recommended. " +
+          "Please upgrade to a newer LTS version of Node.js: %s.",
+          parsedVersion,
+          NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
+        )
+      );
+    }
   }
 
   private void assertWarnings(String... messages) {

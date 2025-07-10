@@ -120,6 +120,25 @@
       </plugin>
 
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>${project.basedir}/src/main/resources/node-info.properties</file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -385,10 +404,9 @@
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
-                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <!-- This is used to get the plugin version at runtime using getPackage().getImplementationVersion() -->
                     <Implementation-Version>${project.version}</Implementation-Version>
-                    <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
-                    <NodeJs-Min-Version>18.20.0</NodeJs-Min-Version>
+                    <NodeJs-Min-Version>{node.min.version}</NodeJs-Min-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>
