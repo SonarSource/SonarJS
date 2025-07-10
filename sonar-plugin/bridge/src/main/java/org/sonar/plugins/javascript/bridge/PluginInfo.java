@@ -48,7 +48,7 @@ public class PluginInfo {
   }
 
   /**
-   * Used by tests to set a specific version. Real version is read from manifest file in the jar.
+   * Used by tests to set a specific version. The real version is read from the manifest file in the jar.
    *
    * @param version version to set
    */
