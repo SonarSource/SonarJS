@@ -3,8 +3,7 @@
   "type": "BUG",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH",
-      "SECURITY": "LOW"
+      "RELIABILITY": "HIGH"
     },
     "attribute": "LOGICAL"
   },
