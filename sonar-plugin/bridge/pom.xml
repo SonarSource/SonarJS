@@ -181,6 +181,21 @@
               </arguments>
             </configuration>
           </execution>
+          <execution>
+            <id>Generate Node.js properties node-info.properties</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>node</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>tools/sync-nodejs-versions.mjs</argument>
+                <argument>sonar-plugin/bridge</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>

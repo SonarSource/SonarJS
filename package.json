@@ -29,7 +29,7 @@
     "td": "npm run generate-meta && npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
-    "postinstall": "patch-package && node tools/sync-nodejs-versions.mjs",
+    "postinstall": "patch-package",
     "count-rules": "tsx tools/count-rules.ts",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",

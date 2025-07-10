@@ -19,6 +19,10 @@ import fs from 'fs/promises';
 import semver from 'semver';
 import path from 'node:path/posix';
 
+const dirs = process.argv[2]
+  ? [process.argv[2]]
+  : ['sonar-plugin/bridge', 'sonar-plugin/sonar-javascript-plugin'];
+
 // 1. Read package.json and extract the minimum Node.js version
 const pkgRaw = await fs.readFile('package.json', 'utf8');
 const pkg = JSON.parse(pkgRaw);
@@ -36,7 +40,6 @@ const propertiesContent =
   `node.recommended.versions=${rangeSantized}\n`;
 
 // 3. Ensure the resources directory exists
-const dirs = ['sonar-plugin/bridge', 'sonar-plugin/sonar-javascript-plugin'];
 for (const dir of dirs) {
   const resourcesDir = path.resolve(path.join(dir, 'src', 'main', 'resources'));
   await fs.mkdir(resourcesDir, { recursive: true });
@@ -44,6 +47,5 @@ for (const dir of dirs) {
   // 4. Write the properties file
   const propertiesFile = path.join(resourcesDir, 'node-info.properties');
   await fs.writeFile(propertiesFile, propertiesContent, 'utf8');
+  console.log(`node-info.properties for ${dir} updated with versions=${range}`);
 }
-
-console.log(`node-info.properties updated with versions=${range}`);
