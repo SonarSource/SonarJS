@@ -88,7 +88,7 @@ export function start(
 
     const app = express();
     const server = http.createServer(app);
-    const wss = new WebSocketServer({ noServer: true });
+    const wss = new WebSocketServer({ noServer: true, maxPayload: 0 });
 
     server.on('upgrade', (request, socket, head) => {
       // Only handle upgrade requests for /ws
