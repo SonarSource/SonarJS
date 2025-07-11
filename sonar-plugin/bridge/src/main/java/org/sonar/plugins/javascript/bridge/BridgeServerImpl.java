@@ -248,7 +248,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
     establishWebSocketConnection();
 
-    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
+    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
 
   void establishWebSocketConnection() {
