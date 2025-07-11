@@ -44,19 +44,17 @@ public class NodeDeprecationWarning {
         NODE_PROPERTIES_FILE
       );
     ) {
-      if (inputStream != null) {
-        props.load(inputStream);
-      }
+      props.load(inputStream);
+      MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
+      RECOMMENDED_NODE_VERSIONS = Arrays.asList(
+        props.getProperty("node.recommended.versions").split(",")
+      );
+      RECOMMENDED_NODE_VERSION = Version.parse(
+        RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
+      );
     } catch (IOException ex) {
       throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
     }
-    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
-    RECOMMENDED_NODE_VERSIONS = Arrays.asList(
-      props.getProperty("node.recommended.versions").split(",")
-    );
-    RECOMMENDED_NODE_VERSION = Version.parse(
-      RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
-    );
   }
 
   private final AnalysisWarningsWrapper analysisWarnings;
