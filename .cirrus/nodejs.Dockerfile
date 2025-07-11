@@ -5,7 +5,6 @@ USER root
 
 ARG NODE_VERSION=18.20
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \. "$HOME/.nvm/nvm.sh" && nvm install "$NODE_VERSION" && node -v
-
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && nvm install "$NODE_VERSION" && node -v
 
 USER sonarsource
