@@ -443,7 +443,7 @@
                   <manifestEntries>
                     <!-- This is used to get the plugin version at runtime using getPackage().getImplementationVersion() -->
                     <Implementation-Version>${project.version}</Implementation-Version>
-                    <NodeJs-Min-Version>{node.min.version}</NodeJs-Min-Version>
+                    <NodeJs-Min-Version>${node.min.version}</NodeJs-Min-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>
