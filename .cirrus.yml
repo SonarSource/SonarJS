@@ -39,21 +39,21 @@ small_container_definition: &SMALL_CONTAINER
     cpu: 2
     memory: 4G
 
-node18_container_definition: &NODE18_CONTAINER_DEFINITION
+node_min_supported_container_definition: &NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   <<: *CONTAINER_DEFINITION
   eks_container:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
 
-node22_container_definition: &NODE22_CONTAINER_DEFINITION
-  <<: *NODE18_CONTAINER_DEFINITION
+node_recommended_container_definition: &NODE_RECOMMENDED_CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   eks_container:
     docker_arguments:
-      NODE_VERSION: 22
+      NODE_VERSION: 22.11
 
 node16_container_definition: &NODE16_CONTAINER_DEFINITION
-  <<: *NODE18_CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   eks_container:
     docker_arguments:
       NODE_VERSION: 16
@@ -144,7 +144,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     use_ssd: true
 
 analyze_definition: &ANALYZE_DEFINITION
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   depends_on:
     - test_js
     - test_java
@@ -192,7 +192,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - mvn -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
 build_task:
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   env:
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
@@ -210,7 +210,7 @@ build_task:
     - regular_mvn_build_deploy_analyze -T1C -Dsonar.skip=true -DartifactoryToken=$ARTIFACTORY_ACCESS_TOKEN -DskipTests
 
 build_eslint_task:
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   <<: *NPM_CACHE
   <<: *ESLINT_BUILD_CACHE
   build_and_deploy_script:
@@ -219,7 +219,7 @@ build_eslint_task:
     - npm run eslint-plugin:build
 
 knip_task:
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   <<: *NPMRC_SCRIPT_DEFINITION
   depends_on:
     - build
@@ -229,7 +229,7 @@ knip_task:
     - npx knip
 
 test_js_task:
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   depends_on:
     - build
   <<: *NPM_CACHE
@@ -241,7 +241,7 @@ test_js_task:
     - npm run bridge:test:cov
 
 test_java_task:
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   depends_on:
     - build
   <<: *MAVEN_CACHE
@@ -307,7 +307,7 @@ build_win_task:
 ws_scan_task:
   depends_on:
     - build
-  <<: *NODE18_CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   # run only on master and long-term branches
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
@@ -325,8 +325,17 @@ ws_scan_task:
 
 plugin_qa_with_node_task:
   <<: *PLUGIN_QA_BODY
-  <<: *NODE18_CONTAINER_DEFINITION
   <<: *ORCHESTRATOR_CACHE_MONTHLY
+  <<: *CONTAINER_DEFINITION
+  matrix:
+    - NODE_VERSION: 18.20.0
+    - NODE_VERSION: 20.12.0
+    - NODE_VERSION: 22.11.0
+  eks_container:
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: ${NODE_VERSION}
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
@@ -403,7 +412,7 @@ js_ts_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  <<: *NODE22_CONTAINER_DEFINITION
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -444,7 +453,7 @@ ruling_task:
 eslint9_node18_plugin_test_task:
   depends_on:
     - build_eslint
-  <<: *NODE18_CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -461,7 +470,7 @@ eslint9_node18_plugin_test_task:
 eslint8_node18_plugin_test_task:
   depends_on:
     - build_eslint
-  <<: *NODE18_CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
