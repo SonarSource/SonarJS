@@ -432,6 +432,7 @@
 
           <!-- what is the purpose of this step -->
           <execution>
+            <id>Add manifest entries</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
