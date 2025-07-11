@@ -138,6 +138,20 @@
             </configuration>
           </execution>
           <execution>
+            <id>Clean the resources</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>rm</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>src/main/resources/node-info.properties</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>Build the bridge</id>
             <phase>generate-resources</phase>
             <goals>

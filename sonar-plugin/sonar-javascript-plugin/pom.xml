@@ -126,7 +126,7 @@
         <executions>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>generate-resources</phase>
+            <phase>initialize</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -136,6 +136,20 @@
               <arguments>
                 <argument>tools/sync-nodejs-versions.mjs</argument>
                 <argument>sonar-plugin/sonar-javascript-plugin</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Clean the resources</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>rm</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>src/main/resources/node-info.properties</argument>
               </arguments>
             </configuration>
           </execution>
