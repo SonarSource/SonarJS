@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
 
@@ -37,7 +38,7 @@ public class Consumer implements JsAnalysisConsumer {
   }
 
   @Override
-  public void doneAnalysis() {
+  public void doneAnalysis(SensorContext context) {
     LOG.info("Done analysis");
     done = true;
   }

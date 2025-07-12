@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript.api;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -36,7 +37,7 @@ public interface JsAnalysisConsumer {
    *
    * Called at the end of the analysis.
    */
-  void doneAnalysis();
+  void doneAnalysis(SensorContext context);
 
   /**
    * Called only once per analysis.
