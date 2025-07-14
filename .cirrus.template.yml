@@ -1,5 +1,3 @@
-## DO NOT EDIT MANUALLY
-## INSTEAD, update: .cirrus.template.yml
 env:
   CIRRUS_VAULT_URL: https://vault.sonar.build:8200
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
