@@ -67,6 +67,16 @@ it('1 + 2 should give 3', () => {
 });`,
           filename: 'foo.spec.js',
         },
+        {
+          code: `test.for([
+  [1, 1, 2],
+  [1, 2, 3],
+  [2, 1, 3],
+])('add(%i, %i) -> %i', ([a, b, expected]) => { 
+  expect(a + b).toBe(expected)
+})`,
+          filename: 'foo.spec.js',
+        },
       ],
       invalid: [
         {
