@@ -10,7 +10,7 @@ RUN apt-get update \
     && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o node.tar.xz \
     && tar -xJf node.tar.xz -C /usr/local --strip-components=1 \
     && rm node.tar.xz \
-    && apt-get clean
+    && apt-get clean \
     && node -v \
     && npm -v
 
