@@ -331,9 +331,9 @@ plugin_qa_with_node_task:
     - NODE_VERSION: 18.20.0
     - NODE_VERSION: 20.12.0
     - NODE_VERSION: 22.11.0
-  eks_container:
+  docker_builder:
     dockerfile: .cirrus/nodejs.Dockerfile
-    build_arguments:
+    builder_arguments:
       NODE_VERSION: ${NODE_VERSION}
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
