@@ -1,2 +1,2 @@
 *.js text eol=lf
-
+.cirrus.yml linguist-generated=true
