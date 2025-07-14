@@ -56,7 +56,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": "^18.20.0 || ^20.12.0 || >=22.11.0"
+    "node": "^18.20.0 || ^20.12.0 || >=22.11.0 || 24.1.1"
   },
   "type": "module",
   "devDependencies": {

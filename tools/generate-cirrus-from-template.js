@@ -1,0 +1,57 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+
+import fs from 'node:fs/promises';
+import semver from 'semver';
+
+// 1. Read package.json and template
+const pkgRaw = await fs.readFile('package.json', 'utf8');
+console.log(pkgRaw);
+const pkg = JSON.parse(pkgRaw);
+const range = pkg.engines.node;
+const selectedVersions = range.split(' || ').map(part => semver.minVersion(part));
+console.log(range, selectedVersions);
+
+const template = await fs.readFile('.cirrus.template.yml', 'utf8');
+
+const nodeTasks = selectedVersions
+  .map(nodeVersion => {
+    const short = nodeVersion.major;
+    return `
+plugin_qa_with_node_${short}_task:
+  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: ${nodeVersion}
+`.trim();
+  })
+  .join('\n\n');
+
+const promoteDepends = selectedVersions
+  .map(nodeVersion => {
+    const short = nodeVersion.major;
+    return `    - plugin_qa_with_node_${short}_task`;
+  })
+  .join('\n');
+
+// 4. Replace placeholders in template
+let output = template.replace('# {{NODE_TASKS}}', nodeTasks);
+output = output.replace('# {{PROMOTE_DEPENDS}}', promoteDepends);
+
+// 5. Write the final .cirrus.yml
+await fs.writeFile('.cirrus.yml', output);
+console.log('Generated .cirrus.yml!');

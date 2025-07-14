@@ -1,1 +1,2 @@
 npm run precommit
+node tools/generate-cirrus-from-template.js

@@ -1,3 +1,5 @@
+## DO NOT EDIT MANUALLY
+## INSTEAD, update: .cirrus.template.yml
 env:
   CIRRUS_VAULT_URL: https://vault.sonar.build:8200
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
@@ -335,23 +337,25 @@ plugin_qa_with_node_version_body: &PLUGIN_QA_WITH_NODE_VERSION_BODY
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
 
-plugin_qa_with_node_18_task:
-  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
-  eks_container:
-    docker_arguments:
-      NODE_VERSION: 18.20.0
+# {{NODE_TASKS}}
 
-plugin_qa_with_node_20_task:
-  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
-  eks_container:
-    docker_arguments:
-      NODE_VERSION: 20.12.0
-
-plugin_qa_with_node_22_task:
-  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
-  eks_container:
-    docker_arguments:
-      NODE_VERSION: 22.11.0
+#plugin_qa_with_node_18_task:
+#  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+#  eks_container:
+#    docker_arguments:
+#      NODE_VERSION: 18.20.0
+#
+#plugin_qa_with_node_20_task:
+#  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+#  eks_container:
+#    docker_arguments:
+#      NODE_VERSION: 20.12.0
+#
+#plugin_qa_with_node_22_task:
+#  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+#  eks_container:
+#    docker_arguments:
+#      NODE_VERSION: 22.11.0
 
 plugin_qa_no_node_task:
   <<: *PLUGIN_QA_BODY
@@ -550,9 +554,7 @@ promote_task:
     - analyze_next
     - analyze_SQC_EU_shadow
     - analyze_SQC_US_shadow
-    - plugin_qa_with_node_18_task
-    - plugin_qa_with_node_20_task
-    - plugin_qa_with_node_22_task
+  # {{PROMOTE_DEPENDS}}
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:
