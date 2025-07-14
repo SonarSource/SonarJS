@@ -43,7 +43,7 @@ const promoteDepends = selectedVersions
   .map((nodeVersion, idx) => {
     const short = nodeVersion.major;
     const indent = idx === 0 ? '  ' : '    ';
-    return `${indent}- plugin_qa_with_node_${short}_task`;
+    return `${indent}- plugin_qa_with_node_${short}`;
   })
   .join('\n');
 
