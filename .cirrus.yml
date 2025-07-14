@@ -551,6 +551,9 @@ promote_task:
     - analyze_next
     - analyze_SQC_EU_shadow
     - analyze_SQC_US_shadow
+    - plugin_qa_with_node_18_task
+    - plugin_qa_with_node_20_task
+    - plugin_qa_with_node_22_task
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:
