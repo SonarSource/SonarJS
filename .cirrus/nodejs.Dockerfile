@@ -3,12 +3,15 @@ FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 
 USER root
 
-ARG NODE_VERSION=18.20.0
-ENV NVM_DIR=/root/.nvm
+ARG NODE_VERSION=18.20.2
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \. "$NVM_DIR/nvm.sh" && nvm install "$NODE_VERSION" && node -v
-
-ENV NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+RUN apt-get update \
+    && apt-get install -y ca-certificates curl xz-utils \
+    && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o node.tar.xz \
+    && tar -xJf node.tar.xz -C /usr/local --strip-components=1 \
+    && rm node.tar.xz \
+    && apt-get clean
+    && node -v \
+    && npm -v
 
 USER sonarsource
