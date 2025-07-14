@@ -73,6 +73,11 @@ const APIs = new Set([
   'test.skip',
   'test.todo',
   'test.only',
+  // vitest
+  'test.runIf',
+  'it.runIf',
+  'test.for',
+  'it.for',
 ]);
 
 export const rule: Rule.RuleModule = {
