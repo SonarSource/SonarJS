@@ -50,13 +50,13 @@ node_recommended_container_definition: &NODE_RECOMMENDED_CONTAINER_DEFINITION
   <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   eks_container:
     docker_arguments:
-      NODE_VERSION: 22.11
+      NODE_VERSION: 22.11.0
 
 node16_container_definition: &NODE16_CONTAINER_DEFINITION
   <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   eks_container:
     docker_arguments:
-      NODE_VERSION: 16
+      NODE_VERSION: 16.20.2
 
 maven_cache_definition: &MAVEN_CACHE
   maven_cache:

@@ -3,7 +3,7 @@ FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 
 USER root
 
-ARG NODE_VERSION=18.20
+ARG NODE_VERSION=18.20.0
 ENV NVM_DIR=/root/.nvm
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \. "$NVM_DIR/nvm.sh" && nvm install "$NODE_VERSION" && node -v
