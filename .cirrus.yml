@@ -323,22 +323,35 @@ ws_scan_task:
     ws_artifacts:
       path: 'whitesource/**/*'
 
-plugin_qa_with_node_task:
+plugin_qa_with_node_version_body: &PLUGIN_QA_WITH_NODE_VERSION_BODY
   <<: *PLUGIN_QA_BODY
   <<: *ORCHESTRATOR_CACHE_MONTHLY
   <<: *CONTAINER_DEFINITION
-  matrix:
-    - NODE_VERSION: 18.20.0
-    - NODE_VERSION: 20.12.0
-    - NODE_VERSION: 22.11.0
   eks_container:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      NODE_VERSION: ${NODE_VERSION}
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
+
+plugin_qa_with_node_18_task:
+  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: 18.20.0
+
+plugin_qa_with_node_20_task:
+  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: 20.12.0
+
+plugin_qa_with_node_22_task:
+  <<: *PLUGIN_QA_WITH_NODE_VERSION_BODY
+  eks_container:
+    docker_arguments:
+      NODE_VERSION: 22.11.0
 
 plugin_qa_no_node_task:
   <<: *PLUGIN_QA_BODY
