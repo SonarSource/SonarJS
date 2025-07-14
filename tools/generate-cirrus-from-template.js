@@ -20,11 +20,9 @@ import semver from 'semver';
 
 // 1. Read package.json and template
 const pkgRaw = await fs.readFile('package.json', 'utf8');
-console.log(pkgRaw);
 const pkg = JSON.parse(pkgRaw);
 const range = pkg.engines.node;
 const selectedVersions = range.split(' || ').map(part => semver.minVersion(part));
-console.log(range, selectedVersions);
 
 const template = await fs.readFile('.cirrus.template.yml', 'utf8');
 
