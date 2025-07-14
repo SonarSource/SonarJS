@@ -40,9 +40,10 @@ plugin_qa_with_node_${short}_task:
   .join('\n\n');
 
 const promoteDepends = selectedVersions
-  .map(nodeVersion => {
+  .map((nodeVersion, idx) => {
     const short = nodeVersion.major;
-    return `    - plugin_qa_with_node_${short}_task`;
+    const indent = idx === 0 ? '  ' : '    ';
+    return `${indent}- plugin_qa_with_node_${short}_task`;
   })
   .join('\n');
 
