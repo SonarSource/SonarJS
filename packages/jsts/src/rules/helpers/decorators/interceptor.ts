@@ -63,14 +63,6 @@ export function interceptReport(
             return originalContext.physicalFilename;
           },
 
-          getAncestors() {
-            return originalContext.getAncestors();
-          },
-
-          getDeclaredVariables(node: estree.Node) {
-            return originalContext.getDeclaredVariables(node);
-          },
-
           getFilename() {
             return originalContext.filename;
           },
@@ -82,10 +74,6 @@ export function interceptReport(
           // @ts-ignore
           getSource(...args) {
             return originalContext.sourceCode.getText(...args);
-          },
-
-          markVariableAsUsed(name: string) {
-            return originalContext.markVariableAsUsed(name);
           },
 
           report(...args: any[]): void {
