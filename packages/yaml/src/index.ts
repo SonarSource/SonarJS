@@ -16,7 +16,7 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseAwsFromYaml } from './aws/parser.js';
-import { fillFileContent } from '../../shared/src/types/analysis.js';
+import { augmentAnalysisInput } from '../../shared/src/types/analysis.js';
 
 import type {
   EmbeddedAnalysisInput,
@@ -24,5 +24,5 @@ import type {
 } from '../../jsts/src/embedded/analysis/analysis.js';
 
 export async function analyzeYAML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(await fillFileContent(input), parseAwsFromYaml);
+  return analyzeEmbedded(await augmentAnalysisInput(input), parseAwsFromYaml);
 }

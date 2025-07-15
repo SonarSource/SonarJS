@@ -32,7 +32,7 @@ import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/ind
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { clearDependenciesCache } from '../rules/helpers/index.js';
-import { fillFileContent } from '../../../shared/src/types/analysis.js';
+import { augmentAnalysisInput } from '../../../shared/src/types/analysis.js';
 import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 
@@ -55,9 +55,16 @@ export async function analyzeJSTS(
   input: JsTsAnalysisInput,
 ): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
   debug(`Analyzing file "${input.filePath}"`);
-  const completeInput = fillLanguage(await fillFileContent(input));
-  const { filePath, fileContent, fileType, analysisMode, fileStatus, language, configuration } =
-    completeInput;
+  const completeInput = fillLanguage(await augmentAnalysisInput(input));
+  const {
+    sanitizedFilePath: filePath,
+    fileContent,
+    fileType,
+    analysisMode,
+    fileStatus,
+    language,
+    configuration,
+  } = completeInput;
   setGlobalConfiguration(configuration);
   if (await shouldIgnoreFile({ filePath, fileContent })) {
     return { issues: [] };

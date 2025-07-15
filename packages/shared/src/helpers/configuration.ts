@@ -368,7 +368,7 @@ function normalizePaths(paths: string[] | undefined) {
 }
 
 function normalizePath(path: string) {
-  const normalized = toUnixPath(path.trim());
+  const normalized = toUnixPath(decodeURI(path).trim());
   if (!isAbsolutePath(normalized)) {
     return join(getBaseDir(), normalized);
   }

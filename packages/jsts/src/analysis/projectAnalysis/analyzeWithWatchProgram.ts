@@ -49,7 +49,7 @@ export async function analyzeWithWatchProgram(
       return;
     }
     if (isJsTsFile(filename)) {
-      const tsconfig = await tsConfigStore.getTsConfigForInputFile(filename);
+      const tsconfig = await tsConfigStore.getTsConfigForInputFile(decodeURI(filename));
       progressReport.nextFile(filename);
       const result = await analyzeFile({
         ...file,

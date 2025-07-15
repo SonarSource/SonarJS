@@ -54,9 +54,13 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   clearDependenciesCache?: boolean;
 }
 
-export type CompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'language' | 'fileContent'> & {
+export type CompleteJsTsAnalysisInput = Omit<
+  JsTsAnalysisInput,
+  'language' | 'fileContent' | 'sanitizedFilePath'
+> & {
   language: JsTsLanguage;
   fileContent: string;
+  sanitizedFilePath: string;
 };
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
@@ -83,7 +87,11 @@ export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
  * we read the file if the content is missing in the input.
  */
 export function fillLanguage(
-  input: Omit<JsTsAnalysisInput, 'fileContent'> & { fileContent: string },
+  input: Omit<JsTsAnalysisInput, 'fileContent'> &
+    Omit<JsTsAnalysisInput, 'sanitizedFilePath'> & {
+      fileContent: string;
+      sanitizedFilePath: string;
+    },
 ): CompleteJsTsAnalysisInput {
   if (isCompleteJsTsAnalysisInput(input)) {
     return input;

@@ -17,7 +17,7 @@
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
-import { fillFileContent } from '../../../shared/src/types/analysis.js';
+import { augmentAnalysisInput } from '../../../shared/src/types/analysis.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
 import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
@@ -34,7 +34,7 @@ import { setGlobalConfiguration } from '../../../shared/src/helpers/configuratio
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules, configuration } = await fillFileContent(input);
+  const { filePath, fileContent, rules, configuration } = await augmentAnalysisInput(input);
   setGlobalConfiguration(configuration);
   if (await shouldIgnoreFile({ filePath, fileContent })) {
     return { issues: [] };

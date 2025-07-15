@@ -28,6 +28,7 @@ import { Configuration } from '../helpers/configuration.js';
  */
 export interface AnalysisInput {
   filePath: string;
+  sanitizedFilePath?: string;
   fileContent?: string;
   sonarlint?: boolean;
   configuration?: Configuration;
@@ -44,21 +45,21 @@ export interface AnalysisOutput {}
  * In SonarQube context, an analysis input includes both path and content of a file
  * to analyze. However, in SonarLint, we might only get the file path. As a result,
  * we read the file if the content is missing in the input.
+ *
+ * In SonarLint, the file paths are URI encoded (think %20 for spaces). We need to decode them before using native node
+ * fs methods. Prefer input.sanitizedFilePath to input.filePath.
  */
-export async function fillFileContent<T extends AnalysisInput>(
+export async function augmentAnalysisInput<T extends AnalysisInput>(
   input: T,
-): Promise<Omit<T, 'fileContent'> & { fileContent: string }> {
-  if (!isCompleteAnalysisInput(input)) {
-    return {
-      ...input,
-      fileContent: await readFile(input.filePath),
-    };
-  }
-  return input;
-}
-
-function isCompleteAnalysisInput<T extends AnalysisInput>(
-  input: T,
-): input is T & { fileContent: string } {
-  return 'fileContent' in input;
+): Promise<
+  Omit<T, 'fileContent'> &
+    Omit<T, 'sanitizedFilePath'> & { fileContent: string; sanitizedFilePath: string }
+> {
+  const sanitizedFilePath = input.sanitizedFilePath ?? decodeURI(input.filePath);
+  const fileContent = input.fileContent ?? (await readFile(sanitizedFilePath));
+  return {
+    ...input,
+    fileContent,
+    sanitizedFilePath,
+  };
 }
