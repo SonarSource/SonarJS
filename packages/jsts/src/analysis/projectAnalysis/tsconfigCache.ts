@@ -48,19 +48,23 @@ export class Cache {
     while (this.pendingTsConfigFiles.length) {
       const tsConfigPath = this.pendingTsConfigFiles.pop()!;
       debug(`Computing tsconfig ${tsConfigPath} from bridge`);
-      const tsConfigFile = createProgramOptions(tsConfigPath);
-      tsConfigFile.rootNames.forEach(file => {
-        if (!this.inputFileToTsConfigFilesMap.has(file)) {
-          this.inputFileToTsConfigFilesMap.set(file, tsConfigPath);
+      try {
+        const tsConfigFile = createProgramOptions(tsConfigPath);
+        tsConfigFile.rootNames.forEach(file => {
+          if (!this.inputFileToTsConfigFilesMap.has(file)) {
+            this.inputFileToTsConfigFilesMap.set(file, tsConfigPath);
+          }
+        });
+        await this.addReferencedTsConfig(tsConfigFile.projectReferences);
+        if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
+          const foundTsConfigFile = this.inputFileToTsConfigFilesMap.get(inputFile)!;
+          info(
+            `Using tsConfig ${foundTsConfigFile} for file source file ${inputFile} (${this.pendingTsConfigFiles.length}/${this.discoveredTsConfigFiles.size} tsconfigs not yet checked)`,
+          );
+          return foundTsConfigFile;
         }
-      });
-      await this.addReferencedTsConfig(tsConfigFile.projectReferences);
-      if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
-        const foundTsConfigFile = this.inputFileToTsConfigFilesMap.get(inputFile)!;
-        info(
-          `Using tsConfig ${foundTsConfigFile} for file source file ${inputFile} (${this.pendingTsConfigFiles.length}/${this.discoveredTsConfigFiles.size} tsconfigs not yet checked)`,
-        );
-        return foundTsConfigFile;
+      } catch (e) {
+        info(`Failed to analyze TSConfig ${tsConfigPath}: ${e.message || e.toString()}`);
       }
     }
     this.inputFileToTsConfigFilesMap.set(inputFile, null);
