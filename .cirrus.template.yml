@@ -535,7 +535,7 @@ promote_task:
     - analyze_next
     - analyze_SQC_EU_shadow
     - analyze_SQC_US_shadow
-  # {{PROMOTE_DEPENDS}}
+  # {{NODE_PROMOTE_TASKS}}
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:
