@@ -194,6 +194,18 @@ public interface BridgeServer extends Startable {
     List<String> testExclusions;
     boolean detectBundles;
 
+    /*
+    We do not set sources, inclusions, exclusions, tests, testInclusions nor testExclusions as Sonar Engine
+    already implements the filtering logic, and we use the Sonar FS API to pass the list of files to analyze to Node.js.
+    This logic is also implemented in Node and used by ruling tests. If we were to use the logic in Node, (by not
+    sending the list of files and only send the baseDir), we would need to pass those properties to Node using:
+      this.sources = analysisConfiguration.getSources();
+      this.inclusions = analysisConfiguration.getInclusions();
+      this.exclusions = analysisConfiguration.getExclusions();
+      this.tests = analysisConfiguration.getTests();
+      this.testInclusions = analysisConfiguration.getTestInclusions();
+      this.testExclusions = analysisConfiguration.getTestExclusions();
+     */
     public ProjectAnalysisConfiguration(
       String baseDir,
       AnalysisConfiguration analysisConfiguration
@@ -214,12 +226,6 @@ public interface BridgeServer extends Startable {
       this.cssSuffixes = analysisConfiguration.getCssExtensions();
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
-      //this.sources = analysisConfiguration.getSources();
-      //this.inclusions = analysisConfiguration.getInclusions();
-      //this.exclusions = analysisConfiguration.getExclusions();
-      //this.tests = analysisConfiguration.getTests();
-      //this.testInclusions = analysisConfiguration.getTestInclusions();
-      //this.testExclusions = analysisConfiguration.getTestExclusions();
       this.detectBundles = analysisConfiguration.shouldDetectBundles();
     }
 
