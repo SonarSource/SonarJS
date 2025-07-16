@@ -214,12 +214,12 @@ public interface BridgeServer extends Startable {
       this.cssSuffixes = analysisConfiguration.getCssExtensions();
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
-      this.sources = analysisConfiguration.getSources();
-      this.inclusions = analysisConfiguration.getInclusions();
-      this.exclusions = analysisConfiguration.getExclusions();
-      this.tests = analysisConfiguration.getTests();
-      this.testInclusions = analysisConfiguration.getTestInclusions();
-      this.testExclusions = analysisConfiguration.getTestExclusions();
+      //this.sources = analysisConfiguration.getSources();
+      //this.inclusions = analysisConfiguration.getInclusions();
+      //this.exclusions = analysisConfiguration.getExclusions();
+      //this.tests = analysisConfiguration.getTests();
+      //this.testInclusions = analysisConfiguration.getTestInclusions();
+      //this.testExclusions = analysisConfiguration.getTestExclusions();
       this.detectBundles = analysisConfiguration.shouldDetectBundles();
     }
 

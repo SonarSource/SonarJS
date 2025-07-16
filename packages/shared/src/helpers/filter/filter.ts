@@ -47,7 +47,7 @@ export function accept(filePath: string, fileContent: string): boolean {
 /**
  * Determines whether a given file should be ignored based on its file path and content. This is
  * the equivalent to the JavaScriptExclusionsFileFilter.java which was used in Java:
- *       new PathAssessor(configuration),
+ *       new PathAssessor(configuration), <- still in place in Java under JsTsExclusionsFilter.java
  *       new SizeAssessor(configuration),
  *       new MinificationAssessor(),
  *       new BundleAssessor()
