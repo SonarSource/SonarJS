@@ -191,7 +191,6 @@ export function maxFilesForTypeChecking() {
 
 function setTestPaths(testPaths: string[] | undefined) {
   configuration.tests = normalizePaths(testPaths).map(path => `${path}/`.replace(/\/+$/g, '/'));
-  debug(`Setting test paths to ${configuration.tests}`);
 }
 
 export function getTestPaths() {
@@ -202,7 +201,6 @@ function setSourcesPaths(sourcesPaths: string[] | undefined) {
   configuration.sources = normalizePaths(sourcesPaths).map(path =>
     `${path}/`.replace(/\/+$/g, '/'),
   );
-  debug(`Setting sources paths to ${configuration.sources}`);
 }
 
 export function getSourcesPaths() {
@@ -224,7 +222,6 @@ export function getJsTsExclusions() {
 
 function setExclusions(exclusions: string[] | undefined) {
   configuration.normalizedExclusions = normalizeGlobs(exclusions);
-  debug(`Setting exclusions to ${configuration.normalizedExclusions.map(mini => mini.pattern)}`);
 }
 
 export function getExclusions() {
@@ -233,7 +230,6 @@ export function getExclusions() {
 
 function setInclusions(inclusions: string[] | undefined) {
   configuration.normalizedInclusions = normalizeGlobs(inclusions);
-  debug(`Setting inclusions to ${configuration.normalizedInclusions.map(mini => mini.pattern)}`);
 }
 
 export function getInclusions() {
@@ -242,9 +238,6 @@ export function getInclusions() {
 
 function setTestExclusions(testExclusions: string[] | undefined) {
   configuration.normalizedTestExclusions = normalizeGlobs(testExclusions);
-  debug(
-    `Setting test exclusions to ${configuration.normalizedTestExclusions.map(mini => mini.pattern)}`,
-  );
 }
 
 export function getTestExclusions() {
@@ -253,9 +246,6 @@ export function getTestExclusions() {
 
 function setTestInclusions(testInclusions: string[] | undefined) {
   configuration.normalizedTestInclusions = normalizeGlobs(testInclusions);
-  debug(
-    `Setting test inclusions to ${configuration.normalizedTestInclusions.map(mini => mini.pattern)}`,
-  );
 }
 
 export function getTestInclusions() {

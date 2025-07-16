@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
 import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
+import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -143,6 +144,7 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptLanguage.class,
       JavaScriptRulesDefinition.class,
       JavaScriptProfilesDefinition.class,
+      JsTsExclusionsFilter.class,
       NodeCommandBuilderImpl.class,
       ProcessWrapperImpl.class,
       BridgeServerImpl.class,
