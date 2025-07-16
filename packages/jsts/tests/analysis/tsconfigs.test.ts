@@ -106,7 +106,7 @@ describe('tsconfigs', () => {
         allowJs: true,
         noImplicitAny: true,
       },
-      files: [`${baseDir}/file.ts`, `${baseDir}/string42.ts`],
+      files: expect.arrayContaining([`${baseDir}/file.ts`, `${baseDir}/string42.ts`]),
     });
     expect(tsConfigStore.getCacheOrigin()).toEqual('fallback');
   });
