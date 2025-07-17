@@ -38,21 +38,22 @@ public class NodeDeprecationWarning {
   public static final Version RECOMMENDED_NODE_VERSION;
 
   static {
+    Properties props = loadProperties(NODE_PROPERTIES_FILE);
+    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
+    RECOMMENDED_NODE_VERSIONS = Arrays.asList(
+      props.getProperty("node.recommended.versions").split(",")
+    );
+    RECOMMENDED_NODE_VERSION = Version.parse(
+      RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
+    );
+  }
+
+  static Properties loadProperties(String resourceName) {
     Properties props = new Properties();
-    try (
-      InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(
-        NODE_PROPERTIES_FILE
-      );
-    ) {
+    try (InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(resourceName)) {
       props.load(inputStream);
-      MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
-      RECOMMENDED_NODE_VERSIONS = Arrays.asList(
-        props.getProperty("node.recommended.versions").split(",")
-      );
-      RECOMMENDED_NODE_VERSION = Version.parse(
-        RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
-      );
-    } catch (IOException ex) {
+      return props;
+    } catch (IOException | NullPointerException ex) {
       throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
     }
   }

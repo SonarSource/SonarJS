@@ -17,9 +17,12 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -83,5 +86,13 @@ class NodeDeprecationWarningTest {
   private void assertWarnings(String... messages) {
     assertThat(analysisWarnings.warnings).containsExactly(messages);
     assertThat(logTester.logs(Level.WARN)).contains(messages);
+  }
+
+  @Test
+  void loadPropertiesThrowsExceptionWhenResourceMissing() {
+    ExceptionInInitializerError ex = assertThrows(ExceptionInInitializerError.class, () ->
+      NodeDeprecationWarning.loadProperties("/non-existent-file.properties")
+    );
+    assertTrue(ex.getMessage().contains("Failed to load"));
   }
 }
