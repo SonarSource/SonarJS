@@ -194,7 +194,7 @@ public class EmbeddedNode {
       if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
         LOG.debug("Skipping node deploy. Deployed node has latest version.");
       } else {
-        extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
+        extractWithLocking(is, targetRuntime, targetDirectory);
       }
       // we try to run 'node -v' to test that node is working
       var detected = NodeVersion.getVersion(processWrapper, binary().toString());
@@ -231,14 +231,12 @@ public class EmbeddedNode {
    * Writes the version from `versionIs` to `targetDirectory`/VERSION_FILENAME
    *
    * @param source
-   * @param versionIs
    * @param targetRuntime
    * @param targetDirectory
    * @throws IOException
    */
   private void extractWithLocking(
     InputStream source,
-    InputStream versionIs,
     Path targetRuntime,
     Path targetDirectory
   ) throws IOException {
@@ -253,6 +251,7 @@ public class EmbeddedNode {
         try {
           LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
+          var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
           Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
         } finally {
           lock.release();
