@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
@@ -38,22 +39,31 @@ public class NodeDeprecationWarning {
   public static final Version RECOMMENDED_NODE_VERSION;
 
   static {
-    Properties props = new Properties();
-    try (
-      InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(
-        NODE_PROPERTIES_FILE
-      );
-    ) {
-      props.load(inputStream);
-      MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
-      RECOMMENDED_NODE_VERSIONS = Arrays.asList(
-        props.getProperty("node.recommended.versions").split(",")
-      );
-      RECOMMENDED_NODE_VERSION = Version.parse(
-        RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
-      );
+    Properties props = loadProperties(NODE_PROPERTIES_FILE);
+    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
+    RECOMMENDED_NODE_VERSIONS = Arrays.asList(
+      props.getProperty("node.recommended.versions").split(",")
+    );
+    RECOMMENDED_NODE_VERSION = Version.parse(
+      RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
+    );
+  }
+
+  static Properties loadProperties(String resourceName) {
+    try (InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(resourceName)) {
+      return loadProperties(inputStream);
     } catch (IOException ex) {
       throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
+    }
+  }
+
+  static Properties loadProperties(@Nullable InputStream inputStream) throws IOException {
+    Properties props = new Properties();
+    if (inputStream != null) {
+      props.load(inputStream);
+      return props;
+    } else {
+      throw new IOException("Provided InputStream is null");
     }
   }
 
