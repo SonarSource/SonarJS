@@ -61,10 +61,10 @@ public class NodeDeprecationWarning {
     Properties props = new Properties();
     if (inputStream != null) {
       props.load(inputStream);
+      return props;
     } else {
       throw new IOException("Provided InputStream is null");
     }
-    return props;
   }
 
   private final AnalysisWarningsWrapper analysisWarnings;
