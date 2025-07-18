@@ -491,11 +491,11 @@ eslint_plugin_task:
     - name: 'eslint-plugin-sonarjs test with ESLint 8 and node 18'
       <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
       env:
-        ESLINT_VERSION: 9
+        ESLINT_VERSION: 8
     - name: 'eslint-plugin-sonarjs test with ESLint 8 and node 16'
       <<: *NODE16_CONTAINER_DEFINITION
       env:
-        ESLINT_VERSION: 9
+        ESLINT_VERSION: 8
   eslint_its_script:
     - node --version
     - cd its/eslint${ESLINT_VERSION}-plugin-sonarjs
