@@ -26,14 +26,16 @@ const selectedVersions = range.split(' || ').map(part => semver.minVersion(part)
 const template = await fs.readFile('.cirrus.template.yml', 'utf8');
 
 // 2. Generate cirrus tasks for Node tasks
-const nodeTasks = selectedVersions.map(nodeVersion => {
-  const short = nodeVersion.major;
-  return `
+const nodeTasks = selectedVersions
+  .map(nodeVersion => {
+    const short = nodeVersion.major;
+    return `
     - name: 'QA with node ${short} on host Ubuntu SQ:LATEST'
       eks_container:
         docker_arguments:
           NODE_VERSION: ${nodeVersion}`;
-});
+  })
+  .join('');
 
 // 4. Replace placeholders in template
 let output = template.replace(' # {{NODE_TASKS}}', nodeTasks);

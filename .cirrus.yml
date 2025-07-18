@@ -337,11 +337,11 @@ plugin_qa_with_node_task:
     - name: 'QA with node 18 on host Ubuntu SQ:LATEST'
       eks_container:
         docker_arguments:
-          NODE_VERSION: 18.20.0,
+          NODE_VERSION: 18.20.0
     - name: 'QA with node 20 on host Ubuntu SQ:LATEST'
       eks_container:
         docker_arguments:
-          NODE_VERSION: 20.12.0,
+          NODE_VERSION: 20.12.0
     - name: 'QA with node 22 on host Ubuntu SQ:LATEST'
       eks_container:
         docker_arguments:
@@ -366,7 +366,7 @@ plugin_qa_without_node_task:
       env:
         SQ_VERSION: LATEST_RELEASE
         SONARJS_ARTIFACT: linux-x64-musl
-    - name: 'QA without node on host SQ:LATEST'
+    - name: 'QA without node on host Ubuntu SQ:LATEST'
       <<: *CONTAINER_DEFINITION
       <<: *ORCHESTRATOR_CACHE
       env:

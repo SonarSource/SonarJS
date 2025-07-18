@@ -351,7 +351,7 @@ plugin_qa_without_node_task:
       env:
         SQ_VERSION: LATEST_RELEASE
         SONARJS_ARTIFACT: linux-x64-musl
-    - name: 'QA without node on host SQ:LATEST'
+    - name: 'QA without node on host Ubuntu SQ:LATEST'
       <<: *CONTAINER_DEFINITION
       <<: *ORCHESTRATOR_CACHE
       env:
