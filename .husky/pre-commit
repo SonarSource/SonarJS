@@ -1,2 +1,3 @@
 npm run precommit
 node tools/generate-cirrus-from-template.js
+git add .cirrus.yml
