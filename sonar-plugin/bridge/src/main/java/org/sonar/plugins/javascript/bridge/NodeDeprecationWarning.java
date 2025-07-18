@@ -53,7 +53,7 @@ public class NodeDeprecationWarning {
     try (InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(resourceName)) {
       props.load(inputStream);
       return props;
-    } catch (IOException ex) {
+    } catch (IOException | NullPointerException ex) {
       throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
     }
   }
