@@ -239,6 +239,7 @@ test_java_task:
     - mvn install -T1C -Pcoverage,coverage-report
 
 analyze_task:
+  alias: analyze
   <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   depends_on:
     - test_js
