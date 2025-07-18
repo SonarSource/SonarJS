@@ -157,6 +157,23 @@ describe('analyzeProject', () => {
       "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
     );
   });
+
+  it('should handle error from tsconfig in sonarlint context', async () => {
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+    const baseDir = join(fixtures, 'tsconfig-no-files');
+    await analyzeProject({
+      configuration: { baseDir, sonarlint: true },
+      rules: defaultRules,
+    });
+    assert(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string).startsWith(
+          `Failed to analyze TSConfig ${join(baseDir, 'tsconfig.json')}`,
+        ),
+      ),
+    );
+  });
 });
 
 const defaultRules: RuleConfig[] = [
