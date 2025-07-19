@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
@@ -86,7 +87,7 @@ public class AnalysisConsumersTest {
     public void accept(JsFile jsFile) {}
 
     @Override
-    public void doneAnalysis() {}
+    public void doneAnalysis(SensorContext context) {}
 
     @Override
     public boolean isEnabled() {
