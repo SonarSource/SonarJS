@@ -70,7 +70,7 @@
     "@types/functional-red-black-tree": "1.0.6",
     "@types/jsx-ast-utils": "3.3.1",
     "@types/lodash.merge": "4.6.9",
-    "@types/node": "22.16.3",
+    "@types/node": "22.16.5",
     "@types/semver": "7.7.0",
     "@types/tmp": "0.2.6",
     "@types/ws": "8.18.1",
