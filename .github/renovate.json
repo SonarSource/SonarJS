@@ -3,6 +3,7 @@
   "extends": [
     "github>SonarSource/renovate-config:languages-team"
   ],
+  "configMigration": true,
   "schedule": [
     "before 6am every weekday"
   ],
