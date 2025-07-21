@@ -37,6 +37,7 @@ public class NodeDeprecationWarning {
   static final Version MIN_SUPPORTED_NODE_VERSION;
   private static final List<String> RECOMMENDED_NODE_VERSIONS;
   public static final Version RECOMMENDED_NODE_VERSION;
+  private final AnalysisWarningsWrapper analysisWarnings;
 
   static {
     Properties props = loadProperties(NODE_PROPERTIES_FILE);
@@ -47,6 +48,10 @@ public class NodeDeprecationWarning {
     RECOMMENDED_NODE_VERSION = Version.parse(
       RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
     );
+  }
+
+  public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
+    this.analysisWarnings = analysisWarnings;
   }
 
   static Properties loadProperties(String resourceName) {
@@ -65,12 +70,6 @@ public class NodeDeprecationWarning {
     } else {
       throw new IOException("Provided InputStream is null");
     }
-  }
-
-  private final AnalysisWarningsWrapper analysisWarnings;
-
-  public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
-    this.analysisWarnings = analysisWarnings;
   }
 
   void logNodeDeprecation(Version actualNodeVersion) {
