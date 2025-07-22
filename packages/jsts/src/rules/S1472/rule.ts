@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1472/javascript
 
 import { AST, Rule } from 'eslint';
-import estree, { type Position } from 'estree';
+import type { Position, CallExpression, Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
@@ -33,8 +33,8 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
 
     return {
-      CallExpression: (node: estree.Node) => {
-        const call = node as estree.CallExpression;
+      CallExpression: (node: Node) => {
+        const call = node as CallExpression;
         if (call.callee.type !== 'CallExpression' && call.arguments.length === 1) {
           const callee = getCallee(call);
           const parenthesis = sourceCode.getLastTokenBetween(
@@ -73,9 +73,9 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getCallee(call: estree.CallExpression) {
+function getCallee(call: CallExpression) {
   const node = call as TSESTree.CallExpression;
-  return (node.typeArguments ?? node.callee) as estree.Node;
+  return (node.typeArguments ?? node.callee) as Node;
 }
 
 function isClosingParen(token: AST.Token) {
