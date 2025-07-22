@@ -67,7 +67,7 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
 
 function fileIsTest(filePath: string): boolean {
   const testPaths = getTestPaths();
-  if (!testPaths?.some(testPath => filePath.startsWith(testPath))) {
+  if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
     return false;
   }
   if (getTestExclusions()?.some(exclusion => exclusion.match(filePath))) {
@@ -81,7 +81,11 @@ function fileIsTest(filePath: string): boolean {
 }
 
 function fileIsMain(filePath: string): boolean {
-  if (!getSourcesPaths().some(sourcePath => filePath.startsWith(sourcePath))) {
+  if (
+    !getSourcesPaths().some(
+      sourcePath => filePath === sourcePath || filePath.startsWith(`${sourcePath}/`),
+    )
+  ) {
     return false;
   }
 
