@@ -86,7 +86,8 @@ class JavaScriptProfilesDefinitionTest {
           }
         },
       }
-    ).define(context);
+    )
+      .define(context);
   }
 
   @Test
@@ -103,7 +104,7 @@ class JavaScriptProfilesDefinitionTest {
       .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository");
     assertThat(profile.rules().size()).isGreaterThan(100);
 
-    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).hasSize(1);
+    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
 
   private List<String> deprecatedRulesInProfile(
@@ -133,7 +134,7 @@ class JavaScriptProfilesDefinitionTest {
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S5122");
 
-    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).hasSize(1);
+    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }
 
   @Test

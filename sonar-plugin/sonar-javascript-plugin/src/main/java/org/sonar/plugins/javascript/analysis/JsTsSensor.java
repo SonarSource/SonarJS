@@ -127,7 +127,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
       analysis.initialize(context, checks, consumers, analysisWarnings);
       var issues = analysis.analyzeFiles(inputFiles);
-      consumers.doneAnalysis();
+      consumers.doneAnalysis(context.getSensorContext());
       ExternalIssueRepository.dedupeAndSaveESLintIssues(
         this.context.getSensorContext(),
         externalIssues,
@@ -140,7 +140,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
       new PluginTelemetry(context.getSensorContext(), bridgeServer).reportTelemetry();
-      consumers.doneAnalysis();
+      consumers.doneAnalysis(context.getSensorContext());
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
