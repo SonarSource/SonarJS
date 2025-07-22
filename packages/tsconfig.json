@@ -16,7 +16,9 @@
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["../node_modules/@types", "../typings"],
-    "baseUrl": ".",
+    "paths": {
+      "*": ["./*"]
+    },
     "composite": true,
     "allowJs": true
   },
