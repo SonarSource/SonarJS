@@ -18,7 +18,7 @@
 
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import type { Rule } from 'eslint';
-import estree, { type Node } from 'estree';
+import type { NewExpression, Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
@@ -63,7 +63,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
   }),
 );
 
-function checkCfnInstance(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+function checkCfnInstance(expr: NewExpression, ctx: Rule.RuleContext) {
   const properties = getResultOfExpression(ctx, expr).getArgument(PROPERTIES_POSITION);
   const networkInterfaces = properties.getProperty('networkInterfaces');
   const sensitiveNetworkInterface = networkInterfaces.findInArray(result =>
@@ -103,7 +103,7 @@ function getSelectSubnetsCall(subnetId: Result) {
   return current.filter(n => n.type === 'CallExpression' && isCallingMethod(n, 1, 'selectSubnets'));
 }
 
-function checkDatabaseInstance(expr: estree.NewExpression, ctx: Rule.RuleContext) {
+function checkDatabaseInstance(expr: NewExpression, ctx: Rule.RuleContext) {
   const properties = getResultOfExpression(ctx, expr).getArgument(PROPERTIES_POSITION);
   const vpcSubnets = properties.getProperty('vpcSubnets');
   const subnetType = vpcSubnets.getProperty('subnetType');
