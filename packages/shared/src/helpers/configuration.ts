@@ -190,7 +190,7 @@ export function maxFilesForTypeChecking() {
 }
 
 function setTestPaths(testPaths: string[] | undefined) {
-  configuration.tests = normalizePaths(testPaths).map(path => `${path}/`.replace(/\/+$/g, '/'));
+  configuration.tests = normalizePaths(testPaths);
 }
 
 export function getTestPaths() {
@@ -198,9 +198,7 @@ export function getTestPaths() {
 }
 
 function setSourcesPaths(sourcesPaths: string[] | undefined) {
-  configuration.sources = normalizePaths(sourcesPaths).map(path =>
-    `${path}/`.replace(/\/+$/g, '/'),
-  );
+  configuration.sources = normalizePaths(sourcesPaths);
 }
 
 export function getSourcesPaths() {
