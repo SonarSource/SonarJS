@@ -71,6 +71,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -171,16 +172,16 @@ class JsTsSensorTest {
       )
     );
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
-      String tsConfigPath = (String) invocationOnMock.getArguments()[0];
-      FilePredicates predicates = context.fileSystem().predicates();
-      List<String> files = StreamSupport.stream(
-        context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(),
-        false
-      )
-        .map(InputFile::absolutePath)
-        .toList();
-      return new TsConfigFile(tsConfigPath, files, emptyList());
-    });
+        String tsConfigPath = (String) invocationOnMock.getArguments()[0];
+        FilePredicates predicates = context.fileSystem().predicates();
+        List<String> files = StreamSupport.stream(
+          context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(),
+          false
+        )
+          .map(InputFile::absolutePath)
+          .toList();
+        return new TsConfigFile(tsConfigPath, files, emptyList());
+      });
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
       new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
     );
@@ -625,11 +626,10 @@ class JsTsSensorTest {
     setSonarLintRuntime(context);
     createTsConfigFile();
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     createSonarLintSensor().execute(context);
@@ -648,8 +648,10 @@ class JsTsSensorTest {
   void should_raise_a_parsing_error_without_line() throws IOException {
     createVueInputFile();
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
-      new Gson()
-        .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
+      new Gson().fromJson(
+        "{ parsingError: { message: \"Parse error message\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     var tsProgram = new TsProgram("1", List.of(), List.of());
@@ -727,7 +729,7 @@ class JsTsSensorTest {
       public void accept(JsFile jsFile) {}
 
       @Override
-      public void doneAnalysis() {}
+      public void doneAnalysis(SensorContext ctx) {}
 
       @Override
       public boolean isEnabled() {
@@ -841,7 +843,9 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock, times(2)).analyzeJsTs(captor.capture());
-    assertThat(captor.getAllValues()).extracting(c -> c.fileContent()).contains(content);
+    assertThat(captor.getAllValues())
+      .extracting(c -> c.fileContent())
+      .contains(content);
   }
 
   @Test
@@ -1140,8 +1144,10 @@ class JsTsSensorTest {
   void should_fail_fast_with_parsing_error_without_line() throws IOException {
     createVueInputFile();
     when(bridgeServerMock.analyzeJsTs(any())).thenReturn(
-      new Gson()
-        .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
+      new Gson().fromJson(
+        "{ parsingError: { message: \"Parse error message\"} }",
+        AnalysisResponse.class
+      )
     );
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -1294,7 +1300,7 @@ class JsTsSensorTest {
       }
 
       @Override
-      public void doneAnalysis() {
+      public void doneAnalysis(SensorContext ctx) {
         done = true;
       }
     };
@@ -1372,7 +1378,7 @@ class JsTsSensorTest {
       }
 
       @Override
-      public void doneAnalysis() {
+      public void doneAnalysis(SensorContext ctx) {
         done = true;
       }
     };
@@ -1398,7 +1404,7 @@ class JsTsSensorTest {
       }
 
       @Override
-      public void doneAnalysis() {
+      public void doneAnalysis(SensorContext ctx) {
         done = true;
       }
     };
@@ -1462,7 +1468,7 @@ class JsTsSensorTest {
       }
 
       @Override
-      public void doneAnalysis() {
+      public void doneAnalysis(SensorContext ctx) {
         done = true;
       }
     };
@@ -1516,7 +1522,7 @@ class JsTsSensorTest {
       }
 
       @Override
-      public void doneAnalysis() {
+      public void doneAnalysis(SensorContext ctx) {
         done = true;
       }
 
@@ -1635,21 +1641,20 @@ class JsTsSensorTest {
   }
 
   private BridgeServer.AnalysisResponseDTO createResponse() {
-    return new Gson()
-      .fromJson(
-        "{" +
-        createIssues() +
-        "," +
-        createHighlights() +
-        "," +
-        createMetrics() +
-        "," +
-        createCpdTokens() +
-        "," +
-        createHighlightedSymbols() +
-        "}",
-        BridgeServer.AnalysisResponseDTO.class
-      );
+    return new Gson().fromJson(
+      "{" +
+      createIssues() +
+      "," +
+      createHighlights() +
+      "," +
+      createMetrics() +
+      "," +
+      createCpdTokens() +
+      "," +
+      createHighlightedSymbols() +
+      "}",
+      BridgeServer.AnalysisResponseDTO.class
+    );
   }
 
   private String createIssues() {

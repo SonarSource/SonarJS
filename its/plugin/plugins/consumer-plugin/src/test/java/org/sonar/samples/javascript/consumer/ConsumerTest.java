@@ -25,7 +25,7 @@ class ConsumerTest {
   @Test
   void test() {
     var consumer = new Consumer();
-    consumer.doneAnalysis();
+    consumer.doneAnalysis(null);
     assertTrue(consumer.isDone());
   }
 }
