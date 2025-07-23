@@ -118,6 +118,12 @@ function tempt3(name: string, ofAge: boolean) {
       ],
       valid: [
         {
+          code: `
+function foo({ isField }: {isField: boolean}) {
+    return isField ? console.log(1) : console.log(2);
+}`,
+        },
+        {
           name: `RSPEC compliant code example`,
           settings: { sonarRuntime: true },
           code: `function temptAdult(name: string) {
