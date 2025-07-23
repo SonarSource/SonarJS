@@ -68,10 +68,10 @@ describe('tsconfigs', () => {
     expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
 
-  it('should validate the provided TSconfig files when absolute paths are used', async () => {
+  it('should work with absolute paths', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
-    setTsConfigPaths(tsConfigStore.getTsConfigs().map(tsconfig => tsconfig));
+    setTsConfigPaths(tsConfigStore.getTsConfigs());
     tsConfigStore.clearTsConfigCache();
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
