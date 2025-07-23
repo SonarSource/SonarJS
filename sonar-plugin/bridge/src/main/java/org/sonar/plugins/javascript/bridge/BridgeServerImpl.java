@@ -252,14 +252,12 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   void establishWebSocketConnection() {
-    if (client == null) {
-      this.client = new JSWebSocketClient(wsUrl());
-    }
-    if (client.isOpen()) {
+    if (client != null && client.isOpen()) {
       LOG.debug("WebSocket connection already established");
       return;
     }
     try {
+      this.client = new JSWebSocketClient(wsUrl());
       this.client.connectBlocking();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
