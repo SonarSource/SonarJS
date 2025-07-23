@@ -28,6 +28,7 @@ import {
 } from '../helpers/index.js';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
 import * as meta from './generated-meta.js';
+import { TSESTree } from '@typescript-eslint/utils';
 
 type Node = ESTreeNode & Rule.NodeParentExtension;
 
@@ -103,8 +104,9 @@ export const rule: Rule.RuleModule = {
 
           if (definition?.type === 'Parameter') {
             const type = getTypeFromTreeNode(definition.name, context.sourceCode.parserServices);
+            const definitionParent = (definition.name as TSESTree.Identifier).parent;
 
-            if (isBooleanType(type)) {
+            if (isBooleanType(type) && definitionParent?.type !== 'Property') {
               report(
                 context,
                 {
