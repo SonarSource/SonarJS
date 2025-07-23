@@ -58,7 +58,7 @@ class ExternalTSConfigDependencyTest {
     assertThat(
       buildResult.getLogsLines(l ->
         l.equals(
-          "WARN: At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
+          "WARN: At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
         )
       )
     ).hasSize(1);
