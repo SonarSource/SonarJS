@@ -105,6 +105,7 @@ export function setGlobalConfiguration(config?: Configuration) {
   setInclusions(configuration.inclusions);
   setTestExclusions(configuration.testExclusions);
   setTestInclusions(configuration.testInclusions);
+  setTsConfigPaths(configuration.tsConfigPaths);
 }
 
 export function getBaseDir() {
@@ -125,8 +126,8 @@ export function getTsConfigPaths() {
   return configuration.tsConfigPaths ?? [];
 }
 
-export function setTsConfigPaths(tsconfigs: string[]) {
-  configuration.tsConfigPaths = tsconfigs;
+export function setTsConfigPaths(tsconfigs: string[] | undefined) {
+  configuration.tsConfigPaths = normalizePaths(tsconfigs);
 }
 
 function tsExtensions() {
