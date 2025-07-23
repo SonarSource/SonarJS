@@ -96,7 +96,7 @@ async function analyzeProgram(
   }
   if (missingTsConfig) {
     const msg =
-      "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+      "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
     warn(msg);
     results.meta.warnings.push(msg);
   }
