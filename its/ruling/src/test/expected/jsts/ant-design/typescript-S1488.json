@@ -2,17 +2,8 @@
 "ant-design:components/breadcrumb/Breadcrumb.tsx": [
 38
 ],
-"ant-design:components/calendar/generateCalendar.tsx": [
-82
-],
 "ant-design:components/card/Card.tsx": [
 46
-],
-"ant-design:components/message/hooks/useMessage.tsx": [
-20
-],
-"ant-design:components/notification/hooks/useNotification.tsx": [
-19
 ],
 "ant-design:components/steps/index.tsx": [
 83
