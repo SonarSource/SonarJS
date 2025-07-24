@@ -27,11 +27,19 @@ describe('S1488', () => {
       valid: [
         {
           code: `const schemas = schemaFileNames.map((schemaFileName) => {
-        /** @type {import('ajv').AnySchema} 
+        /** @type {import('ajv').AnySchema}
         **/
         const result = parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
         return result;
     });`,
+        },
+        {
+          code: `const makeFooHandler = () => {
+  const fooHandler = () => {
+    //
+  }
+  return fooHandler
+}`,
         },
       ],
       invalid: [
@@ -608,6 +616,20 @@ describe('S1488', () => {
         /** @type {import('ajv').AnySchema} */
         return parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
     });`,
+        },
+        {
+          code: `const makeFooHandler = () => {
+  const fooHandler = () => {
+    //
+  }
+  return fooHandler
+}`,
+          errors: 1,
+          output: `const makeFooHandler = () => {
+  return () => {
+    //
+  }
+}`,
         },
       ],
     });
