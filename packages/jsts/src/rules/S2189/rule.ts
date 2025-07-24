@@ -18,7 +18,7 @@
 
 import { Rule, Scope } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
-import estree from 'estree';
+import type estree from 'estree';
 import {
   childrenOf,
   generateMeta,

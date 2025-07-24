@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5860/javascript
 
 import { AST, Rule, Scope } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import type {
   AmbiguousBackreference,

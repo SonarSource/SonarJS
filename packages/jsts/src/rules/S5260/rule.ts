@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5260/javascript
 
-import estree from 'estree';
+import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { computeGrid, TableCell } from '../helpers/table.js';

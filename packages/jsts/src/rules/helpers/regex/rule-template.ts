@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import type { RegExpVisitor } from '@eslint-community/regexpp/visitor';
 import { isStringRegexMethodCall } from './ast.js';

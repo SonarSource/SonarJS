@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import esprima from 'esprima';
-import estree from 'estree';
+import type estree from 'estree';
 import { Mocha } from '../../../src/rules/helpers/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

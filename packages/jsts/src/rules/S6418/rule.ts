@@ -25,7 +25,7 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { FromSchema } from 'json-schema-to-ts';
-import estree from 'estree';
+import type estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';

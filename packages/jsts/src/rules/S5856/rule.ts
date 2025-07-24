@@ -25,7 +25,7 @@ import {
   isStringLiteral,
   isStringType,
 } from '../helpers/index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import * as meta from './generated-meta.js';
 

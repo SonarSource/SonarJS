@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4423/javascript
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { getFullyQualifiedName, getProperty, getValueOfExpression } from '../helpers/index.js';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [

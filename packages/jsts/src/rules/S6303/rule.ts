@@ -27,7 +27,7 @@ import {
   isUndefined,
 } from '../helpers/index.js';
 
-import estree from 'estree';
+import type estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
 import * as meta from './generated-meta.js';
 

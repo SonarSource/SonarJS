@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
 import { AST, Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import {
   childrenOf,
   EncodedMessage,

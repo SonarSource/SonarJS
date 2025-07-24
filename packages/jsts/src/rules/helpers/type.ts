@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import estree from 'estree';
+import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { RequiredParserServices } from '../helpers/index.js';

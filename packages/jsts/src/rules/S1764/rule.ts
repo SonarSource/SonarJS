@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1764
 
-import estree from 'estree';
+import type estree from 'estree';
 import {
   areEquivalent,
   generateMeta,

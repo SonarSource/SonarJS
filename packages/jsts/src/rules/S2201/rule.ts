@@ -20,7 +20,7 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import type * as TS from 'typescript';
 import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {

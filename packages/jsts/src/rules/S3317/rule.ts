@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3317/javascript
 
 import { Rule, Scope } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import path from 'path';
 import { generateMeta, getVariableFromName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

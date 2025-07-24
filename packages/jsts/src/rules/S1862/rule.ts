@@ -19,7 +19,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';

@@ -16,7 +16,7 @@
  */
 import { type Node } from './ast.js';
 import { AST, SourceCode } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 
 /**
  * Equivalence is implemented by comparing node types and their tokens.

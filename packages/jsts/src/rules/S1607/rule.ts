@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1607
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import {
   generateMeta,
   getDependencies,

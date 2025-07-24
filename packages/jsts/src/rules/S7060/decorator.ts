@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-import estree from 'estree';
+import type estree from 'estree';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

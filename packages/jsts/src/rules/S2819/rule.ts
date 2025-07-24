@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2819/javascript
 
 import { Rule, Scope } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   childrenOf,

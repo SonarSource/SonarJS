@@ -19,7 +19,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isBooleanLiteral } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

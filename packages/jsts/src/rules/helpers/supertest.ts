@@ -21,7 +21,7 @@ import {
   getRequireCalls,
   getFullyQualifiedNameTS,
 } from './index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 

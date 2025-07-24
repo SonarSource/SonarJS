@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule, Scope } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 
 type LiteralValue = string;
 
