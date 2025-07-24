@@ -222,34 +222,26 @@
 "Ghost:core/test/functional/routes/api/posts_spec.js": [
 38,
 39,
-46,
 399,
 474
 ],
 "Ghost:core/test/functional/routes/api/public_api_spec.js": [
 31,
-32,
-60
+32
 ],
 "Ghost:core/test/functional/routes/api/settings_spec.js": [
 37,
-38,
-45
+38
 ],
 "Ghost:core/test/functional/routes/api/slugs_spec.js": [
 36,
-37,
-44
+37
 ],
 "Ghost:core/test/functional/routes/api/users_spec.js": [
 37,
-38,
-71
+38
 ],
 "Ghost:core/test/functional/routes/frontend_spec.js": [
-23,
-24,
-25,
 60,
 124,
 126,
@@ -350,7 +342,6 @@
 61
 ],
 "Ghost:core/test/unit/error_handling_spec.js": [
-374,
 374,
 414
 ],
@@ -490,8 +481,7 @@
 160,
 353,
 355,
-357,
-397
+357
 ],
 "Ghost:core/test/unit/storage_local-file-store_spec.js": [
 50

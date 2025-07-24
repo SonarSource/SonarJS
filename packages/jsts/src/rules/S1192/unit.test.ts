@@ -26,6 +26,20 @@ describe('S1192', () => {
       valid: [
         {
           code: `
+const myObject = {
+  'my-property': 4,
+  myProperty: 5,
+};
+
+myObject['my-property'];
+myObject['my-property'];
+myObject['my-property'];
+// fails no-duplicate-string
+myObject['my-property'];
+`,
+        },
+        {
+          code: `
     console.log("some message");
     console.log("some message");
     console.log('some message');`,

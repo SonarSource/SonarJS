@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = {
         if (
           typeof literal.value === 'string' &&
           parent &&
-          !['ExpressionStatement', 'TSLiteralType'].includes(parent.type)
+          !['ExpressionStatement', 'TSLiteralType', 'MemberExpression'].includes(parent.type)
         ) {
           const stringContent = literal.value.trim();
 
