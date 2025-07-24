@@ -95,7 +95,7 @@ export function getSyntaxHighlighting(sourceCode: SourceCode) {
 }
 
 function highlight(
-  node: AST.Token | ESTree.Comment,
+  node: AST.Token | estree.Comment,
   highlightKind: TextType,
   highlights: SyntaxHighlight[],
 ) {
