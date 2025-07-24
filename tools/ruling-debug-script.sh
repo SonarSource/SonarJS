@@ -19,7 +19,9 @@ diff -rq "$expected_dir" "$actual_dir" | grep "Only in" | while read -r line; do
     dir=$(echo "$line" | awk '{print $3}' | sed 's/://')
     file=$(echo "$line" | awk '{print $4}')
     full_path="$dir/$file"
-    echo "File only in $dir: $file"
-    cat "$full_path"
-    echo "----------------------------------------"
+    if [ -f "$full_path" ]; then
+      echo "File only in $dir: $file"
+      cat "$full_path"
+      echo "----------------------------------------"
+    fi
 done
