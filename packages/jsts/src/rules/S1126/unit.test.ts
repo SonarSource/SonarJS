@@ -38,6 +38,23 @@ describe('S1126', () => {
       `,
         },
         {
+          code: ` 
+        //validator pattern https://github.com/SonarSource/eslint-plugin-sonarjs/issues/330
+        function foo() {
+          if (something) {
+            return false;
+          } 
+          if (something2) {
+            return false;
+          }
+          if (something3) {
+            return false;
+          }
+          return true;
+        }
+      `,
+        },
+        {
           code: `
         function foo() {
           if (something) {

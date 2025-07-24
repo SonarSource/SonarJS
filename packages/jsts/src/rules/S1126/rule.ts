@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1126
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -58,8 +58,18 @@ export const rule: Rule.RuleModule = {
 
       const { parent } = node as TSESTree.IfStatement;
       if (parent?.type === 'BlockStatement') {
-        const ifStmtIndex = parent.body.findIndex(stmt => stmt === node);
-        return isSimpleReturnBooleanLiteral(parent.body[ifStmtIndex + 1] as estree.Statement);
+        for (const [index, stmt] of parent.body.entries()) {
+          if (stmt === node) {
+            return isSimpleReturnBooleanLiteral(parent.body[index + 1] as estree.Statement);
+          }
+          // We check if there are more ifStatements to look for validator patterns
+          else if (
+            stmt.type === 'IfStatement' &&
+            returnsBoolean((stmt as estree.IfStatement).consequent)
+          ) {
+            return false;
+          }
+        }
       }
 
       return false;
