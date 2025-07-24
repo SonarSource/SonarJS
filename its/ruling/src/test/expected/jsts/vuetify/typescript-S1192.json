@@ -1,7 +1,4 @@
 {
-"vuetify:packages/docs/build/api-plugin.ts": [
-62
-],
 "vuetify:packages/docs/src/App.vue": [
 107
 ],
@@ -66,10 +63,6 @@
 "vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
 20,
 81
-],
-"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
-87,
-88
 ],
 "vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
 17
@@ -140,9 +133,6 @@
 15,
 95
 ],
-"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
-42
-],
 "vuetify:packages/vuetify/src/components/VRating/__tests__/VRating.spec.cy.tsx": [
 14,
 16,
@@ -162,12 +152,6 @@
 53,
 55,
 201
-],
-"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
-24
-],
-"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.tsx": [
-16
 ],
 "vuetify:packages/vuetify/src/components/VSlider/__tests__/VSlider.spec.cy.tsx": [
 21,
@@ -242,13 +226,6 @@
 ],
 "vuetify:packages/vuetify/src/iconsets/mdi.ts": [
 13
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
-20,
-21
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
-45
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 64
