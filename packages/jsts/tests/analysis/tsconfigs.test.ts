@@ -68,6 +68,16 @@ describe('tsconfigs', () => {
     expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
 
+  it('should work with absolute paths', async () => {
+    setGlobalConfiguration({ baseDir: fixtures });
+    await initFileStores(fixtures);
+    setTsConfigPaths(tsConfigStore.getTsConfigs());
+    tsConfigStore.clearTsConfigCache();
+    await initFileStores(fixtures);
+    expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
+    expect(tsConfigStore.getCacheOrigin()).toEqual('property');
+  });
+
   it('should write tsconfig file', async () => {
     const { filename } = await tsConfigStore.writeTSConfigFile({
       compilerOptions: { allowJs: true, noImplicitAny: true },
@@ -232,7 +242,9 @@ describe('tsconfigs', () => {
 
     expect(
       (console.error as Mock<typeof console.error>).mock.calls.map(call => call.arguments[0]),
-    ).toContain('Failed to find any of the provided tsconfig.json files: tsconfig.fake.json');
+    ).toContain(
+      `Failed to find any of the provided tsconfig.json files: ${join(fixtures, 'tsconfig.fake.json')}`,
+    );
   });
 
   it('should add tsconfig referenced by name', async () => {

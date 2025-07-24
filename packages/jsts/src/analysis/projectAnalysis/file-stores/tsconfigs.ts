@@ -29,8 +29,7 @@ import {
   shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import { join, basename, normalize } from 'node:path/posix';
+import { basename, normalize } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import type { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
@@ -234,11 +233,10 @@ export class TsConfigStore implements FileStore {
     } as TsConfigJson;
   }
 
-  setup(baseDir: string) {
+  setup() {
     this.foundPropertyTsConfigs = [];
     this.foundLookupTsConfigs = [];
-    this.providedPropertyTsConfigs = getTsConfigPaths().map(tsConfigPath => {
-      const tsConfig = toUnixPath(join(baseDir, tsConfigPath.trim()));
+    this.providedPropertyTsConfigs = getTsConfigPaths().map(tsConfig => {
       return {
         path: tsConfig,
         pattern: new Minimatch(tsConfig, { nocase: true, matchBase: true, dot: true }),
