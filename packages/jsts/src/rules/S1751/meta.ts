@@ -14,5 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
-export const eslintId = 'no-one-iteration-loop';
+export const implementation = 'external';
+export const eslintId = 'no-unreachable-loop';
+export const externalPlugin = 'eslint';
