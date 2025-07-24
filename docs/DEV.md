@@ -52,7 +52,7 @@ into the directory with the expected issues `its/ruling/src/test/resources/expec
 
 From the project root, run: `npm run ruling-sync`
 
-You can review the Ruling difference by running `diff -rq its/ruling/src/test/expected/jsts packages/ruling/actual/jsts`.
+You can review the Ruling difference by running `sh tools/ruling-debug-script.sh`.
 For CSS, run `diff -rq its/ruling/src/test/expected/css `
 
 #### CSS (and old way for JS/TS)

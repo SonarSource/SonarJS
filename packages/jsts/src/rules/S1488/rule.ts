@@ -17,7 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isIdentifier, isRequiredParserServices } from '../helpers/index.js';
+import {
+  generateMeta,
+  isFunction,
+  isIdentifier,
+  isRequiredParserServices,
+} from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
@@ -59,8 +64,10 @@ export const rule: Rule.RuleModule = {
             );
           });
 
-          if (hasJSDoc((lastButOne as estree.VariableDeclaration).declarations[0].id)) {
-            // The temporary object is probably due to adding the jsdoc. Skip in this case.
+          const id = (lastButOne as estree.VariableDeclaration).declarations[0].id;
+          if (hasJSDoc(id) || isNamedFunctionExpression(id)) {
+            // 1) The temporary variable might be due to adding the jsdoc. Skip in this case.
+            // 2) The temporary variable might be a name of a function, which helps with recognizing in a call stack.
             return;
           }
 
@@ -134,6 +141,14 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       return !!getJSDocType(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+    }
+
+    function isNamedFunctionExpression(node: estree.Node) {
+      const services = context.sourceCode.parserServices;
+      if (!isRequiredParserServices(services)) {
+        return false;
+      }
+      return isFunction(node, services);
     }
   },
 };
