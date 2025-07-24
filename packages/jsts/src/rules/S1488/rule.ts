@@ -17,10 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isIdentifier } from '../helpers/index.js';
+import { generateMeta, isIdentifier, isRequiredParserServices } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import * as meta from './generated-meta.js';
+import { getJSDocType } from 'typescript';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -57,6 +58,11 @@ export const rule: Rule.RuleModule = {
                 undefined
             );
           });
+
+          if (hasJSDoc((lastButOne as estree.VariableDeclaration).declarations[0].id)) {
+            // The temporary object is probably due to adding the jsdoc. Skip in this case.
+            return;
+          }
 
           // there must be only one "read" - in `return` or `throw`
           if (sameVariable && sameVariable.references.filter(ref => ref.isRead()).length === 1) {
@@ -120,6 +126,14 @@ export const rule: Rule.RuleModule = {
       } else {
         return currentScopeVariables.concat(variableScope.variables);
       }
+    }
+
+    function hasJSDoc(node: estree.Node) {
+      const services = context.sourceCode.parserServices;
+      if (!isRequiredParserServices(services)) {
+        return false;
+      }
+      return !!getJSDocType(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
     }
   },
 };

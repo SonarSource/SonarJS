@@ -15,15 +15,23 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1488', () => {
   it('S1488', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
+    const ruleTester = new RuleTester();
 
     ruleTester.run('prefer-immediate-return', rule, {
       valid: [
+        {
+          code: `const schemas = schemaFileNames.map((schemaFileName) => {
+        /** @type {import('ajv').AnySchema} 
+        **/
+        const result = parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+        return result;
+    });`,
+        },
         {
           code: `
         function thrown_ok() {
