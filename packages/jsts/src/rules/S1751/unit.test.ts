@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './rule.js';
+import { rule } from './index.js';
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
@@ -22,7 +22,7 @@ describe('S1751', () => {
   it('S1751', () => {
     const ruleTester = new DefaultParserRuleTester();
 
-    ruleTester.run('no-one-iteration-loop', rule, {
+    ruleTester.run('no-unreachable-loop', rule, {
       valid: [
         valid(`
     while (cond) {
@@ -84,19 +84,6 @@ describe('S1751', () => {
     for (p in obj) {
       foo();
       continue;
-    }`),
-
-        valid(`
-    function foo() {
-      for(p of arr) {
-        return p;  // Compliant: used to return the first element of an array
-      }
-    }`),
-
-        valid(`
-    for (p in obj) {
-      bar();
-      break; // Compliant: often used to check whether an object is "empty"
     }`),
 
         valid(`
@@ -285,7 +272,7 @@ describe('S1751', () => {
         code,
         errors: [
           {
-            messageId: 'refactorLoop',
+            messageId: 'invalid',
           },
         ],
       };
