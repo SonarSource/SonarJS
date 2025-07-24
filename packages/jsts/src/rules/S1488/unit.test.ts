@@ -15,11 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1488', () => {
   it('S1488', () => {
+    const noTypecheckingRuleTester = new NoTypeCheckingRuleTester();
     const ruleTester = new RuleTester();
 
     ruleTester.run('prefer-immediate-return', rule, {
@@ -32,6 +33,23 @@ describe('S1488', () => {
         return result;
     });`,
         },
+      ],
+      invalid: [
+        {
+          code: `const schemas = schemaFileNames.map((schemaFileName) => {
+        const result = parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+        return result;
+    });`,
+          errors: 1,
+          output: `const schemas = schemaFileNames.map((schemaFileName) => {
+        return parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+    });`,
+        },
+      ],
+    });
+
+    noTypecheckingRuleTester.run('prefer-immediate-return', rule, {
+      valid: [
         {
           code: `
         function thrown_ok() {
@@ -578,6 +596,18 @@ describe('S1488', () => {
           return /* commentInTheMiddle2 */ 42;   // commentOnTheLine2
           // comment3
         }`,
+        },
+        {
+          code: `const schemas = schemaFileNames.map((schemaFileName) => {
+        /** @type {import('ajv').AnySchema} */
+        const result = parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+        return result;
+    });`,
+          errors: 1,
+          output: `const schemas = schemaFileNames.map((schemaFileName) => {
+        /** @type {import('ajv').AnySchema} */
+        return parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+    });`,
         },
       ],
     });
