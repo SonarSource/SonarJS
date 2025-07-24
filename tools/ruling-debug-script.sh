@@ -1,7 +1,9 @@
 #!/bin/bash
 
+default_actual_dir="packages/ruling/actual/jsts"
+
 expected_dir="its/ruling/src/test/expected/jsts"
-actual_dir="packages/ruling/actual/jsts"
+actual_dir="${1:-$default_actual_dir}"
 
 # Differing files
 diff -rq "$expected_dir" "$actual_dir" | grep "differ" | while read -r line; do
