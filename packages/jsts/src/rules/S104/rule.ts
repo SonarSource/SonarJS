@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S104/javascript
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.js';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';

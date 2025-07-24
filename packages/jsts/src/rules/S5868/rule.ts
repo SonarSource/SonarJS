@@ -20,7 +20,7 @@ import { AST, Rule } from 'eslint';
 import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.js';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
-import estree from 'estree';
+import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getPatternFromNode } from '../helpers/regex/extract.js';

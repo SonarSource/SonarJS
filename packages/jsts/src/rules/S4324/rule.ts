@@ -23,7 +23,7 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../helpers/index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import ts from 'typescript';
 import * as meta from './generated-meta.js';
 

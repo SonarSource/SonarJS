@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6299/javascript
 
-import estree from 'estree';
+import type estree from 'estree';
 import type { Rule } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 import { generateMeta } from '../helpers/index.js';

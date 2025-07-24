@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4622/javascript
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isIdentifier, UTILITY_TYPES } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';

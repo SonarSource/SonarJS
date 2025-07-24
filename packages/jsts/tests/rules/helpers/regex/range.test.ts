@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import esprima from 'esprima';
-import estree from 'estree';
+import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import type { Rule } from 'eslint';
 import { SourceCode } from 'eslint';

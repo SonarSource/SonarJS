@@ -19,7 +19,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, RuleContext } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement';

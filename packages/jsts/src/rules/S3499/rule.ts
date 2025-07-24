@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3499/javascript
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { generateMeta, IssueLocation, report, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

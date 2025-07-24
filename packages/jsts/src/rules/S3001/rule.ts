@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3001/javascript
 
 import { Rule, Scope } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

@@ -24,7 +24,7 @@ import {
   RuleContext,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([

@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1313/javascript
 
 import type { Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import { isIP } from 'net';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

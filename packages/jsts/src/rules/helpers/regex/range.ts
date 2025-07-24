@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AST } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { last, isRegexLiteral, isStringLiteral } from '../index.js';
 import { tokenizeString } from './tokenizer.js';

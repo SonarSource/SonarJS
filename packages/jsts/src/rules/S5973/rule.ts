@@ -25,7 +25,7 @@ import {
   isMethodInvocation,
   Mocha,
 } from '../helpers/index.js';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

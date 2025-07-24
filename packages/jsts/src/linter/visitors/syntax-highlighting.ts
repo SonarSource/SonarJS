@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceCode } from 'eslint';
-import ESTree from 'estree';
+import type estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { extractTokensAndComments, Location } from './metrics/helpers/index.js';
 

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
-import estree from 'estree';
+import type estree from 'estree';
 import { AST, Rule } from 'eslint';
 import {
   FunctionNodeType,

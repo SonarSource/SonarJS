@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import estree from 'estree';
+import type estree from 'estree';
 import { generateMeta, isPresentationTable } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

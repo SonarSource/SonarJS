@@ -26,7 +26,7 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { AST, Rule } from 'eslint';
-import estree from 'estree';
+import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const message =
