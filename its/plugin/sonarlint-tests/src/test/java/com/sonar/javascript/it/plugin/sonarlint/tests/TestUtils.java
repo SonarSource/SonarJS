@@ -16,18 +16,12 @@
  */
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
 public class TestUtils {
 
