@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>SonarSource/renovate-config:languages-team"],
   "configMigration": true,
-  "schedule": ["before 6am every weekday"],
   "enabledManagers": ["github-actions", "maven", "npm"],
   "dockerfile": {
     "enabled": true
