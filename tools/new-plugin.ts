@@ -63,6 +63,7 @@ async function processRules() {
       {
         ...config,
       },
+      true,
     );
   }
 }

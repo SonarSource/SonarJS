@@ -1,0 +1,13 @@
+{
+  "title": "Description",
+  "tags": [],
+  "type": "BUG",
+  "status": "ready",
+  "scope": "Main",
+  "compatibleLanguages": [
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

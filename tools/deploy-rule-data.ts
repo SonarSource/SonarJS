@@ -16,7 +16,7 @@
  */
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -58,14 +58,14 @@ syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames)
 syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 
 function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
-  rmSync(targetFolder, {
-    recursive: true,
-    force: true,
-  });
-
-  mkdirSync(targetFolder, {
-    recursive: true,
-  });
+  // rmSync(targetFolder, {
+  //   recursive: true,
+  //   force: true,
+  // });
+  //
+  // mkdirSync(targetFolder, {
+  //   recursive: true,
+  // });
 
   const sonarWayRuleNames: Array<string> = [];
 
@@ -73,16 +73,20 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
     for (const extension of ['json', 'html']) {
       const fileName = `${ruleName}.${extension}`;
 
-      copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+      if (existsSync(join(sourceFolder, fileName))) {
+        copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+      }
     }
-    const manifest: {
-      defaultQualityProfiles: Array<string>;
-    } = JSON.parse(readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'));
+    if (existsSync(join(targetFolder, `${ruleName}.json`))) {
+      const manifest: {
+        defaultQualityProfiles: Array<string>;
+      } = JSON.parse(readFileSync(join(targetFolder, `${ruleName}.json`), 'utf-8'));
 
-    const qualityProfileName = manifest.defaultQualityProfiles[0];
+      const qualityProfileName = manifest.defaultQualityProfiles[0];
 
-    if (qualityProfileName === 'Sonar way') {
-      sonarWayRuleNames.push(ruleName);
+      if (qualityProfileName === 'Sonar way') {
+        sonarWayRuleNames.push(ruleName);
+      }
     }
   }
 
