@@ -1,0 +1,20 @@
+{
+  "name": "@angular-eslint/eslint-plugin",
+  "prefix": "@angular-eslint",
+  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nconst { rules } = pkg;",
+  "languages": ["ts"],
+  "scope": "Main",
+  "rules": [
+    "contextual-lifecycle",
+    "no-empty-lifecycle-method",
+    "no-input-rename",
+    "no-inputs-metadata-property",
+    "no-output-native",
+    "no-output-on-prefix",
+    "no-output-rename",
+    "no-outputs-metadata-property",
+    "prefer-inject",
+    "prefer-standalone",
+    "use-pipe-transform-interface"
+  ]
+}
