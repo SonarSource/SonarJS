@@ -16,7 +16,7 @@
  */
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -75,7 +75,6 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
 
       copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
     }
-
     const manifest: {
       defaultQualityProfiles: Array<string>;
     } = JSON.parse(readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'));
