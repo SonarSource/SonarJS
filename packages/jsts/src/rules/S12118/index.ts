@@ -16,5 +16,6 @@
  */
 
 import pkg from '@angular-eslint/eslint-plugin';
-const { rules } = pkg;
+import { Rule } from 'eslint';
+const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
 export const rule = rules['contextual-lifecycle'];
