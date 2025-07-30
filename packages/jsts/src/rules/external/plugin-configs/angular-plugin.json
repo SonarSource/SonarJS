@@ -1,7 +1,7 @@
 {
   "name": "@angular-eslint/eslint-plugin",
   "prefix": "@angular-eslint",
-  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nconst { rules } = pkg;",
+  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nimport { Rule } from \"eslint\";\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
   "languages": ["ts"],
   "scope": "Main",
   "rules": [
