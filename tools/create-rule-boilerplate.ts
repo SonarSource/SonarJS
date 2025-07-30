@@ -23,6 +23,22 @@ import { generateMetaForRule } from './generate-eslint-meta.js';
 import { generateJavaCheckClass } from './generate-java-rule-classes.js';
 import { updateIndexes } from './generate-rule-indexes.js';
 
+const JS_RULE_DATA_FOLDER = join(
+  'sonar-plugin',
+  'javascript-checks',
+  'src',
+  'main',
+  'resources',
+  'org',
+  'sonar',
+  'l10n',
+  'javascript',
+  'rules',
+  'javascript',
+);
+
+const MISSING_RSPEC_JS_RULE_DATA_FOLDER = join('resources', 'rule-data', 'javascript');
+
 export async function createNewRule(
   sonarKey: string,
   eslintId: string,
@@ -31,10 +47,32 @@ export async function createNewRule(
   scope: 'Main' | 'Tests',
   hasSecondaries?: boolean,
   externalPackage?: { name: string; prefix: string; rulesImport?: string },
+  missingRspec?: boolean,
 ) {
   const ruleFolder = join(RULES_FOLDER, sonarKey);
 
   await mkdir(ruleFolder, { recursive: true });
+
+  if (missingRspec) {
+    await writeFile(
+      join(JS_RULE_DATA_FOLDER, `${sonarKey}.json`),
+      JSON.stringify(
+        {
+          title: 'Description',
+          tags: [],
+          type: 'BUG',
+          status: 'ready',
+          scope: scope,
+          compatibleLanguages: languages,
+          quickfix: undefined,
+          defaultQualityProfiles: ['Sonar way'],
+        },
+        null,
+        2,
+      ),
+    );
+    await writeFile(join(JS_RULE_DATA_FOLDER, `${sonarKey}.html`), '<html></html>');
+  }
 
   if (implementation !== 'external') {
     // index.ts
