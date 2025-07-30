@@ -66,6 +66,8 @@ export async function createNewRule(
           compatibleLanguages: languages,
           quickfix: undefined,
           defaultQualityProfiles: ['Sonar way'],
+          defaultSeverity: 'Minor',
+          sqKey: sonarKey,
         },
         null,
         2,
