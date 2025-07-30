@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
-import pkg from '@angular-eslint/eslint-plugin';
-import { Rule } from 'eslint';
-const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
-export const rule = rules['no-output-rename'];
+// https://sonarsource.github.io/rspec/#/rspec/S7641/javascript
+export const implementation = 'external';
+export const eslintId = 'contextual-lifecycle';
+export const externalPlugin = '@angular-eslint';

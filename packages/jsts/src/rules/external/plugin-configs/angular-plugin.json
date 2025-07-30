@@ -5,16 +5,9 @@
   "languages": ["ts"],
   "scope": "Main",
   "rules": [
-    "contextual-lifecycle",
-    "no-empty-lifecycle-method",
-    "no-input-rename",
-    "no-inputs-metadata-property",
-    "no-output-native",
-    "no-output-on-prefix",
-    "no-output-rename",
-    "no-outputs-metadata-property",
-    "prefer-inject",
-    "prefer-standalone",
-    "use-pipe-transform-interface"
+    {
+      "name": "contextual-lifecycle",
+      "sonarKey": "S7641"
+    }
   ]
 }

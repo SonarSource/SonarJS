@@ -19,13 +19,18 @@ import { resolve } from 'node:path/posix';
 import { createNewRule } from './create-rule-boilerplate.js';
 import { readFile } from 'fs/promises';
 
+type RuleConfig = {
+  name: string;
+  sonarKey: string;
+};
+
 type PluginConfig = {
   name: string;
   prefix: string;
   rulesImport: string;
   languages: ('js' | 'ts')[];
   scope: 'Main' | 'Tests';
-  rules: string[];
+  rules: RuleConfig[];
 };
 
 // Get the JSON path from command-line arguments
@@ -40,22 +45,13 @@ const jsonPath = resolve(args[0]);
 const fileContent = await readFile(jsonPath, 'utf-8');
 const config: PluginConfig = JSON.parse(fileContent);
 
-function stringToFiveDigitNumber(input: string): number {
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    hash = (hash << 5) - hash + input.charCodeAt(i);
-    hash |= 0; // Convert to 32bit integer
-  }
-  // Map hash to 10000–99999
-  return Math.abs(hash % 90000) + 10000;
-}
-
 // Helper to run all rule creations in parallel
 async function processRules() {
   for (const rule of config.rules) {
+    const { name: ruleName, sonarKey } = rule;
     await createNewRule(
-      `S${stringToFiveDigitNumber(config.prefix + rule)}`, // sonarKey
-      rule,
+      sonarKey, // sonarKey
+      ruleName,
       'external',
       config.languages,
       config.scope,
@@ -63,7 +59,6 @@ async function processRules() {
       {
         ...config,
       },
-      true,
     );
   }
 }
