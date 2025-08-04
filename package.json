@@ -113,7 +113,7 @@
     "@typescript-eslint/parser": "8.38.0",
     "@typescript-eslint/type-utils": "8.38.0",
     "@typescript-eslint/utils": "8.38.0",
-    "@typescript/native-preview": "7.0.0-dev.20250729.2",
+    "@typescript/native-preview": "7.0.0-dev.20250804.1",
     "builtin-modules": "3.3.0",
     "bytes": "3.1.2",
     "eslint": "9.31.0",
