@@ -13,6 +13,7 @@
 "TypeScript:src/compiler/checker.ts": [
 972,
 1406,
+1771,
 1828,
 1848,
 2083,
@@ -50,6 +51,7 @@
 16104,
 17374,
 19263,
+21672,
 23163,
 23169,
 23561
@@ -183,6 +185,7 @@
 ],
 "TypeScript:src/compiler/utilities.ts": [
 88,
+129,
 1477,
 1577,
 1639,
@@ -251,6 +254,8 @@
 1507
 ],
 "TypeScript:src/server/lsHost.ts": [
+75,
+81,
 192,
 197
 ],
