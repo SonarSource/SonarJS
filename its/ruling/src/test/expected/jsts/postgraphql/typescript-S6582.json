@@ -5,6 +5,10 @@
 "postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
 31
 ],
+"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
+106,
+107
+],
 "postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
 46
 ],

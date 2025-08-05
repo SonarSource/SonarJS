@@ -1,5 +1,8 @@
 {
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 217
+],
+"vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
+59
 ]
 }
