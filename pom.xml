@@ -63,7 +63,7 @@
     <!-- Version corresponds to SQ 9.9 LTS -->
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
-    <assertj.version>3.27.3</assertj.version>
+    <assertj.version>3.27.4</assertj.version>
     <jgit.version>7.3.0.202506031305-r</jgit.version>
     <junit.version>5.13.4</junit.version>
     <mockito.version>5.18.0</mockito.version>
