@@ -1,5 +1,5 @@
 {
-  "title": "Angular lifecycle methods should be used in the correct context",
+  "title": "Components and directives should not use the \"inputs\" metadata property",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -8,18 +8,18 @@
   },
   "tags": [
     "angular",
-    "lifecycle"
+    "style"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-7641",
-  "sqKey": "S7641",
+  "ruleSpecification": "RSPEC-7650",
+  "sqKey": "S7650",
   "scope": "Main",
-  "quickfix": "covered",
+  "quickfix": "unknown",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "BLOCKER"
     },
-    "attribute": "LOGICAL"
+    "attribute": "CONVENTIONAL"
   },
   "extra": {
     "requiredDependency": [
