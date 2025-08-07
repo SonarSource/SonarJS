@@ -1,25 +1,25 @@
 {
-  "title": "Angular lifecycle methods should be used in the correct context",
+  "title": "Output bindings should not be aliased",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5 min"
+    "constantCost": "2 min"
   },
   "tags": [
     "angular",
-    "lifecycle"
+    "convention"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-7641",
-  "sqKey": "S7641",
+  "ruleSpecification": "RSPEC-7653",
+  "sqKey": "S7653",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "BLOCKER"
     },
-    "attribute": "LOGICAL"
+    "attribute": "CONVENTIONAL"
   },
   "extra": {
     "requiredDependency": [

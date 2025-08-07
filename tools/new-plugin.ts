@@ -21,7 +21,7 @@ import { readFile } from 'fs/promises';
 
 type RuleConfig = {
   name: string;
-  sonarKey: string;
+  sqkey: string;
 };
 
 type PluginConfig = {
@@ -48,9 +48,9 @@ const config: PluginConfig = JSON.parse(fileContent);
 // Helper to run all rule creations in parallel
 async function processRules() {
   for (const rule of config.rules) {
-    const { name: ruleName, sonarKey } = rule;
+    const { name: ruleName, sqkey } = rule;
     await createNewRule(
-      sonarKey, // sonarKey
+      sqkey, // sonarKey
       ruleName,
       'external',
       config.languages,

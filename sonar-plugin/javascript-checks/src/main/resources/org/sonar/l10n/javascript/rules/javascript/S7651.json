@@ -1,5 +1,5 @@
 {
-  "title": "Angular lifecycle methods should be used in the correct context",
+  "title": "Output bindings should not be named as standard DOM events",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -7,19 +7,18 @@
     "constantCost": "5 min"
   },
   "tags": [
-    "angular",
-    "lifecycle"
+    "angular"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-7641",
-  "sqKey": "S7641",
+  "ruleSpecification": "RSPEC-7651",
+  "sqKey": "S7651",
   "scope": "Main",
-  "quickfix": "covered",
+  "quickfix": "unknown",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "BLOCKER"
     },
-    "attribute": "LOGICAL"
+    "attribute": "CLEAR"
   },
   "extra": {
     "requiredDependency": [
