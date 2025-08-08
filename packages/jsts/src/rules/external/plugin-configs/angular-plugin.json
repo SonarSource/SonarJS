@@ -1,0 +1,86 @@
+{
+  "name": "@angular-eslint/eslint-plugin",
+  "prefix": "@angular-eslint",
+  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
+  "languages": ["ts"],
+  "scope": "Main",
+  "rules": [
+    {
+      "name": "contextual-lifecycle",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/refs/heads/main/packages/eslint-plugin/docs/rules/contextual-lifecycle.md",
+      "sqkey": "S7641",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5251",
+      "quickfix": "covered"
+    },
+    {
+      "name": "no-empty-lifecycle-method",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/refs/heads/main/packages/eslint-plugin/docs/rules/no-empty-lifecycle-method.md",
+      "sqkey": "S7647",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5261",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-input-rename",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-input-rename.md",
+      "sqkey": "S7649",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5263",
+      "quickfix": "covered"
+    },
+    {
+      "name": "no-inputs-metadata-property",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-inputs-metadata-property.md",
+      "sqkey": "S7650",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5264",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-output-native",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-output-native.md",
+      "sqkey": "S7651",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5265",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-output-on-prefix",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-output-on-prefix.md",
+      "sqkey": "S7652",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5266",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-output-rename",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-output-rename.md",
+      "sqkey": "S7653",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5267",
+      "quickfix": "covered"
+    },
+    {
+      "name": "no-outputs-metadata-property",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/no-outputs-metadata-property.md",
+      "sqkey": "S7654",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5268",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "use-lifecycle-interface",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/use-lifecycle-interface.md",
+      "sqkey": "S7655",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5269",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "prefer-standalone",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/refs/heads/main/packages/eslint-plugin/docs/rules/prefer-standalone.md",
+      "sqkey": "S7648",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5262",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "use-pipe-transform-interface",
+      "link": "https://raw.githubusercontent.com/angular-eslint/angular-eslint/main/packages/eslint-plugin/docs/rules/use-pipe-transform-interface.md",
+      "sqkey": "S7656",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5270",
+      "quickfix": "covered"
+    }
+  ]
+}
