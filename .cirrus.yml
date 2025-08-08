@@ -207,6 +207,8 @@ build_eslint_task:
     - source cirrus-env BUILD
     - node --version
     - npm run eslint-plugin:build
+    - echo "test"
+
 
 knip_task:
   <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
