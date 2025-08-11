@@ -19,7 +19,7 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import pkg from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils-x';
 const { getLiteralPropValue, getProp } = pkg;
 
 import { computeGrid } from '../helpers/table.js';

@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-import pkg from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils-x';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 import { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 
