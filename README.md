@@ -1,6 +1,6 @@
 [![Quality Gate](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=alert_status)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.javascript%3Ajavascript) [![Coverage](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=coverage)](https://next.sonarqube.com/sonarqube/component_measures/domain/Coverage?id=org.sonarsource.javascript%3Ajavascript)
 
-This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wiki/Static_program_analysis) for the JavaScript, TypeScript, and CSS languages to produce [Clean code](https://www.sonarsource.com/solutions/clean-code/).
+This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wiki/Static_program_analysis) for the JavaScript, TypeScript, and CSS languages to deliver integrated code quality and security.
 
 :arrow_right: [Have some feedback?](#support)
 
