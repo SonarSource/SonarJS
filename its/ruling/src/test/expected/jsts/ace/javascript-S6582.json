@@ -22,6 +22,9 @@
 ],
 "ace:demo/kitchen-sink/util.js": [
 28,
+34,
+131,
+134,
 149,
 171
 ],
@@ -127,11 +130,13 @@
 ],
 "ace:lib/ace/worker/worker_client.js": [
 132,
+138,
 172,
 174
 ],
 "ace:lib/ace/worker/worker_client_v2.js": [
 145,
+151,
 185
 ],
 "ace:lib/ace/worker/worker_v2.js": [
@@ -187,6 +192,9 @@
 34,
 79,
 86
+],
+"ace:src/edit_session/fold_line.js": [
+143
 ],
 "ace:src/edit_session/folding.js": [
 586,
@@ -325,6 +333,10 @@
 141,
 147
 ],
+"ace:src/layer/gutter.js": [
+38,
+44
+],
 "ace:src/layer/text.js": [
 501,
 516,
@@ -338,6 +350,7 @@
 ],
 "ace:src/lib/dom.js": [
 15,
+171,
 189,
 240,
 240
@@ -500,6 +513,9 @@
 ],
 "ace:src/test/mockrenderer.js": [
 75
+],
+"ace:src/tokenizer_dev.js": [
+94
 ],
 "ace:src/tooltip.js": [
 109

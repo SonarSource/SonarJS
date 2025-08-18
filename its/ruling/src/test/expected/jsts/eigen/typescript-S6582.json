@@ -100,6 +100,9 @@
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarousel.tsx": [
 173
 ],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselContext.tsx": [
+104
+],
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tsx": [
 96
 ],
