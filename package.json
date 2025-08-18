@@ -101,10 +101,10 @@
     "typedoc": "0.28.9"
   },
   "dependencies": {
-    "@babel/core": "7.28.0",
+    "@babel/core": "7.28.3",
     "@babel/eslint-parser": "7.28.0",
     "@babel/plugin-proposal-decorators": "7.28.0",
-    "@babel/preset-env": "7.28.0",
+    "@babel/preset-env": "7.28.3",
     "@babel/preset-flow": "7.27.1",
     "@babel/preset-react": "7.27.1",
     "@eslint-community/regexpp": "4.12.1",
