@@ -110,11 +110,7 @@ npm_cache_definition: &NPM_CACHE
   npm_cache:
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
-    populate_script: |
-      echo "Installing @oxc-resolver/binding-linux-x64-gnu@11.5.2"
-      npm install --loglevel=error --prefer-offline --no-audit --progress=false @oxc-resolver/binding-linux-x64-gnu@11.5.2
-      echo "Installing dependencies"
-      npm ci
+    populate_script: npm ci
 
 npm_win_cache_definition: &NPM_WIN_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
