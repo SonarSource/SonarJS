@@ -96,7 +96,7 @@
     "prettier-plugin-java": "2.7.4",
     "pretty-quick": "4.2.2",
     "rimraf": "6.0.1",
-    "tsx": "4.20.3",
+    "tsx": "4.20.4",
     "type-fest": "4.41.0",
     "typedoc": "0.28.10"
   },
