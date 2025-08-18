@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+
+import type { RulesMeta } from '@eslint/core';
 import type estree from 'estree';
 import { getFullyQualifiedName } from '../module.js';
 import {
@@ -67,7 +69,7 @@ type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
  */
 export function AwsCdkTemplate(
   mapOrFactory: AwsCdkConsumerMap | ((ctx: Rule.RuleContext) => AwsCdkConsumerMap),
-  meta: Rule.RuleMetaData = {},
+  meta: RulesMeta = {},
 ): Rule.RuleModule {
   return {
     meta,

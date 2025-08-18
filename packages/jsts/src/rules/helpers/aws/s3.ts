@@ -26,6 +26,7 @@ import {
   toSecondaryLocation,
 } from '../index.js';
 import { normalizeFQN } from './cdk.js';
+import { RulesMeta } from '@eslint/core';
 
 /**
  * A rule template for AWS S3 Buckets
@@ -41,7 +42,7 @@ import { normalizeFQN } from './cdk.js';
  */
 export function S3BucketTemplate(
   callback: (bucketConstructor: estree.NewExpression, context: Rule.RuleContext) => void,
-  meta: Rule.RuleMetaData = {},
+  meta: RulesMeta = {},
 ): Rule.RuleModule {
   return {
     meta,

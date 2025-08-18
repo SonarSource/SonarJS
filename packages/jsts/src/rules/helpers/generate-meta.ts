@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type { RulesMeta } from '@eslint/core';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { ESLintConfiguration } from './configs.js';
 import merge from 'lodash.merge';
@@ -31,10 +32,7 @@ export type SonarMeta = {
   fields?: ESLintConfiguration;
 };
 
-export function generateMeta(
-  sonarMeta: SonarMeta,
-  ruleMeta?: Rule.RuleMetaData,
-): Rule.RuleMetaData {
+export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {
   if (sonarMeta.meta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${sonarMeta.meta.docs!.url}`,
