@@ -68,7 +68,7 @@ export function createOptions(filename: string) {
     filename,
     allowInlineConfig: true,
     getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.ruleId,
-    patchDirectives: ({ disableDirectives }: { disableDirectives: Directive[] }) =>
+    patchDirectives: (disableDirectives: Directive[]) =>
       disableDirectives.forEach(directive => {
         if (!eslintMapping[getRuleId(directive.ruleId)]) {
           return;
