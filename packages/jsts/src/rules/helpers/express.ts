@@ -25,6 +25,7 @@ import {
   report,
   toSecondaryLocation,
 } from './index.js';
+import { RulesMeta } from '@eslint/core';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
@@ -133,7 +134,7 @@ export namespace Express {
       middlewareCall: estree.CallExpression,
     ) => estree.Property[],
     message: string,
-    meta: Rule.RuleMetaData = {},
+    meta: RulesMeta = {},
   ): Rule.RuleModule {
     return {
       meta,

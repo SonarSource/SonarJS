@@ -20,6 +20,7 @@ import { AwsCdkTemplate, normalizeFQN } from './cdk.js';
 import { getResultOfExpression, Result } from '../result.js';
 import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.js';
 import { getFullyQualifiedName } from '../module.js';
+import { RulesMeta } from '@eslint/core';
 
 export interface PolicyCheckerOptions {
   effect: {
@@ -99,7 +100,7 @@ const JSON_OPTIONS: PolicyCheckerOptions = {
   },
 };
 
-export function AwsIamPolicyTemplate(statementChecker: StatementChecker, meta: Rule.RuleMetaData) {
+export function AwsIamPolicyTemplate(statementChecker: StatementChecker, meta: RulesMeta) {
   return AwsCdkTemplate(
     {
       'aws-cdk-lib.aws-iam.PolicyStatement': {
