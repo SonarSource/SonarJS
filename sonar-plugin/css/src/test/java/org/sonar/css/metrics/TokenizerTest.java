@@ -19,7 +19,6 @@ package org.sonar.css.metrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 
 class TokenizerTest {
@@ -108,7 +107,7 @@ class TokenizerTest {
     );
 
     int numberOfChars = 1000000;
-    String seedCode = StringUtils.repeat("a", numberOfChars);
+    String seedCode = "a".repeat(numberOfChars);
 
     String testCode = "\"" + seedCode + "\"";
     assertToken(testCode, 0, testCode, CssTokenType.STRING, 1, 0, 1, testCode.length());
@@ -159,7 +158,7 @@ class TokenizerTest {
     assertToken(code, 0, code, CssTokenType.COMMENT, 1, 0, 5, 2);
 
     int numberOfLineReturn = 1000000;
-    code = "/*" + StringUtils.repeat(" *\n", numberOfLineReturn) + " */";
+    code = "/*" + " *\n".repeat(numberOfLineReturn) + " */";
     assertToken(code, 0, code, CssTokenType.COMMENT, 1, 0, numberOfLineReturn + 1, 3);
   }
 

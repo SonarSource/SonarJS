@@ -38,7 +38,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -351,7 +350,7 @@ class JsTsRulingTest {
       .findFirst()
       .orElse(null);
 
-    if (!StringUtils.isEmpty(profileKey)) {
+    if (profileKey != null && !profileKey.isEmpty()) {
       newAdminWsClient(orchestrator)
         .qualityprofiles()
         .activateRule(
@@ -374,12 +373,11 @@ class JsTsRulingTest {
   }
 
   static WsClient newAdminWsClient(Orchestrator orchestrator) {
-    return WsClientFactories.getDefault()
-      .newClient(
-        HttpConnector.newBuilder()
-          .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
-          .url(orchestrator.getServer().getUrl())
-          .build()
-      );
+    return WsClientFactories.getDefault().newClient(
+      HttpConnector.newBuilder()
+        .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
+        .url(orchestrator.getServer().getUrl())
+        .build()
+    );
   }
 }
