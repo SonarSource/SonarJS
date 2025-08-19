@@ -27,10 +27,6 @@
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 152
 ],
-"vuetify:packages/vuetify/src/util/dom.ts": [
-6,
-23
-],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 347
 ]

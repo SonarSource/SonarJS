@@ -2,10 +2,6 @@
 "ant-design:components/_util/responsiveObserve.ts": [
 63
 ],
-"ant-design:components/_util/scrollTo.ts": [
-26,
-27
-],
 "ant-design:components/collapse/Collapse.tsx": [
 18
 ],
