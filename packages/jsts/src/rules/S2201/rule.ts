@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2201
 
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
-import type * as TS from 'typescript';
+import TS from 'typescript';
 import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import type estree from 'estree';
@@ -208,7 +208,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-const FunctionTypeNodeKind = 184;
+const FunctionTypeNodeKind = TS.SyntaxKind.FunctionType;
 
 const isFunctionTypeNode = (candidate: TS.Node): candidate is TS.FunctionTypeNode => {
   return candidate.kind === FunctionTypeNodeKind;
