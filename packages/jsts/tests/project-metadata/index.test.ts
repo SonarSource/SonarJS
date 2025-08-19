@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { getManifests, isSupported, toUnixPath } from '../../src/rules/helpers/index.js';
-import fs from 'fs';
+import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 
