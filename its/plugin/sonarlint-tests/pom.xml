@@ -54,6 +54,11 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-javascript-plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -39,10 +39,6 @@
       <artifactId>sonar-orchestrator-junit5</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
     </dependency>
@@ -59,6 +55,11 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-javascript-plugin</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
