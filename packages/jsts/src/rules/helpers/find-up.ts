@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as Path from 'node:path/posix';
-import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
 import { isRoot, toUnixPath } from './files.js';
 import fs from 'fs';
@@ -25,11 +24,9 @@ interface Stats {
 }
 
 export interface Filesystem {
-  readdirSync: (typeof vol)['readdirSync'];
-
-  readFileSync(path: string): Buffer | string;
-
-  statSync(path: string): Stats;
+  readdirSync: (typeof fs)['readdirSync'];
+  readFileSync: (typeof fs)['readFileSync'];
+  statSync: (typeof fs)['statSync'];
 }
 
 interface File {
@@ -65,38 +62,34 @@ export const createFindUp = (pattern: string): FindUp => {
 
       cache.set(from, cacheContent);
 
-      let entries: ReturnType<Filesystem['readdirSync']> = [];
-
       try {
-        entries = filesystem.readdirSync(from);
-      } catch {}
+        for (const entry of filesystem.readdirSync(from)) {
+          const fullEntryPath = Path.join(from, entry.toString());
 
-      for (const entry of entries) {
-        const fullEntryPath = Path.join(from, entry.toString());
+          const basename = Path.basename(fullEntryPath);
 
-        const basename = Path.basename(fullEntryPath);
+          if (matcher.match(basename)) {
+            let stats: Stats;
 
-        if (matcher.match(basename)) {
-          let stats: Stats;
+            // the resource may not be available
+            try {
+              stats = filesystem.statSync(fullEntryPath);
+            } catch (error) {
+              // todo: this is testable and should be tested
+              stats = {
+                isFile: () => false,
+              };
+            }
 
-          // the resource may not be available
-          try {
-            stats = filesystem.statSync(fullEntryPath);
-          } catch (error) {
-            // todo: this is testable and should be tested
-            stats = {
-              isFile: () => false,
-            };
-          }
-
-          if (stats.isFile()) {
-            cacheContent.push({
-              path: fullEntryPath,
-              content: filesystem.readFileSync(fullEntryPath),
-            });
+            if (stats.isFile()) {
+              cacheContent.push({
+                path: fullEntryPath,
+                content: filesystem.readFileSync(fullEntryPath),
+              });
+            }
           }
         }
-      }
+      } catch {}
     }
 
     results.push(...cacheContent);
