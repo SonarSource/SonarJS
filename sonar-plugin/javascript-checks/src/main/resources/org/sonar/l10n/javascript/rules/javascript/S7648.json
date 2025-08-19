@@ -1,0 +1,35 @@
+{
+  "title": "Components, Directives, and Pipes should use standalone architecture",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "angular",
+    "architecture"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7648",
+  "sqKey": "S7648",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "extra": {
+    "requiredDependency": [
+      "@angular/core"
+    ]
+  },
+  "compatibleLanguages": [
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
