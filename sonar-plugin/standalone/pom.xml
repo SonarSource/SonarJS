@@ -22,14 +22,24 @@
         <artifactId>sonar-plugin-api</artifactId>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.api.plugin</groupId>
-        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.javascript</groupId>
+        <artifactId>api</artifactId>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- Test dependencies -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
         <scope>test</scope>
       </dependency>
       <dependency>

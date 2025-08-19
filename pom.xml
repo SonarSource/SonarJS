@@ -68,6 +68,7 @@
     <junit.version>5.13.4</junit.version>
     <mockito.version>5.19.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
+    <jetbrains.annotations.version>25.0.0</jetbrains.annotations.version>
     <sonar.version>25.8.0.112029</sonar.version>
     <sonar.api.version>13.0.0.3026</sonar.api.version>
     <sonar-orchestrator.version>5.6.2.2625</sonar-orchestrator.version>
@@ -150,11 +151,6 @@
         <version>2.20.0</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.18.0</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${sslr.version}</version>
@@ -174,6 +170,11 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations</artifactId>
+        <version>${jetbrains.annotations.version}</version>
       </dependency>
 
 
@@ -210,8 +211,32 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-analysis-engine</artifactId>
+        <version>${sonarlint.plugin.api.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-commons</artifactId>
+        <version>${sonarlint.plugin.api.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-plugin-commons</artifactId>
+        <version>${sonarlint.plugin.api.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator-junit5</artifactId>
+        <version>${sonar-orchestrator.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
         <version>${sonar-orchestrator.version}</version>
         <scope>test</scope>
       </dependency>
