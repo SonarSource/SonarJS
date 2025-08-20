@@ -15,16 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { isRequiredParserServices } from '../../helpers/index.js';
+import { isRequiredParserServices } from '../helpers/index.js';
 
 /**
  * Sanitizes a TypeScript ESLint rule
  *
- * TypeScript ESLint rules that relies on TypeScript's type system unconditionally assumes
- * that the type checker is always available. Linting a source code with such rules could
+ * TypeScript ESLint rules that rely on TypeScript's type system unconditionally assume
+ * that the type checker is always available. Linting source code with such rules could
  * lead to a runtime error if that assumption turned out to be wrong for whatever reason.
  *
- * Aa TypeScript ESLint rule needs, therefore, to be sanitized in case its implementation
+ * A TypeScript ESLint rule needs, therefore, to be sanitized in case its implementation
  * relies on type checking. The metadata of such a rule sets the `requiresTypeChecking`
  * property to `true`.
  *

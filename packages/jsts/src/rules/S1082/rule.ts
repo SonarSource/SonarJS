@@ -20,9 +20,11 @@ import type { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { rules } from '../external/a11y.js';
 import * as meta from './generated-meta.js';
+import { rules as angularTemplateRules } from '../external/angular-template.js';
 
 const mouseEventsHaveKeyEvents = rules['mouse-events-have-key-events'];
 const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];
+const angularClickEventsHaveKeyEvents = angularTemplateRules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -30,12 +32,18 @@ export const rule: Rule.RuleModule = {
     messages: {
       ...mouseEventsHaveKeyEvents.meta!.messages,
       ...clickEventsHaveKeyEvents.meta!.messages,
+      ...angularClickEventsHaveKeyEvents.meta!.messages,
     },
   }),
   create(context: Rule.RuleContext) {
     const mouseEventsHaveKeyEventsListener = mouseEventsHaveKeyEvents.create(context);
     const clickEventsHaveKeyEventsListener = clickEventsHaveKeyEvents.create(context);
+    const angularClickEventsHaveKeyEventsListener = angularClickEventsHaveKeyEvents.create(context);
 
-    return mergeRules(mouseEventsHaveKeyEventsListener, clickEventsHaveKeyEventsListener);
+    return mergeRules(
+      mouseEventsHaveKeyEventsListener,
+      clickEventsHaveKeyEventsListener,
+      angularClickEventsHaveKeyEventsListener,
+    );
   },
 };
