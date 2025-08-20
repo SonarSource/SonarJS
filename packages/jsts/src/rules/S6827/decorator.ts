@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import pkg from 'jsx-ast-utils';
+import pkg from 'jsx-ast-utils-x';
 const { hasAnyProp } = pkg;
 import type { JSXOpeningElement } from 'estree-jsx';
 import * as meta from './generated-meta.js';
@@ -28,7 +28,6 @@ import * as meta from './generated-meta.js';
  *
  * This will include the removal of:
  * - the `jsx-ast-utils` dependency
- * - its type definition `typings/jsx-ast-utils/index.d.ts`
  * - all files in the `rules/S6827/` directory
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

@@ -23,7 +23,7 @@ const eslintPluginDependencies = [
   'builtin-modules',
   'bytes',
   'functional-red-black-tree',
-  'jsx-ast-utils',
+  'jsx-ast-utils-x',
   'lodash.merge',
   'minimatch',
   'scslre',
