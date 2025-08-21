@@ -99,12 +99,12 @@ export function getFullyQualifiedNameTS(
       }
       case ts.SyntaxKind.Identifier: {
         const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
-        if (identifierSymbol?.declarations?.at(0)) {
-          node = identifierSymbol.declarations.at(0);
-          break;
-        } else {
+        if (isCompilerModule(identifierSymbol) || !identifierSymbol?.declarations?.length) {
           result.push((node as ts.Identifier).text);
           return returnResult();
+        } else {
+          node = identifierSymbol.declarations.at(0);
+          break;
         }
       }
       case ts.SyntaxKind.StringLiteral: {
@@ -139,5 +139,13 @@ function isRequireCall(callExpression: ts.CallExpression) {
     callExpression.expression.kind === ts.SyntaxKind.Identifier &&
     (callExpression.expression as ts.Identifier).text === 'require' &&
     callExpression.arguments.length === 1
+  );
+}
+
+function isCompilerModule(node: ts.Symbol | undefined) {
+  return (
+    node &&
+    (node.flags & ts.SymbolFlags.Module) !== 0 &&
+    (node.flags & ts.SymbolFlags.Assignment) !== 0
   );
 }
