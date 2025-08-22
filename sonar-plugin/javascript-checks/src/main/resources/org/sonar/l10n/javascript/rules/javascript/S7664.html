@@ -1,0 +1,49 @@
+<p>This rule flags direct calls to <code>process.exit()</code> in Node.js code.</p>
+<h2>Why is this an issue?</h2>
+<p>The <code>process.exit()</code> method immediately stops the Node.js process and exits. This is problematic because it can occur at any point in
+the application, completely stopping execution when an error occurs without giving other parts of the application a chance to handle the error
+gracefully.</p>
+<p>When <code>process.exit()</code> is called, the application cannot perform cleanup operations, handle the error appropriately, or allow error
+handlers to process the issue. This makes debugging more difficult and can lead to unexpected application termination.</p>
+<p>A better approach is to throw an error and let the application’s error handling mechanisms deal with it. If the error bubbles up to the process
+level without being handled, the process will still exit with a non-zero exit code, but other parts of the application have had the opportunity to
+respond.</p>
+<h3>What is the potential impact?</h3>
+<p>Using <code>process.exit()</code> can lead to:</p>
+<ul>
+  <li> Abrupt application termination without proper cleanup </li>
+  <li> Loss of error context and debugging information </li>
+  <li> Inability for other parts of the application to handle or recover from errors </li>
+  <li> Difficulty in testing and maintaining the code </li>
+  <li> Potential data loss if cleanup operations are not performed </li>
+</ul>
+<p>A node process will end naturally when all handlers/listerners have been shutdown. As node.js is an event-driven runtime the most graceful exit is
+to exhaust the queue of pending events. When the event queue is empty the process will end. You can ensure the event queue is drained by doing things
+such as clearing any interval timers that are set and by closing down any servers with open socket connections. Closing with process.exit() is not
+graceful === How to fix?</p>
+<p>Replace <code>process.exit()</code> calls with thrown errors to allow proper error handling.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+if (somethingBadHappened) {
+    console.error("Something bad happened!");
+    process.exit(1); // Noncompliant
+}
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+if (somethingBadHappened) {
+    throw new Error("Something bad happened!");
+}
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js Process Documentation - <a href="https://nodejs.org/api/process.html#process_process_exit_code">Official Node.js documentation for the
+  process.exit() method</a> </li>
+  <li> Node.js Process.exitCode Documentation - <a href="https://nodejs.org/api/process.html#process_process_exitcode">Documentation for setting exit
+  codes without immediately terminating</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/process-exit-as-throw - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/process-exit-as-throw.md">Treats
+  process.exit() as throw for control flow analysis</a> </li>
+</ul>

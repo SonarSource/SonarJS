@@ -1,0 +1,33 @@
+{
+  "title": "ECMAScript syntax features should be supported by the target Node.js version",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "compatibility",
+    "nodejs",
+    "ecmascript"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7669",
+  "sqKey": "S7669",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

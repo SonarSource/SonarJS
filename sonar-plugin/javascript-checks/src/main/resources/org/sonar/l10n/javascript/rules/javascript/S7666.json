@@ -1,0 +1,33 @@
+{
+  "title": "Import declarations should not reference unpublished modules",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "npm",
+    "packaging",
+    "dependencies"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7666",
+  "sqKey": "S7666",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

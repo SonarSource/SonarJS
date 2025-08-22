@@ -1,0 +1,32 @@
+{
+  "title": "ECMAScript built-ins should be supported by the configured Node.js version",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "compatibility",
+    "nodejs"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7668",
+  "sqKey": "S7668",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

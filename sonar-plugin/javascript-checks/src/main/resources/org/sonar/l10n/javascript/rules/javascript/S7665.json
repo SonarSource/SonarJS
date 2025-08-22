@@ -1,0 +1,33 @@
+{
+  "title": "Binary files referenced in \"package.json\" should be published by npm",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "npm",
+    "packaging",
+    "configuration"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7665",
+  "sqKey": "S7665",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -1,0 +1,51 @@
+<p>This rule raises an issue when code uses Node.js built-in APIs that are not supported in the configured Node.js version range.</p>
+<h2>Why is this an issue?</h2>
+<p>Using unsupported Node.js built-in APIs can cause runtime errors when the code runs on older Node.js versions that don’t have those APIs
+available.</p>
+<p>Node.js continuously adds new built-in APIs and methods across versions. When you target a specific Node.js version range (typically defined in
+your <code>package.json</code> engines field), using APIs that were introduced in newer versions will cause your application to fail at runtime on
+older versions.</p>
+<p>This rule helps catch these compatibility issues during development by checking static API usage against a database of Node.js API availability. It
+only detects static APIs like <code>Buffer.from()</code> or <code>fs.promises</code>, not instance methods or dynamic usage patterns.</p>
+<p>The rule is particularly valuable in environments where you need to support multiple Node.js versions or when deploying to systems with older
+Node.js installations.</p>
+<h3>What is the potential impact?</h3>
+<p>Using unsupported APIs will cause runtime errors like <code>TypeError: undefined is not a function</code> or <code>ReferenceError: API is not
+defined</code> when the code runs on Node.js versions that don’t support those APIs. This can lead to application crashes and deployment failures in
+production environments with older Node.js versions.</p>
+<h3>How to fix?</h3>
+<p>Remove or replace the unsupported API with an alternative that works in your target Node.js version range. Check the Node.js documentation to find
+when APIs were introduced.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// Target: Node.js &gt;=12.0.0
+const { readFile } = require('fs/promises'); // Noncompliant: fs/promises added in Node.js 14.0.0
+
+// Using newer Buffer method
+const buf = Buffer.allocUnsafeSlow(1024); // Noncompliant: added in Node.js 14.0.0
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// Target: Node.js &gt;=12.0.0
+const { promisify } = require('util');
+const fs = require('fs');
+const readFile = promisify(fs.readFile);
+
+// Using older Buffer method
+const buf = Buffer.allocUnsafe(1024);
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js API Documentation - <a href="https://nodejs.org/api/">Official Node.js API documentation showing version availability</a> </li>
+  <li> ESLint Plugin N Documentation - <a href="https://github.com/eslint-community/eslint-plugin-n#-configs">Configuration guide for
+  eslint-plugin-n</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unsupported-features/es-syntax - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/es-syntax.md">Disallow unsupported
+  ECMAScript syntax on the specified version</a> </li>
+  <li> n/no-unsupported-features/es-builtins - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/es-builtins.md">Disallow unsupported
+  ECMAScript built-ins on the specified version</a> </li>
+</ul>

@@ -1,0 +1,33 @@
+{
+  "title": "Files marked as executable should have a hashbang, others should not",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "nodejs",
+    "cli",
+    "executable"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7657",
+  "sqKey": "S7657",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

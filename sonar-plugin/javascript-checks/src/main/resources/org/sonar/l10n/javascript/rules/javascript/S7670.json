@@ -1,0 +1,32 @@
+{
+  "title": "Node.js built-in APIs should be supported in the configured version",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30 min"
+  },
+  "tags": [
+    "compatibility",
+    "nodejs"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7670",
+  "sqKey": "S7670",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "title": "\"require()\" should not import unpublished files and modules",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30 min"
+  },
+  "tags": [
+    "npm",
+    "packaging",
+    "deployment"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7667",
+  "sqKey": "S7667",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

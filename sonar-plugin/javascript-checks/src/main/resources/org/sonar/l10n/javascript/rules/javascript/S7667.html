@@ -1,0 +1,45 @@
+<p>This rule raises an issue when a published file uses <code>require()</code> to import unpublished files or devDependencies.</p>
+<h2>Why is this an issue?</h2>
+<p>When you publish a Node.js package to npm, only certain files are included in the published package. Files are considered published if they’re
+included in the <code>"files"</code> field of <code>package.json</code> (or if no <code>"files"</code> field exists) and not excluded by
+<code>.npmignore</code>.</p>
+<p>If your published code tries to <code>require()</code> unpublished files or modules listed in <code>devDependencies</code>, your package will work
+locally during development but fail with "Module Not Found" errors after being published to npm. This happens because the required files or
+dependencies won’t be available in the published package.</p>
+<p>This rule helps prevent deployment issues by catching these problems during development, ensuring that your published code only depends on
+resources that will actually be available in the published package.</p>
+<h3>What is the potential impact?</h3>
+<p>Using <code>require()</code> to import unpublished files or devDependencies can cause your package to fail after publication with "Module Not
+Found" errors, even though it works correctly in your local development environment. This can lead to broken packages for your users and require
+emergency fixes.</p>
+<h3>How to fix?</h3>
+<p>Remove the require() call for unpublished files or devDependencies. If you need the functionality, move the dependency to regular dependencies or
+ensure the file is published.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// In a published file
+const testHelper = require('./test/helper'); // Noncompliant: test files are typically unpublished
+const devTool = require('some-dev-tool'); // Noncompliant: devDependencies aren't published
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// Remove the require() calls or move dependencies to regular dependencies
+// const testHelper = require('./test/helper'); // Removed
+// const devTool = require('some-dev-tool'); // Removed or moved to dependencies
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> npm package.json files field - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#files">Documentation on how npm determines
+  which files to include in published packages</a> </li>
+  <li> npm .npmignore - <a href="https://docs.npmjs.com/cli/v11/using-npm/developers#keeping-files-out-of-your-package">How to exclude files from npm
+  packages using .npmignore</a> </li>
+  <li> Node.js require() documentation - <a href="https://nodejs.org/api/modules.html#requireid">Official Node.js documentation for the require()
+  function</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unpublished-import - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-import.md">Similar
+  rule for ES6 import statements</a> </li>
+  <li> n/no-missing-require - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-require.md">Disallow
+  require() of modules that don’t exist</a> </li>
+</ul>

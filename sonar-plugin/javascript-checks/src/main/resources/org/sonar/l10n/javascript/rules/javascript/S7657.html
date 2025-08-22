@@ -1,0 +1,37 @@
+<p>This rule raises an issue when executable files (listed in <code>package.json</code> bin field) are missing a hashbang, or when non-executable
+files have an unnecessary hashbang.</p>
+<h2>Why is this an issue?</h2>
+<p>In Node.js projects, executable files need a hashbang line to tell the system which interpreter to use when the file is run directly. The hashbang
+<code>#!/usr/bin/env node</code> ensures the file runs with Node.js.</p>
+<p>Without a proper hashbang, executable files won’t work when installed globally via npm or when run directly from the command line. The system won’t
+know how to execute the file.</p>
+<p>Conversely, non-executable files don’t need hashbangs and including them can be confusing or cause issues in some environments.</p>
+<p>Additionally, files with hashbangs must use Unix line endings (LF) and cannot have a Unicode BOM, as these can prevent the hashbang from being
+recognized correctly by the system.</p>
+<h3>What is the potential impact?</h3>
+<p>Without proper hashbangs, CLI tools won’t function correctly when installed or executed. Users will get "command not found" errors or the file will
+be treated as a text file rather than an executable script. This breaks the intended functionality of command-line tools distributed via npm.</p>
+<h3>How to fix?</h3>
+<p>Add the correct hashbang to executable files listed in package.json’s bin field.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// File: bin/my-cli.js (listed in package.json bin field)
+console.log('Hello World'); // Noncompliant
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+#!/usr/bin/env node
+// File: bin/my-cli.js (listed in package.json bin field)
+console.log('Hello World');
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js - Shebang - <a href="https://nodejs.org/api/cli.html#shebang">Official Node.js documentation on shebang usage</a> </li>
+  <li> npm - package.json bin field - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#bin">Documentation on the bin field in
+  package.json</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unpublished-bin - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-bin.md">Ensures bin
+  files are published to npm</a> </li>
+</ul>

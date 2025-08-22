@@ -30,6 +30,8 @@ import { rules as importRules } from 'eslint-plugin-import';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import angularPlugin from '@angular-eslint/eslint-plugin';
 const { rules: angularRules } = angularPlugin;
+import pluginNPlugin from 'eslint-plugin-n';
+const { rules: pluginNRules } = pluginNPlugin;
 
 const allExternalRules = {
   eslint: key => getESLintCoreRule(key),
@@ -41,6 +43,7 @@ const allExternalRules = {
   '@stylistic/eslint-plugin-ts': async key =>
     await import(`@stylistic/eslint-plugin-ts/rules/${key}`),
   '@angular-eslint': key => angularRules[key],
+  'plugin-n': key => pluginNRules[key],
 };
 const externalPlugins = Object.keys(allExternalRules);
 

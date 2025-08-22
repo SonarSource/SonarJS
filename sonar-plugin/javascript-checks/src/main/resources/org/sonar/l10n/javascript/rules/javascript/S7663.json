@@ -1,0 +1,33 @@
+{
+  "title": "Missing modules in \"require()\" statements should be flagged",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "nodejs",
+    "modules",
+    "dependencies"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7663",
+  "sqKey": "S7663",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

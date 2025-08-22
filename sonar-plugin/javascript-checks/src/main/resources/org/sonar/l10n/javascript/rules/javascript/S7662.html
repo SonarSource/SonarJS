@@ -1,0 +1,48 @@
+<p>This rule raises an issue when <code>import</code> or <code>export</code> declarations reference modules that cannot be found in the file system or
+installed packages.</p>
+<h2>Why is this an issue?</h2>
+<p>When you import a module that doesn’t exist, your application will fail at runtime with a module resolution error. This commonly happens due
+to:</p>
+<ul>
+  <li> Typos in module names or file paths </li>
+  <li> Missing npm package installations </li>
+  <li> Incorrect relative path references </li>
+  <li> Deleted or moved files that are still being imported </li>
+</ul>
+<p>Catching these issues during static analysis prevents runtime failures and helps maintain code reliability. The rule validates that all imported
+modules can be properly resolved, ensuring your application’s dependencies are correctly configured.</p>
+<h3>What is the potential impact?</h3>
+<p>Applications will crash at runtime when trying to load non-existent modules. This can cause:</p>
+<ul>
+  <li> Application startup failures </li>
+  <li> Runtime errors during module loading </li>
+  <li> Broken functionality when missing dependencies are accessed </li>
+  <li> Deployment issues in production environments </li>
+</ul>
+<h3>How to fix?</h3>
+<p>Fix typos in module names and ensure the referenced modules exist. Install missing npm packages or correct file paths.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import typoFile from "./typo-file";   // Noncompliant
+import typoModule from "typo-module"; // Noncompliant
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+import existingFile from "./existing-file";
+import existingModule from "existing-module";
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> ESLint Plugin N - no-missing-import - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-import.md">Official documentation for the
+  no-missing-import rule</a> </li>
+  <li> Node.js Module Resolution - <a href="https://nodejs.org/api/modules.html#modules_all_together">Node.js documentation on how module resolution
+  works</a> </li>
+  <li> ES6 Import/Export Syntax - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">MDN documentation on
+  import statements</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-missing-require - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-require.md">Similar rule
+  for CommonJS require() statements</a> </li>
+</ul>

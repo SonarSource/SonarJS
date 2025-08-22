@@ -37,8 +37,6 @@ const JS_RULE_DATA_FOLDER = join(
   'javascript',
 );
 
-const MISSING_RSPEC_JS_RULE_DATA_FOLDER = join('resources', 'rule-data', 'javascript');
-
 export async function createNewRule(
   sonarKey: string,
   eslintId: string,

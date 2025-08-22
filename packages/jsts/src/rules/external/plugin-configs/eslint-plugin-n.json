@@ -1,0 +1,86 @@
+{
+  "name": "eslint-plugin-n",
+  "prefix": "plugin-n",
+  "rulesImport": "import pkg from 'eslint-plugin-n';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
+  "languages": ["js", "ts"],
+  "scope": "Main",
+  "rules": [
+    {
+      "name": "hashbang",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/hashbang.md",
+      "sqkey": "S7657",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5286",
+      "quickfix": "covered"
+    },
+    {
+      "name": "no-exports-assign",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-exports-assign.md",
+      "sqkey": "S7659",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5288",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-missing-import",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-import.md",
+      "sqkey": "S7662",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5291",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-missing-require",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-require.md",
+      "sqkey": "S7663",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5292",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-process-exit",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-process-exit.md",
+      "sqkey": "S7664",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5293",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unpublished-bin",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-bin.md",
+      "sqkey": "S7665",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5294",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unpublished-import",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-import.md",
+      "sqkey": "S7666",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5295",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unpublished-require",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-require.md",
+      "sqkey": "S7667",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5296",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unsupported-features/es-builtins",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/es-builtins.md",
+      "sqkey": "S7668",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5297",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unsupported-features/es-syntax",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/es-syntax.md",
+      "sqkey": "S7669",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5298",
+      "quickfix": "unknown"
+    },
+    {
+      "name": "no-unsupported-features/node-builtins",
+      "link": "https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/node-builtins.md",
+      "sqkey": "S7670",
+      "prurl": "https://github.com/SonarSource/rspec/pull/5299",
+      "quickfix": "unknown"
+    }
+  ]
+}
