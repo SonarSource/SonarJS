@@ -1,0 +1,32 @@
+{
+  "title": "Direct assignment to \"exports\" should be avoided",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "nodejs",
+    "commonjs"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7659",
+  "sqKey": "S7659",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
