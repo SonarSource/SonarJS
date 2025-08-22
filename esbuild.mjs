@@ -101,6 +101,10 @@ await esbuild.build({
         ],
       ],
     }),
+    textReplace({
+      include: /node_modules[\/\\]eslint-plugin-es-x[\/\\]lib[\/\\]configs[\/\\]restrict-.*.js$/,
+      pattern: ['require.resolve', 'require'],
+    }),
     copy({
       resolveFrom: 'cwd',
       assets: [
