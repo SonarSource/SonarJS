@@ -1,3 +1,10 @@
+## 2025-08-25, Version 3.0.5
+
+- [[JS-834](https://sonarsource.atlassian.net/browse/JS-834)] - Add missing tailwindCSS directive @theme to rule S4662
+- [[JS-804](https://sonarsource.atlassian.net/browse/JS-804)] - Improve S2187: Add a few more test fqns
+- [[JS-719](https://sonarsource.atlassian.net/browse/JS-719)] - Replace dependency jsx-ast-utils with jsx-ast-utils-x
+- [[JS-685](https://sonarsource.atlassian.net/browse/JS-685)] - Modify S2301 (`no-selector-parameter`): Add exception when selector parameter is an object property
+
 ## 2025-06-26, Version 3.0.4
 
 - [[ESLINTJS-74](https://sonarsource.atlassian.net/browse/ESLINTJS-74)] - ESLint plugin depends on `lodash.merge`
