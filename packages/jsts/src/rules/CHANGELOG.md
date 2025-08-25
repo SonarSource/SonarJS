@@ -4,6 +4,11 @@
 - [[JS-804](https://sonarsource.atlassian.net/browse/JS-804)] - Improve S2187: Add a few more test fqns
 - [[JS-719](https://sonarsource.atlassian.net/browse/JS-719)] - Replace dependency jsx-ast-utils with jsx-ast-utils-x
 - [[JS-685](https://sonarsource.atlassian.net/browse/JS-685)] - Modify S2301 (`no-selector-parameter`): Add exception when selector parameter is an object property
+- [[ESLINTJS-35](https://sonarsource.atlassian.net/browse/ESLINTJS-35)] - `prefer-immediate-return`: allow cases where a type hint is used
+- [[ESLINTJS-24](https://sonarsource.atlassian.net/browse/ESLINTJS-24)] - `no-duplicate-string` rule false positive on "isObjectPropertyKey" of Proxy
+- [[ESLINTJS-20](https://sonarsource.atlassian.net/browse/ESLINTJS-20)] - `prefer-single-boolean-return`: Do not raise on validator functions
+- [[ESLINTJS-18](https://sonarsource.atlassian.net/browse/ESLINTJS-18)] - `no-one-iteration-loop` is obsolete, recommend eslint built-in rule instead
+- [[ESLINTJS-17](https://sonarsource.atlassian.net/browse/ESLINTJS-17)] - Allow function names for `prefer-immediate-return`
 
 ## 2025-06-26, Version 3.0.4
 
