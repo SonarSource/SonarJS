@@ -24,6 +24,7 @@ import {
   isJsTsFile,
   isSonarLint,
   maxFilesForTypeChecking,
+  noFs,
   setClearFileToTsConfigCache,
   setClearTsConfigCache,
   shouldClearFileToTsConfigCache,
@@ -79,7 +80,7 @@ export class TsConfigStore implements FileStore {
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return this.origin !== undefined && this.cacheMap[this.origin].initialized;
+    return noFs() || (this.origin !== undefined && this.cacheMap[this.origin].initialized);
   }
 
   getTsConfigs() {
