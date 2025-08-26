@@ -16,7 +16,7 @@
  */
 
 import type { PackageJson } from 'type-fest';
-import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
+import { getFsEvents, noFs } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, dirname } from 'node:path/posix';
 import {
   clearDependenciesCache,
@@ -43,7 +43,7 @@ export class PackageJsonStore implements FileStore {
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return typeof this.packageJsons !== 'undefined';
+    return noFs() || typeof this.packageJsons !== 'undefined';
   }
 
   getPackageJsons() {

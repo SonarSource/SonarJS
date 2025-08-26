@@ -100,6 +100,25 @@ describe('analyzeProject', () => {
 
   it('should cancel analysis in sonarqube', async () => {
     const baseDir = join(fixtures, 'with-parsing-error');
+    const filePath = join(baseDir, 'whatever_file.ts');
+    await analyzeProject({
+      rules: defaultRules,
+      files: {
+        [filePath]: {
+          fileType: 'MAIN',
+          filePath,
+          fileContent: 'if (1 == 1) {console.log(1)}',
+        },
+      },
+      configuration: {
+        noFs: true,
+        baseDir,
+      },
+    });
+  });
+
+  it('should not touch FS during analysis', async () => {
+    const baseDir = join(fixtures, 'with-parsing-error');
     const analysisPromise = analyzeProject(prepareInput(baseDir), message => {
       expect(message).toEqual({ messageType: 'cancelled' });
     });
