@@ -1,0 +1,54 @@
+<p>This rule raises an issue when code directly assigns a value to the <code>exports</code> variable (e.g., <code>exports = {}</code>), except when
+it’s part of a batch assignment with <code>module.exports</code>.</p>
+<h2>Why is this an issue?</h2>
+<p>In Node.js, directly assigning to the <code>exports</code> variable doesn’t work as expected. The <code>exports</code> variable is initially a
+reference to <code>module.exports</code>, but reassigning it breaks this connection.</p>
+<p>When you write <code>exports = { foo: 1 }</code>, you’re creating a new local variable that shadows the original <code>exports</code> reference.
+The module system still uses <code>module.exports</code> for the actual export, so your assignment has no effect.</p>
+<p>This is a common source of confusion for developers new to Node.js module system, leading to modules that appear to export nothing despite having
+assignment code.</p>
+<h3>What is the potential impact?</h3>
+<p>Code that uses direct assignment to <code>exports</code> will not export the intended values, leading to runtime errors when other modules try to
+import and use the expected functionality. This can cause application failures and make debugging difficult since the code appears correct at first
+glance.</p>
+<h3>How to fix?</h3>
+<p>Use property assignment to <code>exports</code> or assign to <code>module.exports</code> directly. For batch assignments, ensure both
+<code>module.exports</code> and <code>exports</code> are assigned in the same statement.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// This assignment doesn't work - the object is not exported
+exports = { // Noncompliant
+    foo: 1,
+    bar: 2
+}
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// Use property assignments
+exports.foo = 1
+exports.bar = 2
+
+// Or assign to module.exports directly
+module.exports = {
+    foo: 1,
+    bar: 2
+}
+
+// Batch assignment is allowed
+module.exports = exports = {
+    foo: 1,
+    bar: 2
+}
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js Modules Documentation - <a href="https://nodejs.org/api/modules.html#modules_exports_shortcut">Official Node.js documentation
+  explaining the relationship between exports and module.exports</a> </li>
+  <li> CommonJS Module Definition - <a href="https://wiki.commonjs.org/wiki/Modules/1.1">CommonJS specification that defines the module system used by
+  Node.js</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/exports-style - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/exports-style.md">Enforces consistent
+  style for module exports</a> </li>
+</ul>

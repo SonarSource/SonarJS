@@ -1,0 +1,47 @@
+<p>This rule raises an issue when published files contain <code>import</code> declarations that reference unpublished files or
+<code>devDependencies</code>.</p>
+<h2>Why is this an issue?</h2>
+<p>When you publish a Node.js package with <code>npm publish</code>, only certain files are included in the published package. Files are considered
+published if they are included in the <code>"files"</code> field of <code>package.json</code> or not excluded by <code>.npmignore</code>.</p>
+<p>If published code imports unpublished files or development dependencies (<code>devDependencies</code>), users who install your package will
+encounter "Module Not Found" errors because these dependencies are not available in the published package.</p>
+<p>This commonly happens when:</p>
+<ul>
+  <li> Development tools or testing libraries are imported in production code </li>
+  <li> Internal files that aren’t meant to be published are referenced by published code </li>
+</ul>
+<p>The rule helps prevent these runtime errors by catching these problematic imports during development.</p>
+<h3>What is the potential impact?</h3>
+<p>Applications using the published package will fail at runtime with "Module Not Found" errors when trying to import the missing dependencies. This
+can cause complete application failures and poor user experience.</p>
+<h3>How to fix?</h3>
+<p>Remove the import of the unpublished module or move the importing file to an unpublished location.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// In a published file
+import testHelper from './test/helper.js'; // Noncompliant - test files are typically unpublished
+import devTool from 'some-dev-dependency'; // Noncompliant - devDependency not available after publish
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// Remove the problematic imports
+// import testHelper from './test/helper.js';
+// import devTool from 'some-dev-dependency';
+
+// Or move this file to an unpublished location like test/ folder
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> npm publish documentation - <a href="https://docs.npmjs.com/cli/v11/commands/npm-publish">Official npm documentation on publishing packages</a>
+  </li>
+  <li> package.json files field - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#files">Documentation on controlling which files
+  are included in published packages</a> </li>
+  <li> .npmignore documentation - <a href="https://docs.npmjs.com/cli/v11/using-npm/developers#keeping-files-out-of-your-package">How to exclude files
+  from published packages using .npmignore</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unpublished-require - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-require.md">Similar rule for require() statements
+  instead of import declarations</a> </li>
+</ul>

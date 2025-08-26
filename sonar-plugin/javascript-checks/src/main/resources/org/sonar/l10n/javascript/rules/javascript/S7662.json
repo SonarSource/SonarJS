@@ -1,0 +1,32 @@
+{
+  "title": "Import declarations should reference existing modules",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "import",
+    "module-resolution"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7662",
+  "sqKey": "S7662",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
