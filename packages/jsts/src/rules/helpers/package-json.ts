@@ -14,14 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import Path from 'path/posix';
+import { dirname } from 'path/posix';
 import { type PackageJson } from 'type-fest';
 import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export const PACKAGE_JSON = 'package.json';
+
+export type PackageJsonWithPath = {
+  filePath: string;
+  fileContent: PackageJson;
+};
 
 /**
  * The {@link FindUp} instance dedicated to retrieving `package.json` files
@@ -52,18 +57,18 @@ export const cache: Map<string, Set<Dependency>> = new Map();
 const dirNameToClosestPackageJSONCache: Map<string, string> = new Map();
 
 export function getClosestPackageJSONDir(filename: string, cwd: string): string {
-  const dirname = Path.dirname(toUnixPath(filename));
-  if (!dirNameToClosestPackageJSONCache.has(dirname)) {
-    const files = findPackageJsons(dirname, cwd, fs);
+  const path = dirname(toUnixPath(filename));
+  if (!dirNameToClosestPackageJSONCache.has(path)) {
+    const files = findPackageJsons(path, cwd, fs);
     // take the longest filepath as that will be the closest package.json to the provided file
     dirNameToClosestPackageJSONCache.set(
-      dirname,
+      path,
       files
         .map(file => file.path)
         .reduce((prev, current) => (prev.length > current.length ? prev : current), cwd),
     );
   }
-  return dirNameToClosestPackageJSONCache.get(dirname)!;
+  return dirNameToClosestPackageJSONCache.get(path)!;
 }
 
 /**
@@ -97,6 +102,13 @@ export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) 
   });
 
   return new Set([...result].map(item => item.name));
+}
+
+export function fillCacheExhaustive(manifests: PackageJsonWithPath[]) {
+  for (const manifest of manifests) {
+    const manifestDependencies = getDependenciesFromPackageJson(manifest);
+    cache.set(dirname(manifest.filePath), manifestDependencies);
+  }
 }
 
 /**
@@ -179,11 +191,11 @@ function addDependency(
  * the module named `filename`, up to the passed working directory.
  */
 export const getManifests = (
-  dir: string,
+  path: string,
   workingDirectory?: string,
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
-  const files = findPackageJsons(dir, workingDirectory, fileSystem);
+  const files = findPackageJsons(path, workingDirectory, fileSystem);
 
   return files.map(file => {
     const content = file.content;

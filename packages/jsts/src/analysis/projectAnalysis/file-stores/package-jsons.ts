@@ -15,13 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { PackageJson } from 'type-fest';
 import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
-import { basename, dirname } from 'node:path/posix';
+import { basename } from 'node:path/posix';
 import {
   clearDependenciesCache,
-  fillCacheWithNewPath,
+  fillCacheExhaustive,
   PACKAGE_JSON,
+  PackageJsonWithPath,
 } from '../../../rules/helpers/index.js';
 import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
@@ -30,11 +30,6 @@ import { readFile } from '../../../../../shared/src/helpers/files.js';
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
-
-type PackageJsonWithPath = {
-  filePath: string;
-  fileContent: PackageJson;
-};
 
 export class PackageJsonStore implements FileStore {
   private packageJsons: PackageJsonWithPath[] | undefined = undefined;
@@ -103,13 +98,6 @@ export class PackageJsonStore implements FileStore {
     if (!this.packageJsons) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    for (const projectPath of this.paths) {
-      fillCacheWithNewPath(
-        projectPath,
-        this.packageJsons
-          .filter(({ filePath }) => projectPath.startsWith(dirname(filePath)))
-          .map(({ fileContent }) => fileContent),
-      );
-    }
+    fillCacheExhaustive(this.packageJsons);
   }
 }
