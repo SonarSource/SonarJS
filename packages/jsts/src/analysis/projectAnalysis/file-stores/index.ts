@@ -21,6 +21,7 @@ import { TsConfigStore } from './tsconfigs.js';
 import type { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
+import { noFs } from '../../../../../shared/src/helpers/configuration.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
@@ -43,16 +44,18 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
     store.setup(baseDir);
   }
 
-  await findFiles(baseDir, async (file, filePath) => {
-    for (const store of pendingStores) {
-      if (file.isFile()) {
-        await store.processFile(file, filePath);
+  if (!noFs()) {
+    await findFiles(baseDir, async (file, filePath) => {
+      for (const store of pendingStores) {
+        if (file.isFile()) {
+          await store.processFile(file, filePath);
+        }
+        if (file.isDirectory()) {
+          store.processDirectory?.(filePath);
+        }
       }
-      if (file.isDirectory()) {
-        store.processDirectory?.(filePath);
-      }
-    }
-  });
+    });
+  }
 
   for (const store of pendingStores) {
     await store.postProcess(baseDir);

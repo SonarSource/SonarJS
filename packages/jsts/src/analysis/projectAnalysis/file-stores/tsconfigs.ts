@@ -80,7 +80,7 @@ export class TsConfigStore implements FileStore {
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return noFs() || (this.origin !== undefined && this.cacheMap[this.origin].initialized);
+    return this.origin !== undefined && this.cacheMap[this.origin].initialized;
   }
 
   getTsConfigs() {
@@ -119,6 +119,9 @@ export class TsConfigStore implements FileStore {
   }
 
   async getFallbackTsConfig(baseDir: string): Promise<string | undefined> {
+    if (noFs()) {
+      return undefined;
+    }
     if (isSonarLint()) {
       if (this.filesStore.getFoundFilesCount() < maxFilesForTypeChecking()) {
         const { filename } = await this.writeTSConfigFile(

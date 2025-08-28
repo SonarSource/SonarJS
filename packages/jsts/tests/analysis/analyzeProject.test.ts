@@ -100,6 +100,16 @@ describe('analyzeProject', () => {
 
   it('should cancel analysis in sonarqube', async () => {
     const baseDir = join(fixtures, 'with-parsing-error');
+    const analysisPromise = analyzeProject(prepareInput(baseDir), message => {
+      expect(message).toEqual({ messageType: 'cancelled' });
+    });
+    cancelAnalysis();
+    await analysisPromise;
+  });
+
+  it('should not touch FS during analysis', async t => {
+    const fsSpy = t.mock.module('node:fs/promises', { cache: true }) as any;
+    const baseDir = '/path/does/not/exist';
     const filePath = join(baseDir, 'whatever_file.ts');
     await analyzeProject({
       rules: defaultRules,
@@ -115,15 +125,7 @@ describe('analyzeProject', () => {
         baseDir,
       },
     });
-  });
-
-  it('should not touch FS during analysis', async () => {
-    const baseDir = join(fixtures, 'with-parsing-error');
-    const analysisPromise = analyzeProject(prepareInput(baseDir), message => {
-      expect(message).toEqual({ messageType: 'cancelled' });
-    });
-    cancelAnalysis();
-    await analysisPromise;
+    expect(fsSpy.accessCount).toBeUndefined();
   });
 
   it('should return a default result when the project is empty', async () => {
