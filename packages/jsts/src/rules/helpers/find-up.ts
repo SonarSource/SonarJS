@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import * as Path from 'node:path/posix';
+import { join, dirname, basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { isRoot, toUnixPath } from './files.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 interface Stats {
   isFile(): boolean;
@@ -64,11 +64,11 @@ export const createFindUp = (pattern: string): FindUp => {
 
       try {
         for (const entry of filesystem.readdirSync(from)) {
-          const fullEntryPath = Path.join(from, entry.toString());
+          const fullEntryPath = join(from, entry.toString());
 
-          const basename = Path.basename(fullEntryPath);
+          const filename = basename(fullEntryPath);
 
-          if (matcher.match(basename)) {
+          if (matcher.match(filename)) {
             let stats: Stats;
 
             // the resource may not be available
@@ -95,7 +95,7 @@ export const createFindUp = (pattern: string): FindUp => {
     results.push(...cacheContent);
 
     if (!isRoot(from) && from !== to) {
-      const parent = Path.dirname(from);
+      const parent = dirname(from);
 
       results.push(..._findUp(parent, to, filesystem));
     }

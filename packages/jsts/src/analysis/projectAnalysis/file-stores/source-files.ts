@@ -16,12 +16,8 @@
  */
 
 import type { JsTsFiles } from '../projectAnalysis.js';
-import {
-  isAnalyzableFile,
-  isSonarLint,
-  noFs,
-} from '../../../../../shared/src/helpers/configuration.js';
-import { Dirent } from 'node:fs';
+import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
+import type { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
@@ -56,13 +52,13 @@ export class SourceFileStore implements FileStore {
 
   async isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
-    if (inputFiles && (!isSonarLint() || noFs())) {
-      //if we are in SQS or if no FS is allowed, the files in the request will already contain all found files
+    if (isSonarLint()) {
+      await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
+    } else if (inputFiles) {
+      //if we are in SQS, the files in the request will already contain all found files
       this.setup(baseDir);
       await this.filterAndSetFiles('found', Object.values(inputFiles));
       return true;
-    } else if (isSonarLint()) {
-      await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
     return typeof this.store.found.files !== 'undefined';
