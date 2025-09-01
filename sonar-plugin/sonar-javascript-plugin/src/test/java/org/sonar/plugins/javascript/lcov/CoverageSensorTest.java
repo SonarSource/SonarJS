@@ -382,4 +382,37 @@ class CoverageSensorTest {
     assertThat(context.lineHits(inputFile.key(), 3)).isEqualTo(1);
     assertThat(context.lineHits(inputFile.key(), 0)).isNull();
   }
+
+  @Test
+  void should_merge_branch_coverage_for_ts() throws Exception {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
+      .setModuleBaseDir(moduleBaseDir.toPath())
+      .setLanguage("ts")
+      .setContents("if (x > 0) {\n" + "    console.log(\"positive\");\n" + "}\n")
+      .build();
+    context.fileSystem().add(inputFile);
+
+    Path lcov = tempDir.resolve("file1.lcov");
+    Files.write(
+      lcov,
+      ("SF:src/file1.ts\n" + "BRDA:1,0,0,3\n" + "BRDA:1,0,1,0\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    Path lcov2 = tempDir.resolve("file2.lcov");
+    Files.write(
+      lcov2,
+      ("SF:src/file1.ts\n" + "BRDA:1,0,0,0\n" + "BRDA:1,0,1,4\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      lcov.toAbsolutePath() + "," + lcov2.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+    assertThat(context.conditions(inputFile.key(), 1)).isEqualTo(2);
+    assertThat(context.coveredConditions(inputFile.key(), 1)).isEqualTo(2);
+  }
 }

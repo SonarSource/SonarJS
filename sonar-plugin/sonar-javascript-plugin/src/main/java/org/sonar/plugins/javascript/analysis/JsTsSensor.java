@@ -136,7 +136,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
     private final List<InputFile> inputFiles;
-    private final List<InputFile> filesToAnalyze = new ArrayList<>();
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
@@ -160,7 +159,15 @@ public class JsTsSensor extends AbstractBridgeSensor {
           CacheStrategy cacheStrategy = null;
           cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
           if (cacheStrategy.isAnalysisRequired()) {
-            filesToAnalyze.add(inputFile);
+            files.put(
+              inputFile.absolutePath(),
+              new BridgeServer.JsTsFile(
+                inputFile.absolutePath(),
+                inputFile.type().toString(),
+                inputFile.status(),
+                context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
+              )
+            );
             fileToInputFile.put(inputFile.absolutePath(), inputFile);
             fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
           } else {
@@ -169,17 +176,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
             analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
             acceptAstResponse(cacheAnalysis.getAst(), inputFile);
           }
-        }
-        for (InputFile file : filesToAnalyze) {
-          files.put(
-            file.absolutePath(),
-            new BridgeServer.JsTsFile(
-              file.absolutePath(),
-              file.type().toString(),
-              file.status(),
-              context.shouldSendFileContent(file) ? file.contents() : null
-            )
-          );
         }
       } catch (IOException e) {
         handle.completeExceptionally(new IllegalStateException(e));
