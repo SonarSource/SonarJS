@@ -91,6 +91,20 @@
             </configuration>
           </execution>
           <execution>
+            <id>Clean the Generated Classes</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>git</executable>
+              <arguments>
+                <argument>clean</argument>
+                <argument>-xdf</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>Deploy the rule data</id>
             <phase>generate-resources</phase>
             <goals>
