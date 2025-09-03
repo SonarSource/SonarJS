@@ -192,12 +192,20 @@ function tempt8(name: string, ofAge: boolean) {
 
 [true, false].map((isTrue) => {
   if (isTrue) {
-    console.log('true branch');  
+    return 1;  
   } else {
-    console.log('false branch');
+    return 0;
   }
-})
-`,
+})`,
+        },
+        {
+          code: `[true, false].map(function(isTrue) {
+  if (isTrue) {
+    return 1;
+  } else {
+    return 0;
+  }
+})`,
         },
       ],
     });
