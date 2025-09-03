@@ -189,6 +189,14 @@ function tempt8(name: string, ofAge: boolean) {
     offerLiquor(name);
   }
 }
+
+[true, false].map((isTrue) => {
+  if (isTrue) {
+    console.log('true branch');  
+  } else {
+    console.log('false branch');
+  }
+})
 `,
         },
       ],

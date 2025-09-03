@@ -81,6 +81,10 @@ export const rule: Rule.RuleModule = {
         handleFunctionBody(node.body);
       },
       ArrowFunctionExpression: node => {
+        if (node.parent.type === 'CallExpression' && node.parent.arguments.includes(node)) {
+          // Omit this arrow function expression as it's provided as an anonymous lambda
+          return;
+        }
         if (node.body.type === 'BlockStatement') {
           handleFunctionBody(node.body);
         }
