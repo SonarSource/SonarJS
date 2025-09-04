@@ -1,0 +1,32 @@
+{
+  "title": "Unicode-aware string methods should be used for proper character handling",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "unicode",
+    "internationalization"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7758",
+  "sqKey": "S7758",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

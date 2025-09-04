@@ -1,0 +1,30 @@
+{
+  "title": "Default exports should be named",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "convention"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7726",
+  "sqKey": "S7726",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "IDENTIFIABLE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

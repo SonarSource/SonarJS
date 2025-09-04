@@ -1,0 +1,31 @@
+{
+  "title": "Negative indices should be used instead of length calculations",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "readability",
+    "performance"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7771",
+  "sqKey": "S7771",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Function references should not be passed directly to iterator methods",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "javascript",
+    "array",
+    "callback",
+    "iterator"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7727",
+  "sqKey": "S7727",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

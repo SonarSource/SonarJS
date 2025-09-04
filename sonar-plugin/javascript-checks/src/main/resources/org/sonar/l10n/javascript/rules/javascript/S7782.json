@@ -1,0 +1,31 @@
+{
+  "title": "Regular expressions should not be used for simple string prefix and suffix checks",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "readability",
+    "regex"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7782",
+  "sqKey": "S7782",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

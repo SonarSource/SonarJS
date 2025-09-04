@@ -1,0 +1,30 @@
+{
+  "title": "Negated conditions should be avoided when an else clause is present",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "readability"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7735",
+  "sqKey": "S7735",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

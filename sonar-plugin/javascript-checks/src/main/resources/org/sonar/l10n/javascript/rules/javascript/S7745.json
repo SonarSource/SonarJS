@@ -1,0 +1,30 @@
+{
+  "title": "Array length checks should not be used before \"some()\" and \"every()\" calls",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "confusing"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7745",
+  "sqKey": "S7745",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

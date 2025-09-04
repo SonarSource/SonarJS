@@ -1,0 +1,48 @@
+<p>This rule raises an issue when an object, class, or module defines a property or method named <code>then</code>.</p>
+<h2>Why is this an issue?</h2>
+<p>JavaScript treats objects with a <code>then</code> property as "thenable" - similar to Promises. This can cause unexpected behavior when these
+objects are used with <code>await</code> expressions or dynamic imports.</p>
+<p>When JavaScript encounters an object with a <code>then</code> property in an <code>await</code> expression, it assumes the object is Promise-like
+and tries to resolve it. This can lead to:</p>
+<ul>
+  <li> Code execution being suspended indefinitely if the <code>then</code> method doesn’t behave like a Promise </li>
+  <li> Unexpected errors if the <code>then</code> method throws an exception </li>
+  <li> Silent failures where subsequent code never executes </li>
+</ul>
+<p>The same issue occurs with dynamic imports. If a module exports a <code>then</code> function, the import statement will treat the entire module as
+thenable, potentially calling the <code>then</code> function instead of returning the module object.</p>
+<p>This behavior stems from JavaScript’s Promise resolution algorithm, which checks for a <code>then</code> property to determine if an object should
+be treated as a Promise.</p>
+<h3>What is the potential impact?</h3>
+<p>This issue can cause applications to hang indefinitely, throw unexpected errors, or fail silently. In production environments, this could lead to
+unresponsive user interfaces, incomplete data processing, or application crashes. The debugging experience is particularly poor because the connection
+between the <code>then</code> property and the problematic behavior is not immediately obvious.</p>
+<h3>How to fix?</h3>
+<p>Rename the <code>then</code> property to a more descriptive name that reflects its actual purpose.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const userAction = {
+  userId: 123,
+  then() { // Noncompliant
+    console.log('Action completed');
+  }
+};
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const userAction = {
+  userId: 123,
+  complete() {
+    console.log('Action completed');
+  }
+};
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> MDN - Promise Resolution - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve">Explains
+  how JavaScript resolves thenable objects</a> </li>
+  <li> MDN - await operator - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await">Documentation on how await
+  handles thenable objects</a> </li>
+  <li> MDN - Dynamic imports - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import">Information about dynamic
+  import behavior with thenable modules</a> </li>
+</ul>
