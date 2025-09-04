@@ -15,25 +15,23 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export class Cache<K, V> {
+export class ComputedCache<K, V, TContext = {}> {
   private cache: Map<K, V>;
 
-  constructor(private computeFn: (key: K) => V) {
+  constructor(
+    private computeFn: (key: K, cache: ComputedCache<K, V, TContext>, context?: TContext) => V,
+  ) {
     this.cache = new Map();
   }
 
-  get(key: K) {
+  get(key: K, context?: TContext) {
     if (this.cache.has(key)) {
-      return this.cache.get(key);
+      return this.cache.get(key)!;
     }
 
-    const value = this.computeFn(key);
+    const value = this.computeFn(key, this, context);
     this.cache.set(key, value);
     return value;
-  }
-
-  set(key: K, value: V) {
-    this.cache.set(key, value);
   }
 
   has(key: K) {

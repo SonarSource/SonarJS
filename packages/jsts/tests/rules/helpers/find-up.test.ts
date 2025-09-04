@@ -29,16 +29,16 @@ describe('findUp', () => {
     });
     console.log(filesystem.toJSON());
 
-    const findUp = createFindUp('foo.bar');
+    const findUp = createFindUp('foo.bar', '/', filesystem as Filesystem);
 
     const filesystemReadFileSpy = mock.method(filesystem, 'readFileSync');
     const filesystemReaddirSpy = mock.method(filesystem, 'readdirSync');
 
-    const abcEntries = findUp('/a/b/c', '/', filesystem as Filesystem);
-    const abcEntries2 = findUp('/a/b/c', '/', filesystem as Filesystem);
-    const abcEntries3 = findUp('/a/b/c', '/', filesystem as Filesystem);
-    const abcEntries4 = findUp('/a/b/c', '/', filesystem as Filesystem);
-    findUp('/a/b', '/', filesystem as Filesystem);
+    const abcEntries = findUp.get('/a/b/c');
+    const abcEntries2 = findUp.get('/a/b/c');
+    const abcEntries3 = findUp.get('/a/b/c');
+    const abcEntries4 = findUp.get('/a/b/c');
+    findUp.get('/a/b');
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
@@ -61,7 +61,7 @@ describe('findUp', () => {
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
 
-    findUp('/a/b/c/d', '/', filesystem as Filesystem);
+    findUp.get('/a/b/c/d');
 
     equal(filesystemReadFileSpy.mock.calls.length, 3);
     equal(filesystemReaddirSpy.mock.calls.length, 5);
@@ -74,12 +74,9 @@ describe('findUp', () => {
       '/foo.bar': '/foo.bar content',
     });
 
-    const findUp = createFindUp('foo.bar');
-
-    const entriesUpToRoot = findUp('/a/b/c', '/', filesystem as Filesystem);
-
-    const entriesUpToA = findUp('/a/b/c', '/a', filesystem as Filesystem);
-    const entriesUpToAB = findUp('/a/b/c', '/a/b', filesystem as Filesystem);
+    const entriesUpToRoot = createFindUp('foo.bar', '/', filesystem as Filesystem).get('/a/b/c');
+    const entriesUpToA = createFindUp('foo.bar', '/a', filesystem as Filesystem).get('/a/b/c');
+    const entriesUpToAB = createFindUp('foo.bar', '/a/b', filesystem as Filesystem).get('/a/b/c');
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
@@ -99,12 +96,13 @@ describe('findUp', () => {
       '/foo.y.bar': '/foo.bar content',
     });
 
-    const findUp = createFindUp('foo.{*.,}bar');
-
-    const entriesUpToRoot = findUp('/a/b/c', '/', filesystem as Filesystem);
-
-    const entriesUpToA = findUp('/a/b/c', '/a', filesystem as Filesystem);
-    const entriesUpToAB = findUp('/a/b/c', '/a/b', filesystem as Filesystem);
+    const entriesUpToRoot = createFindUp('foo.{*.,}bar', '/', filesystem as Filesystem).get(
+      '/a/b/c',
+    );
+    const entriesUpToA = createFindUp('foo.{*.,}bar', '/a', filesystem as Filesystem).get('/a/b/c');
+    const entriesUpToAB = createFindUp('foo.{*.,}bar', '/a/b', filesystem as Filesystem).get(
+      '/a/b/c',
+    );
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));

@@ -18,6 +18,7 @@ import * as Path from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { isRoot, toUnixPath } from './files.js';
 import fs from 'fs';
+import { ComputedCache } from '../../../../shared/src/helpers/cache.js';
 
 interface Stats {
   isFile(): boolean;
@@ -34,34 +35,14 @@ interface File {
   readonly content: Buffer | string;
 }
 
-type FindUp = (from: string, to?: string, filesystem?: Filesystem) => Array<File>;
-
-/**
- * Create an instance of FindUp.
- */
-export const createFindUp = (pattern: string): FindUp => {
-  const cache: Map<string, Array<File>> = new Map();
-  const matcher = new Minimatch(pattern);
-
-  const findUp: FindUp = (from, to?, filesystem = fs) => {
-    return _findUp(toUnixPath(from), to ? toUnixPath(to) : undefined, filesystem);
-  };
-
-  const _findUp: FindUp = (from, to?, filesystem = fs) => {
-    const results: Array<File> = [];
-
-    if (from === '.') {
-      // handle path.dirname returning "." in windows
-      return results;
-    }
-
-    let cacheContent = cache.get(from);
-
-    if (cacheContent === undefined) {
-      cacheContent = [];
-
-      cache.set(from, cacheContent);
-
+const MinimatchCache = new ComputedCache(
+  (
+    matcher: Minimatch,
+    _cache: ComputedCache<any, any, Filesystem>,
+    filesystem: Filesystem = fs,
+  ) => {
+    return new ComputedCache((from: string) => {
+      const files: File[] = [];
       try {
         for (const entry of filesystem.readdirSync(from)) {
           const fullEntryPath = Path.join(from, entry.toString());
@@ -82,7 +63,7 @@ export const createFindUp = (pattern: string): FindUp => {
             }
 
             if (stats.isFile()) {
-              cacheContent.push({
+              files.push({
                 path: fullEntryPath,
                 content: filesystem.readFileSync(fullEntryPath),
               });
@@ -90,18 +71,75 @@ export const createFindUp = (pattern: string): FindUp => {
           }
         }
       } catch {}
+      return files;
+    });
+  },
+);
+
+/**
+ * Create an instance of FindUp.
+ */
+export function createFindUpFirstMatch(
+  pattern: string,
+  to?: string,
+  filesystem: Filesystem = fs,
+): ComputedCache<string, File | undefined> {
+  const matcher = new Minimatch(pattern);
+  const topDir = to ? toUnixPath(to) : undefined;
+  const readDir = MinimatchCache.get(matcher, filesystem);
+
+  const _findUpSimple = (
+    from: string,
+    cache: ComputedCache<string, File | undefined>,
+  ): File | undefined => {
+    if (from === '.') {
+      // handle path.dirname returning "." in windows
+      return undefined;
     }
+    const matchingFiles = readDir.get(from);
 
-    results.push(...cacheContent);
-
-    if (!isRoot(from) && from !== to) {
+    if (matchingFiles.length > 0) {
+      return matchingFiles[0];
+    }
+    if (!isRoot(from) && from !== topDir) {
       const parent = Path.dirname(from);
 
-      results.push(..._findUp(parent, to, filesystem));
+      return cache.get(parent);
     }
 
-    return results;
+    return undefined;
   };
 
-  return findUp;
-};
+  return new ComputedCache((from: string, cache: ComputedCache<string, File | undefined>) => {
+    return _findUpSimple(toUnixPath(from), cache);
+  });
+}
+
+export function createFindUp(
+  pattern: string,
+  to?: string,
+  filesystem: Filesystem = fs,
+): ComputedCache<string, File[]> {
+  const matcher = new Minimatch(pattern);
+  const topDir = to ? toUnixPath(to) : undefined;
+  const readDir = MinimatchCache.get(matcher, filesystem);
+
+  const _findUpAll = (from: string, cache: ComputedCache<string, File[]>): File[] => {
+    if (from === '.') {
+      // handle path.dirname returning "." in windows
+      return [];
+    }
+
+    if (!isRoot(from) && from !== topDir) {
+      const parent = Path.dirname(from);
+
+      return [...readDir.get(from), ...cache.get(parent)];
+    }
+
+    return [...readDir.get(from)];
+  };
+
+  return new ComputedCache((from: string, cache: ComputedCache<string, File[]>) => {
+    return _findUpAll(toUnixPath(from), cache);
+  });
+}
