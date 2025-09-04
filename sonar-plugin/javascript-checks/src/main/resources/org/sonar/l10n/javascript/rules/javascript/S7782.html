@@ -1,0 +1,33 @@
+<p>This rule raises an issue when using regular expressions with <code>^</code> (start anchor) or <code>$</code> (end anchor) patterns to test simple
+string prefixes or suffixes.</p>
+<h2>Why is this an issue?</h2>
+<p>Using regular expressions for simple string prefix and suffix checks makes code less readable and harder to understand. When you see
+<code>/^foo/.test(string)</code>, it requires mental parsing to understand that you’re checking if the string starts with "foo".</p>
+<p>The <code>String#startsWith()</code> and <code>String#endsWith()</code> methods were specifically designed for these common operations. They
+express the intent more clearly and are typically more performant than regular expressions for simple string matching.</p>
+<p>Regular expressions are powerful tools, but they add unnecessary complexity when simpler, more semantic alternatives exist. Using the appropriate
+string methods makes your code more maintainable and easier for other developers to understand at a glance.</p>
+<h3>What is the potential impact?</h3>
+<p>Using regular expressions instead of string methods reduces code readability and maintainability. Other developers need to spend extra time
+understanding the regex pattern when the intent could be expressed more clearly with dedicated string methods.</p>
+<h3>How to fix?</h3>
+<p>Replace regex patterns that check string prefixes with the <code>startsWith()</code> method. This makes the code intention clear and improves
+readability.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+const isValid = /^https/.test(url); // Noncompliant
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+const isValid = url.startsWith('https');
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> String.prototype.startsWith() - <a
+  href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith">MDN documentation for the startsWith()
+  method</a> </li>
+  <li> String.prototype.endsWith() - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith">MDN
+  documentation for the endsWith() method</a> </li>
+  <li> RegExp.prototype.test() - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test">MDN
+  documentation for the RegExp test() method</a> </li>
+</ul>

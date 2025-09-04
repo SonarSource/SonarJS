@@ -1,0 +1,33 @@
+{
+  "title": "Negated expressions should not be used in equality checks",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "confusing",
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7736",
+  "sqKey": "S7736",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM",
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

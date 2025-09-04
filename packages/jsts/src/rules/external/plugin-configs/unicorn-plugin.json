@@ -1,0 +1,429 @@
+{
+  "name": "eslint-plugin-unicorn",
+  "prefix": "unicorn",
+  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
+  "languages": ["js", "ts"],
+  "scope": "Main",
+  "rules": [
+    {
+      "name": "catch-error-name",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/catch-error-name.md",
+      "quickfix": "covered",
+      "sqkey": "S7718"
+    },
+    {
+      "name": "consistent-date-clone",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/consistent-date-clone.md",
+      "quickfix": "covered",
+      "sqkey": "S7719"
+    },
+    {
+      "name": "consistent-empty-array-spread",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/consistent-empty-array-spread.md",
+      "quickfix": "covered",
+      "sqkey": "S7720"
+    },
+    {
+      "name": "consistent-function-scoping",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/consistent-function-scoping.md",
+      "quickfix": "unknown",
+      "sqkey": "S7721"
+    },
+    {
+      "name": "error-message",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/error-message.md",
+      "quickfix": "unknown",
+      "sqkey": "S7722"
+    },
+    {
+      "name": "new-for-builtins",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/new-for-builtins.md",
+      "quickfix": "covered",
+      "sqkey": "S7723"
+    },
+    {
+      "name": "no-abusive-eslint-disable",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-abusive-eslint-disable.md",
+      "quickfix": "unknown",
+      "sqkey": "S7724"
+    },
+    {
+      "name": "no-accessor-recursion",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-accessor-recursion.md",
+      "quickfix": "unknown",
+      "sqkey": "S7725"
+    },
+    {
+      "name": "no-anonymous-default-export",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-anonymous-default-export.md",
+      "quickfix": "unknown",
+      "sqkey": "S7726"
+    },
+    {
+      "name": "no-array-callback-reference",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-array-callback-reference.md",
+      "quickfix": "unknown",
+      "sqkey": "S7727"
+    },
+    {
+      "name": "no-array-for-each",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-array-for-each.md",
+      "quickfix": "covered",
+      "sqkey": "S7728"
+    },
+    {
+      "name": "no-array-method-this-argument",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-array-method-this-argument.md",
+      "quickfix": "covered",
+      "sqkey": "S7729"
+    },
+    {
+      "name": "no-await-expression-member",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-await-expression-member.md",
+      "quickfix": "covered",
+      "sqkey": "S7730"
+    },
+    {
+      "name": "no-for-loop",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-for-loop.md",
+      "quickfix": "covered",
+      "sqkey": "S7731"
+    },
+    {
+      "name": "no-instanceof-builtins",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-instanceof-builtins.md",
+      "quickfix": "covered",
+      "sqkey": "S7732"
+    },
+    {
+      "name": "no-invalid-fetch-options",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-invalid-fetch-options.md",
+      "quickfix": "unknown",
+      "sqkey": "S7733"
+    },
+    {
+      "name": "no-named-default",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-named-default.md",
+      "quickfix": "covered",
+      "sqkey": "S7734"
+    },
+    {
+      "name": "no-negated-condition",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-negated-condition.md",
+      "quickfix": "covered",
+      "sqkey": "S7735"
+    },
+    {
+      "name": "no-negation-in-equality-check",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-negation-in-equality-check.md",
+      "quickfix": "unknown",
+      "sqkey": "S7736"
+    },
+    {
+      "name": "no-object-as-default-parameter",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-object-as-default-parameter.md",
+      "quickfix": "unknown",
+      "sqkey": "S7737"
+    },
+    {
+      "name": "no-single-promise-in-promise-methods",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-single-promise-in-promise-methods.md",
+      "quickfix": "covered",
+      "sqkey": "S7738"
+    },
+    {
+      "name": "no-thenable",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-thenable.md",
+      "quickfix": "unknown",
+      "sqkey": "S7739"
+    },
+    {
+      "name": "no-this-assignment",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-this-assignment.md",
+      "quickfix": "unknown",
+      "sqkey": "S7740"
+    },
+    {
+      "name": "no-typeof-undefined",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-typeof-undefined.md",
+      "quickfix": "covered",
+      "sqkey": "S7741"
+    },
+    {
+      "name": "no-unnecessary-polyfills",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-unnecessary-polyfills.md",
+      "quickfix": "unknown",
+      "sqkey": "S7742"
+    },
+    {
+      "name": "no-unreadable-iife",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-unreadable-iife.md",
+      "quickfix": "unknown",
+      "sqkey": "S7743"
+    },
+    {
+      "name": "no-useless-fallback-in-spread",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-useless-fallback-in-spread.md",
+      "quickfix": "covered",
+      "sqkey": "S7744"
+    },
+    {
+      "name": "no-useless-length-check",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-useless-length-check.md",
+      "quickfix": "covered",
+      "sqkey": "S7745"
+    },
+    {
+      "name": "no-useless-promise-resolve-reject",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-useless-promise-resolve-reject.md",
+      "quickfix": "covered",
+      "sqkey": "S7746"
+    },
+    {
+      "name": "no-useless-spread",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-useless-spread.md",
+      "quickfix": "covered",
+      "sqkey": "S7747"
+    },
+    {
+      "name": "no-zero-fractions",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/no-zero-fractions.md",
+      "quickfix": "covered",
+      "sqkey": "S7748"
+    },
+    {
+      "name": "numeric-separators-style",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/numeric-separators-style.md",
+      "quickfix": "covered",
+      "sqkey": "S7749"
+    },
+    {
+      "name": "prefer-array-find",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-array-find.md",
+      "quickfix": "covered",
+      "sqkey": "S7750"
+    },
+    {
+      "name": "prefer-array-flat",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-array-flat.md",
+      "quickfix": "covered",
+      "sqkey": "S7751"
+    },
+    {
+      "name": "prefer-array-flat-map",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-array-flat-map.md",
+      "quickfix": "covered",
+      "sqkey": "S7752"
+    },
+    {
+      "name": "prefer-array-index-of",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-array-index-of.md",
+      "quickfix": "covered",
+      "sqkey": "S7753"
+    },
+    {
+      "name": "prefer-array-some",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-array-some.md",
+      "quickfix": "covered",
+      "sqkey": "S7754"
+    },
+    {
+      "name": "prefer-at",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-at.md",
+      "quickfix": "covered",
+      "sqkey": "S7755"
+    },
+    {
+      "name": "prefer-blob-reading-methods",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-blob-reading-methods.md",
+      "quickfix": "unknown",
+      "sqkey": "S7756"
+    },
+    {
+      "name": "prefer-class-fields",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-class-fields.md",
+      "quickfix": "covered",
+      "sqkey": "S7757"
+    },
+    {
+      "name": "prefer-code-point",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-code-point.md",
+      "quickfix": "unknown",
+      "sqkey": "S7758"
+    },
+    {
+      "name": "prefer-date-now",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-date-now.md",
+      "quickfix": "covered",
+      "sqkey": "S7759"
+    },
+    {
+      "name": "prefer-default-parameters",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-default-parameters.md",
+      "quickfix": "unknown",
+      "sqkey": "S7760"
+    },
+    {
+      "name": "prefer-dom-node-dataset",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-dom-node-dataset.md",
+      "quickfix": "covered",
+      "sqkey": "S7761"
+    },
+    {
+      "name": "prefer-dom-node-remove",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-dom-node-remove.md",
+      "quickfix": "covered",
+      "sqkey": "S7762"
+    },
+    {
+      "name": "prefer-export-from",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-export-from.md",
+      "quickfix": "covered",
+      "sqkey": "S7763"
+    },
+    {
+      "name": "prefer-global-this",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-global-this.md",
+      "quickfix": "covered",
+      "sqkey": "S7764"
+    },
+    {
+      "name": "prefer-includes",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-includes.md",
+      "quickfix": "covered",
+      "sqkey": "S7765"
+    },
+    {
+      "name": "prefer-math-min-max",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-math-min-max.md",
+      "quickfix": "covered",
+      "sqkey": "S7766"
+    },
+    {
+      "name": "prefer-math-trunc",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-math-trunc.md",
+      "quickfix": "covered",
+      "sqkey": "S7767"
+    },
+    {
+      "name": "prefer-modern-dom-apis",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-modern-dom-apis.md",
+      "quickfix": "covered",
+      "sqkey": "S7768"
+    },
+    {
+      "name": "prefer-modern-math-apis",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-modern-math-apis.md",
+      "quickfix": "covered",
+      "sqkey": "S7769"
+    },
+    {
+      "name": "prefer-native-coercion-functions",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-native-coercion-functions.md",
+      "quickfix": "covered",
+      "sqkey": "S7770"
+    },
+    {
+      "name": "prefer-negative-index",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-negative-index.md",
+      "quickfix": "covered",
+      "sqkey": "S7771"
+    },
+    {
+      "name": "prefer-node-protocol",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-node-protocol.md",
+      "quickfix": "covered",
+      "sqkey": "S7772"
+    },
+    {
+      "name": "prefer-number-properties",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-number-properties.md",
+      "quickfix": "covered",
+      "sqkey": "S7773"
+    },
+    {
+      "name": "prefer-prototype-methods",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-prototype-methods.md",
+      "quickfix": "covered",
+      "sqkey": "S7774"
+    },
+    {
+      "name": "prefer-regexp-test",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-regexp-test.md",
+      "quickfix": "covered",
+      "sqkey": "S7775"
+    },
+    {
+      "name": "prefer-set-has",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-set-has.md",
+      "quickfix": "covered",
+      "sqkey": "S7776"
+    },
+    {
+      "name": "prefer-set-size",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-set-size.md",
+      "quickfix": "covered",
+      "sqkey": "S7777"
+    },
+    {
+      "name": "prefer-single-call",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-single-call.md",
+      "quickfix": "covered",
+      "sqkey": "S7778"
+    },
+    {
+      "name": "prefer-spread",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-spread.md",
+      "quickfix": "covered",
+      "sqkey": "S7779"
+    },
+    {
+      "name": "prefer-string-raw",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-raw.md",
+      "quickfix": "covered",
+      "sqkey": "S7780"
+    },
+    {
+      "name": "prefer-string-replace-all",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-replace-all.md",
+      "quickfix": "covered",
+      "sqkey": "S7781"
+    },
+    {
+      "name": "prefer-string-starts-ends-with",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-starts-ends-with.md",
+      "quickfix": "covered",
+      "sqkey": "S7782"
+    },
+    {
+      "name": "prefer-string-trim-start-end",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-trim-start-end.md",
+      "quickfix": "covered",
+      "sqkey": "S7783"
+    },
+    {
+      "name": "prefer-structured-clone",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-structured-clone.md",
+      "quickfix": "unknown",
+      "sqkey": "S7784"
+    },
+    {
+      "name": "prefer-top-level-await",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-top-level-await.md",
+      "quickfix": "unknown",
+      "sqkey": "S7785"
+    },
+    {
+      "name": "prefer-type-error",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-type-error.md",
+      "quickfix": "covered",
+      "sqkey": "S7786"
+    },
+    {
+      "name": "require-module-specifiers",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/require-module-specifiers.md",
+      "quickfix": "covered",
+      "sqkey": "S7787"
+    }
+  ]
+}

@@ -90,6 +90,8 @@ function externalURL(plugin: string, key: string) {
       return `https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/rules/${key}/README.md`;
     case '@angular-eslint':
       return `https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/${key}.md`;
+    case 'unicorn':
+      return `https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/${key}.md`;
     default:
       throw new Error(`Error generating URL for unknown ESLint plugin ${plugin}`);
   }

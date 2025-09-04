@@ -1,0 +1,32 @@
+{
+  "title": "Top-level await should be preferred over wrapped async operations",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "es2022",
+    "async",
+    "modernize"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7785",
+  "sqKey": "S7785",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
