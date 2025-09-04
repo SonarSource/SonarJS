@@ -1,0 +1,55 @@
+<p>This rule raises an issue when binary files specified in the <code>bin</code> field of <code>package.json</code> would be ignored during npm
+publishing.</p>
+<h2>Why is this an issue?</h2>
+<p>When you publish a Node.js package with CLI commands, you specify executable files in the <code>bin</code> field of <code>package.json</code>.
+However, if these binary files are excluded from publishing (either by not being listed in the <code>files</code> field or by being ignored in
+<code>.npmignore</code>), the package installation will fail.</p>
+<p>Npm uses the <code>files</code> field and <code>.npmignore</code> to determine which files to include in the published package. If a binary file
+referenced in the <code>bin</code> field is not included, users who install your package won’t be able to use the CLI commands, leading to broken
+functionality.</p>
+<p>This creates a mismatch between what the package declares it provides (executable commands) and what it actually delivers (missing binary
+files).</p>
+<h3>What is the potential impact?</h3>
+<p>When binary files are missing from the published package, users will encounter errors when trying to use the CLI commands. This can lead to failed
+installations, broken CI/CD pipelines, and frustrated users who cannot access the advertised functionality of your package.</p>
+<h3>How to fix?</h3>
+<p>Include the binary file in the <code>files</code> field of package.json to ensure it gets published.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "name": "my-cli-tool",
+  "bin": "bin/cli.js",
+  "files": [
+    "lib/"
+  ]
+}
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "name": "my-cli-tool",
+  "bin": "bin/cli.js",
+  "files": [
+    "lib/",
+    "bin/"
+  ]
+}
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> npm package.json bin field - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#bin">Official npm documentation for the bin
+  field in package.json</a> </li>
+  <li> npm package.json files field - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#files">Official npm documentation for the
+  files field in package.json</a> </li>
+  <li> npm .npmignore - <a href="https://docs.npmjs.com/cli/v11/using-npm/developers#keeping-files-out-of-your-package">Official npm documentation
+  about excluding files from packages</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unpublished-import - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-import.md">Disallow import declarations for files
+  that npm ignores</a> </li>
+  <li> n/no-unpublished-require - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unpublished-require.md">Disallow require() expressions for files
+  that npm ignores</a> </li>
+</ul>
