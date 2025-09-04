@@ -189,7 +189,23 @@ function tempt8(name: string, ofAge: boolean) {
     offerLiquor(name);
   }
 }
-`,
+
+[true, false].map((isTrue) => {
+  if (isTrue) {
+    return 1;  
+  } else {
+    return 0;
+  }
+})`,
+        },
+        {
+          code: `[true, false].map(function(isTrue) {
+  if (isTrue) {
+    return 1;
+  } else {
+    return 0;
+  }
+})`,
         },
       ],
     });

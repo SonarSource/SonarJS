@@ -26,7 +26,12 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import type { BlockStatement, Node as ESTreeNode } from 'estree';
+import type {
+  ArrowFunctionExpression,
+  BlockStatement,
+  FunctionExpression,
+  Node as ESTreeNode,
+} from 'estree';
 import * as meta from './generated-meta.js';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -78,9 +83,17 @@ export const rule: Rule.RuleModule = {
         handleFunctionBody(node.body);
       },
       FunctionExpression: node => {
+        if (isCallbackArgument(node)) {
+          // Omit this function expression as it's provided as an anonymous lambda
+          return;
+        }
         handleFunctionBody(node.body);
       },
       ArrowFunctionExpression: node => {
+        if (isCallbackArgument(node)) {
+          // Omit this arrow function expression as it's provided as an anonymous lambda
+          return;
+        }
         if (node.body.type === 'BlockStatement') {
           handleFunctionBody(node.body);
         }
@@ -160,3 +173,9 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isCallbackArgument(
+  node: (ArrowFunctionExpression | FunctionExpression) & Rule.NodeParentExtension,
+) {
+  return node.parent.type === 'CallExpression' && node.parent.arguments.includes(node);
+}
