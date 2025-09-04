@@ -372,12 +372,6 @@
       "sqkey": "S7778"
     },
     {
-      "name": "prefer-spread",
-      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-spread.md",
-      "quickfix": "covered",
-      "sqkey": "S7779"
-    },
-    {
       "name": "prefer-string-raw",
       "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-raw.md",
       "quickfix": "covered",
