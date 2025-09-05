@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-unicorn",
   "prefix": "unicorn",
-  "rulesImport": "import pkg from '@angular-eslint/eslint-plugin';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
+  "rulesImport": "import pkg from 'eslint-plugin-unicorn';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
   "languages": ["js", "ts"],
   "scope": "Main",
   "rules": [

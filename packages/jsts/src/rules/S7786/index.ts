@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import pkg from '@angular-eslint/eslint-plugin';
+import pkg from 'eslint-plugin-unicorn';
 import { Rule } from 'eslint';
 const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
 export const rule = rules['prefer-type-error'];
