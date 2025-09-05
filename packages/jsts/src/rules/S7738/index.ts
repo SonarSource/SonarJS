@@ -16,6 +16,5 @@
  */
 
 import pkg from 'eslint-plugin-unicorn';
-import { Rule } from 'eslint';
-const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
-export const rule = rules['no-single-promise-in-promise-methods'];
+const { rules } = pkg;
+export const rule = rules!['no-single-promise-in-promise-methods'];
