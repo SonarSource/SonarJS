@@ -16,6 +16,5 @@
  */
 
 import pkg from 'eslint-plugin-unicorn';
-import { Rule } from 'eslint';
-const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
-export const rule = rules['no-negation-in-equality-check'];
+const { rules } = pkg;
+export const rule = rules!['no-negation-in-equality-check'];

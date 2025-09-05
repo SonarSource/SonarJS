@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'catch-error-name';
 export const externalPlugin = 'unicorn';
+export * from './config.js';

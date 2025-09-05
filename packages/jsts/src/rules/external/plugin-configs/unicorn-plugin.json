@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-unicorn",
   "prefix": "unicorn",
-  "rulesImport": "import pkg from 'eslint-plugin-unicorn';\nimport { Rule } from 'eslint';\nconst { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };",
+  "rulesImport": "import pkg from 'eslint-plugin-unicorn';\nconst { rules } = pkg;",
   "languages": ["js", "ts"],
   "scope": "Main",
   "rules": [
@@ -382,12 +382,6 @@
       "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-replace-all.md",
       "quickfix": "covered",
       "sqkey": "S7781"
-    },
-    {
-      "name": "prefer-string-starts-ends-with",
-      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-string-starts-ends-with.md",
-      "quickfix": "covered",
-      "sqkey": "S7782"
     },
     {
       "name": "prefer-string-trim-start-end",

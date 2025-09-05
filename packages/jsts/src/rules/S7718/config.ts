@@ -14,8 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+// https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
 
-import pkg from 'eslint-plugin-unicorn';
-import { Rule } from 'eslint';
-const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
-export const rule = rules['prefer-string-starts-ends-with'];
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'ignore',
+      default: ['^(e|ex|exception|err)$'],
+    },
+  ],
+] as const satisfies ESLintConfiguration;
