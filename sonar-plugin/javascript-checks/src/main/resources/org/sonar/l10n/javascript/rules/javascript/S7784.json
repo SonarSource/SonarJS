@@ -1,0 +1,32 @@
+{
+  "title": "\"structuredClone()\" should be used instead of other deep cloning methods",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "performance",
+    "es2021",
+    "modernize"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7784",
+  "sqKey": "S7784",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

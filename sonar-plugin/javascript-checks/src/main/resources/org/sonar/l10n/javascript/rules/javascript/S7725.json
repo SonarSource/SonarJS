@@ -1,0 +1,31 @@
+{
+  "title": "Getters and setters should not recursively access the same property",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "15 min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7725",
+  "sqKey": "S7725",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER",
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
