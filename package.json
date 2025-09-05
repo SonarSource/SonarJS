@@ -100,9 +100,9 @@
     "typedoc": "0.28.12"
   },
   "dependencies": {
-    "@babel/core": "7.28.3",
+    "@babel/core": "7.28.4",
     "@angular-eslint/eslint-plugin": "20.2.0",
-    "@babel/eslint-parser": "7.28.0",
+    "@babel/eslint-parser": "7.28.4",
     "@babel/plugin-proposal-decorators": "7.28.0",
     "@babel/preset-env": "7.28.3",
     "@babel/preset-flow": "7.27.1",
