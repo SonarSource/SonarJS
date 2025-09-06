@@ -35,7 +35,7 @@ interface File {
   readonly content: Buffer | string;
 }
 
-const MinimatchCache = new ComputedCache(
+export const MinimatchCache = new ComputedCache(
   (
     matcher: Minimatch,
     _cache: ComputedCache<any, any, Filesystem>,

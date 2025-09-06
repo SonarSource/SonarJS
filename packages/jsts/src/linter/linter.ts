@@ -32,7 +32,7 @@ import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
-import { extname } from 'node:path/posix';
+import { extname, dirname } from 'node:path/posix';
 import { defaultOptions } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
 
@@ -337,6 +337,6 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
-  const packageJsonDirName = getClosestPackageJSONDir(filePath, baseDir);
+  const packageJsonDirName = getClosestPackageJSONDir(dirname(filePath), baseDir);
   return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
 }

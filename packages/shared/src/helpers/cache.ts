@@ -16,10 +16,14 @@
  */
 
 export class ComputedCache<K, V, TContext = {}> {
-  private cache: Map<K, V>;
+  private readonly cache: Map<K, V>;
 
   constructor(
-    private computeFn: (key: K, cache: ComputedCache<K, V, TContext>, context?: TContext) => V,
+    private readonly computeFn: (
+      key: K,
+      cache: ComputedCache<K, V, TContext>,
+      context?: TContext,
+    ) => V,
   ) {
     this.cache = new Map();
   }

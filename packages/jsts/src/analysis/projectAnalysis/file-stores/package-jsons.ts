@@ -19,7 +19,7 @@ import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js'
 import { basename } from 'node:path/posix';
 import {
   clearDependenciesCache,
-  fillCacheExhaustive,
+  fillPackageJsonCaches,
   PACKAGE_JSON,
   PackageJsonWithPath,
 } from '../../../rules/helpers/index.js';
@@ -95,9 +95,9 @@ export class PackageJsonStore implements FileStore {
   }
 
   async postProcess() {
-    if (!this.packageJsons) {
+    if (!this.packageJsons || !this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    fillCacheExhaustive(this.packageJsons);
+    fillPackageJsonCaches(this.packageJsons, this.paths, this.baseDir);
   }
 }

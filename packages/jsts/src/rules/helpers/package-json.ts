@@ -14,12 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { dirname } from 'path/posix';
 import { type PackageJson } from 'type-fest';
 import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
-import { type Filesystem, createFindUp } from './find-up.js';
+import {
+  type Filesystem,
+  createFindUp,
+  createFindUpFirstMatch,
+  MinimatchCache,
+} from './find-up.js';
 import fs from 'node:fs';
+import { ComputedCache } from '../../../../shared/src/helpers/cache.js';
 
 export const PACKAGE_JSON = 'package.json';
 
@@ -28,11 +33,46 @@ export type PackageJsonWithPath = {
   fileContent: PackageJson;
 };
 
-/**
- * The {@link FindUp} instance dedicated to retrieving `package.json` files
- */
-const findPackageJsons = createFindUp(PACKAGE_JSON);
+const closestPackageJsonCache = new ComputedCache(
+  (
+    topDir: string | undefined,
+    _cache: ComputedCache<any, any, Filesystem>,
+    filesystem: Filesystem = fs,
+  ) => {
+    return createFindUpFirstMatch(PACKAGE_JSON, topDir, filesystem);
+  },
+);
 
+const packageJsonsInParentsCache = new ComputedCache(
+  (
+    topDir: string | undefined,
+    _cache: ComputedCache<any, any, Filesystem>,
+    filesystem: Filesystem = fs,
+  ) => {
+    return createFindUp(PACKAGE_JSON, topDir, filesystem);
+  },
+);
+
+/**
+ * Cache for the available dependencies by dirname. Exported for tests
+ */
+export const dependenciesCache = new ComputedCache(
+  (dir: string, _cache: ComputedCache<any, any, string>, topDir: string | undefined) => {
+    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+    const result = new Set<string | Minimatch>();
+
+    if (closestPackageJSONDirName) {
+      getManifests(closestPackageJSONDirName, topDir, fs).forEach(manifest => {
+        const manifestDependencies = getDependenciesFromPackageJson(manifest);
+
+        manifestDependencies.forEach(dependency => {
+          result.add(dependency.name);
+        });
+      });
+    }
+    return result;
+  },
+);
 const DefinitelyTyped = '@types/';
 
 type MinimatchDependency = {
@@ -47,28 +87,8 @@ type NamedDependency = {
 
 type Dependency = MinimatchDependency | NamedDependency;
 
-/**
- * Cache for the available dependencies by dirname. Exported for tests
- */
-export const cache: Map<string, Set<Dependency>> = new Map();
-/**
- * Cache for dirName (of a source file) to the dirName of the closest package.json
- */
-const dirNameToClosestPackageJSONCache: Map<string, string> = new Map();
-
-export function getClosestPackageJSONDir(filename: string, cwd: string): string {
-  const path = dirname(toUnixPath(filename));
-  if (!dirNameToClosestPackageJSONCache.has(path)) {
-    const files = findPackageJsons(path, cwd, fs);
-    // take the longest filepath as that will be the closest package.json to the provided file
-    dirNameToClosestPackageJSONCache.set(
-      path,
-      files
-        .map(file => file.path)
-        .reduce((prev, current) => (prev.length > current.length ? prev : current), cwd),
-    );
-  }
-  return dirNameToClosestPackageJSONCache.get(path)!;
+export function getClosestPackageJSONDir(dir: string, cwd?: string) {
+  return closestPackageJsonCache.get(cwd).get(toUnixPath(dir))?.path;
 }
 
 /**
@@ -78,46 +98,59 @@ export function getClosestPackageJSONDir(filename: string, cwd: string): string 
  * @param cwd working dir, will search up to that root
  * @returns
  */
-export function getDependencies(filename: string, cwd: string) {
-  const closestPackageJSONDirName = getClosestPackageJSONDir(filename, cwd);
-  if (!cache.has(closestPackageJSONDirName)) {
+export function getDependencies(dir: string, cwd: string) {
+  return dependenciesCache.get(toUnixPath(dir), cwd);
+}
+
+export function fillPackageJsonCaches(
+  packageJsons: PackageJsonWithPath[],
+  allPaths: Set<string>,
+  topDir: string,
+) {
+  const closestCache = closestPackageJsonCache.get(topDir);
+  const allPackageJsonsCache = packageJsonsInParentsCache.get(topDir);
+  for (const projectPath of allPaths) {
     fillCacheWithNewPath(
-      closestPackageJSONDirName,
-      getManifests(closestPackageJSONDirName, cwd, fs),
+      projectPath,
+      this.packageJsons
+        .filter(({ filePath }) => projectPath.startsWith(dirname(filePath)))
+        .map(({ fileContent }) => fileContent),
     );
   }
-  return new Set([...cache.get(closestPackageJSONDirName)!].map(item => item.name));
 }
-
-export function fillCacheWithNewPath(dirname: string, manifests: PackageJson[]) {
-  const result = new Set<Dependency>();
-  cache.set(dirname, result);
-
-  manifests.forEach(manifest => {
-    const manifestDependencies = getDependenciesFromPackageJson(manifest);
-
-    manifestDependencies.forEach(dependency => {
-      result.add(dependency);
-    });
-  });
-
-  return new Set([...result].map(item => item.name));
-}
-
-export function fillCacheExhaustive(manifests: PackageJsonWithPath[]) {
-  for (const manifest of manifests) {
-    const manifestDependencies = getDependenciesFromPackageJson(manifest);
-    cache.set(dirname(manifest.filePath), manifestDependencies);
-  }
-}
-
 /**
  * In the case of SonarIDE, when a package.json file changes, the cache can become obsolete.
  */
 export function clearDependenciesCache() {
-  cache.clear();
-  dirNameToClosestPackageJSONCache.clear();
+  dependenciesCache.clear();
+  closestPackageJsonCache.clear();
+  packageJsonsInParentsCache.clear();
+  MinimatchCache.clear();
 }
+
+/**
+ * Returns the project manifests that are used to resolve the dependencies imported by
+ * the module named `filename`, up to the passed working directory.
+ */
+export const getManifests = (
+  path: string,
+  workingDirectory?: string,
+  fileSystem?: Filesystem,
+): Array<PackageJson> => {
+  const files = packageJsonsInParentsCache.get(workingDirectory, fileSystem).get(path);
+
+  return files.map(file => {
+    const content = file.content;
+
+    try {
+      return JSON.parse(stripBOM(content.toString()));
+    } catch (error) {
+      console.debug(`Error parsing file ${file.path}: ${error}`);
+
+      return {};
+    }
+  });
+};
 
 export function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<Dependency>();
@@ -185,27 +218,3 @@ function addDependency(
     });
   }
 }
-
-/**
- * Returns the project manifests that are used to resolve the dependencies imported by
- * the module named `filename`, up to the passed working directory.
- */
-export const getManifests = (
-  path: string,
-  workingDirectory?: string,
-  fileSystem?: Filesystem,
-): Array<PackageJson> => {
-  const files = findPackageJsons(path, workingDirectory, fileSystem);
-
-  return files.map(file => {
-    const content = file.content;
-
-    try {
-      return JSON.parse(stripBOM(content.toString()));
-    } catch (error) {
-      console.debug(`Error parsing file ${file.path}: ${error}`);
-
-      return {};
-    }
-  });
-};
