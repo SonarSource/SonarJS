@@ -15,6 +15,5 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import pkg from 'eslint-plugin-unicorn';
-const { rules } = pkg;
-export const rule = rules!['no-useless-length-check'];
+import { rules } from '../external/unicorn.js';
+export const rule = rules['no-useless-length-check'];

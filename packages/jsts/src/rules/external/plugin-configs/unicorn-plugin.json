@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-unicorn",
   "prefix": "unicorn",
-  "rulesImport": "import pkg from 'eslint-plugin-unicorn';\nconst { rules } = pkg;",
+  "rulesImport": "import { rules } from '../external/unicorn.js';",
   "languages": ["js", "ts"],
   "scope": "Main",
   "rules": [

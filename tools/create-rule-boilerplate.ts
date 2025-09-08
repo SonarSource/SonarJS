@@ -111,7 +111,7 @@ export async function createNewRule(
       `import { rules } from '${externalPackage?.name ?? 'external-plugin'}';`;
     await writeFile(
       join(ruleFolder, `index.ts`),
-      `${header}\n${importRules}\nexport const rule = rules!['${eslintId}'];\n`,
+      `${header}\n${importRules}\nexport const rule = rules['${eslintId}'];\n`,
     );
   }
 
