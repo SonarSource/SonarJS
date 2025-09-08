@@ -470,11 +470,11 @@ eslint_plugin_task:
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   matrix:
-    - name: 'eslint-plugin-sonarjs test with ESLint 9 and node 18'
+    - name: 'eslint-plugin-sonarjs test with ESLint 9 and min supported node version'
       <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
       env:
         ESLINT_VERSION: 9
-    - name: 'eslint-plugin-sonarjs test with ESLint 8 and node 18'
+    - name: 'eslint-plugin-sonarjs test with ESLint 8 and min supported node version'
       <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
       env:
         ESLINT_VERSION: 8
