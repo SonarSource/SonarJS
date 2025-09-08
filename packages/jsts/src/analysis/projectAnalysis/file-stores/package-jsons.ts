@@ -21,7 +21,7 @@ import { readFile } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import { type File } from '../../../rules/helpers/files.js';
+import type { File, PathTree } from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
@@ -30,14 +30,6 @@ import {
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
-
-export type PathTree = Map<
-  string,
-  {
-    children: Set<string>;
-    parent?: string;
-  }
->;
 
 export class PackageJsonStore implements FileStore {
   private readonly packageJsons: Map<string, File> = new Map();

@@ -15,8 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { File } from '../files.js';
-import { PathTree } from '../../../analysis/projectAnalysis/file-stores/package-jsons.js';
+import type { File, PathTree } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';

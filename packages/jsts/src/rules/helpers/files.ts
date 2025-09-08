@@ -26,6 +26,14 @@ export type File = {
   readonly content: Buffer | string;
 };
 
+export type PathTree = Map<
+  string,
+  {
+    children: Set<string>;
+    parent?: string;
+  }
+>;
+
 /**
  * Removes any Byte Order Marker (BOM) from a string's head
  *
