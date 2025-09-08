@@ -1,0 +1,305 @@
+{
+"TypeScript:scripts/word2md.ts": [
+245
+],
+"TypeScript:src/compiler/checker.ts": [
+1914,
+1915,
+1916,
+1917,
+2970,
+19233
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+762,
+765,
+766,
+839,
+842,
+844,
+854
+],
+"TypeScript:src/compiler/comments.ts": [
+418,
+420
+],
+"TypeScript:src/compiler/core.ts": [
+339,
+1422,
+1423,
+1430,
+1431,
+1493,
+1539,
+1600,
+1884,
+1888
+],
+"TypeScript:src/compiler/emitter.ts": [
+2467,
+2733,
+2750
+],
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+393,
+393
+],
+"TypeScript:src/compiler/parser.ts": [
+6470,
+6471,
+6472,
+6473
+],
+"TypeScript:src/compiler/scanner.ts": [
+304,
+308,
+421,
+452,
+455,
+475,
+478,
+485,
+488,
+488,
+533,
+534,
+538,
+544,
+556,
+560,
+569,
+624,
+627,
+650,
+658,
+667,
+667,
+769,
+774,
+852,
+853,
+855,
+858,
+858,
+861,
+861,
+862,
+864,
+876,
+902,
+925,
+936,
+964,
+980,
+991,
+1012,
+1036,
+1059,
+1075,
+1084,
+1092,
+1118,
+1139,
+1145,
+1151,
+1165,
+1175,
+1192,
+1211,
+1238,
+1260,
+1278,
+1284,
+1285,
+1299,
+1305,
+1308,
+1320,
+1323,
+1324,
+1332,
+1335,
+1344,
+1347,
+1353,
+1357,
+1357,
+1364,
+1368,
+1383,
+1388,
+1390,
+1415,
+1423,
+1423,
+1434,
+1434,
+1445,
+1445,
+1457,
+1494,
+1495,
+1500,
+1504,
+1505,
+1521,
+1522,
+1527,
+1555,
+1564,
+1567,
+1585,
+1594,
+1619,
+1620,
+1621,
+1626,
+1632,
+1654,
+1684,
+1715,
+1717,
+1736,
+1772,
+1788,
+1807,
+1813,
+1852
+],
+"TypeScript:src/compiler/sourcemap.ts": [
+156
+],
+"TypeScript:src/compiler/transformers/jsx.ts": [
+189,
+230,
+233,
+238
+],
+"TypeScript:src/compiler/utilities.ts": [
+221,
+226,
+357,
+357,
+635,
+636,
+637,
+2450,
+2469,
+2929,
+2930,
+2936,
+3018,
+3019,
+3188,
+4719,
+4719,
+4719
+],
+"TypeScript:src/harness/fourslash.ts": [
+2717,
+2726
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+114
+],
+"TypeScript:src/server/project.ts": [
+472
+],
+"TypeScript:src/server/server.ts": [
+626,
+626,
+630,
+630,
+639,
+639
+],
+"TypeScript:src/server/session.ts": [
+1069
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+57,
+60
+],
+"TypeScript:src/services/classifier.ts": [
+296,
+302,
+679,
+789
+],
+"TypeScript:src/services/completions.ts": [
+369,
+1435
+],
+"TypeScript:src/services/documentHighlights.ts": [
+571
+],
+"TypeScript:src/services/findAllReferences.ts": [
+666,
+667
+],
+"TypeScript:src/services/formatting/formatting.ts": [
+81,
+87,
+941,
+1026,
+1038,
+1112
+],
+"TypeScript:src/services/formatting/smartIndenter.ts": [
+56,
+419
+],
+"TypeScript:src/services/pathCompletions.ts": [
+474,
+475,
+476
+],
+"TypeScript:src/services/patternMatcher.ts": [
+266,
+277,
+366,
+367,
+375,
+376,
+436,
+437,
+496,
+513,
+532,
+533,
+555,
+555,
+573,
+618,
+619,
+624,
+625,
+678,
+699,
+700,
+712,
+726,
+727
+],
+"TypeScript:src/services/services.ts": [
+1871
+],
+"TypeScript:src/services/textChanges.ts": [
+43,
+136,
+262,
+395,
+611
+],
+"TypeScript:src/services/utilities.ts": [
+276,
+281,
+282,
+1136,
+1339,
+1339,
+1340,
+1340,
+1389
+]
+}

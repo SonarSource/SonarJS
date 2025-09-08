@@ -1,0 +1,77 @@
+{
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+49
+],
+"paper.js:src/basic/Matrix.js": [
+91
+],
+"paper.js:src/basic/Point.js": [
+339,
+459
+],
+"paper.js:src/canvas/BlendMode.js": [
+250
+],
+"paper.js:src/core/Base.js": [
+26
+],
+"paper.js:src/core/Emitter.js": [
+21
+],
+"paper.js:src/item/Item.js": [
+872,
+898,
+899,
+2374,
+4544
+],
+"paper.js:src/item/Raster.js": [
+610,
+710
+],
+"paper.js:src/item/Shape.js": [
+132
+],
+"paper.js:src/load.js": [
+18
+],
+"paper.js:src/path/Curve.js": [
+664,
+1514,
+1554
+],
+"paper.js:src/path/CurveLocation.js": [
+577
+],
+"paper.js:src/path/Path.js": [
+1099,
+1303,
+2604,
+2946
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+611,
+975
+],
+"paper.js:src/path/Segment.js": [
+140,
+141,
+329,
+458,
+467
+],
+"paper.js:src/path/SegmentPoint.js": [
+25
+],
+"paper.js:src/style/Color.js": [
+598,
+807,
+1254
+],
+"paper.js:src/style/Style.js": [
+394
+],
+"paper.js:src/svg/SvgImport.js": [
+518
+]
+}

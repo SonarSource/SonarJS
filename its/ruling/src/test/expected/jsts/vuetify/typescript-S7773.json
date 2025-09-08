@@ -1,0 +1,152 @@
+{
+"vuetify:packages/docs/src/main.ts": [
+91
+],
+"vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
+66
+],
+"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
+83
+],
+"vuetify:packages/vuetify/src/components/VBottomNavigation/VBottomNavigation.tsx": [
+77
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
+49,
+59,
+60
+],
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+162,
+163
+],
+"vuetify:packages/vuetify/src/components/VFooter/VFooter.tsx": [
+49,
+52
+],
+"vuetify:packages/vuetify/src/components/VLayout/VLayoutItem.tsx": [
+33
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+164
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/sticky.ts": [
+43
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+137,
+138,
+181,
+182,
+191,
+234,
+235
+],
+"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
+97,
+98
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+149,
+154,
+155,
+158,
+172
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.tsx": [
+57
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/VProgressLinear.tsx": [
+78,
+79,
+80,
+81,
+87
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+99
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
+75
+],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+157,
+158,
+159,
+167,
+168,
+169,
+191,
+286,
+301,
+302
+],
+"vuetify:packages/vuetify/src/components/VSystemBar/VSystemBar.tsx": [
+41
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+50,
+50,
+54,
+54,
+153,
+154,
+155,
+158,
+160,
+161,
+163
+],
+"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
+83,
+90
+],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+115
+],
+"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
+153
+],
+"vuetify:packages/vuetify/src/composables/delay.ts": [
+31
+],
+"vuetify:packages/vuetify/src/composables/elevation.ts": [
+16,
+19
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+154,
+154,
+193,
+194
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+134,
+134
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
+30,
+31
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
+57,
+73
+],
+"vuetify:packages/vuetify/src/util/animation.ts": [
+28,
+29
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+24,
+42,
+43,
+166
+],
+"vuetify:packages/vuetify/src/util/dateTimeUtils.ts": [
+5
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+121,
+123
+]
+}

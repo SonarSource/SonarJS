@@ -1,0 +1,15 @@
+{
+"desktop:app/src/lib/git/gitignore.ts": [
+72,
+90
+],
+"desktop:app/src/lib/local-storage.ts": [
+163
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+285
+],
+"desktop:app/src/ui/diff/code-mirror-host.tsx": [
+76
+]
+}

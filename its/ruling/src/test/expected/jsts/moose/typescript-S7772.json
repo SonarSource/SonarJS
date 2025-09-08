@@ -1,0 +1,35 @@
+{
+"moose:main/background.ts": [
+15
+],
+"moose:main/controllers/delete.ts": [
+3
+],
+"moose:main/controllers/details.ts": [
+7
+],
+"moose:main/modules/playOnVlc.ts": [
+3
+],
+"moose:main/server.ts": [
+6
+],
+"moose:main/utils/opensubtitle-hash.ts": [
+1
+],
+"moose:main/utils/temp.ts": [
+1,
+2,
+3,
+4
+],
+"moose:renderer/components/Container/Container.tsx": [
+18
+],
+"moose:renderer/components/Header/Header.tsx": [
+9
+],
+"moose:renderer/utils/parseFileInfo.ts": [
+2
+]
+}

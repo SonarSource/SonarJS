@@ -1,0 +1,13 @@
+{
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+60,
+61
+],
+"vuetify:scripts/lint-commit-message.js": [
+7
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+193,
+195
+]
+}

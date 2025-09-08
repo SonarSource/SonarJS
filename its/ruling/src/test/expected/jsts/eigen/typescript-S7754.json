@@ -1,0 +1,23 @@
+{
+"eigen:dangerfile.ts": [
+135
+],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
+301,
+304,
+315,
+318
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsArtworksOptions.tsx": [
+69
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tsx": [
+49
+],
+"eigen:src/app/Scenes/Favorites/Favorites.tsx": [
+72
+],
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoom.tsx": [
+183
+]
+}

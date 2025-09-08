@@ -1,0 +1,16 @@
+{
+"qunit:build/coverage-bridge.js": [
+12
+],
+"qunit:build/tasks/test-on-node.js": [
+46,
+69
+],
+"qunit:src/core/logging.js": [
+11
+],
+"qunit:src/module.js": [
+85,
+91
+]
+}

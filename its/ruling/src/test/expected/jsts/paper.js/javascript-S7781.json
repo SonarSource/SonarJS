@@ -1,0 +1,26 @@
+{
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+261,
+273,
+278
+],
+"paper.js:src/anim/Tween.js": [
+355,
+376,
+378
+],
+"paper.js:src/core/Base.js": [
+685,
+694,
+703
+],
+"paper.js:src/core/PaperScope.js": [
+89
+],
+"paper.js:src/core/PaperScript.js": [
+488
+],
+"paper.js:src/node/xml.js": [
+31
+]
+}

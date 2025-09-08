@@ -1,0 +1,81 @@
+{
+"console:src/actions/gettingStarted.tsx": [
+56
+],
+"console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx": [
+57
+],
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+397,
+403
+],
+"console:src/main.tsx": [
+45,
+85,
+85
+],
+"console:src/routes.tsx": [
+99
+],
+"console:src/utils/QueryHistoryStorage.ts": [
+5,
+13,
+25
+],
+"console:src/utils/location.ts": [
+2
+],
+"console:src/utils/polyfils.ts": [
+159
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+98,
+101,
+212
+],
+"console:src/views/AuthView/AuthView.tsx": [
+15,
+18
+],
+"console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx": [
+60
+],
+"console:src/views/CLIAuthView/CLIAuthView/Right.tsx": [
+20
+],
+"console:src/views/ProjectRootView/EndpointPopup.tsx": [
+315
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+116
+],
+"console:src/views/ProjectRootView/RootRedirectView.tsx": [
+54
+],
+"console:src/views/ProjectRootView/TokenRedirectView.tsx": [
+22,
+22
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+185,
+220,
+221
+],
+"console:src/views/Settings/Authentication/TokenRow.tsx": [
+127
+],
+"console:src/views/Settings/General/ProjectInfo.tsx": [
+348,
+356
+],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+33
+],
+"console:src/views/models/FieldPopup/FieldPopupState.ts": [
+287
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+107,
+116
+]
+}

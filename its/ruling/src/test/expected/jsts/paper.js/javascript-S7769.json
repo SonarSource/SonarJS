@@ -1,0 +1,17 @@
+{
+"paper.js:src/basic/Point.js": [
+271
+],
+"paper.js:src/path/Curve.js": [
+1421,
+1499,
+1553,
+1617
+],
+"paper.js:src/path/PathFlattener.js": [
+79
+],
+"paper.js:src/util/Numerical.js": [
+65
+]
+}

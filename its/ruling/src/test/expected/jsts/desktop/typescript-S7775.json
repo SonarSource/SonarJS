@@ -1,0 +1,13 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+219,
+318
+],
+"desktop:app/src/lib/git/log.ts": [
+48,
+53
+],
+"desktop:app/src/lib/parse-pac-string.ts": [
+72
+]
+}

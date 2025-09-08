@@ -1,0 +1,141 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+1768,
+1768,
+2738,
+2740
+],
+"p5.js:lib/addons/p5.sound.js": [
+2881,
+2924,
+4085,
+4174,
+4185,
+4186,
+4192,
+4198,
+4204,
+4212,
+4215,
+4218,
+4226,
+4232,
+4593,
+4647,
+4656,
+4659,
+4662,
+5578,
+7990,
+7993,
+8087
+],
+"p5.js:src/color/p5.Color.js": [
+858,
+865,
+872,
+878,
+891,
+900,
+911,
+913,
+925,
+927,
+936,
+938,
+940,
+955,
+957,
+966,
+968,
+970
+],
+"p5.js:src/core/error_helpers.js": [
+393
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+492,
+493,
+494,
+495
+],
+"p5.js:src/core/structure.js": [
+371,
+372
+],
+"p5.js:src/core/transform.js": [
+368,
+370
+],
+"p5.js:src/data/local_storage.js": [
+144
+],
+"p5.js:src/dom/dom.js": [
+1816,
+1952
+],
+"p5.js:src/image/loading_displaying.js": [
+404
+],
+"p5.js:src/io/p5.TableRow.js": [
+142,
+284,
+286
+],
+"p5.js:src/math/calculation.js": [
+874
+],
+"p5.js:src/math/p5.Vector.js": [
+481,
+555
+],
+"p5.js:src/typography/p5.Font.js": [
+949,
+950,
+951,
+952
+],
+"p5.js:src/utilities/conversion.js": [
+40,
+42,
+78,
+207,
+212,
+320
+],
+"p5.js:src/utilities/string_functions.js": [
+372,
+450
+],
+"p5.js:src/webgl/3d_primitives.js": [
+1423,
+1426,
+1426,
+1514,
+1517,
+1517,
+1599,
+1602,
+1602
+],
+"p5.js:src/webgl/loading.js": [
+209,
+210,
+211,
+217,
+217,
+241,
+489,
+490,
+491,
+514,
+515,
+516,
+553,
+554,
+555
+],
+"p5.js:src/webgl/p5.Geometry.js": [
+104
+]
+}

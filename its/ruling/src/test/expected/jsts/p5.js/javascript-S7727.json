@@ -1,0 +1,30 @@
+{
+"p5.js:docs/preprocessor.js": [
+229
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+1045,
+1056
+],
+"p5.js:src/core/structure.js": [
+392,
+399
+],
+"p5.js:src/utilities/conversion.js": [
+40,
+108,
+142,
+178,
+210,
+241,
+318
+],
+"p5.js:src/utilities/string_functions.js": [
+365,
+443,
+568
+],
+"p5.js:test/test-reference.html": [
+222
+]
+}

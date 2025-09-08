@@ -1,0 +1,12 @@
+{
+"paper.js:src/core/PaperScript.js": [
+588,
+621
+],
+"paper.js:src/svg/SvgExport.js": [
+394
+],
+"paper.js:src/svg/SvgImport.js": [
+622
+]
+}

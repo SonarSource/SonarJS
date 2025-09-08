@@ -1,0 +1,10 @@
+{
+"sonar-web:src/main/js/components/navigator/controller.js": [
+85,
+97,
+107
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+195
+]
+}

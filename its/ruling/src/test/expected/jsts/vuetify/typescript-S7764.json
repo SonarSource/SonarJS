@@ -1,0 +1,169 @@
+{
+"vuetify:packages/docs/src/App.vue": [
+142
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+137
+],
+"vuetify:packages/docs/src/components/doc/Releases.vue": [
+129
+],
+"vuetify:packages/docs/src/components/promoted/Carbon.vue": [
+34,
+36
+],
+"vuetify:packages/docs/src/main.ts": [
+42
+],
+"vuetify:packages/docs/src/plugins/pwa.ts": [
+44
+],
+"vuetify:packages/docs/src/store/locale.ts": [
+15
+],
+"vuetify:packages/docs/src/util/globals.ts": [
+1
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+18,
+36,
+37,
+40,
+117
+],
+"vuetify:packages/docs/src/util/routes.ts": [
+18
+],
+"vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
+69,
+77,
+81,
+82
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
+92,
+93,
+94,
+95,
+109,
+110,
+111,
+112
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+187
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
+18,
+19,
+20,
+24,
+25,
+26
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+186,
+188
+],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+257,
+258,
+264,
+271,
+280,
+281
+],
+"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
+74,
+79,
+85
+],
+"vuetify:packages/vuetify/src/composables/__tests__/scroll.spec.ts": [
+48
+],
+"vuetify:packages/vuetify/src/composables/delay.ts": [
+24,
+27,
+33
+],
+"vuetify:packages/vuetify/src/composables/display.ts": [
+109
+],
+"vuetify:packages/vuetify/src/composables/router.tsx": [
+95,
+109
+],
+"vuetify:packages/vuetify/src/composables/scroll.ts": [
+81
+],
+"vuetify:packages/vuetify/src/composables/ssrBoot.ts": [
+9
+],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
+32,
+42,
+63,
+66
+],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
+23,
+27,
+44,
+47
+],
+"vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts": [
+7
+],
+"vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
+14,
+15,
+33,
+34
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+111,
+196,
+215,
+224,
+230,
+247
+],
+"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
+29,
+48,
+49,
+64,
+65,
+97
+],
+"vuetify:packages/vuetify/src/directives/scroll/index.ts": [
+23
+],
+"vuetify:packages/vuetify/src/util/getScrollParent.ts": [
+27
+],
+"vuetify:packages/vuetify/src/util/globals.ts": [
+1,
+2,
+3,
+3
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+110
+],
+"vuetify:packages/vuetify/src/util/isFixedPosition.ts": [
+3
+],
+"vuetify:packages/vuetify/test/index.ts": [
+47,
+48,
+49,
+55,
+56,
+87,
+109
+],
+"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
+7
+]
+}

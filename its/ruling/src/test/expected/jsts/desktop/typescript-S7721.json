@@ -1,0 +1,42 @@
+{
+"desktop:app/src/lib/git/core.ts": [
+145
+],
+"desktop:app/src/lib/git/show.ts": [
+30
+],
+"desktop:app/src/main-process/log.ts": [
+18
+],
+"desktop:app/src/ui/app.tsx": [
+224,
+2576,
+2583
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+172
+],
+"desktop:app/src/ui/clone-repository/cloneable-repository-filter-list.tsx": [
+122
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+294,
+341
+],
+"desktop:app/src/ui/lib/rich-text.tsx": [
+87
+],
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+70,
+83
+],
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
+115
+],
+"desktop:app/src/ui/window/title-bar.tsx": [
+49
+],
+"desktop:script/build.ts": [
+295
+]
+}

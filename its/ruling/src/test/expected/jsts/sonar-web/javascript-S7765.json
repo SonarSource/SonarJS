@@ -1,0 +1,96 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
+76
+],
+"sonar-web:src/main/js/apps/custom-measures/form-view.js": [
+37
+],
+"sonar-web:src/main/js/apps/metrics/create-view.js": [
+23
+],
+"sonar-web:src/main/js/apps/metrics/form-view.js": [
+25
+],
+"sonar-web:src/main/js/apps/overview/components/coverage-measures-list.js": [
+30
+],
+"sonar-web:src/main/js/apps/overview/domains/coverage-domain.js": [
+48
+],
+"sonar-web:src/main/js/apps/overview/domains/debt-domain.js": [
+62,
+101
+],
+"sonar-web:src/main/js/apps/overview/domains/duplications-domain.js": [
+45
+],
+"sonar-web:src/main/js/apps/overview/domains/size-domain.js": [
+44,
+72
+],
+"sonar-web:src/main/js/apps/overview/helpers/metrics.js": [
+2
+],
+"sonar-web:src/main/js/apps/projects/app.js": [
+10
+],
+"sonar-web:src/main/js/apps/projects/projects.js": [
+23
+],
+"sonar-web:src/main/js/apps/quality-profiles/app.js": [
+14
+],
+"sonar-web:src/main/js/apps/quality-profiles/create-profile-view.js": [
+70
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-details-view.js": [
+139
+],
+"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
+83
+],
+"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
+57,
+65,
+65,
+146
+],
+"sonar-web:src/main/js/components/navigator/controller.js": [
+28,
+36,
+51
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+187
+],
+"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
+280,
+365
+],
+"sonar-web:src/main/js/components/shared/drilldown-link.js": [
+30
+],
+"sonar-web:src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+74
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+243,
+587
+],
+"sonar-web:src/main/js/main/nav/component/component-nav-menu.js": [
+52
+],
+"sonar-web:src/main/js/main/nav/component/component-nav.js": [
+31
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+125
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+29
+],
+"sonar-web:test/helpers/test-page.js": [
+61,
+80
+]
+}

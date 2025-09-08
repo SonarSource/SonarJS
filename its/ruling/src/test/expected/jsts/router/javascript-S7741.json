@@ -1,0 +1,13 @@
+{
+"router:src/activation.js": [
+187
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+7,
+1505
+],
+"router:third_party/route-recognizer.js": [
+191,
+193
+]
+}

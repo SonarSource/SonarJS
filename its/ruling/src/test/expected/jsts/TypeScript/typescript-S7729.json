@@ -1,0 +1,78 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+2027,
+2835,
+3046
+],
+"TypeScript:src/compiler/core.ts": [
+2027
+],
+"TypeScript:src/compiler/tsc.ts": [
+377,
+378
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+93
+],
+"TypeScript:src/harness/fourslash.ts": [
+204,
+229,
+266,
+329,
+336,
+963,
+1981,
+2360,
+2388,
+2674,
+2788,
+3032,
+3036
+],
+"TypeScript:src/harness/harness.ts": [
+1141,
+1211,
+1212,
+1252,
+1256,
+1826
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+536,
+544,
+552
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+408,
+411,
+457,
+486
+],
+"TypeScript:src/harness/runner.ts": [
+36
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+74,
+99
+],
+"TypeScript:src/server/editorServices.ts": [
+195
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+420
+],
+"TypeScript:src/server/session.ts": [
+463
+],
+"TypeScript:src/services/jsDoc.ts": [
+114,
+125
+],
+"TypeScript:src/services/services.ts": [
+199
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+355,
+528
+]
+}

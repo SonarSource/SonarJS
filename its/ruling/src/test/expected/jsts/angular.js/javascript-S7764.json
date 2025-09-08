@@ -1,0 +1,160 @@
+{
+"angular.js:benchmarks/bootstrap-compile-bp/app.js": [
+11,
+12,
+35
+],
+"angular.js:benchmarks/largetable-bp/app.js": [
+77,
+112
+],
+"angular.js:docs/app/assets/js/search-worker.js": [
+35
+],
+"angular.js:docs/app/src/directives.js": [
+31
+],
+"angular.js:docs/app/src/search.js": [
+99,
+99,
+100,
+145,
+145,
+146,
+152,
+190
+],
+"angular.js:docs/app/test/directivesSpec.js": [
+24,
+25,
+29
+],
+"angular.js:docs/config/templates/examples/index.template.html": [
+14
+],
+"angular.js:src/Angular.js": [
+161,
+161,
+170,
+1129,
+1130,
+1204,
+1268,
+1515,
+1515,
+1555,
+1724,
+1802,
+1838,
+1843,
+1872,
+1910
+],
+"angular.js:src/AngularPublic.js": [
+168
+],
+"angular.js:src/angular.bind.js": [
+1,
+3
+],
+"angular.js:src/jqLite.js": [
+243,
+269,
+542,
+556,
+562,
+563,
+568
+],
+"angular.js:src/ng/compile.js": [
+2001,
+2367,
+3022,
+3050,
+3763,
+3977
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+295
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+413,
+414
+],
+"angular.js:src/ng/directive/select.js": [
+173
+],
+"angular.js:src/ng/httpBackend.js": [
+28
+],
+"angular.js:src/ng/urlUtils.js": [
+9,
+10,
+178,
+179,
+184
+],
+"angular.js:src/ng/window.js": [
+46
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+195
+],
+"angular.js:src/ngAnimate/shared.js": [
+27,
+27,
+36,
+36
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+3085,
+3114,
+3114,
+3115,
+3115,
+3264,
+3264,
+3265,
+3265,
+3366,
+3442,
+3442
+],
+"angular.js:src/ngMock/browserTrigger.js": [
+59,
+102,
+103,
+107,
+109,
+114,
+115,
+119,
+121,
+128,
+130,
+140,
+145,
+150,
+157,
+160,
+182,
+182,
+187,
+197,
+201,
+201,
+202,
+214,
+222,
+251
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+319,
+494,
+494,
+666
+],
+"angular.js:test/e2e/fixtures/ng-jq/index.html": [
+10
+]
+}

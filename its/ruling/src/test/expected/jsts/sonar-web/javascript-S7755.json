@@ -1,0 +1,36 @@
+{
+"sonar-web:src/main/js/apps/overview/components/timeline-chart.js": [
+98,
+100
+],
+"sonar-web:src/main/js/components/charts/treemap.js": [
+19,
+25
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+643
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+61,
+225,
+234,
+253,
+392
+],
+"sonar-web:src/main/js/main/app.js": [
+40
+],
+"sonar-web:src/main/js/main/nav/component/component-nav.js": [
+30
+],
+"sonar-web:src/main/js/widgets/old/stack-area.js": [
+261
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+340,
+346
+],
+"sonar-web:src/main/js/widgets/old/word-cloud.js": [
+19
+]
+}

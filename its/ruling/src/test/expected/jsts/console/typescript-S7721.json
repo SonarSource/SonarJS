@@ -1,0 +1,42 @@
+{
+"console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx": [
+58
+],
+"console:src/views/AuthView/AuthView.tsx": [
+12
+],
+"console:src/views/CLIAuthView/CLIAuthView/Right.tsx": [
+16
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+72
+],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+175
+],
+"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
+160
+],
+"console:src/views/ProjectRootView/SideNav.tsx": [
+277,
+342
+],
+"console:src/views/SchemaView/EnumsOverview/EnumList.tsx": [
+22
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+69
+],
+"console:src/views/SchemaView/SchemaOverview/TypeList.tsx": [
+22
+],
+"console:src/views/SchemaView/SchemaView.tsx": [
+28
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+145
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+446
+]
+}

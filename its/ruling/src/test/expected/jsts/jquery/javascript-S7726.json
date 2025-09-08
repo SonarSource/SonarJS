@@ -1,0 +1,56 @@
+{
+"jquery:Gruntfile.js": [
+3
+],
+"jquery:build/release.js": [
+5
+],
+"jquery:build/release/dist.js": [
+3
+],
+"jquery:build/tasks/amd.js": [
+7
+],
+"jquery:build/tasks/build.js": [
+9
+],
+"jquery:build/tasks/dist.js": [
+3
+],
+"jquery:build/tasks/lib/rollup-plugin-file-overrides.js": [
+10
+],
+"jquery:build/tasks/node_smoke_tests.js": [
+3
+],
+"jquery:build/tasks/promises_aplus_tests.js": [
+3
+],
+"jquery:build/tasks/qunit_fixture.js": [
+5
+],
+"jquery:build/tasks/sourcemap.js": [
+5
+],
+"jquery:build/tasks/testswarm.js": [
+3
+],
+"jquery:src/css/var/getStyles.js": [
+1
+],
+"jquery:src/css/var/isHiddenWithinTree.js": [
+10
+],
+"jquery:src/css/var/swap.js": [
+2
+],
+"jquery:src/data/var/acceptData.js": [
+4
+],
+"jquery:src/traversing/var/dir.js": [
+3
+],
+"jquery:src/traversing/var/siblings.js": [
+1
+]
+}

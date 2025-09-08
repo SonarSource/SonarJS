@@ -1,0 +1,106 @@
+{
+"vuetify:packages/api-generator/src/web-types.ts": [
+65
+],
+"vuetify:packages/docs/src/components/examples/Example.vue": [
+207,
+208
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+144,
+145
+],
+"vuetify:packages/vuetify/src/components/VBottomNavigation/VBottomNavigation.tsx": [
+118
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+136
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanelTitle.tsx": [
+85
+],
+"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
+90,
+97
+],
+"vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
+69
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+176,
+194,
+205
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/VProgressLinear.tsx": [
+157,
+163
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+194
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
+69,
+70,
+73
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
+122,
+123
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
+120,
+142
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.tsx": [
+128
+],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+291
+],
+"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
+79
+],
+"vuetify:packages/vuetify/src/components/VWindow/VWindowItem.tsx": [
+110,
+111
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+260,
+332
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+315,
+316,
+318
+],
+"vuetify:packages/vuetify/src/composables/location.ts": [
+53
+],
+"vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
+24
+],
+"vuetify:packages/vuetify/src/composables/router.tsx": [
+97
+],
+"vuetify:packages/vuetify/src/composables/ssrBoot.ts": [
+14
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableFooter.tsx": [
+106
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
+46
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+45
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+38
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+160
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+123
+]
+}

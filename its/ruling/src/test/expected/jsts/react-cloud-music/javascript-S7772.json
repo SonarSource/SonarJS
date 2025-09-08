@@ -1,0 +1,73 @@
+{
+"react-cloud-music:config/env.js": [
+3,
+4
+],
+"react-cloud-music:config/jest/fileTransform.js": [
+3
+],
+"react-cloud-music:config/modules.js": [
+3,
+4
+],
+"react-cloud-music:config/paths.js": [
+3,
+4,
+5
+],
+"react-cloud-music:config/webpack.config.js": [
+3,
+5
+],
+"react-cloud-music:config/webpackDevServer.config.js": [
+8
+],
+"react-cloud-music:rename.js": [
+1
+],
+"react-cloud-music:scripts/build.js": [
+18
+],
+"react-cloud-music:scripts/start.js": [
+18
+],
+"react-cloud-music:scripts/test.js": [
+20
+],
+"react-cloud-music:ts-music/config/env.js": [
+3,
+4
+],
+"react-cloud-music:ts-music/config/getHttpsConfig.js": [
+3,
+4,
+5
+],
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
+3
+],
+"react-cloud-music:ts-music/config/modules.js": [
+3,
+4
+],
+"react-cloud-music:ts-music/config/paths.js": [
+3,
+4
+],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+3,
+4
+],
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
+3
+],
+"react-cloud-music:ts-music/scripts/build.js": [
+18
+],
+"react-cloud-music:ts-music/scripts/start.js": [
+18
+],
+"react-cloud-music:ts-music/scripts/test.js": [
+20
+]
+}

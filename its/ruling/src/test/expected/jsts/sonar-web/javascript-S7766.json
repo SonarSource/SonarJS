@@ -1,0 +1,14 @@
+{
+"sonar-web:src/main/js/widgets/old/bubble-chart.js": [
+473
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+316
+],
+"sonar-web:src/main/js/widgets/old/stack-area.js": [
+284
+],
+"sonar-web:src/main/js/widgets/old/timeline.js": [
+265
+]
+}

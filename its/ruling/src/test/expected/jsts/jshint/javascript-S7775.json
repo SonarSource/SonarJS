@@ -1,0 +1,13 @@
+{
+"jshint:src/cli.js": [
+241,
+242,
+431
+],
+"jshint:src/jshint.js": [
+3022
+],
+"jshint:src/style.js": [
+47
+]
+}

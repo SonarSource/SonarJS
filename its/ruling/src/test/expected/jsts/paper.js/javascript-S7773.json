@@ -1,0 +1,63 @@
+{
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+314
+],
+"paper.js:src/basic/Matrix.js": [
+482,
+482,
+482,
+549,
+549,
+549,
+667,
+667,
+667
+],
+"paper.js:src/basic/Point.js": [
+351,
+765,
+765
+],
+"paper.js:src/basic/Size.js": [
+404,
+404
+],
+"paper.js:src/core/PaperScope.js": [
+97
+],
+"paper.js:src/event/Key.js": [
+80
+],
+"paper.js:src/item/Item.js": [
+1093
+],
+"paper.js:src/style/Color.js": [
+77,
+89,
+306
+],
+"paper.js:src/svg/SvgImport.js": [
+37,
+64,
+66,
+131,
+132,
+340,
+373,
+452,
+459
+],
+"paper.js:src/util/Numerical.js": [
+302,
+305,
+402
+],
+"paper.js:src/view/CanvasView.js": [
+110
+],
+"paper.js:src/view/View.js": [
+28,
+469,
+472
+]
+}

@@ -1,0 +1,15 @@
+{
+"it-tools:src/tools/color-converter/color-converter.vue": [
+67
+],
+"it-tools:src/tools/json-to-csv/json-to-csv.service.ts": [
+6,
+6
+],
+"it-tools:src/tools/meta-tag-generator/meta-tag-generator.vue": [
+24
+],
+"it-tools:src/tools/temperature-converter/temperature-converter.vue": [
+93
+]
+}

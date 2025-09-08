@@ -1,0 +1,14 @@
+{
+"vuetify:packages/docs/src/service-worker.js": [
+100
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+111,
+137,
+248
+],
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+60,
+70
+]
+}

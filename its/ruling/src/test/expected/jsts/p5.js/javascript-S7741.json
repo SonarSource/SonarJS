@@ -1,0 +1,213 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+486
+],
+"p5.js:lib/addons/p5.sound.js": [
+136,
+615,
+1551,
+1696,
+1956,
+1959,
+2371,
+3393,
+3923,
+5498,
+6549,
+6988,
+8444,
+11278,
+11281,
+11284,
+11287,
+11290,
+11309,
+11329,
+11348,
+11367,
+12316,
+12787,
+12793
+],
+"p5.js:src/color/creating_reading.js": [
+470
+],
+"p5.js:src/core/environment.js": [
+540
+],
+"p5.js:src/core/main.js": [
+382,
+463,
+492
+],
+"p5.js:src/core/p5.Element.js": [
+96,
+142,
+179
+],
+"p5.js:src/core/p5.Renderer.js": [
+116,
+116,
+125,
+125,
+195,
+198,
+228,
+237,
+269
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+620,
+626,
+629,
+632,
+1003,
+1125
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+293
+],
+"p5.js:src/core/shim.js": [
+51
+],
+"p5.js:src/core/structure.js": [
+380
+],
+"p5.js:src/data/local_storage.js": [
+62,
+137
+],
+"p5.js:src/data/p5.TypedDict.js": [
+237,
+239
+],
+"p5.js:src/dom/dom.js": [
+381,
+1059,
+1369,
+1531,
+1791,
+1851,
+1858,
+2723,
+2807,
+2869
+],
+"p5.js:src/io/files.js": [
+162,
+251,
+253,
+273,
+407,
+409,
+591,
+677,
+679,
+694
+],
+"p5.js:src/io/p5.Table.js": [
+140,
+140,
+815,
+879
+],
+"p5.js:src/math/p5.Vector.js": [
+1477,
+1517
+],
+"p5.js:src/math/random.js": [
+136,
+138
+],
+"p5.js:src/typography/loading_displaying.js": [
+93,
+102
+],
+"p5.js:src/typography/p5.Font.js": [
+358,
+361,
+447,
+547,
+567
+],
+"p5.js:src/utilities/array_functions.js": [
+85,
+90,
+337
+],
+"p5.js:src/utilities/string_functions.js": [
+212,
+299,
+516
+],
+"p5.js:src/webgl/3d_primitives.js": [
+51,
+54,
+58,
+61,
+129,
+132,
+135,
+141,
+144,
+286,
+289,
+292,
+505,
+508,
+511,
+514,
+517,
+520,
+633,
+636,
+639,
+642,
+645,
+748,
+751,
+754,
+758,
+761,
+884,
+890,
+896,
+899,
+989,
+1094
+],
+"p5.js:src/webgl/interaction.js": [
+63,
+66,
+69,
+409,
+412,
+416,
+419,
+422,
+485,
+488,
+491,
+494
+],
+"p5.js:src/webgl/p5.Camera.js": [
+418,
+427,
+430,
+433,
+854
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+478,
+486,
+891,
+966
+],
+"p5.js:src/webgl/p5.Texture.js": [
+39,
+42
+],
+"p5.js:test/test-reference.html": [
+83
+]
+}

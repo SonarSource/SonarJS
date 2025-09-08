@@ -1,0 +1,28 @@
+{
+"sonar-web:src/main/js/apps/overview/components/complexity-distribution.js": [
+18,
+18
+],
+"sonar-web:src/main/js/apps/overview/components/language-distribution.js": [
+35
+],
+"sonar-web:src/main/js/apps/overview/gate/gate-condition.js": [
+10
+],
+"sonar-web:src/main/js/components/shared/rating.js": [
+8
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+35
+],
+"sonar-web:src/main/js/helpers/measures.js": [
+136,
+141,
+146,
+248
+],
+"sonar-web:src/main/js/libs/sortable.js": [
+23,
+23
+]
+}

@@ -1,0 +1,21 @@
+{
+"redux:examples/counter/test/actions/counter.spec.js": [
+13,
+16
+],
+"redux:examples/real-world/middleware/api.js": [
+92
+],
+"redux:examples/real-world/reducers/paginate.js": [
+14,
+53
+],
+"redux:src/createStore.js": [
+35,
+109
+],
+"redux:src/utils/combineReducers.js": [
+60,
+70
+]
+}

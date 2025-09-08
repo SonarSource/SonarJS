@@ -1,0 +1,23 @@
+{
+"angular.js:docs/gulpfile.js": [
+59
+],
+"angular.js:karma-jquery.conf-factory.js": [
+7
+],
+"angular.js:src/Angular.js": [
+1894
+],
+"angular.js:src/ng/location.js": [
+124
+],
+"angular.js:src/ng/parse.js": [
+111
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+1109
+],
+"angular.js:src/ngMock/browserTrigger.js": [
+199
+]
+}

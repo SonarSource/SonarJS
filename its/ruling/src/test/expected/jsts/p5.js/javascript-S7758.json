@@ -1,0 +1,21 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+2729,
+2742,
+2750,
+2914,
+2915
+],
+"p5.js:lib/addons/p5.sound.js": [
+1496
+],
+"p5.js:src/events/keyboard.js": [
+185,
+236,
+291
+],
+"p5.js:src/utilities/conversion.js": [
+208,
+239
+]
+}

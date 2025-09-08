@@ -1,0 +1,27 @@
+{
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
+1,
+2
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
+1,
+2
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchemaExport-test.js": [
+6
+],
+"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
+7,
+8,
+13
+],
+"postgraphql:src/postgraphql/http/__tests__/setupServerSentEvents-test.js": [
+3,
+4
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+1,
+2,
+3
+]
+}

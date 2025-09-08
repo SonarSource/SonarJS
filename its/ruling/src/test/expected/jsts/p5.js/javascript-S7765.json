@@ -1,0 +1,44 @@
+{
+"p5.js:docs/preprocessor.js": [
+87
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+2342,
+4351,
+4770
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+13,
+159
+],
+"p5.js:karma.conf.js": [
+35,
+36,
+37,
+38,
+39
+],
+"p5.js:lib/addons/p5.sound.js": [
+391,
+439,
+474,
+1338,
+1367,
+1799,
+4119,
+10041,
+10175,
+10192
+],
+"p5.js:src/dom/dom.js": [
+1793
+],
+"p5.js:test/test-reference.html": [
+57,
+58
+],
+"p5.js:utils/sample-linter.js": [
+13,
+13
+]
+}

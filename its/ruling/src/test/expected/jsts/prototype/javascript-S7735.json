@@ -1,0 +1,16 @@
+{
+"prototype:src/prototype/ajax/request.js": [
+206
+],
+"prototype:src/prototype/dom/dom.js": [
+2993
+],
+"prototype:src/prototype/dom/layout.js": [
+1060,
+1061
+],
+"prototype:test/functional/event.html": [
+111,
+174
+]
+}

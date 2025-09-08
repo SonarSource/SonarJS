@@ -1,0 +1,45 @@
+{
+"vuetify:ecosystem-win.config.js": [
+4
+],
+"vuetify:eslint-local-rules.js": [
+2
+],
+"vuetify:packages/docs/jest.config.js": [
+1
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+1,
+3
+],
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+1,
+2,
+3
+],
+"vuetify:packages/vuetify/build/run-tests.js": [
+2
+],
+"vuetify:packages/vuetify/vite.config.mjs": [
+1,
+2,
+3
+],
+"vuetify:scripts/converter.js": [
+2,
+3
+],
+"vuetify:scripts/lint-commit-message.js": [
+1
+],
+"vuetify:scripts/post-install.js": [
+2,
+3
+],
+"vuetify:scripts/prepare-commit-message.js": [
+1
+],
+"vuetify:scripts/warn-npm-install.js": [
+1
+]
+}

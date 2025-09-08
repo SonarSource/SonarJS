@@ -1,0 +1,117 @@
+{
+"ant-design:components/calendar/__tests__/index.test.js": [
+19,
+23
+],
+"ant-design:components/cascader/__tests__/index.test.js": [
+175
+],
+"ant-design:components/config-provider/__tests__/locale.test.js": [
+14,
+107
+],
+"ant-design:components/date-picker/__tests__/DatePicker.test.js": [
+68,
+204
+],
+"ant-design:components/form/__tests__/index.test.js": [
+206
+],
+"ant-design:components/form/__tests__/list.test.js": [
+9
+],
+"ant-design:components/grid/__tests__/server.test.js": [
+6
+],
+"ant-design:components/list/__tests__/pagination.test.js": [
+28,
+169
+],
+"ant-design:components/menu/__tests__/index.test.js": [
+25,
+494
+],
+"ant-design:components/message/__tests__/config.test.js": [
+171
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+70
+],
+"ant-design:components/notification/__tests__/placement.test.js": [
+7,
+11,
+17
+],
+"ant-design:components/popconfirm/__tests__/index.test.js": [
+71,
+136
+],
+"ant-design:components/popover/__tests__/index.test.js": [
+27,
+28
+],
+"ant-design:components/select/__tests__/index.test.js": [
+17
+],
+"ant-design:components/switch/__tests__/wave.test.js": [
+8
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+20,
+58,
+873
+],
+"ant-design:components/table/__tests__/Table.pagination.test.js": [
+37,
+157
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+40,
+51,
+67,
+534
+],
+"ant-design:components/table/__tests__/Table.sorter.test.js": [
+7,
+39
+],
+"ant-design:components/tag/__tests__/index.test.js": [
+34
+],
+"ant-design:components/timeline/__tests__/index.test.js": [
+92
+],
+"ant-design:components/tooltip/__tests__/tooltip.test.js": [
+132,
+332
+],
+"ant-design:components/transfer/__tests__/index.test.js": [
+196,
+206,
+217,
+218,
+301,
+302,
+328,
+329
+],
+"ant-design:components/tree/__tests__/index.test.js": [
+59
+],
+"ant-design:components/typography/__tests__/index.test.js": [
+440
+],
+"ant-design:components/upload/__tests__/upload.test.js": [
+912
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+961,
+1054
+],
+"ant-design:scripts/check-site.js": [
+36
+],
+"ant-design:site/theme/static/template.html": [
+50
+]
+}

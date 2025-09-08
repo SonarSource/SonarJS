@@ -1,0 +1,15 @@
+{
+"knockout:src/binding/defaultBindings/options.js": [
+40
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+38
+],
+"knockout:src/templating/templating.js": [
+227
+],
+"knockout:src/utils.js": [
+389,
+426
+]
+}

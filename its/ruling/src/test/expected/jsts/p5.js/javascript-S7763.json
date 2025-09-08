@@ -1,0 +1,125 @@
+{
+"p5.js:src/color/creating_reading.js": [
+595
+],
+"p5.js:src/color/setting.js": [
+860
+],
+"p5.js:src/core/environment.js": [
+749
+],
+"p5.js:src/core/error_helpers.js": [
+819
+],
+"p5.js:src/core/legacy.js": [
+37
+],
+"p5.js:src/core/rendering.js": [
+339
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+686
+],
+"p5.js:src/core/shape/attributes.js": [
+355
+],
+"p5.js:src/core/shape/curves.js": [
+546
+],
+"p5.js:src/core/shape/vertex.js": [
+981
+],
+"p5.js:src/core/structure.js": [
+454
+],
+"p5.js:src/core/transform.js": [
+528
+],
+"p5.js:src/dom/dom.js": [
+3410
+],
+"p5.js:src/events/acceleration.js": [
+748
+],
+"p5.js:src/events/keyboard.js": [
+405
+],
+"p5.js:src/events/mouse.js": [
+1081
+],
+"p5.js:src/events/touch.js": [
+299
+],
+"p5.js:src/image/image.js": [
+358
+],
+"p5.js:src/image/loading_displaying.js": [
+660
+],
+"p5.js:src/image/pixels.js": [
+744
+],
+"p5.js:src/io/files.js": [
+1899
+],
+"p5.js:src/io/p5.Table.js": [
+1367
+],
+"p5.js:src/io/p5.TableRow.js": [
+346
+],
+"p5.js:src/io/p5.XML.js": [
+871
+],
+"p5.js:src/math/calculation.js": [
+891
+],
+"p5.js:src/math/math.js": [
+48
+],
+"p5.js:src/math/noise.js": [
+314
+],
+"p5.js:src/math/random.js": [
+233
+],
+"p5.js:src/math/trigonometry.js": [
+371
+],
+"p5.js:src/typography/attributes.js": [
+290
+],
+"p5.js:src/typography/loading_displaying.js": [
+301
+],
+"p5.js:src/typography/p5.Font.js": [
+1243
+],
+"p5.js:src/utilities/array_functions.js": [
+344
+],
+"p5.js:src/utilities/conversion.js": [
+324
+],
+"p5.js:src/utilities/string_functions.js": [
+574
+],
+"p5.js:src/utilities/time_date.js": [
+153
+],
+"p5.js:src/webgl/3d_primitives.js": [
+1754
+],
+"p5.js:src/webgl/interaction.js": [
+542
+],
+"p5.js:src/webgl/light.js": [
+900
+],
+"p5.js:src/webgl/loading.js": [
+624
+],
+"p5.js:src/webgl/material.js": [
+876
+]
+}

@@ -1,0 +1,116 @@
+{
+"ace:doc/site/js/main.js": [
+100
+],
+"ace:lib/ace/mode/css/csslint.js": [
+440,
+467,
+7895,
+7912,
+8198,
+8264,
+10263,
+10328,
+10397,
+10630,
+10707
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2602,
+2611,
+2620
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+8100,
+10888
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+2738
+],
+"ace:src/editor.js": [
+2471,
+2570
+],
+"ace:src/editor_highlight_selected_word_test.js": [
+120,
+174
+],
+"ace:src/ext/language_tools.js": [
+107
+],
+"ace:src/ext/rtl.js": [
+127,
+128
+],
+"ace:src/ext/searchbox.js": [
+240
+],
+"ace:src/keyboard/vim.js": [
+453,
+5599,
+5602,
+5605,
+5613,
+5643,
+5649,
+5704
+],
+"ace:src/mode/text.js": [
+79
+],
+"ace:src/mode/text_highlight_rules.js": [
+176
+],
+"ace:src/mouse/multi_select_handler.js": [
+126
+],
+"ace:src/multi_select.js": [
+18,
+219,
+794,
+795,
+795,
+795
+],
+"ace:src/search_test.js": [
+27,
+38,
+50,
+63,
+75,
+89,
+103,
+113,
+124,
+136,
+149,
+165,
+178,
+196,
+209,
+224,
+240,
+253,
+267,
+280,
+441,
+450,
+468
+],
+"ace:src/snippets.js": [
+657,
+683,
+760
+],
+"ace:src/split.js": [
+165
+],
+"ace:src/undomanager.js": [
+336,
+344
+],
+"ace:tool/tmlanguage.js": [
+361,
+694
+]
+}

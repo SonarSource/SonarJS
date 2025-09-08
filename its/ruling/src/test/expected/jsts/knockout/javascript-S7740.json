@@ -1,0 +1,22 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+92
+],
+"knockout:src/subscribables/dependentObservable.js": [
+228,
+242,
+285,
+428
+],
+"knockout:src/subscribables/extenders.js": [
+103
+],
+"knockout:src/subscribables/subscribable.js": [
+13,
+54,
+109
+],
+"knockout:src/utils.js": [
+630
+]
+}

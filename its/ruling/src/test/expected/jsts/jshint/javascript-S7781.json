@@ -1,0 +1,33 @@
+{
+"jshint:scripts/remove-dev-dependencies.js": [
+36
+],
+"jshint:src/cli.js": [
+572,
+572
+],
+"jshint:src/jshint.js": [
+186,
+453,
+6252,
+6416
+],
+"jshint:src/lex.js": [
+103,
+104,
+417,
+689,
+1509,
+1538,
+1905
+],
+"jshint:src/reporters/checkstyle.js": [
+24
+],
+"jshint:src/reporters/jslint_xml.js": [
+20
+],
+"jshint:src/style.js": [
+47
+]
+}

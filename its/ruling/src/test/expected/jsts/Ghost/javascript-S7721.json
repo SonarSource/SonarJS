@@ -1,0 +1,139 @@
+{
+"Ghost:core/client/app/assets/lib/uploader.js": [
+23
+],
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+244
+],
+"Ghost:core/server/api/clients.js": [
+36
+],
+"Ghost:core/server/api/db.js": [
+39,
+86,
+115
+],
+"Ghost:core/server/api/mail.js": [
+109
+],
+"Ghost:core/server/api/notifications.js": [
+61,
+79,
+129,
+137
+],
+"Ghost:core/server/api/posts.js": [
+57,
+91,
+132,
+179,
+220
+],
+"Ghost:core/server/api/roles.js": [
+41
+],
+"Ghost:core/server/api/tags.js": [
+35,
+66,
+102,
+138,
+178
+],
+"Ghost:core/server/api/themes.js": [
+94,
+109
+],
+"Ghost:core/server/api/users.js": [
+87,
+123,
+174,
+226,
+263,
+294,
+375,
+390,
+443,
+457,
+493,
+509
+],
+"Ghost:core/server/data/xml/sitemap/handler.js": [
+15
+],
+"Ghost:core/server/errors/index.js": [
+251
+],
+"Ghost:core/server/helpers/navigation.js": [
+39,
+44
+],
+"Ghost:core/server/permissions/index.js": [
+151
+],
+"Ghost:core/server/routes/frontend.js": [
+19
+],
+"Ghost:core/test/functional/routes/admin_spec.js": [
+17,
+30
+],
+"Ghost:core/test/functional/routes/frontend_spec.js": [
+17
+],
+"Ghost:core/test/integration/api/api_posts_spec.js": [
+16
+],
+"Ghost:core/test/integration/api/api_roles_spec.js": [
+18,
+67
+],
+"Ghost:core/test/integration/api/api_tags_spec.js": [
+319
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+28,
+54,
+227,
+512,
+701
+],
+"Ghost:core/test/integration/model/model_posts_spec.js": [
+39,
+43
+],
+"Ghost:core/test/unit/api_utils_spec.js": [
+175
+],
+"Ghost:core/test/unit/apps_spec.js": [
+61,
+69
+],
+"Ghost:core/test/unit/config_spec.js": [
+841
+],
+"Ghost:core/test/unit/controllers/frontend/index_spec.js": [
+31
+],
+"Ghost:core/test/unit/error_handling_spec.js": [
+41
+],
+"Ghost:core/test/unit/server_helpers/body_class_spec.js": [
+59
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+41,
+273
+],
+"Ghost:core/test/unit/server_helpers/navigation_spec.js": [
+14
+],
+"Ghost:core/test/unit/server_helpers/pagination_spec.js": [
+33,
+97
+],
+"Ghost:core/test/unit/sitemap_spec.js": [
+21,
+298,
+308
+]
+}

@@ -1,0 +1,24 @@
+{
+"jshint:src/cli.js": [
+571,
+574
+],
+"jshint:src/jshint.js": [
+563,
+1039,
+1587,
+1846,
+2121,
+3370,
+3934,
+4628,
+4767
+],
+"jshint:src/lex.js": [
+1222
+],
+"jshint:src/scope-manager.js": [
+368,
+677
+]
+}

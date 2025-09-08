@@ -1,0 +1,39 @@
+{
+"rxjs:doc/scripts/theme-toggler.js": [
+23
+],
+"rxjs:perf/macro/bufferCount/buffercount.spec.js": [
+9
+],
+"rxjs:perf/macro/combineLatest/combinelatest.spec.js": [
+9
+],
+"rxjs:perf/macro/groupBy/groupby.spec.js": [
+9
+],
+"rxjs:perf/macro/merge/merge.spec.js": [
+9
+],
+"rxjs:perf/macro/mergeAll/mergeall.spec.js": [
+9
+],
+"rxjs:perf/macro/mergeMap-scalar/mergemap-scalar.spec.js": [
+9
+],
+"rxjs:perf/macro/mergeMap/mergemap.spec.js": [
+9
+],
+"rxjs:perf/macro/windowCount/windowcount.spec.js": [
+9
+],
+"rxjs:perf/macro/zip/zip.spec.js": [
+9
+],
+"rxjs:perf/micro/index.js": [
+79,
+81
+],
+"rxjs:tools/check-gzip-size.js": [
+7
+]
+}

@@ -1,0 +1,22 @@
+{
+"jquery:src/attributes/attr.js": [
+32
+],
+"jquery:src/event.js": [
+145
+],
+"jquery:src/manipulation/getAll.js": [
+10,
+13
+],
+"jquery:src/selector.js": [
+410,
+481,
+488,
+498,
+622
+],
+"jquery:test/delegatetest.html": [
+194
+]
+}

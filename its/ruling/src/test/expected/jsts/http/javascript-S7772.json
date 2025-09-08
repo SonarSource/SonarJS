@@ -1,0 +1,42 @@
+{
+"http:lib/gulp/karma/index.js": [
+2,
+3
+],
+"http:src/IConnection.js": [
+1
+],
+"http:src/IInterceptResolution.js": [
+1
+],
+"http:src/IRequest.js": [
+1
+],
+"http:src/IResponse.js": [
+1
+],
+"http:test/ConnectionMock.spec.js": [
+2
+],
+"http:test/Http.spec.js": [
+3
+],
+"http:test/IInterceptResolution.spec.js": [
+1
+],
+"http:test/IRequest.spec.js": [
+2
+],
+"http:test/IResponse.spec.js": [
+2
+],
+"http:test/JSONPConnection.spec.js": [
+2
+],
+"http:test/Public.spec.js": [
+1
+],
+"http:test/XHRConnection.spec.js": [
+2
+]
+}

@@ -1,0 +1,11 @@
+{
+"console:src/reducers/databrowser/data.ts": [
+106
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+313
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+681
+]
+}

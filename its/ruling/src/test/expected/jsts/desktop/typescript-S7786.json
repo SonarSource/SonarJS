@@ -1,0 +1,17 @@
+{
+"desktop:app/src/lib/diff-parser.ts": [
+218
+],
+"desktop:app/src/models/commit-identity.ts": [
+35
+],
+"desktop:app/webpack.development.ts": [
+31
+],
+"desktop:script/changelog/parser.ts": [
+27
+],
+"desktop:script/start.ts": [
+17
+]
+}

@@ -1,0 +1,129 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+1388,
+2137,
+3004,
+3205,
+3604
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+129,
+208
+],
+"p5.js:lib/addons/p5.sound.js": [
+126,
+136,
+142,
+179,
+189,
+608,
+1551,
+2636,
+3607,
+3959,
+3993,
+4115,
+4333,
+5926,
+6549,
+6988,
+8149,
+9616,
+10251
+],
+"p5.js:src/core/environment.js": [
+44
+],
+"p5.js:src/core/error_helpers.js": [
+51
+],
+"p5.js:src/core/main.js": [
+503
+],
+"p5.js:src/core/p5.Renderer.js": [
+195,
+237
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+1148
+],
+"p5.js:src/core/rendering.js": [
+69
+],
+"p5.js:src/data/p5.TypedDict.js": [
+239
+],
+"p5.js:src/dom/dom.js": [
+672,
+3401
+],
+"p5.js:src/events/mouse.js": [
+608
+],
+"p5.js:src/image/image.js": [
+328
+],
+"p5.js:src/image/pixels.js": [
+490
+],
+"p5.js:src/io/files.js": [
+137,
+1108,
+1142,
+1705
+],
+"p5.js:src/io/p5.XML.js": [
+55
+],
+"p5.js:src/math/p5.Vector.js": [
+1630,
+1659,
+1686,
+1713,
+1786
+],
+"p5.js:src/math/random.js": [
+131
+],
+"p5.js:src/typography/loading_displaying.js": [
+220
+],
+"p5.js:src/typography/p5.Font.js": [
+543,
+980
+],
+"p5.js:src/utilities/array_functions.js": [
+85,
+90,
+337
+],
+"p5.js:src/utilities/string_functions.js": [
+209,
+210,
+212,
+294,
+295,
+516
+],
+"p5.js:src/webgl/loading.js": [
+236,
+468,
+537
+],
+"p5.js:src/webgl/p5.Geometry.js": [
+49,
+50
+],
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+34
+],
+"p5.js:src/webgl/text.js": [
+516
+],
+"p5.js:tasks/build/combineModules.js": [
+53
+],
+"p5.js:utils/sample-linter.js": [
+158
+]
+}

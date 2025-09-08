@@ -1,0 +1,72 @@
+{
+"TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
+37,
+40
+],
+"TypeScript:src/compiler/checker.ts": [
+8812
+],
+"TypeScript:src/compiler/core.ts": [
+791,
+1691,
+1700,
+1712,
+2286
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+1520
+],
+"TypeScript:src/compiler/parser.ts": [
+6464,
+6464
+],
+"TypeScript:src/compiler/program.ts": [
+551
+],
+"TypeScript:src/compiler/utilities.ts": [
+4289
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+92
+],
+"TypeScript:src/harness/fourslash.ts": [
+3219,
+3240
+],
+"TypeScript:src/harness/harness.ts": [
+992,
+1283,
+1327
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+355
+],
+"TypeScript:src/harness/instrumenter.ts": [
+52
+],
+"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
+41
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+82,
+106,
+107,
+166
+],
+"TypeScript:src/server/session.ts": [
+866
+],
+"TypeScript:src/services/codefixes/helpers.ts": [
+116
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+329
+],
+"TypeScript:src/services/completions.ts": [
+1263
+],
+"TypeScript:src/services/utilities.ts": [
+570,
+1091
+]
+}

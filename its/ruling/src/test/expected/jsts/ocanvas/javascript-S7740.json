@@ -1,0 +1,42 @@
+{
+"ocanvas:src/animation.js": [
+338,
+391
+],
+"ocanvas:src/background.js": [
+21
+],
+"ocanvas:src/displayobject.js": [
+85,
+166,
+603,
+913
+],
+"ocanvas:src/displayobjects/image.js": [
+26,
+75
+],
+"ocanvas:src/displayobjects/line.js": [
+42,
+62
+],
+"ocanvas:src/displayobjects/sprite.js": [
+46,
+100
+],
+"ocanvas:src/displayobjects/text.js": [
+194
+],
+"ocanvas:src/keyboard.js": [
+15
+],
+"ocanvas:src/mouse.js": [
+48
+],
+"ocanvas:src/timeline.js": [
+10
+],
+"ocanvas:src/touch.js": [
+54
+]
+}

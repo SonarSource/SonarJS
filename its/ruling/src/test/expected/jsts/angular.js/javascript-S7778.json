@@ -1,0 +1,71 @@
+{
+"angular.js:benchmarks/animation-bp/app.js": [
+29,
+36
+],
+"angular.js:benchmarks/bootstrap-compile-bp/app.js": [
+54
+],
+"angular.js:benchmarks/largetable-bp/app.js": [
+54,
+63
+],
+"angular.js:benchmarks/ng-class-bp/app.js": [
+57,
+66,
+73,
+82,
+91,
+100
+],
+"angular.js:benchmarks/ng-options-bp/app.js": [
+44,
+53,
+62,
+70,
+80,
+88
+],
+"angular.js:benchmarks/orderby-bp/app.js": [
+44
+],
+"angular.js:benchmarks/repeat-animate-bp/common.js": [
+49
+],
+"angular.js:benchmarks/select-ng-value-bp/app.js": [
+53,
+62,
+71,
+79,
+89,
+97
+],
+"angular.js:docs/config/index.js": [
+58,
+59,
+60,
+61,
+89,
+95,
+107,
+113,
+119,
+124,
+136
+],
+"angular.js:docs/config/processors/versions-data.js": [
+35
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+71,
+77,
+87,
+93
+],
+"angular.js:src/ngAnimate/animation.js": [
+356
+],
+"angular.js:src/ngRoute/route.js": [
+847
+]
+}

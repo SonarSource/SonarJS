@@ -1,0 +1,183 @@
+{
+"ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
+28
+],
+"ace:lib/ace/mode/css/csslint.js": [
+645,
+8288,
+8398,
+8466,
+8664,
+8786,
+8826,
+8875,
+8912,
+8939,
+8979,
+9014,
+9053,
+9120,
+9174,
+9216,
+9244,
+9285,
+9314,
+9372,
+9448,
+9517,
+9592,
+9622,
+9652,
+9699,
+9788,
+9818,
+9874,
+9903,
+9941,
+9999,
+10149
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+866,
+2471
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+3500,
+3545,
+11612
+],
+"ace:lib/ace/mode/jsoniq.js": [
+91,
+122
+],
+"ace:lib/ace/mode/xml/dom.js": [
+80,
+367,
+384
+],
+"ace:lib/ace/mode/xquery.js": [
+120,
+164
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+34
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+34
+],
+"ace:lib/ace/mode/xquery_worker.js": [
+69
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1
+],
+"ace:lib/ace/mode/yaml_worker.js": [
+27
+],
+"ace:lib/ace/worker/mirror.js": [
+13
+],
+"ace:lib/ace/worker/worker.js": [
+136
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+235
+],
+"ace:src/background_tokenizer.js": [
+30
+],
+"ace:src/edit_session.js": [
+129,
+359
+],
+"ace:src/edit_session/folding.js": [
+666
+],
+"ace:src/editor.js": [
+228,
+497,
+1694,
+2667,
+2732
+],
+"ace:src/editor_change_document_test.js": [
+128
+],
+"ace:src/ext/elastic_tabstops_lite.js": [
+5
+],
+"ace:src/ext/options.js": [
+249
+],
+"ace:src/ext/searchbox.js": [
+78
+],
+"ace:src/keyboard/vim.js": [
+439,
+826,
+5726
+],
+"ace:src/layer/font_metrics.js": [
+74,
+85
+],
+"ace:src/layer/text.js": [
+339
+],
+"ace:src/lib/es6-shim.js": [
+22,
+34,
+104
+],
+"ace:src/lib/event_emitter.js": [
+49
+],
+"ace:src/mode/mask_highlight_rules.js": [
+82
+],
+"ace:src/mouse/dragdrop_handler.js": [
+39
+],
+"ace:src/mouse/mouse_handler.js": [
+13,
+114
+],
+"ace:src/placeholder.js": [
+24,
+60,
+92,
+166
+],
+"ace:src/renderloop.js": [
+19
+],
+"ace:src/scrollbar_custom.js": [
+130,
+277
+],
+"ace:src/selection.js": [
+41
+],
+"ace:src/snippets.js": [
+253,
+478,
+527,
+590
+],
+"ace:src/test/asyncjs/async.js": [
+313,
+340
+],
+"ace:src/test/mockdom.js": [
+218,
+233,
+355,
+745
+],
+"ace:src/virtual_renderer.js": [
+40,
+1370,
+1657,
+1765
+]
+}

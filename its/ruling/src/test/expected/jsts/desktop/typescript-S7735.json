@@ -1,0 +1,358 @@
+{
+"desktop:app/src/cli/commands/open.ts": [
+27
+],
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+97
+],
+"desktop:app/src/lib/branch.ts": [
+42
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+629,
+672
+],
+"desktop:app/src/lib/databases/repositories-database.ts": [
+210
+],
+"desktop:app/src/lib/email.ts": [
+57
+],
+"desktop:app/src/lib/git/branch.ts": [
+31
+],
+"desktop:app/src/lib/git/checkout.ts": [
+28
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+339
+],
+"desktop:app/src/lib/git/commit.ts": [
+61
+],
+"desktop:app/src/lib/git/diff.ts": [
+473
+],
+"desktop:app/src/lib/git/fetch.ts": [
+18,
+35
+],
+"desktop:app/src/lib/git/merge-tree.ts": [
+63,
+77
+],
+"desktop:app/src/lib/git/pull.ts": [
+134
+],
+"desktop:app/src/lib/git/rebase.ts": [
+441
+],
+"desktop:app/src/lib/git/refs.ts": [
+19
+],
+"desktop:app/src/lib/git/squash.ts": [
+146
+],
+"desktop:app/src/lib/git/status.ts": [
+99,
+112
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
+143,
+147
+],
+"desktop:app/src/lib/menu-update.ts": [
+201
+],
+"desktop:app/src/lib/multi-commit-operation.ts": [
+37
+],
+"desktop:app/src/lib/parse-pac-string.ts": [
+81
+],
+"desktop:app/src/lib/shells/shared.ts": [
+102
+],
+"desktop:app/src/lib/shells/win32.ts": [
+204
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1200,
+1927,
+2202,
+2665,
+3753,
+6054,
+6090
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+1241
+],
+"desktop:app/src/lib/stores/helpers/background-fetcher.ts": [
+107
+],
+"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
+62,
+82
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+60
+],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+98,
+130
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+151,
+166,
+416
+],
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+185,
+187,
+210,
+225,
+227,
+271
+],
+"desktop:app/src/lib/thank-you.ts": [
+97
+],
+"desktop:app/src/lib/trampoline/trampoline-server.ts": [
+96,
+182
+],
+"desktop:app/src/lib/window-state.ts": [
+17
+],
+"desktop:app/src/main-process/main.ts": [
+382
+],
+"desktop:app/src/models/account.ts": [
+66
+],
+"desktop:app/src/models/app-menu.ts": [
+426
+],
+"desktop:app/src/models/repository.ts": [
+162,
+212
+],
+"desktop:app/src/models/status.ts": [
+324,
+330
+],
+"desktop:app/src/ui/add-repository/gitignores.ts": [
+11
+],
+"desktop:app/src/ui/add-repository/licenses.ts": [
+27
+],
+"desktop:app/src/ui/add-repository/write-default-readme.ts": [
+7
+],
+"desktop:app/src/ui/app.tsx": [
+600,
+739,
+2639
+],
+"desktop:app/src/ui/banners/branch-already-up-to-date-banner.tsx": [
+16
+],
+"desktop:app/src/ui/banners/successful-merge.tsx": [
+14
+],
+"desktop:app/src/ui/banners/successful-rebase.tsx": [
+14
+],
+"desktop:app/src/ui/banners/update-available.tsx": [
+49
+],
+"desktop:app/src/ui/branches/branch-list.tsx": [
+228
+],
+"desktop:app/src/ui/branches/pull-request-list.tsx": [
+270
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+288
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+355,
+661,
+678
+],
+"desktop:app/src/ui/changes/continue-rebase.tsx": [
+68
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+208
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
+186
+],
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
+181,
+182
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+314
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+527
+],
+"desktop:app/src/ui/diff/diff-explorer.ts": [
+176,
+194
+],
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+262
+],
+"desktop:app/src/ui/diff/image-diffs/two-up.tsx": [
+74
+],
+"desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
+167,
+336
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1301
+],
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
+195
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+1684,
+1697,
+1744,
+2752,
+3101,
+3700,
+3710,
+3711,
+3848
+],
+"desktop:app/src/ui/dropdown-select-button.tsx": [
+151,
+190
+],
+"desktop:app/src/ui/forks/create-fork-dialog.tsx": [
+89,
+148
+],
+"desktop:app/src/ui/history/commit-list.tsx": [
+224,
+411,
+451
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+111,
+277
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+42,
+46
+],
+"desktop:app/src/ui/lib/avatar.tsx": [
+124
+],
+"desktop:app/src/ui/lib/branch-name-warnings.tsx": [
+11
+],
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
+84,
+187
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+367,
+812
+],
+"desktop:app/src/ui/lib/parse-files-to-be-overwritten.ts": [
+9
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+324,
+431
+],
+"desktop:app/src/ui/lib/rich-text.tsx": [
+58,
+59
+],
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+127
+],
+"desktop:app/src/ui/lib/toggle-button.tsx": [
+52
+],
+"desktop:app/src/ui/lib/tooltip.tsx": [
+569
+],
+"desktop:app/src/ui/main-process-proxy.ts": [
+30,
+57
+],
+"desktop:app/src/ui/missing-repository.tsx": [
+77
+],
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
+93
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/rebase-choose-branch-dialog.tsx": [
+66
+],
+"desktop:app/src/ui/preferences/preferences.tsx": [
+249,
+287
+],
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
+188
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+376
+],
+"desktop:app/src/ui/repository.tsx": [
+449
+],
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+79,
+143
+],
+"desktop:app/src/ui/stash-changes/overwrite-stashed-changes-dialog.tsx": [
+64
+],
+"desktop:app/src/ui/stashing/stash-diff-viewer.tsx": [
+85
+],
+"desktop:app/src/ui/suggested-actions/suggested-action-group.tsx": [
+39
+],
+"desktop:app/src/ui/tab-bar.tsx": [
+82
+],
+"desktop:app/src/ui/thank-you/thank-you.tsx": [
+88
+],
+"desktop:app/src/ui/toolbar/button.tsx": [
+186,
+191,
+242,
+247
+],
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
+115
+],
+"desktop:app/src/ui/welcome/start.tsx": [
+31
+],
+"desktop:script/build.ts": [
+226
+],
+"desktop:script/dist-info.ts": [
+115,
+122
+],
+"desktop:script/publish.ts": [
+133,
+180
+]
+}

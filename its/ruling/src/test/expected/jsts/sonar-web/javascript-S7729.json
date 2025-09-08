@@ -1,0 +1,19 @@
+{
+"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
+177
+],
+"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
+44
+],
+"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
+63,
+64
+],
+"sonar-web:src/main/js/components/navigator/controller.js": [
+77
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+360,
+751
+]
+}

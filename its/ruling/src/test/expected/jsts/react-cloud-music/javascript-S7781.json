@@ -1,0 +1,22 @@
+{
+"react-cloud-music:config/webpack.config.js": [
+174,
+176
+],
+"react-cloud-music:src/api/lyric-parser.js": [
+59
+],
+"react-cloud-music:src/api/utils.js": [
+133
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+30
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
+52
+],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+186,
+188
+]
+}

@@ -1,0 +1,35 @@
+{
+"desktop:app/src/lib/diff-parser.ts": [
+442
+],
+"desktop:app/src/lib/git/gitignore.ts": [
+135
+],
+"desktop:app/src/lib/sanitize-ref-name.ts": [
+10,
+10
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+108
+],
+"desktop:app/src/ui/add-repository/sanitized-repository-name.ts": [
+10,
+10
+],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+77,
+79
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+30
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+310
+],
+"desktop:app/src/ui/lib/id-pool.ts": [
+12
+],
+"desktop:script/publish.ts": [
+123
+]
+}

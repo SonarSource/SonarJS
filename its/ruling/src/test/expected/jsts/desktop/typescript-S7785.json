@@ -1,0 +1,17 @@
+{
+"desktop:app/src/main-process/main.ts": [
+146
+],
+"desktop:script/build.ts": [
+123
+],
+"desktop:script/draft-release/draft-pull-request.ts": [
+46
+],
+"desktop:script/generate-octicons.ts": [
+98
+],
+"desktop:script/publish.ts": [
+67
+]
+}

@@ -1,0 +1,15 @@
+{
+"ant-design:components/modal/__tests__/Modal.test.tsx": [
+64,
+71
+],
+"ant-design:components/table/hooks/useSorter.tsx": [
+257
+],
+"ant-design:components/upload/utils.tsx": [
+46
+],
+"ant-design:site/theme/template/Resources/index.tsx": [
+48
+]
+}

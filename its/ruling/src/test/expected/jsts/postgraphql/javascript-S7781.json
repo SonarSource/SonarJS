@@ -1,0 +1,12 @@
+{
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
+14
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
+14
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+389,
+436
+]
+}

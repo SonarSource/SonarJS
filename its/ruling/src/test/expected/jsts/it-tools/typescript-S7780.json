@@ -1,0 +1,13 @@
+{
+"it-tools:src/tools/json-to-csv/json-to-csv.service.ts": [
+20,
+20,
+20
+],
+"it-tools:src/tools/token-generator/token-generator.service.ts": [
+22
+],
+"it-tools:src/tools/wifi-qr-code-generator/useQRCode.ts": [
+62
+]
+}

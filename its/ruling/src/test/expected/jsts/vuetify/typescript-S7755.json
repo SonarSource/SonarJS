@@ -1,0 +1,21 @@
+{
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
+71
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+104
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+215
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+56,
+135
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+89
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+273
+]
+}

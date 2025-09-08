@@ -1,0 +1,34 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+59
+],
+"TypeScript:src/compiler/core.ts": [
+65
+],
+"TypeScript:src/compiler/performance.ts": [
+5
+],
+"TypeScript:src/compiler/sys.ts": [
+63,
+493,
+496,
+496
+],
+"TypeScript:src/harness/fourslash.ts": [
+1086,
+1089,
+2611,
+3879
+],
+"TypeScript:src/harness/harness.ts": [
+60,
+1130,
+1132
+],
+"TypeScript:src/services/services.ts": [
+2133
+],
+"TypeScript:src/services/shims.ts": [
+1232
+]
+}

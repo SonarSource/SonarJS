@@ -1,0 +1,48 @@
+{
+"TypeScript:Jakefile.js": [
+3,
+4,
+5,
+6
+],
+"TypeScript:lib/cancellationToken.js": [
+17
+],
+"TypeScript:lib/tsc.js": [
+2073,
+2074,
+2075,
+2076
+],
+"TypeScript:lib/typingsInstaller.js": [
+2083,
+2084,
+2085,
+2086,
+7584,
+7585,
+7642
+],
+"TypeScript:lib/watchGuard.js": [
+20
+],
+"TypeScript:scripts/browserify-optional.js": [
+3
+],
+"TypeScript:scripts/link-hooks.js": [
+1,
+2
+],
+"TypeScript:scripts/mocha-parallel.js": [
+1,
+2,
+3,
+4,
+5,
+6
+],
+"TypeScript:scripts/parallel-lint.js": [
+2,
+3
+]
+}

@@ -1,0 +1,11 @@
+{
+"qunit:src/cli/run.js": [
+50
+],
+"qunit:src/events.js": [
+35
+],
+"qunit:test/headless.html": [
+19
+]
+}

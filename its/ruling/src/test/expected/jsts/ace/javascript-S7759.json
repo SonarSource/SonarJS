@@ -1,0 +1,12 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+157,
+3188
+],
+"ace:src/background_tokenizer.js": [
+56
+],
+"ace:tool/perf-test.html": [
+61
+]
+}

@@ -1,0 +1,34 @@
+{
+"prototype:src/prototype/lang/function.js": [
+40,
+41
+],
+"prototype:src/prototype/lang/regexp.js": [
+26
+],
+"prototype:src/prototype/lang/string.js": [
+283,
+304,
+422,
+422,
+422,
+441,
+441,
+441,
+583,
+625,
+626,
+627,
+628,
+651,
+673,
+679,
+680,
+718,
+719,
+720
+],
+"prototype:src/prototype/lang/template.js": [
+160
+]
+}

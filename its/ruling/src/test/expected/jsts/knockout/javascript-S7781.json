@@ -1,0 +1,17 @@
+{
+"knockout:Gruntfile.js": [
+106,
+122
+],
+"knockout:src/binding/defaultBindings/style.js": [
+18
+],
+"knockout:src/templating/templateRewriting.js": [
+46,
+48
+],
+"knockout:src/utils.js": [
+316,
+469
+]
+}

@@ -1,0 +1,74 @@
+{
+"paper.js:examples/Scripts/BooleanOperations.html": [
+8
+],
+"paper.js:src/canvas/CanvasProvider.js": [
+19
+],
+"paper.js:src/core/PaperScript.js": [
+369,
+369,
+421,
+652,
+659
+],
+"paper.js:src/dom/DomEvent.js": [
+84
+],
+"paper.js:src/event/Key.js": [
+184
+],
+"paper.js:src/export.js": [
+27
+],
+"paper.js:src/init.js": [
+32,
+32,
+33,
+34
+],
+"paper.js:src/item/Raster.js": [
+431
+],
+"paper.js:src/load.js": [
+16,
+18,
+42,
+43
+],
+"paper.js:src/net/Http.js": [
+16
+],
+"paper.js:src/options.js": [
+23
+],
+"paper.js:src/paper.js": [
+129,
+129
+],
+"paper.js:src/style/Color.js": [
+113
+],
+"paper.js:src/svg/SvgExport.js": [
+379
+],
+"paper.js:src/svg/SvgImport.js": [
+557,
+560,
+665
+],
+"paper.js:src/view/CanvasView.js": [
+36
+],
+"paper.js:src/view/View.js": [
+44,
+65,
+98,
+142,
+1028,
+1034,
+1071,
+1083,
+1181
+]
+}

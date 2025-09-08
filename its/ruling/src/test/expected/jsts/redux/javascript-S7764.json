@@ -1,0 +1,17 @@
+{
+"redux:examples/counter/test/setup.js": [
+3,
+4,
+5,
+5
+],
+"redux:examples/todomvc/test/setup.js": [
+3,
+4,
+5,
+5
+],
+"redux:examples/universal/client/index.js": [
+8
+]
+}

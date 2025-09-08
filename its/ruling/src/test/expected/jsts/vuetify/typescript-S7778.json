@@ -1,0 +1,11 @@
+{
+"vuetify:packages/docs/build/examples-plugin.ts": [
+44
+],
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+74
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+118
+]
+}

@@ -1,0 +1,21 @@
+{
+"mootools-core:Source/Element/Element.js": [
+615,
+1007
+],
+"mootools-core:Source/Fx/Fx.Tween.js": [
+93
+],
+"mootools-core:Source/Slick/Slick.Finder.js": [
+984
+],
+"mootools-core:Source/Slick/Slick.Parser.js": [
+230
+],
+"mootools-core:Source/Types/Function.js": [
+90
+],
+"mootools-core:Source/Types/String.js": [
+80
+]
+}

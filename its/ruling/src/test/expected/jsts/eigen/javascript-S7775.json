@@ -1,0 +1,15 @@
+{
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+39
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+142
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+36,
+83
+],
+"eigen:scripts/generate-manifest.js": [
+37
+]
+}

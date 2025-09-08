@@ -1,0 +1,122 @@
+{
+"TypeScript:Gulpfile.ts": [
+238
+],
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+76,
+91,
+184,
+212
+],
+"TypeScript:src/compiler/checker.ts": [
+3137,
+3519,
+3532,
+3549,
+5324,
+5410,
+6129,
+7774,
+7809,
+9272,
+9319,
+10125,
+10177,
+13076,
+14600,
+14796,
+17605
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+1038
+],
+"TypeScript:src/compiler/core.ts": [
+218,
+249,
+257,
+270,
+282,
+293,
+306,
+328,
+349,
+416,
+478,
+647,
+1155,
+1188,
+1750
+],
+"TypeScript:src/compiler/emitter.ts": [
+2116,
+2453
+],
+"TypeScript:src/compiler/program.ts": [
+478,
+847,
+1671
+],
+"TypeScript:src/compiler/transformers/es2015.ts": [
+641
+],
+"TypeScript:src/compiler/transformers/generators.ts": [
+2743,
+2831,
+2852
+],
+"TypeScript:src/compiler/transformers/module/system.ts": [
+151
+],
+"TypeScript:src/compiler/tsc.ts": [
+573,
+618
+],
+"TypeScript:src/compiler/utilities.ts": [
+127
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+214
+],
+"TypeScript:src/harness/harness.ts": [
+349,
+405,
+572,
+1759
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+141,
+287
+],
+"TypeScript:src/harness/runner.ts": [
+28
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+254
+],
+"TypeScript:src/harness/sourceMapRecorder.ts": [
+352,
+442
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+472
+],
+"TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
+23
+],
+"TypeScript:src/services/codefixes/helpers.ts": [
+107,
+153
+],
+"TypeScript:src/services/formatting/formatting.ts": [
+729
+],
+"TypeScript:src/services/jsDoc.ts": [
+207
+],
+"TypeScript:src/services/services.ts": [
+1862
+],
+"TypeScript:src/services/signatureHelp.ts": [
+381
+]
+}
