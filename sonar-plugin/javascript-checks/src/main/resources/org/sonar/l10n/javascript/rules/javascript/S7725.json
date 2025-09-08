@@ -9,7 +9,7 @@
   "tags": [
     "pitfall"
   ],
-  "defaultSeverity": "CRITICAL",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-7725",
   "sqKey": "S7725",
   "scope": "Main",

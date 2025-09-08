@@ -10,7 +10,7 @@
     "deprecated",
     "es2019"
   ],
-  "defaultSeverity": "BLOCKER",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-7783",
   "sqKey": "S7783",
   "scope": "Main",
