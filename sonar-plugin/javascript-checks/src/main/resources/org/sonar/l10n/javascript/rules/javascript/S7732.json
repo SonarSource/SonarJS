@@ -9,15 +9,15 @@
   "tags": [
     "cross-browser"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7732",
   "sqKey": "S7732",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "LOW",
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },

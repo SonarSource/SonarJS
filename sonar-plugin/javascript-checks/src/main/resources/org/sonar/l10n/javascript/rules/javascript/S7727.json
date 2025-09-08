@@ -12,15 +12,15 @@
     "callback",
     "iterator"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7727",
   "sqKey": "S7727",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "HIGH",
+      "MAINTAINABILITY": "HIGH"
     },
     "attribute": "CLEAR"
   },

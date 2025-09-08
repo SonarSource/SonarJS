@@ -10,14 +10,14 @@
     "formatting",
     "consistency"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7748",
   "sqKey": "S7748",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },

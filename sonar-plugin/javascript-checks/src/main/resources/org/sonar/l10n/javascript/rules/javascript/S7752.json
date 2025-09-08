@@ -10,14 +10,14 @@
     "performance",
     "es2019"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7752",
   "sqKey": "S7752",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "EFFICIENT"
   },

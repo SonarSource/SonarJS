@@ -11,7 +11,7 @@
     "readability",
     "best-practice"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7774",
   "sqKey": "S7774",
   "scope": "Main",

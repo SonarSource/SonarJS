@@ -11,7 +11,7 @@
     "dom",
     "api"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7761",
   "sqKey": "S7761",
   "scope": "Main",

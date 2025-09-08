@@ -10,15 +10,15 @@
     "unicode",
     "internationalization"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7758",
   "sqKey": "S7758",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "LOW",
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },

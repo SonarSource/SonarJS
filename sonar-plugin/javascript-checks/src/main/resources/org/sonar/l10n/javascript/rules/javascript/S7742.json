@@ -11,14 +11,14 @@
     "bundle-size",
     "polyfill"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7742",
   "sqKey": "S7742",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "EFFICIENT"
   },

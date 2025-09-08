@@ -10,15 +10,15 @@
     "convention",
     "es6"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7731",
   "sqKey": "S7731",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "LOW",
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },

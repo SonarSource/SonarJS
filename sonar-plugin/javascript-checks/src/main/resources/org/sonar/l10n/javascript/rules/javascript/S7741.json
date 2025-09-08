@@ -10,14 +10,14 @@
     "style",
     "readability"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7741",
   "sqKey": "S7741",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },

@@ -11,14 +11,14 @@
     "modernization",
     "promise"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7756",
   "sqKey": "S7756",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },

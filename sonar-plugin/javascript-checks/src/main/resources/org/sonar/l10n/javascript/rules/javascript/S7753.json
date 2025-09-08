@@ -11,16 +11,16 @@
     "javascript",
     "array"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7753",
   "sqKey": "S7753",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH"
+      "MAINTAINABILITY": "MEDIUM"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "EFFICIENT"
   },
   "compatibleLanguages": [
     "js",

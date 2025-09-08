@@ -10,14 +10,14 @@
     "unnecessary",
     "performance"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7770",
   "sqKey": "S7770",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },

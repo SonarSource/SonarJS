@@ -9,7 +9,7 @@
   "tags": [
     "confusing"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7767",
   "sqKey": "S7767",
   "scope": "Main",
@@ -17,7 +17,7 @@
   "code": {
     "impacts": {
       "RELIABILITY": "HIGH",
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "HIGH"
     },
     "attribute": "CLEAR"
   },

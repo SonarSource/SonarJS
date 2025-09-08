@@ -9,15 +9,15 @@
   "tags": [
     "pitfall"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "CRITICAL",
   "ruleSpecification": "RSPEC-7725",
   "sqKey": "S7725",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "HIGH",
+      "MAINTAINABILITY": "HIGH"
     },
     "attribute": "LOGICAL"
   },

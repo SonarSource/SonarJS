@@ -10,14 +10,14 @@
     "confusing",
     "obsolete"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7740",
   "sqKey": "S7740",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "HIGH"
     },
     "attribute": "CLEAR"
   },

@@ -10,14 +10,14 @@
     "performance",
     "readability"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7728",
   "sqKey": "S7728",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "EFFICIENT"
   },

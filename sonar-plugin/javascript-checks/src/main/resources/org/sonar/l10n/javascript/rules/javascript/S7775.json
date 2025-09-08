@@ -9,14 +9,14 @@
   "tags": [
     "performance"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7775",
   "sqKey": "S7775",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH"
+      "MAINTAINABILITY": "Medium"
     },
     "attribute": "EFFICIENT"
   },

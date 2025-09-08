@@ -10,14 +10,14 @@
     "eslint",
     "linting"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7724",
   "sqKey": "S7724",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "HIGH"
     },
     "attribute": "CLEAR"
   },

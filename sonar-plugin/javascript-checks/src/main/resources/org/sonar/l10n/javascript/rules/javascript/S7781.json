@@ -10,15 +10,15 @@
     "es2021",
     "readability"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7781",
   "sqKey": "S7781",
   "scope": "Main",
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "LOW",
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },

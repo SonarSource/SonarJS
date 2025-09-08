@@ -9,14 +9,14 @@
   "tags": [
     "convention"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7726",
   "sqKey": "S7726",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "IDENTIFIABLE"
   },

@@ -11,15 +11,15 @@
     "async",
     "thenable"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7739",
   "sqKey": "S7739",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "HIGH",
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },

@@ -11,15 +11,15 @@
     "fetch",
     "runtime-error"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7733",
   "sqKey": "S7733",
   "scope": "Main",
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "RELIABILITY": "BLOCKER",
-      "MAINTAINABILITY": "BLOCKER"
+      "RELIABILITY": "MEDIUM",
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "LOGICAL"
   },

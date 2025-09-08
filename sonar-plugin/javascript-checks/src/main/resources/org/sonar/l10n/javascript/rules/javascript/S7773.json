@@ -10,7 +10,7 @@
     "es2015",
     "convention"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7773",
   "sqKey": "S7773",
   "scope": "Main",
@@ -18,7 +18,7 @@
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM",
-      "MAINTAINABILITY": "BLOCKER"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },
