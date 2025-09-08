@@ -3,7 +3,7 @@ FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
 
 USER root
 
-ARG NODE_VERSION=18.20.2
+ARG NODE_VERSION=20.12.0
 
 RUN apt-get update \
     && apt-get install -y ca-certificates curl xz-utils \
