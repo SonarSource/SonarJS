@@ -16,11 +16,13 @@
  */
 import { Volume } from 'memfs';
 import { equal } from 'node:assert';
-import { createFindUp, Filesystem } from '../../../src/rules/helpers/find-up.js';
+import type { Filesystem } from '../../../src/rules/helpers/find-up/find-minimatch.js';
+import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in-parent-dirs.js';
 import Path from 'path/posix';
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 
 describe('findUp', () => {
+  beforeEach(() => patternInParentsCache.clear());
   it('only touches the filesystem when needed', ({ mock }) => {
     const filesystem = Volume.fromJSON({
       '/a/b/c/d/foo.bar': '/a/b/c/d/foo.bar content',
@@ -29,7 +31,7 @@ describe('findUp', () => {
     });
     console.log(filesystem.toJSON());
 
-    const findUp = createFindUp('foo.bar', '/', filesystem as Filesystem);
+    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get('/');
 
     const filesystemReadFileSpy = mock.method(filesystem, 'readFileSync');
     const filesystemReaddirSpy = mock.method(filesystem, 'readdirSync');
@@ -74,9 +76,18 @@ describe('findUp', () => {
       '/foo.bar': '/foo.bar content',
     });
 
-    const entriesUpToRoot = createFindUp('foo.bar', '/', filesystem as Filesystem).get('/a/b/c');
-    const entriesUpToA = createFindUp('foo.bar', '/a', filesystem as Filesystem).get('/a/b/c');
-    const entriesUpToAB = createFindUp('foo.bar', '/a/b', filesystem as Filesystem).get('/a/b/c');
+    const entriesUpToRoot = patternInParentsCache
+      .get('foo.bar', filesystem as Filesystem)
+      .get('/')
+      .get('/a/b/c');
+    const entriesUpToA = patternInParentsCache
+      .get('foo.bar', filesystem as Filesystem)
+      .get('/a')
+      .get('/a/b/c');
+    const entriesUpToAB = patternInParentsCache
+      .get('foo.bar', filesystem as Filesystem)
+      .get('/a/b')
+      .get('/a/b/c');
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
@@ -96,13 +107,18 @@ describe('findUp', () => {
       '/foo.y.bar': '/foo.bar content',
     });
 
-    const entriesUpToRoot = createFindUp('foo.{*.,}bar', '/', filesystem as Filesystem).get(
-      '/a/b/c',
-    );
-    const entriesUpToA = createFindUp('foo.{*.,}bar', '/a', filesystem as Filesystem).get('/a/b/c');
-    const entriesUpToAB = createFindUp('foo.{*.,}bar', '/a/b', filesystem as Filesystem).get(
-      '/a/b/c',
-    );
+    const entriesUpToRoot = patternInParentsCache
+      .get('foo.{*.,}bar', filesystem as Filesystem)
+      .get('/')
+      .get('/a/b/c');
+    const entriesUpToA = patternInParentsCache
+      .get('foo.{*.,}bar', filesystem as Filesystem)
+      .get('/a')
+      .get('/a/b/c');
+    const entriesUpToAB = patternInParentsCache
+      .get('foo.{*.,}bar', filesystem as Filesystem)
+      .get('/a/b')
+      .get('/a/b/c');
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));

@@ -15,22 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { dirname } from 'node:path/posix';
 import { toUnixPath } from '../files.js';
-import { ComputedCache } from '../../../../../shared/src/helpers/cache.js';
-import { createFindUpFirstMatch, Filesystem } from '../find-up.js';
-import fs from 'node:fs';
 import { PACKAGE_JSON } from './index.js';
-
-export const closestPackageJsonCache = new ComputedCache(
-  (
-    topDir: string | undefined,
-    _cache: ComputedCache<any, any, Filesystem>,
-    filesystem: Filesystem = fs,
-  ) => {
-    return createFindUpFirstMatch(PACKAGE_JSON, topDir, filesystem);
-  },
-);
+import { closestPatternCache } from '../find-up/closest.js';
 
 export function getClosestPackageJSONDir(dir: string, topDir?: string) {
-  return closestPackageJsonCache.get(topDir).get(toUnixPath(dir))?.path;
+  const closestPackageJSONDir = closestPatternCache
+    .get(PACKAGE_JSON)
+    .get(topDir ? toUnixPath(topDir) : '/')
+    .get(toUnixPath(dir))?.path;
+  if (closestPackageJSONDir) {
+    return dirname(closestPackageJSONDir);
+  }
 }

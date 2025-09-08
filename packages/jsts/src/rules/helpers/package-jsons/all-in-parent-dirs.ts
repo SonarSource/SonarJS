@@ -15,33 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { createFindUp, Filesystem } from '../find-up.js';
+import { Filesystem } from '../find-up/find-minimatch.js';
 import type { PackageJson } from 'type-fest';
-import { stripBOM } from '../files.js';
-import { ComputedCache } from '../../../../../shared/src/helpers/cache.js';
-import fs from 'node:fs';
+import { stripBOM, toUnixPath } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
-
-export const packageJsonsInParentsCache = new ComputedCache(
-  (
-    topDir: string | undefined,
-    _cache: ComputedCache<any, any, Filesystem>,
-    filesystem: Filesystem = fs,
-  ) => {
-    return createFindUp(PACKAGE_JSON, topDir, filesystem);
-  },
-);
+import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
  * the module named `filename`, up to the passed working directory.
  */
 export const getManifests = (
-  path: string,
-  workingDirectory?: string,
+  dir: string,
+  topDir?: string,
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
-  const files = packageJsonsInParentsCache.get(workingDirectory, fileSystem).get(path);
+  const files = patternInParentsCache
+    .get(PACKAGE_JSON, fileSystem)
+    .get(topDir ? toUnixPath(topDir) : '/')
+    .get(toUnixPath(dir));
 
   return files.map(file => {
     const content = file.content;

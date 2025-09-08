@@ -29,8 +29,12 @@ import {
   dependenciesCache,
   getDependencies,
 } from '../../src/rules/helpers/package-jsons/dependencies.js';
-import { packageJsonsInParentsCache } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
-import { closestPackageJsonCache } from '../../src/rules/helpers/package-jsons/closest.js';
+import { closestPatternCache } from '../../src/rules/helpers/find-up/closest.js';
+import { PACKAGE_JSON } from '../../src/rules/helpers/package-jsons/index.js';
+import { patternInParentsCache } from '../../src/rules/helpers/find-up/all-in-parent-dirs.js';
+
+const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
+const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
 
 const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 

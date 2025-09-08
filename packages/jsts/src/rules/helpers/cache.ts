@@ -15,16 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export class ComputedCache<K, V, TContext = {}> {
+export class ComputedCache<K, V, TContext = null> {
   private readonly cache: Map<K, V>;
 
-  constructor(
-    private readonly computeFn: (
-      key: K,
-      cache: ComputedCache<K, V, TContext>,
-      context?: TContext,
-    ) => V,
-  ) {
+  constructor(private readonly computeFn: (key: K, context?: TContext) => V) {
     this.cache = new Map();
   }
 
@@ -33,7 +27,7 @@ export class ComputedCache<K, V, TContext = {}> {
       return this.cache.get(key)!;
     }
 
-    const value = this.computeFn(key, this, context);
+    const value = this.computeFn(key, context);
     this.cache.set(key, value);
     return value;
   }

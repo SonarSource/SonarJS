@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { ComputedCache } from '../../../../../shared/src/helpers/cache.js';
+import { ComputedCache } from '../cache.js';
 import { Minimatch } from 'minimatch';
 import fs from 'node:fs';
 import { getDependenciesFromPackageJson } from './parse.js';
@@ -25,34 +25,32 @@ import { getManifests } from './all-in-parent-dirs.js';
 /**
  * Cache for the available dependencies by dirname. Exported for tests
  */
-export const dependenciesCache = new ComputedCache(
-  (dir: string, _cache: ComputedCache<any, any, string>, topDir: string | undefined) => {
-    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
-    const result = new Set<string | Minimatch>();
+export const dependenciesCache = new ComputedCache((dir: string, topDir: string | undefined) => {
+  const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+  const result = new Set<string | Minimatch>();
 
-    if (closestPackageJSONDirName) {
-      getManifests(closestPackageJSONDirName, topDir, fs).forEach(manifest => {
-        const manifestDependencies = getDependenciesFromPackageJson(manifest);
+  if (closestPackageJSONDirName) {
+    getManifests(closestPackageJSONDirName, topDir, fs).forEach(manifest => {
+      const manifestDependencies = getDependenciesFromPackageJson(manifest);
 
-        manifestDependencies.forEach(dependency => {
-          result.add(dependency.name);
-        });
+      manifestDependencies.forEach(dependency => {
+        result.add(dependency.name);
       });
-    }
-    return result;
-  },
-);
+    });
+  }
+  return result;
+});
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
  * @param dir context.filename
- * @param cwd working dir, will search up to that root
+ * @param topDir working dir, will search up to that root
  * @returns
  */
-export function getDependencies(dir: string, cwd: string) {
-  const closestPackageJSONDirName = getClosestPackageJSONDir(dir, cwd);
+export function getDependencies(dir: string, topDir: string) {
+  const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
   if (closestPackageJSONDirName) {
-    return dependenciesCache.get(closestPackageJSONDirName, cwd);
+    return dependenciesCache.get(closestPackageJSONDirName, topDir);
   }
   return new Set<string | Minimatch>();
 }

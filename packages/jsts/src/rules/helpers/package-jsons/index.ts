@@ -17,10 +17,10 @@
 
 import type { File } from '../files.js';
 import { PathTree } from '../../../analysis/projectAnalysis/file-stores/package-jsons.js';
-import { MinimatchCache } from '../find-up.js';
-import { closestPackageJsonCache } from './closest.js';
-import { packageJsonsInParentsCache } from './all-in-parent-dirs.js';
+import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
+import { closestPatternCache } from '../find-up/closest.js';
+import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 
 export const PACKAGE_JSON = 'package.json';
 
@@ -29,14 +29,14 @@ export function fillPackageJsonCaches(
   allPaths: PathTree,
   topDir: string,
 ) {
-  const closestCache = closestPackageJsonCache.get(topDir);
-  const allPackageJsonsCache = packageJsonsInParentsCache.get(topDir);
+  const closestCache = closestPatternCache.get(PACKAGE_JSON).get(topDir);
+  const allPackageJsonsCache = patternInParentsCache.get(PACKAGE_JSON).get(topDir);
 
   for (const [dir, { parent }] of allPaths) {
     const currentPackageJson = packageJsons.get(dir);
     const allPackageJsons = [];
     if (parent) {
-      closestCache.set(dir, closestCache.get(parent)!);
+      closestCache.set(dir, closestCache.get(parent));
       allPackageJsons.push(...allPackageJsonsCache.get(dir));
     }
     if (currentPackageJson) {
@@ -51,7 +51,7 @@ export function fillPackageJsonCaches(
  */
 export function clearDependenciesCache() {
   dependenciesCache.clear();
-  closestPackageJsonCache.clear();
-  packageJsonsInParentsCache.clear();
+  closestPatternCache.get(PACKAGE_JSON).clear();
+  patternInParentsCache.get(PACKAGE_JSON).clear();
   MinimatchCache.clear();
 }
