@@ -31,10 +31,10 @@ import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
-import { clearDependenciesCache } from '../rules/helpers/index.js';
 import { fillFileContent } from '../../../shared/src/types/analysis.js';
 import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input

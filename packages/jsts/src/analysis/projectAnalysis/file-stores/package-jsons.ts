@@ -16,33 +16,41 @@
  */
 
 import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
-import { basename } from 'node:path/posix';
+import { basename, dirname } from 'node:path/posix';
+import { readFile } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
+import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
+import { FileStore } from './store-type.js';
+import { type File } from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
   PACKAGE_JSON,
-  PackageJsonWithPath,
-} from '../../../rules/helpers/index.js';
-import type { Dirent } from 'node:fs';
-import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
-import { FileStore } from './store-type.js';
-import { readFile } from '../../../../../shared/src/helpers/files.js';
+} from '../../../rules/helpers/package-jsons/index.js';
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
 
+export type PathTree = Map<
+  string,
+  {
+    children: Set<string>;
+    parent?: string;
+  }
+>;
+
 export class PackageJsonStore implements FileStore {
-  private packageJsons: PackageJsonWithPath[] | undefined = undefined;
+  private readonly packageJsons: Map<string, File> = new Map();
   private baseDir: string | undefined = undefined;
-  private readonly paths = new Set<string>();
+  private readonly paths: PathTree = new Map();
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return typeof this.packageJsons !== 'undefined';
+    return typeof this.baseDir !== 'undefined';
   }
 
   getPackageJsons() {
-    if (!this.packageJsons) {
+    if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     return this.packageJsons;
@@ -63,8 +71,8 @@ export class PackageJsonStore implements FileStore {
   }
 
   clearCache() {
-    this.packageJsons = undefined;
     this.baseDir = undefined;
+    this.packageJsons.clear();
     this.paths.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
@@ -72,8 +80,9 @@ export class PackageJsonStore implements FileStore {
 
   setup(baseDir: string) {
     this.baseDir = baseDir;
-    this.paths.add(baseDir);
-    this.packageJsons = [];
+    this.paths.set(baseDir, {
+      children: new Set(),
+    });
   }
 
   async processFile(file: Dirent, filePath: string) {
@@ -82,16 +91,21 @@ export class PackageJsonStore implements FileStore {
     }
     if (file.name === PACKAGE_JSON) {
       try {
-        const fileContent = JSON.parse(await readFile(filePath));
-        this.packageJsons.push({ filePath, fileContent });
+        const content = await readFile(filePath, 'utf-8');
+        this.packageJsons.set(dirname(filePath), { content, path: filePath });
       } catch (e) {
-        warn(`Error parsing package.json ${filePath}: ${e}`);
+        warn(`Error reading package.json ${filePath}: ${e}`);
       }
     }
   }
 
   processDirectory(dir: string) {
-    this.paths.add(dir);
+    const parent = dirname(dir);
+    this.paths.get(parent)?.children.add(dir);
+    this.paths.set(dir, {
+      children: new Set(),
+      parent,
+    });
   }
 
   async postProcess() {

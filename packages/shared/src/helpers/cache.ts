@@ -38,6 +38,10 @@ export class ComputedCache<K, V, TContext = {}> {
     return value;
   }
 
+  set(key: K, value: V) {
+    this.cache.set(key, value);
+  }
+
   has(key: K) {
     return this.cache.has(key);
   }
@@ -48,5 +52,9 @@ export class ComputedCache<K, V, TContext = {}> {
 
   clear() {
     this.cache.clear();
+  }
+
+  get size() {
+    return this.cache.size;
   }
 }

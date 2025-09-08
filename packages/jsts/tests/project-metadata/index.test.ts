@@ -15,10 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
-import { getManifests, isSupported, toUnixPath } from '../../src/rules/helpers/index.js';
+import { isSupported, toUnixPath } from '../../src/rules/helpers/index.js';
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
+import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'package-json');

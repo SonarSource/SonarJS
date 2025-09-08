@@ -17,9 +17,10 @@
 
 import { describe, it } from 'node:test';
 import path from 'path';
-import { getDependenciesFromPackageJson, stripBOM } from '../../../src/rules/helpers/index.js';
+import { stripBOM } from '../../../src/rules/helpers/index.js';
 import { readFile } from 'node:fs/promises';
 import { expect } from 'expect';
+import { getDependenciesFromPackageJson } from '../../../src/rules/helpers/package-jsons/parse.js';
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {

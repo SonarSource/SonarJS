@@ -20,9 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   generateMeta,
-  getDependencies,
   getFullyQualifiedName,
-  getManifests,
   getProperty,
   getValueOfExpression,
   isFunctionInvocation,
@@ -34,7 +32,9 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { dirname } from 'path/posix';
+import { dirname } from 'node:path';
+import { getDependencies } from '../helpers/package-jsons/dependencies.js';
+import { getManifests } from '../helpers/package-jsons/all-in-parent-dirs.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context) {
-    const dependencies = getDependencies(context.filename, context.cwd);
+    const dependencies = getDependencies(dirname(context.filename), context.cwd);
     switch (true) {
       case dependencies.has('jasmine'):
         return jasmineListener();

@@ -33,7 +33,6 @@ export * from './lva.js';
 export * from './mocha.js';
 export * from './module.js';
 export * from './module-ts.js';
-export * from './package-json.js';
 export * from './quickfix.js';
 export * from './reaching-definitions.js';
 export * from './rule-detect-react.js';

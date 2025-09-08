@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as semver from 'semver';
-import { getManifests } from './package-json.js';
+import { getManifests } from './package-jsons/all-in-parent-dirs.js';
 
 /**
  * Minimum version per reference

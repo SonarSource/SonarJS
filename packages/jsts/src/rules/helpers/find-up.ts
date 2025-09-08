@@ -16,7 +16,7 @@
  */
 import * as Path from 'node:path/posix';
 import { Minimatch } from 'minimatch';
-import { isRoot, toUnixPath } from './files.js';
+import { isRoot, toUnixPath, type File } from './files.js';
 import fs from 'fs';
 import { ComputedCache } from '../../../../shared/src/helpers/cache.js';
 
@@ -30,16 +30,11 @@ export interface Filesystem {
   statSync: (typeof fs)['statSync'];
 }
 
-interface File {
-  readonly path: string;
-  readonly content: Buffer | string;
-}
-
 export const MinimatchCache = new ComputedCache(
   (
     matcher: Minimatch,
-    _cache: ComputedCache<any, any, Filesystem>,
-    filesystem: Filesystem = fs,
+    _cache: ComputedCache<Minimatch, ComputedCache<string, File[]>, Filesystem>,
+    filesystem = fs,
   ) => {
     return new ComputedCache((from: string) => {
       const files: File[] = [];
@@ -110,7 +105,7 @@ export function createFindUpFirstMatch(
     return undefined;
   };
 
-  return new ComputedCache((from: string, cache: ComputedCache<string, File | undefined>) => {
+  return new ComputedCache((from: string, cache) => {
     return _findUpSimple(toUnixPath(from), cache);
   });
 }
@@ -139,7 +134,7 @@ export function createFindUp(
     return [...readDir.get(from)];
   };
 
-  return new ComputedCache((from: string, cache: ComputedCache<string, File[]>) => {
+  return new ComputedCache((from: string, cache) => {
     return _findUpAll(toUnixPath(from), cache);
   });
 }
