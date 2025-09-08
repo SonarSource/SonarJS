@@ -36,7 +36,7 @@ export function fillPackageJsonCaches(
     const currentPackageJson = packageJsons.get(dir);
     const allPackageJsons = [];
     if (parent) {
-      closestCache.set(dir, packageJsons.get(parent)!);
+      closestCache.set(dir, closestCache.get(parent)!);
       allPackageJsons.push(...allPackageJsonsCache.get(dir));
     }
     if (currentPackageJson) {

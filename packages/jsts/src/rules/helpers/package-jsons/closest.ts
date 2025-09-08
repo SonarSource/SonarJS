@@ -16,7 +16,6 @@
  */
 
 import { toUnixPath } from '../files.js';
-import { dirname } from 'node:path/posix';
 import { ComputedCache } from '../../../../../shared/src/helpers/cache.js';
 import { createFindUpFirstMatch, Filesystem } from '../find-up.js';
 import fs from 'node:fs';
@@ -33,9 +32,5 @@ export const closestPackageJsonCache = new ComputedCache(
 );
 
 export function getClosestPackageJSONDir(dir: string, topDir?: string) {
-  const closestPackageJson = closestPackageJsonCache.get(topDir).get(toUnixPath(dir))?.path;
-  if (closestPackageJson) {
-    return dirname(closestPackageJson);
-  }
-  return undefined;
+  return closestPackageJsonCache.get(topDir).get(toUnixPath(dir))?.path;
 }
