@@ -1,0 +1,43 @@
+{
+"vuetify:packages/docs/src/components/doc/UpNext.vue": [
+78,
+79
+],
+"vuetify:packages/docs/src/components/sponsor/Card.vue": [
+58
+],
+"vuetify:packages/docs/src/examples/scroll/usage.vue": [
+117
+],
+"vuetify:packages/docs/src/examples/v-banner/usage.vue": [
+66
+],
+"vuetify:packages/docs/src/examples/v-combobox/misc-advanced.vue": [
+136,
+147
+],
+"vuetify:packages/docs/src/examples/v-divider/usage.vue": [
+47
+],
+"vuetify:packages/docs/src/examples/v-progress-circular/usage.vue": [
+57,
+58,
+59
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/usage.vue": [
+48,
+49
+],
+"vuetify:packages/docs/src/examples/v-responsive/usage.vue": [
+34
+],
+"vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
+115
+],
+"vuetify:scripts/build.js": [
+12
+],
+"vuetify:scripts/dev.js": [
+9
+]
+}

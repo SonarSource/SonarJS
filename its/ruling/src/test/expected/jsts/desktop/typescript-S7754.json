@@ -1,0 +1,16 @@
+{
+"desktop:app/src/lib/stats/stats-store.ts": [
+621,
+624
+],
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
+264
+],
+"desktop:app/src/ui/history/commit-list-item.tsx": [
+101,
+110
+],
+"desktop:app/src/ui/lib/branch-name-warnings.tsx": [
+31
+]
+}

@@ -1,0 +1,17 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+43
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+48
+],
+"sonar-web:src/main/js/helpers/csv.js": [
+2
+],
+"sonar-web:src/main/js/helpers/latinize.js": [
+362
+],
+"sonar-web:src/main/js/libs/inputs.js": [
+4
+]
+}

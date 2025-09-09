@@ -1,0 +1,74 @@
+{
+"sonar-web:src/main/js/apps/account/app.js": [
+35
+],
+"sonar-web:src/main/js/apps/api-documentation/app.js": [
+71
+],
+"sonar-web:src/main/js/apps/background-tasks/app.js": [
+5
+],
+"sonar-web:src/main/js/apps/coding-rules/app.js": [
+104
+],
+"sonar-web:src/main/js/apps/component-issues/app.js": [
+97
+],
+"sonar-web:src/main/js/apps/custom-measures/app.js": [
+49
+],
+"sonar-web:src/main/js/apps/drilldown/app.js": [
+30
+],
+"sonar-web:src/main/js/apps/global-permissions/app.js": [
+6
+],
+"sonar-web:src/main/js/apps/groups/app.js": [
+45
+],
+"sonar-web:src/main/js/apps/issues/app.js": [
+70
+],
+"sonar-web:src/main/js/apps/markdown/app.js": [
+11
+],
+"sonar-web:src/main/js/apps/measures/app.js": [
+165
+],
+"sonar-web:src/main/js/apps/metrics/app.js": [
+64
+],
+"sonar-web:src/main/js/apps/overview/app.js": [
+29
+],
+"sonar-web:src/main/js/apps/permission-templates/app.js": [
+6
+],
+"sonar-web:src/main/js/apps/project-permissions/app.js": [
+11
+],
+"sonar-web:src/main/js/apps/projects/app.js": [
+7
+],
+"sonar-web:src/main/js/apps/quality-gates/app.js": [
+62
+],
+"sonar-web:src/main/js/apps/quality-profiles/app.js": [
+63
+],
+"sonar-web:src/main/js/apps/source-viewer/app.js": [
+27
+],
+"sonar-web:src/main/js/apps/system/app.js": [
+5
+],
+"sonar-web:src/main/js/apps/update-center/app.js": [
+64
+],
+"sonar-web:src/main/js/apps/users/app.js": [
+45
+],
+"sonar-web:src/main/js/main/app.js": [
+56
+]
+}

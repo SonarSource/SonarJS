@@ -1,0 +1,26 @@
+{
+"templating:protractor-shared.conf.js": [
+16
+],
+"templating:src/lib/index.js": [
+25
+],
+"templating:src/lib/load_barrier.js": [
+23,
+126
+],
+"templating:src/lib/util/global.js": [
+2
+],
+"templating:src/util/ng_polymer.js": [
+3,
+22
+],
+"templating:test/lib/util/document_ready.spec.js": [
+16
+],
+"templating:test/unit-test-main.js": [
+8,
+38
+]
+}

@@ -1,0 +1,69 @@
+{
+"angular.js:benchmarks/ng-class-bp/app.js": [
+86
+],
+"angular.js:docs/config/tag-defs/sortOrder.js": [
+6
+],
+"angular.js:docs/config/tag-defs/tutorial-step.js": [
+9
+],
+"angular.js:src/Angular.js": [
+424,
+873
+],
+"angular.js:src/apis.js": [
+43,
+89
+],
+"angular.js:src/minErr.js": [
+44
+],
+"angular.js:src/ng/directive/input.js": [
+1440,
+1497,
+1596,
+1641,
+1660
+],
+"angular.js:src/ng/directive/ngPluralize.js": [
+208
+],
+"angular.js:src/ng/directive/select.js": [
+822
+],
+"angular.js:src/ng/filter/filters.js": [
+294,
+296,
+603,
+626
+],
+"angular.js:src/ng/filter/limitTo.js": [
+114
+],
+"angular.js:src/ng/parse.js": [
+246
+],
+"angular.js:src/ngAnimate/animateCss.js": [
+286,
+510,
+584,
+609,
+796,
+901
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+611
+],
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+227,
+263
+],
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
+111
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+705,
+768
+]
+}

@@ -1,0 +1,110 @@
+{
+"TypeScript:scripts/authors.ts": [
+102,
+108,
+108,
+144,
+146,
+155,
+162
+],
+"TypeScript:src/compiler/checker.ts": [
+2027,
+2835,
+3046
+],
+"TypeScript:src/compiler/core.ts": [
+2027
+],
+"TypeScript:src/compiler/tsc.ts": [
+377,
+378
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+93
+],
+"TypeScript:src/harness/fourslash.ts": [
+204,
+229,
+266,
+329,
+336,
+847,
+963,
+999,
+1981,
+2360,
+2388,
+2674,
+2788,
+3032,
+3036
+],
+"TypeScript:src/harness/harness.ts": [
+211,
+1141,
+1211,
+1212,
+1252,
+1256,
+1300,
+1826
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+536,
+544,
+552
+],
+"TypeScript:src/harness/instrumenter.ts": [
+57,
+58
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+408,
+411,
+457,
+486
+],
+"TypeScript:src/harness/runner.ts": [
+36
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+74,
+99
+],
+"TypeScript:src/server/client.ts": [
+642,
+649
+],
+"TypeScript:src/server/editorServices.ts": [
+195
+],
+"TypeScript:src/server/session.ts": [
+463,
+742,
+754
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+318
+],
+"TypeScript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts": [
+30
+],
+"TypeScript:src/services/findAllReferences.ts": [
+55
+],
+"TypeScript:src/services/importTracker.ts": [
+71
+],
+"TypeScript:src/services/jsDoc.ts": [
+114,
+125
+],
+"TypeScript:src/services/services.ts": [
+199
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+355,
+528
+]
+}

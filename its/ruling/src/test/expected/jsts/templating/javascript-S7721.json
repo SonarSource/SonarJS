@@ -1,0 +1,21 @@
+{
+"templating:test/example/shadow-dom-util.js": [
+9,
+20
+],
+"templating:test/example/tab.spec.js": [
+88,
+92
+],
+"templating:test/example/video.spec.js": [
+28,
+32
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+262,
+265
+],
+"templating:test/lib/util/tree_array.spec.js": [
+12
+]
+}

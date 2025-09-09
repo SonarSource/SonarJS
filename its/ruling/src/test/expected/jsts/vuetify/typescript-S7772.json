@@ -1,0 +1,42 @@
+{
+"vuetify:packages/api-generator/src/helpers/sass.ts": [
+1
+],
+"vuetify:packages/api-generator/src/index.ts": [
+1,
+2,
+10,
+15,
+17
+],
+"vuetify:packages/api-generator/src/vetur.ts": [
+1
+],
+"vuetify:packages/api-generator/src/web-types.ts": [
+1
+],
+"vuetify:packages/api-generator/src/worker.ts": [
+1,
+2
+],
+"vuetify:packages/docs/build/api-plugin.ts": [
+2,
+3
+],
+"vuetify:packages/docs/build/examples-plugin.ts": [
+2,
+3
+],
+"vuetify:packages/docs/build/markdown-it.ts": [
+1,
+2
+],
+"vuetify:packages/docs/vite.config.ts": [
+1,
+2
+],
+"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
+3,
+4
+]
+}

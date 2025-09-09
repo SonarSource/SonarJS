@@ -1,0 +1,15 @@
+{
+"rxjs:src/ReplaySubject.ts": [
+21,
+22
+],
+"rxjs:src/operator/max.ts": [
+38
+],
+"rxjs:src/operator/min.ts": [
+38
+],
+"rxjs:src/operator/takeLast.ts": [
+95
+]
+}

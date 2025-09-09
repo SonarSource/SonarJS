@@ -1,0 +1,33 @@
+{
+"desktop:app/src/lib/editors/win32.ts": [
+71,
+74
+],
+"desktop:app/src/lib/is-git-on-path.ts": [
+6
+],
+"desktop:app/src/lib/shells/win32.ts": [
+37,
+121,
+142,
+160,
+186,
+205,
+225,
+251,
+255,
+268,
+276,
+290,
+330,
+359,
+379
+],
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+17
+],
+"desktop:script/build.ts": [
+199,
+200
+]
+}

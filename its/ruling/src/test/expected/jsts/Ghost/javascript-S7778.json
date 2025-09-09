@@ -1,0 +1,59 @@
+{
+"Ghost:core/client/tests/unit/controllers/settings/general-test.js": [
+68
+],
+"Ghost:core/server/api/authentication.js": [
+42
+],
+"Ghost:core/server/controllers/admin.js": [
+24
+],
+"Ghost:core/server/controllers/frontend/context.js": [
+44
+],
+"Ghost:core/server/helpers/body_class.js": [
+35,
+38,
+41,
+53
+],
+"Ghost:core/server/helpers/ghost_head.js": [
+90,
+107,
+119
+],
+"Ghost:core/server/update-check.js": [
+60,
+61,
+72,
+73,
+74
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+141,
+142,
+186,
+187,
+188,
+189,
+211,
+212,
+251,
+252,
+272,
+273,
+295,
+296,
+297,
+298,
+299,
+350,
+351,
+582,
+583,
+584,
+585,
+586,
+663
+]
+}

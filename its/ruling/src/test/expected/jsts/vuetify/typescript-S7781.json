@@ -1,0 +1,50 @@
+{
+"vuetify:packages/api-generator/src/helpers/sass.ts": [
+6
+],
+"vuetify:packages/docs/build/api-plugin.ts": [
+52
+],
+"vuetify:packages/docs/src/composables/codepen.ts": [
+38,
+39,
+55,
+64,
+68,
+69,
+89,
+89
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+136
+],
+"vuetify:packages/docs/src/util/markdown-it.ts": [
+29,
+30,
+31,
+32
+],
+"vuetify:packages/docs/vite.config.ts": [
+208
+],
+"vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
+12
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+186,
+204,
+206
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+58,
+59
+],
+"vuetify:packages/vuetify/src/util/createSimpleFunctional.ts": [
+10
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+66,
+436,
+437
+]
+}

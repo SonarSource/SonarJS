@@ -1,0 +1,17 @@
+{
+"ant-design:components/_util/__tests__/wave.test.js": [
+13
+],
+"ant-design:scripts/check-ts-demo.js": [
+52
+],
+"ant-design:scripts/check-version-md.js": [
+13
+],
+"ant-design:scripts/generate-authors.js": [
+22
+],
+"ant-design:scripts/print-changelog.js": [
+110
+]
+}

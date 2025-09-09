@@ -1,0 +1,23 @@
+{
+"Ghost:core/client/app/helpers/gh-path.js": [
+44
+],
+"Ghost:core/client/app/mixins/404-handler.js": [
+9
+],
+"Ghost:core/server/apps/proxy.js": [
+45
+],
+"Ghost:core/server/controllers/frontend/templates.js": [
+82
+],
+"Ghost:core/server/utils/downzero.js": [
+72
+],
+"Ghost:core/shared/ghost-url.js": [
+36
+],
+"Ghost:core/test/integration/api/api_settings_spec.js": [
+24
+]
+}

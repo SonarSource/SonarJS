@@ -1,0 +1,15 @@
+{
+"router:src/history.js": [
+58,
+79,
+111
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+14,
+2912,
+2913
+],
+"router:third_party/route-recognizer.js": [
+43
+]
+}

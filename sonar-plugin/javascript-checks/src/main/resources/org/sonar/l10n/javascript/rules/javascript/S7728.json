@@ -1,0 +1,31 @@
+{
+  "title": "Use \"for...of\" loops instead of \"forEach\" method calls",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "performance",
+    "readability"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7728",
+  "sqKey": "S7728",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+3304
+],
+"p5.js:lib/addons/p5.sound.js": [
+11608
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+276
+],
+"p5.js:src/typography/p5.Font.js": [
+116,
+118
+],
+"p5.js:src/webgl/3d_primitives.js": [
+192,
+399,
+1013,
+1014,
+1125,
+1129,
+1134,
+1243,
+1244,
+1245,
+1617,
+1651,
+1652
+],
+"p5.js:src/webgl/p5.Geometry.js": [
+87,
+226,
+227
+],
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+191,
+198,
+199
+]
+}

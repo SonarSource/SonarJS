@@ -1,0 +1,123 @@
+{
+"eigen:scripts/algolia-example-galleries-near-me.ts": [
+71
+],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
+295,
+316,
+496
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/SizesOptionsScreen.tsx": [
+219,
+244
+],
+"eigen:src/app/Components/ArtworkFilter/SavedSearch/convertersToFilterParams.ts": [
+240,
+249
+],
+"eigen:src/app/Components/ArtworkFilter/SavedSearch/searchCriteriaHelpers.ts": [
+20
+],
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
+98
+],
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
+267
+],
+"eigen:src/app/Components/PrefetchFlatList.tsx": [
+50
+],
+"eigen:src/app/Scenes/Artist/Artist.tsx": [
+94
+],
+"eigen:src/app/Scenes/Favorites/Favorites.tsx": [
+79
+],
+"eigen:src/app/Scenes/Home/Components/AuctionResultsRail.tests.tsx": [
+57
+],
+"eigen:src/app/Scenes/Home/Components/CollectionsRail.tests.tsx": [
+72
+],
+"eigen:src/app/Scenes/Home/Components/FairsRail.tests.tsx": [
+105
+],
+"eigen:src/app/Scenes/Home/Components/SalesRail.tests.tsx": [
+73
+],
+"eigen:src/app/Scenes/Home/Components/ShowsRail.tests.tsx": [
+86
+],
+"eigen:src/app/Scenes/Home/Home.tsx": [
+355
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
+62
+],
+"eigen:src/app/Scenes/Map/EventEmitter.ts": [
+15
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+252,
+313,
+321
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionImageUtil.ts": [
+10
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormMain.tests.tsx": [
+92
+],
+"eigen:src/app/Scenes/MyCollection/utils/deletedPhotos.ts": [
+5
+],
+"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
+296
+],
+"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
+105
+],
+"eigen:src/app/Scenes/SavedSearchAlert/helpers.ts": [
+85
+],
+"eigen:src/app/Scenes/Search/SearchModel.tests.tsx": [
+116
+],
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/UploadPhotosForm.tsx": [
+36,
+112
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+60,
+62
+],
+"eigen:src/app/store/config/features.tests.ts": [
+6,
+49
+],
+"eigen:src/app/utils/PushNotification.ts": [
+112
+],
+"eigen:src/app/utils/track/providers.tsx": [
+53
+],
+"eigen:src/palette/Theme.tsx": [
+136
+],
+"eigen:src/palette/animation/CssTransition.tsx": [
+61
+],
+"eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
+103
+],
+"eigen:src/palette/elements/Tabs/NavigationalTabs.tsx": [
+37
+],
+"eigen:src/setupJest.ts": [
+74,
+525
+],
+"eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
+159
+]
+}

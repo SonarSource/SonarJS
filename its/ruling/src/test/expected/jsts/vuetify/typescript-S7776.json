@@ -1,0 +1,11 @@
+{
+"vuetify:packages/api-generator/src/types.ts": [
+228
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
+80
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+27
+]
+}

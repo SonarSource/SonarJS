@@ -1,0 +1,18 @@
+{
+"vuetify:packages/docs/src/components/sponsor/Link.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-combobox/misc-advanced.vue": [
+147
+],
+"vuetify:packages/vuetify/dev/router.js": [
+4,
+7,
+10,
+13,
+16
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+177
+]
+}

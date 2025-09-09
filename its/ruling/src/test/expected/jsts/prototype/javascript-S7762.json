@@ -1,0 +1,12 @@
+{
+"prototype:src/prototype/dom/dom.js": [
+450,
+596,
+748,
+1003,
+1044
+],
+"prototype:test/browser.html": [
+103
+]
+}

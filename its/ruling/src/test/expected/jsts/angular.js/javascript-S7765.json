@@ -1,0 +1,89 @@
+{
+"angular.js:benchmarks/bootstrap-compile-bp/app.js": [
+11,
+12
+],
+"angular.js:docs/config/processors/versions-data.js": [
+60
+],
+"angular.js:docs/config/tag-defs/deprecated.js": [
+14
+],
+"angular.js:karma-shared.conf.js": [
+229
+],
+"angular.js:src/Angular.js": [
+1136,
+1137
+],
+"angular.js:src/auto/injector.js": [
+855
+],
+"angular.js:src/jqLite.js": [
+437,
+465,
+902
+],
+"angular.js:src/ng/compile.js": [
+3501,
+3779
+],
+"angular.js:src/ng/directive/ngModel.js": [
+856
+],
+"angular.js:src/ng/directive/select.js": [
+474
+],
+"angular.js:src/ng/filter/filter.js": [
+200
+],
+"angular.js:src/ng/http.js": [
+1507,
+1531
+],
+"angular.js:src/ng/interpolate.js": [
+244
+],
+"angular.js:src/ng/log.js": [
+145
+],
+"angular.js:src/ng/parse.js": [
+107
+],
+"angular.js:src/ng/sce.js": [
+59
+],
+"angular.js:src/ng/testability.js": [
+42
+],
+"angular.js:src/ng/urlUtils.js": [
+83
+],
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+50
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+380
+],
+"angular.js:src/ngAnimate/animation.js": [
+117,
+292
+],
+"angular.js:src/ngAria/aria.js": [
+70,
+393
+],
+"angular.js:src/ngMessages/messages.js": [
+510,
+817
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+2148
+],
+"angular.js:src/ngMock/browserTrigger.js": [
+97
+],
+"angular.js:src/stringify.js": [
+20
+]
+}

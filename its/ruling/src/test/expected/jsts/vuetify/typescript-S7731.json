@@ -1,0 +1,20 @@
+{
+"vuetify:packages/docs/src/util/helpers.ts": [
+62,
+84
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+71
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+310,
+328
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+100
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+244,
+263
+]
+}

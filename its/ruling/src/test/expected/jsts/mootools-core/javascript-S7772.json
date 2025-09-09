@@ -1,0 +1,11 @@
+{
+"mootools-core:Grunt/options/options.js": [
+3
+],
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+34
+],
+"mootools-core:Grunt/plugins/karma/syn/index.js": [
+1
+]
+}

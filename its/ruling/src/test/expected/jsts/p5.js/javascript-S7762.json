@@ -1,0 +1,42 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+3464,
+3486
+],
+"p5.js:src/core/main.js": [
+282,
+434,
+453
+],
+"p5.js:src/core/p5.Graphics.js": [
+173
+],
+"p5.js:src/core/p5.Renderer.js": [
+378
+],
+"p5.js:src/core/rendering.js": [
+61,
+189
+],
+"p5.js:src/dom/dom.js": [
+2102,
+2285
+],
+"p5.js:src/io/files.js": [
+1896
+],
+"p5.js:src/io/p5.XML.js": [
+495
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+284,
+294
+],
+"p5.js:src/webgl/text.js": [
+100
+],
+"p5.js:test/test-reference.html": [
+114,
+123
+]
+}

@@ -1,0 +1,47 @@
+{
+"angular.js:lib/grunt/utils.js": [
+111,
+112
+],
+"angular.js:src/Angular.js": [
+730,
+732,
+1204,
+1717
+],
+"angular.js:src/minErr.js": [
+98,
+98
+],
+"angular.js:src/ng/animate.js": [
+304,
+304
+],
+"angular.js:src/ng/parse.js": [
+243,
+1235
+],
+"angular.js:src/ng/testability.js": [
+37,
+37,
+65
+],
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+223,
+254,
+254
+],
+"angular.js:src/ngResource/resource.js": [
+615,
+616,
+616,
+618,
+618,
+637,
+641
+],
+"angular.js:src/routeToRegExp.js": [
+21,
+33
+]
+}

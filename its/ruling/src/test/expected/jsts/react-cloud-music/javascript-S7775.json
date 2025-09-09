@@ -1,0 +1,14 @@
+{
+"react-cloud-music:config/jest/fileTransform.js": [
+13
+],
+"react-cloud-music:src/serviceWorker.js": [
+18
+],
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
+13
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+18
+]
+}

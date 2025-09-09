@@ -1,0 +1,17 @@
+{
+"fireface:src/auth/auth.module.ts": [
+35,
+36,
+37
+],
+"fireface:src/create/create.module.ts": [
+42,
+43
+],
+"fireface:src/gallery/gallery.module.ts": [
+39
+],
+"fireface:src/landing/landing.module.ts": [
+38
+]
+}

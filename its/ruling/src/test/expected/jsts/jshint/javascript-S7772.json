@@ -1,0 +1,25 @@
+{
+"jshint:scripts/build.js": [
+4
+],
+"jshint:scripts/generate-identifier-data.js": [
+70
+],
+"jshint:scripts/remove-dev-dependencies.js": [
+13,
+14
+],
+"jshint:src/cli.js": [
+4,
+6
+],
+"jshint:src/jshint.js": [
+35
+],
+"jshint:src/lex.js": [
+8
+],
+"jshint:src/scope-manager.js": [
+4
+]
+}

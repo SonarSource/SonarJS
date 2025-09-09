@@ -1,0 +1,105 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+906,
+1355,
+2806,
+2815,
+3537,
+3906,
+4236,
+4241,
+4829
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+241
+],
+"p5.js:lib/addons/p5.sound.js": [
+329,
+351,
+473,
+567,
+577,
+604,
+639,
+651,
+750,
+761,
+797,
+1402,
+2900,
+3636,
+3731,
+4300,
+4543,
+4577,
+4678,
+6644,
+8086,
+8095
+],
+"p5.js:src/core/error_helpers.js": [
+73,
+403,
+511,
+648,
+669
+],
+"p5.js:src/core/shape/vertex.js": [
+382,
+560,
+792
+],
+"p5.js:src/dom/dom.js": [
+141,
+1016,
+1054,
+1294,
+1799,
+2197
+],
+"p5.js:src/io/files.js": [
+554,
+596,
+1747
+],
+"p5.js:src/io/p5.TableRow.js": [
+30
+],
+"p5.js:src/io/p5.XML.js": [
+309
+],
+"p5.js:src/typography/p5.Font.js": [
+229,
+236,
+239,
+514
+],
+"p5.js:src/webgl/3d_primitives.js": [
+175
+],
+"p5.js:src/webgl/loading.js": [
+198,
+227,
+450
+],
+"p5.js:src/webgl/material.js": [
+569
+],
+"p5.js:src/webgl/p5.Geometry.js": [
+134
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+1484
+],
+"p5.js:src/webgl/text.js": [
+532
+],
+"p5.js:tasks/build/combineModules.js": [
+47
+],
+"p5.js:utils/sample-linter.js": [
+113,
+137,
+147
+]
+}

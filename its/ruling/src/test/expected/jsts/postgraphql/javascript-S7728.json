@@ -1,0 +1,9 @@
+{
+"postgraphql:src/postgraphql/watch/__tests__/watchPgSchemas-test.js": [
+70
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+352,
+379
+]
+}

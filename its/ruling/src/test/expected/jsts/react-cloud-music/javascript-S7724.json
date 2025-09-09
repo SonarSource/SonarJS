@@ -1,0 +1,27 @@
+{
+"react-cloud-music:src/application/Player/index.jsx": [
+86
+],
+"react-cloud-music:src/application/Rank/index.jsx": [
+26
+],
+"react-cloud-music:src/application/Recommend/index.jsx": [
+25
+],
+"react-cloud-music:src/application/Search/index.jsx": [
+44
+],
+"react-cloud-music:src/application/Singers/index.jsx": [
+29
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+55
+],
+"react-cloud-music:src/baseUI/progress-bar/index.jsx": [
+58
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+56,
+66
+]
+}

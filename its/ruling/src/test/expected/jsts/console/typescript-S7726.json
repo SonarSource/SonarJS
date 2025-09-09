@@ -1,0 +1,23 @@
+{
+"console:src/components/Form/Checkbox.tsx": [
+62
+],
+"console:src/components/GraphQLCode/GraphQLCode.tsx": [
+32
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupFooter.tsx": [
+24
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexTop.tsx": [
+16
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopupHeaderOld.tsx": [
+11
+],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionHeader.tsx": [
+11
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupHeader.tsx": [
+10
+]
+}

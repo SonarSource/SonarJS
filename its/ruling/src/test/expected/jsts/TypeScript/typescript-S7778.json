@@ -1,0 +1,92 @@
+{
+"TypeScript:Gulpfile.ts": [
+656
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+1036,
+1045
+],
+"TypeScript:src/compiler/factory.ts": [
+2973
+],
+"TypeScript:src/compiler/transformer.ts": [
+67
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+2462,
+2746,
+3366
+],
+"TypeScript:src/compiler/tsc.ts": [
+549,
+554,
+555,
+556,
+558
+],
+"TypeScript:src/compiler/utilities.ts": [
+3196,
+3200,
+3201,
+3205,
+3206,
+3207
+],
+"TypeScript:src/harness/runner.ts": [
+140,
+141,
+178,
+187,
+188,
+189
+],
+"TypeScript:src/services/classifier.ts": [
+355,
+356,
+498,
+499,
+639,
+640
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+163,
+181,
+184,
+251,
+258,
+262,
+263,
+270,
+273,
+281,
+287,
+288,
+289,
+309,
+322,
+337,
+338,
+339,
+347,
+348,
+360,
+361,
+362,
+363,
+364,
+365,
+371,
+372,
+398,
+464,
+465,
+494,
+495,
+504,
+505,
+506,
+507,
+508,
+509
+]
+}

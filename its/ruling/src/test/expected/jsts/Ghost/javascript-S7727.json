@@ -1,0 +1,17 @@
+{
+"Ghost:Gruntfile.js": [
+30
+],
+"Ghost:core/client/app/mirage/config.js": [
+311
+],
+"Ghost:core/client/tests/acceptance/authentication-test.js": [
+82
+],
+"Ghost:core/test/integration/api/api_tags_spec.js": [
+278,
+287,
+301,
+310
+]
+}

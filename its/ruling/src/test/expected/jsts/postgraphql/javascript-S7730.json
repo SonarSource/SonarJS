@@ -1,0 +1,12 @@
+{
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
+80
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+474,
+478
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollectionKey-test.js": [
+252
+]
+}

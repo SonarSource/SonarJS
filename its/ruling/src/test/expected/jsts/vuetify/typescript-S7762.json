@@ -1,0 +1,17 @@
+{
+"vuetify:packages/docs/src/components/promoted/Script.vue": [
+50
+],
+"vuetify:packages/vuetify/src/composables/__tests__/theme.spec.ts": [
+13
+],
+"vuetify:packages/vuetify/src/directives/intersect/__tests__/intersect.spec.ts": [
+23
+],
+"vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts": [
+46
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+154
+]
+}

@@ -1,0 +1,17 @@
+{
+"ocanvas:src/displayobject.js": [
+7
+],
+"ocanvas:src/displayobjects/rectangle.js": [
+6,
+35,
+57,
+64
+],
+"ocanvas:src/displayobjects/text.js": [
+9
+],
+"ocanvas:src/utils.js": [
+70
+]
+}

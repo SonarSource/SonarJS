@@ -1,0 +1,123 @@
+{
+"angular.js:angularFiles.js": [
+275,
+314,
+315
+],
+"angular.js:docs/app/assets/js/search-worker.js": [
+26,
+40
+],
+"angular.js:docs/app/src/docs.js": [
+47
+],
+"angular.js:docs/app/src/examples.js": [
+34,
+41,
+65,
+127,
+151,
+181
+],
+"angular.js:docs/app/src/search.js": [
+25,
+83,
+117,
+131
+],
+"angular.js:docs/app/test/errorsSpec.js": [
+26,
+45,
+72
+],
+"angular.js:docs/config/processors/error-docs.js": [
+25,
+62,
+66
+],
+"angular.js:docs/config/processors/index-page.js": [
+22,
+29
+],
+"angular.js:docs/config/processors/keywords.js": [
+71,
+88,
+97,
+104
+],
+"angular.js:docs/config/processors/pages-data.js": [
+78,
+91,
+184
+],
+"angular.js:lib/browserstack/start_tunnel.js": [
+17,
+38
+],
+"angular.js:lib/grunt/plugins.js": [
+18,
+30
+],
+"angular.js:lib/grunt/utils.js": [
+244,
+247,
+251,
+271
+],
+"angular.js:lib/grunt/validate-angular-files.js": [
+29,
+39,
+40
+],
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
+120,
+125,
+224
+],
+"angular.js:src/Angular.js": [
+252
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+517,
+656
+],
+"angular.js:src/ngAnimate/animation.js": [
+99
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+104,
+218,
+544,
+545,
+546,
+876,
+945,
+964,
+1040,
+1081,
+1087,
+2065,
+2076,
+2195,
+2257,
+2266,
+3094,
+3097,
+3206,
+3226,
+3252,
+3258,
+3389
+],
+"angular.js:src/ngResource/resource.js": [
+33
+],
+"angular.js:src/ngRoute/route.js": [
+763,
+800,
+840
+],
+"angular.js:src/ngTouch/swipe.js": [
+65
+]
+}

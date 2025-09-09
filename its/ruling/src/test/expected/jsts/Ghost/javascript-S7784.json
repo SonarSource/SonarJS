@@ -1,0 +1,90 @@
+{
+"Ghost:core/server/controllers/frontend/channel-config.js": [
+44
+],
+"Ghost:core/server/controllers/frontend/fetch-data.js": [
+63,
+102
+],
+"Ghost:core/server/middleware/theme-handler.js": [
+29
+],
+"Ghost:core/test/integration/model/model_posts_spec.js": [
+18
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+165,
+182,
+207,
+230,
+247,
+268,
+291,
+378,
+398,
+420,
+440,
+460,
+482,
+500,
+518,
+536,
+556,
+578,
+608,
+629,
+649
+],
+"Ghost:core/test/unit/api_utils_spec.js": [
+312,
+322,
+335,
+348,
+359,
+368
+],
+"Ghost:core/test/unit/controllers/frontend/fetch-data_spec.js": [
+13
+],
+"Ghost:core/test/unit/importer_spec.js": [
+220,
+246,
+646,
+674
+],
+"Ghost:core/test/unit/migration_spec.js": [
+29
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+129,
+132,
+136,
+147,
+154,
+168,
+179,
+190,
+199,
+208,
+219,
+230,
+236,
+248,
+255,
+269
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+31
+],
+"Ghost:core/test/unit/server_helpers/ghost_head_spec.js": [
+247,
+337
+],
+"Ghost:core/test/utils/configUtils.js": [
+3,
+8
+],
+"Ghost:core/test/utils/fork.js": [
+46
+]
+}

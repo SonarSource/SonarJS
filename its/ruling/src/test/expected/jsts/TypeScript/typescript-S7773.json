@@ -1,0 +1,38 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+21040,
+21043
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+736,
+787
+],
+"TypeScript:src/compiler/emitter.ts": [
+1134
+],
+"TypeScript:src/compiler/sys.ts": [
+74
+],
+"TypeScript:src/compiler/transformers/jsx.ts": [
+230,
+233
+],
+"TypeScript:src/harness/harness.ts": [
+255,
+1094,
+1095
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+348,
+349,
+355
+],
+"TypeScript:src/server/client.ts": [
+25
+],
+"TypeScript:src/server/server.ts": [
+473,
+731,
+732
+]
+}

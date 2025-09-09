@@ -1,0 +1,32 @@
+{
+"vuetify:packages/docs/src/components/features/ColorPalette.vue": [
+90,
+111,
+112
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/misc-asynchronous-items.vue": [
+104
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/prop-filter.vue": [
+92,
+93
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-custom-list.vue": [
+145
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-filtering.vue": [
+128
+],
+"vuetify:packages/docs/src/examples/v-combobox/misc-advanced.vue": [
+154
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-custom-filter.vue": [
+134
+],
+"vuetify:packages/docs/src/examples/v-treeview/misc-search-and-filter.vue": [
+118
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+155
+]
+}

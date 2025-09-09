@@ -1,0 +1,71 @@
+{
+"p5.js:docs/preprocessor.js": [
+37
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+107,
+108,
+109,
+110,
+111,
+112,
+113,
+114,
+422,
+474,
+1402,
+1402,
+2711,
+2911,
+3005,
+3007,
+3347,
+3351,
+3656,
+3955
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+58,
+163
+],
+"p5.js:src/core/p5.Renderer.js": [
+234
+],
+"p5.js:src/dom/dom.js": [
+1683,
+1684,
+1714,
+1715,
+1815
+],
+"p5.js:src/io/files.js": [
+268,
+269,
+1642,
+1643,
+1644,
+1645,
+1646
+],
+"p5.js:src/io/p5.Table.js": [
+808,
+883,
+891,
+899
+],
+"p5.js:src/io/p5.XML.js": [
+795
+],
+"p5.js:src/utilities/string_functions.js": [
+296
+],
+"p5.js:test/test-reference.html": [
+54,
+134
+],
+"p5.js:utils/sample-linter.js": [
+121,
+184,
+185
+]
+}

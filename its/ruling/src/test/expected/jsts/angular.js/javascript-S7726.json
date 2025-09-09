@@ -1,0 +1,62 @@
+{
+"angular.js:Gruntfile.js": [
+55
+],
+"angular.js:benchmarks/animation-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/bootstrap-compile-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/event-delegation-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/largetable-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/ng-class-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/ng-options-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/orderby-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/parsed-expressions-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/repeat-animate-bp/bp.conf.js": [
+5
+],
+"angular.js:benchmarks/select-ng-value-bp/bp.conf.js": [
+5
+],
+"angular.js:karma-docs.conf.js": [
+5
+],
+"angular.js:karma-jqlite.conf.js": [
+6
+],
+"angular.js:karma-jquery.conf-factory.js": [
+6
+],
+"angular.js:karma-modules-ngAnimate.conf.js": [
+6
+],
+"angular.js:karma-modules-ngMock.conf.js": [
+6
+],
+"angular.js:karma-modules.conf.js": [
+5
+],
+"angular.js:karma-shared.conf.js": [
+3
+],
+"angular.js:lib/grunt/plugins.js": [
+8
+],
+"angular.js:lib/grunt/validate-angular-files.js": [
+9
+]
+}

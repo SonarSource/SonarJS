@@ -1,0 +1,59 @@
+{
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+132,
+167,
+169
+],
+"vuetify:packages/vuetify/src/composables/touch.ts": [
+14,
+14
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.cy.tsx": [
+19,
+21,
+27,
+35,
+37,
+51,
+59,
+61,
+83,
+91
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableServer.spec.cy.tsx": [
+19,
+21,
+27,
+35,
+37,
+51,
+59,
+61,
+83,
+91
+],
+"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
+75,
+79,
+84,
+88,
+95,
+99,
+104,
+108
+],
+"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
+70,
+90
+],
+"vuetify:packages/vuetify/src/util/color/APCA.ts": [
+20,
+64,
+81,
+91
+],
+"vuetify:packages/vuetify/src/util/color/transformSRGB.ts": [
+8,
+8
+]
+}

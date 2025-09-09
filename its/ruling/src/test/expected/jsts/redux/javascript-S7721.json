@@ -1,0 +1,23 @@
+{
+"redux:test/createStore.spec.js": [
+309,
+318,
+322
+],
+"redux:test/utils/applyMiddleware.spec.js": [
+9,
+33,
+34
+],
+"redux:test/utils/compose.spec.js": [
+7,
+8,
+15,
+16,
+17,
+18
+],
+"redux:test/utils/isPlainObject.spec.js": [
+7
+]
+}

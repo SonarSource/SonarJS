@@ -1,0 +1,13 @@
+{
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+45
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+60
+],
+"eigen:scripts/detect-secrets.js": [
+49,
+50,
+51
+]
+}

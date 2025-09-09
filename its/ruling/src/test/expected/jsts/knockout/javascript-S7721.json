@@ -1,0 +1,11 @@
+{
+"knockout:src/binding/defaultBindings/options.js": [
+60
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+76
+],
+"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
+26
+]
+}

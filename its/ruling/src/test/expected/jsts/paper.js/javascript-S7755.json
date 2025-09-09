@@ -1,0 +1,33 @@
+{
+"paper.js:src/anim/Tween.js": [
+395
+],
+"paper.js:src/item/Item.js": [
+1540,
+4339
+],
+"paper.js:src/load.js": [
+22
+],
+"paper.js:src/path/CompoundPath.js": [
+348
+],
+"paper.js:src/path/Curve.js": [
+313
+],
+"paper.js:src/path/Path.js": [
+215,
+256,
+1897,
+2377,
+2804
+],
+"paper.js:src/path/PathFitter.js": [
+38,
+108
+],
+"paper.js:src/path/Segment.js": [
+178,
+503
+]
+}

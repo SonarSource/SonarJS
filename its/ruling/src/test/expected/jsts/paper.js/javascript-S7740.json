@@ -1,0 +1,51 @@
+{
+"paper.js:src/basic/Matrix.js": [
+489
+],
+"paper.js:src/core/Base.js": [
+320
+],
+"paper.js:src/core/PaperScope.js": [
+49,
+231,
+261,
+277
+],
+"paper.js:src/core/PaperScript.js": [
+19
+],
+"paper.js:src/item/Item.js": [
+176,
+1388,
+2043,
+2886,
+3027
+],
+"paper.js:src/item/Raster.js": [
+288,
+802
+],
+"paper.js:src/node/extend.js": [
+96
+],
+"paper.js:src/path/CurveLocation.js": [
+120
+],
+"paper.js:src/path/Path.js": [
+1076,
+1289,
+1657
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+1328,
+1332
+],
+"paper.js:src/tool/Tool.js": [
+298
+],
+"paper.js:src/view/View.js": [
+64,
+224,
+1321
+]
+}

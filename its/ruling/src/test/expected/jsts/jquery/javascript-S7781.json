@@ -1,0 +1,43 @@
+{
+"jquery:build/release.js": [
+27
+],
+"jquery:build/release/cdn.js": [
+38
+],
+"jquery:build/tasks/build.js": [
+268,
+272,
+296,
+308
+],
+"jquery:build/tasks/qunit_fixture.js": [
+16
+],
+"jquery:src/ajax.js": [
+624
+],
+"jquery:src/attributes/val.js": [
+30
+],
+"jquery:src/core.js": [
+193
+],
+"jquery:src/core/camelCase.js": [
+11
+],
+"jquery:src/data.js": [
+51
+],
+"jquery:src/manipulation.js": [
+169,
+203
+],
+"jquery:src/selector/escapeSelector.js": [
+24
+],
+"jquery:src/serialize.js": [
+122,
+126
+]
+}

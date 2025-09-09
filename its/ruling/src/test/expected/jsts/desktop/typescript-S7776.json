@@ -1,0 +1,18 @@
+{
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
+7
+],
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+23,
+193
+],
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
+319
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+409
+],
+"desktop:script/dist-info.ts": [
+12
+]
+}

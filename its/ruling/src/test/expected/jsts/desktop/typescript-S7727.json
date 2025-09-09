@@ -1,0 +1,89 @@
+{
+"desktop:app/src/cli/commands/help.ts": [
+60
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+242,
+248
+],
+"desktop:app/src/lib/databases/github-user-database.ts": [
+135
+],
+"desktop:app/src/lib/git/status.ts": [
+205,
+206,
+232
+],
+"desktop:app/src/lib/local-storage.ts": [
+132
+],
+"desktop:app/src/lib/pick.ts": [
+8,
+8
+],
+"desktop:app/src/lib/release-notes.ts": [
+61,
+129
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+2863
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+309,
+316
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+755
+],
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+189
+],
+"desktop:app/src/lib/stores/notifications-store.ts": [
+343,
+350
+],
+"desktop:app/src/lib/stores/pull-request-coordinator.ts": [
+55,
+64
+],
+"desktop:app/src/lib/thank-you.ts": [
+56
+],
+"desktop:app/src/models/app-menu.ts": [
+268,
+502
+],
+"desktop:app/src/models/commit.ts": [
+50
+],
+"desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
+167
+],
+"desktop:app/src/ui/app-menu/menu-list-item.tsx": [
+47
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+518
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+136
+],
+"desktop:app/src/ui/check-runs/ci-check-run-actions-job-step-list.tsx": [
+27,
+33
+],
+"desktop:app/src/ui/history/commit-list.tsx": [
+470
+],
+"desktop:app/src/ui/lib/author-input.tsx": [
+647
+],
+"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
+68,
+103,
+159
+],
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
+113
+]
+}

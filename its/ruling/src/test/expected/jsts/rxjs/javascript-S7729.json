@@ -1,0 +1,20 @@
+{
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemap-resultselector.js": [
+9
+],
+"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-this.js": [
+11,
+12
+],
+"rxjs:perf/micro/immediate-scheduler/operators/find-predicate-this.js": [
+11,
+12
+],
+"rxjs:perf/micro/immediate-scheduler/operators/findindex-predicate-this.js": [
+11,
+12
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemap-resultselector.js": [
+9
+]
+}

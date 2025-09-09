@@ -1,0 +1,28 @@
+{
+"eigen:src/app/Components/AuctionResult/AuctionResultMidEstimate.tsx": [
+30
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+89
+],
+"eigen:src/app/Scenes/MyProfile/utils.ts": [
+11
+],
+"eigen:src/app/Scenes/VanityURL/VanityURLPossibleRedirect.tsx": [
+11
+],
+"eigen:src/palette/elements/Input/PhoneInput/cleanUserPhoneNumber.ts": [
+17
+],
+"eigen:src/palette/elements/Input/PhoneInput/formatPhoneNumber.ts": [
+25,
+26
+],
+"eigen:src/palette/elements/Input/PhoneInput/getCountryIso2FromPhoneNumber.ts": [
+8
+],
+"eigen:src/shared/utils/normalizeText.ts": [
+251,
+253
+]
+}

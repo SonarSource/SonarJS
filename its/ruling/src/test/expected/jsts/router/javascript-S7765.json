@@ -1,0 +1,29 @@
+{
+"router:examples/hello/jsonp.js": [
+12
+],
+"router:src/activation.js": [
+184
+],
+"router:src/history.js": [
+155
+],
+"router:src/router.js": [
+156
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+340,
+340,
+419,
+896,
+928,
+943,
+1451,
+1611,
+1670
+],
+"router:third_party/route-recognizer.js": [
+192,
+194
+]
+}

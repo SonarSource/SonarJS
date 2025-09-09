@@ -1,0 +1,18 @@
+{
+"courselit:apps/web/components/admin/users/index.tsx": [
+77,
+298
+],
+"courselit:apps/web/graphql/courses/logic.ts": [
+37
+],
+"courselit:apps/web/graphql/lessons/logic.ts": [
+33
+],
+"courselit:apps/web/graphql/settings/helpers.ts": [
+14
+],
+"courselit:apps/web/pages/_app.tsx": [
+76
+]
+}

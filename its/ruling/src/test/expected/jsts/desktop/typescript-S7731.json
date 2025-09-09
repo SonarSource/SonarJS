@@ -1,0 +1,38 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+506
+],
+"desktop:app/src/lib/equality.ts": [
+43,
+69
+],
+"desktop:app/src/lib/git/reorder.ts": [
+88,
+112,
+121
+],
+"desktop:app/src/lib/git/squash.ts": [
+98,
+125
+],
+"desktop:app/src/lib/helpers/regex.ts": [
+66
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+70
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+852,
+1008
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+267
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1181
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+856,
+881
+]
+}

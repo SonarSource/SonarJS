@@ -1,0 +1,97 @@
+{
+"TypeScript:Gulpfile.ts": [
+81
+],
+"TypeScript:scripts/authors.ts": [
+77
+],
+"TypeScript:scripts/bisect-test.ts": [
+33
+],
+"TypeScript:scripts/buildProtocol.ts": [
+7,
+37
+],
+"TypeScript:scripts/errorCheck.ts": [
+79
+],
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+115
+],
+"TypeScript:scripts/ior.ts": [
+27
+],
+"TypeScript:scripts/tslint/booleanTriviaRule.ts": [
+78
+],
+"TypeScript:scripts/tslint/nextLineRule.ts": [
+13,
+14
+],
+"TypeScript:scripts/word2md.ts": [
+269
+],
+"TypeScript:src/compiler/checker.ts": [
+13286
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+1221
+],
+"TypeScript:src/compiler/core.ts": [
+1508,
+1772,
+2089
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+175
+],
+"TypeScript:src/compiler/emitter.ts": [
+1128
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+75,
+177
+],
+"TypeScript:src/harness/fourslash.ts": [
+2667,
+2785,
+3252
+],
+"TypeScript:src/harness/harness.ts": [
+121,
+199,
+674,
+1006,
+1377
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+615
+],
+"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
+43
+],
+"TypeScript:src/server/editorServices.ts": [
+830,
+1411,
+1522,
+1547,
+1555
+],
+"TypeScript:src/server/session.ts": [
+1552
+],
+"TypeScript:src/server/shared.ts": [
+18
+],
+"TypeScript:src/services/formatting/tokenRange.ts": [
+19,
+87
+],
+"TypeScript:src/services/importTracker.ts": [
+405
+],
+"TypeScript:src/services/pathCompletions.ts": [
+203,
+243
+]
+}

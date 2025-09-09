@@ -1,0 +1,41 @@
+{
+"ant-design:components/_util/transButton.tsx": [
+25
+],
+"ant-design:components/affix/__tests__/Affix.test.tsx": [
+177
+],
+"ant-design:components/anchor/Anchor.tsx": [
+263
+],
+"ant-design:components/button/__tests__/wave.test.tsx": [
+25
+],
+"ant-design:components/config-provider/__tests__/theme.test.ts": [
+8
+],
+"ant-design:components/config-provider/cssVariables.tsx": [
+18
+],
+"ant-design:components/drawer/index.tsx": [
+199
+],
+"ant-design:components/locale-provider/index.tsx": [
+87
+],
+"ant-design:components/slider/__tests__/type.test.tsx": [
+7,
+16,
+31
+],
+"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
+37
+],
+"ant-design:components/typography/__tests__/copy.test.tsx": [
+18,
+225
+],
+"ant-design:site/theme/template/Resources/index.tsx": [
+104
+]
+}

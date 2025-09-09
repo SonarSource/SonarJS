@@ -1,0 +1,39 @@
+{
+"paper.js:examples/Node.js/BooleanOperations.js": [
+5
+],
+"paper.js:examples/Node.js/JSONtoPDF.js": [
+5,
+6
+],
+"paper.js:examples/Node.js/RasterRemote.js": [
+5
+],
+"paper.js:examples/Node.js/SvgExport.js": [
+5,
+6
+],
+"paper.js:gulp/tasks/minify.js": [
+15
+],
+"paper.js:gulp/tasks/publish.js": [
+14,
+15
+],
+"paper.js:gulp/tasks/watch.js": [
+14
+],
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+6
+],
+"paper.js:gulp/utils/options.js": [
+13
+],
+"paper.js:src/node/extend.js": [
+13,
+14
+],
+"paper.js:src/node/self.js": [
+16
+]
+}

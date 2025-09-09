@@ -1,0 +1,24 @@
+{
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+236
+],
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
+15,
+16,
+36
+],
+"mootools-core:Gruntfile.js": [
+49,
+69
+],
+"mootools-core:Source/Element/Element.js": [
+410,
+420,
+543,
+553,
+587,
+793,
+801,
+805
+]
+}

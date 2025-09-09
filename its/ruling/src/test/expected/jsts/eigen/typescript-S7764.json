@@ -1,0 +1,23 @@
+{
+"eigen:src/app/relay/middlewares/uploadMiddleware.tests.ts": [
+10
+],
+"eigen:src/app/store/AuthModel.tests.ts": [
+14
+],
+"eigen:src/app/store/config/UserIsDevModel.tests.tsx": [
+12,
+16,
+25,
+65
+],
+"eigen:src/app/utils/PushNotification.tests.ts": [
+14
+],
+"eigen:src/app/utils/volleyClient.tests.ts": [
+24
+],
+"eigen:src/setupJest.ts": [
+37
+]
+}

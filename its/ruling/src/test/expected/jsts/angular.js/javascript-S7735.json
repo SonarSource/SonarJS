@@ -1,0 +1,102 @@
+{
+"angular.js:Gruntfile.js": [
+37
+],
+"angular.js:docs/config/tag-defs/deprecated.js": [
+14
+],
+"angular.js:src/Angular.js": [
+1911
+],
+"angular.js:src/auto/injector.js": [
+789,
+941
+],
+"angular.js:src/jqLite.js": [
+345
+],
+"angular.js:src/ng/anchorScroll.js": [
+200
+],
+"angular.js:src/ng/browser.js": [
+64,
+136
+],
+"angular.js:src/ng/compile.js": [
+2455,
+3016,
+4094
+],
+"angular.js:src/ng/directive/form.js": [
+353,
+642
+],
+"angular.js:src/ng/directive/input.js": [
+1662
+],
+"angular.js:src/ng/directive/ngModel.js": [
+672
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+453
+],
+"angular.js:src/ng/filter/filters.js": [
+72
+],
+"angular.js:src/ng/interpolate.js": [
+353
+],
+"angular.js:src/ng/intervalFactory.js": [
+19
+],
+"angular.js:src/ng/location.js": [
+511,
+615
+],
+"angular.js:src/ng/parse.js": [
+611,
+644,
+772,
+921,
+1618
+],
+"angular.js:src/ng/taskTrackerFactory.js": [
+71,
+116
+],
+"angular.js:src/ngAnimate/animateCache.js": [
+48
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+183,
+299
+],
+"angular.js:src/ngAnimate/animation.js": [
+223
+],
+"angular.js:src/ngAnimate/shared.js": [
+215
+],
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+262
+],
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
+92,
+113,
+117
+],
+"angular.js:src/ngMessages/messages.js": [
+524
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+163,
+594,
+3239
+],
+"angular.js:src/ngResource/resource.js": [
+22
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+440
+]
+}

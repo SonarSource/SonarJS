@@ -1,0 +1,38 @@
+{
+"Ghost:core/server/errors/bad-request-error.js": [
+6
+],
+"Ghost:core/server/errors/data-import-error.js": [
+6
+],
+"Ghost:core/server/errors/email-error.js": [
+6
+],
+"Ghost:core/server/errors/internal-server-error.js": [
+6
+],
+"Ghost:core/server/errors/method-not-allowed-error.js": [
+6
+],
+"Ghost:core/server/errors/no-permission-error.js": [
+6
+],
+"Ghost:core/server/errors/not-found-error.js": [
+6
+],
+"Ghost:core/server/errors/request-too-large-error.js": [
+6
+],
+"Ghost:core/server/errors/too-many-requests-error.js": [
+6
+],
+"Ghost:core/server/errors/unauthorized-error.js": [
+6
+],
+"Ghost:core/server/errors/unsupported-media-type-error.js": [
+6
+],
+"Ghost:core/server/errors/validation-error.js": [
+6
+]
+}

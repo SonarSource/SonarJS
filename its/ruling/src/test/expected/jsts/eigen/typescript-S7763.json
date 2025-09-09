@@ -1,0 +1,32 @@
+{
+"eigen:src/app/utils/track/index.tsx": [
+7
+],
+"eigen:src/palette/Theme.tsx": [
+36,
+37
+],
+"eigen:src/palette/elements/Select/index.tsx": [
+5,
+5,
+5,
+9,
+9
+],
+"eigen:src/palette/elements/Tabs/index.tsx": [
+7,
+7,
+7
+],
+"eigen:src/palette/elements/Text/index.tsx": [
+14,
+14,
+14,
+16,
+16,
+16
+],
+"eigen:src/palette/index.tsx": [
+15
+]
+}

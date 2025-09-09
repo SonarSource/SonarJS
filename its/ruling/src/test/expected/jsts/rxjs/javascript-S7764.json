@@ -1,0 +1,80 @@
+{
+"rxjs:perf/macro/bufferCount/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/combineLatest/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/groupBy/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/merge/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/mergeAll/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/mergeMap-scalar/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/mergeMap/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/perf-helpers.js": [
+13,
+13
+],
+"rxjs:perf/macro/windowCount/index.html": [
+8,
+8,
+9
+],
+"rxjs:perf/macro/zip/index.html": [
+8,
+8,
+9
+],
+"rxjs:protractor.conf.js": [
+35,
+36,
+36,
+37,
+37,
+38,
+38,
+41,
+42
+],
+"rxjs:spec/support/mocha-browser-runner.html": [
+41,
+42,
+43
+],
+"rxjs:src/Rx.global.js": [
+3,
+3
+],
+"rxjs:wallaby.js": [
+40,
+41,
+41,
+42,
+42,
+46,
+47
+]
+}

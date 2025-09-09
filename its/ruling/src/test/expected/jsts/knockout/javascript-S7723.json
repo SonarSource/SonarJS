@@ -1,0 +1,28 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+370,
+395,
+576,
+579
+],
+"knockout:src/binding/expressionRewriting.js": [
+20,
+104
+],
+"knockout:src/subscribables/dependentObservable.js": [
+15,
+176
+],
+"knockout:src/subscribables/observable.js": [
+65
+],
+"knockout:src/subscribables/observableArray.js": [
+24
+],
+"knockout:src/tasks.js": [
+47
+],
+"knockout:src/virtualElements.js": [
+172
+]
+}

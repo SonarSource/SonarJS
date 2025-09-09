@@ -1,0 +1,24 @@
+{
+"jquery:build/tasks/build.js": [
+105,
+127,
+130
+],
+"jquery:src/attributes/classes.js": [
+43,
+88,
+173
+],
+"jquery:src/event/trigger.js": [
+36,
+43
+],
+"jquery:src/offset.js": [
+26
+],
+"jquery:src/selector.js": [
+652,
+659,
+862
+]
+}

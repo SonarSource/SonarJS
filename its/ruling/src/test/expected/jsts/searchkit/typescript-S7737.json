@@ -1,0 +1,17 @@
+{
+"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
+7
+],
+"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
+9
+],
+"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
+12
+],
+"searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
+20
+],
+"searchkit:packages/searchkit-schema/tests/Query.test.ts": [
+44
+]
+}

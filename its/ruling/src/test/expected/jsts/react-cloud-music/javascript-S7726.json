@@ -1,0 +1,35 @@
+{
+"react-cloud-music:config/webpack.config.js": [
+48
+],
+"react-cloud-music:config/webpackDevServer.config.js": [
+13
+],
+"react-cloud-music:src/application/Album/store/reducer.js": [
+12
+],
+"react-cloud-music:src/application/Player/store/reducer.js": [
+77
+],
+"react-cloud-music:src/application/Recommend/store/reducer.js": [
+10
+],
+"react-cloud-music:src/application/Search/store/reducer.js": [
+11
+],
+"react-cloud-music:src/application/Singer/store/reducer.js": [
+10
+],
+"react-cloud-music:src/application/Singers/store/reducer.js": [
+14
+],
+"react-cloud-music:src/application/User/Login/store/reducer.js": [
+10
+],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+55
+],
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
+17
+]
+}

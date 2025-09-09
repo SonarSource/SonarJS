@@ -108,7 +108,9 @@ export function transformMessages(
  * @returns the normalized issue
  */
 function normalizeLocation(issue: Issue): Issue {
-  issue.column -= 1;
+  if (issue.column) {
+    issue.column -= 1;
+  }
   if (issue.endColumn) {
     issue.endColumn -= 1;
   }
