@@ -21,6 +21,11 @@ import path from 'path';
  */
 const BOM_BYTE = 0xfeff;
 
+export type File = {
+  readonly path: string;
+  readonly content: Buffer | string;
+};
+
 /**
  * Removes any Byte Order Marker (BOM) from a string's head
  *

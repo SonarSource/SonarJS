@@ -20,10 +20,12 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import builtins from 'builtin-modules';
 import ts from 'typescript';
-import { generateMeta, getDependencies } from '../helpers/index.js';
+import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { Minimatch } from 'minimatch';
+import { dirname } from 'node:path';
+import { getDependencies } from '../helpers/package-jsons/dependencies.js';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
@@ -33,7 +35,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     // we need to find all the npm manifests from the directory of the analyzed file to the context working directory
-    const dependencies = getDependencies(context.filename, context.cwd);
+    const dependencies = getDependencies(dirname(context.filename), context.cwd);
 
     const whitelist = (context.options as FromSchema<typeof meta.schema>)[0]?.whitelist || [];
     const program = context.sourceCode.parserServices?.program;

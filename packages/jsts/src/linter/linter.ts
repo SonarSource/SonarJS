@@ -23,7 +23,7 @@ import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
-import { getClosestPackageJSONDir, getDependencies, toUnixPath } from '../rules/helpers/index.js';
+import { toUnixPath } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'path';
 import { ParseResult } from '../parsers/parse.js';
@@ -32,9 +32,11 @@ import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
-import { extname } from 'node:path/posix';
+import { extname, dirname } from 'node:path/posix';
 import { defaultOptions } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
+import { getDependencies } from '../rules/helpers/package-jsons/dependencies.js';
+import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -251,7 +253,7 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const dependencies = getDependencies(filePath, Linter.baseDir);
+      const dependencies = getDependencies(dirname(filePath), Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           fileTypeTargets,
@@ -337,6 +339,6 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
-  const packageJsonDirName = getClosestPackageJSONDir(filePath, baseDir);
+  const packageJsonDirName = getClosestPackageJSONDir(dirname(filePath), baseDir);
   return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
 }

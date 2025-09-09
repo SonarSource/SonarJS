@@ -18,7 +18,7 @@ import path from 'path/posix';
 import { Linter as ESLintLinter } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
+import { toUnixPath } from '../../src/rules/helpers/index.js';
 import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
@@ -28,6 +28,7 @@ import { deserializeProtobuf } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'assert';
+import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
