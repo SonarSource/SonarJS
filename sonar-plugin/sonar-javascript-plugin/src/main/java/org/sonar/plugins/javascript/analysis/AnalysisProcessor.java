@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.analysis;
 import static org.sonar.plugins.javascript.analysis.QuickFixSupport.addQuickFixes;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
-import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -307,8 +306,7 @@ public class AnalysisProcessor {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (issue.message() != null) {
-      var escapedMsg = unicodeEscape(issue.message());
-      location.message(escapedMsg);
+      location.message(issue.message());
     }
 
     if (issue.endLine() != null) {
@@ -365,8 +363,9 @@ public class AnalysisProcessor {
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
-      ((SonarLintRuntime) context.getSensorContext().runtime()).getSonarLintPluginApiVersion()
-        .isGreaterThanOrEqual(Version.create(6, 3))
+      ((SonarLintRuntime) context
+          .getSensorContext()
+          .runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
     );
   }
 
@@ -392,7 +391,7 @@ public class AnalysisProcessor {
         )
       );
       if (location.message() != null) {
-        newIssueLocation.message(unicodeEscape(location.message()));
+        newIssueLocation.message(location.message());
       }
       return newIssueLocation;
     }

@@ -16,8 +16,6 @@
  */
 package org.sonar.plugins.javascript.external;
 
-import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,8 +51,7 @@ public class ExternalIssueRepository {
     newLocation.on(file);
 
     if (issue.message() != null) {
-      var escapedMsg = unicodeEscape(issue.message());
-      newLocation.message(escapedMsg);
+      newLocation.message(issue.message());
     }
 
     newLocation.at(
