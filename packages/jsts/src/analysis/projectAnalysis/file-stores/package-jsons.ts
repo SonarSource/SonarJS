@@ -21,7 +21,7 @@ import { readFile } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import type { File, PathTree } from '../../../rules/helpers/files.js';
+import type { File } from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
@@ -34,7 +34,7 @@ export const UNINITIALIZED_ERROR =
 export class PackageJsonStore implements FileStore {
   private readonly packageJsons: Map<string, File> = new Map();
   private baseDir: string | undefined = undefined;
-  private readonly paths: PathTree = new Map();
+  private readonly dirnameToParent: Map<string, string | undefined> = new Map();
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
@@ -65,20 +65,18 @@ export class PackageJsonStore implements FileStore {
   clearCache() {
     this.baseDir = undefined;
     this.packageJsons.clear();
-    this.paths.clear();
+    this.dirnameToParent.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
   }
 
   setup(baseDir: string) {
     this.baseDir = baseDir;
-    this.paths.set(baseDir, {
-      children: new Set(),
-    });
+    this.dirnameToParent.set(baseDir, undefined);
   }
 
   async processFile(file: Dirent, filePath: string) {
-    if (!this.packageJsons) {
+    if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     if (file.name === PACKAGE_JSON) {
@@ -93,17 +91,13 @@ export class PackageJsonStore implements FileStore {
 
   processDirectory(dir: string) {
     const parent = dirname(dir);
-    this.paths.get(parent)?.children.add(dir);
-    this.paths.set(dir, {
-      children: new Set(),
-      parent,
-    });
+    this.dirnameToParent.set(dir, parent);
   }
 
   async postProcess() {
-    if (!this.packageJsons || !this.baseDir) {
+    if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    fillPackageJsonCaches(this.packageJsons, this.paths, this.baseDir);
+    fillPackageJsonCaches(this.packageJsons, this.dirnameToParent, this.baseDir);
   }
 }

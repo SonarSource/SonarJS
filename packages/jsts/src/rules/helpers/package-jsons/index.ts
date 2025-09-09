@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { File, PathTree } from '../files.js';
+import type { File } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
@@ -25,21 +25,21 @@ export const PACKAGE_JSON = 'package.json';
 
 export function fillPackageJsonCaches(
   packageJsons: Map<string, File>,
-  allPaths: PathTree,
+  dirnameToParent: Map<string, string | undefined>,
   topDir: string,
 ) {
   const closestCache = closestPatternCache.get(PACKAGE_JSON).get(topDir);
   const allPackageJsonsCache = patternInParentsCache.get(PACKAGE_JSON).get(topDir);
 
-  for (const [dir, { parent }] of allPaths) {
+  // We depend on the order of the paths, from parent-to-child paths (guaranteed by the use of a Map in the package-json store)
+  for (const [dir, parent] of dirnameToParent) {
     const currentPackageJson = packageJsons.get(dir);
+    closestCache.set(dir, currentPackageJson ?? (parent ? closestCache.get(parent) : undefined));
     const allPackageJsons = [];
     if (parent) {
-      closestCache.set(dir, closestCache.get(parent));
       allPackageJsons.push(...allPackageJsonsCache.get(dir));
     }
     if (currentPackageJson) {
-      closestCache.set(dir, currentPackageJson);
       allPackageJsons.push(currentPackageJson);
     }
     allPackageJsonsCache.set(dir, allPackageJsons);

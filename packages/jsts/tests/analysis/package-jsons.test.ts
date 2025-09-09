@@ -81,7 +81,7 @@ describe('files', () => {
     expect(dependenciesCache.has(baseDir)).toEqual(true);
   });
 
-  it('should ignore malformed the package.json files', async ({ mock }) => {
+  it('should ignore malformed package.json files', async ({ mock }) => {
     mock.method(console, 'debug');
     const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
     const baseDir = join(fixtures, 'package-json-malformed');

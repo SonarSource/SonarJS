@@ -43,9 +43,9 @@ export const dependenciesCache = new ComputedCache((dir: string, topDir: string 
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
- * @param dir context.filename
+ * @param dir dirname of the context.filename
  * @param topDir working dir, will search up to that root
- * @returns
+ * @returns Set with the dependency names
  */
 export function getDependencies(dir: string, topDir: string) {
   const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
