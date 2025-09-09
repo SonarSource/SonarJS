@@ -1,0 +1,39 @@
+<p>This rule raises an issue when you use ECMAScript syntax features that are not supported by your configured Node.js version.</p>
+<h2>Why is this an issue?</h2>
+<p>Using unsupported ECMAScript syntax can cause your application to fail at runtime with syntax errors. Different Node.js versions support different
+ECMAScript features, and using newer syntax in older Node.js environments will prevent your code from running.</p>
+<p>This rule helps ensure compatibility by checking your code against the Node.js version specified in your <code>package.json</code> engines field or
+rule configuration. It prevents deployment issues and ensures your application works correctly in the target environment.</p>
+<h3>What is the potential impact?</h3>
+<p>Using unsupported syntax features will cause immediate syntax errors when the code is executed, preventing your application from starting or
+running correctly. This can lead to production failures and deployment issues.</p>
+<h3>How to fix?</h3>
+<p>Upgrade your Node.js version to support the syntax feature you want to use.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// Node.js 14 configured, but using optional chaining (requires Node.js 14.0.0+)
+const value = obj?.property?.nested; // Noncompliant
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// Upgrade Node.js to 14+ or use traditional property access
+const value = obj &amp;&amp; obj.property &amp;&amp; obj.property.nested;
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js ECMAScript compatibility table - <a href="https://node.green/">Interactive table showing which ECMAScript features are supported in
+  different Node.js versions</a> </li>
+  <li> ESLint plugin n documentation - <a href="https://github.com/eslint-community/eslint-plugin-n">Official documentation for the ESLint Node.js
+  plugin</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> ECMAScript Language Specification - <a href="https://tc39.es/ecma262/">Official ECMAScript language specification defining JavaScript syntax
+  and features</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-unsupported-features/node-builtins - <a
+  href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-unsupported-features/node-builtins.md">Disallow unsupported
+  Node.js built-in APIs on the specified version</a> </li>
+</ul>

@@ -1,0 +1,37 @@
+<p>This is an issue when a <code>require()</code> statement references a module or file that doesn’t exist, which would cause a runtime error.</p>
+<h2>Why is this an issue?</h2>
+<p>When you use <code>require()</code> to import a module that doesn’t exist, Node.js will throw a runtime error when it tries to load that module.
+This can happen due to typos in module names, missing dependencies, or incorrect file paths.</p>
+<p>These errors are particularly problematic because they only surface when the code path containing the <code>require()</code> statement is executed.
+This means the error might not be discovered during development or testing, potentially causing issues in production.</p>
+<p>Static analysis can catch these problems early by verifying that all required modules actually exist, either as files in your project or as
+installed npm packages.</p>
+<h3>What is the potential impact?</h3>
+<p>Runtime errors will occur when Node.js attempts to load the non-existent module. This can cause application crashes or unexpected behavior,
+especially if the <code>require()</code> statement is in a code path that isn’t frequently executed during development.</p>
+<h3>How to fix?</h3>
+<p>Fix typos in module names and ensure all required files exist. For npm packages, make sure they are properly installed.</p>
+<h4>Non-compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+// These modules don't exist
+const typoFile = require('./typo-file'); // Noncompliant
+const typoModule = require('typo-module'); // Noncompliant
+</pre>
+<h4>Compliant code example</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+// These modules exist
+const existingFile = require('./existing-file');
+const existingModule = require('existing-module');
+</pre>
+<h3>Documentation</h3>
+<ul>
+  <li> Node.js require() documentation - <a href="https://nodejs.org/api/modules.html#requireid">Official Node.js documentation for the require()
+  function</a> </li>
+  <li> npm package.json dependencies - <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json#dependencies">How to properly declare
+  dependencies in package.json</a> </li>
+</ul>
+<h3>Related Rules</h3>
+<ul>
+  <li> n/no-missing-import - <a href="https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-missing-import.md">Similar rule
+  for ES6 import statements</a> </li>
+</ul>
