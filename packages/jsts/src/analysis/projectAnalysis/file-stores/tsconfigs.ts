@@ -32,7 +32,6 @@ import {
 } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, normalize } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
-import type { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { SourceFileStore } from './source-files.js';
 /**
@@ -251,16 +250,16 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  async processFile(file: Dirent, filePath: string) {
+  async processFile(filename: string) {
     const matches = this.providedPropertyTsConfigs?.some(
       providedTsConfig =>
-        providedTsConfig.path === filePath || providedTsConfig.pattern.match(filePath),
+        providedTsConfig.path === filename || providedTsConfig.pattern.match(filename),
     );
     if (matches) {
-      this.foundPropertyTsConfigs.push(filePath);
+      this.foundPropertyTsConfigs.push(filename);
     }
-    if (file.name === TSCONFIG_JSON) {
-      this.foundLookupTsConfigs.push(filePath);
+    if (basename(filename) === TSCONFIG_JSON) {
+      this.foundLookupTsConfigs.push(filename);
     }
   }
 

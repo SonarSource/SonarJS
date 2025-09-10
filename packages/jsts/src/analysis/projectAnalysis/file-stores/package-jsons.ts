@@ -21,7 +21,6 @@ import {
 } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, dirname } from 'node:path/posix';
 import { readFile } from 'node:fs/promises';
-import type { Dirent } from 'node:fs';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
 import type { File } from '../../../rules/helpers/files.js';
@@ -78,16 +77,16 @@ export class PackageJsonStore implements FileStore {
     this.dirnameToParent.set(baseDir, undefined);
   }
 
-  async processFile(file: Dirent, filePath: string) {
+  async processFile(filename: string) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (file.name === PACKAGE_JSON) {
+    if (basename(filename) === PACKAGE_JSON) {
       try {
-        const content = await readFile(filePath, 'utf-8');
-        this.packageJsons.set(dirname(filePath), { content, path: filePath });
+        const content = await readFile(filename, 'utf-8');
+        this.packageJsons.set(dirname(filename), { content, path: filename });
       } catch (e) {
-        warn(`Error reading package.json ${filePath}: ${e}`);
+        warn(`Error reading package.json ${filename}: ${e}`);
       }
     }
   }
