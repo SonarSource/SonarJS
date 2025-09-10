@@ -24,7 +24,7 @@ import {
   isJsTsFile,
   isSonarLint,
   maxFilesForTypeChecking,
-  noFs,
+  canAccessFileSystem,
   setClearFileToTsConfigCache,
   setClearTsConfigCache,
   shouldClearFileToTsConfigCache,
@@ -119,7 +119,7 @@ export class TsConfigStore implements FileStore {
   }
 
   async getFallbackTsConfig(baseDir: string): Promise<string | undefined> {
-    if (noFs()) {
+    if (!canAccessFileSystem()) {
       return undefined;
     }
     if (isSonarLint()) {

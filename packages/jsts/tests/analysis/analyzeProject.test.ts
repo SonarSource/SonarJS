@@ -121,7 +121,7 @@ describe('analyzeProject', () => {
         },
       },
       configuration: {
-        noFs: true,
+        canAccessFileSystem: false,
         baseDir,
       },
     });

@@ -136,6 +136,7 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
   public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
+  public static final String NO_FS = "sonar.javascript.canAccessFileSystem";
 
   @Override
   public void define(Context context) {
