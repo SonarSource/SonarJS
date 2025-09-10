@@ -2,5 +2,13 @@
 "ant-design:components/alert/__tests__/index.test.tsx": [
 80,
 81
+],
+"ant-design:components/input/__tests__/index.test.tsx": [
+445,
+446
+],
+"ant-design:components/input/__tests__/type.test.tsx": [
+13,
+15
 ]
 }
