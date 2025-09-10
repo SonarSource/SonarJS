@@ -15,10 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import {
-  getFsEvents,
-  canAccessFileSystem,
-} from '../../../../../shared/src/helpers/configuration.js';
+import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, dirname } from 'node:path/posix';
 import { readFile } from 'node:fs/promises';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
@@ -40,7 +37,7 @@ export class PackageJsonStore implements FileStore {
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return !canAccessFileSystem() || typeof this.baseDir !== 'undefined';
+    return typeof this.baseDir !== 'undefined';
   }
 
   getPackageJsons() {

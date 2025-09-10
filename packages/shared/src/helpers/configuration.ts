@@ -184,7 +184,7 @@ export function isSonarLint() {
 }
 
 export function canAccessFileSystem() {
-  return !!configuration.canAccessFileSystem;
+  return configuration.canAccessFileSystem !== false;
 }
 
 export function getGlobals() {
