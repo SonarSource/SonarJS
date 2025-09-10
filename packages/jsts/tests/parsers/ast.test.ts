@@ -33,6 +33,7 @@ import {
   VisitNodeReturnType,
 } from '../../src/parsers/ast.js';
 import { parse } from '../../src/parsers/parse.js';
+import assert from 'assert';
 
 const parseFunctions = [
   {
@@ -83,6 +84,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
+    assert.ok(serializedAST);
     // we are only interested in checking that the serialized AST only contains nodes relevant at runtime
     expect(serializedAST.type).toEqual(0); // Program
     expect(serializedAST.program.body[0].type).toEqual(
@@ -104,6 +106,7 @@ describe('ast', () => {
     const code = `42 satisfies Bar;`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
+    assert.ok(serializedAST);
     const literalNode = serializedAST.program.body[0].expressionStatement.expression.literal;
     expect(literalNode.type).toEqual(NODE_TYPE_ENUM.values['Literal']);
     expect(literalNode.valueNumber).toEqual(42);
@@ -114,6 +117,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
+    assert.ok(serializedAST);
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
     expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(identifier.identifier.name).toEqual('foo');
@@ -124,6 +128,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
+    assert.ok(serializedAST);
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
     expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(identifier.identifier.name).toEqual('foo');
@@ -136,6 +141,7 @@ describe('ast', () => {
     }`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
+    assert.ok(protoMessage);
     const classDeclaration = protoMessage.program.body[0].classDeclaration;
     const constructorMethod = classDeclaration.body.classBody.body[0].methodDefinition;
     const constructorFunction = constructorMethod.value.functionExpression;
@@ -154,6 +160,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
 
+    assert.ok(serializedAST);
     const expression = serializedAST.program.body[0].tSExportAssignment.expression;
     expect(expression.type).toEqual(NODE_TYPE_ENUM.values['CallExpressionType']);
     expect(expression.callExpression.callee.identifier.name).toEqual('foo');
@@ -164,6 +171,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
     );
@@ -187,6 +195,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
     );
@@ -216,6 +225,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
     );
@@ -242,6 +252,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
     );
@@ -268,6 +279,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
     );
@@ -287,6 +299,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
     );
@@ -306,6 +319,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
     );
@@ -325,6 +339,7 @@ describe('ast', () => {
     test(`should serialize ${nodeType} to empty object`, async () => {
       const ast = await parseSourceCode(code, parsersMap.typescript);
       const protoMessage = visitNode(ast as TSESTree.Program);
+      assert.ok(protoMessage);
       expect(protoMessage.program.body[0].type).toEqual(NODE_TYPE_ENUM.values[`${nodeType}Type`]);
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
@@ -337,6 +352,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['ClassDeclarationType'],
     );
@@ -354,6 +370,7 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const protoMessage = visitNode(ast as TSESTree.Program);
 
+    assert.ok(protoMessage);
     expect(protoMessage.program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['ClassDeclarationType'],
     );

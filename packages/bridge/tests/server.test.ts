@@ -290,7 +290,7 @@ async function testWSWithWorker(worker: Worker | undefined, requestJSON: string)
     };
   });
 
-  const messages = [];
+  const messages: { issues: unknown[] }[] = [];
   const response = await new Promise((resolve, reject) => {
     ws.send(requestJSON);
     ws.onmessage = event => {

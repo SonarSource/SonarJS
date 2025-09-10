@@ -3,7 +3,6 @@ type MaybeString    = string | undefined;
 type pi             = 3.14;
 type NoIdea         = WhoKnows;
 type StringArray    = Array<string>;
-type AnyArray       = Array<>;
 
 type MyAny          = any;          // Noncompliant {{Remove this redundant type alias and replace its occurrences with "any".}}
 //   ^^^^^

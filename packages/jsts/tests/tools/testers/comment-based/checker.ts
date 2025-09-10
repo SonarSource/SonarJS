@@ -35,7 +35,7 @@ export function check(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir
     settings: { sonarRuntime: true },
   });
 
-  const fixtures = [];
+  const fixtures: string[] = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
     if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file as string)) {
       const fixture = path.join(ruleDir, file as string);

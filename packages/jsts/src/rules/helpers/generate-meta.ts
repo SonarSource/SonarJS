@@ -30,6 +30,12 @@ export type SonarMeta = {
   schema?: JSONSchema4;
   hasSecondaries?: boolean;
   fields?: ESLintConfiguration;
+  implementation: 'original' | 'external' | 'decorated';
+  externalPlugin?: string;
+  externalRules?: {
+    externalPlugin: string;
+    externalRule: string;
+  }[];
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {

@@ -24,20 +24,29 @@ describe('S1226', () => {
 
     const NON_COMPLIANT_REGEX = /\/\/\sNoncompliant\s{{(\w+)}}/;
     function invalidTest(code: string) {
-      const errors = code.split('\n').reduce((accumulator, currentLine, index) => {
-        const res = NON_COMPLIANT_REGEX.exec(currentLine);
-        if (res && res[1]) {
-          const currentLine = index + 1;
-          accumulator.push({
-            message:
-              `Introduce a new variable or use its initial value ` +
-              `before reassigning "${res[1]}".`,
-            line: currentLine,
-            endLine: currentLine,
-          });
-        }
-        return accumulator;
-      }, []);
+      const errors = code
+        .split('\n')
+        .reduce(
+          (
+            accumulator: { message: string; line: number; endLine: number }[],
+            currentLine,
+            index,
+          ) => {
+            const res = NON_COMPLIANT_REGEX.exec(currentLine);
+            if (res && res[1]) {
+              const currentLine = index + 1;
+              accumulator.push({
+                message:
+                  `Introduce a new variable or use its initial value ` +
+                  `before reassigning "${res[1]}".`,
+                line: currentLine,
+                endLine: currentLine,
+              });
+            }
+            return accumulator;
+          },
+          [],
+        );
       return {
         code,
         errors,

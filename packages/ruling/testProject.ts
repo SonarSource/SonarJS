@@ -44,9 +44,9 @@ const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
 type ProjectsData = {
   name: string;
-  folder: string;
-  testDir: string;
-  exclusions: string;
+  folder?: string;
+  testDir: string | null;
+  exclusions: string | null;
 };
 
 export function projectName(projectFile: string) {
@@ -57,7 +57,7 @@ export function projectName(projectFile: string) {
 export async function testProject(projectName: string) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
-  );
+  )!;
   const rules = Object.entries(metas)
     .flatMap(([key, meta]: [string, SonarMeta]): RuleConfig[] => {
       return meta.languages.map(language => ({
@@ -94,7 +94,7 @@ export async function testProject(projectName: string) {
 export function ok(diff: Result) {
   expect(
     JSON.stringify(
-      diff.diffSet.filter(value => value.state !== 'equal'),
+      diff.diffSet!.filter(value => value.state !== 'equal'),
       null,
       2,
     ),
