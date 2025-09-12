@@ -49,6 +49,8 @@ public interface AnalysisConfiguration {
 
   boolean shouldDetectBundles();
 
+  boolean canAccessFileSystem();
+
   List<String> getSources();
 
   List<String> getInclusions();

@@ -107,6 +107,26 @@ describe('analyzeProject', () => {
     await analysisPromise;
   });
 
+  it('should not touch FS during analysis', async () => {
+    const baseDir = '/path/does/not/exist';
+    const filePath = join(baseDir, 'whatever_file.ts');
+    const result = await analyzeProject({
+      rules: defaultRules,
+      files: {
+        [filePath]: {
+          fileType: 'MAIN',
+          filePath,
+          fileContent: 'if (1 == 1) {console.log(1)}',
+        },
+      },
+      configuration: {
+        canAccessFileSystem: false,
+        baseDir,
+      },
+    });
+    expect(result.files[filePath]).toBeDefined();
+  });
+
   it('should return a default result when the project is empty', async () => {
     const baseDir = join(fixtures, 'empty-folder');
     const result = await analyzeProject(prepareInput(baseDir, {}));

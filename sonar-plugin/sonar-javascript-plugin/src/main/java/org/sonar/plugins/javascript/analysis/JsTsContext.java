@@ -276,6 +276,14 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return config.getBoolean(JavaScriptPlugin.DETECT_BUNDLES_PROPERTY).orElse(true);
   }
 
+  public boolean canAccessFileSystem() {
+    return canAccessFileSystem(context.config());
+  }
+
+  public static boolean canAccessFileSystem(Configuration config) {
+    return config.getBoolean(JavaScriptPlugin.NO_FS).orElse(true);
+  }
+
   public List<String> getSources() {
     return stream(this.context.config().getStringArray("sonar.sources"))
       .filter(x -> !x.isBlank())

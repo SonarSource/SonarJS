@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Dirent } from 'node:fs';
 import type { JsTsFiles } from '../projectAnalysis.js';
 
 export abstract class FileStore {
@@ -23,7 +22,7 @@ export abstract class FileStore {
 
   abstract setup(baseDir: string): void;
 
-  abstract processFile(file: Dirent, filePath: string): Promise<void>;
+  abstract processFile(filename: string): Promise<void>;
 
   abstract postProcess(baseDir: string): Promise<void>;
 

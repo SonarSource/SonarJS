@@ -44,6 +44,7 @@ type FsEvents = { [key: string]: FsEventType };
 
 export type Configuration = {
   baseDir?: string;
+  canAccessFileSystem?: boolean;
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
   clearFileToTsConfigCache?: boolean;
@@ -180,6 +181,10 @@ export function getEnvironments() {
 
 export function isSonarLint() {
   return !!configuration.sonarlint;
+}
+
+export function canAccessFileSystem() {
+  return configuration.canAccessFileSystem !== false;
 }
 
 export function getGlobals() {

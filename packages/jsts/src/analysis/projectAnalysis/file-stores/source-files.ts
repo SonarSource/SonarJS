@@ -17,7 +17,6 @@
 
 import type { JsTsFiles } from '../projectAnalysis.js';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
-import { Dirent } from 'node:fs';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
@@ -114,14 +113,14 @@ export class SourceFileStore implements FileStore {
     this.newFiles = [];
   }
 
-  async processFile(file: Dirent, filePath: string) {
-    if (isAnalyzableFile(file.name) && !this.anyParentIsIgnored(filePath)) {
-      const fileContent = await this.getFileContent(filePath);
-      const fileType = filterPathAndGetFileType(filePath);
+  async processFile(filename: string) {
+    if (isAnalyzableFile(filename) && !this.anyParentIsIgnored(filename)) {
+      const fileContent = await this.getFileContent(filename);
+      const fileType = filterPathAndGetFileType(filename);
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
-      if (fileType && accept(filePath, fileContent)) {
-        this.newFiles.push({ fileType, filePath, fileContent });
+      if (fileType && accept(filename, fileContent)) {
+        this.newFiles.push({ fileType, filePath: filename, fileContent });
       }
     }
   }
