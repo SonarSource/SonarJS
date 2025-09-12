@@ -48,7 +48,7 @@ function checkCallExpression(
   ...sensitiveFqns: string[]
 ) {
   const callFqn = getFullyQualifiedName(context, callExpr);
-  if (sensitiveFqns.includes(callFqn)) {
+  if (callFqn !== null && sensitiveFqns.includes(callFqn)) {
     context.report({ messageId: 'safeSocket', node: callExpr.callee });
   }
 }

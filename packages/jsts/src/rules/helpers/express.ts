@@ -104,7 +104,7 @@ export namespace Express {
   ): boolean {
     if (n.type === 'CallExpression') {
       const fqn = getFullyQualifiedName(context, n);
-      return middlewares.includes(fqn);
+      return fqn !== null && middlewares.includes(fqn);
     }
     return false;
   }
