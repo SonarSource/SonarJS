@@ -49,10 +49,7 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     const functionContextStack: FunctionContext[] = [];
     const checkOnFunctionExit = (node: estree.Node) =>
-      checkFunctionLikeDeclaration(
-        node as FunctionLikeDeclaration,
-        functionContextStack[functionContextStack.length - 1],
-      );
+      checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, functionContextStack.at(-1));
 
     // tracks the segments we've traversed in the current code path
     let currentSegments: Set<Rule.CodePathSegment>;
@@ -157,7 +154,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ReturnStatement(node: estree.Node) {
-        const currentContext = functionContextStack[functionContextStack.length - 1];
+        const currentContext = functionContextStack.at(-1);
         if (!!currentContext) {
           const returnStatement = node as estree.ReturnStatement;
           currentContext.containsReturnWithValue =

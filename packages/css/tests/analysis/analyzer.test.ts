@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { analyzeCSS } from '../../src/analysis/analyzer.js';
@@ -107,7 +107,7 @@ describe('should emit correctly located issues regardless of invisible character
         const hexadecimalRepresentation = characterCode.toString(16);
 
         it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
-          const character = String.fromCharCode(characterCode);
+          const character = String.fromCodePoint(characterCode);
           const analysisInput: CssAnalysisInput = {
             fileContent:
               type === 'single'

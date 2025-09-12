@@ -131,9 +131,9 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
   }),
   create(context: Rule.RuleContext) {
-    const isJsxPragmaSet =
-      context.sourceCode.getAllComments().findIndex(comment => comment.value.includes('@jsx jsx')) >
-      -1;
+    const isJsxPragmaSet = context.sourceCode
+      .getAllComments()
+      .some(comment => comment.value.includes('@jsx jsx'));
     const unusedImports: { id: estree.Identifier; importDecl: estree.ImportDeclaration }[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
     const vueIdentifiers: Set<string> = new Set();
@@ -238,7 +238,7 @@ export const rule: Rule.RuleModule = {
 
 // vue only capitalizes the char after '-'
 function toCamelCase(str: string) {
-  return str.replace(/-\w/g, s => s[1].toUpperCase());
+  return str.replaceAll(/-\w/g, s => s[1].toUpperCase());
 }
 
 function toPascalCase(str: string) {
@@ -280,7 +280,7 @@ function getSuggestion(
 
     case 'ImportSpecifier': {
       const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
-      const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
+      const index = simpleSpecifiers.indexOf(unusedSpecifier);
       if (simpleSpecifiers.length === 1) {
         range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range[1]];
       } else if (index === 0) {

@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIP } from 'net';
+import { isIP } from 'node:net';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -64,10 +64,10 @@ export const rule: Rule.RuleModule = {
       }
       const decimalDigits = [];
       for (const digit of digits) {
-        if (digit.match(/^0[0-7]*$/)) {
-          decimalDigits.push(parseInt(digit, 8));
-        } else if (digit.match(/^0[xX][0-9a-fA-F]+$/)) {
-          decimalDigits.push(parseInt(digit, 16));
+        if (/^0[0-7]*$/.test(digit)) {
+          decimalDigits.push(Number.parseInt(digit, 8));
+        } else if (/^0[xX][0-9a-fA-F]+$/.test(digit)) {
+          decimalDigits.push(Number.parseInt(digit, 16));
         } else {
           return false;
         }

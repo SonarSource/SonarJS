@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter } from 'eslint';
-import path from 'path';
+import path from 'node:path';
 import { transformFixes } from '../../../src/linter/quickfixes/transform.js';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import * as allRules from '../../../src/rules/rules.js';

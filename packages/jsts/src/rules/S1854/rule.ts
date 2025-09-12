@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   isNullLiteral,
+  last,
   LiveVariables,
   lva,
   ReferenceLike,
@@ -65,14 +66,14 @@ export const rule: Rule.RuleModule = {
         destructuringStack.push(new DestructuringContext());
       },
       'ObjectPattern > Property > Identifier': (node: estree.Node) => {
-        const destructuring = peek(destructuringStack)!;
+        const destructuring = last(destructuringStack)!;
         const { ref } = resolveReference(node as estree.Identifier);
         if (ref) {
           destructuring.references.push(ref);
         }
       },
       'ObjectPattern > :matches(RestElement, ExperimentalRestProperty)': () => {
-        peek(destructuringStack).hasRest = true;
+        last(destructuringStack).hasRest = true;
       },
       'ObjectPattern:exit': () => {
         const destructuring = destructuringStack.pop();
@@ -109,11 +110,11 @@ export const rule: Rule.RuleModule = {
     };
 
     function pushAssignmentContext(node: AssignmentLike) {
-      peek(codePathStack).assignmentStack.push(new AssignmentContext(node));
+      last(codePathStack).assignmentStack.push(new AssignmentContext(node));
     }
 
     function popAssignmentContext() {
-      const assignment = peek(codePathStack).assignmentStack.pop()!;
+      const assignment = last(codePathStack).assignmentStack.pop()!;
       assignment.rhs.forEach(r => processReference(r));
       assignment.lhs.forEach(r => processReference(r));
     }
@@ -271,9 +272,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function processReference(ref: ReferenceLike) {
-      const assignmentStack = peek(codePathStack).assignmentStack;
+      const assignmentStack = last(codePathStack).assignmentStack;
       if (assignmentStack.length > 0) {
-        const assignment = peek(assignmentStack);
+        const assignment = last(assignmentStack);
         assignment.add(ref);
       } else {
         [...currentCodePathSegments].forEach(segment => {
@@ -301,7 +302,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function updateVariableUsages(variable: Scope.Variable) {
-      const codePathId = peek(codePathStack).codePath.id;
+      const codePathId = last(codePathStack).codePath.id;
       if (variableUsages.has(variable)) {
         variableUsages.get(variable)!.add(codePathId);
       } else {
@@ -445,8 +446,4 @@ function findJSXVariableInScope(
     scope &&
     (scope.variables.find(v => v.name === node.name) || findJSXVariableInScope(node, scope.upper))
   );
-}
-
-function peek<T>(arr: Array<T>) {
-  return arr[arr.length - 1];
 }

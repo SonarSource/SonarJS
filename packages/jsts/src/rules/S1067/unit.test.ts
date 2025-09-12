@@ -158,6 +158,7 @@ describe('S1067', () => {
 
         marker += ' ';
         let secondaryStart = -1;
+        // eslint-disable-next-line unicorn/no-for-loop
         for (let i = 0; i < marker.length; ++i) {
           if (marker[i] === '^') {
             if (secondaryStart === -1) {

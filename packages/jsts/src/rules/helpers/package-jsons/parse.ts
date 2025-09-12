@@ -69,7 +69,7 @@ function addDependencies(
     .filter(name => {
       // Add this filter, as the PackageJson.Dependency can be any arbitrary JSON contrary to the claimed Record<String, String> typing.
       const value = dependencies[name];
-      return typeof value === 'string' || typeof value === 'undefined';
+      return typeof value === 'string' || value === undefined;
     })
     .forEach(name => addDependency(result, name, isGlob, dependencies[name]));
 }

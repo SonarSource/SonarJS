@@ -17,7 +17,7 @@
 import { parsersMap } from '../../src/parsers/eslint.js';
 import { parse } from '../../src/parsers/parse.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';

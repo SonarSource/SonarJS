@@ -132,7 +132,9 @@ export function report(
   secondaryLocations: IssueLocation[] = [],
   cost?: number,
 ) {
-  if (!context.settings.sonarRuntime) {
+  if (context.settings.sonarRuntime) {
+    context.report(toEncodedMessage(reportDescriptor, secondaryLocations, cost));
+  } else {
     if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { message: _, ...rest } = reportDescriptor;
       context.report(rest as Rule.ReportDescriptor);
@@ -145,8 +147,6 @@ export function report(
     } else {
       context.report(reportDescriptor);
     }
-  } else {
-    context.report(toEncodedMessage(reportDescriptor, secondaryLocations, cost));
   }
 }
 

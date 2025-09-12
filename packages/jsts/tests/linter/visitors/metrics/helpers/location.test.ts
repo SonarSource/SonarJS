@@ -24,19 +24,19 @@ describe('convertLocation', () => {
     const location: estree.SourceLocation = {
       start: {
         line: 42,
-        column: 42_42,
+        column: 4242,
       },
       end: {
         line: 24,
-        column: 24_24,
+        column: 2424,
       },
     };
     const convertedLocation = convertLocation(location);
     expect(convertedLocation).toEqual({
       startLine: 42,
-      startCol: 42_42,
+      startCol: 4242,
       endLine: 24,
-      endCol: 24_24,
+      endCol: 2424,
     });
   });
 });

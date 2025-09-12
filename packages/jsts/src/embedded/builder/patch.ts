@@ -80,7 +80,7 @@ function computeLines(embeddedJS: EmbeddedJS): string[] {
     lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[i], match.index));
     i++;
   }
-  lines.push(embeddedJS.text.slice(embeddedJS.lineStarts[embeddedJS.lineStarts.length - 1]));
+  lines.push(embeddedJS.text.slice(embeddedJS.lineStarts.at(-1)));
 
   return lines;
 }

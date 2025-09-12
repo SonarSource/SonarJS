@@ -22,7 +22,7 @@ const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';
 export const QUICKFIX_ID =
   '\\[\\[(?<quickfixes>\\w+(=\\d+)?!?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?!?))*)\\]\\]';
-const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
+const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
   ' *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     'fix@(?<quickfixId>\\w+)' +
@@ -31,7 +31,7 @@ const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
     '(?:\\r(\\n?)|\\n)?',
 );
 
-const QUICKFIX_CHANGE_PATTERN = RegExp(
+const QUICKFIX_CHANGE_PATTERN = new RegExp(
   ' *' +
     // quickfix edit, ex: edit@qf1
     '(?<type>edit|add|del)@(?<quickfixId>\\w+)' +

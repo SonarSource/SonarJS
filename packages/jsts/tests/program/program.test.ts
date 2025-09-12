@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { isRoot, toUnixPath } from '../../src/rules/helpers/index.js';
 import { describe, it, type Mock } from 'node:test';

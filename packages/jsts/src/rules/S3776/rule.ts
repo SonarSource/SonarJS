@@ -27,6 +27,7 @@ import {
   isIfStatement,
   isLogicalExpression,
   IssueLocation,
+  last,
   report,
   RuleContext,
   toSecondaryLocation,
@@ -413,9 +414,8 @@ export const rule: Rule.RuleModule = {
       }
 
       if (functionOwnComplexity.length > 0) {
-        const addedWithoutFunctionNesting =
-          functionOwnControlFlowNesting[functionOwnControlFlowNesting.length - 1] + 1;
-        functionOwnComplexity[functionOwnComplexity.length - 1].push({
+        const addedWithoutFunctionNesting = last(functionOwnControlFlowNesting) + 1;
+        last(functionOwnComplexity).push({
           complexity: addedWithoutFunctionNesting,
           location,
         });
@@ -425,7 +425,7 @@ export const rule: Rule.RuleModule = {
     function addComplexity(location: TSESTree.SourceLocation) {
       const complexityPoint = { complexity: 1, location };
       if (functionOwnComplexity.length > 0) {
-        functionOwnComplexity[functionOwnComplexity.length - 1].push(complexityPoint);
+        last(functionOwnComplexity).push(complexityPoint);
       }
 
       if (enclosingFunctions.length === 0) {

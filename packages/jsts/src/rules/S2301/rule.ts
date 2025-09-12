@@ -101,10 +101,9 @@ export const rule: Rule.RuleModule = {
       Identifier: node => {
         // An identifier is suspect if it is a direct or indirect child of a suspect node,
         // or if it is a suspect node itself
-        const isSuspect =
-          suspectTestNodes.find(testNode => {
-            return testNode === node || isAChildOf(node, testNode);
-          }) !== undefined;
+        const isSuspect = suspectTestNodes.some(testNode => {
+          return testNode === node || isAChildOf(node, testNode);
+        });
 
         if (!isSuspect) {
           return;
@@ -113,7 +112,7 @@ export const rule: Rule.RuleModule = {
         const variable = getVariableFromIdentifier(node, context.sourceCode.getScope(node));
 
         if (variable) {
-          const definition = variable.defs[variable.defs.length - 1];
+          const definition = variable.defs.at(-1);
 
           if (definition?.type === 'Parameter') {
             const type = getTypeFromTreeNode(definition.name, context.sourceCode.parserServices);

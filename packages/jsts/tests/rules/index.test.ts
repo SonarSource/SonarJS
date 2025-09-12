@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { configs, meta } from '../../src/rules/plugin.js';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { valid } from 'semver';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { readFile } from '../../src/helpers/files.js';

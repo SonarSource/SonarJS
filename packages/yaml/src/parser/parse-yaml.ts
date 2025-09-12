@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import yaml from 'yaml';
-import assert from 'assert';
+import assert from 'node:assert';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format.js';
 import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
 import { APIError } from '../../../shared/src/errors/error.js';

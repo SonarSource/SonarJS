@@ -131,9 +131,10 @@ function checkDatabaseInstance(expr: NewExpression, ctx: Rule.RuleContext) {
 }
 
 function isPrivateSubnet(node: Node, ctx: Rule.RuleContext) {
-  return PRIVATE_SUBNETS.some(net => net === getFullyQualifiedName(ctx, node)?.replace(/-/g, '_'));
+  const subnet = getFullyQualifiedName(ctx, node)?.replaceAll('-', '_');
+  return subnet !== undefined && PRIVATE_SUBNETS.includes(subnet);
 }
 
 function isPublicSubnet(node: Node, ctx: Rule.RuleContext) {
-  return PUBLIC_SUBNET === getFullyQualifiedName(ctx, node)?.replace(/-/g, '_');
+  return PUBLIC_SUBNET === getFullyQualifiedName(ctx, node)?.replaceAll('-', '_');
 }

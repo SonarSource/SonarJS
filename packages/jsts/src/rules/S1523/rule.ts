@@ -56,7 +56,7 @@ function checkCallExpression(node: estree.CallExpression, context: Rule.RuleCont
 }
 
 function hasAtLeastOneVariableArgument(args: Array<estree.Node>) {
-  return !!args.find(arg => !isLiteral(arg));
+  return args.some(arg => !isLiteral(arg));
 }
 
 function isLiteral(node: estree.Node) {

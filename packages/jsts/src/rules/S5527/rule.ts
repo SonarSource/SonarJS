@@ -111,7 +111,6 @@ export const rule: Rule.RuleModule = {
           context,
         );
         if (
-          returnStatements.length === 0 ||
           returnStatements.every(r => {
             return (
               !r.argument || getValueOfExpression(context, r.argument, 'Literal')?.value === true

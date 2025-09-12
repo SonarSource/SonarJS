@@ -25,7 +25,7 @@
  * used by the parser and improves performance.
  */
 
-import path from 'path';
+import path from 'node:path';
 import ts from 'typescript';
 import { debug, error, warn } from '../../../shared/src/helpers/logging.js';
 import {
@@ -90,7 +90,7 @@ export function createProgramOptions(
 
   if (config.error) {
     error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
-    throw Error(diagnosticToString(config.error));
+    throw new Error(diagnosticToString(config.error));
   }
 
   const parsedConfigFile = ts.parseJsonConfigFileContent(
@@ -113,7 +113,7 @@ export function createProgramOptions(
 
   if (parsedConfigFile.errors.length > 0) {
     const message = parsedConfigFile.errors.map(diagnosticToString).join('; ');
-    throw Error(message);
+    throw new Error(message);
   }
 
   return {
@@ -151,10 +151,10 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
 
   for (const reference of inputProjectReferences) {
     const sanitizedReference = addTsConfigIfDirectory(reference.path);
-    if (!sanitizedReference) {
-      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
-    } else {
+    if (sanitizedReference) {
       projectReferences.push(sanitizedReference);
+    } else {
+      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
     }
   }
   const files = program
@@ -230,7 +230,7 @@ export function createAndSaveProgram(tsConfig: string): ProgramResult & { progra
 export function getProgramById(programId: string): ts.Program {
   const program = programs.get(programId);
   if (!program) {
-    throw Error(`Failed to find program ${programId}`);
+    throw new Error(`Failed to find program ${programId}`);
   }
   return program;
 }

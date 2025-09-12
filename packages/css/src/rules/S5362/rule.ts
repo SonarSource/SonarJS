@@ -105,7 +105,7 @@ const ruleImpl: stylelint.RuleBase = () => {
       }
 
       function isZero(node: postcssValueParser.Node) {
-        return node.type === 'word' && parseFloat(node.value) === 0;
+        return node.type === 'word' && Number.parseFloat(node.value) === 0;
       }
 
       function report(message: string) {

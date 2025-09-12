@@ -48,19 +48,17 @@ export const rule: Rule.RuleModule = {
 
     function processStatements(node: estree.Node, statements: estree.Statement[]) {
       if (statements.length > 1) {
-        const last = statements[statements.length - 1];
+        const last = statements.at(-1)!;
         const returnedIdentifier = getOnlyReturnedVariable(last);
 
-        const lastButOne = statements[statements.length - 2];
+        const lastButOne = statements.at(-2)!;
         const declaredIdentifier = getOnlyDeclaredVariable(lastButOne);
 
         if (returnedIdentifier && declaredIdentifier) {
           const sameVariable = getVariables(node, context).find(variable => {
             return (
-              variable.references.find(ref => ref.identifier === returnedIdentifier) !==
-                undefined &&
-              variable.references.find(ref => ref.identifier === declaredIdentifier.id) !==
-                undefined
+              variable.references.some(ref => ref.identifier === returnedIdentifier) &&
+              variable.references.some(ref => ref.identifier === declaredIdentifier.id)
             );
           });
 

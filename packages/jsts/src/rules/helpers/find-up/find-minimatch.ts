@@ -17,7 +17,7 @@
 import { Minimatch } from 'minimatch';
 import { join, basename } from 'node:path/posix';
 import { type File } from '../files.js';
-import fs from 'fs';
+import fs from 'node:fs';
 import { ComputedCache } from '../cache.js';
 
 interface Stats {

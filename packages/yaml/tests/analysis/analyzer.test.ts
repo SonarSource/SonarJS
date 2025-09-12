@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join } from 'path';
+import { join } from 'node:path';
 import type { Rule } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

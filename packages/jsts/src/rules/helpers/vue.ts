@@ -24,7 +24,7 @@ function isVueSetupScript(element: VChildElement): boolean {
   return (
     element.type === 'VElement' &&
     element.name === 'script' &&
-    !!element.startTag.attributes.find(attr => attr.key.name === 'setup')
+    element.startTag.attributes.some(attr => attr.key.name === 'setup')
   );
 }
 

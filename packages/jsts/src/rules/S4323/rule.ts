@@ -67,11 +67,11 @@ export const rule: Rule.RuleModule = {
           .sort((a, b) => a.localeCompare(b))
           .join('|');
         let occurrences = usage.get(text);
-        if (!occurrences) {
+        if (occurrences) {
+          occurrences.push(composite);
+        } else {
           occurrences = [composite];
           usage.set(text, occurrences);
-        } else {
-          occurrences.push(composite);
         }
       },
     };

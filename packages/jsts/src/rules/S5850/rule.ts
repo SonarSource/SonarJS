@@ -56,11 +56,11 @@ function anchoredAt(alternatives: AST.Alternative[], position: Position): boolea
 function notAnchoredElseWhere(alternatives: AST.Alternative[]): boolean {
   if (
     isAnchored(alternatives[0], Position.END) ||
-    isAnchored(alternatives[alternatives.length - 1], Position.BEGINNING)
+    isAnchored(alternatives.at(-1)!, Position.BEGINNING)
   ) {
     return false;
   }
-  for (const alternative of alternatives.slice(1, alternatives.length - 1)) {
+  for (const alternative of alternatives.slice(1, -1)) {
     if (isAnchored(alternative, Position.BEGINNING) || isAnchored(alternative, Position.END)) {
       return false;
     }

@@ -38,7 +38,7 @@ export class PackageJsonStore implements FileStore {
 
   async isInitialized(baseDir: string) {
     this.dirtyCachesIfNeeded(baseDir);
-    return typeof this.baseDir !== 'undefined';
+    return this.baseDir !== undefined;
   }
 
   getPackageJsons() {

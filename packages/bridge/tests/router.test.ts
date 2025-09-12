@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import http from 'http';
-import path from 'path';
+import http from 'node:http';
+import path from 'node:path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import { describe, before, after, it } from 'node:test';

@@ -353,7 +353,7 @@ function disallowedPort(startRange?: number, endRange?: number): boolean {
     return badPorts.some(port => port >= startRange && port <= endRange);
   }
   if (startRange != null && endRange == null) {
-    return badPorts.some(port => port === startRange);
+    return badPorts.includes(startRange);
   }
   return false;
 }
