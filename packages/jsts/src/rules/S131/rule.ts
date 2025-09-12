@@ -102,7 +102,7 @@ function fixSwitch(
 ): Rule.Fix | null {
   /** Either suggest a default branch after the last case while preserving contextual indentation */
 
-  const lastCase = node.cases.length > 0 ? node.cases[node.cases.length - 1] : null;
+  const lastCase = node.cases.length > 0 ? node.cases.at(-1) : null;
 
   const caseIndent = lastCase
     ? ' '.repeat(lastCase.loc?.start.column!)

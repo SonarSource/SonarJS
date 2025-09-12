@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter } from 'eslint';
-import path from 'path';
+import path from 'node:path';
 import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,

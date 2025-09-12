@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     return {
       'TemplateLiteral TemplateLiteral': (node: estree.Node) => {
         const ancestors = ancestorsChain(node as TSESTree.Node, new Set(['TemplateLiteral']));
-        const nestingTemplate = ancestors[ancestors.length - 1];
+        const nestingTemplate = ancestors.at(-1)!;
 
         const { start: nestingStart, end: nestingEnd } = nestingTemplate.loc;
         const { start: nestedStart, end: nestedEnd } = (node as TSESTree.Node).loc;

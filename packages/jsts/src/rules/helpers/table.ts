@@ -42,7 +42,7 @@ function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   let span = 1;
   const spanAttr = getProp((tree.openingElement as JSXOpeningElement).attributes, spanKey);
   if (spanAttr) {
-    span = parseInt(String(getLiteralPropValue(spanAttr)));
+    span = Number.parseInt(String(getLiteralPropValue(spanAttr)));
   }
   return span;
 }
@@ -154,10 +154,10 @@ function extractRows(
       const childType = getElementType(context)(child.openingElement).toLowerCase();
       if (childType === 'tr') {
         const extractedRow = extractRow(child);
-        if (!extractedRow) {
-          unknownTableStructure = true;
-        } else {
+        if (extractedRow) {
           rows.push(extractedRow);
+        } else {
+          unknownTableStructure = true;
         }
       } else if (childType === 'table') {
         // skip

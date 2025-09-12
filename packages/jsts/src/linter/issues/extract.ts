@@ -52,7 +52,7 @@ export function extractHighlightedSymbols(issues: Issue[]) {
  */
 export function extractCognitiveComplexity(issues: Issue[]) {
   const issue = findAndRemoveFirstIssue(issues, cognitiveComplexityRule.ruleId);
-  if (issue && !isNaN(Number(issue.message))) {
+  if (issue && !Number.isNaN(Number(issue.message))) {
     return Number(issue.message);
   }
   return undefined;

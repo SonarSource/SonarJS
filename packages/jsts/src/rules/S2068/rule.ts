@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta, isStringLiteral } from '../helpers/index.js';
-import path from 'path';
+import path from 'node:path';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

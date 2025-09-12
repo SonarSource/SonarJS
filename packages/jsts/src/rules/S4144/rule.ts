@@ -21,6 +21,7 @@ import {
   areEquivalent,
   generateMeta,
   getMainFunctionTokenLocation,
+  last,
   report,
   RuleContext,
   toSecondaryLocation,
@@ -124,13 +125,13 @@ export const rule: Rule.RuleModule = {
         tokens.shift();
       }
 
-      if (tokens.length > 0 && tokens[tokens.length - 1].value === '}') {
+      if (tokens.length > 0 && last(tokens).value === '}') {
         tokens.pop();
       }
 
       if (tokens.length > 0) {
         const firstLine = tokens[0].loc.start.line;
-        const lastLine = tokens[tokens.length - 1].loc.end.line;
+        const lastLine = last(tokens).loc.end.line;
 
         return lastLine - firstLine + 1 >= minLines;
       }

@@ -143,9 +143,7 @@ class FunctionComplexityVisitor {
       let token: ComplexityToken | undefined | null;
 
       if (isFunctionNode(node)) {
-        if (node !== this.root) {
-          return;
-        } else {
+        if (node === this.root) {
           token = {
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionLike,
@@ -153,6 +151,8 @@ class FunctionComplexityVisitor {
               this.context as unknown as RuleContext,
             ),
           };
+        } else {
+          return;
         }
       } else {
         switch (node.type) {

@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isLiteral } from '../helpers/index.js';
+import { generateMeta, isLiteral, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
     return {
       'SwitchCase > SequenceExpression'(node: estree.Node) {
         const expressions = (node as estree.SequenceExpression).expressions;
-        reportIssue(node, expressions[expressions.length - 1], expressions.length);
+        reportIssue(node, last(expressions), expressions.length);
       },
       'SwitchCase > LogicalExpression'(node: estree.Node) {
         if (!isSwitchTrue(getEnclosingSwitchStatement(context, node))) {

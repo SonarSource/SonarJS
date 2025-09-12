@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const typeName = getTypeAsString(callee.object, services);
-        if (typeName.match(/window/i) || typeName.match(/globalThis/i)) {
+        if (/window/i.test(typeName) || /globalThis/i.test(typeName)) {
           context.report({ node: callee, messageId: 'convertWebSQLUse' });
         }
       },

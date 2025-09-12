@@ -149,9 +149,9 @@ function getPackageName(name: string) {
     - scope `foo/bar` -> package `foo`
   */
   const parts = name.split('/');
-  if (!name.startsWith('@')) {
-    return parts[0];
-  } else {
+  if (name.startsWith('@')) {
     return `${parts[0]}/${parts[1]}`;
+  } else {
+    return parts[0];
   }
 }

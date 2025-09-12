@@ -88,7 +88,7 @@ export namespace Express {
   ): boolean {
     if (isMethodInvocation(callExpression, app.name, 'use', 1)) {
       const flattenedArgs = flattenArgs(context, callExpression.arguments);
-      return Boolean(flattenedArgs.find(middlewareNodePredicate));
+      return flattenedArgs.some(middlewareNodePredicate);
     }
     return false;
   }
@@ -104,7 +104,7 @@ export namespace Express {
   ): boolean {
     if (n.type === 'CallExpression') {
       const fqn = getFullyQualifiedName(context, n);
-      return middlewares.some(middleware => middleware === fqn);
+      return fqn !== null && middlewares.includes(fqn);
     }
     return false;
   }

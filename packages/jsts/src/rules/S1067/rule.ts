@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
       '*': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
-          const expr = statementLevel[statementLevel.length - 1];
+          const expr = statementLevel.at(-1)!;
           expr.incrementNestedExprLevel();
           expr.addOperator(getOperatorToken(tree, context));
         } else if (isScopeLike(tree)) {
@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
       '*:exit': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
-          const expr = statementLevel[statementLevel.length - 1];
+          const expr = statementLevel.at(-1)!;
           expr.decrementNestedExprLevel();
           if (expr.isOnFirstExprLevel()) {
             const operators = expr.getComplexityOperators();

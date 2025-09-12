@@ -16,7 +16,7 @@
  */
 import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 
 describe('S2068', () => {

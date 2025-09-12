@@ -103,7 +103,7 @@ function checkStringReplaceGroupReferences(
       const indexes = new Set<number>();
       const names = new Set<string>();
       references.forEach(ref =>
-        isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value)),
+        Number.isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value)),
       );
       regex.groups.forEach(group => {
         group.used ||= names.has(group.name);
@@ -314,7 +314,7 @@ function makeRegexKnowledge(node: estree.Node, regexp: RegExpLiteral): RegexKnow
   regexpp.visitRegExpAST(regexp, {
     onBackreferenceEnter: reference => {
       const shouldSaveReference = isAmbiguousGroup(reference)
-        ? reference.resolved.filter(capturingGroup => capturingGroup.name).length > 0
+        ? reference.resolved.some(capturingGroup => capturingGroup.name)
         : reference.resolved.name !== null;
       if (shouldSaveReference) {
         backreferences.push(reference);

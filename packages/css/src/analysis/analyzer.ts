@@ -40,7 +40,7 @@ export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOu
     return { issues: [] };
   }
   const config = createStylelintConfig(rules);
-  const sanitizedCode = fileContent.replace(/[\u2000-\u200F]/g, ' ');
+  const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
   const options = {
     code: sanitizedCode,

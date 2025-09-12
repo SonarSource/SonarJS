@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { start } from '../src/server.js';
-import * as path from 'path';
-import { AddressInfo } from 'net';
+import * as path from 'node:path';
+import { AddressInfo } from 'node:net';
 import { request } from './tools/index.js';
-import * as http from 'http';
+import * as http from 'node:http';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';

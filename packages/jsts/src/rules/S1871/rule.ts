@@ -23,6 +23,7 @@ import {
   collectSwitchBranches,
   generateMeta,
   isIfStatement,
+  last,
   report,
   takeWithoutBreak,
   toSecondaryLocation,
@@ -115,11 +116,9 @@ export const rule: Rule.RuleModule = {
       if (nodes.length > 0) {
         const tokens = [
           ...context.sourceCode.getTokens(nodes[0]),
-          ...context.sourceCode.getTokens(nodes[nodes.length - 1]),
+          ...context.sourceCode.getTokens(last(nodes)),
         ].filter(token => token.value !== '{' && token.value !== '}');
-        return (
-          tokens.length > 0 && tokens[tokens.length - 1].loc.end.line > tokens[0].loc.start.line
-        );
+        return tokens.length > 0 && last(tokens).loc.end.line > tokens[0].loc.start.line;
       }
       return false;
     }

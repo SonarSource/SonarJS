@@ -133,7 +133,7 @@ class ForLoopIncrement {
 function directionFromValue(expression: estree.Expression): number {
   if (expression.type === 'Literal') {
     const value = Number(expression.raw);
-    if (isNaN(value) || value === 0) {
+    if (Number.isNaN(value) || value === 0) {
       return 0;
     }
     return value > 0 ? 1 : -1;

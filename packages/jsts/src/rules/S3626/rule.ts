@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3626
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, RuleContext } from '../helpers/index.js';
+import { generateMeta, last, RuleContext } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
@@ -37,14 +37,14 @@ export const rule: Rule.RuleModule = {
       const withArgument = node.type === 'ContinueStatement' ? !!node.label : !!node.argument;
       if (!withArgument) {
         const block = node.parent as TSESTree.BlockStatement;
-        if (block.body[block.body.length - 1] === node && block.body.length > 1) {
+        if (block.body.at(-1) === node && block.body.length > 1) {
           const previousComments = (context as unknown as RuleContext).sourceCode.getCommentsBefore(
             node,
           );
           const previousToken =
             previousComments.length === 0
               ? (context as unknown as RuleContext).sourceCode.getTokenBefore(node)!
-              : previousComments[previousComments.length - 1];
+              : last(previousComments);
 
           context.report({
             messageId: 'removeRedundantJump',
@@ -64,9 +64,9 @@ export const rule: Rule.RuleModule = {
       node: TSESTree.ContinueStatement | TSESTree.ReturnStatement,
     ) {
       const ancestors = (context as unknown as RuleContext).sourceCode.getAncestors(node);
-      const ifStatement = ancestors[ancestors.length - 2];
-      const upperBlock = ancestors[ancestors.length - 3] as TSESTree.BlockStatement;
-      if (upperBlock.body[upperBlock.body.length - 1] === ifStatement) {
+      const ifStatement = ancestors.at(-2);
+      const upperBlock = ancestors.at(-3) as TSESTree.BlockStatement;
+      if (upperBlock.body.at(-1) === ifStatement) {
         reportIfLastStatement(node);
       }
     }

@@ -51,9 +51,9 @@ export function reportPatternInComment(
     if (rawText.includes(pattern)) {
       const lines = rawText.split(/\r\n?|\n/);
 
-      for (let i = 0; i < lines.length; i++) {
-        const index = lines[i].indexOf(pattern);
-        if (index >= 0 && !isLetterAround(lines[i], index, pattern)) {
+      for (const [i, line] of lines.entries()) {
+        const index = line.indexOf(pattern);
+        if (index >= 0 && !isLetterAround(line, index, pattern)) {
           context.report({
             messageId,
             loc: getPatternPosition(i, index, comment, pattern),

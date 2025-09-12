@@ -46,11 +46,11 @@ export const rule: Rule.RuleModule = {
           const { start } = sourceCode.getTokenAfter(callee, isNotClosingParen)!.loc;
           if (calleeLastLine !== start.line) {
             const { end } = sourceCode.getLastToken(call)!.loc;
-            if (end.line !== start.line) {
+            if (end.line === start.line) {
+              reportIssue('moveArguments', { start, end }, calleeLastLine, context);
+            } else {
               //If arguments span multiple lines, we only report the first one
               reportIssue('moveArguments', start, calleeLastLine, context);
-            } else {
-              reportIssue('moveArguments', { start, end }, calleeLastLine, context);
             }
           }
         }

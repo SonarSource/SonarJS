@@ -17,10 +17,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 
 export function getJsxShortCircuitNodes(logicalExpression: TSESTree.LogicalExpression) {
-  if (logicalExpression.parent?.type !== 'JSXExpressionContainer') {
-    return null;
-  } else {
+  if (logicalExpression.parent?.type === 'JSXExpressionContainer') {
     return flattenJsxShortCircuitNodes(logicalExpression, logicalExpression);
+  } else {
+    return null;
   }
 }
 
@@ -33,14 +33,14 @@ function flattenJsxShortCircuitNodes(
     (node.type === 'LogicalExpression' && node.operator !== root.operator)
   ) {
     return null;
-  } else if (node.type !== 'LogicalExpression') {
-    return [];
-  } else {
+  } else if (node.type === 'LogicalExpression') {
     const leftNodes = flattenJsxShortCircuitNodes(root, node.left);
     const rightNodes = flattenJsxShortCircuitNodes(root, node.right);
     if (leftNodes == null || rightNodes == null) {
       return null;
     }
     return [...leftNodes, node, ...rightNodes];
+  } else {
+    return [];
   }
 }

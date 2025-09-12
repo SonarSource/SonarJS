@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parentPort, workerData } from 'worker_threads';
+import { parentPort, workerData } from 'node:worker_threads';
 import { handleRequest } from './handle-request.js';
 import { BridgeRequest, WsIncrementalResult } from './request.js';
 

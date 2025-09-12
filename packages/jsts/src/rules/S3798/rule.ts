@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
         const moduleScope = findModuleScope(context);
         moduleScope?.variables.forEach(variable => {
-          if (scope.variables.find(global => global.name === variable.name)) {
+          if (scope.variables.some(global => global.name === variable.name)) {
             // Avoid reporting on redefinitions of actual global variables
             return;
           }

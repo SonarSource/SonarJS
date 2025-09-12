@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as helpers from '../helpers/index.js';
-import { generateMeta, isStringLiteral } from '../helpers/index.js';
+import { generateMeta, isStringLiteral, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -92,6 +92,6 @@ function isAmdImport(
   }
   return (
     helpers.isRequiredParserServices(services) &&
-    helpers.isFunction(callExpression.arguments[callExpression.arguments.length - 1], services)
+    helpers.isFunction(last(callExpression.arguments), services)
   );
 }

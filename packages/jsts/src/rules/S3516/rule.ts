@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
     let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
     const checkOnFunctionExit = (node: estree.Node) =>
-      checkInvariantReturnStatements(node, functionContextStack[functionContextStack.length - 1]);
+      checkInvariantReturnStatements(node, functionContextStack.at(-1));
 
     function checkInvariantReturnStatements(node: estree.Node, functionContext?: FunctionContext) {
       if (!functionContext || hasDifferentReturnTypes(functionContext, currentCodePathSegments)) {
@@ -102,7 +102,7 @@ export const rule: Rule.RuleModule = {
         currentCodePathSegments.pop();
       },
       ReturnStatement(node: estree.Node) {
-        const currentContext = functionContextStack[functionContextStack.length - 1];
+        const currentContext = functionContextStack.at(-1);
         if (currentContext) {
           const returnStatement = node as estree.ReturnStatement;
           currentContext.containsReturnWithoutValue =
@@ -194,9 +194,9 @@ function getLiteralValue(returnedValue: estree.Node, scope: Scope.Scope): Litera
     return returnedValue.value;
   } else if (returnedValue.type === 'UnaryExpression') {
     const innerReturnedValue = getLiteralValue(returnedValue.argument, scope);
-    return innerReturnedValue !== undefined
-      ? evaluateUnaryLiteralExpression(returnedValue.operator, innerReturnedValue)
-      : undefined;
+    return innerReturnedValue === undefined
+      ? undefined
+      : evaluateUnaryLiteralExpression(returnedValue.operator, innerReturnedValue);
   } else if (returnedValue.type === 'Identifier') {
     const singleWriteVariable = getSingleWriteDefinition(returnedValue.name, scope);
     if (singleWriteVariable?.initExpression) {

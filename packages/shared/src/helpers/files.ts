@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Byte Order Marker
@@ -72,7 +72,7 @@ export function readFileSync(filePath: string) {
  * @returns the stripped string
  */
 function stripBOM(str: string) {
-  if (str.charCodeAt(0) === BOM_BYTE) {
+  if (str.codePointAt(0) === BOM_BYTE) {
     return str.slice(1);
   }
   return str;
@@ -83,7 +83,7 @@ function stripBOM(str: string) {
  * @returns the converted path
  */
 export function toUnixPath(filePath: string) {
-  return filePath.replace(/[\\/]+/g, '/');
+  return filePath.replaceAll(/[\\/]+/g, '/');
 }
 
 /**

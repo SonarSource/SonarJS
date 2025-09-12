@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
@@ -23,7 +23,7 @@ import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {

@@ -16,7 +16,7 @@
  */
 import { Linter } from 'eslint';
 import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
-import path from 'path';
+import path from 'node:path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
