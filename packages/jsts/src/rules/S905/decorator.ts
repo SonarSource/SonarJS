@@ -91,8 +91,7 @@ function isIife(node: estree.Node): boolean {
 
 function isSequenceWithSideEffects(node: estree.Node): boolean {
   return (
-    node.type === 'SequenceExpression' &&
-    node.expressions[node.expressions.length - 1].type === 'AssignmentExpression'
+    node.type === 'SequenceExpression' && node.expressions.at(-1)!.type === 'AssignmentExpression'
   );
 }
 

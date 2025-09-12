@@ -16,7 +16,7 @@
  */
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
-import path from 'path';
+import path from 'node:path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
 import merge from 'lodash.merge';

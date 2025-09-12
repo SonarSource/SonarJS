@@ -44,7 +44,7 @@ function isReturnValueUsed(callExpr: TSESTree.Node) {
   }
 
   if (parent.type === 'SequenceExpression') {
-    return parent.expressions[parent.expressions.length - 1] === callExpr;
+    return parent.expressions.at(-1) === callExpr;
   }
 
   if (parent.type === 'ConditionalExpression') {

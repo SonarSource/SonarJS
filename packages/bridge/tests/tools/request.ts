@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AddressInfo } from 'net';
-import http from 'http';
+import { AddressInfo } from 'node:net';
+import http from 'node:http';
 
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
@@ -26,7 +26,7 @@ export async function request(server: http.Server, path: string, method: string,
       'Content-Type': 'application/json',
     },
     method,
-    body: method !== 'GET' ? JSON.stringify(body) : undefined,
+    body: method === 'GET' ? undefined : JSON.stringify(body),
   });
 
   return res.text();

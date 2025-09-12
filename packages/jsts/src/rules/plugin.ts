@@ -60,6 +60,6 @@ export const meta = {
   version: '0.0.0-SNAPSHOT',
 };
 
-export { rules };
-
 export default { rules, configs, meta };
+
+export { rules } from './plugin-rules.js';

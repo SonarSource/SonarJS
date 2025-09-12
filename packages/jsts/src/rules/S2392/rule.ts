@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const scopeRange = scopeRanges[scopeRanges.length - 1];
+        const scopeRange = last(scopeRanges);
 
         function isOutsideOfScope(reference: estree.Identifier) {
           const idRange = reference.range!;

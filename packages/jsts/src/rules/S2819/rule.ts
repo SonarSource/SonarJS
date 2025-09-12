@@ -380,7 +380,7 @@ class WindowNameVisitor {
 
   private visit(root: estree.Node, context: Rule.RuleContext) {
     const visitNode = (node: estree.Node) => {
-      if (node.type === 'Identifier' && node.name.match(/window/i)) {
+      if (node.type === 'Identifier' && /window/i.test(node.name)) {
         this.hasWindowName = true;
       }
       childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);

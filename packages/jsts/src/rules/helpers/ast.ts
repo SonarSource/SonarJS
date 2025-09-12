@@ -93,10 +93,7 @@ export function isIdentifier(
   node: Node | undefined,
   ...values: string[]
 ): node is estree.Identifier {
-  return (
-    node?.type === 'Identifier' &&
-    (values.length === 0 || values.some(value => value === node.name))
-  );
+  return node?.type === 'Identifier' && (values.length === 0 || values.includes(node.name));
 }
 
 export function getProgramStatements(program: estree.Program) {
@@ -358,7 +355,7 @@ export function getLhsVariable(
   node: estree.Node,
 ): Scope.Variable | undefined {
   const ancestors = context.sourceCode.getAncestors(node);
-  const parent = ancestors[ancestors.length - 1];
+  const parent = ancestors.at(-1)!;
   let formIdentifier: estree.Identifier | undefined;
   if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
     formIdentifier = parent.id;

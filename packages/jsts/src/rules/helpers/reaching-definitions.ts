@@ -76,11 +76,11 @@ export class ReachingDefinitions {
     });
     const newOut = new Map<Scope.Variable, Values>(this.in);
     this.references.forEach(ref => this.updateProgramState(ref, newOut));
-    if (!equals(this.out, newOut)) {
+    if (equals(this.out, newOut)) {
+      return false;
+    } else {
       this.out = newOut;
       return true;
-    } else {
-      return false;
     }
   }
 

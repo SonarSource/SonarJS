@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as express from 'express';
-import { Worker } from 'worker_threads';
+import { Worker } from 'node:worker_threads';
 import { createDelegator, createWsDelegator } from './delegate.js';
 import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
@@ -26,7 +26,7 @@ export type WorkerMessageListeners = {
   oneTimers: ((message: any) => void)[];
 };
 
-export default function (
+export default function router(
   worker: Worker | undefined,
   workerData: WorkerData,
   wss: WebSocketServer,

@@ -84,10 +84,10 @@ export class Result {
   getMemberObject(): Result {
     if (!this.isFound) {
       return this;
-    } else if (this.node.type !== 'MemberExpression') {
-      return unknown(this.ctx, this.node);
-    } else {
+    } else if (this.node.type === 'MemberExpression') {
       return getResultOfExpression(this.ctx, this.node.object).filter(n => n.type !== 'Super');
+    } else {
+      return unknown(this.ctx, this.node);
     }
   }
 
@@ -101,7 +101,7 @@ export class Result {
     let isMissing = true;
 
     for (const element of this.node.elements) {
-      const result = element != null ? closure(getResultOfExpression(this.ctx, element)) : null;
+      const result = element == null ? null : closure(getResultOfExpression(this.ctx, element));
       if (result?.isFound) {
         return result;
       }
@@ -152,14 +152,14 @@ export class Result {
   }
 
   map<N extends Node, V>(closure: (node: N) => V | null): V | null {
-    return !this.isFound ? null : closure(this.node as N);
+    return this.isFound ? closure(this.node as N) : null;
   }
 
   filter<N extends Node>(closure: (node: N, ctx: Rule.RuleContext) => boolean): Result {
     if (!this.isFound) {
       return this;
     }
-    return !closure(this.node as N, this.ctx) ? unknown(this.ctx, this.node) : this;
+    return closure(this.node as N, this.ctx) ? this : unknown(this.ctx, this.node);
   }
 }
 

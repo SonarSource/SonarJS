@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { describe, it, type Mock } from 'node:test';
@@ -117,7 +117,7 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
-    expect(() => build(analysisInput)).toThrow(Error('Unexpected token (3:0)'));
+    expect(() => build(analysisInput)).toThrow(new Error('Unexpected token (3:0)'));
 
     const log = `DEBUG Failed to parse ${filePath} with typescript-eslint/parser: '}' expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
@@ -228,7 +228,7 @@ describe('buildSourceCode', () => {
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });
-    expect(() => build(analysisInput)).toThrow(Error('Expression expected.'));
+    expect(() => build(analysisInput)).toThrow(new Error('Expression expected.'));
 
     const log = `DEBUG Failed to parse ${filePath} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(

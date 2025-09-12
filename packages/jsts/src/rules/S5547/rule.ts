@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
           if (
             algorithm &&
             algorithmValue &&
-            WEAK_CIPHERS.findIndex(cipher => algorithmValue.startsWith(cipher)) >= 0
+            WEAK_CIPHERS.some(cipher => algorithmValue.startsWith(cipher))
           ) {
             context.report({
               messageId: 'strongerCipher',

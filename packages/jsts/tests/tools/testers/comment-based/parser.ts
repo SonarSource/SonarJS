@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path/posix';
 import { FileType } from '../../../../../shared/src/helpers/files.js';

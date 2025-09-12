@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
-import { Worker } from 'worker_threads';
+import path from 'node:path';
+import { Worker } from 'node:worker_threads';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 import { ErrorCode } from '../../shared/src/errors/error.js';

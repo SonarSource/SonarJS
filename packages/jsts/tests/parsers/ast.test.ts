@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 
 import { Parser, parsersMap } from '../../src/parsers/eslint.js';
 import type { TSESTree } from '@typescript-eslint/utils';
@@ -33,7 +33,7 @@ import {
   VisitNodeReturnType,
 } from '../../src/parsers/ast.js';
 import { parse } from '../../src/parsers/parse.js';
-import assert from 'assert';
+import assert from 'node:assert';
 
 const parseFunctions = [
   {
@@ -393,7 +393,7 @@ function compareASTs(parsedAst, deserializedAst) {
     if (key === 'type') continue;
     if (Array.isArray(value)) {
       if (!Array.isArray(deserializedAst[key])) {
-        throw new Error(`Expected array for key ${key} in ${parsedAst.type}`);
+        throw new TypeError(`Expected array for key ${key} in ${parsedAst.type}`);
       }
       expected = value.length;
       received = deserializedAst[key].length;
@@ -402,8 +402,8 @@ function compareASTs(parsedAst, deserializedAst) {
           `Length mismatch for key ${key} in ${parsedAst.type}. Expected ${expected}, got ${received}`,
         );
       }
-      for (let i = 0; i < value.length; i++) {
-        compareASTs(value[i], deserializedAst[key][i]);
+      for (const [i, element] of value.entries()) {
+        compareASTs(element, deserializedAst[key][i]);
       }
     } else if (typeof value === 'object') {
       compareASTs(value, deserializedAst[key]);

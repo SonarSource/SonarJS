@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getVariableFromIdentifier,
+  last,
   ReachingDefinitions,
   reachingDefinitions,
   resolveAssignedValues,
@@ -89,13 +90,13 @@ export const rule: Rule.RuleModule = {
     };
 
     function popAssignmentContext() {
-      const assignment = peek(codePathStack).assignmentStack.pop()!;
+      const assignment = last(codePathStack).assignmentStack.pop()!;
       assignment.rhs.forEach(r => processReference(r));
       assignment.lhs.forEach(r => processReference(r));
     }
 
     function pushAssignmentContext(node: AssignmentLike) {
-      peek(codePathStack).assignmentStack.push(new AssignmentContext(node));
+      last(codePathStack).assignmentStack.push(new AssignmentContext(node));
     }
 
     function checkSegment(reachingDefs: ReachingDefinitions) {
@@ -189,9 +190,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function processReference(ref: Scope.Reference) {
-      const assignmentStack = peek(codePathStack).assignmentStack;
+      const assignmentStack = last(codePathStack).assignmentStack;
       if (assignmentStack.length > 0) {
-        const assignment = peek(assignmentStack);
+        const assignment = last(assignmentStack);
         assignment.add(ref);
       } else {
         currentCodePathSegments.forEach(segment => {
@@ -213,7 +214,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function updateVariableUsages(variable: Scope.Variable) {
-      const codePathId = peek(codePathStack).codePath.id;
+      const codePathId = last(codePathStack).codePath.id;
       if (variableUsages.has(variable)) {
         variableUsages.get(variable)!.add(codePathId);
       } else {
@@ -310,10 +311,6 @@ class AssignmentContext {
       throw new Error('failed to find assignment lhs/rhs');
     }
   }
-}
-
-function peek<T>(arr: Array<T>) {
-  return arr[arr.length - 1];
 }
 
 function isSelfAssignement(ref: Scope.Reference) {

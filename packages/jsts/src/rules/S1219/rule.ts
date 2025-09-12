@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       stack.push(stack.pop()! - 1);
     }
     function inCase() {
-      return stack[stack.length - 1] > 0;
+      return stack.at(-1)! > 0;
     }
     return {
       SwitchCase: () => {

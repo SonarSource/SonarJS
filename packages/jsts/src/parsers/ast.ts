@@ -18,7 +18,7 @@ import protobuf from 'protobufjs';
 import base64 from '@protobufjs/base64';
 import type { TSESTree } from '@typescript-eslint/utils';
 
-import path from 'path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { debug } from '../../../shared/src/helpers/logging.js';
 
@@ -879,14 +879,14 @@ function visitEmptyStatement(_node: TSESTree.EmptyStatement) {
 }
 
 function visitExpressionStatement(node: TSESTree.ExpressionStatement) {
-  if (node.directive !== undefined) {
+  if (node.directive === undefined) {
     return {
       expression: visitNode(node.expression),
-      directive: node.directive,
     };
   } else {
     return {
       expression: visitNode(node.expression),
+      directive: node.directive,
     };
   }
 }

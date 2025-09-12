@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import path from 'path';
+import path from 'node:path';
 import { Rule, RuleTester } from 'eslint';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
@@ -37,7 +37,7 @@ export function check(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir
 
   const fixtures: string[] = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
-    if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file as string)) {
+    if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.test(file as string)) {
       const fixture = path.join(ruleDir, file as string);
       fixtures.push(fixture);
     }
@@ -45,7 +45,7 @@ export function check(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir
 
   for (const fixture of fixtures) {
     const options = extractRuleOptions(ruleDir);
-    const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
+    const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replaceAll(/\r?\n|\r/g, '\n');
     const { errors, output } = extractExpectations(
       code,
       fixture,

@@ -409,5 +409,5 @@ function disallowedFQNs(ctx: Rule.RuleContext, node: estree.Node, values: Values
 }
 
 export function normalizeFQN(fqn?: string | null) {
-  return fqn?.replace(/-/g, '_');
+  return fqn?.replaceAll('-', '_');
 }

@@ -144,8 +144,7 @@ export function tokenizeString(s: string): StringLiteralToken[] {
         value: String.fromCodePoint(c),
         range: [start, pos],
       };
-      tokens.push(forwardSlash);
-      tokens.push(forwardSlash);
+      tokens.push(forwardSlash, forwardSlash);
     } else {
       tokens.push({ value: String.fromCodePoint(c), range: [start, pos] });
     }

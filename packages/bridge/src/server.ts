@@ -16,13 +16,13 @@
  */
 
 import express from 'express';
-import * as http from 'http';
+import * as http from 'node:http';
 import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
-import { AddressInfo } from 'net';
-import type { Worker } from 'worker_threads';
+import { AddressInfo } from 'node:net';
+import type { Worker } from 'node:worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
@@ -111,7 +111,7 @@ export async function start(
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
      */
-    const orphanTimeout = timeout !== 0 ? timeoutMiddleware(close, timeout) : null;
+    const orphanTimeout = timeout === 0 ? null : timeoutMiddleware(close, timeout);
     if (orphanTimeout) {
       app.use(orphanTimeout.middleware);
     }

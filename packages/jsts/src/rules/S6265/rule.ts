@@ -131,7 +131,7 @@ function checkConstantParam(
     report(
       context,
       {
-        message: messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
+        message: messages.accessLevel(paramQualifiers.at(-1)!),
         node: property,
       },
       secondary ? [secondary] : [],

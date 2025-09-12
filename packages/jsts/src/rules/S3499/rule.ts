@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
         const isShorthandPropertyList = objectExpressionProperties.map(
           p => (p as estree.Property).shorthand,
         );
-        const shorthandPropertiesNumber = isShorthandPropertyList.filter(b => b).length;
+        const shorthandPropertiesNumber = isShorthandPropertyList.filter(Boolean).length;
 
         const numberOfShorthandAtBeginning = getNumberOfTrueAtBeginning(isShorthandPropertyList);
         const numberOfShorthandAtEnd = getNumberOfTrueAtBeginning(

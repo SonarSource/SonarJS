@@ -156,18 +156,20 @@ describe('S2990', () => {
     };
 
     ruleTesterJS.run('The global "this" object should not be used JavaScript', rule, testCases);
-    testCases.valid.push({
-      code: `
+    testCases.valid.push(
+      {
+        code: `
   class C {
     prop = this.C
   }`,
-    });
-    testCases.valid.push({
-      code: `
+      },
+      {
+        code: `
   const c = class C {
     prop = this.C
   }`,
-    });
+      },
+    );
     ruleTesterTS.run('The global "this" object should not be used TypeScript', rule, testCases);
   });
 });

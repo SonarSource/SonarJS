@@ -55,7 +55,5 @@ export function collectSwitchBranches(node: estree.SwitchStatement) {
 
 /** Excludes the break statement from the list */
 export function takeWithoutBreak(nodes: estree.Statement[]) {
-  return nodes.length > 0 && nodes[nodes.length - 1].type === 'BreakStatement'
-    ? nodes.slice(0, -1)
-    : nodes;
+  return nodes.length > 0 && nodes.at(-1)!.type === 'BreakStatement' ? nodes.slice(0, -1) : nodes;
 }

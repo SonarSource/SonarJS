@@ -130,7 +130,7 @@ export function getLocsNumber(
       continue;
     }
 
-    if (line.match(/^\s*$/u)) {
+    if (/^\s*$/u.test(line)) {
       continue;
     }
 

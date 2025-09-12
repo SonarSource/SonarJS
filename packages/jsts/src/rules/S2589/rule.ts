@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       const ancestors = (context as unknown as RuleContext).sourceCode.getAncestors(
         node as TSESTree.Node,
       );
-      return !!ancestors.find(ancestor => ancestor.type === 'JSXExpressionContainer');
+      return ancestors.some(ancestor => ancestor.type === 'JSXExpressionContainer');
     }
 
     return {

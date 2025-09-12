@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { URL } from 'url';
+import { URL } from 'node:url';
 import {
   getFullyQualifiedName,
   getParent,
@@ -184,7 +184,7 @@ export const rule: Rule.RuleModule = {
       return (
         host.length === 0 ||
         LOOPBACK_PATTERN.test(host) ||
-        EXCEPTION_FULL_HOSTS.some(exception => exception === host) ||
+        EXCEPTION_FULL_HOSTS.includes(host) ||
         EXCEPTION_TOP_HOSTS.some(exception => exception.test(host))
       );
     }

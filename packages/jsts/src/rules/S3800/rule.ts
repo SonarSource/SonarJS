@@ -30,6 +30,7 @@ import {
   isBooleanTrueType,
   isRequiredParserServices,
   isStringType,
+  last,
   report,
   RuleContext,
   toSecondaryLocation,
@@ -107,7 +108,7 @@ export const rule: Rule.RuleModule = {
       ReturnStatement: (node: estree.Node) => {
         const retStmt = node as estree.ReturnStatement;
         if (scopes.length > 0 && retStmt.argument) {
-          scopes[scopes.length - 1].addReturnStatement(retStmt);
+          last(scopes).addReturnStatement(retStmt);
         }
       },
       ':function': () => {

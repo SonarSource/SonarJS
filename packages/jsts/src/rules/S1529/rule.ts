@@ -114,7 +114,7 @@ function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   function isNumericType(type: ts.Type): boolean {
     return (
       (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
-      (type.isUnionOrIntersection() && !!type.types.find(isNumericType))
+      (type.isUnionOrIntersection() && type.types.some(isNumericType))
     );
   }
 }

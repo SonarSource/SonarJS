@@ -74,7 +74,7 @@ export function getQuickFixMessage(ruleKey: string): string {
       // TODO  workaround for eslint-plugin-import/no-duplicates, rule doesn't provide message for fix
       return 'Remove this duplicate import';
     }
-    throw Error(`Missing message for quick fix '${ruleKey}'`);
+    throw new Error(`Missing message for quick fix '${ruleKey}'`);
   }
   return message;
 }

@@ -52,10 +52,10 @@ export const rule: Rule.RuleModule = {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
         // Using literal.raw instead of literal.value as the latter escapes backslashes
-        const value = literal.raw?.slice(1, literal.raw.length - 1);
+        const value = literal.raw?.slice(1, -1);
         if (
           value &&
-          (UNIX_DIRECTORIES.find(i => value.match(i)) || value.match(WINDOWS_DIRECTORIES_PATTERN))
+          (UNIX_DIRECTORIES.some(i => value.match(i)) || WINDOWS_DIRECTORIES_PATTERN.test(value))
         ) {
           context.report({
             node: literal,

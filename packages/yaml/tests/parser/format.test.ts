@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import yaml from 'yaml';
-import path from 'path';
+import path from 'node:path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/yaml/format.js';

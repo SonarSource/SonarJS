@@ -109,7 +109,7 @@ export const rule: Rule.RuleModule = {
         if (
           isReachable &&
           switchCase.consequent.length > 0 &&
-          cases[cases.length - 1] !== node &&
+          cases.at(-1) !== node &&
           noComment(switchCase)
         ) {
           context.report({

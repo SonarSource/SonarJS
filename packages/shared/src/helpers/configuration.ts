@@ -370,5 +370,5 @@ function normalizePath(path: string) {
 }
 
 function isAbsolutePath(path: string) {
-  return isUnixAbsolute(path) || isWinAbsolute(path.replace(/[\\/]+/g, '\\'));
+  return isUnixAbsolute(path) || isWinAbsolute(path.replaceAll(/[\\/]+/g, '\\'));
 }

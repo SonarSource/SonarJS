@@ -45,7 +45,7 @@ function checkElements(elements: regexpp.AST.Element[], context: RegexRuleContex
     return;
   }
 
-  const lastElement = elements[elements.length - 1];
+  const lastElement = elements.at(-1)!;
   if (lastElement.type === 'Quantifier' && !lastElement.greedy) {
     report(lastElement, context);
     return;
@@ -55,7 +55,7 @@ function checkElements(elements: regexpp.AST.Element[], context: RegexRuleContex
     return;
   }
 
-  const lastButOneElement = elements[elements.length - 2];
+  const lastButOneElement = elements.at(-2)!;
   if (lastButOneElement.type === 'Quantifier' && !lastButOneElement.greedy) {
     if (lastElement.type === 'Assertion' && lastElement.kind === 'end') {
       context.reportRegExpNode({

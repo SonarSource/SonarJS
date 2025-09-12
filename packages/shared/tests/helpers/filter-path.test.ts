@@ -21,11 +21,9 @@ import { setGlobalConfiguration } from '../../src/helpers/configuration.js';
 
 function logsContain(message: string) {
   return expect(
-    (console.log as Mock<typeof console.log>).mock.calls
-      .map(call => {
-        return call.arguments;
-      })
-      .flat(),
+    (console.log as Mock<typeof console.log>).mock.calls.flatMap(call => {
+      return call.arguments;
+    }),
   ).toContain(message);
 }
 

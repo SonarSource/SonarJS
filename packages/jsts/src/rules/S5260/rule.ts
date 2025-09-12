@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
       const colHeaders: Set<string>[] = Array.from({ length: grid[0].length }, (_, idx) => {
         const ids = grid
           .map(row => row[idx])
-          .filter(cell => cell)
+          .filter(Boolean)
           .filter(({ isHeader, id }) => isHeader && id)
           .map(({ id }) => id) as string[];
         return new Set<string>(ids);
@@ -105,26 +105,25 @@ export const rule: Rule.RuleModule = {
  */
 function compileBlockInfo(grid: TableCell[][]) {
   const internalNodeToPositions = new Map<number, BlockInfo>();
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length; col++) {
-      const cell = grid[row][col];
+  for (const [row, element] of grid.entries()) {
+    for (const [col, cell] of element.entries()) {
       if (!cell.headers) {
         continue;
       }
       const oldValue = internalNodeToPositions.get(cell.internalNodeId);
-      if (oldValue !== undefined) {
-        internalNodeToPositions.set(cell.internalNodeId, {
-          ...oldValue,
-          maxRow: row,
-          maxCol: col,
-        });
-      } else {
+      if (oldValue === undefined) {
         internalNodeToPositions.set(cell.internalNodeId, {
           minRow: row,
           maxRow: row,
           minCol: col,
           maxCol: col,
           cell,
+        });
+      } else {
+        internalNodeToPositions.set(cell.internalNodeId, {
+          ...oldValue,
+          maxRow: row,
+          maxCol: col,
         });
       }
     }

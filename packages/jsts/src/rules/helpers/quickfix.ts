@@ -31,7 +31,7 @@ export function removeNodeWithLeadingWhitespaces(
       start = previousToken.range[1];
     }
   } else {
-    start = previousComments[previousComments.length - 1].range![1];
+    start = previousComments.at(-1)!.range![1];
   }
 
   const end = removeUntil ?? node.range![1];

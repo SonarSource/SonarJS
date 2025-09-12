@@ -88,7 +88,7 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     const { filename } = context;
-    if (!/\.spec\.|\.test\./.exec(filename)) {
+    if (!/\.spec\.|\.test\./.test(filename)) {
       return {};
     }
 

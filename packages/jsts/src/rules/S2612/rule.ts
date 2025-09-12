@@ -119,7 +119,7 @@ export const rule: Rule.RuleModule = {
     function checkModeArgument(node: estree.Node, moduloTest: number) {
       const visited = new Set<estree.Node>();
       const mode = modeFromExpression(node, visited);
-      if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
+      if (mode !== null && !Number.isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({
           node,
           messageId: 'safePermission',

@@ -17,7 +17,7 @@
 import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
-import path from 'path';
+import path from 'node:path';
 import * as meta from './generated-meta.js';
 
 describe('Rule S6544', () => {

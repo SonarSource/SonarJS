@@ -102,7 +102,7 @@ export async function analyzeJSTS(
     return result;
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
-    if (e.stack.indexOf('typescript.js:') > -1) {
+    if (e.stack.includes('typescript.js:')) {
       throw APIError.failingTypeScriptError(e.message);
     } else {
       throw e;

@@ -43,9 +43,7 @@ export const rule: Rule.RuleModule = {
       return {
         ReturnStatement(node: estree.Node) {
           if (returnedExpressions.length > 0) {
-            returnedExpressions[returnedExpressions.length - 1].push(
-              (node as estree.ReturnStatement).argument,
-            );
+            returnedExpressions.at(-1)!.push((node as estree.ReturnStatement).argument);
           }
         },
         FunctionDeclaration() {
@@ -57,7 +55,7 @@ export const rule: Rule.RuleModule = {
             returnType &&
             returnType.typeAnnotation.type === 'TSAnyKeyword' &&
             returnedExpressions.length > 0 &&
-            allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services)
+            allReturnTypesEqual(returnedExpressions.at(-1)!, services)
           ) {
             context.report({
               messageId: 'removeOrChangeType',

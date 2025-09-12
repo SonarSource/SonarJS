@@ -105,9 +105,7 @@ export const rule: Rule.RuleModule = {
           if (ifStmt.alternate) {
             return fixer.replaceText(ifStmt, singleReturn);
           } else {
-            const ifStmtIndex = (parent as estree.BlockStatement).body.findIndex(
-              stmt => stmt === ifStmt,
-            );
+            const ifStmtIndex = (parent as estree.BlockStatement).body.indexOf(ifStmt);
             const returnStmt = (parent as estree.BlockStatement).body[ifStmtIndex + 1];
             const range: [number, number] = [ifStmt.range![0], returnStmt.range![1]];
             return fixer.replaceTextRange(range, singleReturn);
@@ -120,13 +118,13 @@ export const rule: Rule.RuleModule = {
 
       if (shouldNegate) {
         return [{ messageId: 'suggest', fix: getFix(`!(${testText})`) }];
-      } else if (!shouldCast) {
-        return [{ messageId: 'suggest', fix: getFix(testText) }];
-      } else {
+      } else if (shouldCast) {
         return [
           { messageId: 'suggestCast', fix: getFix(`!!(${testText})`) },
           { messageId: 'suggestBoolean', fix: getFix(testText) },
         ];
+      } else {
+        return [{ messageId: 'suggest', fix: getFix(testText) }];
       }
     }
 

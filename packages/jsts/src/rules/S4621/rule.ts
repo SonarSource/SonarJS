@@ -36,10 +36,10 @@ export const rule: Rule.RuleModule = {
           const nodeValue = sourceCode.getText(typescriptType as unknown as estree.Node);
           const nodesWithGivenType = groupedTypes.get(nodeValue);
           const nodeType = typescriptType as TSESTree.Node;
-          if (!nodesWithGivenType) {
-            groupedTypes.set(nodeValue, [nodeType]);
-          } else {
+          if (nodesWithGivenType) {
             nodesWithGivenType.push(nodeType);
+          } else {
+            groupedTypes.set(nodeValue, [nodeType]);
           }
         });
 

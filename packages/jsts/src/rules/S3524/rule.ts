@@ -75,9 +75,9 @@ function checkParameters(
     const arrowFunctionComments = context.sourceCode.getCommentsInside(arrowFunction);
     const arrowFunctionBodyComments = context.sourceCode.getCommentsInside(arrowFunction.body);
     // parameters comments inside parentheses are not available, so use the following subtraction:
-    const hasArrowFunctionParamsComments =
-      arrowFunctionComments.filter(comment => !arrowFunctionBodyComments.includes(comment)).length >
-      0;
+    const hasArrowFunctionParamsComments = arrowFunctionComments.some(
+      comment => !arrowFunctionBodyComments.includes(comment),
+    );
     if (
       parameter.type === 'Identifier' &&
       !hasArrowFunctionParamsComments &&

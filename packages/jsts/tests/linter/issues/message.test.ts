@@ -16,7 +16,7 @@
  */
 import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from '../../../src/linter/issues/message.js';
-import path from 'path';
+import path from 'node:path';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
 import { describe, it } from 'node:test';

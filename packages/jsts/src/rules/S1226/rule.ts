@@ -249,7 +249,7 @@ function computeSetDifference(a: Set<string>, b: Set<string>) {
 }
 
 function getFunctionName(node: estree.FunctionExpression) {
-  return !node.id ? null : node.id.name;
+  return node.id ? node.id.name : null;
 }
 
 function isForEachLoopStart(

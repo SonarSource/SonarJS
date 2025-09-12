@@ -39,5 +39,5 @@ export default class ContainsDetector extends Detector {
 }
 
 function escapeRegex(value: string) {
-  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return value.replaceAll(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }

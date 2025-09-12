@@ -85,7 +85,7 @@ export const rule: Rule.RuleModule = {
       if (callee.type === 'MemberExpression') {
         if (
           isIdentifier(callee.property, 'use') &&
-          flattenArgs(context, callExpression.arguments).find(isCsurfMiddleware)
+          flattenArgs(context, callExpression.arguments).some(isCsurfMiddleware)
         ) {
           globalCsrfProtection = true;
         }

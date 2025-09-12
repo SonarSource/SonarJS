@@ -23,7 +23,7 @@ import { describe } from 'node:test';
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter(character: AST.Character) {
-      if (character.value === 'a'.charCodeAt(0)) {
+      if (character.value === 'a'.codePointAt(0)) {
         context.reportRegExpNode({
           message: `Found character 'a'.`,
           node: context.node,

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { countStatements } from '../../../../src/linter/visitors/metrics/statements.js';
-import path from 'path';
+import path from 'node:path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

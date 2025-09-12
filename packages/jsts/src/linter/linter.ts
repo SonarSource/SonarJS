@@ -25,7 +25,7 @@ import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
 import { toUnixPath } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
-import path from 'path';
+import path from 'node:path';
 import { ParseResult } from '../parsers/parse.js';
 import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
@@ -103,7 +103,7 @@ export class Linter {
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
     if (this instanceof Linter) {
-      throw Error('Linter class cannot be instantiated.');
+      throw new TypeError('Linter class cannot be instantiated.');
     }
   }
 
