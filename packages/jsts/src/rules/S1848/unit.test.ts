@@ -112,6 +112,14 @@ new KubeService(chart, 'MyService', {
 
 app.synth();`,
           },
+          {
+            code: `import {AwsProvider} from "@cdktf/provider-aws/lib/provider";
+new AwsProvider(this, 'aws', {
+            region: 'ap-east-1', // Update the region as needed
+            accessKey: '', // your accessKey
+            secretKey: '' // your secretKey
+        });`,
+          },
         ],
         invalid: [
           {
