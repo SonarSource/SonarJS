@@ -22,8 +22,8 @@ type allOptional = Partial<JsTsAnalysisInput>;
 
 export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysisInput> {
   return {
-    filePath: input.filePath,
-    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    filePath: input.filePath!,
+    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
     fileType: input.fileType ?? 'MAIN',
     programId: input.programId,
     tsConfigs: input.tsConfigs ?? [],
@@ -36,7 +36,7 @@ export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysi
 
 export async function embeddedInput(input: allOptional): Promise<CompleteEmbeddedAnalysisInput> {
   return {
-    filePath: input.filePath,
-    fileContent: input.fileContent ?? (await readFile(input.filePath)),
+    filePath: input.filePath!,
+    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
   };
 }

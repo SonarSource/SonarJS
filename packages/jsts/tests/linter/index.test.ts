@@ -525,7 +525,7 @@ describe('Linter', () => {
       const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'quickfixes');
       const files = await fs.promises.readdir(fixtures);
 
-      let fixture: string | undefined;
+      let fixture: string;
       let language: JsTsLanguage;
       for (const file of files) {
         const { ext, name } = path.parse(file);
@@ -541,8 +541,8 @@ describe('Linter', () => {
       }
 
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const filePath = path.join(fixtures, fixture);
-      const parser = language === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
+      const filePath = path.join(fixtures, fixture!);
+      const parser = language! === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
       const parseResult = await parser(filePath, [tsConfig]);
       const rules: RuleConfig[] = [
         {
@@ -564,7 +564,7 @@ describe('Linter', () => {
           ruleId,
         }),
       );
-      expect(issue.quickFixes.length).toBeGreaterThan(0);
+      expect(issue.quickFixes?.length).toBeGreaterThan(0);
     }),
   );
 

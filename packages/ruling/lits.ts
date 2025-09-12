@@ -70,7 +70,7 @@ function transformResults(projectPath: string, project: string, results: Project
         result[ruleId][language][projectWithFilename].push(line);
       }
     } else if ('parsingError' in analysisOutput) {
-      result.S2260.js[projectWithFilename] = [analysisOutput.parsingError.line];
+      result.S2260.js[projectWithFilename] = [analysisOutput.parsingError.line ?? 0];
     }
   }
   return result;

@@ -35,7 +35,7 @@ const parseFunctions = [
     usingBabel: false,
     errorMessage: 'Unterminated string literal.',
   },
-];
+] as const;
 
 describe('parseForESLint', () => {
   it(`Babel should fail parsing input with JSX without the React preset`, async () => {
@@ -53,7 +53,7 @@ describe('parseForESLint', () => {
   });
 
   parseFunctions.forEach(({ parser, usingBabel, errorMessage }) => {
-    it(`should parse a valid input with ${parser.meta.name}`, async () => {
+    it(`should parse a valid input with ${parser.meta!.name}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
@@ -66,7 +66,7 @@ describe('parseForESLint', () => {
       expect(sourceCode.ast).toBeDefined();
     });
 
-    it(`should parse a valid input with ${parser.meta.name}`, () => {
+    it(`should parse a valid input with ${parser.meta!.name}`, () => {
       const fileContent = 'if (foo()) bar();';
       const fileType = 'MAIN';
 
@@ -78,7 +78,7 @@ describe('parseForESLint', () => {
       expect(sourceCode.ast).toBeDefined();
     });
 
-    it(`should fail parsing an invalid input with ${parser.meta.name}`, async () => {
+    it(`should fail parsing an invalid input with ${parser.meta!.name}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';

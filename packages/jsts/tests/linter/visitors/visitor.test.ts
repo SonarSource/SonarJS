@@ -27,8 +27,8 @@ describe('visitor', () => {
       const filePath = path.join(import.meta.dirname, './fixtures/visitor/tree.ts');
       const { sourceCode } = await parseTypeScriptSourceFile(filePath, []);
 
-      const visited = [];
-      visit(sourceCode, node => visited.push(node.type + ' ' + node.loc.start.line));
+      const visited: string[] = [];
+      visit(sourceCode, node => visited.push(node.type + ' ' + node.loc?.start.line));
 
       expect(visited).toEqual([
         'Program 1',

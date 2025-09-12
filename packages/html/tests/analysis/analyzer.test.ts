@@ -74,12 +74,9 @@ describe('analyzeHTML', () => {
     );
 
     const {
-      issues: [
-        {
-          quickFixes: [quickFix],
-        },
-      ],
+      issues: [{ quickFixes }],
     } = result;
+    const [quickFix] = quickFixes!;
     expect(quickFix.edits).toEqual([
       {
         text: ';',

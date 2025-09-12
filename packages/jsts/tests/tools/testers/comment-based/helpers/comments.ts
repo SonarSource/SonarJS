@@ -16,7 +16,6 @@
  */
 import { build } from '../../../../../src/builders/build.js';
 import type estree from 'estree';
-import { SourceCode } from 'eslint';
 
 export interface Comment {
   value: string;
@@ -36,12 +35,12 @@ export function extractComments(fileContent: string, filePath: string): Comment[
   const { sourceCode: parsed } = build({
     fileContent,
     filePath,
-    fileType: null,
+    fileType: 'MAIN',
     tsConfigs: [],
     language: 'js',
   });
   let esTreeComments: estree.Comment[];
-  if (parsed instanceof SourceCode) {
+  if (parsed) {
     esTreeComments = parsed.getAllComments();
   } else {
     throw Error(`File not parseable: ${fileContent}`);
@@ -49,10 +48,10 @@ export function extractComments(fileContent: string, filePath: string): Comment[
   return esTreeComments.map(c => {
     return {
       value: c.value,
-      line: c.loc.start.line,
-      column: c.loc.start.column + 2, // these offsets are everywhere down the road
-      endLine: c.loc.end.line,
-      endColumn: c.loc.end.column + 1, // same
+      line: c.loc!.start.line,
+      column: c.loc!.start.column + 2, // these offsets are everywhere down the road
+      endLine: c.loc!.end.line,
+      endColumn: c.loc!.end.column + 1, // same
     };
   });
 }
