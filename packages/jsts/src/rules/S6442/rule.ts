@@ -136,7 +136,7 @@ export const rule: Rule.RuleModule = {
         const maybeSetterCall = node as SetterCall;
 
         const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name, node);
-        if (setters.includes(calleeVariable)) {
+        if (calleeVariable && setters.includes(calleeVariable)) {
           context.report({
             messageId: 'noHookSetterInBody',
             node: node.callee,
