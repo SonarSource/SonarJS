@@ -57,36 +57,8 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
         }
       }
     });
-  } else {
-    // simulate file system traversal from baseDir to each given input file
-    const paths = new Set<string>();
-    const files = new Set<string>();
-    for (const file of Object.values(inputFiles ?? {})) {
-      const filename = toUnixPath(file.filePath);
-      files.add(filename);
-      paths.add(dirname(filename));
-    }
-
-    // add all parent directories of input files up to the baseDir
-    for (const path of paths) {
-      let currentPath = path;
-      while (baseDir !== path) {
-        paths.add(path);
-        currentPath = dirname(currentPath);
-      }
-    }
-
-    for (const store of pendingStores) {
-      if (store.processDirectory) {
-        for (const filePath of paths) {
-          store.processDirectory(filePath);
-        }
-      }
-      //files need to be processed after as ignored files logic depends on ignored paths being checked
-      for (const filename of files) {
-        await store.processFile(filename);
-      }
-    }
+  } else if (inputFiles) {
+    await simulateFromInputFiles(inputFiles, baseDir, pendingStores);
   }
 
   for (const store of pendingStores) {
@@ -109,5 +81,42 @@ export async function getFilesToAnalyze(baseDir: string, inputFiles?: JsTsFiles)
       filesToAnalyze: sourceFileStore.getFoundFiles(),
       pendingFiles: new Set(sourceFileStore.getFoundFilenames()),
     };
+  }
+}
+
+export async function simulateFromInputFiles(
+  inputFiles: JsTsFiles,
+  baseDir: string,
+  pendingStores: FileStore[],
+) {
+  // simulate file system traversal from baseDir to each given input file
+  const inputFilesPaths = new Set<string>();
+  const files = new Set<string>();
+  for (const file of Object.values(inputFiles ?? {})) {
+    const filename = toUnixPath(file.filePath);
+    files.add(filename);
+    inputFilesPaths.add(dirname(filename));
+  }
+
+  const allPaths = new Set<string>();
+  // add all parent directories of input files up to the baseDir
+  for (const path of inputFilesPaths) {
+    let currentPath = path;
+    while (baseDir !== currentPath) {
+      allPaths.add(currentPath);
+      currentPath = dirname(currentPath);
+    }
+  }
+
+  for (const store of pendingStores) {
+    if (store.processDirectory) {
+      for (const filePath of allPaths) {
+        store.processDirectory(filePath);
+      }
+    }
+    //files need to be processed after as ignored files logic depends on ignored paths being ingested
+    for (const filename of files) {
+      await store.processFile(filename);
+    }
   }
 }

@@ -16,7 +16,7 @@
  */
 
 import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
-import { basename, dirname } from 'node:path/posix';
+import { dirname } from 'node:path/posix';
 import { readFile } from 'node:fs/promises';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
@@ -24,7 +24,7 @@ import type { File } from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
-  PACKAGE_JSON,
+  isPackageJson,
 } from '../../../rules/helpers/package-jsons/index.js';
 
 export const UNINITIALIZED_ERROR =
@@ -54,8 +54,7 @@ export class PackageJsonStore implements FileStore {
     }
     for (const fileEvent of Object.entries(getFsEvents())) {
       const [filename] = fileEvent;
-      const filenameLower = basename(filename).toLowerCase();
-      if (filenameLower === PACKAGE_JSON) {
+      if (isPackageJson(filename)) {
         this.clearCache();
       }
     }
@@ -78,7 +77,7 @@ export class PackageJsonStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (basename(filename) === PACKAGE_JSON) {
+    if (isPackageJson(filename)) {
       try {
         const content = await readFile(filename, 'utf-8');
         this.packageJsons.set(dirname(filename), { content, path: filename });
