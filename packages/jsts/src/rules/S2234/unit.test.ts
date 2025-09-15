@@ -271,7 +271,7 @@ describe('S2234', () => {
     });
 
     function invalid(code: string) {
-      const errors = [];
+      const errors: { messageId: 'sonarRuntime'; line: number; endLine: number }[] = [];
       const lines = code.split('\n');
       for (let i = 1; i <= lines.length; i++) {
         const line = lines[i - 1];

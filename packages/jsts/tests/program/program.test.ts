@@ -122,7 +122,7 @@ describe('program', () => {
     };
 
     const tsConfigMissing = path.join(import.meta.dirname, 'fixtures', 'tsconfig_missing.json');
-    const searchedFiles = [];
+    const searchedFiles: string[] = [];
     let searchFolder;
 
     let nodeModulesFolder = path.join(import.meta.dirname, 'fixtures');

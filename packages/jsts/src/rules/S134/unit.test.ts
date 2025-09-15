@@ -146,7 +146,7 @@ describe('S134', () => {
 
     return {
       code,
-      errors: [error(primaryLocation, secondaryLocations)],
+      errors: [error(primaryLocation!, secondaryLocations)],
       options: createOptions(threshold),
       settings: { sonarRuntime: true },
     };
@@ -155,7 +155,7 @@ describe('S134', () => {
   function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
     return {
       ...primaryLocation,
-      message: encode(primaryLocation.message, secondaryLocations),
+      message: encode(primaryLocation.message!, secondaryLocations),
     };
   }
 

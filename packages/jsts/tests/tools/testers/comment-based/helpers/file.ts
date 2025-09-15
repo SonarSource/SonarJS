@@ -55,7 +55,7 @@ export class FileIssues {
         this.orphanSecondaryLocations
           .map(
             secondary =>
-              `Secondary location '>' without next primary location at ${secondary.range.toString()}`,
+              `Secondary location '>' without next primary location at ${secondary.range?.toString()}`,
           )
           .join('\n\n'),
       );
@@ -72,10 +72,10 @@ export class FileIssues {
   }
 
   private addPrimary(primary: PrimaryLocation, line?: number) {
-    const lineIssues = this.expectedIssues.get(primary.range?.line || line);
+    const lineIssues = this.expectedIssues.get(primary.range?.line ?? line ?? -1);
     if (lineIssues === undefined) {
       throw new Error(
-        `Primary location does not have a related issue at ${primary.range.toString()}`,
+        `Primary location does not have a related issue at ${primary.range?.toString()}`,
       );
     }
     if (lineIssues.primaryLocation?.range && primary.range) {
@@ -85,6 +85,7 @@ export class FileIssues {
     }
     if (!lineIssues.primaryLocation?.range && primary.range) {
       primary = {
+        secondaryLocations: [],
         ...lineIssues.primaryLocation,
         range: primary.range,
       };
@@ -99,7 +100,7 @@ export class FileIssues {
     if (secondary.primaryIsBefore) {
       if (this.currentPrimary == null) {
         throw new Error(
-          `Secondary location '<' without previous primary location at ${secondary.range.toString()}`,
+          `Secondary location '<' without previous primary location at ${secondary.range!.toString()}`,
         );
       }
       this.currentPrimary.secondaryLocations.push(secondary);

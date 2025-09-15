@@ -17,6 +17,7 @@
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
+import { IssueLocation } from '../helpers/index.js';
 
 describe('S4502', () => {
   it('S4502', () => {
@@ -143,7 +144,7 @@ describe('S4502', () => {
       message: string,
       secondary?: { line: number; column: number; endColumn: number; endLine: number },
     ) {
-      let secondaryLocations = [];
+      let secondaryLocations: IssueLocation[] = [];
       if (secondary) {
         secondaryLocations = [
           {

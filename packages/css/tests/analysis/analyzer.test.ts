@@ -154,7 +154,7 @@ ${character}${character}${character}.foo {`,
 });
 
 async function input(
-  filePath?: string,
+  filePath: string,
   fileContent?: string,
   rules: RuleConfig[] = [],
 ): Promise<CssAnalysisInput> {

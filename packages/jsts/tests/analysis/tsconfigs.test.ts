@@ -30,6 +30,7 @@ import {
 } from '../../../shared/src/helpers/configuration.js';
 import { Cache } from '../../src/analysis/projectAnalysis/tsconfigCache.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/tsconfigs.js';
+import assert from 'node:assert';
 
 const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures');
 
@@ -94,6 +95,7 @@ describe('tsconfigs', () => {
     setGlobalConfiguration({ sonarlint: true, baseDir });
     await initFileStores(baseDir);
     const tsconfig = await tsConfigStore.getTsConfigForInputFile(join(baseDir, 'file.ts'));
+    assert.ok(tsconfig);
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
       compilerOptions: {
@@ -110,6 +112,7 @@ describe('tsconfigs', () => {
     setGlobalConfiguration({ sonarlint: false, baseDir });
     await initFileStores(baseDir);
     const tsconfig = await tsConfigStore.getTsConfigForInputFile(join(baseDir, 'file.ts'));
+    assert.ok(tsconfig);
     expect(basename(tsconfig)).toMatch(/tsconfig-\w{6}\.json/);
     expect(JSON.parse(await readFile(tsconfig, 'utf8'))).toMatchObject({
       compilerOptions: {

@@ -66,7 +66,7 @@ describe('getRegexpRange', () => {
   it('should throw for wrong node', () => {
     const program = esprima.parse(`'\\ns'`, { range: true });
     expect(() => {
-      getRegexpRange(program, undefined);
+      getRegexpRange(program, undefined as any);
     }).toThrow('Expected regexp or string literal, got Program');
   });
 

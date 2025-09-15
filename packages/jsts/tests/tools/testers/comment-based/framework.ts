@@ -76,10 +76,10 @@ export function extractExpectations(
         message,
         secondary.map(node => ({
           message: node.message,
-          column: node.range.column,
-          line: node.range.line,
-          endColumn: node.range.endColumn,
-          endLine: node.range.endLine,
+          column: node.range!.column,
+          line: node.range!.line,
+          endColumn: node.range!.endColumn,
+          endLine: node.range!.endLine,
         })),
       );
       if (!error.message && message) {
@@ -115,7 +115,7 @@ function applyQuickFixes(
 ): Suggestions {
   const suggestions: RuleTester.SuggestionOutput[] = [];
   for (const quickfix of quickfixes) {
-    const lines = (quickfix.mandatory ? result.output : fileContent).split(/\n/);
+    const lines = (quickfix.mandatory ? result.output! : fileContent).split(/\n/);
     const { description: desc, changes } = quickfix;
     for (const change of changes) {
       switch (change.type) {
@@ -196,7 +196,7 @@ function editLine(lines: string[], change: Change) {
         appendAfterFix = line.slice(containsNC);
       }
     } else {
-      if (end < start) {
+      if (start && end < start) {
         throw new Error(`End column cannot be lower than start position ${end} < ${start}`);
       }
       if (containsNC >= 0 && end > containsNC) {

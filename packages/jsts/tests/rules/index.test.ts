@@ -31,6 +31,7 @@ import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import angularPlugin from '@angular-eslint/eslint-plugin';
 const { rules: angularRules } = angularPlugin;
 import { rules as unicornRules } from '../../src/rules/external/unicorn.js';
+import { SonarMeta } from '../../src/rules/helpers/index.js';
 
 const allExternalRules = {
   eslint: key => getESLintCoreRule(key),
@@ -50,12 +51,12 @@ describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
     const ruleIds = (await readdir(ruleFolder)).filter(name => /^S\d+/.test(name));
-    const usedExternalEslintIds = [];
+    const usedExternalEslintIds: string[] = [];
 
     for (const ruleId of ruleIds) {
-      const metadata = await import(
+      const metadata = (await import(
         pathToFileURL(path.join(ruleFolder, ruleId, 'generated-meta.js')).toString()
-      );
+      )) as SonarMeta;
       expect(metadata.eslintId).toBeDefined();
       expect(metadata.sonarKey).toEqual(ruleId);
       expect(['original', 'decorated', 'external']).toContain(metadata.implementation);
@@ -66,21 +67,21 @@ describe('Plugin public API', () => {
         expect(rule.meta.docs!.url).toBe(
           `https://sonarsource.github.io/rspec/#/rspec/${metadata.sonarKey}/javascript`,
         );
-        if (metadata.meta.docs.recommended) {
+        if (metadata.meta.docs?.recommended) {
           expect(configs.recommended.rules).toHaveProperty(`sonarjs/${metadata.eslintId}`);
-          expect(configs.recommended.rules[`sonarjs/${metadata.eslintId}`]).toEqual('error');
+          expect(configs.recommended.rules![`sonarjs/${metadata.eslintId}`]).toEqual('error');
         } else {
-          expect(configs.recommended.rules[`sonarjs/${metadata.eslintId}`]).toEqual('off');
+          expect(configs.recommended.rules![`sonarjs/${metadata.eslintId}`]).toEqual('off');
         }
         expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(metadata.eslintId);
       } else if (metadata.implementation === 'external') {
         expect(externalPlugins).toContain(metadata.externalPlugin);
         expect(usedExternalEslintIds).not.toContain(metadata.eslintId);
-        expect(await allExternalRules[metadata.externalPlugin](metadata.eslintId)).toBeDefined();
+        expect(await allExternalRules[metadata.externalPlugin!](metadata.eslintId)).toBeDefined();
         usedExternalEslintIds.push(metadata.eslintId);
       } else if (metadata.implementation === 'decorated') {
-        expect(metadata.externalRules.length).toBeGreaterThan(0);
-        for (const externalRule of metadata.externalRules) {
+        expect(metadata.externalRules!.length).toBeGreaterThan(0);
+        for (const externalRule of metadata.externalRules!) {
           expect(usedExternalEslintIds).not.toContain(externalRule.externalRule);
           usedExternalEslintIds.push(externalRule.externalRule);
           expect(externalPlugins).toContain(externalRule.externalPlugin);

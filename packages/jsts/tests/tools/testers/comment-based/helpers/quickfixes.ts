@@ -72,8 +72,8 @@ export function isQuickfixLine(comment: string) {
 
 export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Comment) {
   if (QUICKFIX_DESCRIPTION_PATTERN.test(comment.value)) {
-    const matches = QUICKFIX_DESCRIPTION_PATTERN.exec(comment.value);
-    const { quickfixId, message } = matches.groups;
+    const matches = QUICKFIX_DESCRIPTION_PATTERN.exec(comment.value)!;
+    const { quickfixId, message } = matches.groups!;
     const quickfix = quickfixes.get(quickfixId);
     if (!quickfix) {
       throw new Error(
@@ -84,7 +84,7 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
     }
     quickfix.description = message;
   } else if (QUICKFIX_CHANGE_PATTERN.test(comment.value)) {
-    const matches = QUICKFIX_CHANGE_PATTERN.exec(comment.value);
+    const matches = QUICKFIX_CHANGE_PATTERN.exec(comment.value)!;
     const {
       quickfixId,
       type,
@@ -93,13 +93,13 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
       secondColumnType,
       secondColumnValue,
       contents,
-    } = matches.groups;
+    } = matches.groups!;
     if (!quickfixes.has(quickfixId)) {
       throw new Error(
         `Unexpected quickfix ID '${matches.groups?.quickfixId}' found at ${comment.line}:${comment.column}`,
       );
     }
-    const quickfix = quickfixes.get(quickfixId);
+    const quickfix = quickfixes.get(quickfixId)!;
     const line = extractEffectiveLine(quickfix.lineIssues.line, matches);
     const edit: Change = {
       line,

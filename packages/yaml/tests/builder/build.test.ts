@@ -95,7 +95,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(ifStmt.range).toEqual([170, 219]);
 
-    const { alternate } = ifStmt as estree.IfStatement;
+    const alternate = (ifStmt as estree.IfStatement).alternate!;
     expect(alternate.loc).toEqual(
       expect.objectContaining({
         start: {
@@ -127,7 +127,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(comment.range).toEqual([190, 201]);
 
-    const elseToken = ast.tokens.find(token => token.value === 'else');
+    const elseToken = ast.tokens.find(token => token.value === 'else')!;
     expect(elseToken.loc).toEqual(
       expect.objectContaining({
         start: {
@@ -167,7 +167,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(ifStmt.range).toEqual([180, 265]);
 
-    const { alternate } = ifStmt as estree.IfStatement;
+    const alternate = (ifStmt as estree.IfStatement).alternate!;
     expect(alternate.loc).toEqual(
       expect.objectContaining({
         start: {
@@ -199,7 +199,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(comment.range).toEqual([210, 221]);
 
-    const elseToken = ast.tokens.find(token => token.value === 'else');
+    const elseToken = ast.tokens.find(token => token.value === 'else')!;
     expect(elseToken.loc).toEqual(
       expect.objectContaining({
         start: {
@@ -239,7 +239,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(ifStmt.range).toEqual([180, 265]);
 
-    const { alternate } = ifStmt as estree.IfStatement;
+    const alternate = (ifStmt as estree.IfStatement).alternate!;
     expect(alternate.loc).toEqual(
       expect.objectContaining({
         start: {
@@ -271,7 +271,7 @@ describe('buildSourceCodes()', () => {
     );
     expect(comment.range).toEqual([210, 221]);
 
-    const elseToken = ast.tokens.find(token => token.value === 'else');
+    const elseToken = ast.tokens.find(token => token.value === 'else')!;
     expect(elseToken.loc).toEqual(
       expect.objectContaining({
         start: {

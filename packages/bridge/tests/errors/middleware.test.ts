@@ -25,11 +25,11 @@ describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;
   const mockNext = {} as express.NextFunction;
 
-  let mockResponse: Partial<express.Response>;
+  let mockResponse: Partial<express.Response> & { json: Mock<express.Response['json']> };
   beforeEach(() => {
     mockResponse = {
-      json: mock.fn(),
-    };
+      json: mock.fn<express.Response['json']>(),
+    } as Partial<express.Response> & { json: Mock<express.Response['json']> };
   });
   afterEach(() => {
     mock.reset();
@@ -42,16 +42,13 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    assert.deepEqual(
-      (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
-      {
-        parsingError: {
-          message: 'Unexpected token "{"',
-          line: 42,
-          code: ErrorCode.Parsing,
-        },
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
+      parsingError: {
+        message: 'Unexpected token "{"',
+        line: 42,
+        code: ErrorCode.Parsing,
       },
-    );
+    });
   });
 
   it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
