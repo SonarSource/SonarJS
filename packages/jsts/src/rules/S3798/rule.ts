@@ -34,10 +34,7 @@ export const rule: Rule.RuleModule = {
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
         const moduleScope = findModuleScope(context);
         for (const variable of moduleScope?.variables ?? []) {
-          // moduleScope?.variables.forEach(variable => {
           processVariable(context, scope, variable);
-
-          // });
         }
       },
     };
