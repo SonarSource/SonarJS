@@ -97,7 +97,7 @@
     "rimraf": "6.0.1",
     "tsx": "4.20.5",
     "type-fest": "4.41.0",
-    "typedoc": "0.28.12"
+    "typedoc": "0.28.13"
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "20.2.0",
