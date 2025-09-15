@@ -157,8 +157,9 @@ class LoopVisitor {
           this.hasEndCondition = true;
           return;
       }
-      for (const child of childrenOf(node, context.sourceCode.visitorKeys))
+      for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
         visitNode(child, isNestedLoop);
+      }
     };
     visitNode(root);
   }

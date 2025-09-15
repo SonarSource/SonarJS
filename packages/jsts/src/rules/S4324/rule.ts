@@ -21,6 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   isRequiredParserServices,
+  last,
   RequiredParserServices,
 } from '../helpers/index.js';
 import type estree from 'estree';
@@ -43,7 +44,7 @@ export const rule: Rule.RuleModule = {
       return {
         ReturnStatement(node: estree.Node) {
           if (returnedExpressions.length > 0) {
-            returnedExpressions.at(-1)!.push((node as estree.ReturnStatement).argument);
+            last(returnedExpressions).push((node as estree.ReturnStatement).argument);
           }
         },
         FunctionDeclaration() {
@@ -55,7 +56,7 @@ export const rule: Rule.RuleModule = {
             returnType &&
             returnType.typeAnnotation.type === 'TSAnyKeyword' &&
             returnedExpressions.length > 0 &&
-            allReturnTypesEqual(returnedExpressions.at(-1)!, services)
+            allReturnTypesEqual(last(returnedExpressions), services)
           ) {
             context.report({
               messageId: 'removeOrChangeType',

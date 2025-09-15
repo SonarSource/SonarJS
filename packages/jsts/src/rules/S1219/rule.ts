@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       stack.push(stack.pop()! - 1);
     }
     function inCase() {
-      return stack.at(-1)! > 0;
+      return last(stack);
     }
     return {
       SwitchCase: () => {

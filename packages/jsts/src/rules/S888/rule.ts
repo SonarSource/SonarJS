@@ -107,7 +107,9 @@ function collectCounters(expression: estree.Expression, counters: Array<string>)
   } else if (expression.type === 'UpdateExpression') {
     counter = expression.argument;
   } else if (expression.type === 'SequenceExpression') {
-    for (const e of expression.expressions) collectCounters(e, counters);
+    for (const e of expression.expressions) {
+      collectCounters(e, counters);
+    }
   }
 
   if (counter && counter.type === 'Identifier') {

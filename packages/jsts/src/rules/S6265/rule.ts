@@ -29,6 +29,7 @@ import {
   isMethodCall,
   isS3BucketConstructor,
   isS3BucketDeploymentConstructor,
+  last,
   mergeRules,
   normalizeFQN,
   report,
@@ -131,7 +132,7 @@ function checkConstantParam(
     report(
       context,
       {
-        message: messages.accessLevel(paramQualifiers.at(-1)!),
+        message: messages.accessLevel(last(paramQualifiers)),
         node: property,
       },
       secondary ? [secondary] : [],

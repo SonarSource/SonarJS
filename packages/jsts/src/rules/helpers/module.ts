@@ -32,8 +32,8 @@ export function getImportDeclarations(context: Rule.RuleContext) {
 export function getRequireCalls(context: Rule.RuleContext) {
   const required: estree.CallExpression[] = [];
   const { scopeManager } = context.sourceCode;
-  for (const scope of scopeManager.scopes)
-    for (const variable of scope.variables)
+  for (const scope of scopeManager.scopes) {
+    for (const variable of scope.variables) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
           if (isRequire(def.node.init)) {
@@ -43,6 +43,8 @@ export function getRequireCalls(context: Rule.RuleContext) {
           }
         }
       }
+    }
+  }
 
   return required;
 }

@@ -67,10 +67,10 @@ class DefaultParserRuleTester extends ESLintRuleTester {
   }
 
   run(name: string, rule: Rule.RuleModule, tests: Tests): void {
-    for (let testCase of tests.valid) {
+    for (const testCase of tests.valid) {
       testCase.filename ??= placeHolderFilePath;
     }
-    for (let testCase of tests.invalid) {
+    for (const testCase of tests.invalid) {
       testCase.filename ??= placeHolderFilePath;
     }
     super.run(name, rule, tests);

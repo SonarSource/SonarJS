@@ -102,8 +102,9 @@ function checkStringReplaceGroupReferences(
       const references = extractReferences(substr);
       const indexes = new Set<number>();
       const names = new Set<string>();
-      for (const ref of references)
+      for (const ref of references) {
         Number.isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value));
+      }
       for (const group of regex.groups) {
         group.used ||= names.has(group.name);
         group.used ||= indexes.has(group.index);
@@ -322,8 +323,9 @@ function makeRegexKnowledge(node: estree.Node, regexp: RegExpLiteral): RegexKnow
     onCapturingGroupEnter: group => capturingGroups.push(group),
   });
   const groups: GroupKnowledge[] = [];
-  for (const [index, group] of capturingGroups.entries())
+  for (const [index, group] of capturingGroups.entries()) {
     group.name && groups.push(makeGroupKnowledge(group, backreferences, index + 1));
+  }
   return { node, regexp, groups, matched: false };
 }
 

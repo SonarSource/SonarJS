@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { ancestorsChain, generateMeta } from '../helpers/index.js';
+import { ancestorsChain, generateMeta, last } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     return {
       'TemplateLiteral TemplateLiteral': (node: estree.Node) => {
         const ancestors = ancestorsChain(node as TSESTree.Node, new Set(['TemplateLiteral']));
-        const nestingTemplate = ancestors.at(-1)!;
+        const nestingTemplate = last(ancestors);
 
         const { start: nestingStart, end: nestingEnd } = nestingTemplate.loc;
         const { start: nestedStart, end: nestedEnd } = (node as TSESTree.Node).loc;

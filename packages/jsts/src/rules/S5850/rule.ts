@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
@@ -56,7 +56,7 @@ function anchoredAt(alternatives: AST.Alternative[], position: Position): boolea
 function notAnchoredElseWhere(alternatives: AST.Alternative[]): boolean {
   if (
     isAnchored(alternatives[0], Position.END) ||
-    isAnchored(alternatives.at(-1)!, Position.BEGINNING)
+    isAnchored(last(alternatives), Position.BEGINNING)
   ) {
     return false;
   }

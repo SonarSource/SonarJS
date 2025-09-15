@@ -35,9 +35,12 @@ class StylelintRuleTester {
 
   run(description: string, assertions: { valid: ValidAssertion[]; invalid: InvalidAssertion[] }) {
     describe(description, () => {
-      for (const assertion of assertions.valid) StylelintRuleTester.accept(assertion, this.config);
-      for (const assertion of assertions.invalid)
+      for (const assertion of assertions.valid) {
+        StylelintRuleTester.accept(assertion, this.config);
+      }
+      for (const assertion of assertions.invalid) {
         StylelintRuleTester.reject(assertion, this.config);
+      }
     });
   }
 

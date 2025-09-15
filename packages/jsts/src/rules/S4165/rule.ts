@@ -91,8 +91,12 @@ export const rule: Rule.RuleModule = {
 
     function popAssignmentContext() {
       const assignment = last(codePathStack).assignmentStack.pop()!;
-      for (const r of assignment.rhs) processReference(r);
-      for (const r of assignment.lhs) processReference(r);
+      for (const r of assignment.rhs) {
+        processReference(r);
+      }
+      for (const r of assignment.lhs) {
+        processReference(r);
+      }
     }
 
     function pushAssignmentContext(node: AssignmentLike) {

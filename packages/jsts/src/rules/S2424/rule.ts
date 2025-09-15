@@ -33,9 +33,12 @@ export const rule: Rule.RuleModule = {
 
     function checkVariable(variable: Scope.Variable) {
       if (isBuiltIn(variable)) {
-        for (const def of variable.defs) overridden.add(def.name);
-        for (const ref of variable.references.filter(ref => ref.isWrite()))
+        for (const def of variable.defs) {
+          overridden.add(def.name);
+        }
+        for (const ref of variable.references.filter(ref => ref.isWrite())) {
           overridden.add(ref.identifier);
+        }
       }
     }
 

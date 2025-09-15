@@ -25,7 +25,9 @@ export function lva(liveVariablesMap: Map<string, LiveVariables>) {
     const liveVariables = liveVariablesMap.get(current.id)!;
     const liveInHasChanged = liveVariables.propagate(liveVariablesMap);
     if (liveInHasChanged) {
-      for (const prev of current.prevSegments) worklist.push(prev);
+      for (const prev of current.prevSegments) {
+        worklist.push(prev);
+      }
     }
   }
 }

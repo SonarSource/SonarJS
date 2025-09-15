@@ -38,7 +38,9 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
           characterClass,
         );
         if (intersections.length > 0) {
-          for (const intersection of intersections) duplicates.add(intersection);
+          for (const intersection of intersections) {
+            duplicates.add(intersection);
+          }
           duplicates.add(element);
         }
         characterClass.add(element);

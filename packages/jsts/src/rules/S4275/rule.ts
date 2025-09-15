@@ -25,6 +25,7 @@ import {
   interceptReport,
   isMethodInvocation,
   isStringLiteral,
+  last,
   mergeRules,
   report,
   toSecondaryLocation,
@@ -124,7 +125,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as AccessorNode;
         const accessorInfo = getObjectOrClassAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = currentFieldsStack.at(-1)!;
+          const fieldMap = last(currentFieldsStack);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },

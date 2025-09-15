@@ -179,7 +179,7 @@ export const rule: Rule.RuleModule = {
             !(vueIdentifiers.has(unused.name) && isInsideVueSetupScript(unused, context)) &&
             !jsxFactories.has(unused.name) &&
             !jsDocComments.some(comment => comment.value.includes(unused.name)),
-        ))
+        )) {
           context.report({
             messageId: 'removeUnusedImport',
             data: {
@@ -188,6 +188,7 @@ export const rule: Rule.RuleModule = {
             node: unused.id,
             suggest: [getSuggestion(context, unused)],
           });
+        }
       },
     };
 

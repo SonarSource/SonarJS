@@ -40,7 +40,9 @@ export const rule: Rule.RuleModule = {
     ) {
       const counters: estree.Identifier[] = [];
       extractCounters(updateNode, counters);
-      for (const counter of counters) checkCounter(counter, loopBody as estree.BlockStatement);
+      for (const counter of counters) {
+        checkCounter(counter, loopBody as estree.BlockStatement);
+      }
     }
 
     function checkCounter(counter: estree.Identifier, block: estree.Node) {
@@ -83,9 +85,13 @@ function collectCountersForX(
   counters: estree.Identifier[],
 ) {
   if (updateExpression.type === 'VariableDeclaration') {
-    for (const decl of updateExpression.declarations) collectCountersForX(decl.id, counters);
+    for (const decl of updateExpression.declarations) {
+      collectCountersForX(decl.id, counters);
+    }
   } else {
-    for (const id of resolveIdentifiers(updateExpression as TSESTree.Node, true)) counters.push(id);
+    for (const id of resolveIdentifiers(updateExpression as TSESTree.Node, true)) {
+      counters.push(id);
+    }
   }
 }
 
@@ -97,7 +103,9 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
   } else if (updateExpression.type === 'UpdateExpression') {
     counter = updateExpression.argument;
   } else if (updateExpression.type === 'SequenceExpression') {
-    for (const e of updateExpression.expressions) collectCountersFor(e, counters);
+    for (const e of updateExpression.expressions) {
+      collectCountersFor(e, counters);
+    }
   }
 
   if (counter && counter.type === 'Identifier') {

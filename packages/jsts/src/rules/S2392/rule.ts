@@ -87,7 +87,9 @@ export const rule: Rule.RuleModule = {
               },
               referencesOutside.map(node => toSecondaryLocation(node, 'Outside reference.')),
             );
-            for (const defId of variable.defs.map(def => def.name)) reported.push(defId);
+            for (const defId of variable.defs.map(def => def.name)) {
+              reported.push(defId);
+            }
           }
         }
       },

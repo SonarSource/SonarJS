@@ -360,7 +360,9 @@ export const rule: Rule.RuleModule = {
     function visitLogicalExpression(logicalExpression: TSESTree.LogicalExpression) {
       const jsxShortCircuitNodes = getJsxShortCircuitNodes(logicalExpression);
       if (jsxShortCircuitNodes != null) {
-        for (const node of jsxShortCircuitNodes) consideredLogicalExpressions.add(node);
+        for (const node of jsxShortCircuitNodes) {
+          consideredLogicalExpressions.add(node);
+        }
         return;
       }
 

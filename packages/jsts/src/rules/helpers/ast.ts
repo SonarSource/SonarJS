@@ -21,6 +21,7 @@ import {
   findFirstMatchingAncestor,
   flatMap,
   getFullyQualifiedName,
+  last,
   report,
   toSecondaryLocation,
 } from './index.js';
@@ -355,7 +356,7 @@ export function getLhsVariable(
   node: estree.Node,
 ): Scope.Variable | undefined {
   const ancestors = context.sourceCode.getAncestors(node);
-  const parent = ancestors.at(-1)!;
+  const parent = last(ancestors);
   let formIdentifier: estree.Identifier | undefined;
   if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
     formIdentifier = parent.id;
@@ -437,11 +438,14 @@ function resolveIdentifiersAcc(
       identifiers.push(node);
       break;
     case 'ObjectPattern':
-      for (const prop of node.properties) resolveIdentifiersAcc(prop, identifiers, acceptShorthand);
+      for (const prop of node.properties) {
+        resolveIdentifiersAcc(prop, identifiers, acceptShorthand);
+      }
       break;
     case 'ArrayPattern':
-      for (const elem of node.elements)
+      for (const elem of node.elements) {
         elem && resolveIdentifiersAcc(elem, identifiers, acceptShorthand);
+      }
       break;
     case 'Property':
       if (acceptShorthand || !node.shorthand) {

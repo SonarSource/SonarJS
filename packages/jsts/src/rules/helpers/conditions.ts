@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
+import { last } from './collection.js';
 
 /** Returns a list of statements corresponding to a `if - else if - else` chain */
 export function collectIfBranches(node: estree.IfStatement) {
@@ -55,5 +56,5 @@ export function collectSwitchBranches(node: estree.SwitchStatement) {
 
 /** Excludes the break statement from the list */
 export function takeWithoutBreak(nodes: estree.Statement[]) {
-  return nodes.length > 0 && nodes.at(-1)!.type === 'BreakStatement' ? nodes.slice(0, -1) : nodes;
+  return nodes.length > 0 && last(nodes).type === 'BreakStatement' ? nodes.slice(0, -1) : nodes;
 }

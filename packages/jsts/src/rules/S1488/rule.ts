@@ -22,6 +22,7 @@ import {
   isFunction,
   isIdentifier,
   isRequiredParserServices,
+  last,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -48,8 +49,8 @@ export const rule: Rule.RuleModule = {
 
     function processStatements(node: estree.Node, statements: estree.Statement[]) {
       if (statements.length > 1) {
-        const last = statements.at(-1)!;
-        const returnedIdentifier = getOnlyReturnedVariable(last);
+        const lastStatement = last(statements);
+        const returnedIdentifier = getOnlyReturnedVariable(lastStatement);
 
         const lastButOne = statements.at(-2)!;
         const declaredIdentifier = getOnlyDeclaredVariable(lastButOne);
@@ -74,12 +75,12 @@ export const rule: Rule.RuleModule = {
             context.report({
               messageId: 'doImmediateAction',
               data: {
-                action: last.type === 'ReturnStatement' ? 'return' : 'throw',
+                action: lastStatement.type === 'ReturnStatement' ? 'return' : 'throw',
                 variable: returnedIdentifier.name,
               },
               node: declaredIdentifier.init,
               fix: fixer =>
-                fix(fixer, last, lastButOne, declaredIdentifier.init, returnedIdentifier),
+                fix(fixer, lastStatement, lastButOne, declaredIdentifier.init, returnedIdentifier),
             });
           }
         }

@@ -52,11 +52,12 @@ export const rule: Rule.RuleModule = {
 
       if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
         const messageAndData = getMessageAndData(v.name, type === 'FunctionName');
-        for (const def of defs)
+        for (const def of defs) {
           context.report({
             node: def,
             ...messageAndData,
           });
+        }
       }
     }
 
@@ -72,10 +73,14 @@ export const rule: Rule.RuleModule = {
       }
 
       if (toCheck !== 'nothing' && scope.type !== 'function-expression-name') {
-        for (const v of scope.variables) checkVariable(v, toCheck as 'let-const-function' | 'all');
+        for (const v of scope.variables) {
+          checkVariable(v, toCheck);
+        }
       }
 
-      for (const childScope of scope.childScopes) checkScope(childScope, toCheck);
+      for (const childScope of scope.childScopes) {
+        checkScope(childScope, toCheck);
+      }
     }
 
     return {

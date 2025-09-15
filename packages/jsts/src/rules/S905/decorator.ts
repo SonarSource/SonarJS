@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta, interceptReport, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -91,7 +91,7 @@ function isIife(node: estree.Node): boolean {
 
 function isSequenceWithSideEffects(node: estree.Node): boolean {
   return (
-    node.type === 'SequenceExpression' && node.expressions.at(-1)!.type === 'AssignmentExpression'
+    node.type === 'SequenceExpression' && last(node.expressions).type === 'AssignmentExpression'
   );
 }
 

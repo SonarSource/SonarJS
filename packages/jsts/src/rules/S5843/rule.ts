@@ -77,7 +77,9 @@ export const rule: Rule.RuleModule = {
         }
       },
       'Program:exit': () => {
-        for (const regexNode of regexNodes) checkRegexComplexity(regexNode, threshold, context);
+        for (const regexNode of regexNodes) {
+          checkRegexComplexity(regexNode, threshold, context);
+        }
       },
     };
   },

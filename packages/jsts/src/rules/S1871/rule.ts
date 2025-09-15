@@ -58,8 +58,9 @@ export const rule: Rule.RuleModule = {
       const { branches, endsWithElse } = collectIfBranches(ifStmt);
 
       if (allEquivalentWithoutDefault(branches, endsWithElse)) {
-        for (const [i, branch] of branches.slice(1).entries())
+        for (const [i, branch] of branches.slice(1).entries()) {
           reportIssue(branch, branches[i], 'branch');
+        }
         return;
       }
 
@@ -85,8 +86,9 @@ export const rule: Rule.RuleModule = {
       );
 
       if (allEquivalentWithoutDefault(casesWithoutBreak, endsWithDefault)) {
-        for (const [i, caseStmt] of nonEmptyCases.slice(1).entries())
+        for (const [i, caseStmt] of nonEmptyCases.slice(1).entries()) {
           reportIssue(caseStmt, nonEmptyCases[i], 'case');
+        }
         return;
       }
 

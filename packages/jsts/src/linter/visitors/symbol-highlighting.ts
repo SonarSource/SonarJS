@@ -74,7 +74,9 @@ export const rule: Rule.RuleModule = {
         variables = new Set();
       },
       '*': (node: estree.Node) => {
-        for (const v of context.sourceCode.getDeclaredVariables(node)) variables.add(v);
+        for (const v of context.sourceCode.getDeclaredVariables(node)) {
+          variables.add(v);
+        }
       },
       'Program:exit': (node: estree.Node) => {
         const result: SymbolHighlight[] = [];

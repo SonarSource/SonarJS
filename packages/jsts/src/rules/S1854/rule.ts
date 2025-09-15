@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
         destructuringStack.push(new DestructuringContext());
       },
       'ObjectPattern > Property > Identifier': (node: estree.Node) => {
-        const destructuring = last(destructuringStack)!;
+        const destructuring = last(destructuringStack);
         const { ref } = resolveReference(node as estree.Identifier);
         if (ref) {
           destructuring.references.push(ref);
@@ -78,7 +78,9 @@ export const rule: Rule.RuleModule = {
       'ObjectPattern:exit': () => {
         const destructuring = destructuringStack.pop();
         if (destructuring?.hasRest) {
-          for (const ref of destructuring.references) referencesUsedInDestructuring.add(ref);
+          for (const ref of destructuring.references) {
+            referencesUsedInDestructuring.add(ref);
+          }
         }
       },
 
@@ -115,8 +117,12 @@ export const rule: Rule.RuleModule = {
 
     function popAssignmentContext() {
       const assignment = last(codePathStack).assignmentStack.pop()!;
-      for (const r of assignment.rhs) processReference(r);
-      for (const r of assignment.lhs) processReference(r);
+      for (const r of assignment.rhs) {
+        processReference(r);
+      }
+      for (const r of assignment.lhs) {
+        processReference(r);
+      }
     }
 
     function checkSegment(liveVariables: LiveVariables) {

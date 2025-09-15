@@ -154,7 +154,9 @@ export class TsConfigStore implements FileStore {
     // tsconfig file that would cover this new file has already been processed, and we would not be aware of it.
     // By clearing the cache, we guarantee correctness.
     debug('Clearing input file to tsconfig cache');
-    for (const cache of Object.values(this.cacheMap)) cache.clearFileToTsConfigCache();
+    for (const cache of Object.values(this.cacheMap)) {
+      cache.clearFileToTsConfigCache();
+    }
   }
 
   dirtyCachesIfNeeded(baseDir: string) {

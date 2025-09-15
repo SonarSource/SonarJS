@@ -105,8 +105,9 @@ export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
           node: blockPublicAccessNew,
         });
       } else {
-        for (const key of BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS)
+        for (const key of BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS) {
           checkBlockPublicAccessConstructorProperty(blockPublicAccessConfig, key);
+        }
       }
     }
 
