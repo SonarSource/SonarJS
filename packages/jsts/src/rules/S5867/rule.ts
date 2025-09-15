@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       /* \u{hhhh}, \u{hhhhh} */
       const { raw, min: hex } = quantifier;
       if (
-        raw.startsWith('\\u') &&
+        raw.startsWith(String.raw`\u`) &&
         !raw.includes(',') &&
         ['hhhh'.length, 'hhhhh'.length].includes(hex.toString().length)
       ) {
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         return;
       }
       const c = character.raw;
-      if (c !== '\\p' && c !== '\\P') {
+      if (c !== String.raw`\p` && c !== String.raw`\P`) {
         return;
       }
       let state:
@@ -120,18 +120,18 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onRegExpLiteralLeave: (regexp: RegExpLiteral) => {
       if (!isUnicodeEnabled && (unicodeProperties.length > 0 || unicodeCharacters.length > 0)) {
         const secondaryLocations: IssueLocation[] = [];
-        unicodeProperties.forEach(p => {
+        for (const p of unicodeProperties) {
           const loc = getRegexpLocation(context.node, p.character, context, [0, p.offset]);
           if (loc) {
             secondaryLocations.push(toSecondaryLocation({ loc }, 'Unicode property'));
           }
-        });
-        unicodeCharacters.forEach(c => {
+        }
+        for (const c of unicodeCharacters) {
           const loc = getRegexpLocation(context.node, c, context);
           if (loc) {
             secondaryLocations.push(toSecondaryLocation({ loc }, 'Unicode character'));
           }
-        });
+        }
         context.reportRegExpNode(
           {
             message: `Enable the 'u' flag for this regex using Unicode constructs.`,

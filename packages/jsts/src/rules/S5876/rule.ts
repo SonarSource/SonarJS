@@ -39,14 +39,6 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let sessionRegenerate = false;
 
-    function isSessionRegenerate(node: estree.Node) {
-      return (
-        node.type === 'CallExpression' &&
-        node.callee.type === 'MemberExpression' &&
-        isIdentifier(node.callee.property, 'regenerate')
-      );
-    }
-
     function visitCallback(node: estree.Node) {
       if (sessionRegenerate) {
         // terminate recursion once call is detected
@@ -56,7 +48,9 @@ export const rule: Rule.RuleModule = {
         sessionRegenerate = true;
         return;
       }
-      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitCallback);
+      for (const childNode of childrenOf(node, context.sourceCode.visitorKeys)) {
+        visitCallback(childNode);
+      }
     }
 
     function hasSessionFalseOption(callExpression: estree.CallExpression) {
@@ -95,3 +89,11 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isSessionRegenerate(node: estree.Node) {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    isIdentifier(node.callee.property, 'regenerate')
+  );
+}

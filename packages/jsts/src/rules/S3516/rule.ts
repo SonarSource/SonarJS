@@ -144,11 +144,11 @@ function areAllSameValue(returnedValues: estree.Node[], scope: Scope.Scope) {
   } else if (firstReturnedValue.type === 'Identifier') {
     const singleWriteVariable = getSingleWriteDefinition(firstReturnedValue.name, scope);
     if (singleWriteVariable) {
-      const readReferenceIdentifiers = singleWriteVariable.variable.references
-        .slice(1)
-        .map(ref => ref.identifier);
+      const readReferenceIdentifiers = new Set(
+        singleWriteVariable.variable.references.slice(1).map(ref => ref.identifier),
+      );
       return returnedValues.every(returnedValue =>
-        readReferenceIdentifiers.includes(returnedValue as estree.Identifier),
+        readReferenceIdentifiers.has(returnedValue as estree.Identifier),
       );
     }
   }

@@ -98,12 +98,12 @@ export const rule: Rule.RuleModule = {
           map: Map<TSESTree.Statement, Scope.Reference[]>,
           truthy: boolean,
         ) => {
-          map.forEach(references => {
+          for (const references of map.values()) {
             const ref = references.find(ref => ref.resolved === symbol);
             if (ref) {
               reportIssue(id, ref, context, truthy);
             }
-          });
+          }
         };
 
         checkIfKnownAndReport(truthyMap, true);

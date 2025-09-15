@@ -21,8 +21,8 @@ import type estree from 'estree';
 import { generateMeta, globalsByLibraries } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const illegalNames = ['arguments'];
-const objectPrototypeProperties = [
+const illegalNames = new Set(['arguments']);
+const objectPrototypeProperties = new Set([
   'constructor',
   'hasOwnProperty',
   'isPrototypeOf',
@@ -30,8 +30,8 @@ const objectPrototypeProperties = [
   'toLocaleString',
   'toString',
   'valueOf',
-];
-const deprecatedNames = ['escape', 'unescape'];
+]);
+const deprecatedNames = new Set(['escape', 'unescape']);
 
 const getDeclarationIssue = (redeclareType: string) => (name: string) => ({
   messageId: 'forbidDeclaration',
@@ -60,14 +60,14 @@ export const rule: Rule.RuleModule = {
         reportBadUsageOnFunction(node as estree.ArrowFunctionExpression, undefined, context);
       },
       VariableDeclaration(node: estree.Node) {
-        (node as estree.VariableDeclaration).declarations.forEach(decl => {
+        for (const decl of (node as estree.VariableDeclaration).declarations) {
           reportGlobalShadowing(
             decl.id,
             getDeclarationIssue('variable'),
             context,
             decl.init != null,
           );
-        });
+        }
       },
       UpdateExpression(node: estree.Node) {
         reportGlobalShadowing(
@@ -103,9 +103,9 @@ function reportBadUsageOnFunction(
   context: Rule.RuleContext,
 ) {
   reportGlobalShadowing(id, getDeclarationIssue('function'), context, true);
-  func.params.forEach(p => {
+  for (const p of func.params) {
     reportGlobalShadowing(p, getDeclarationIssue('parameter'), context, false);
-  });
+  }
 }
 
 function reportGlobalShadowing(
@@ -129,18 +129,18 @@ function reportGlobalShadowing(
         reportGlobalShadowing(node.argument, buildMessageAndData, context, true);
         break;
       case 'ObjectPattern':
-        node.properties.forEach(prop => {
+        for (const prop of node.properties) {
           if (prop.type === 'Property') {
             reportGlobalShadowing(prop.value, buildMessageAndData, context, true);
           } else {
             reportGlobalShadowing(prop.argument, buildMessageAndData, context, true);
           }
-        });
+        }
         break;
       case 'ArrayPattern':
-        node.elements.forEach(elem => {
+        for (const elem of node.elements) {
           reportGlobalShadowing(elem, buildMessageAndData, context, true);
-        });
+        }
         break;
       case 'AssignmentPattern':
         reportGlobalShadowing(node.left, buildMessageAndData, context, true);
@@ -154,7 +154,7 @@ function isGlobalShadowing(name: string, isWrite: boolean) {
 }
 
 function isIllegalName(name: string) {
-  return illegalNames.includes(name);
+  return illegalNames.has(name);
 }
 
 function isBuiltInName(name: string) {
@@ -170,9 +170,9 @@ function isShadowingException(name: string) {
 }
 
 function isObjectPrototypeProperty(name: string) {
-  return objectPrototypeProperties.includes(name);
+  return objectPrototypeProperties.has(name);
 }
 
 function isDeprecatedName(name: string) {
-  return deprecatedNames.includes(name);
+  return deprecatedNames.has(name);
 }

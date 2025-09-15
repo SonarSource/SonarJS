@@ -28,7 +28,7 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const EXCLUDED_IMPORTS = ['React'];
+const EXCLUDED_IMPORTS = new Set(['React']);
 const JSDOC_TAGS = [
   '@abstract',
   '@access',
@@ -139,14 +139,6 @@ export const rule: Rule.RuleModule = {
     const vueIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
 
-    function isExcluded(variable: Scope.Variable) {
-      return EXCLUDED_IMPORTS.includes(variable.name);
-    }
-
-    function isUnused(variable: Scope.Variable) {
-      return variable.references.length === 0;
-    }
-
     function isImplicitJsx(variable: Scope.Variable) {
       return variable.name === 'jsx' && isJsxPragmaSet;
     }
@@ -180,25 +172,22 @@ export const rule: Rule.RuleModule = {
         const jsxFactories = getJsxFactories(context);
         const jsxIdentifiers = getJsxIdentifiers(context);
         const jsDocComments = getJsDocComments(context);
-        unusedImports
-          .filter(
-            ({ id: unused }) =>
-              !jsxIdentifiers.includes(unused.name) &&
-              !tsTypeIdentifiers.has(unused.name) &&
-              !(vueIdentifiers.has(unused.name) && isInsideVueSetupScript(unused, context)) &&
-              !jsxFactories.has(unused.name) &&
-              !jsDocComments.some(comment => comment.value.includes(unused.name)),
-          )
-          .forEach(unused =>
-            context.report({
-              messageId: 'removeUnusedImport',
-              data: {
-                symbol: unused.id.name,
-              },
-              node: unused.id,
-              suggest: [getSuggestion(context, unused)],
-            }),
-          );
+        for (const unused of unusedImports.filter(
+          ({ id: unused }) =>
+            !jsxIdentifiers.includes(unused.name) &&
+            !tsTypeIdentifiers.has(unused.name) &&
+            !(vueIdentifiers.has(unused.name) && isInsideVueSetupScript(unused, context)) &&
+            !jsxFactories.has(unused.name) &&
+            !jsDocComments.some(comment => comment.value.includes(unused.name)),
+        ))
+          context.report({
+            messageId: 'removeUnusedImport',
+            data: {
+              symbol: unused.id.name,
+            },
+            node: unused.id,
+            suggest: [getSuggestion(context, unused)],
+          });
       },
     };
 
@@ -326,4 +315,12 @@ function getJsDocComments(context: Rule.RuleContext) {
     .filter(
       comment => comment.type === 'Block' && JSDOC_TAGS.some(tag => comment.value.includes(tag)),
     );
+}
+
+function isExcluded(variable: Scope.Variable) {
+  return EXCLUDED_IMPORTS.has(variable.name);
+}
+
+function isUnused(variable: Scope.Variable) {
+  return variable.references.length === 0;
 }

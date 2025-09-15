@@ -20,6 +20,6 @@ import { unicodeEscape } from '../../src/helpers/escape.js';
 
 describe('unicodeEscape', () => {
   it('should escape', () => {
-    expect(unicodeEscape(`test \u0000`)).toEqual('test \\u0000');
+    expect(unicodeEscape(`test \u0000`)).toEqual(String.raw`test \u0000`);
   });
 });

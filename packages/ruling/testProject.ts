@@ -109,7 +109,7 @@ function applyRulingConfig(rule: RuleConfig) {
     case 'S1451': {
       if (rule.language === 'js') {
         rule.configurations.push({
-          headerFormat: '// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.',
+          headerFormat: String.raw`// Copyright 20\d\d The Closure Library Authors. All Rights Reserved.`,
           isRegularExpression: true,
         });
       } else {

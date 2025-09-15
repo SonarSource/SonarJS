@@ -31,11 +31,6 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 
-    function attrsHref(calleeName: string) {
-      // select call expression with given name where second argument is object expression like { attrs: { href: 'bla' } }
-      return `CallExpression[callee.name='${calleeName}'] ObjectExpression.arguments:nth-child(2) > Property[key.name='attrs'] > ObjectExpression.value > Property[key.name='href']`;
-    }
-
     const ruleListener: Rule.RuleListener = {
       ["JSXAttribute[name.name='domPropsInnerHTML']," +
         "Property[key.name='domProps'] > ObjectExpression.value > Property[key.name='innerHTML']"](
@@ -66,3 +61,8 @@ export const rule: Rule.RuleModule = {
     return ruleListener;
   },
 };
+
+function attrsHref(calleeName: string) {
+  // select call expression with given name where second argument is object expression like { attrs: { href: 'bla' } }
+  return `CallExpression[callee.name='${calleeName}'] ObjectExpression.arguments:nth-child(2) > Property[key.name='attrs'] > ObjectExpression.value > Property[key.name='href']`;
+}

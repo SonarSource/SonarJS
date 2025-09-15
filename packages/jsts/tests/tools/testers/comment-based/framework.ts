@@ -55,12 +55,12 @@ export function extractExpectations(
   const expectedIssues = new FileIssues(fileContent, filePath).getExpectedIssues();
   const encodeMessageIfNeeded = usesSecondaryLocations ? encodeContents : message => message;
   const result: ExpectationsResult = { errors: [], output: fileContent };
-  expectedIssues.forEach(issue => {
+  for (const issue of expectedIssues) {
     const line = issue.line;
     const primary = issue.primaryLocation;
     const messages = [...issue.messages.values()];
     const quickfixes = issue.quickfixes ? [...issue.quickfixes.values()] : [];
-    messages.forEach((message, index) => {
+    for (const [index, message] of messages.entries()) {
       const suggestions = applyQuickFixes(
         quickfixes.filter(quickfix => quickfix.messageIndex === index),
         fileContent,
@@ -87,8 +87,8 @@ export function extractExpectations(
       }
 
       result.errors.push(error);
-    });
-  });
+    }
+  }
   if (result.output === fileContent) {
     result.output = null;
   }

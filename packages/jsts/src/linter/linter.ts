@@ -151,10 +151,10 @@ export class Linter {
 
   private static async loadRulesFromBundle(ruleBundle: string) {
     const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
-    bundleRules.forEach((rule: CustomRule) => {
+    for (const rule of bundleRules) {
       Linter.rules[rule.ruleId] = rule.ruleModule;
       debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
-    });
+    }
   }
 
   /**
@@ -219,19 +219,19 @@ export class Linter {
    */
   private static setGlobals(globals: string[] = [], environments: string[] = []) {
     Linter.globals.clear();
-    globals.forEach(global => {
+    for (const global of globals) {
       Linter.globals.set(global, true);
-    });
-    environments.forEach(env => {
+    }
+    for (const env of environments) {
       const envGlobals = globalsPkg[env as keyof typeof globalsPkg];
       if (envGlobals) {
-        Object.entries(envGlobals).forEach(([global, value]) => {
+        for (const [global, value] of Object.entries(envGlobals)) {
           Linter.globals.set(global, value);
-        });
+        }
       } else {
         debug(`Unknown environment "${env}".`);
       }
-    });
+    }
   }
 
   public static getRulesForFile(

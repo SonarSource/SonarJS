@@ -25,7 +25,7 @@ export function lva(liveVariablesMap: Map<string, LiveVariables>) {
     const liveVariables = liveVariablesMap.get(current.id)!;
     const liveInHasChanged = liveVariables.propagate(liveVariablesMap);
     if (liveInHasChanged) {
-      current.prevSegments.forEach(prev => worklist.push(prev));
+      for (const prev of current.prevSegments) worklist.push(prev);
     }
   }
 }
@@ -92,9 +92,9 @@ export class LiveVariables {
 
   propagate(liveVariablesMap: Map<string, LiveVariables>) {
     const out: Scope.Variable[] = [];
-    this.segment.nextSegments.forEach(next => {
+    for (const next of this.segment.nextSegments) {
       out.push(...liveVariablesMap.get(next.id)!.in);
-    });
+    }
     const diff = difference(out, this.kill);
     this.out = out;
     if (shouldUpdate(this.in, this.gen, diff)) {

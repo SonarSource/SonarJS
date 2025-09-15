@@ -53,7 +53,7 @@ function checkBulkyAnyCharacterClass(
   let hasUpperEscapeD = false;
   let hasLowerEscapeS = false;
   let hasUpperEscapeS = false;
-  node.elements.forEach(element => {
+  for (const element of node.elements) {
     hasLowerEscapeW ||=
       element.type === 'CharacterSet' && element.kind === 'word' && !element.negate;
     hasUpperEscapeW ||=
@@ -66,7 +66,7 @@ function checkBulkyAnyCharacterClass(
       element.type === 'CharacterSet' && element.kind === 'space' && !element.negate;
     hasUpperEscapeS ||=
       element.type === 'CharacterSet' && element.kind === 'space' && element.negate;
-  });
+  }
   const isBulkyAnyCharacterClass =
     (hasLowerEscapeW && hasUpperEscapeW) ||
     (hasLowerEscapeD && hasUpperEscapeD) ||
@@ -85,7 +85,7 @@ function checkBulkyNumericCharacterClass(node: CharacterClass, context: RegexRul
     const [element] = node.elements;
     const hasDigit = element.type === 'CharacterClassRange' && element.raw === '0-9';
     if (hasDigit) {
-      const expected = node.negate ? '\\D' : '\\d';
+      const expected = node.negate ? String.raw`\D` : String.raw`\d`;
       const actual = node.raw;
       context.reportRegExpNode({
         message: `Use concise character class syntax '${expected}' instead of '${actual}'.`,
@@ -109,7 +109,7 @@ function checkBulkyAlphaNumericCharacterClass(node: CharacterClass, context: Reg
       hasUnderscore ||= element.type === 'Character' && element.raw === '_';
     }
     if (hasDigit && hasLowerCase && hasUpperCase && hasUnderscore) {
-      const expected = node.negate ? '\\W' : '\\w';
+      const expected = node.negate ? String.raw`\W` : String.raw`\w`;
       const actual = node.raw;
       context.reportRegExpNode({
         message: `Use concise character class syntax '${expected}' instead of '${actual}'.`,

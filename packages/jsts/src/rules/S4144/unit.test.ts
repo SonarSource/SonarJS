@@ -303,37 +303,37 @@ describe('S4144', () => {
         },
       ],
     });
-
-    function message(originalLine: number, duplicationLine: number) {
-      return {
-        message: expandMessage(
-          'Update this function so that its implementation is not identical to the one on line {{line}}.',
-          {
-            line: originalLine,
-          },
-        ),
-        line: duplicationLine,
-        endLine: duplicationLine,
-      };
-    }
-
-    function encodedMessage(
-      originalLine: number,
-      duplicationLine: number,
-      secondaries: IssueLocation[],
-    ) {
-      return {
-        messageId: 'sonarRuntime',
-        data: {
-          line: originalLine,
-          sonarRuntimeData: JSON.stringify({
-            message: `Update this function so that its implementation is not identical to the one on line ${originalLine}.`,
-            secondaryLocations: secondaries,
-          }),
-        },
-        line: duplicationLine,
-        endLine: duplicationLine,
-      };
-    }
   });
 });
+
+function message(originalLine: number, duplicationLine: number) {
+  return {
+    message: expandMessage(
+      'Update this function so that its implementation is not identical to the one on line {{line}}.',
+      {
+        line: originalLine,
+      },
+    ),
+    line: duplicationLine,
+    endLine: duplicationLine,
+  };
+}
+
+function encodedMessage(
+  originalLine: number,
+  duplicationLine: number,
+  secondaries: IssueLocation[],
+) {
+  return {
+    messageId: 'sonarRuntime',
+    data: {
+      line: originalLine,
+      sonarRuntimeData: JSON.stringify({
+        message: `Update this function so that its implementation is not identical to the one on line ${originalLine}.`,
+        secondaryLocations: secondaries,
+      }),
+    },
+    line: duplicationLine,
+    endLine: duplicationLine,
+  };
+}

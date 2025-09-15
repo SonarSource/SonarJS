@@ -64,12 +64,6 @@ export function reportWithQuickFixIfApplicable(
 // This function limits the issues to variable/function/method declarations which name is not like /^on[A-Z].
 // Any lambda expression or arrow function is thus ignored.
 function isApplicable(functionNode: RuleFunctionNode) {
-  // Matches identifiers like onClick and more generally onXxx as well as XXXnoopXXX functions
-  function isExceptionalName(node: estree.Node | null) {
-    return (
-      node !== null && isIdentifier(node) && (/^on[A-Z]/.test(node.name) || /noop/i.test(node.name))
-    );
-  }
   // Matches: function foo() {}
   // But not: function onClose() {} or function XXXnoopXXX() {}
   function isFunctionDeclaration() {
@@ -136,4 +130,11 @@ function suggestEmptyBlockQuickFix(
       },
     ],
   });
+}
+
+// Matches identifiers like onClick and more generally onXxx as well as XXXnoopXXX functions
+function isExceptionalName(node: estree.Node | null) {
+  return (
+    node !== null && isIdentifier(node) && (/^on[A-Z]/.test(node.name) || /noop/i.test(node.name))
+  );
 }

@@ -20,11 +20,15 @@ import { visitAndCountIf } from './helpers/index.js';
 /**
  * The ESLint function node types
  */
-const FUNCTION_NODES = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'];
+const FUNCTION_NODES = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+]);
 
 /**
  * Computes the number of functions in the source code
  */
 export function countFunctions(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode, node => FUNCTION_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => FUNCTION_NODES.has(node.type));
 }

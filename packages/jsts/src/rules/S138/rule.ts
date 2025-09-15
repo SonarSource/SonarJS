@@ -143,13 +143,13 @@ export function getLocsNumber(
 export function getCommentLineNumbers(comments: estree.Comment[]): Map<number, estree.Comment> {
   const map = new Map();
 
-  comments.forEach(comment => {
+  for (const comment of comments) {
     if (comment.loc) {
       for (let i = comment.loc.start.line; i <= comment.loc.end.line; i++) {
         map.set(i, comment);
       }
     }
-  });
+  }
   return map;
 }
 

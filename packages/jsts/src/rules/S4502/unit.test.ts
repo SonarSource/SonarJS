@@ -139,26 +139,26 @@ describe('S4502', () => {
         },
       ],
     });
-
-    function encodedMessage(
-      message: string,
-      secondary?: { line: number; column: number; endColumn: number; endLine: number },
-    ) {
-      let secondaryLocations: IssueLocation[] = [];
-      if (secondary) {
-        secondaryLocations = [
-          {
-            column: secondary.column,
-            line: secondary.line,
-            endColumn: secondary.endColumn,
-            endLine: secondary.endLine,
-          },
-        ];
-      }
-      return JSON.stringify({
-        message,
-        secondaryLocations,
-      });
-    }
   });
 });
+
+function encodedMessage(
+  message: string,
+  secondary?: { line: number; column: number; endColumn: number; endLine: number },
+) {
+  let secondaryLocations: IssueLocation[] = [];
+  if (secondary) {
+    secondaryLocations = [
+      {
+        column: secondary.column,
+        line: secondary.line,
+        endColumn: secondary.endColumn,
+        endLine: secondary.endLine,
+      },
+    ];
+  }
+  return JSON.stringify({
+    message,
+    secondaryLocations,
+  });
+}

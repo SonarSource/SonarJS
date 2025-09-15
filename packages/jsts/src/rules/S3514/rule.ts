@@ -90,7 +90,7 @@ export const rule: Rule.RuleModule = {
     function checkDeclarationsBlock(
       declarationsByObject: Map<string, estree.VariableDeclarator[]>,
     ) {
-      declarationsByObject.forEach((declarations: estree.VariableDeclarator[], key: string) => {
+      for (const [key, declarations] of declarationsByObject) {
         if (declarations.length > 1) {
           const firstKind = getKind(declarations[0]);
           const tail = declarations.slice(1);
@@ -105,7 +105,7 @@ export const rule: Rule.RuleModule = {
             );
           }
         }
-      });
+      }
     }
 
     return {

@@ -53,9 +53,9 @@ export const rule: Rule.RuleModule = {
         }
       },
     };
-
-    function isIfStatementWithoutElse(node: estree.Node): node is estree.IfStatement {
-      return node.type === 'IfStatement' && !node.alternate;
-    }
   },
 };
+
+function isIfStatementWithoutElse(node: estree.Node): node is estree.IfStatement {
+  return node.type === 'IfStatement' && !node.alternate;
+}

@@ -43,7 +43,7 @@ describe('getRegexpRange', () => {
     expect(range).toStrictEqual([2, 9]);
   });
 
-  it('should get range for \\ns', () => {
+  it(String.raw`should get range for \ns`, () => {
     const program = esprima.parse(`'\\ns'`, { range: true });
     const literal: estree.Literal = program.body[0].expression;
     const regexNode = regexpp.parseRegExpLiteral(new RegExp(literal.value as string));

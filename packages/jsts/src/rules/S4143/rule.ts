@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
     function checkStatements(statements: Array<estree.Statement>) {
       const usedKeys: Map<string, KeyWriteCollectionUsage> = new Map();
       let collection: estree.Node | undefined;
-      statements.forEach(statement => {
+      for (const statement of statements) {
         const keyWriteUsage = getKeyWriteUsage(statement);
         if (keyWriteUsage) {
           if (
@@ -89,7 +89,7 @@ export const rule: Rule.RuleModule = {
         } else {
           usedKeys.clear();
         }
-      });
+      }
     }
 
     function getKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
@@ -111,39 +111,6 @@ export const rule: Rule.RuleModule = {
             node,
           };
         }
-      }
-      return undefined;
-    }
-
-    function mapOrSetKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
-      if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
-        const propertyAccess = node.callee;
-        if (isIdentifier(propertyAccess.property)) {
-          const methodName = propertyAccess.property.name;
-          const addMethod = methodName === 'add' && node.arguments.length === 1;
-          const setMethod = methodName === 'set' && node.arguments.length === 2;
-
-          if (addMethod || setMethod) {
-            const key = extractIndex(node.arguments[0]);
-            if (key) {
-              return {
-                collectionNode: propertyAccess.object,
-                indexOrKey: key,
-                node,
-              };
-            }
-          }
-        }
-      }
-      return undefined;
-    }
-
-    function extractIndex(node: estree.Node): string | undefined {
-      if (isLiteral(node)) {
-        const { value } = node;
-        return typeof value === 'number' || typeof value === 'string' ? String(value) : undefined;
-      } else if (isIdentifier(node)) {
-        return node.name;
       }
       return undefined;
     }
@@ -186,4 +153,37 @@ interface KeyWriteCollectionUsage {
   collectionNode: estree.Node;
   indexOrKey: string;
   node: estree.Node;
+}
+
+function extractIndex(node: estree.Node): string | undefined {
+  if (isLiteral(node)) {
+    const { value } = node;
+    return typeof value === 'number' || typeof value === 'string' ? String(value) : undefined;
+  } else if (isIdentifier(node)) {
+    return node.name;
+  }
+  return undefined;
+}
+
+function mapOrSetKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+    const propertyAccess = node.callee;
+    if (isIdentifier(propertyAccess.property)) {
+      const methodName = propertyAccess.property.name;
+      const addMethod = methodName === 'add' && node.arguments.length === 1;
+      const setMethod = methodName === 'set' && node.arguments.length === 2;
+
+      if (addMethod || setMethod) {
+        const key = extractIndex(node.arguments[0]);
+        if (key) {
+          return {
+            collectionNode: propertyAccess.object,
+            indexOrKey: key,
+            node,
+          };
+        }
+      }
+    }
+  }
+  return undefined;
 }

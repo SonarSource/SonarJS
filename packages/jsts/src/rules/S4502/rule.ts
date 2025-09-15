@@ -32,7 +32,7 @@ import {
 import * as meta from './generated-meta.js';
 
 const CSURF_MODULE = 'csurf';
-const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
         const arrayExpr = node.value;
         const unsafeMethods = arrayExpr.elements
           .filter(isLiteral)
-          .filter(e => typeof e.value === 'string' && !SAFE_METHODS.includes(e.value));
+          .filter(e => typeof e.value === 'string' && !SAFE_METHODS.has(e.value));
         if (unsafeMethods.length > 0) {
           const [first, ...rest] = unsafeMethods;
           report(

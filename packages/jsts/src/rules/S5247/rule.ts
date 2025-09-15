@@ -37,41 +37,6 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 
-    function isEmptySanitizerFunction(
-      sanitizerFunction:
-        | estree.FunctionExpression
-        | estree.FunctionDeclaration
-        | estree.ArrowFunctionExpression,
-    ) {
-      if (sanitizerFunction.params.length !== 1) {
-        return false;
-      }
-      const firstParam = sanitizerFunction.params[0];
-      if (firstParam.type !== 'Identifier') {
-        return false;
-      }
-      const firstParamName = firstParam.name;
-      if (sanitizerFunction.body.type !== 'BlockStatement') {
-        return (
-          sanitizerFunction.body.type === 'Identifier' &&
-          sanitizerFunction.body.name === firstParamName
-        );
-      }
-      const { body } = sanitizerFunction.body;
-      if (body.length !== 1) {
-        return false;
-      }
-      const onlyStatement = body[0];
-      if (
-        onlyStatement.type === 'ReturnStatement' &&
-        onlyStatement.argument &&
-        isIdentifier(onlyStatement.argument, firstParamName)
-      ) {
-        return true;
-      }
-      return false;
-    }
-
     function isInvalidSanitizerFunction(node: estree.Node) {
       type AssignedFunction =
         | estree.FunctionDeclaration
@@ -85,7 +50,7 @@ export const rule: Rule.RuleModule = {
       if (!assignedFunction && node.type === 'Identifier' && isRequiredParserServices(services)) {
         assignedFunction = resolveFromFunctionReference(context, node);
       }
-      if (!!assignedFunction) {
+      if (assignedFunction) {
         return isEmptySanitizerFunction(assignedFunction);
       }
       return false;
@@ -135,6 +100,37 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isEmptySanitizerFunction(
+  sanitizerFunction:
+    | estree.FunctionExpression
+    | estree.FunctionDeclaration
+    | estree.ArrowFunctionExpression,
+) {
+  if (sanitizerFunction.params.length !== 1) {
+    return false;
+  }
+  const firstParam = sanitizerFunction.params[0];
+  if (firstParam.type !== 'Identifier') {
+    return false;
+  }
+  const firstParamName = firstParam.name;
+  if (sanitizerFunction.body.type !== 'BlockStatement') {
+    return (
+      sanitizerFunction.body.type === 'Identifier' && sanitizerFunction.body.name === firstParamName
+    );
+  }
+  const { body } = sanitizerFunction.body;
+  if (body.length !== 1) {
+    return false;
+  }
+  const onlyStatement = body[0];
+  return !!(
+    onlyStatement.type === 'ReturnStatement' &&
+    onlyStatement.argument &&
+    isIdentifier(onlyStatement.argument, firstParamName)
+  );
+}
 
 function isMustacheIdentifier(node: estree.Node) {
   return isIdentifier(node, 'Mustache');

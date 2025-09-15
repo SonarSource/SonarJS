@@ -30,8 +30,7 @@ describe('S3500', () => {
         c = 2;`,
           errors: [
             {
-              message:
-                '{"message":"Correct this attempt to modify \\"c\\" or use \\"let\\" in its declaration.","secondaryLocations":[{"message":"Const declaration","column":8,"line":2,"endColumn":20,"endLine":2}]}',
+              message: String.raw`{"message":"Correct this attempt to modify \"c\" or use \"let\" in its declaration.","secondaryLocations":[{"message":"Const declaration","column":8,"line":2,"endColumn":20,"endLine":2}]}`,
               line: 3,
               column: 9,
               endLine: 3,

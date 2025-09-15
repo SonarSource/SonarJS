@@ -25,22 +25,6 @@ describe('S5868', () => {
     const combiningClass = c =>
       `Move this Unicode combined character '${c}' outside of the character class`;
 
-    function surrogatePair(c, output?, start?: number, end?: number) {
-      const error = {
-        message: `Move this Unicode surrogate pair '${c}' outside of the character class or use 'u' flag`,
-      };
-      if (output) {
-        error['suggestions'] = [{ desc: "Add unicode 'u' flag to regex", output }];
-      }
-      if (start != null) {
-        error['column'] = start;
-      }
-      if (end != null) {
-        error['endColumn'] = end;
-      }
-      return [error];
-    }
-
     const modifiedEmoji = c =>
       `Move this Unicode modified Emoji '${c}' outside of the character class`;
     const regionalIndicator = c =>
@@ -49,11 +33,11 @@ describe('S5868', () => {
 
     ruleTester.run('', rule, {
       valid: [
-        { code: 'var r = /[\\uD83D\\d\\uDC4D]/' },
-        { code: 'var r = /[\\uD83D-\\uDC4D]/' },
+        { code: String.raw`var r = /[\uD83D\d\uDC4D]/` },
+        { code: String.raw`var r = /[\uD83D-\uDC4D]/` },
         { code: 'var r = /[👍]/u' },
-        { code: 'var r = /[\\uD83D\\uDC4D]/u' },
-        { code: 'var r = /[\\u{1F44D}]/u' },
+        { code: String.raw`var r = /[\uD83D\uDC4D]/u` },
+        { code: String.raw`var r = /[\u{1F44D}]/u` },
         { code: 'var r = /❇️/' },
         { code: 'var r = /Á/' },
         { code: 'var r = /[❇]/' },
@@ -63,27 +47,27 @@ describe('S5868', () => {
         { code: 'var r = /[JP]/' },
         { code: 'var r = /👨‍👩‍👦/' },
 
-        { code: 'var r = /[\\uD83D]/' },
-        { code: 'var r = /[\\uDC4D]/' },
-        { code: 'var r = /[\\uD83D]/u' },
-        { code: 'var r = /[\\uDC4D]/u' },
+        { code: String.raw`var r = /[\uD83D]/` },
+        { code: String.raw`var r = /[\uDC4D]/` },
+        { code: String.raw`var r = /[\uD83D]/u` },
+        { code: String.raw`var r = /[\uDC4D]/u` },
 
-        { code: 'var r = /[\\u0301]/' },
-        { code: 'var r = /[\\uFE0F]/' },
-        { code: 'var r = /[\\u0301]/u' },
-        { code: 'var r = /[\\uFE0F]/u' },
+        { code: String.raw`var r = /[\u0301]/` },
+        { code: String.raw`var r = /[\uFE0F]/` },
+        { code: String.raw`var r = /[\u0301]/u` },
+        { code: String.raw`var r = /[\uFE0F]/u` },
 
-        { code: 'var r = /[x\\S]/u' },
+        { code: String.raw`var r = /[x\S]/u` },
         { code: 'var r = /[xa-z]/u' },
 
-        { code: 'var r = /[\\u{1F3FB}]/u' },
+        { code: String.raw`var r = /[\u{1F3FB}]/u` },
         { code: 'var r = /[\u{1F3FB}]/u' },
 
         { code: 'var r = /[🇯]/u' },
         { code: 'var r = /[🇵]/u' },
 
-        { code: 'var r = /[\\u200D]/' },
-        { code: 'var r = /[\\u200D]/u' },
+        { code: String.raw`var r = /[\u200D]/` },
+        { code: String.raw`var r = /[\u200D]/u` },
 
         // don't report and don't crash on invalid regex
         { code: "var r = new RegExp('[Á] [ ');" },
@@ -101,8 +85,10 @@ describe('S5868', () => {
       ],
       invalid: [
         {
-          code: 'var r = /[\\u0041\\u0301-\\u0301]/',
-          errors: [{ column: 17, endColumn: 23, message: combiningClass('\\u0041\\u0301') }],
+          code: String.raw`var r = /[\u0041\u0301-\u0301]/`,
+          errors: [
+            { column: 17, endColumn: 23, message: combiningClass(String.raw`\u0041\u0301`) },
+          ],
         },
         {
           code: 'var r = /[Á]/',
@@ -130,16 +116,16 @@ describe('S5868', () => {
           errors: [{ message: combiningClass('Á') }],
         },
         {
-          code: 'var r = /[\\u0041\\u0301]/',
-          errors: [{ message: combiningClass('\\u0041\\u0301') }],
+          code: String.raw`var r = /[\u0041\u0301]/`,
+          errors: [{ message: combiningClass(String.raw`\u0041\u0301`) }],
         },
         {
-          code: 'var r = /[\\u0041\\u0301]/u',
-          errors: [{ message: combiningClass('\\u0041\\u0301') }],
+          code: String.raw`var r = /[\u0041\u0301]/u`,
+          errors: [{ message: combiningClass(String.raw`\u0041\u0301`) }],
         },
         {
-          code: 'var r = /[\\u{41}\\u{301}]/u',
-          errors: [{ message: combiningClass('\\u{41}\\u{301}') }],
+          code: String.raw`var r = /[\u{41}\u{301}]/u`,
+          errors: [{ message: combiningClass(String.raw`\u{41}\u{301}`) }],
         },
         {
           code: 'var r = /[❇️]/',
@@ -150,16 +136,16 @@ describe('S5868', () => {
           errors: [{ message: combiningClass('❇️') }],
         },
         {
-          code: 'var r = /[\\u2747\\uFE0F]/',
-          errors: [{ message: combiningClass('\\u2747\\uFE0F') }],
+          code: String.raw`var r = /[\u2747\uFE0F]/`,
+          errors: [{ message: combiningClass(String.raw`\u2747\uFE0F`) }],
         },
         {
-          code: 'var r = /[\\u2747\\uFE0F]/u',
-          errors: [{ message: combiningClass('\\u2747\\uFE0F') }],
+          code: String.raw`var r = /[\u2747\uFE0F]/u`,
+          errors: [{ message: combiningClass(String.raw`\u2747\uFE0F`) }],
         },
         {
-          code: 'var r = /[\\u{2747}\\u{FE0F}]/u',
-          errors: [{ message: combiningClass('\\u{2747}\\u{FE0F}') }],
+          code: String.raw`var r = /[\u{2747}\u{FE0F}]/u`,
+          errors: [{ message: combiningClass(String.raw`\u{2747}\u{FE0F}`) }],
         },
         {
           code: String.raw`var r = new globalThis.RegExp("[❇️]", "")`,
@@ -176,8 +162,8 @@ describe('S5868', () => {
           errors: surrogatePair('👍', 'var r = /[👍]/u', 12, 13),
         },
         {
-          code: 'var r = /[\\uD83D\\uDC4D]/',
-          errors: surrogatePair('\\uD83D\\uDC4D', 'var r = /[\\uD83D\\uDC4D]/u'),
+          code: String.raw`var r = /[\uD83D\uDC4D]/`,
+          errors: surrogatePair(String.raw`\uD83D\uDC4D`, String.raw`var r = /[\uD83D\uDC4D]/u`),
         },
         {
           code: 'var r = /(?<=[👍])/',
@@ -201,12 +187,12 @@ describe('S5868', () => {
           errors: [{ column: 20, endColumn: 38, message: modifiedEmoji('👶🏻') }],
         },
         {
-          code: 'var r = /[\\uD83D\\uDC76\\uD83C\\uDFFB]/u',
-          errors: [{ message: modifiedEmoji('\\uD83D\\uDC76\\uD83C\\uDFFB') }],
+          code: String.raw`var r = /[\uD83D\uDC76\uD83C\uDFFB]/u`,
+          errors: [{ message: modifiedEmoji(String.raw`\uD83D\uDC76\uD83C\uDFFB`) }],
         },
         {
-          code: 'var r = /[\\u{1F476}\\u{1F3FB}]/u',
-          errors: [{ message: modifiedEmoji('\\u{1F476}\\u{1F3FB}') }],
+          code: String.raw`var r = /[\u{1F476}\u{1F3FB}]/u`,
+          errors: [{ message: modifiedEmoji(String.raw`\u{1F476}\u{1F3FB}`) }],
         },
         {
           code: 'var r = /[🇯🇵]/',
@@ -233,12 +219,12 @@ describe('S5868', () => {
           errors: [{ column: 20, endColumn: 38, message: regionalIndicator('🇯🇵') }],
         },
         {
-          code: 'var r = /[\\uD83C\\uDDEF\\uD83C\\uDDF5]/u',
-          errors: [{ message: regionalIndicator('\\uD83C\\uDDEF\\uD83C\\uDDF5') }],
+          code: String.raw`var r = /[\uD83C\uDDEF\uD83C\uDDF5]/u`,
+          errors: [{ message: regionalIndicator(String.raw`\uD83C\uDDEF\uD83C\uDDF5`) }],
         },
         {
-          code: 'var r = /[\\u{1F1EF}\\u{1F1F5}]/u',
-          errors: [{ message: regionalIndicator('\\u{1F1EF}\\u{1F1F5}') }],
+          code: String.raw`var r = /[\u{1F1EF}\u{1F1F5}]/u`,
+          errors: [{ message: regionalIndicator(String.raw`\u{1F1EF}\u{1F1F5}`) }],
         },
         {
           code: 'var r = /[👨‍👩‍👦]/',
@@ -261,11 +247,11 @@ describe('S5868', () => {
           errors: [{ column: 20, endColumn: 42, message: zwj }],
         },
         {
-          code: 'var r = /[\\uD83D\\uDC68\\u200D\\uD83D\\uDC69\\u200D\\uD83D\\uDC66]/u',
+          code: String.raw`var r = /[\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC66]/u`,
           errors: [{ message: zwj }],
         },
         {
-          code: 'var r = /[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]/u',
+          code: String.raw`var r = /[\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F466}]/u`,
           errors: [{ message: zwj }],
         },
 
@@ -309,7 +295,7 @@ describe('S5868', () => {
         {
           code: String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "")`,
           errors: surrogatePair(
-            '\\uD83D\\uDC4D',
+            String.raw`\uD83D\uDC4D`,
             String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "u")`,
           ),
         },
@@ -329,11 +315,11 @@ describe('S5868', () => {
         },
         {
           code: String.raw`var r = new RegExp("[\\uD83D\\uDC76\\uD83C\\uDFFB]", "u")`,
-          errors: [{ message: modifiedEmoji('\\uD83D\\uDC76\\uD83C\\uDFFB') }],
+          errors: [{ message: modifiedEmoji(String.raw`\uD83D\uDC76\uD83C\uDFFB`) }],
         },
         {
           code: String.raw`var r = new RegExp("[\\u{1F476}\\u{1F3FB}]", "u")`,
-          errors: [{ message: modifiedEmoji('\\u{1F476}\\u{1F3FB}') }],
+          errors: [{ message: modifiedEmoji(String.raw`\u{1F476}\u{1F3FB}`) }],
         },
         {
           code: String.raw`var r = new RegExp("[🇯🇵]", "")`,
@@ -361,11 +347,11 @@ describe('S5868', () => {
         },
         {
           code: String.raw`var r = new RegExp("[\\uD83C\\uDDEF\\uD83C\\uDDF5]", "u")`,
-          errors: [{ message: regionalIndicator('\\uD83C\\uDDEF\\uD83C\\uDDF5') }],
+          errors: [{ message: regionalIndicator(String.raw`\uD83C\uDDEF\uD83C\uDDF5`) }],
         },
         {
           code: String.raw`var r = new RegExp("[\\u{1F1EF}\\u{1F1F5}]", "u")`,
-          errors: [{ message: regionalIndicator('\\u{1F1EF}\\u{1F1F5}') }],
+          errors: [{ message: regionalIndicator(String.raw`\u{1F1EF}\u{1F1F5}`) }],
         },
         {
           code: String.raw`var r = new RegExp("[👨‍👩‍👦]", "")`,
@@ -407,3 +393,19 @@ describe('S5868', () => {
     });
   });
 });
+
+function surrogatePair(c, output?, start?: number, end?: number) {
+  const error = {
+    message: `Move this Unicode surrogate pair '${c}' outside of the character class or use 'u' flag`,
+  };
+  if (output) {
+    error['suggestions'] = [{ desc: "Add unicode 'u' flag to regex", output }];
+  }
+  if (start != null) {
+    error['column'] = start;
+  }
+  if (end != null) {
+    error['endColumn'] = end;
+  }
+  return [error];
+}

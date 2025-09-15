@@ -58,7 +58,8 @@ export const rule: Rule.RuleModule = {
       const { branches, endsWithElse } = collectIfBranches(ifStmt);
 
       if (allEquivalentWithoutDefault(branches, endsWithElse)) {
-        branches.slice(1).forEach((branch, i) => reportIssue(branch, branches[i], 'branch'));
+        for (const [i, branch] of branches.slice(1).entries())
+          reportIssue(branch, branches[i], 'branch');
         return;
       }
 
@@ -84,9 +85,8 @@ export const rule: Rule.RuleModule = {
       );
 
       if (allEquivalentWithoutDefault(casesWithoutBreak, endsWithDefault)) {
-        nonEmptyCases
-          .slice(1)
-          .forEach((caseStmt, i) => reportIssue(caseStmt, nonEmptyCases[i], 'case'));
+        for (const [i, caseStmt] of nonEmptyCases.slice(1).entries())
+          reportIssue(caseStmt, nonEmptyCases[i], 'case');
         return;
       }
 
@@ -131,16 +131,6 @@ export const rule: Rule.RuleModule = {
       return equivalent;
     }
 
-    function expandSingleBlockStatement(nodes: estree.Statement[]) {
-      if (nodes.length === 1) {
-        const node = nodes[0];
-        if (node.type === 'BlockStatement') {
-          return node.body;
-        }
-      }
-      return nodes;
-    }
-
     function allEquivalentWithoutDefault(
       branches: Array<estree.Node | estree.Node[]>,
       endsWithDefault: boolean,
@@ -169,3 +159,13 @@ export const rule: Rule.RuleModule = {
     }
   },
 };
+
+function expandSingleBlockStatement(nodes: estree.Statement[]) {
+  if (nodes.length === 1) {
+    const node = nodes[0];
+    if (node.type === 'BlockStatement') {
+      return node.body;
+    }
+  }
+  return nodes;
+}

@@ -34,41 +34,6 @@ const validator = new RegExpValidator();
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    function getFlags(node: estree.CallExpression): string | null {
-      if (node.arguments.length < 2) {
-        return '';
-      }
-
-      if (isStringLiteral(node.arguments[1])) {
-        return node.arguments[1].value as string;
-      }
-
-      return null;
-    }
-
-    function validateRegExpPattern(pattern: string, uFlag: boolean): string | null {
-      try {
-        validator.validatePattern(pattern, undefined, undefined, uFlag);
-        return null;
-      } catch (err) {
-        return err.message;
-      }
-    }
-
-    function validateRegExpFlags(flags: string) {
-      try {
-        validator.validateFlags(flags);
-        return null;
-      } catch {
-        return `Invalid flags supplied to RegExp constructor '${flags}'`;
-      }
-    }
-
-    function isRegExpConstructor(call: estree.CallExpression) {
-      const { callee } = call;
-      return callee.type === 'Identifier' && callee.name === 'RegExp';
-    }
-
     function isStringMatch(call: estree.CallExpression) {
       const services = context.sourceCode.parserServices;
       if (!isRequiredParserServices(services)) {
@@ -80,13 +45,6 @@ export const rule: Rule.RuleModule = {
         isStringType(getTypeFromTreeNode(callee.object, services)) &&
         isIdentifier(callee.property, 'match')
       );
-    }
-
-    function getPattern(call: estree.CallExpression): string | null {
-      if (isStringLiteral(call.arguments[0])) {
-        return call.arguments[0].value as string;
-      }
-      return null;
     }
 
     return {
@@ -118,3 +76,45 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getFlags(node: estree.CallExpression): string | null {
+  if (node.arguments.length < 2) {
+    return '';
+  }
+
+  if (isStringLiteral(node.arguments[1])) {
+    return node.arguments[1].value as string;
+  }
+
+  return null;
+}
+
+function validateRegExpPattern(pattern: string, uFlag: boolean): string | null {
+  try {
+    validator.validatePattern(pattern, undefined, undefined, uFlag);
+    return null;
+  } catch (err) {
+    return err.message;
+  }
+}
+
+function validateRegExpFlags(flags: string) {
+  try {
+    validator.validateFlags(flags);
+    return null;
+  } catch {
+    return `Invalid flags supplied to RegExp constructor '${flags}'`;
+  }
+}
+
+function isRegExpConstructor(call: estree.CallExpression) {
+  const { callee } = call;
+  return callee.type === 'Identifier' && callee.name === 'RegExp';
+}
+
+function getPattern(call: estree.CallExpression): string | null {
+  if (isStringLiteral(call.arguments[0])) {
+    return call.arguments[0].value as string;
+  }
+  return null;
+}

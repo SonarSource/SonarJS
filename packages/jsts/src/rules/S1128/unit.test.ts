@@ -463,16 +463,16 @@ bar();`,
       ],
     });
   });
-
-  function errorWithSuggestion(output: string, desc = 'Remove this variable import') {
-    return {
-      messageId: 'removeUnusedImport',
-      suggestions: [
-        {
-          desc,
-          output,
-        },
-      ],
-    };
-  }
 });
+
+function errorWithSuggestion(output: string, desc = 'Remove this variable import') {
+  return {
+    messageId: 'removeUnusedImport',
+    suggestions: [
+      {
+        desc,
+        output,
+      },
+    ],
+  };
+}

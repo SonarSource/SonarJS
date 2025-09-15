@@ -33,16 +33,16 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onCharacterClassEnter: (node: CharacterClass) => {
       const duplicates = new Set<Node>();
       const characterClass = new SimplifiedRegexCharacterClass(flags);
-      node.elements.forEach(element => {
+      for (const element of node.elements) {
         const intersections = new SimplifiedRegexCharacterClass(flags, element).findIntersections(
           characterClass,
         );
         if (intersections.length > 0) {
-          intersections.forEach(intersection => duplicates.add(intersection));
+          for (const intersection of intersections) duplicates.add(intersection);
           duplicates.add(element);
         }
         characterClass.add(element);
-      });
+      }
       if (duplicates.size > 0) {
         const [primary, ...secondaries] = duplicates;
         const secondaryLocations: IssueLocation[] = [];

@@ -34,14 +34,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function canBeProperty(prop: estree.Property | estree.SpreadElement, name: string) {
-      return (
-        prop.type === 'SpreadElement' ||
-        isIdentifier(prop.key, name) ||
-        (isLiteral(prop.key) && prop.key.value === name)
-      );
-    }
-
     function isSensitiveTarCall(call: estree.CallExpression, fqn: string | null) {
       if (fqn === 'tar.x') {
         const firstArg = call.arguments.length > 0 ? call.arguments[0] : null;
@@ -91,3 +83,11 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function canBeProperty(prop: estree.Property | estree.SpreadElement, name: string) {
+  return (
+    prop.type === 'SpreadElement' ||
+    isIdentifier(prop.key, name) ||
+    (isLiteral(prop.key) && prop.key.value === name)
+  );
+}

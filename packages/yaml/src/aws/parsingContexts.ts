@@ -43,14 +43,14 @@ function isInlineAwsLambda(_key: any, pair: any, ancestors: any[]) {
     hasNodeJsRuntime(ancestors) &&
     hasType(ancestors, 'AWS::Lambda::Function')
   );
+}
 
-  function isZipFile(pair: any) {
-    return pair.key.value === 'ZipFile';
-  }
+function isZipFile(pair: any) {
+  return pair.key.value === 'ZipFile';
+}
 
-  function hasCode(ancestors: any[], level = 2) {
-    return ancestors[ancestors.length - level]?.key?.value === 'Code';
-  }
+function hasCode(ancestors: any[], level = 2) {
+  return ancestors[ancestors.length - level]?.key?.value === 'Code';
 }
 
 /**
@@ -68,14 +68,14 @@ function isInlineAwsServerless(_key: any, pair: any, ancestors: any[]) {
     hasNodeJsRuntime(ancestors, 1) &&
     hasType(ancestors, 'AWS::Serverless::Function', 3)
   );
+}
 
-  /**
-   * We need to check the pair directly instead of ancestors,
-   * otherwise it will validate all siblings.
-   */
-  function isInlineCode(pair: any) {
-    return pair.key.value === 'InlineCode';
-  }
+/**
+ * We need to check the pair directly instead of ancestors,
+ * otherwise it will validate all siblings.
+ */
+function isInlineCode(pair: any) {
+  return pair.key.value === 'InlineCode';
 }
 
 function hasNodeJsRuntime(ancestors: any[], level = 3) {

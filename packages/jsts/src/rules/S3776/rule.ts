@@ -229,20 +229,20 @@ export const rule: Rule.RuleModule = {
         // top level function
         if (topLevelHasStructuralComplexity && !reactFunctionalComponent.isConfirmed()) {
           let totalComplexity = topLevelOwnComplexity;
-          secondLevelFunctions.forEach(secondLevelFunction => {
+          for (const secondLevelFunction of secondLevelFunctions) {
             totalComplexity = totalComplexity.concat(secondLevelFunction.complexityIfNested);
-          });
+          }
 
           fileComplexity += totalComplexity.reduce((acc, cur) => acc + cur.complexity, 0);
         } else {
           fileComplexity += topLevelOwnComplexity.reduce((acc, cur) => acc + cur.complexity, 0);
 
-          secondLevelFunctions.forEach(secondLevelFunction => {
+          for (const secondLevelFunction of secondLevelFunctions) {
             fileComplexity += secondLevelFunction.complexityIfThisSecondaryIsTopLevel.reduce(
               (acc, cur) => acc + cur.complexity,
               0,
             );
-          });
+          }
         }
       } else if (enclosingFunctions.length === 1) {
         // second level function
@@ -360,7 +360,7 @@ export const rule: Rule.RuleModule = {
     function visitLogicalExpression(logicalExpression: TSESTree.LogicalExpression) {
       const jsxShortCircuitNodes = getJsxShortCircuitNodes(logicalExpression);
       if (jsxShortCircuitNodes != null) {
-        jsxShortCircuitNodes.forEach(node => consideredLogicalExpressions.add(node));
+        for (const node of jsxShortCircuitNodes) consideredLogicalExpressions.add(node);
         return;
       }
 

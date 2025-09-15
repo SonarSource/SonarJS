@@ -138,55 +138,55 @@ export const rule: Rule.RuleModule = {
 
       return false;
     }
-
-    /**
-     * A props type is considered to be read-only if the type annotation
-     * is decorated with TypeScript utility type `Readonly` or if it refers
-     * to a pure type declaration, i.e. where all its members are read-only.
-     */
-    function isReadOnly(props: Node, services: RequiredParserServices) {
-      const tpe = getTypeFromTreeNode(props, services);
-
-      /* Readonly utility type */
-      const { aliasSymbol } = tpe;
-      if (aliasSymbol?.escapedName === 'Readonly') {
-        return true;
-      }
-
-      /* Resolve symbol definition */
-      const symbol = tpe.getSymbol();
-      if (!symbol?.declarations) {
-        /* Kill the noise */
-        return true;
-      }
-
-      /* Pure type declaration */
-      const declarations = symbol.declarations;
-      for (const decl of declarations) {
-        if (ts.isInterfaceDeclaration(decl)) {
-          const node = services.tsNodeToESTreeNodeMap.get(decl);
-          if (node?.type === 'TSInterfaceDeclaration') {
-            const {
-              body: { body: members },
-            } = node;
-            if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
-              return true;
-            }
-          }
-        }
-
-        if (ts.isTypeLiteralNode(decl)) {
-          const node = services.tsNodeToESTreeNodeMap.get(decl);
-          if (node?.type === 'TSTypeLiteral') {
-            const { members } = node;
-            if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
-              return true;
-            }
-          }
-        }
-      }
-
-      return false;
-    }
   },
 };
+
+/**
+ * A props type is considered to be read-only if the type annotation
+ * is decorated with TypeScript utility type `Readonly` or if it refers
+ * to a pure type declaration, i.e. where all its members are read-only.
+ */
+function isReadOnly(props: Node, services: RequiredParserServices) {
+  const tpe = getTypeFromTreeNode(props, services);
+
+  /* Readonly utility type */
+  const { aliasSymbol } = tpe;
+  if (aliasSymbol?.escapedName === 'Readonly') {
+    return true;
+  }
+
+  /* Resolve symbol definition */
+  const symbol = tpe.getSymbol();
+  if (!symbol?.declarations) {
+    /* Kill the noise */
+    return true;
+  }
+
+  /* Pure type declaration */
+  const declarations = symbol.declarations;
+  for (const decl of declarations) {
+    if (ts.isInterfaceDeclaration(decl)) {
+      const node = services.tsNodeToESTreeNodeMap.get(decl);
+      if (node?.type === 'TSInterfaceDeclaration') {
+        const {
+          body: { body: members },
+        } = node;
+        if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
+          return true;
+        }
+      }
+    }
+
+    if (ts.isTypeLiteralNode(decl)) {
+      const node = services.tsNodeToESTreeNodeMap.get(decl);
+      if (node?.type === 'TSTypeLiteral') {
+        const { members } = node;
+        if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}

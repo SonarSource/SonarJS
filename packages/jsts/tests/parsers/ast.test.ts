@@ -68,7 +68,7 @@ async function parseSourceCode(code: string, parser: Parser) {
 
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
-    parseFunctions.forEach(({ parser, usingBabel }) =>
+    for (const { parser, usingBabel } of parseFunctions)
       test('should not lose information between serialize and deserializing JavaScript', async () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
@@ -76,8 +76,7 @@ describe('ast', () => {
         const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
-      }),
-    );
+      });
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;
@@ -330,12 +329,12 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body).toEqual(undefined);
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
-  [
+  for (const { nodeType, code } of [
     { nodeType: 'TSTypeAliasDeclaration', code: `type A = { a: string };` },
     { nodeType: 'TSInterfaceDeclaration', code: `interface A { a: string; }` },
     { nodeType: 'TSEnumDeclaration', code: `enum Direction {}` },
     { nodeType: 'TSDeclareFunction', code: `declare function foo()` },
-  ].forEach(({ nodeType, code }) =>
+  ])
     test(`should serialize ${nodeType} to empty object`, async () => {
       const ast = await parseSourceCode(code, parsersMap.typescript);
       const protoMessage = visitNode(ast as TSESTree.Program);
@@ -344,8 +343,7 @@ describe('ast', () => {
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
       checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
-    }),
-  );
+    });
 
   test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
     const code = `class Foo { bar() }`;
@@ -415,14 +413,13 @@ function compareASTs(parsedAst, deserializedAst) {
       }
     }
   }
+}
 
-  function areDifferent(a, b) {
-    if (isNullOrUndefined(a) && isNullOrUndefined(b)) return false;
-    return a !== b;
-    function isNullOrUndefined(a) {
-      return a === null || a === undefined;
-    }
+function areDifferent(a: unknown, b: unknown) {
+  if (!a && !b) {
+    return false;
   }
+  return a !== b;
 }
 
 function checkAstIsProperlySerializedAndDeserialized(

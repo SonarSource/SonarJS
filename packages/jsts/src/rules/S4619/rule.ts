@@ -33,41 +33,41 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 
-    function prototypeProperty(expr: estree.Expression | estree.PrivateIdentifier) {
-      if (expr.type !== 'Literal' || typeof expr.value !== 'string') {
-        return false;
-      }
-
-      return ['indexOf', 'lastIndexOf', 'forEach', 'map', 'filter', 'every', 'some'].includes(
-        expr.value,
-      );
+    if (!isRequiredParserServices(services)) {
+      return {};
     }
-
-    if (isRequiredParserServices(services)) {
-      return {
-        "BinaryExpression[operator='in']": (node: estree.Node) => {
-          const { left, right } = node as estree.BinaryExpression;
-          if (isArray(right, services) && !prototypeProperty(left) && !isNumber(left, services)) {
-            const leftText = context.sourceCode.getText(left);
-            const rightText = context.sourceCode.getText(right);
-            context.report({
-              messageId: 'inMisuse',
-              node,
-              suggest: [
-                {
-                  messageId: 'suggestIndexOf',
-                  fix: fixer => fixer.replaceText(node, `${rightText}.indexOf(${leftText}) > -1`),
-                },
-                {
-                  messageId: 'suggestIncludes',
-                  fix: fixer => fixer.replaceText(node, `${rightText}.includes(${leftText})`),
-                },
-              ],
-            });
-          }
-        },
-      };
-    }
-    return {};
+    return {
+      "BinaryExpression[operator='in']": (node: estree.Node) => {
+        const { left, right } = node as estree.BinaryExpression;
+        if (isArray(right, services) && !prototypeProperty(left) && !isNumber(left, services)) {
+          const leftText = context.sourceCode.getText(left);
+          const rightText = context.sourceCode.getText(right);
+          context.report({
+            messageId: 'inMisuse',
+            node,
+            suggest: [
+              {
+                messageId: 'suggestIndexOf',
+                fix: fixer => fixer.replaceText(node, `${rightText}.indexOf(${leftText}) > -1`),
+              },
+              {
+                messageId: 'suggestIncludes',
+                fix: fixer => fixer.replaceText(node, `${rightText}.includes(${leftText})`),
+              },
+            ],
+          });
+        }
+      },
+    };
   },
 };
+
+function prototypeProperty(expr: estree.Expression | estree.PrivateIdentifier) {
+  if (expr.type !== 'Literal' || typeof expr.value !== 'string') {
+    return false;
+  }
+
+  return ['indexOf', 'lastIndexOf', 'forEach', 'map', 'filter', 'every', 'some'].includes(
+    expr.value,
+  );
+}

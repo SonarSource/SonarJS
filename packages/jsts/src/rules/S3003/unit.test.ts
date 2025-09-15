@@ -79,8 +79,7 @@ describe('S3003', () => {
           settings: { sonarRuntime: true },
           errors: [
             {
-              message:
-                '{"message":"Convert operands of this use of \\"<\\" to number type.","secondaryLocations":[{"column":8,"line":3,"endColumn":12,"endLine":3},{"column":15,"line":3,"endColumn":19,"endLine":3}]}',
+              message: String.raw`{"message":"Convert operands of this use of \"<\" to number type.","secondaryLocations":[{"column":8,"line":3,"endColumn":12,"endLine":3},{"column":15,"line":3,"endColumn":19,"endLine":3}]}`,
               line: 3,
               column: 14,
               endLine: 3,

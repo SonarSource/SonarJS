@@ -31,7 +31,7 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
+const arrayMutatingMethods = new Set(['reverse', "'reverse'", '"reverse"', ...sortLike]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -103,7 +103,7 @@ function isArrayMutatingCall(
   services: RequiredParserServices,
   propertyText: string,
 ) {
-  return arrayMutatingMethods.includes(propertyText) && isArray(memberExpression.object, services);
+  return arrayMutatingMethods.has(propertyText) && isArray(memberExpression.object, services);
 }
 
 function isIdentifierOrPropertyAccessExpression(

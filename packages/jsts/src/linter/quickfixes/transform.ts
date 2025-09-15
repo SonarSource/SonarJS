@@ -37,12 +37,12 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
     });
   }
   if (messages.suggestions) {
-    messages.suggestions.forEach(suggestion => {
+    for (const suggestion of messages.suggestions) {
       quickFixes.push({
         message: suggestion.desc,
         edits: [fixToEdit(source, suggestion.fix)],
       });
-    });
+    }
   }
   return quickFixes;
 }

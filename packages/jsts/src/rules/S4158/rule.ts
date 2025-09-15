@@ -97,14 +97,14 @@ export const rule: Rule.RuleModule = {
 
 function reportEmptyCollectionsUsage(scope: Scope.Scope, context: Rule.RuleContext) {
   if (scope.type !== 'global') {
-    scope.variables.forEach(v => {
+    for (const v of scope.variables) {
       reportEmptyCollectionUsage(v, context);
-    });
+    }
   }
 
-  scope.childScopes.forEach(childScope => {
+  for (const childScope of scope.childScopes) {
     reportEmptyCollectionsUsage(childScope, context);
-  });
+  }
 }
 
 function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.RuleContext) {
@@ -139,7 +139,7 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
   }
 
   if (hasAssignmentOfEmptyCollection) {
-    readingUsages.forEach(ref => {
+    for (const ref of readingUsages) {
       context.report({
         messageId: 'reviewUsageOfIdentifier',
         data: {
@@ -147,7 +147,7 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
         },
         node: ref.identifier,
       });
-    });
+    }
   }
 }
 

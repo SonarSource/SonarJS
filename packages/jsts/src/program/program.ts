@@ -168,22 +168,6 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
     missingTsConfig: programOptions.missingTsConfig,
     program,
   };
-
-  function exceptions(filename: string) {
-    const { dir, ext } = path.parse(filename);
-
-    /* JSON files */
-    if (ext === '.json') {
-      return false;
-    }
-
-    /* Node modules */
-    if (toUnixPath(dir).split('/').includes('node_modules')) {
-      return false;
-    }
-
-    return true;
-  }
 }
 
 /**
@@ -289,4 +273,16 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
+}
+
+function exceptions(filename: string) {
+  const { dir, ext } = path.parse(filename);
+
+  /* JSON files */
+  if (ext === '.json') {
+    return false;
+  }
+
+  /* Node modules */
+  return !toUnixPath(dir).split('/').includes('node_modules');
 }

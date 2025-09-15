@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const futureReservedWords = [
+const futureReservedWords = new Set([
   'implements',
   'interface',
   'package',
@@ -39,7 +39,7 @@ const futureReservedWords = [
   'static',
   'yield',
   'await',
-];
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -63,11 +63,13 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkVariablesByScope(scope: Scope.Scope) {
-      scope.variables.filter(v => futureReservedWords.includes(v.name)).forEach(checkVariable);
+      for (const variable of scope.variables.filter(v => futureReservedWords.has(v.name))) {
+        checkVariable(variable);
+      }
 
-      scope.childScopes.forEach(childScope => {
+      for (const childScope of scope.childScopes) {
         checkVariablesByScope(childScope);
-      });
+      }
     }
 
     return {

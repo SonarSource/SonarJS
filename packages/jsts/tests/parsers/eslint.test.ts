@@ -37,7 +37,7 @@ const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
 ];
 
 describe('ESLint-based parsers', () => {
-  cases.forEach(({ syntax, fixture, language }) => {
+  for (const { syntax, fixture, language } of cases) {
     test(`should parse ${syntax} syntax`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
       const fileContent = await readFile(filePath);
@@ -50,5 +50,5 @@ describe('ESLint-based parsers', () => {
       expect(sourceCode.ast).toBeDefined();
       expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     });
-  });
+  }
 });

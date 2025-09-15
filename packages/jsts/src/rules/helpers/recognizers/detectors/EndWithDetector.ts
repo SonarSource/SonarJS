@@ -37,9 +37,9 @@ export default class EndWithDetector extends Detector {
       }
     }
     return 0;
-
-    function isWhitespace(char: string): boolean {
-      return /\s/.test(char);
-    }
   }
+}
+
+function isWhitespace(char: string): boolean {
+  return /\s/.test(char);
 }

@@ -23,7 +23,7 @@ import * as meta from './generated-meta.js';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;
-const WEAK_CURVES = [
+const WEAK_CURVES = new Set([
   'secp112r1',
   'secp112r2',
   'secp128r1',
@@ -48,7 +48,7 @@ const WEAK_CURVES = [
   'c2tnb191v1',
   'c2tnb191v2',
   'c2tnb191v3',
-];
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -103,7 +103,7 @@ export const rule: Rule.RuleModule = {
         namedCurveProperty?.value,
         'Literal',
       )?.value?.toString();
-      if (namedCurveProperty && namedCurve && WEAK_CURVES.includes(namedCurve)) {
+      if (namedCurveProperty && namedCurve && WEAK_CURVES.has(namedCurve)) {
         context.report({
           node: namedCurveProperty,
           messageId: 'strongerCurve',

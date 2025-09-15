@@ -104,17 +104,17 @@ export function parseYaml(parsingContexts: ParsingContext[], text: string): Embe
   }
 
   return embeddedJSs;
+}
 
-  /**
-   * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
-   * as it changes depending on the type of the embedding format.
-   */
-  function fixOffset(offset: number, format: string): number {
-    if ([BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT].includes(format)) {
-      /* +1 for the block marker (`>` or `|`) and +1 for the line break */
-      return offset + 2;
-    } else {
-      return offset;
-    }
+/**
+ * Fixes the offset of the beginning of the embedded JavaScript snippet in the YAML file,
+ * as it changes depending on the type of the embedding format.
+ */
+function fixOffset(offset: number, format: string): number {
+  if ([BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT].includes(format)) {
+    /* +1 for the block marker (`>` or `|`) and +1 for the line break */
+    return offset + 2;
+  } else {
+    return offset;
   }
 }

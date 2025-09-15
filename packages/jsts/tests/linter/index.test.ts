@@ -515,7 +515,7 @@ describe('Linter', () => {
     ]);
   });
 
-  Array.from(quickFixRules).forEach(ruleId =>
+  for (const ruleId of Array.from(quickFixRules))
     it(`should provide quick fixes from enabled fixable rule ${ruleId}`, async () => {
       // we ignore SXXX rules: they are aliases of ESLint keys, for which we have proper fixtures
       if (/^S\d+$/.test(ruleId)) {
@@ -565,8 +565,7 @@ describe('Linter', () => {
         }),
       );
       expect(issue.quickFixes?.length).toBeGreaterThan(0);
-    }),
-  );
+    });
 
   it('should not provide quick fixes from disabled fixable rules', async () => {
     const baseDir = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'quickfixes');

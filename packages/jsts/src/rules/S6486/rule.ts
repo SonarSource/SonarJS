@@ -61,12 +61,12 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (node.type === 'TemplateLiteral') {
     // key={`foo-${bar}`}
-    node.expressions.filter(isGeneratedExpression).forEach(() => {
+    if (node.expressions.some(isGeneratedExpression)) {
       context.report({
         messageId: 'noGeneratedKeys',
         node: node as estree.Node,
       });
-    });
+    }
 
     return;
   }
@@ -77,12 +77,12 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
       node,
     ) as TSESTree.CallExpression[];
 
-    callExpressions.filter(isGeneratedExpression).forEach(() => {
+    if (callExpressions.some(isGeneratedExpression)) {
       context.report({
         messageId: 'noGeneratedKeys',
         node: node as estree.Node,
       });
-    });
+    }
 
     return;
   }

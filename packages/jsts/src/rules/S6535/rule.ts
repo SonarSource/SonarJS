@@ -63,12 +63,13 @@ export const rule: Rule.RuleModule = {
 function decorateNoNonoctalDecimalEscape(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, descriptor) => {
     const { suggest, ...rest } = descriptor;
-    suggest?.forEach(s => {
-      const suggestion = s as { messageId: string };
-      if (suggestion.messageId === 'escapeBackslash') {
-        suggestion.messageId = 'nonOctalEscapeBacklash';
+    if (suggest)
+      for (const s of suggest) {
+        const suggestion = s as { messageId: string };
+        if (suggestion.messageId === 'escapeBackslash') {
+          suggestion.messageId = 'nonOctalEscapeBacklash';
+        }
       }
-    });
     context.report({ suggest, ...rest });
   });
 }

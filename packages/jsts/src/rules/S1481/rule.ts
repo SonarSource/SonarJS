@@ -52,17 +52,12 @@ export const rule: Rule.RuleModule = {
 
       if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
         const messageAndData = getMessageAndData(v.name, type === 'FunctionName');
-        defs.forEach(def =>
+        for (const def of defs)
           context.report({
             node: def,
             ...messageAndData,
-          }),
-        );
+          });
       }
-    }
-
-    function isParentOfModuleScope(scope: Scope.Scope) {
-      return scope.childScopes.some(s => s.type === 'module');
     }
 
     function checkScope(
@@ -77,10 +72,10 @@ export const rule: Rule.RuleModule = {
       }
 
       if (toCheck !== 'nothing' && scope.type !== 'function-expression-name') {
-        scope.variables.forEach(v => checkVariable(v, toCheck as 'let-const-function' | 'all'));
+        for (const v of scope.variables) checkVariable(v, toCheck as 'let-const-function' | 'all');
       }
 
-      scope.childScopes.forEach(childScope => checkScope(childScope, toCheck));
+      for (const childScope of scope.childScopes) checkScope(childScope, toCheck);
     }
 
     return {
@@ -92,7 +87,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        elements.forEach(element => {
+        for (const element of elements) {
           if (
             element.type === 'Property' &&
             element.shorthand &&
@@ -100,7 +95,7 @@ export const rule: Rule.RuleModule = {
           ) {
             toIgnore.push(element.value);
           }
-        });
+        }
       },
 
       JSXIdentifier: (node: estree.Node) => {
@@ -116,6 +111,10 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isParentOfModuleScope(scope: Scope.Scope) {
+  return scope.childScopes.some(s => s.type === 'module');
+}
 
 function getMessageAndData(name: string, isFunction: boolean) {
   if (isFunction) {

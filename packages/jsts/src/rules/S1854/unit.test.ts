@@ -420,19 +420,19 @@ describe('S1854', () => {
       ],
     });
   });
-
-  function noncompliant(code: string) {
-    const nonCompliantLines: number[] = [];
-    code.split('\n').forEach((line, idx) => {
-      if (line.includes('// Noncompliant')) {
-        nonCompliantLines.push(idx + 1);
-      }
-    });
-    return {
-      code,
-      errors: nonCompliantLines.map(l => {
-        return { messageId: 'removeAssignment', line: l };
-      }),
-    };
-  }
 });
+
+function noncompliant(code: string) {
+  const nonCompliantLines: number[] = [];
+  for (const [idx, line] of code.split('\n').entries()) {
+    if (line.includes('// Noncompliant')) {
+      nonCompliantLines.push(idx + 1);
+    }
+  }
+  return {
+    code,
+    errors: nonCompliantLines.map(l => {
+      return { messageId: 'removeAssignment', line: l };
+    }),
+  };
+}

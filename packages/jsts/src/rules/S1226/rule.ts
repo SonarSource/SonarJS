@@ -167,12 +167,12 @@ export const rule: Rule.RuleModule = {
         }
 
         // In case of array or object pattern expression, the left hand side are not declared variables but simply identifiers
-        resolveIdentifiers(parent.left as TSESTree.Node, true)
-          .map(identifier => identifier.name)
-          .forEach(name => {
-            variablesToCheck.add(name);
-            variablesToCheckInCurrentScope.add(name);
-          });
+        for (const name of resolveIdentifiers(parent.left as TSESTree.Node, true).map(
+          identifier => identifier.name,
+        )) {
+          variablesToCheck.add(name);
+          variablesToCheckInCurrentScope.add(name);
+        }
 
         variableUsageContext = {
           type: 'foreach',
@@ -271,13 +271,13 @@ function computeNewContextInfo(
   const referencesByIdentifier = new Map<estree.Identifier, Scope.Reference>();
   const variablesToCheck = new Set<string>(variableUsageContext.variablesToCheck);
   const variablesToCheckInCurrentScope = new Set<string>();
-  context.sourceCode.getDeclaredVariables(node).forEach(variable => {
+  for (const variable of context.sourceCode.getDeclaredVariables(node)) {
     variablesToCheck.add(variable.name);
     variablesToCheckInCurrentScope.add(variable.name);
     for (const currentRef of variable.references) {
       referencesByIdentifier.set(currentRef.identifier, currentRef);
     }
-  });
+  }
   return { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope };
 }
 

@@ -28,7 +28,7 @@ const NON_COMPLIANT_PATTERN = new RegExp(
     QUICKFIX_ID +
     ')?' +
     // messages, ex: {{msg1}} {{msg2}}
-    ' *(?<messages>(\\{\\{.*?\\}\\} *)+)?',
+    String.raw` *(?<messages>(\{\{.*?\}\} *)+)?`,
   'i',
 );
 

@@ -23,7 +23,13 @@ import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const netMaskRegex = /(^[^/]+)\/\d{1,3}$/;
-const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
+const acceptedIpAddresses = new Set([
+  '255.255.255.255',
+  '::1',
+  '::',
+  '0:0:0:0:0:0:0:1',
+  '0:0:0:0:0:0:0:0',
+]);
 const ipV4Octets = 4;
 const ipV4MappedToV6Prefix = '::ffff:0:';
 const acceptedIpV6Starts = [
@@ -48,33 +54,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function isException(ip: string) {
-      return (
-        acceptedIpV6Starts.some(prefix => ip.startsWith(prefix)) ||
-        acceptedIpV4Starts.some(
-          prefix => ip.startsWith(ipV4MappedToV6Prefix + prefix) || ip.startsWith(prefix),
-        ) ||
-        acceptedIpAddresses.includes(ip)
-      );
-    }
-    function isIPV4OctalOrHex(ip: string) {
-      const digits = ip.split('.');
-      if (digits.length !== ipV4Octets) {
-        return false;
-      }
-      const decimalDigits = [];
-      for (const digit of digits) {
-        if (/^0[0-7]*$/.test(digit)) {
-          decimalDigits.push(Number.parseInt(digit, 8));
-        } else if (/^0[xX][0-9a-fA-F]+$/.test(digit)) {
-          decimalDigits.push(Number.parseInt(digit, 16));
-        } else {
-          return false;
-        }
-      }
-      const convertedIp = `${decimalDigits[0]}.${decimalDigits[1]}.${decimalDigits[2]}.${decimalDigits[3]}`;
-      return !isException(convertedIp) && isIP(convertedIp) !== 0;
-    }
     return {
       Literal(node: estree.Node) {
         const { value } = node as estree.Literal;
@@ -99,3 +78,32 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isIPV4OctalOrHex(ip: string) {
+  const digits = ip.split('.');
+  if (digits.length !== ipV4Octets) {
+    return false;
+  }
+  const decimalDigits = [];
+  for (const digit of digits) {
+    if (/^0[0-7]*$/.test(digit)) {
+      decimalDigits.push(Number.parseInt(digit, 8));
+    } else if (/^0[xX][0-9a-fA-F]+$/.test(digit)) {
+      decimalDigits.push(Number.parseInt(digit, 16));
+    } else {
+      return false;
+    }
+  }
+  const convertedIp = `${decimalDigits[0]}.${decimalDigits[1]}.${decimalDigits[2]}.${decimalDigits[3]}`;
+  return !isException(convertedIp) && isIP(convertedIp) !== 0;
+}
+
+function isException(ip: string) {
+  return (
+    acceptedIpV6Starts.some(prefix => ip.startsWith(prefix)) ||
+    acceptedIpV4Starts.some(
+      prefix => ip.startsWith(ipV4MappedToV6Prefix + prefix) || ip.startsWith(prefix),
+    ) ||
+    acceptedIpAddresses.has(ip)
+  );
+}

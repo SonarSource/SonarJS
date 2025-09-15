@@ -57,7 +57,7 @@ describe('patchSourceCode', () => {
     );
   });
 
-  ['body', 'tokens', 'comments'].forEach(property => {
+  for (const property of ['body', 'tokens', 'comments']) {
     it(`should patch ast ${property}`, async () => {
       const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
@@ -79,7 +79,7 @@ describe('patchSourceCode', () => {
 
       expect(patchedNodes).toEqual(referenceNodes);
     });
-  });
+  }
 
   it('should patch parsing errors', async () => {
     const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', 'parsing-error');

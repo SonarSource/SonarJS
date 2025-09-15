@@ -20,7 +20,6 @@ import tsParser from '@typescript-eslint/parser';
 import unicorn from 'eslint-plugin-unicorn';
 
 export default defineConfig([
-  // matches all files because it doesn't specify the `files` or `ignores` key
   {
     ignores: [
       '**/fixtures/**/*', // Ignore all fixtures folders at any depth
@@ -41,17 +40,17 @@ export default defineConfig([
       'unicorn/catch-error-name': ['error', { ignore: ['^(e|ex|exception|err)$'] }],
       'unicorn/consistent-date-clone': 'error',
       'unicorn/consistent-empty-array-spread': 'error',
-      // 'unicorn/consistent-function-scoping': 'error',
+      'unicorn/consistent-function-scoping': ['error', { checkArrowFunctions: false }],
       'unicorn/error-message': 'error',
       'unicorn/new-for-builtins': 'error',
       'unicorn/no-abusive-eslint-disable': 'error',
       'unicorn/no-accessor-recursion': 'error',
       'unicorn/no-anonymous-default-export': 'error',
-      // 'unicorn/no-array-callback-reference': 'error',
-      // 'unicorn/no-array-for-each': 'error',
+      // 'unicorn/no-array-callback-reference': 'error',    DROPPED
+      'unicorn/no-array-for-each': 'error',
       'unicorn/no-array-method-this-argument': 'error',
-      // 'unicorn/no-await-expression-member': 'error',
-      // 'unicorn/no-for-loop': 'error', /// Makes an error
+      // 'unicorn/no-await-expression-member': 'error',     DROPPED
+      // 'unicorn/no-for-loop': 'error',                    DROPPED
       'unicorn/no-instanceof-builtins': 'error',
       'unicorn/no-invalid-fetch-options': 'error',
       'unicorn/no-named-default': 'error',
@@ -96,11 +95,11 @@ export default defineConfig([
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/prefer-number-properties': 'error',
       'unicorn/prefer-prototype-methods': 'error',
-      'unicorn/prefer-regexp-test': 'error',
-      // 'unicorn/prefer-set-has': 'error',
+      // 'unicorn/prefer-regexp-test': 'error', DROPPED
+      'unicorn/prefer-set-has': 'error',
       'unicorn/prefer-set-size': 'error',
       'unicorn/prefer-single-call': 'error',
-      // 'unicorn/prefer-string-raw': 'error',
+      'unicorn/prefer-string-raw': 'error',
       'unicorn/prefer-string-replace-all': 'error',
       'unicorn/prefer-string-trim-start-end': 'error',
       'unicorn/prefer-structured-clone': 'error',

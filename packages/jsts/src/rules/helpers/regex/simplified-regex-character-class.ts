@@ -80,6 +80,7 @@ export class SimplifiedRegexCharacterClass {
 
   isRangeEmpty(from: number, to: number) {
     let isEmpty = true;
+    // eslint-disable-next-line unicorn/no-array-for-each
     this.contents.forEach(() => (isEmpty = false), from, to);
     return isEmpty;
   }

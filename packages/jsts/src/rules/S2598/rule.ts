@@ -61,9 +61,8 @@ export const rule: Rule.RuleModule = {
         formidableObjects.clear();
       },
       'Program:exit'() {
-        formidableObjects.forEach(value =>
-          report(context, value.uploadDirSet, value.keepExtensions, value.callExpression),
-        );
+        for (const value of formidableObjects.values())
+          report(context, value.uploadDirSet, value.keepExtensions, value.callExpression);
       },
     };
   },

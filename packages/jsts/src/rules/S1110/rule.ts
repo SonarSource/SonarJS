@@ -65,7 +65,7 @@ function checkRedundantParentheses(
   // One pair of parentheses is allowed for readability purposes
   parenthesesPairsAroundNode.shift();
 
-  parenthesesPairsAroundNode.forEach(parentheses => {
+  for (const parentheses of parenthesesPairsAroundNode) {
     report(
       context,
       {
@@ -85,7 +85,7 @@ function checkRedundantParentheses(
       },
       [toSecondaryLocation(parentheses.closingParenthesis)],
     );
-  });
+  }
 }
 
 function getParenthesesPairsAround(

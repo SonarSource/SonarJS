@@ -266,22 +266,22 @@ describe('S1751', () => {
     }`),
       ],
     });
-
-    function invalid(code: string) {
-      return {
-        code,
-        errors: [
-          {
-            messageId: 'invalid',
-          },
-        ],
-      };
-    }
-
-    function valid(code: string) {
-      return {
-        code,
-      };
-    }
   });
 });
+
+function invalid(code: string) {
+  return {
+    code,
+    errors: [
+      {
+        messageId: 'invalid',
+      },
+    ],
+  };
+}
+
+function valid(code: string) {
+  return {
+    code,
+  };
+}

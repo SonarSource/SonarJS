@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
         const scope = context.sourceCode.getScope(node);
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
         const moduleScope = findModuleScope(context);
-        moduleScope?.variables.forEach(variable => {
+        for (const variable of moduleScope?.variables ?? []) {
           if (scope.variables.some(global => global.name === variable.name)) {
             // Avoid reporting on redefinitions of actual global variables
             return;
@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
               return;
             }
           }
-        });
+        }
       },
     };
   },

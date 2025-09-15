@@ -24,7 +24,7 @@ import * as meta from './generated-meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
 import path from 'node:path';
 
-const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
+const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
 const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
 
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
         const groupedComments = getGroupedComments(
           context.sourceCode.getAllComments() as TSESTree.Comment[],
         );
-        groupedComments.forEach(groupComment => {
+        for (const groupComment of groupedComments) {
           const rawTextTrimmed = groupComment.value.trim();
           if (
             rawTextTrimmed !== '}' &&
@@ -107,7 +107,7 @@ export const rule: Rule.RuleModule = {
               ],
             });
           }
-        });
+        }
       },
     };
   },
@@ -133,7 +133,7 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   if (parsedBody.length === 1) {
     const singleStatement = parsedBody[0];
     return (
-      EXCLUDED_STATEMENTS.includes(singleStatement.type) ||
+      EXCLUDED_STATEMENTS.has(singleStatement.type) ||
       isReturnThrowExclusion(singleStatement) ||
       isExpressionExclusion(singleStatement, code)
     );
@@ -160,13 +160,13 @@ function containsCode(value: string, context: Rule.RuleContext) {
       'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
     const parseResult = new SourceCode(value, result as AST.Program);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
-  } catch (exception) {
+  } catch {
     return false;
   }
+}
 
-  function couldBeJsCode(input: string): boolean {
-    return recognizer.extractCodeLines(input.split('\n')).length > 0;
-  }
+function couldBeJsCode(input: string): boolean {
+  return recognizer.extractCodeLines(input.split('\n')).length > 0;
 }
 
 function injectMissingBraces(value: string) {

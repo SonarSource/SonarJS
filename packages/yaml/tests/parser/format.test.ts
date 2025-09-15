@@ -24,7 +24,7 @@ import { readFile } from '../../../shared/src/helpers/files.js';
 describe('isSupportedFormat', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');
 
-  SUPPORTED_STRING_FORMATS.forEach(format => {
+  for (const format of SUPPORTED_STRING_FORMATS) {
     test('should support the string format %o', async () => {
       const filePath = path.join(fixtures, `${format}.yaml`);
       const fileContents = await readFile(filePath);
@@ -37,7 +37,7 @@ describe('isSupportedFormat', () => {
       } = doc as any;
       expect(isSupportedFormat(pair)).toBeTruthy();
     });
-  });
+  }
 
   test('should not support an unsupported string format', async () => {
     const filePath = path.join(fixtures, 'unsupported.yaml');

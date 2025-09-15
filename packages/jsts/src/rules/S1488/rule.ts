@@ -106,33 +106,6 @@ export const rule: Rule.RuleModule = {
       ];
     }
 
-    function getOnlyReturnedVariable(node: estree.Statement) {
-      return (node.type === 'ReturnStatement' || node.type === 'ThrowStatement') &&
-        node.argument &&
-        isIdentifier(node.argument)
-        ? node.argument
-        : undefined;
-    }
-
-    function getOnlyDeclaredVariable(node: estree.Statement) {
-      if (node.type === 'VariableDeclaration' && node.declarations.length === 1) {
-        const { id, init } = node.declarations[0];
-        if (id.type === 'Identifier' && init && !(id as TSESTree.Identifier).typeAnnotation) {
-          return { id, init };
-        }
-      }
-      return undefined;
-    }
-
-    function getVariables(node: estree.Node, context: Rule.RuleContext) {
-      const { variableScope, variables: currentScopeVariables } = context.sourceCode.getScope(node);
-      if (variableScope === context.sourceCode.getScope(node)) {
-        return currentScopeVariables;
-      } else {
-        return currentScopeVariables.concat(variableScope.variables);
-      }
-    }
-
     function hasJSDoc(node: estree.Node) {
       const services = context.sourceCode.parserServices;
       if (!isRequiredParserServices(services)) {
@@ -150,3 +123,30 @@ export const rule: Rule.RuleModule = {
     }
   },
 };
+
+function getOnlyReturnedVariable(node: estree.Statement) {
+  return (node.type === 'ReturnStatement' || node.type === 'ThrowStatement') &&
+    node.argument &&
+    isIdentifier(node.argument)
+    ? node.argument
+    : undefined;
+}
+
+function getOnlyDeclaredVariable(node: estree.Statement) {
+  if (node.type === 'VariableDeclaration' && node.declarations.length === 1) {
+    const { id, init } = node.declarations[0];
+    if (id.type === 'Identifier' && init && !(id as TSESTree.Identifier).typeAnnotation) {
+      return { id, init };
+    }
+  }
+  return undefined;
+}
+
+function getVariables(node: estree.Node, context: Rule.RuleContext) {
+  const { variableScope, variables: currentScopeVariables } = context.sourceCode.getScope(node);
+  if (variableScope === context.sourceCode.getScope(node)) {
+    return currentScopeVariables;
+  } else {
+    return currentScopeVariables.concat(variableScope.variables);
+  }
+}

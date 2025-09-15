@@ -20,11 +20,11 @@ import { visitAndCountIf } from './helpers/index.js';
 /**
  * The ESLint class node types
  */
-const CLASS_NODES = ['ClassDeclaration', 'ClassExpression'];
+const CLASS_NODES = new Set(['ClassDeclaration', 'ClassExpression']);
 
 /**
  * Computes the number of classes in the source code
  */
 export function countClasses(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode, node => CLASS_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => CLASS_NODES.has(node.type));
 }

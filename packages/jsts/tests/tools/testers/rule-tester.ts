@@ -22,7 +22,7 @@ import globals from 'globals';
 import merge from 'lodash.merge';
 
 type Tests = {
-  valid: (string | ESLintRuleTester.ValidTestCase)[];
+  valid: ESLintRuleTester.ValidTestCase[];
   invalid: ESLintRuleTester.InvalidTestCase[];
 };
 
@@ -67,15 +67,12 @@ class DefaultParserRuleTester extends ESLintRuleTester {
   }
 
   run(name: string, rule: Rule.RuleModule, tests: Tests): void {
-    const setFilename = test => {
-      if (!test.filename) {
-        test.filename = placeHolderFilePath;
-      }
-    };
-
-    tests.valid.forEach(setFilename);
-    tests.invalid.forEach(setFilename);
-
+    for (let testCase of tests.valid) {
+      testCase.filename ??= placeHolderFilePath;
+    }
+    for (let testCase of tests.invalid) {
+      testCase.filename ??= placeHolderFilePath;
+    }
     super.run(name, rule, tests);
   }
 }

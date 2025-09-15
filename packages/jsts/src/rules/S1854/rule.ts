@@ -78,16 +78,16 @@ export const rule: Rule.RuleModule = {
       'ObjectPattern:exit': () => {
         const destructuring = destructuringStack.pop();
         if (destructuring?.hasRest) {
-          destructuring.references.forEach(ref => referencesUsedInDestructuring.add(ref));
+          for (const ref of destructuring.references) referencesUsedInDestructuring.add(ref);
         }
       },
 
       'Program:exit': () => {
         lva(liveVariablesMap);
-        liveVariablesMap.forEach(lva => {
+        for (const lva of liveVariablesMap.values()) {
           checkSegment(lva);
           reportNeverReadVariables(lva);
-        });
+        }
       },
 
       // CodePath events
@@ -115,17 +115,17 @@ export const rule: Rule.RuleModule = {
 
     function popAssignmentContext() {
       const assignment = last(codePathStack).assignmentStack.pop()!;
-      assignment.rhs.forEach(r => processReference(r));
-      assignment.lhs.forEach(r => processReference(r));
+      for (const r of assignment.rhs) processReference(r);
+      for (const r of assignment.lhs) processReference(r);
     }
 
     function checkSegment(liveVariables: LiveVariables) {
       const willBeRead = new Set<Scope.Variable>(liveVariables.out);
       const references = [...liveVariables.references].reverse();
-      references.forEach(ref => {
+      for (const ref of references) {
         const variable = ref.resolved;
         if (!variable) {
-          return;
+          continue;
         }
         if (ref.isWrite()) {
           if (!willBeRead.has(variable) && shouldReport(ref)) {
@@ -136,15 +136,15 @@ export const rule: Rule.RuleModule = {
         if (ref.isRead()) {
           willBeRead.add(variable);
         }
-      });
+      }
     }
 
     function reportNeverReadVariables(lva: LiveVariables) {
-      lva.references.forEach(ref => {
+      for (const ref of lva.references) {
         if (shouldReportReference(ref) && !readVariables.has(ref.resolved!)) {
           report(ref);
         }
-      });
+      }
     }
 
     function shouldReport(ref: ReferenceLike) {
@@ -214,23 +214,6 @@ export const rule: Rule.RuleModule = {
       return ref.init && ref.writeExpr && isBasicValue(ref.writeExpr as TSESTree.Node);
     }
 
-    function isBasicValue(node: TSESTree.Node): boolean {
-      switch (node.type) {
-        case 'Literal':
-          return node.value === '' || [0, 1, null, true, false].includes(node.value as any);
-        case 'Identifier':
-          return node.name === 'undefined';
-        case 'UnaryExpression':
-          return isBasicValue(node.argument);
-        case 'ObjectExpression':
-          return node.properties.length === 0;
-        case 'ArrayExpression':
-          return node.elements.length === 0;
-        default:
-          return false;
-      }
-    }
-
     function report(ref: ReferenceLike) {
       context.report({
         messageId: 'removeAssignment',
@@ -266,20 +249,15 @@ export const rule: Rule.RuleModule = {
       return { ref: jsxReference, variable: jsxReference.resolved };
     }
 
-    function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
-      const parent = node.parent;
-      return parent && parent.type === 'JSXAttribute' && parent.name === node;
-    }
-
     function processReference(ref: ReferenceLike) {
       const assignmentStack = last(codePathStack).assignmentStack;
       if (assignmentStack.length > 0) {
         const assignment = last(assignmentStack);
         assignment.add(ref);
       } else {
-        [...currentCodePathSegments].forEach(segment => {
+        for (const segment of currentCodePathSegments) {
           lvaForSegment(segment).add(ref);
-        });
+        }
       }
     }
 
@@ -446,4 +424,26 @@ function findJSXVariableInScope(
     scope &&
     (scope.variables.find(v => v.name === node.name) || findJSXVariableInScope(node, scope.upper))
   );
+}
+
+function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
+  const parent = node.parent;
+  return parent && parent.type === 'JSXAttribute' && parent.name === node;
+}
+
+function isBasicValue(node: TSESTree.Node): boolean {
+  switch (node.type) {
+    case 'Literal':
+      return node.value === '' || [0, 1, null, true, false].includes(node.value as any);
+    case 'Identifier':
+      return node.name === 'undefined';
+    case 'UnaryExpression':
+      return isBasicValue(node.argument);
+    case 'ObjectExpression':
+      return node.properties.length === 0;
+    case 'ArrayExpression':
+      return node.elements.length === 0;
+    default:
+      return false;
+  }
 }

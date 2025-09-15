@@ -34,5 +34,5 @@ function padWithLeadingZeros(s: string) {
 }
 
 function unicodeCharEscape(charCode: number) {
-  return '\\u' + padWithLeadingZeros(charCode.toString(16));
+  return String.raw`\u` + padWithLeadingZeros(charCode.toString(16));
 }

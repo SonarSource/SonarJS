@@ -60,9 +60,9 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         reachingDefinitions(reachingDefsMap);
-        reachingDefsMap.forEach(defs => {
+        for (const defs of reachingDefsMap.values()) {
           checkSegment(defs);
-        });
+        }
         reachingDefsMap.clear();
         variableUsages.clear();
         while (codePathStack.length > 0) {
@@ -91,8 +91,8 @@ export const rule: Rule.RuleModule = {
 
     function popAssignmentContext() {
       const assignment = last(codePathStack).assignmentStack.pop()!;
-      assignment.rhs.forEach(r => processReference(r));
-      assignment.lhs.forEach(r => processReference(r));
+      for (const r of assignment.rhs) processReference(r);
+      for (const r of assignment.lhs) processReference(r);
     }
 
     function pushAssignmentContext(node: AssignmentLike) {
@@ -101,10 +101,10 @@ export const rule: Rule.RuleModule = {
 
     function checkSegment(reachingDefs: ReachingDefinitions) {
       const assignedValuesMap = new Map<Scope.Variable, Values>(reachingDefs.in);
-      reachingDefs.references.forEach(ref => {
+      for (const ref of reachingDefs.references) {
         const variable = ref.resolved;
         if (!variable || !ref.isWrite() || !shouldReport(ref)) {
-          return;
+          continue;
         }
         const lhsValues = assignedValuesMap.get(variable);
         const rhsValues = resolveAssignedValues(
@@ -118,7 +118,7 @@ export const rule: Rule.RuleModule = {
           checkRedundantAssignement(ref, ref.writeExpr, lhsVal, rhsValues, variable.name);
         }
         assignedValuesMap.set(variable, rhsValues);
-      });
+      }
     }
 
     function checkRedundantAssignement(
@@ -195,10 +195,10 @@ export const rule: Rule.RuleModule = {
         const assignment = last(assignmentStack);
         assignment.add(ref);
       } else {
-        currentCodePathSegments.forEach(segment => {
+        for (const segment of currentCodePathSegments) {
           const reachingDefs = reachingDefsForSegment(segment);
           reachingDefs.add(ref);
-        });
+        }
       }
     }
 

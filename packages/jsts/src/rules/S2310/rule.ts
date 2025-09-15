@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
     ) {
       const counters: estree.Identifier[] = [];
       extractCounters(updateNode, counters);
-      counters.forEach(counter => checkCounter(counter, loopBody as estree.BlockStatement));
+      for (const counter of counters) checkCounter(counter, loopBody as estree.BlockStatement);
     }
 
     function checkCounter(counter: estree.Identifier, block: estree.Node) {
@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
       if (!variable) {
         return;
       }
-      variable.references.forEach(ref => {
+      for (const ref of variable.references) {
         if (ref.isWrite() && isUsedInsideBody(ref.identifier, block)) {
           report(
             context,
@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = {
             [toSecondaryLocation(counter, 'Counter variable update')],
           );
         }
-      });
+      }
     }
 
     return {
@@ -83,9 +83,9 @@ function collectCountersForX(
   counters: estree.Identifier[],
 ) {
   if (updateExpression.type === 'VariableDeclaration') {
-    updateExpression.declarations.forEach(decl => collectCountersForX(decl.id, counters));
+    for (const decl of updateExpression.declarations) collectCountersForX(decl.id, counters);
   } else {
-    resolveIdentifiers(updateExpression as TSESTree.Node, true).forEach(id => counters.push(id));
+    for (const id of resolveIdentifiers(updateExpression as TSESTree.Node, true)) counters.push(id);
   }
 }
 
@@ -97,7 +97,7 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
   } else if (updateExpression.type === 'UpdateExpression') {
     counter = updateExpression.argument;
   } else if (updateExpression.type === 'SequenceExpression') {
-    updateExpression.expressions.forEach(e => collectCountersFor(e, counters));
+    for (const e of updateExpression.expressions) collectCountersFor(e, counters);
   }
 
   if (counter && counter.type === 'Identifier') {

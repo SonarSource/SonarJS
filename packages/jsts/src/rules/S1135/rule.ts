@@ -45,7 +45,7 @@ export function reportPatternInComment(
   messageId: string,
 ) {
   const sourceCode = context.sourceCode;
-  (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
+  for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
     const rawText = comment.value.toLowerCase();
 
     if (rawText.includes(pattern)) {
@@ -61,7 +61,7 @@ export function reportPatternInComment(
         }
       }
     }
-  });
+  }
 }
 
 function isLetterAround(line: string, start: number, pattern: string) {

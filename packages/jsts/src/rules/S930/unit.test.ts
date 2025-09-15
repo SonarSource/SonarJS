@@ -191,36 +191,36 @@ describe('S930', () => {
       ],
     });
   });
-
-  function message(expected: number, provided: number, extra = {}) {
-    // prettier-ignore
-    const expectedArguments =
-    expected === 0 ? "no arguments" :
-    expected === 1 ? "1 argument" :
-    `${expected} arguments`;
-
-    // prettier-ignore
-    const providedArguments =
-    provided === 0 ? "none was" :
-    provided === 1 ? "1 was" :
-    `${provided} were`;
-
-    return {
-      messageId: 'tooManyArguments',
-      data: {
-        expectedArguments,
-        providedArguments,
-      },
-      ...extra,
-    };
-  }
-
-  function encodedMessage(expected: number, provided: number, secondaryLocations: IssueLocation[]) {
-    const testCaseError = message(expected, provided);
-
-    return JSON.stringify({
-      message: `This function expects ${testCaseError.data?.expectedArguments}, but ${testCaseError.data?.providedArguments} provided.`,
-      secondaryLocations,
-    });
-  }
 });
+
+function encodedMessage(expected: number, provided: number, secondaryLocations: IssueLocation[]) {
+  const testCaseError = message(expected, provided);
+
+  return JSON.stringify({
+    message: `This function expects ${testCaseError.data?.expectedArguments}, but ${testCaseError.data?.providedArguments} provided.`,
+    secondaryLocations,
+  });
+}
+
+function message(expected: number, provided: number, extra = {}) {
+  // prettier-ignore
+  const expectedArguments =
+    expected === 0 ? "no arguments" :
+      expected === 1 ? "1 argument" :
+        `${expected} arguments`;
+
+  // prettier-ignore
+  const providedArguments =
+    provided === 0 ? "none was" :
+      provided === 1 ? "1 was" :
+        `${provided} were`;
+
+  return {
+    messageId: 'tooManyArguments',
+    data: {
+      expectedArguments,
+      providedArguments,
+    },
+    ...extra,
+  };
+}

@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
               node,
             });
           } else {
-            intersection.types.forEach(typeNode => {
+            for (const typeNode of intersection.types) {
               const tp: ts.Type = services.program
                 .getTypeChecker()
                 .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
                   node: typeNode as unknown as estree.Node,
                 });
               }
-            });
+            }
           }
         },
       };

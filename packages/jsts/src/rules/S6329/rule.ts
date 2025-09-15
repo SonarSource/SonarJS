@@ -25,11 +25,11 @@ import * as meta from './generated-meta.js';
 
 const PROPERTIES_POSITION = 2;
 
-const PRIVATE_SUBNETS = [
+const PRIVATE_SUBNETS = new Set([
   'aws_cdk_lib.aws_ec2.SubnetType.PRIVATE_ISOLATED',
   'aws_cdk_lib.aws_ec2.SubnetType.PRIVATE_WITH_EGRESS',
   'aws_cdk_lib.aws_ec2.SubnetType.PRIVATE_WITH_NAT',
-];
+]);
 
 const PUBLIC_SUBNET = 'aws_cdk_lib.aws_ec2.SubnetType.PUBLIC';
 
@@ -132,7 +132,7 @@ function checkDatabaseInstance(expr: NewExpression, ctx: Rule.RuleContext) {
 
 function isPrivateSubnet(node: Node, ctx: Rule.RuleContext) {
   const subnet = getFullyQualifiedName(ctx, node)?.replaceAll('-', '_');
-  return subnet !== undefined && PRIVATE_SUBNETS.includes(subnet);
+  return subnet !== undefined && PRIVATE_SUBNETS.has(subnet);
 }
 
 function isPublicSubnet(node: Node, ctx: Rule.RuleContext) {

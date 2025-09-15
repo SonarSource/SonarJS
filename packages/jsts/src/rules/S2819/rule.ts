@@ -383,7 +383,9 @@ class WindowNameVisitor {
       if (node.type === 'Identifier' && /window/i.test(node.name)) {
         this.hasWindowName = true;
       }
-      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
+      for (const childNode of childrenOf(node, context.sourceCode.visitorKeys)) {
+        visitNode(childNode);
+      }
     };
     visitNode(root);
   }

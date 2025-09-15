@@ -47,14 +47,6 @@ export const rule: Rule.RuleModule = {
       return ['String', 'Math', 'Array', 'Number', 'Date'].includes(fqn);
     }
 
-    function isVarArg(param: ts.ParameterDeclaration) {
-      return !!param.dotDotDotToken;
-    }
-
-    function isTypeParameter(type: ts.Type) {
-      return type.getFlags() & ts.TypeFlags.TypeParameter;
-    }
-
     function declarationMismatch(
       declaration: ts.SignatureDeclaration,
       callExpression: estree.CallExpression,
@@ -117,3 +109,11 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isVarArg(param: ts.ParameterDeclaration) {
+  return !!param.dotDotDotToken;
+}
+
+function isTypeParameter(type: ts.Type) {
+  return type.getFlags() & ts.TypeFlags.TypeParameter;
+}

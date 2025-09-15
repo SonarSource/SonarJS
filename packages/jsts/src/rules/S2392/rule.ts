@@ -66,12 +66,12 @@ export const rule: Rule.RuleModule = {
           return idRange[0] < scopeRange[0] || idRange[1] > scopeRange[1];
         }
 
-        context.sourceCode.getDeclaredVariables(node).forEach(variable => {
+        for (const variable of context.sourceCode.getDeclaredVariables(node)) {
           const referencesOutside = variable.references
             .map(ref => ref.identifier)
             .filter(isOutsideOfScope);
           if (referencesOutside.length === 0) {
-            return;
+            continue;
           }
           const definition = variable.defs.find(def =>
             varDeclaration.declarations.includes(def.node),
@@ -87,9 +87,9 @@ export const rule: Rule.RuleModule = {
               },
               referencesOutside.map(node => toSecondaryLocation(node, 'Outside reference.')),
             );
-            variable.defs.map(def => def.name).forEach(defId => reported.push(defId));
+            for (const defId of variable.defs.map(def => def.name)) reported.push(defId);
           }
-        });
+        }
       },
     };
   },

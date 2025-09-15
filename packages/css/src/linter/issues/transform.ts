@@ -30,22 +30,21 @@ export function transform(results: stylelint.LintResult[], filePath: string): Is
    * There should be only one element in 'results' as we are analyzing
    * only one file at a time.
    */
-  results.forEach(result => {
+  for (const result of results) {
     /** Avoids reporting on "fake" source like <input css 1>  */
     if (result.source !== filePath) {
       debug(
         `For file [${filePath}] received issues with [${result.source}] as a source. They will not be reported.`,
       );
-      return;
+      continue;
     }
-    result.warnings.forEach(warning =>
+    for (const warning of result.warnings)
       issues.push({
         ruleId: warning.rule,
         line: warning.line,
         column: warning.column,
         message: warning.text,
-      }),
-    );
-  });
+      });
+  }
   return issues;
 }

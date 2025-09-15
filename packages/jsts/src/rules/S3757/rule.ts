@@ -22,8 +22,8 @@ import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
-const UNARY_OPERATORS = ['++', '--', '+', '-'];
+const BINARY_OPERATORS = new Set(['/', '*', '%', '-', '-=', '*=', '/=', '%=']);
+const UNARY_OPERATORS = new Set(['++', '--', '+', '-']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
     return {
       'BinaryExpression, AssignmentExpression': (node: estree.Node) => {
         const expression = node as estree.BinaryExpression | estree.AssignmentExpression;
-        if (!BINARY_OPERATORS.includes(expression.operator)) {
+        if (!BINARY_OPERATORS.has(expression.operator)) {
           return;
         }
         const leftType = getTypeFromTreeNode(expression.left, services);
@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
       },
       'UnaryExpression, UpdateExpression': (node: estree.Node) => {
         const expr = node as estree.UpdateExpression | estree.UnaryExpression;
-        if (!UNARY_OPERATORS.includes(expr.operator)) {
+        if (!UNARY_OPERATORS.has(expr.operator)) {
           return;
         }
         const argType = getTypeFromTreeNode(expr.argument, services);

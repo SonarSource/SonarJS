@@ -25,7 +25,7 @@ import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-t
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
-      node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
+      for (const { elements } of node.pattern.alternatives) checkElements(elements, context);
     },
   };
 }, generateMeta(meta));

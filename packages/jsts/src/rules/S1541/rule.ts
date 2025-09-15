@@ -50,14 +50,14 @@ export const rule: Rule.RuleModule = {
         functionsImmediatelyInvoked = [];
       },
       'Program:exit': () => {
-        functionsWithParent.forEach((parent, func) => {
+        for (const [func, parent] of functionsWithParent.entries()) {
           if (
             !functionsDefiningModule.includes(func) &&
             !functionsImmediatelyInvoked.includes(func)
           ) {
             raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
           }
-        });
+        }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
         functionsWithParent.set(node, getParent(context, node)),
@@ -189,7 +189,9 @@ class FunctionComplexityVisitor {
         this.tokens.push(token);
       }
 
-      childrenOf(node, sourceCode.visitorKeys).forEach(visitNode);
+      for (const childNode of childrenOf(node, sourceCode.visitorKeys)) {
+        visitNode(childNode);
+      }
     };
 
     visitNode(this.root);

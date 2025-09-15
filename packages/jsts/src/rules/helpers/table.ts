@@ -36,7 +36,7 @@ type TableCellInternal = TableCell & {
 
 const MAX_ROW_SPAN = 65534;
 const MAX_INVALID_COL_SPAN = 10000;
-const KNOWN_TABLE_STRUCTURE_ELEMENTS = ['thead', 'tbody', 'tfoot'];
+const KNOWN_TABLE_STRUCTURE_ELEMENTS = new Set(['thead', 'tbody', 'tfoot']);
 
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   let span = 1;
@@ -99,14 +99,14 @@ function extractRows(
   const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] | null => {
     const row: TableCellInternal[] = [];
     let unknownRowStructure = false;
-    tree.children.forEach(child => {
+    for (const child of tree.children) {
       if (
         (child.type === 'JSXExpressionContainer' &&
           child.expression.type === 'JSXEmptyExpression') ||
         child.type === 'JSXText'
       ) {
         // Skip comment
-        return;
+        continue;
       }
       const isTdOrTh =
         child.type === 'JSXElement' &&
@@ -114,7 +114,7 @@ function extractRows(
         ['td', 'th'].includes(child.openingElement.name.name);
       if (!isTdOrTh) {
         unknownRowStructure = true;
-        return;
+        continue;
       }
       const colSpanValue = colSpan(child);
       const rowSpanValue = rowSpan(child);
@@ -133,7 +133,7 @@ function extractRows(
         });
       }
       internalNodeCount += 1;
-    });
+    }
     if (unknownRowStructure) {
       return null;
     }
@@ -149,7 +149,7 @@ function extractRows(
     }
   };
 
-  tree.children.forEach(child => {
+  for (const child of tree.children) {
     if (child.type === 'JSXElement') {
       const childType = getElementType(context)(child.openingElement).toLowerCase();
       if (childType === 'tr') {
@@ -161,7 +161,7 @@ function extractRows(
         }
       } else if (childType === 'table') {
         // skip
-      } else if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
+      } else if (KNOWN_TABLE_STRUCTURE_ELEMENTS.has(childType)) {
         handleInternalStructure(child);
       } else if (!isHtmlElement(child)) {
         unknownTableStructure = true;
@@ -174,7 +174,7 @@ function extractRows(
     } else if (child.type === 'JSXFragment') {
       handleInternalStructure(child);
     }
-  });
+  }
   if (unknownTableStructure) {
     return null;
   }

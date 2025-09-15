@@ -22,20 +22,6 @@ describe('S4030', () => {
   it('S4030', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    function invalidTest(code: string) {
-      const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
-      return {
-        code,
-        errors: [
-          {
-            messageId: 'unusedCollection',
-            line,
-            endLine: line,
-          },
-        ],
-      };
-    }
-
     ruleTester.run('Collection contents should be used', rule, {
       valid: [
         {
@@ -248,3 +234,17 @@ describe('S4030', () => {
     });
   });
 });
+
+function invalidTest(code: string) {
+  const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
+  return {
+    code,
+    errors: [
+      {
+        messageId: 'unusedCollection',
+        line,
+        endLine: line,
+      },
+    ],
+  };
+}

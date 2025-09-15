@@ -76,33 +76,33 @@ describe('S3699', () => {
         invalid('declare function noReturn(): undefined; let x = noReturn();'),
       ],
     });
-
-    function invalidPrefixWithFunction(code: string, functionName: string = 'noReturn') {
-      return {
-        code: 'function noReturn() { 1;} ' + code,
-        errors: [
-          {
-            messageId: 'removeUseOfOutput',
-            data: {
-              name: functionName,
-            },
-          },
-        ],
-      };
-    }
-
-    function invalid(code: string) {
-      return {
-        code,
-        errors: [
-          {
-            messageId: 'removeUseOfOutput',
-            data: {
-              name: 'noReturn',
-            },
-          },
-        ],
-      };
-    }
   });
 });
+
+function invalidPrefixWithFunction(code: string, functionName: string = 'noReturn') {
+  return {
+    code: 'function noReturn() { 1;} ' + code,
+    errors: [
+      {
+        messageId: 'removeUseOfOutput',
+        data: {
+          name: functionName,
+        },
+      },
+    ],
+  };
+}
+
+function invalid(code: string) {
+  return {
+    code,
+    errors: [
+      {
+        messageId: 'removeUseOfOutput',
+        data: {
+          name: 'noReturn',
+        },
+      },
+    ],
+  };
+}

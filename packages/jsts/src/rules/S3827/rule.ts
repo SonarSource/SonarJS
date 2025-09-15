@@ -47,10 +47,10 @@ export const rule: Rule.RuleModule = {
         excludedNames.clear();
         undeclaredIdentifiersByName.clear();
         const globalScope = context.sourceCode.getScope(node);
-        globalScope.through.forEach(ref => {
+        for (const ref of globalScope.through) {
           const identifier = ref.identifier;
           if (excludedNames.has(identifier.name)) {
-            return;
+            continue;
           }
           if (
             ref.writeExpr ||
@@ -58,10 +58,10 @@ export const rule: Rule.RuleModule = {
             isWithinWithStatement(identifier as TSESTree.Node)
           ) {
             excludedNames.add(identifier.name);
-            return;
+            continue;
           }
           if (vueMacroNames.has(identifier.name) && isInsideVueSetupScript(identifier, context)) {
-            return;
+            continue;
           }
           const undeclaredIndentifiers = undeclaredIdentifiersByName.get(identifier.name);
           if (undeclaredIndentifiers) {
@@ -69,8 +69,8 @@ export const rule: Rule.RuleModule = {
           } else {
             undeclaredIdentifiersByName.set(identifier.name, [identifier]);
           }
-        });
-        undeclaredIdentifiersByName.forEach((identifiers, name) => {
+        }
+        for (const [name, identifiers] of undeclaredIdentifiersByName.entries()) {
           report(
             context,
             {
@@ -79,7 +79,7 @@ export const rule: Rule.RuleModule = {
             },
             identifiers.slice(1).map(node => toSecondaryLocation(node)),
           );
-        });
+        }
       },
     };
   },

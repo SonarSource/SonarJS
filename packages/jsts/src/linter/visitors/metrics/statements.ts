@@ -20,7 +20,7 @@ import { visitAndCountIf } from './helpers/index.js';
 /**
  * The ESLint statement node types
  */
-const STATEMENT_NODES = [
+const STATEMENT_NODES = new Set([
   'VariableDeclaration',
   'EmptyStatement',
   'ExpressionStatement',
@@ -38,11 +38,11 @@ const STATEMENT_NODES = [
   'ThrowStatement',
   'TryStatement',
   'DebuggerStatement',
-];
+]);
 
 /**
  * Computes the number of statements in the source code
  */
 export function countStatements(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode, node => STATEMENT_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => STATEMENT_NODES.has(node.type));
 }

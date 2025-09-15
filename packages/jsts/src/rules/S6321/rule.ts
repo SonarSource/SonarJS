@@ -89,14 +89,14 @@ const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_ec2.Connections',
 ];
 
-const badPorts: number[] = [22, 3389];
-const badIpsV4: string[] = ['0.0.0.0/0'];
-const badIpsV6: string[] = ['::/0'];
-const badFQNProtocols: string[] = [
+const badPorts = [22, 3389];
+const badIpsV4 = new Set(['0.0.0.0/0']);
+const badIpsV6 = new Set(['::/0']);
+const badFQNProtocols = new Set([
   'aws_cdk_lib.aws_ec2.Protocol.ALL',
   'aws_cdk_lib.aws_ec2.Protocol.TCP',
-];
-const badProtocols: string[] = ['6', 'tcp', 'TCP'];
+]);
+const badProtocols = new Set(['6', 'tcp', 'TCP']);
 
 const templateCallback: { [key: FullyQualifiedName]: AwsCdkConsumer } = {};
 for (const type of TYPES_WITH_CONNECTIONS) {
@@ -245,7 +245,7 @@ function disallowedPortObject(ctx: Rule.RuleContext, node: estree.Node) {
     return false;
   }
   const protocolFQN = normalizeFQN(getFullyQualifiedName(ctx, protocolValue));
-  if (protocolFQN && badFQNProtocols.includes(protocolFQN)) {
+  if (protocolFQN && badFQNProtocols.has(protocolFQN)) {
     const fromPort = Number.parseInt(getPropertyValue(ctx, objExpr, 'fromPort')?.value as string);
     const toPort = Number.parseInt(getPropertyValue(ctx, objExpr, 'toPort')?.value as string);
     return disallowedPort(fromPort, toPort);
@@ -359,13 +359,13 @@ function disallowedPort(startRange?: number, endRange?: number): boolean {
 }
 
 function disallowedIpV4(ip?: string): boolean {
-  return ip ? badIpsV4.includes(ip) : false;
+  return ip ? badIpsV4.has(ip) : false;
 }
 
 function disallowedIpV6(ip?: string): boolean {
-  return ip ? badIpsV6.includes(ip) : false;
+  return ip ? badIpsV6.has(ip) : false;
 }
 
 function disallowedProtocol(protocol?: string): boolean {
-  return protocol ? badProtocols.includes(protocol) : false;
+  return protocol ? badProtocols.has(protocol) : false;
 }

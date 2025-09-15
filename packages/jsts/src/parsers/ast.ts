@@ -389,21 +389,21 @@ function visitLiteral(node: TSESTree.Literal) {
     // simple literal
     return { raw: node.raw, ...translateValue(node.value) };
   }
+}
 
-  function translateValue(value: string | number | boolean | null) {
-    if (typeof value === 'string') {
-      return { valueString: value };
-    }
-    if (typeof value === 'number') {
-      return { valueNumber: value };
-    }
-    if (typeof value === 'boolean') {
-      return { valueBoolean: value };
-    }
-    // The null value is represented by the TS language value 'null'.
-    if (value === null) {
-      return {};
-    }
+function translateValue(value: string | number | boolean | null) {
+  if (typeof value === 'string') {
+    return { valueString: value };
+  }
+  if (typeof value === 'number') {
+    return { valueNumber: value };
+  }
+  if (typeof value === 'boolean') {
+    return { valueBoolean: value };
+  }
+  // The null value is represented by the TS language value 'null'.
+  if (value === null) {
+    return {};
   }
 }
 

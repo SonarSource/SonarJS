@@ -22,13 +22,13 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const NestingStatementLike = [
+const NestingStatementLike = new Set([
   'IfStatement',
   'ForStatement',
   'ForInStatement',
   'ForOfStatement',
   'WhileStatement',
-];
+]);
 
 type Statement = estree.Statement | estree.ModuleDeclaration;
 
@@ -53,21 +53,21 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkStatements(statements: Statement[], context: Rule.RuleContext) {
-  chain(statements)
-    .filter(chainedStatements => chainedStatements.areUnenclosed())
-    .forEach(unenclosedConsecutives => {
-      if (unenclosedConsecutives.areAdjacent()) {
-        raiseAdjacenceIssue(unenclosedConsecutives, context);
-      } else if (unenclosedConsecutives.areBothIndented()) {
-        raiseBlockIssue(
-          unenclosedConsecutives,
-          countStatementsInTheSamePile(unenclosedConsecutives.prev, statements),
-          context,
-        );
-      } else if (unenclosedConsecutives.areInlinedAndIndented()) {
-        raiseInlineAndIndentedIssue(unenclosedConsecutives, context);
-      }
-    });
+  for (const unenclosedConsecutives of chain(statements).filter(chainedStatements =>
+    chainedStatements.areUnenclosed(),
+  )) {
+    if (unenclosedConsecutives.areAdjacent()) {
+      raiseAdjacenceIssue(unenclosedConsecutives, context);
+    } else if (unenclosedConsecutives.areBothIndented()) {
+      raiseBlockIssue(
+        unenclosedConsecutives,
+        countStatementsInTheSamePile(unenclosedConsecutives.prev, statements),
+        context,
+      );
+    } else if (unenclosedConsecutives.areInlinedAndIndented()) {
+      raiseInlineAndIndentedIssue(unenclosedConsecutives, context);
+    }
+  }
 }
 
 function chain(statements: Statement[]): ChainedStatements[] {
@@ -148,7 +148,7 @@ function raiseInlineAndIndentedIssue(
 }
 
 function isNestingStatement(node: estree.Node): node is NestingStatement {
-  return NestingStatementLike.includes(node.type);
+  return NestingStatementLike.has(node.type);
 }
 
 class ChainedStatements {

@@ -95,23 +95,13 @@ export const rule: Rule.RuleModule = {
       },
 
       'Program:exit'() {
-        callExpressionsToCheck.forEach(({ callExpr, functionNode }) => {
+        for (const { callExpr, functionNode } of callExpressionsToCheck) {
           if (!usingArguments.has(functionNode) && !emptyFunctions.has(functionNode)) {
             reportIssue(callExpr, functionNode);
           }
-        });
+        }
       },
     };
-
-    function getSingleDefinition(reference: Scope.Reference): Scope.Definition | undefined {
-      if (reference.resolved) {
-        const variable = reference.resolved;
-        if (variable.defs.length === 1) {
-          return variable.defs[0];
-        }
-      }
-      return undefined;
-    }
 
     function checkArguments(identifier: estree.Identifier) {
       if (identifier.name === 'arguments') {
@@ -194,7 +184,7 @@ export const rule: Rule.RuleModule = {
         }
       }
       // find actual extra arguments to highlight
-      callExpr.arguments.forEach((argument, index) => {
+      for (const [index, argument] of callExpr.arguments.entries()) {
         if (index >= paramLength) {
           const { loc } = argument as TSESTree.CallExpressionArgument;
           secondaryLocations.push({
@@ -205,8 +195,18 @@ export const rule: Rule.RuleModule = {
             endLine: loc.end.line,
           });
         }
-      });
+      }
       return secondaryLocations;
     }
   },
 };
+
+function getSingleDefinition(reference: Scope.Reference): Scope.Definition | undefined {
+  if (reference.resolved) {
+    const variable = reference.resolved;
+    if (variable.defs.length === 1) {
+      return variable.defs[0];
+    }
+  }
+  return undefined;
+}

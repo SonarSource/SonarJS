@@ -60,12 +60,11 @@ const cases = [
 ];
 
 describe('findCommentLines', () => {
-  cases.forEach(({ given, fixture, ignoreHeader, expectedLines }) =>
+  for (const { given, fixture, ignoreHeader, expectedLines } of cases)
     it(`should find comment lines ${given}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'comments', `${fixture}.js`);
       const { sourceCode } = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
-    }),
-  );
+    });
 });

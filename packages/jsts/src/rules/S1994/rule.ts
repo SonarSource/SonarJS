@@ -107,7 +107,7 @@ export const rule: Rule.RuleModule = {
           const assignedExpressions: estree.Node[] = [];
           computeAssignedExpressions(left, assignedExpressions);
           const { updatedExpressions } = peekFor();
-          assignedExpressions.forEach(ass => updatedExpressions.push(ass));
+          for (const ass of assignedExpressions) updatedExpressions.push(ass);
         }
       },
 
@@ -163,10 +163,10 @@ function getCalleeObject(node: estree.CallExpression) {
 function computeAssignedExpressions(node: estree.Node | null, assigned: Array<estree.Node | null>) {
   switch (node?.type) {
     case 'ArrayPattern':
-      node.elements.forEach(element => computeAssignedExpressions(element, assigned));
+      for (const element of node.elements) computeAssignedExpressions(element, assigned);
       break;
     case 'ObjectPattern':
-      node.properties.forEach(property => computeAssignedExpressions(property, assigned));
+      for (const property of node.properties) computeAssignedExpressions(property, assigned);
       break;
     case 'Property':
       computeAssignedExpressions(node.value, assigned);

@@ -35,7 +35,7 @@ import * as meta from './generated-meta.js';
 
 const message = `Add a "return" statement to this callback.`;
 
-const methodsWithCallback = [
+const methodsWithCallback = new Set([
   'every',
   'filter',
   'find',
@@ -49,7 +49,7 @@ const methodsWithCallback = [
   'some',
   'sort',
   'toSorted',
-];
+]);
 
 function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
@@ -84,7 +84,7 @@ export const rule: Rule.RuleModule = {
         }
 
         if (
-          methodsWithCallback.includes(propName) &&
+          methodsWithCallback.has(propName) &&
           (isArray(object, services) || isTypedArray(object, services)) &&
           hasCallBackWithoutReturn(args[0], services)
         ) {

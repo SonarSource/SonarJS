@@ -146,7 +146,7 @@ export const rule: Rule.RuleModule = {
       },
 
       'Program:exit'() {
-        callExpressionsToCheck.forEach((functionDeclaration, callee) => {
+        for (const [callee, functionDeclaration] of callExpressionsToCheck.entries()) {
           if (!functionsWithReturnValue.has(functionDeclaration)) {
             context.report({
               messageId: 'removeUseOfOutput',
@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
               data: { name: callee.name },
             });
           }
-        });
+        }
       },
     };
   },

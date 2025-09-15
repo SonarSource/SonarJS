@@ -22,8 +22,8 @@ import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
-const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
-const CollectionSizeLike = ['length', 'size'];
+const CollectionLike = new Set(['Array', 'Map', 'Set', 'WeakMap', 'WeakSet']);
+const CollectionSizeLike = new Set(['length', 'size']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
             const { object, property } = lhs;
             if (
               property.type === 'Identifier' &&
-              CollectionSizeLike.includes(property.name) &&
+              CollectionSizeLike.has(property.name) &&
               (!isTypeCheckerAvailable || isCollection(object, services))
             ) {
               context.report({
@@ -73,7 +73,7 @@ function isZeroLiteral(node: estree.Node) {
 function isCollection(node: estree.Node, services: ParserServicesWithTypeInformation) {
   const checker = services.program.getTypeChecker();
   const tp = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
-  return !!tp.symbol && CollectionLike.includes(tp.symbol.name);
+  return !!tp.symbol && CollectionLike.has(tp.symbol.name);
 }
 
 function getSuggestion(

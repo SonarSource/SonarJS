@@ -34,8 +34,8 @@ export default function router(
   const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
   if (worker) {
     worker.on('message', message => {
-      workerMessageListeners.permanent.forEach(listener => listener(message));
-      workerMessageListeners.oneTimers.forEach(listener => listener(message));
+      for (const listener of workerMessageListeners.permanent) listener(message);
+      for (const listener of workerMessageListeners.oneTimers) listener(message);
       workerMessageListeners.oneTimers = [];
     });
   }

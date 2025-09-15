@@ -60,8 +60,7 @@ describe('S3686', () => {
               x();`,
           errors: [
             {
-              message:
-                '{"message":"Correct the use of this function; on line 3 it was called without \\"new\\".","secondaryLocations":[{"column":14,"line":3,"endColumn":15,"endLine":3}]}',
+              message: String.raw`{"message":"Correct the use of this function; on line 3 it was called without \"new\".","secondaryLocations":[{"column":14,"line":3,"endColumn":15,"endLine":3}]}`,
               line: 4,
               endLine: 4,
               column: 28,
@@ -79,8 +78,7 @@ describe('S3686', () => {
                 MyObj();`,
           errors: [
             {
-              message:
-                '{"message":"Correct the use of this function; on line 2 it was called with \\"new\\".","secondaryLocations":[{"column":30,"line":2,"endColumn":35,"endLine":2}]}',
+              message: String.raw`{"message":"Correct the use of this function; on line 2 it was called with \"new\".","secondaryLocations":[{"column":30,"line":2,"endColumn":35,"endLine":2}]}`,
               line: 3,
               endLine: 3,
               column: 17,

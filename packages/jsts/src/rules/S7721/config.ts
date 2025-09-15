@@ -14,23 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import Detector from '../Detector.js';
+// https://sonarsource.github.io/rspec/#/rspec/S7721/javascript
 
-export default class CamelCaseDetector extends Detector {
-  scan(line: string): number {
-    for (let i = 0; i < line.length - 1; i++) {
-      if (isLowerCase(line.charAt(i)) && isUpperCase(line.charAt(i + 1))) {
-        return 1;
-      }
-    }
-    return 0;
-  }
-}
+import { ESLintConfiguration } from '../helpers/configs.js';
 
-function isLowerCase(char: string): boolean {
-  return char.toLowerCase() === char;
-}
-
-function isUpperCase(char: string): boolean {
-  return char.toUpperCase() === char;
-}
+export const fields = [
+  [
+    {
+      field: 'checkArrowFunctions',
+      default: false,
+    },
+  ],
+] as const satisfies ESLintConfiguration;

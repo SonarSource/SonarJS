@@ -27,12 +27,12 @@ import {
 
 export type Node = estree.Node | TSESTree.Node;
 
-const MODULE_DECLARATION_NODES = [
+const MODULE_DECLARATION_NODES = new Set([
   'ImportDeclaration',
   'ExportNamedDeclaration',
   'ExportDefaultDeclaration',
   'ExportAllDeclaration',
-];
+]);
 
 function isModuleDeclaration(
   node: estree.Node | undefined,
@@ -41,7 +41,7 @@ function isModuleDeclaration(
   | estree.ExportDefaultDeclaration
   | estree.ExportNamedDeclaration
   | estree.ImportDeclaration {
-  return node !== undefined && MODULE_DECLARATION_NODES.includes(node.type);
+  return node !== undefined && MODULE_DECLARATION_NODES.has(node.type);
 }
 
 export type LoopLike =
@@ -437,12 +437,11 @@ function resolveIdentifiersAcc(
       identifiers.push(node);
       break;
     case 'ObjectPattern':
-      node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers, acceptShorthand));
+      for (const prop of node.properties) resolveIdentifiersAcc(prop, identifiers, acceptShorthand);
       break;
     case 'ArrayPattern':
-      node.elements.forEach(
-        elem => elem && resolveIdentifiersAcc(elem, identifiers, acceptShorthand),
-      );
+      for (const elem of node.elements)
+        elem && resolveIdentifiersAcc(elem, identifiers, acceptShorthand);
       break;
     case 'Property':
       if (acceptShorthand || !node.shorthand) {

@@ -97,14 +97,12 @@ function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
     const issueStart = { line: issue.line, column: issue.column };
     return isBeforeOrEqual(jsStart, issueStart) && isBeforeOrEqual(issueStart, jsEnd);
   });
+}
 
-  function isBeforeOrEqual(a: Position, b: Position) {
-    if (a.line < b.line) {
-      return true;
-    } else if (a.line > b.line) {
-      return false;
-    } else {
-      return a.column <= b.column;
-    }
+function isBeforeOrEqual(a: Position, b: Position) {
+  if (a.line === b.line) {
+    return a.column <= b.column;
+  } else {
+    return a.line < b.line;
   }
 }

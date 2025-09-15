@@ -102,13 +102,12 @@ function checkStringReplaceGroupReferences(
       const references = extractReferences(substr);
       const indexes = new Set<number>();
       const names = new Set<string>();
-      references.forEach(ref =>
-        Number.isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value)),
-      );
-      regex.groups.forEach(group => {
+      for (const ref of references)
+        Number.isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value));
+      for (const group of regex.groups) {
         group.used ||= names.has(group.name);
         group.used ||= indexes.has(group.index);
-      });
+      }
       const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
       if (indexedGroups.length > 0) {
         const locations = prepareSecondaries(regex, indexedGroups, intellisense, 'Group');
@@ -229,7 +228,7 @@ function extractNamedOrDestructuredGroupNodes(node: estree.Node) {
 }
 
 function checkUnusedGroups(intellisense: RegexIntelliSense) {
-  intellisense.getKnowledge().forEach(regex => {
+  for (const regex of intellisense.getKnowledge()) {
     if (regex.matched) {
       const unusedGroups = regex.groups.filter(group => !group.used);
       if (unusedGroups.length) {
@@ -245,7 +244,7 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
         );
       }
     }
-  });
+  }
 }
 
 function prepareSecondaries(
@@ -269,11 +268,11 @@ function prepareSecondaries(
 }
 
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
-  intellisense.getKnowledge().forEach(regex => {
-    regex.groups.forEach(group => {
+  for (const regex of intellisense.getKnowledge()) {
+    for (const group of regex.groups) {
       const locations = prepareSecondaries(regex, [group], intellisense, 'Group');
 
-      group.node.references.forEach(reference => {
+      for (const reference of group.node.references) {
         const loc = getRegexpLocation(regex.node, reference, intellisense.context);
         if (loc && typeof reference.ref === 'number') {
           report(
@@ -285,9 +284,9 @@ function checkIndexedGroups(intellisense: RegexIntelliSense) {
             locations,
           );
         }
-      });
-    });
-  });
+      }
+    }
+  }
 }
 
 interface RegexKnowledge {
@@ -323,10 +322,8 @@ function makeRegexKnowledge(node: estree.Node, regexp: RegExpLiteral): RegexKnow
     onCapturingGroupEnter: group => capturingGroups.push(group),
   });
   const groups: GroupKnowledge[] = [];
-  capturingGroups.forEach(
-    (group, index) =>
-      group.name && groups.push(makeGroupKnowledge(group, backreferences, index + 1)),
-  );
+  for (const [index, group] of capturingGroups.entries())
+    group.name && groups.push(makeGroupKnowledge(group, backreferences, index + 1));
   return { node, regexp, groups, matched: false };
 }
 

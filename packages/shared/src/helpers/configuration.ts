@@ -116,8 +116,8 @@ export function getBaseDir() {
   return configuration.baseDir;
 }
 
-const HTML_EXTENSIONS = ['.html', '.htm'];
-const YAML_EXTENSIONS = ['.yml', '.yaml'];
+const HTML_EXTENSIONS = new Set(['.html', '.htm']);
+const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
 
 function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
@@ -156,11 +156,11 @@ export function isTsFile(filePath: string, contents: string) {
 }
 
 export function isHtmlFile(filePath: string) {
-  return HTML_EXTENSIONS.includes(extname(filePath).toLowerCase());
+  return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
 export function isYamlFile(filePath: string) {
-  return YAML_EXTENSIONS.includes(extname(filePath).toLowerCase());
+  return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
 export function isJsTsFile(filePath: string) {

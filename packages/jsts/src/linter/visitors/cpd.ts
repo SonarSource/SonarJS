@@ -47,22 +47,22 @@ export function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } 
   const tokens = sourceCode.ast.tokens;
   const { jsxTokens, importTokens, requireTokens } = extractTokens(sourceCode);
 
-  tokens.forEach(token => {
+  for (const token of tokens) {
     let text = token.value;
 
     if (text.trim().length === 0) {
       // for EndOfFileToken and JsxText tokens containing only whitespaces
-      return;
+      continue;
     }
 
     if (importTokens.includes(token)) {
       // for tokens from import statements
-      return;
+      continue;
     }
 
     if (requireTokens.includes(token)) {
       // for tokens from require statements
-      return;
+      continue;
     }
 
     if (isStringLiteralToken(token) && !jsxTokens.includes(token)) {
@@ -81,7 +81,7 @@ export function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } 
       },
       image: text,
     });
-  });
+  }
 
   return { cpdTokens };
 }

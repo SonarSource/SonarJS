@@ -57,37 +57,25 @@ function file3() {
         valid(file3, '/*foo http://www.example.org*/', false),
 
         valid(file1, '// copyright 2005', true),
-        valid(file1, '// copyright 20\\d\\d', true),
-        valid(file2, '// copyright 20\\d\\d', true),
-        valid(file2, '// copyright 20\\d\\d\\n// foo', true),
-        valid(file2, '// copyright 20\\d{2}\\r?\\n// foo', true),
+        valid(file1, String.raw`// copyright 20\d\d`, true),
+        valid(file2, String.raw`// copyright 20\d\d`, true),
+        valid(file2, String.raw`// copyright 20\d\d\n// foo`, true),
+        valid(file2, String.raw`// copyright 20\d{2}\r?\n// foo`, true),
 
         // invalid regexp, should log error
         valid('whatever', '*', true),
       ],
       invalid: [
         invalid(`foo();`, '// companyName', false),
-        invalid(file1, '// copyright 20\\d\\d', false),
+        invalid(file1, String.raw`// copyright 20\d\d`, false),
         invalid(file2, '// copyright 2005', false),
         invalid(file2, '// copyright 2012\r\r// foo', false),
         invalid(file2, '// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo', false),
 
-        invalid(file2, '// copyright 20\\d{3}\\n// foo', true),
-        invalid(file2, '// copyright 20\\d\\d\\r// foo', true),
+        invalid(file2, String.raw`// copyright 20\d{3}\n// foo`, true),
+        invalid(file2, String.raw`// copyright 20\d\d\r// foo`, true),
       ],
     });
-
-    function valid(code: string, headerFormat: string, isRegularExpression: boolean) {
-      return {
-        code,
-        options: [
-          {
-            headerFormat,
-            isRegularExpression,
-          },
-        ],
-      };
-    }
 
     function invalid(code: string, headerFormat: string, isRegularExpression: boolean = false) {
       return {
@@ -103,3 +91,15 @@ function file3() {
     }
   });
 });
+
+function valid(code: string, headerFormat: string, isRegularExpression: boolean) {
+  return {
+    code,
+    options: [
+      {
+        headerFormat,
+        isRegularExpression,
+      },
+    ],
+  };
+}

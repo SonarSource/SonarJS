@@ -83,17 +83,16 @@ export function logMemoryError(err: any) {
 
 export function registerGarbageCollectionObserver() {
   const obs = new PerformanceObserver(items => {
-    items
+    for (const item of items
       .getEntries()
       .filter(
         item =>
           (item.detail as NodeGCPerformanceDetail)?.kind === constants.NODE_PERFORMANCE_GC_MAJOR,
-      )
-      .forEach(item => {
-        debug(`Major GC event`);
-        debug(JSON.stringify(item));
-        logHeapStatistics(true);
-      });
+      )) {
+      debug(`Major GC event`);
+      debug(JSON.stringify(item));
+      logHeapStatistics(true);
+    }
   });
   obs.observe({ entryTypes: ['gc'] });
   return () => {

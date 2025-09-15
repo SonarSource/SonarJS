@@ -162,9 +162,9 @@ export async function start(
      */
     function closeServer() {
       debug('Closing server');
-      wss.clients.forEach(client => {
+      for (const client of wss.clients) {
         client.terminate(); // Immediately destroys the connection
-      });
+      }
       wss.close(() => {
         debug('Closed WebSocket connection');
         unregisterGarbageCollectionObserver();

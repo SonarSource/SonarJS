@@ -51,53 +51,6 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function alternateReturnsBoolean(node: estree.IfStatement) {
-      if (node.alternate) {
-        return returnsBoolean(node.alternate);
-      }
-
-      const { parent } = node as TSESTree.IfStatement;
-      if (parent?.type === 'BlockStatement') {
-        for (const [index, stmt] of parent.body.entries()) {
-          if (stmt === node) {
-            return isSimpleReturnBooleanLiteral(parent.body[index + 1] as estree.Statement);
-          }
-          // We check if there are more ifStatements to look for validator patterns
-          else if (
-            stmt.type === 'IfStatement' &&
-            returnsBoolean((stmt as estree.IfStatement).consequent)
-          ) {
-            return false;
-          }
-        }
-      }
-
-      return false;
-    }
-
-    function returnsBoolean(statement: estree.Statement | undefined) {
-      return (
-        statement !== undefined &&
-        (isBlockReturningBooleanLiteral(statement) || isSimpleReturnBooleanLiteral(statement))
-      );
-    }
-
-    function isBlockReturningBooleanLiteral(statement: estree.Statement) {
-      return (
-        statement.type === 'BlockStatement' &&
-        statement.body.length === 1 &&
-        isSimpleReturnBooleanLiteral(statement.body[0])
-      );
-    }
-
-    function isSimpleReturnBooleanLiteral(statement: estree.Node) {
-      return (
-        statement?.type === 'ReturnStatement' &&
-        statement.argument?.type === 'Literal' &&
-        typeof statement.argument.value === 'boolean'
-      );
-    }
-
     function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
       const getFix = (condition: string) => {
         return (fixer: Rule.RuleFixer) => {
@@ -127,21 +80,68 @@ export const rule: Rule.RuleModule = {
         return [{ messageId: 'suggest', fix: getFix(testText) }];
       }
     }
-
-    function isReturningFalse(stmt: estree.Statement): boolean {
-      const returnStmt = (
-        stmt.type === 'BlockStatement' ? stmt.body[0] : stmt
-      ) as estree.ReturnStatement;
-      return (returnStmt.argument as estree.Literal).value === false;
-    }
-
-    function isBooleanExpression(expr: estree.Expression) {
-      return (
-        (expr.type === 'UnaryExpression' || expr.type === 'BinaryExpression') &&
-        ['!', '==', '===', '!=', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(
-          expr.operator,
-        )
-      );
-    }
   },
 };
+
+function isBlockReturningBooleanLiteral(statement: estree.Statement) {
+  return (
+    statement.type === 'BlockStatement' &&
+    statement.body.length === 1 &&
+    isSimpleReturnBooleanLiteral(statement.body[0])
+  );
+}
+
+function isSimpleReturnBooleanLiteral(statement: estree.Node) {
+  return (
+    statement?.type === 'ReturnStatement' &&
+    statement.argument?.type === 'Literal' &&
+    typeof statement.argument.value === 'boolean'
+  );
+}
+
+function isReturningFalse(stmt: estree.Statement): boolean {
+  const returnStmt = (
+    stmt.type === 'BlockStatement' ? stmt.body[0] : stmt
+  ) as estree.ReturnStatement;
+  return (returnStmt.argument as estree.Literal).value === false;
+}
+
+function isBooleanExpression(expr: estree.Expression) {
+  return (
+    (expr.type === 'UnaryExpression' || expr.type === 'BinaryExpression') &&
+    ['!', '==', '===', '!=', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(
+      expr.operator,
+    )
+  );
+}
+
+function returnsBoolean(statement: estree.Statement | undefined) {
+  return (
+    statement !== undefined &&
+    (isBlockReturningBooleanLiteral(statement) || isSimpleReturnBooleanLiteral(statement))
+  );
+}
+
+function alternateReturnsBoolean(node: estree.IfStatement) {
+  if (node.alternate) {
+    return returnsBoolean(node.alternate);
+  }
+
+  const { parent } = node as TSESTree.IfStatement;
+  if (parent?.type === 'BlockStatement') {
+    for (const [index, stmt] of parent.body.entries()) {
+      if (stmt === node) {
+        return isSimpleReturnBooleanLiteral(parent.body[index + 1] as estree.Statement);
+      }
+      // We check if there are more ifStatements to look for validator patterns
+      else if (
+        stmt.type === 'IfStatement' &&
+        returnsBoolean((stmt as estree.IfStatement).consequent)
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return false;
+}

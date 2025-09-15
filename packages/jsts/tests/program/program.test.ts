@@ -135,11 +135,13 @@ describe('program', () => {
     nodeModulesFolder = path.join(import.meta.dirname, 'fixtures');
     do {
       searchFolder = path.join(nodeModulesFolder, 'node_modules', '@tsconfig', 'node_missing');
-      searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'package.json'));
-      searchedFiles.push(path.join(searchFolder, 'package.json'));
-      searchedFiles.push(path.join(searchFolder, 'tsconfig.json'));
-      searchedFiles.push(path.join(searchFolder, 'tsconfig.json.json'));
-      searchedFiles.push(path.join(searchFolder, 'tsconfig.json', 'tsconfig.json'));
+      searchedFiles.push(
+        path.join(searchFolder, 'tsconfig.json', 'package.json'),
+        path.join(searchFolder, 'package.json'),
+        path.join(searchFolder, 'tsconfig.json'),
+        path.join(searchFolder, 'tsconfig.json.json'),
+        path.join(searchFolder, 'tsconfig.json', 'tsconfig.json'),
+      );
       nodeModulesFolder = path.dirname(nodeModulesFolder);
     } while (!isRootNodeModules(searchFolder));
 
@@ -157,9 +159,9 @@ describe('program', () => {
     const fileExistsMock = (configHost.fileExists as Mock<typeof configHost.fileExists>).mock;
     expect(parsedConfigFile.errors).not.toHaveLength(0);
     expect(fileExistsMock.calls.length).toEqual(searchedFiles.length);
-    searchedFiles.forEach((file, index) => {
+    for (const [index, file] of searchedFiles.entries()) {
       expect(fileExistsMock.calls[index].arguments[0]).toEqual(toUnixPath(file));
-    });
+    }
   });
 
   it('should find an existing program', () => {

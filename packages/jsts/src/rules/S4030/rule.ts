@@ -41,12 +41,12 @@ export const rule: Rule.RuleModule = {
         const unusedArrays: Scope.Variable[] = [];
         collectUnusedCollections(context.sourceCode.getScope(node), unusedArrays);
 
-        unusedArrays.forEach(unusedArray => {
+        for (const unusedArray of unusedArrays) {
           context.report({
             messageId: 'unusedCollection',
             node: unusedArray.identifiers[0],
           });
-        });
+        }
       },
     };
   },
@@ -54,14 +54,14 @@ export const rule: Rule.RuleModule = {
 
 function collectUnusedCollections(scope: Scope.Scope, unusedArray: Scope.Variable[]) {
   if (scope.type !== 'global') {
-    scope.variables.filter(isUnusedCollection).forEach(v => {
+    for (const v of scope.variables.filter(isUnusedCollection)) {
       unusedArray.push(v);
-    });
+    }
   }
 
-  scope.childScopes.forEach(childScope => {
+  for (const childScope of scope.childScopes) {
     collectUnusedCollections(childScope, unusedArray);
-  });
+  }
 }
 
 function isExported(variable: Scope.Variable) {
