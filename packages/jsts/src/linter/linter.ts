@@ -339,6 +339,7 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
+  // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const packageJsonDirName = getClosestPackageJSONDir(dirname(filePath), baseDir);
   return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
 }

@@ -16,16 +16,16 @@
  */
 import v8 from 'v8';
 import os from 'os';
-import fs from 'fs';
+import { readFile } from 'node:fs/promises';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
 
 const MB = 1024 * 1024;
 
-export function logMemoryConfiguration() {
+export async function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
   const heapSize = getHeapSize();
-  const dockerMemLimit = readDockerMemoryLimit();
+  const dockerMemLimit = await readDockerMemoryLimit();
   const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB),` : ',';
   info(`Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`);
   if (heapSize > osMem) {
@@ -35,16 +35,16 @@ export function logMemoryConfiguration() {
   }
 }
 
-function readDockerMemoryLimit() {
+async function readDockerMemoryLimit() {
   return (
-    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ??
-    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes')
+    (await readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max')) ??
+    (await readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes'))
   );
 }
 
-function readDockerMemoryLimitFrom(cgroupPath: string) {
+async function readDockerMemoryLimitFrom(cgroupPath: string) {
   try {
-    const mem = Number.parseInt(fs.readFileSync(cgroupPath, { encoding: 'utf8' }));
+    const mem = Number.parseInt(await readFile(cgroupPath, { encoding: 'utf8' }));
     if (Number.isInteger(mem)) {
       return mem / MB;
     }

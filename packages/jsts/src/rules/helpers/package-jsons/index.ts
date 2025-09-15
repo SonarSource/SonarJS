@@ -20,8 +20,13 @@ import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
+import { basename } from 'node:path/posix';
 
 export const PACKAGE_JSON = 'package.json';
+
+export function isPackageJson(path: string) {
+  return basename(path).toLowerCase() === PACKAGE_JSON;
+}
 
 export function fillPackageJsonCaches(
   packageJsons: Map<string, File>,

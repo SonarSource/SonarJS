@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { configs, meta } from '../../src/rules/plugin.js';
-import fs from 'fs';
+import { readdir } from 'node:fs/promises';
 import path from 'path';
 import { valid } from 'semver';
 import { describe, it } from 'node:test';
@@ -50,7 +50,7 @@ const externalPlugins = Object.keys(allExternalRules);
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
-    const ruleIds = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
+    const ruleIds = (await readdir(ruleFolder)).filter(name => /^S\d+/.test(name));
     const usedExternalEslintIds: string[] = [];
 
     for (const ruleId of ruleIds) {

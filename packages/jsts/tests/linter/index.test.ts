@@ -23,7 +23,7 @@ import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
-import fs from 'fs';
+import { readdir } from 'node:fs/promises';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -523,7 +523,7 @@ describe('Linter', () => {
       }
 
       const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'quickfixes');
-      const files = await fs.promises.readdir(fixtures);
+      const files = await readdir(fixtures);
 
       let fixture: string;
       let language: JsTsLanguage;

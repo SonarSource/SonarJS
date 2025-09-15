@@ -55,7 +55,7 @@ const MAX_REQUEST_SIZE = '50mb';
  * @param timeout timeout in ms to shut down the server if unresponsive, if 0, no timeout will be enforced
  * @returns an http server
  */
-export function start(
+export async function start(
   port = 0,
   host = '127.0.0.1',
   worker?: Worker,
@@ -69,7 +69,7 @@ export function start(
     resolveClosed = resolve;
   });
 
-  logMemoryConfiguration();
+  await logMemoryConfiguration();
   if (debugMemory) {
     unregisterGarbageCollectionObserver = registerGarbageCollectionObserver();
   }
