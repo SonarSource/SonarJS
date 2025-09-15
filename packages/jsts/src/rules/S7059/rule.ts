@@ -55,19 +55,19 @@ export const rule: Rule.RuleModule = {
     function asyncStatementInsideConstructor(node: estree.Expression) {
       let classConstructor: estree.MethodDefinition | undefined;
       let statement: estree.Statement | undefined;
-      for (const ancestorNode of context.sourceCode.getAncestors(node)) {
-        if (ancestorNode.type === 'MethodDefinition' && ancestorNode.kind === 'constructor') {
-          classConstructor = ancestorNode;
+      context.sourceCode.getAncestors(node).forEach(node => {
+        if (node.type === 'MethodDefinition' && node.kind === 'constructor') {
+          classConstructor = node;
         }
         if (classConstructor && node.type.endsWith('Statement')) {
-          statement = ancestorNode as estree.Statement;
+          statement = node as estree.Statement;
         }
         // If we find a function declaration it should not be considered as part of the constructor
-        if (classConstructor && statement && isFunctionNode(ancestorNode)) {
+        if (classConstructor && statement && isFunctionNode(node)) {
           statement = undefined;
           classConstructor = undefined;
         }
-      }
+      });
       return statement;
     }
 

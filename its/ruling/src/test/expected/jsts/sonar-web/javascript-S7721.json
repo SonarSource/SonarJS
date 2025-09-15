@@ -9,10 +9,6 @@
 "sonar-web:src/main/js/apps/coding-rules/rule/profile-activation-view.js": [
 35
 ],
-"sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
-95,
-96
-],
 "sonar-web:src/main/js/components/navigator/filters/more-criteria-filters.js": [
 48
 ]

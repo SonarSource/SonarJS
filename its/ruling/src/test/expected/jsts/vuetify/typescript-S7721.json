@@ -1,24 +1,9 @@
 {
-"vuetify:packages/api-generator/src/web-types.ts": [
-23,
-25,
-53,
-110
-],
-"vuetify:packages/docs/src/components/promoted/Script.vue": [
-34
-],
-"vuetify:packages/docs/src/util/markdown-it-rules.ts": [
-56
-],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 193
 ],
 "vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
 174
-],
-"vuetify:packages/vuetify/src/components/VItemGroup/__tests__/VItemGroup.spec.ts": [
-22
 ],
 "vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
 9
@@ -43,8 +28,7 @@
 37
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/validation.spec.ts": [
-13,
-97
+13
 ],
 "vuetify:packages/vuetify/src/composables/items.ts": [
 99
@@ -52,23 +36,7 @@
 "vuetify:packages/vuetify/src/composables/location.ts": [
 41
 ],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-19,
-26,
-47,
-62,
-63
-],
-"vuetify:packages/vuetify/src/directives/touch/__tests__/touch.spec.ts": [
-14
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 51
-],
-"vuetify:packages/vuetify/src/util/__tests__/dom.spec.ts": [
-8
-],
-"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
-63
 ]
 }
