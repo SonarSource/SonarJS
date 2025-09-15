@@ -58,7 +58,7 @@ describe('S3798', () => {
         },
         {
           code: `
-      window.func20 = function(days = 1) {}; // OK    
+      window.func20 = function(days = 1) {}; // OK
             `,
         },
         {
@@ -166,7 +166,7 @@ describe('S3798', () => {
 
       var foo1 = function() {};              // Noncompliant
       var foo2 = function fooo() {};         // Noncompliant
-      var foo3 = (x => Math.sin(x));         // Noncompliant      
+      var foo3 = (x => Math.sin(x));         // Noncompliant
             `,
           errors: 5,
         },
@@ -219,7 +219,7 @@ describe('S3798', () => {
         [a, b] = [1, 2];                     // OK
         [a, b, ...rest] = [1, 2, 3, 4];      // OK
         ({a, b} = {a:1, b:2});               // OK
-        
+
         function bat2() {};                  // OK
       }
             `,
@@ -238,7 +238,7 @@ describe('S3798', () => {
       valid: [
         {
           code: `
-      var HTMLElement;      
+      var HTMLElement;
             `,
         },
       ],

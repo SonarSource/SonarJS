@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3798/javascript
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta, isIdentifier } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
@@ -34,28 +34,35 @@ export const rule: Rule.RuleModule = {
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
         const moduleScope = findModuleScope(context);
         for (const variable of moduleScope?.variables ?? []) {
-          if (scope.variables.some(global => global.name === variable.name)) {
-            // Avoid reporting on redefinitions of actual global variables
-            return;
-          }
-          for (const def of variable.defs) {
-            const defNode = def.node;
-            if (
-              def.type === 'FunctionName' ||
-              (def.type === 'Variable' && def.parent?.kind === 'var' && !isRequire(def.node.init))
-            ) {
-              context.report({
-                node: defNode,
-                messageId: 'defineLocally',
-              });
-              return;
-            }
-          }
+          // moduleScope?.variables.forEach(variable => {
+          processVariable(context, scope, variable);
+
+          // });
         }
       },
     };
   },
 };
+
+function processVariable(context: Rule.RuleContext, scope: Scope.Scope, variable: Scope.Variable) {
+  if (scope.variables.some(global => global.name === variable.name)) {
+    // Avoid reporting on redefinitions of actual global variables
+    return;
+  }
+  for (const def of variable.defs) {
+    const defNode = def.node;
+    if (
+      def.type === 'FunctionName' ||
+      (def.type === 'Variable' && def.parent?.kind === 'var' && !isRequire(def.node.init))
+    ) {
+      context.report({
+        node: defNode,
+        messageId: 'defineLocally',
+      });
+      return;
+    }
+  }
+}
 
 function findModuleScope(context: Rule.RuleContext) {
   return context.sourceCode.scopeManager.scopes.find(s => s.type === 'module');
