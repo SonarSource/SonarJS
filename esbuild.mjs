@@ -17,7 +17,6 @@
 import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
-import { createRequire } from 'node:module';
 
 await esbuild.build({
   entryPoints: ['./server.mjs'],
@@ -29,6 +28,7 @@ await esbuild.build({
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
+  minify: true,
   plugins: [
     textReplace({
       include: /server\.mjs$/,
