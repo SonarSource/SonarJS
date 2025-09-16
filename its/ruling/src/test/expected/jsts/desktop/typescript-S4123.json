@@ -8,5 +8,9 @@
 ],
 "desktop:app/src/ui/app.tsx": [
 1132
+],
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
+207,
+219
 ]
 }
