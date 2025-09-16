@@ -233,14 +233,7 @@ css_ruling_task:
 
 promote_task:
   depends_on:
-    - ws_scan
-    - build_win
-    - plugin_qa_with_node
-    - plugin_qa_without_node
     - css_ruling
-    - ruling
-    - js_ts_ruling
-    - analyze
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:
