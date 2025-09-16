@@ -19,32 +19,30 @@ import { Comment } from './comments.js';
 import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations.js';
 
 const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
-export const QUICKFIX_SEPARATOR = String.raw`[,\s]+`;
+export const QUICKFIX_SEPARATOR = '[,\\s]+';
 export const QUICKFIX_ID =
-  String.raw`\[\[(?<quickfixes>\w+(=\d+)?!?(?:` +
-  QUICKFIX_SEPARATOR +
-  String.raw`(?:\w+(=\d+)?!?))*)\]\]`;
-const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
+  '\\[\\[(?<quickfixes>\\w+(=\\d+)?!?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?!?))*)\\]\\]';
+const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
   ' *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
-    String.raw`fix@(?<quickfixId>\w+)` +
+    'fix@(?<quickfixId>\\w+)' +
     // message, ex: {{msg}}
-    String.raw` *(?:\{\{(?<message>.*?)\}\}(?!\}))? *` +
-    String.raw`(?:\r(\n?)|\n)?`,
+    ' *(?:\\{\\{(?<message>.*?)\\}\\}(?!\\}))? *' +
+    '(?:\\r(\\n?)|\\n)?',
 );
 
-const QUICKFIX_CHANGE_PATTERN = new RegExp(
+const QUICKFIX_CHANGE_PATTERN = RegExp(
   ' *' +
     // quickfix edit, ex: edit@qf1
-    String.raw`(?<type>edit|add|del)@(?<quickfixId>\w+)` +
+    '(?<type>edit|add|del)@(?<quickfixId>\\w+)' +
     LINE_ADJUSTMENT +
     // start and end columns, ex: [[sc=1;ec=5]] both are optional
-    String.raw` *(?:\[\[` +
-    String.raw`(?<firstColumnType>sc|ec)=(?<firstColumnValue>\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\d+))?` +
-    String.raw`\]\])?` +
+    ' *(?:\\[\\[' +
+    '(?<firstColumnType>sc|ec)=(?<firstColumnValue>\\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\\d+))?' +
+    '\\]\\])?' +
     // contents to be applied, ex: {{foo}}
-    String.raw` *(?:\{\{(?<contents>.*?)\}\}(?!\}))?` +
-    String.raw` *(?:\r(\n?)|\n)?`,
+    ' *(?:\\{\\{(?<contents>.*?)\\}\\}(?!\\}))?' +
+    ' *(?:\\r(\\n?)|\\n)?',
 );
 
 type ChangeType = 'add' | 'del' | 'edit';

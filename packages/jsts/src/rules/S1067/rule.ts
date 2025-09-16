@@ -19,7 +19,7 @@
 import { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
       '*': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
-          const expr = statementLevel.at(-1)!;
+          const expr = last(statementLevel);
           expr.incrementNestedExprLevel();
           expr.addOperator(getOperatorToken(tree, context));
         } else if (isScopeLike(tree)) {
@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
       '*:exit': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
-          const expr = statementLevel.at(-1)!;
+          const expr = last(statementLevel);
           expr.decrementNestedExprLevel();
           if (expr.isOnFirstExprLevel()) {
             const operators = expr.getComplexityOperators();
