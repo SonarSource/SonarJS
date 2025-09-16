@@ -28,7 +28,6 @@ await esbuild.build({
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
-  minify: true,
   plugins: [
     textReplace({
       include: /server\.mjs$/,
@@ -64,7 +63,7 @@ await esbuild.build({
       pattern: [
         [
           'var __require = /* @__PURE__ */ createRequire(import.meta.url);',
-          'var __require = require',
+          'var __require = require; require("@eslint-community/eslint-utils");',
         ],
       ],
     }),
