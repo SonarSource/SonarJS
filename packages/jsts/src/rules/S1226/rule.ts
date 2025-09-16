@@ -107,9 +107,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function popContext() {
-      variableUsageContext = variableUsageContext.parentContext
-        ? variableUsageContext.parentContext
-        : variableUsageContext;
+      variableUsageContext = variableUsageContext.parentContext ?? variableUsageContext;
     }
 
     return {
@@ -305,7 +303,7 @@ function getPreciseLocationHolder(
   reference: Scope.Reference,
 ): { node: estree.Node } | { loc: AST.SourceLocation } {
   const identifierLoc = reference.identifier.loc;
-  if (identifierLoc && reference.writeExpr && reference.writeExpr.loc) {
+  if (identifierLoc && reference.writeExpr?.loc) {
     return { loc: { start: identifierLoc.start, end: reference.writeExpr.loc.end } };
   }
   return { node: reference.identifier };

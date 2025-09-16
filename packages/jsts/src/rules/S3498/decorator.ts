@@ -49,8 +49,8 @@ function reportExempting(
 function isAuraLightningComponent(property: TSESTree.Property) {
   const { parent, value } = property;
   return (
-    parent!.parent!.type === 'ExpressionStatement' &&
-    parent!.parent!.parent!.type === 'Program' &&
+    parent.parent!.type === 'ExpressionStatement' &&
+    parent.parent.parent.type === 'Program' &&
     value.type === 'FunctionExpression'
   );
 }

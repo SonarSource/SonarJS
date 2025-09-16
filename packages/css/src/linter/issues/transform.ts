@@ -38,13 +38,14 @@ export function transform(results: stylelint.LintResult[], filePath: string): Is
       );
       continue;
     }
-    for (const warning of result.warnings)
+    for (const warning of result.warnings) {
       issues.push({
         ruleId: warning.rule,
         line: warning.line,
         column: warning.column,
         message: warning.text,
       });
+    }
   }
   return issues;
 }

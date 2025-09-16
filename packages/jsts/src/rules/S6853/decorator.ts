@@ -29,7 +29,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     },
     (context, reportDescriptor) => {
       const { node } = reportDescriptor as unknown as { node: TSESTree.JSXOpeningElement };
-      const parent = node.parent as TSESTree.JSXElement;
+      const { parent } = node;
       if (parent.children !== undefined) {
         for (const child of parent.children) {
           if (child.type === 'JSXElement' && isCustomComponent(child)) {

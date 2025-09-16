@@ -98,13 +98,11 @@ export const rule: Rule.RuleModule = {
         checkServerIdentityProperty.value,
         'FunctionExpression',
       );
-      if (!baseFunction) {
-        baseFunction = getValueOfExpression(
-          context,
-          checkServerIdentityProperty.value,
-          'ArrowFunctionExpression',
-        );
-      }
+      baseFunction ??= getValueOfExpression(
+        context,
+        checkServerIdentityProperty.value,
+        'ArrowFunctionExpression',
+      );
       if (baseFunction?.body.type === 'BlockStatement') {
         const returnStatements = ReturnStatementsVisitor.getReturnStatements(
           baseFunction.body,

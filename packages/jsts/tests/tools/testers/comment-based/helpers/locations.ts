@@ -18,13 +18,13 @@ import { Range } from './ranges.js';
 import { FileIssues } from './file.js';
 import { Comment } from './comments.js';
 
-export const LINE_ADJUSTMENT = '(?:@(?<lineAdjustment>(?<relativeAdjustment>[+-])?\\d+))?';
+export const LINE_ADJUSTMENT = String.raw`(?:@(?<lineAdjustment>(?<relativeAdjustment>[+-])?\d+))?`;
 
 const STARTS_WITH_LOCATION = /^ *\^/;
-const COUNT = '(?<count>\\d+)';
+const COUNT = String.raw`(?<count>\d+)`;
 const DIRECTION = '(?<direction>[<>])';
 const MESSAGE = '(?<message>.*?)';
-const LOCATION_PATTERN = RegExp(
+const LOCATION_PATTERN = new RegExp(
   ' *' +
     // highlighted range, ex: ^^^^ |OR| ^^^@12 |OR| ^^^@-2
     '(?<range>\\^(?:\\[(?<params>[^\\]]+)\\]|\\^+)?)' +

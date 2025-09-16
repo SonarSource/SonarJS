@@ -72,10 +72,7 @@ function toEncodedMessage(
       'Field "message" is mandatory in the report descriptor for sonar runtime encoding',
     );
   }
-
-  if (reportDescriptor.data === undefined) {
-    reportDescriptor.data = {};
-  }
+  reportDescriptor.data ??= {};
 
   const { message: _, ...rest } = reportDescriptor;
   return {
@@ -134,19 +131,17 @@ export function report(
 ) {
   if (context.settings.sonarRuntime) {
     context.report(toEncodedMessage(reportDescriptor, secondaryLocations, cost));
+  } else if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
+    const { message: _, ...rest } = reportDescriptor;
+    context.report(rest as Rule.ReportDescriptor);
+  } else if ('message' in reportDescriptor && 'data' in reportDescriptor) {
+    const { data, ...rest } = reportDescriptor;
+    context.report({
+      ...rest,
+      message: expandMessage(rest.message, data),
+    } as Rule.ReportDescriptor);
   } else {
-    if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
-      const { message: _, ...rest } = reportDescriptor;
-      context.report(rest as Rule.ReportDescriptor);
-    } else if ('message' in reportDescriptor && 'data' in reportDescriptor) {
-      const { data, ...rest } = reportDescriptor;
-      context.report({
-        ...rest,
-        message: expandMessage(rest.message, data),
-      } as Rule.ReportDescriptor);
-    } else {
-      context.report(reportDescriptor);
-    }
+    context.report(reportDescriptor);
   }
 }
 
