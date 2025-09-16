@@ -57,6 +57,17 @@ await esbuild.build({
         ['config.parser = espreePath;', ''],
       ],
     }),
+    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    textReplace({
+      include:
+        /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+      pattern: [
+        [
+          'var __require = /* @__PURE__ */ createRequire(import.meta.url);',
+          'var __require = require',
+        ],
+      ],
+    }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
       include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
