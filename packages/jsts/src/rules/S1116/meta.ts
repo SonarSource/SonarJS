@@ -17,5 +17,5 @@
 export const implementation = 'decorated';
 export const eslintId = 'no-extra-semi';
 export const externalRules = [
-  { externalPlugin: '@stylistic/eslint-plugin-ts', externalRule: 'no-extra-semi' },
+  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'no-extra-semi' },
 ];

@@ -40,8 +40,7 @@ const allExternalRules = {
   import: key => importRules[key],
   react: key => reactRules[key],
   'react-hooks': key => reactHooksRules[key],
-  '@stylistic/eslint-plugin-ts': async key =>
-    await import(`@stylistic/eslint-plugin-ts/rules/${key}`),
+  '@stylistic/eslint-plugin': async key => await import(`@stylistic/eslint-plugin/rules/${key}`),
   '@angular-eslint': key => angularRules[key],
   unicorn: key => unicornRules[key],
 };

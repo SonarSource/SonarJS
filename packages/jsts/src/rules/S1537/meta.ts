@@ -16,4 +16,4 @@
  */
 export const implementation = 'external';
 export const eslintId = 'comma-dangle';
-export const externalPlugin = '@stylistic/eslint-plugin-ts';
+export const externalPlugin = '@stylistic/eslint-plugin';
