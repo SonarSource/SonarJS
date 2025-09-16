@@ -22,9 +22,7 @@ import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } fro
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
   if (program.sourceType === 'module') {
-    return program.body.filter(
-      node => node.type === 'ImportDeclaration',
-    ) as estree.ImportDeclaration[];
+    return program.body.filter(node => node.type === 'ImportDeclaration');
   }
   return [];
 }
@@ -37,9 +35,9 @@ export function getRequireCalls(context: Rule.RuleContext) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
           if (isRequire(def.node.init)) {
-            required.push(def.node.init as estree.CallExpression);
+            required.push(def.node.init);
           } else if (def.node.init.type === 'MemberExpression' && isRequire(def.node.init.object)) {
-            required.push(def.node.init.object as estree.CallExpression);
+            required.push(def.node.init.object);
           }
         }
       }
@@ -201,7 +199,7 @@ function checkFqnFromImport(
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
     }
-    // import s3 = require('aws-cdk-lib/aws-s3');
+    // example: import s3 = require('aws-cdk-lib/aws-s3');
     if ((importDeclaration as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
       const importedModule = (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration)
         .moduleReference;
@@ -214,7 +212,7 @@ function checkFqnFromImport(
         fqn.unshift(...importedQualifiers);
         return fqn.join('.');
       }
-      //import s3 = cdk.aws_s3;
+      // example: import s3 = cdk.aws_s3;
       if (importedModule.type === 'TSQualifiedName') {
         visitedVars.push(variable);
         return getFullyQualifiedNameRaw(

@@ -46,8 +46,7 @@ function isDecoratedSetterWithAngularInput(def: TSESTree.MethodDefinition) {
   const { kind, decorators } = def;
   return (
     kind === 'set' &&
-    decorators !== undefined &&
-    decorators.some(
+    decorators?.some(
       decorator =>
         decorator.expression.type === 'CallExpression' &&
         decorator.expression.callee.type === 'Identifier' &&

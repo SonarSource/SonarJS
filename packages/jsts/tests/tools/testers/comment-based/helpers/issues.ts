@@ -67,9 +67,7 @@ export class LineIssues {
 
   merge(other: LineIssues) {
     this.messages.push(...other.messages);
-    if (this.primaryLocation === null) {
-      this.primaryLocation = other.primaryLocation;
-    }
+    this.primaryLocation ??= other.primaryLocation;
   }
 }
 

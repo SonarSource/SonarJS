@@ -102,7 +102,7 @@ export const rule: Rule.RuleModule = {
         .reverse()
         .find(ancestor => ancestor.type === 'IfStatement');
       if (maybeIfStmt) {
-        const { test } = maybeIfStmt as estree.IfStatement;
+        const { test } = maybeIfStmt;
         switch (test.type) {
           case 'BinaryExpression': {
             const binExpr = test;

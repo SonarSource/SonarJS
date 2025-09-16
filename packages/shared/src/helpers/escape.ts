@@ -30,7 +30,7 @@ export function unicodeEscape(s: string): string {
 }
 
 function padWithLeadingZeros(s: string) {
-  return new Array(5 - s.length).join('0') + s;
+  return '0'.repeat(4 - s.length) + s;
 }
 
 function unicodeCharEscape(charCode: number) {

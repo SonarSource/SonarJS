@@ -48,7 +48,7 @@ async function readDockerMemoryLimitFrom(cgroupPath: string) {
     if (Number.isInteger(mem)) {
       return mem / MB;
     }
-  } catch (e) {
+  } catch {
     // probably not a docker env
   }
   return undefined;
@@ -59,25 +59,20 @@ function getHeapSize() {
 }
 
 export function logMemoryError(err: any) {
-  switch (err?.code) {
-    case 'ERR_WORKER_OUT_OF_MEMORY':
-      error(
-        `The analysis will stop due to the Node.js process running out of memory (heap size limit ${getHeapSize()} MB)`,
-      );
-      error(
-        `You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"`,
-      );
-      error(
-        'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
-      );
-      error(
-        'If the problem persists, please report the issue at https://community.sonarsource.com',
-      );
-      break;
-    default:
-      error(`The analysis will stop due to an unexpected error: ${err}`);
-      error('Please report the issue at https://community.sonarsource.com');
-      break;
+  if (err?.code === 'ERR_WORKER_OUT_OF_MEMORY') {
+    error(
+      `The analysis will stop due to the Node.js process running out of memory (heap size limit ${getHeapSize()} MB)`,
+    );
+    error(
+      `You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"`,
+    );
+    error(
+      'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
+    );
+    error('If the problem persists, please report the issue at https://community.sonarsource.com');
+  } else {
+    error(`The analysis will stop due to an unexpected error: ${err}`);
+    error('Please report the issue at https://community.sonarsource.com');
   }
 }
 

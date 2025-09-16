@@ -51,7 +51,10 @@ export const rule: Rule.RuleModule = {
       const unused = v.references.every(ref => defs.includes(ref.identifier));
 
       if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
-        const messageAndData = getMessageAndData(v.name, type === 'FunctionName');
+        const messageAndData =
+          type === 'FunctionName'
+            ? getUnusedFunctionMessageAndData(v.name)
+            : getUnusedVariableMessageAndData(v.name);
         for (const def of defs) {
           context.report({
             node: def,
@@ -121,10 +124,10 @@ function isParentOfModuleScope(scope: Scope.Scope) {
   return scope.childScopes.some(s => s.type === 'module');
 }
 
-function getMessageAndData(name: string, isFunction: boolean) {
-  if (isFunction) {
-    return { messageId: 'unusedFunction', data: { symbol: name } };
-  } else {
-    return { messageId: 'unusedVariable', data: { symbol: name } };
-  }
+function getUnusedFunctionMessageAndData(name: string) {
+  return { messageId: 'unusedFunction', data: { symbol: name } };
+}
+
+function getUnusedVariableMessageAndData(name: string) {
+  return { messageId: 'unusedVariable', data: { symbol: name } };
 }

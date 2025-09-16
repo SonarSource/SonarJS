@@ -217,7 +217,7 @@ export function AwsCdkCheckArguments(
         ctx.report({ messageId: getMessageAtPos(messageId, 1), node: getNodeToReport(property) });
       }
       // The value needs to be validated with a customized function
-      if (values?.customChecker && values.customChecker(ctx, propertyValue)) {
+      if (values?.customChecker?.(ctx, propertyValue)) {
         if (silent) {
           return getNodeToReport(property);
         }
@@ -270,7 +270,7 @@ function traverseProperties(
   if (objExpr === undefined) {
     const arrayExpr = getValueOfExpression(ctx, node.node, 'ArrayExpression', true);
 
-    if (arrayExpr === undefined || !arrayExpr.elements.length) {
+    if (!arrayExpr?.elements.length) {
       if (needsProp) {
         if (silent) {
           return node.nodeToReport;
