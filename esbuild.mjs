@@ -57,6 +57,39 @@ await esbuild.build({
         ['config.parser = espreePath;', ''],
       ],
     }),
+    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    textReplace({
+      include: /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]vendor\.js$/,
+      pattern: [
+        [
+          '__importStar$4(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$3(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$2(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$1(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        ['__require("@typescript-eslint/types")', 'require("@typescript-eslint/types")'],
+      ],
+    }),
+    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    textReplace({
+      include:
+        /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+    }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
       include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
