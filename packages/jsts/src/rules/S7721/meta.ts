@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'consistent-function-scoping';
 export const externalPlugin = 'unicorn';
+export * from './config.js';

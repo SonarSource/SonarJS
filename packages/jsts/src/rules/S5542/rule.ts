@@ -51,7 +51,9 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     const patterns: RegExp[] = [/CBC/i, /ECB/i];
-    aliases.forEach(alias => patterns.push(new RegExp(`^${alias}$`, 'i')));
+    for (const alias of aliases) {
+      patterns.push(new RegExp(`^${alias}$`, 'i'));
+    }
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;

@@ -31,22 +31,24 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const overridden: Set<estree.Identifier> = new Set();
 
-    function isBuiltIn(variable: Scope.Variable) {
-      return globalsByLibraries.builtin.includes(variable.name);
-    }
-
     function checkVariable(variable: Scope.Variable) {
       if (isBuiltIn(variable)) {
-        variable.defs.forEach(def => overridden.add(def.name));
-        variable.references
-          .filter(ref => ref.isWrite())
-          .forEach(ref => overridden.add(ref.identifier));
+        for (const def of variable.defs) {
+          overridden.add(def.name);
+        }
+        for (const ref of variable.references.filter(ref => ref.isWrite())) {
+          overridden.add(ref.identifier);
+        }
       }
     }
 
     function checkScope(scope: Scope.Scope) {
-      scope.variables.forEach(checkVariable);
-      scope.childScopes.forEach(checkScope);
+      for (const variable of scope.variables) {
+        checkVariable(variable);
+      }
+      for (const childScope of scope.childScopes) {
+        checkScope(childScope);
+      }
     }
 
     function isTSEnumMemberId(node: estree.Identifier) {
@@ -59,7 +61,7 @@ export const rule: Rule.RuleModule = {
         checkScope(context.sourceCode.getScope(node));
       },
       'Program:exit': () => {
-        overridden.forEach(node => {
+        for (const node of overridden) {
           if (!isTSEnumMemberId(node)) {
             context.report({
               messageId: 'removeOverride',
@@ -69,9 +71,13 @@ export const rule: Rule.RuleModule = {
               node,
             });
           }
-        });
+        }
         overridden.clear();
       },
     };
   },
 };
+
+function isBuiltIn(variable: Scope.Variable) {
+  return globalsByLibraries.builtin.includes(variable.name);
+}

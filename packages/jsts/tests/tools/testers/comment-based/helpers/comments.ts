@@ -43,7 +43,7 @@ export function extractComments(fileContent: string, filePath: string): Comment[
   if (parsed) {
     esTreeComments = parsed.getAllComments();
   } else {
-    throw Error(`File not parseable: ${fileContent}`);
+    throw new Error(`File not parseable: ${fileContent}`);
   }
   return esTreeComments.map(c => {
     return {

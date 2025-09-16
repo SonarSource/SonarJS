@@ -107,18 +107,6 @@ export function AwsCdkTemplate(
           callback.callExpression(node, ctx, fqn);
         }
       }
-
-      function isMethodCall(callback: AwsCdkCallback, fqn: string | undefined, expected: string) {
-        if (callback.functionName) {
-          return fqn === `${expected}.${callback.functionName}`;
-        } else if (callback.methods && fqn?.startsWith(expected)) {
-          const methodNames = fqn.substring(expected.length).split('.');
-          const methods = callback.methods;
-          return methodNames.every(name => name === '' || methods.includes(name));
-        } else {
-          return fqn === expected;
-        }
-      }
     },
   };
 }
@@ -408,6 +396,18 @@ function disallowedFQNs(ctx: Rule.RuleContext, node: estree.Node, values: Values
   return normalizedFQN && values.invalid?.map(normalizeFQN).includes(normalizedFQN);
 }
 
+function isMethodCall(callback: AwsCdkCallback, fqn: string | undefined, expected: string) {
+  if (callback.functionName) {
+    return fqn === `${expected}.${callback.functionName}`;
+  } else if (callback.methods && fqn?.startsWith(expected)) {
+    const methodNames = fqn.substring(expected.length).split('.');
+    const methods = callback.methods;
+    return methodNames.every(name => name === '' || methods.includes(name));
+  } else {
+    return fqn === expected;
+  }
+}
+
 export function normalizeFQN(fqn?: string | null) {
-  return fqn?.replace(/-/g, '_');
+  return fqn?.replaceAll('-', '_');
 }

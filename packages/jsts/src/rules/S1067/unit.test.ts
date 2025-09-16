@@ -138,90 +138,90 @@ describe('S1067', () => {
       ],
     });
   });
+});
 
-  function invalid(code: string, max = 3) {
-    const issue = {
-      complexity: 0,
-      primaryLocation: {} as IssueLocation,
-      secondaryLocations: [] as IssueLocation[],
-    };
-    const lines = code.split('\n');
-    for (const [index, line] of lines.entries()) {
-      let found: RegExpMatchArray | null;
+function invalid(code: string, max = 3) {
+  const issue = {
+    complexity: 0,
+    primaryLocation: {} as IssueLocation,
+    secondaryLocations: [] as IssueLocation[],
+  };
+  const lines = code.split('\n');
+  for (const [index, line] of lines.entries()) {
+    let found: RegExpMatchArray | null;
 
-      const regex = /\/\/\s*([-\^]+)/;
-      found = line.match(regex);
-      if (found) {
-        let marker = found[1];
-        const column = line.indexOf(marker);
-        issue.primaryLocation = location(index, column, index, column + marker.length);
+    const regex = /\/\/\s*([-\^]+)/;
+    found = line.match(regex);
+    if (found) {
+      let marker = found[1];
+      const column = line.indexOf(marker);
+      issue.primaryLocation = location(index, column, index, column + marker.length);
 
-        marker += ' ';
-        let secondaryStart = -1;
-        for (let i = 0; i < marker.length; ++i) {
-          if (marker[i] === '^') {
-            if (secondaryStart === -1) {
-              secondaryStart = i;
-            }
-          } else {
-            if (secondaryStart !== -1) {
-              issue.complexity += 1;
-              issue.secondaryLocations.push(
-                location(index, column + secondaryStart, index, column + i, '+1'),
-              );
-              secondaryStart = -1;
-            }
+      marker += ' ';
+      let secondaryStart = -1;
+      for (let i = 0; i < marker.length; ++i) {
+        if (marker[i] === '^') {
+          if (secondaryStart === -1) {
+            secondaryStart = i;
+          }
+        } else {
+          if (secondaryStart !== -1) {
+            issue.complexity += 1;
+            issue.secondaryLocations.push(
+              location(index, column + secondaryStart, index, column + i, '+1'),
+            );
+            secondaryStart = -1;
           }
         }
       }
     }
-    issue.secondaryLocations.sort((a, b) => b.column - a.column);
-    return {
-      code,
-      errors: [error(issue, max)],
-      options: [
-        {
-          max,
-        },
-      ],
-      settings: { sonarRuntime: true },
-    };
   }
+  issue.secondaryLocations.sort((a, b) => b.column - a.column);
+  return {
+    code,
+    errors: [error(issue, max)],
+    options: [
+      {
+        max,
+      },
+    ],
+    settings: { sonarRuntime: true },
+  };
+}
 
-  function error(
-    issue: {
-      complexity: number;
-      primaryLocation: IssueLocation;
-      secondaryLocations: IssueLocation[];
-    },
-    max: number,
-  ) {
-    const { line, column, endColumn, endLine } = issue.primaryLocation;
-    return {
-      message: encode(issue.complexity, max, issue.secondaryLocations),
-      line,
-      column: column + 1,
-      endColumn: endColumn + 1,
-      endLine,
-    };
-  }
+function error(
+  issue: {
+    complexity: number;
+    primaryLocation: IssueLocation;
+    secondaryLocations: IssueLocation[];
+  },
+  max: number,
+) {
+  const { line, column, endColumn, endLine } = issue.primaryLocation;
+  return {
+    message: encode(issue.complexity, max, issue.secondaryLocations),
+    line,
+    column: column + 1,
+    endColumn: endColumn + 1,
+    endLine,
+  };
+}
 
-  function encode(complexity: number, max: number, secondaryLocations: IssueLocation[]): string {
-    const encodedMessage: EncodedMessage = {
-      message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
-      secondaryLocations,
-      cost: complexity - max,
-    };
-    return JSON.stringify(encodedMessage);
-  }
+function encode(complexity: number, max: number, secondaryLocations: IssueLocation[]): string {
+  const encodedMessage: EncodedMessage = {
+    message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
+    secondaryLocations,
+    cost: complexity - max,
+  };
+  return JSON.stringify(encodedMessage);
+}
 
-  function location(
-    line: number,
-    column: number,
-    endLine: number,
-    endColumn: number,
-    message?: string,
-  ): IssueLocation {
-    return { message, column, line, endColumn, endLine };
-  }
-});
+function location(
+  line: number,
+  column: number,
+  endLine: number,
+  endColumn: number,
+  message?: string,
+): IssueLocation {
+  return { message, column, line, endColumn, endLine };
+}

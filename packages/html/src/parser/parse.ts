@@ -23,7 +23,7 @@ import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#textjavascript
  */
 
-const validMimeTypes = [
+const validMimeTypes = new Set([
   'module',
   'text/javascript',
   'application/javascript',
@@ -41,7 +41,7 @@ const validMimeTypes = [
   'text/livescript',
   'text/x-ecmascript',
   'text/x-javascript',
-];
+]);
 
 /**
  * Parses HTML file and extracts JS code
@@ -67,7 +67,7 @@ export function parseHTML(code: string): EmbeddedJS[] {
 
       //ignore script tags which point to another file
       // or tags containing a non-js type
-      if (attrs.src || (attrs.type && !validMimeTypes.includes(attrs.type))) {
+      if (attrs.src || (attrs.type && !validMimeTypes.has(attrs.type))) {
         return;
       }
 

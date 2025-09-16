@@ -16,6 +16,7 @@
  */
 import type estree from 'estree';
 import type { Rule } from 'eslint';
+import { last } from './collection.js';
 
 export function removeNodeWithLeadingWhitespaces(
   context: Rule.RuleContext,
@@ -31,7 +32,7 @@ export function removeNodeWithLeadingWhitespaces(
       start = previousToken.range[1];
     }
   } else {
-    start = previousComments[previousComments.length - 1].range![1];
+    start = last(previousComments).range![1];
   }
 
   const end = removeUntil ?? node.range![1];

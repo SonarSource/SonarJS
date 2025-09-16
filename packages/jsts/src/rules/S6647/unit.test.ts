@@ -21,7 +21,7 @@ import { rules } from '../external/typescript-eslint/index.js';
 import parser from '@babel/eslint-parser';
 import { decorate } from './decorator.js';
 import { Linter } from 'eslint';
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path/posix';

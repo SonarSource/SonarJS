@@ -150,7 +150,7 @@ function getSetTrueXPoweredByValue(callExpression: estree.CallExpression, app: e
 
 function isAppEscaping(callExpr: estree.CallExpression, app: estree.Identifier): boolean {
   return Boolean(
-    callExpr.arguments.find(arg => arg.type === 'Identifier' && arg.name === app.name),
+    callExpr.arguments.some(arg => arg.type === 'Identifier' && arg.name === app.name),
   );
 }
 

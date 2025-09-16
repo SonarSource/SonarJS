@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity.js';
-import path from 'path';
+import path from 'node:path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
@@ -29,7 +29,7 @@ const cases = [
 ];
 
 describe('computeCyclomaticComplexity', () => {
-  cases.forEach(({ fixture, expectedComplexity }) =>
+  for (const { fixture, expectedComplexity } of cases)
     it(`should compute complexity for ${fixture}`, async () => {
       const filePath = path.join(
         import.meta.dirname,
@@ -40,6 +40,5 @@ describe('computeCyclomaticComplexity', () => {
       const { sourceCode } = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
-    }),
-  );
+    });
 });

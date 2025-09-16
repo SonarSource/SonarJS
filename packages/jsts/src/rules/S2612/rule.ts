@@ -36,32 +36,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function isChmodLikeFunction(node: estree.CallExpression) {
-      const { callee } = node;
-      if (callee.type !== 'MemberExpression') {
-        return false;
-      }
-      // to support fs promises we are only checking the name of the function
-      return isIdentifier(callee.property, ...chmodLikeFunction);
-    }
-
-    function modeFromLiteral(modeExpr: estree.Literal) {
-      const modeValue = modeExpr.value;
-      let mode = null;
-      if (typeof modeValue === 'string') {
-        mode = Number.parseInt(modeValue, 8);
-      } else if (typeof modeValue === 'number') {
-        const raw = modeExpr.raw;
-        // ts parser interprets number starting with 0 as decimal, we need to parse it as octal value
-        if (raw?.startsWith('0') && !raw.startsWith('0o')) {
-          mode = Number.parseInt(raw, 8);
-        } else {
-          mode = modeValue;
-        }
-      }
-      return mode;
-    }
-
     // fs.constants have these value only when running on linux, we need to hardcode them to be able to test on win
     const FS_CONST: Record<string, number> = {
       S_IRWXU: 0o700,
@@ -119,7 +93,7 @@ export const rule: Rule.RuleModule = {
     function checkModeArgument(node: estree.Node, moduloTest: number) {
       const visited = new Set<estree.Node>();
       const mode = modeFromExpression(node, visited);
-      if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
+      if (mode !== null && !Number.isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({
           node,
           messageId: 'safePermission',
@@ -140,3 +114,29 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isChmodLikeFunction(node: estree.CallExpression) {
+  const { callee } = node;
+  if (callee.type !== 'MemberExpression') {
+    return false;
+  }
+  // to support fs promises we are only checking the name of the function
+  return isIdentifier(callee.property, ...chmodLikeFunction);
+}
+
+function modeFromLiteral(modeExpr: estree.Literal) {
+  const modeValue = modeExpr.value;
+  let mode = null;
+  if (typeof modeValue === 'string') {
+    mode = Number.parseInt(modeValue, 8);
+  } else if (typeof modeValue === 'number') {
+    const raw = modeExpr.raw;
+    // ts parser interprets number starting with 0 as decimal, we need to parse it as octal value
+    if (raw?.startsWith('0') && !raw.startsWith('0o')) {
+      mode = Number.parseInt(raw, 8);
+    } else {
+      mode = modeValue;
+    }
+  }
+  return mode;
+}

@@ -21,7 +21,7 @@ import { interceptReport } from '../../../../src/rules/helpers/index.js';
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
 // Covers `getFilename`
 import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
-import path from 'path';
+import path from 'node:path';
 import { describe } from 'node:test';
 
 describe('interceptReport', () => {

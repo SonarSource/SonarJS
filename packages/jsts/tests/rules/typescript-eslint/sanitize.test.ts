@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter } from 'eslint';
-import path from 'path';
+import path from 'node:path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
@@ -37,7 +37,7 @@ const cases = [
 ];
 
 describe('sanitize', () => {
-  cases.forEach(({ action, typing, tsConfigFiles, issues }) => {
+  for (const { action, typing, tsConfigFiles, issues } of cases) {
     test(`should ${action} a sanitized rule raise issues when type information is ${typing}`, async () => {
       const ruleId = 'prefer-readonly';
       const fixtures = path.join(import.meta.dirname, 'fixtures', 'sanitize');
@@ -54,5 +54,5 @@ describe('sanitize', () => {
       });
       expect(messages).toHaveLength(issues);
     });
-  });
+  }
 });

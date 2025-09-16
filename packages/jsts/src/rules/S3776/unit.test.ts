@@ -596,37 +596,37 @@ class TopLevel {
         },
       ],
     });
-
-    function testCaseWithSonarRuntime(
-      code: string,
-      secondaryLocations: IssueLocation[],
-      complexity?: number,
-    ) {
-      const cost = complexity ?? secondaryLocations.length;
-      const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
-      const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
-      return {
-        code,
-        options: [0],
-        settings: { sonarRuntime: true },
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              threshold: 0,
-              sonarRuntimeData,
-            },
-          },
-        ],
-      };
-    }
-
-    function message(complexityAmount: number, other = {}) {
-      return {
-        messageId: 'refactorFunction',
-        data: { complexityAmount, threshold: 0 },
-        ...other,
-      };
-    }
   });
 });
+
+function testCaseWithSonarRuntime(
+  code: string,
+  secondaryLocations: IssueLocation[],
+  complexity?: number,
+) {
+  const cost = complexity ?? secondaryLocations.length;
+  const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
+  const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
+  return {
+    code,
+    options: [0],
+    settings: { sonarRuntime: true },
+    errors: [
+      {
+        messageId: 'sonarRuntime',
+        data: {
+          threshold: 0,
+          sonarRuntimeData,
+        },
+      },
+    ],
+  };
+}
+
+function message(complexityAmount: number, other = {}) {
+  return {
+    messageId: 'refactorFunction',
+    data: { complexityAmount, threshold: 0 },
+    ...other,
+  };
+}

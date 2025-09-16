@@ -36,21 +36,21 @@ type Directive = {
   justification: string;
 };
 
-internalCustomRules.forEach(rule => {
+for (const rule of internalCustomRules) {
   eslintMapping[rule.ruleId] = { ruleId: `sonarjs/${rule.ruleId}`, ruleModule: rule.ruleModule };
-});
+}
 
-Object.entries(ruleMetas).forEach(([sonarKey, meta]) => {
+for (const [sonarKey, meta] of Object.entries(ruleMetas)) {
   const ruleId = `sonarjs/${sonarKey}`;
   const ruleModule = rules[sonarKey as keyof typeof rules];
   eslintMapping[sonarKey] = { ruleId, ruleModule };
   eslintMapping[meta.eslintId] = { ruleId, ruleModule };
   if (meta.implementation === 'decorated') {
-    meta.externalRules.forEach(externalRule => {
+    for (const externalRule of meta.externalRules) {
       eslintMapping[externalRule.externalRule] = { ruleId, ruleModule };
-    });
+    }
   }
-});
+}
 
 /**
  * Extracts the rule part from a ruleId containing plugin and rule parts.
@@ -68,10 +68,10 @@ export function createOptions(filename: string) {
     filename,
     allowInlineConfig: true,
     getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.ruleId,
-    patchDirectives: (disableDirectives: Directive[]) =>
-      disableDirectives.forEach(directive => {
+    patchDirectives: (disableDirectives: Directive[]) => {
+      for (const directive of disableDirectives) {
         if (!eslintMapping[getRuleId(directive.ruleId)]) {
-          return;
+          continue;
         }
         directive.ruleId = eslintMapping[getRuleId(directive.ruleId)].ruleId;
         if (!mappedParentDirectives.has(directive.parentDirective)) {
@@ -88,7 +88,8 @@ export function createOptions(filename: string) {
           });
           mappedParentDirectives.add(directive.parentDirective);
         }
-      }),
+      }
+    },
     patchInlineOptions: (config: { rules: Linter.RulesRecord }) => {
       const patchedOptions: Linter.RulesRecord = {};
       for (const [ruleId, options] of Object.entries(config.rules)) {

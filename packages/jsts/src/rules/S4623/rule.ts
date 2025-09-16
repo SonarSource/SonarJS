@@ -22,6 +22,7 @@ import {
   generateMeta,
   isRequiredParserServices,
   isUndefined,
+  last,
   RequiredParserServices,
 } from '../helpers/index.js';
 import type estree from 'estree';
@@ -47,7 +48,7 @@ export const rule: Rule.RuleModule = {
             return;
           }
 
-          const lastArgument = args[args.length - 1];
+          const lastArgument = last(args);
           if (isUndefined(lastArgument) && isOptionalParameter(args.length - 1, call, services)) {
             context.report({
               messageId: 'removeUndefined',
@@ -63,7 +64,7 @@ export const rule: Rule.RuleModule = {
                       const [end] = closingParen.range;
                       return fixer.removeRange([begin, end]);
                     } else {
-                      const [, begin] = args[args.length - 2].range!;
+                      const [, begin] = args.at(-2)!.range!;
                       const [, end] = lastArgument.range!;
                       return fixer.removeRange([begin, end]);
                     }

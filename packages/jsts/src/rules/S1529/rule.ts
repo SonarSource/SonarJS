@@ -22,8 +22,8 @@ import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const BITWISE_AND_OR = ['&', '|'];
-const BITWISE_OPERATORS = [
+const BITWISE_AND_OR = new Set(['&', '|']);
+const BITWISE_OPERATORS = new Set([
   '&',
   '|',
   '^',
@@ -37,7 +37,7 @@ const BITWISE_OPERATORS = [
   '<<=',
   '>>=',
   '>>>=',
-];
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -51,13 +51,13 @@ export const rule: Rule.RuleModule = {
         const expression = node as estree.BinaryExpression;
         if (
           !lonelyBitwiseAndOr &&
-          BITWISE_AND_OR.includes(expression.operator) &&
+          BITWISE_AND_OR.has(expression.operator) &&
           !isNumeric(expression.left) &&
           !isNumeric(expression.right)
         ) {
           lonelyBitwiseAndOr = expression;
           lonelyBitwiseAndOrAncestors = [...context.sourceCode.getAncestors(node)];
-        } else if (BITWISE_OPERATORS.includes(expression.operator)) {
+        } else if (BITWISE_OPERATORS.has(expression.operator)) {
           fileContainsSeveralBitwiseOperations = true;
         }
       },
@@ -106,15 +106,15 @@ function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
     return (node: estree.Node) => isNumericType(getTypeFromTreeNode(node, services));
   } else {
-    const numericTypes = ['number', 'bigint'];
+    const numericTypes = new Set(['number', 'bigint']);
     return (node: estree.Node) =>
-      node.type === 'Literal' ? numericTypes.includes(typeof node.value) : false;
+      node.type === 'Literal' ? numericTypes.has(typeof node.value) : false;
   }
+}
 
-  function isNumericType(type: ts.Type): boolean {
-    return (
-      (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
-      (type.isUnionOrIntersection() && !!type.types.find(isNumericType))
-    );
-  }
+function isNumericType(type: ts.Type): boolean {
+  return (
+    (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
+    (type.isUnionOrIntersection() && type.types.some(isNumericType))
+  );
 }

@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
+const WRAPPER_TYPES = new Set(['Boolean', 'Number', 'String']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
     return {
       NewExpression(node: estree.Node) {
         const konstructor = (node as estree.NewExpression).callee;
-        if (konstructor.type === 'Identifier' && WRAPPER_TYPES.includes(konstructor.name)) {
+        if (konstructor.type === 'Identifier' && WRAPPER_TYPES.has(konstructor.name)) {
           const newToken = context.sourceCode.getFirstToken(node, token => token.value === 'new')!;
           const [begin, end] = newToken.range;
           context.report({
@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
       },
       TSTypeReference(node: estree.Node) {
         const typeString = context.sourceCode.getText(node);
-        if (WRAPPER_TYPES.includes(typeString)) {
+        if (WRAPPER_TYPES.has(typeString)) {
           const primitiveType = typeString.toLowerCase();
           context.report({
             messageId: 'replaceWrapper',

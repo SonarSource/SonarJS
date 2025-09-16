@@ -96,11 +96,11 @@ function extractGroups(regex: RegExpLiteral) {
 }
 
 function isReferencingExistingGroup(reference: GroupReference, groups: CapturingGroups) {
-  if (!isNaN(Number(reference.value))) {
-    const index = Number(reference.value);
-    return index >= 1 && index <= groups.count();
-  } else {
+  if (Number.isNaN(Number(reference.value))) {
     const name = reference.value;
     return groups.has(name);
+  } else {
+    const index = Number(reference.value);
+    return index >= 1 && index <= groups.count();
   }
 }

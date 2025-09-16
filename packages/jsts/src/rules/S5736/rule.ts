@@ -30,7 +30,7 @@ import * as meta from './generated-meta.js';
 const HELMET = 'helmet';
 const POLICY = 'policy';
 const REFERRER_POLICY = 'referrerPolicy';
-const UNSAFE_REFERRER_POLICY_VALUES = ['', 'unsafe-url', 'no-referrer-when-downgrade'];
+const UNSAFE_REFERRER_POLICY_VALUES = new Set(['', 'unsafe-url', 'no-referrer-when-downgrade']);
 
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findNoReferrerPolicyPropertyFromHelmet,
@@ -71,7 +71,7 @@ function isSafePolicy(policy: estree.Property): boolean {
     v =>
       v?.type === 'Literal' &&
       typeof v.value === 'string' &&
-      UNSAFE_REFERRER_POLICY_VALUES.includes(v.value),
+      UNSAFE_REFERRER_POLICY_VALUES.has(v.value),
   );
   return !Boolean(sensitiveValue);
 }

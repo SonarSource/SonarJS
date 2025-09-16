@@ -18,7 +18,7 @@ import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
-import path from 'path';
+import path from 'node:path';
 import parser from '@typescript-eslint/parser';
 
 describe('S6606', () => {

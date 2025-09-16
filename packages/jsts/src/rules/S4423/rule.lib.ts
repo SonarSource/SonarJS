@@ -20,14 +20,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getFullyQualifiedName, getProperty, getValueOfExpression } from '../helpers/index.js';
 
-const SECURE_PROTOCOL_ALLOWED_VALUES = [
+const SECURE_PROTOCOL_ALLOWED_VALUES = new Set([
   'TLSv1_2_method',
   'TLSv1_2_client_method',
   'TLSv1_2_server_method',
   'TLS_method',
   'TLS_client_method',
   'TLS_server_method',
-];
+]);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -73,7 +73,7 @@ export const rule: Rule.RuleModule = {
 
       const secureProtocol = getValueOfProperty(options, 'secureProtocol');
       const secureProtocolValue = secureProtocol?.value?.toString() ?? '';
-      if (secureProtocol && !SECURE_PROTOCOL_ALLOWED_VALUES.includes(secureProtocolValue)) {
+      if (secureProtocol && !SECURE_PROTOCOL_ALLOWED_VALUES.has(secureProtocolValue)) {
         context.report({
           node: secureProtocol,
           messageId: 'useMinimumTLS',

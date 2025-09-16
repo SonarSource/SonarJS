@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import estree from 'estree';
-import { join } from 'path';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { build, composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';

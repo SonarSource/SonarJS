@@ -18,7 +18,7 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import type { Filesystem } from '../../../src/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in-parent-dirs.js';
-import Path from 'path/posix';
+import Path from 'node:path/posix';
 import { beforeEach, describe, it } from 'node:test';
 
 describe('findUp', () => {

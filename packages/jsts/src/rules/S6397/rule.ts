@@ -22,12 +22,12 @@ import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
-const FORBIDDEN_TYPES = [
+const FORBIDDEN_TYPES = new Set([
   'EscapeCharacterSet',
   'UnicodePropertyCharacterSet',
   'Character',
   'CharacterSet',
-];
+]);
 const EXCEPTION_META_CHARACTERS = '[{(.?+*$^\\\\';
 
 export const rule: Rule.RuleModule = createRegExpRule(
@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
 function hasSingleForbiddenCharacter(elems: CharacterClassElement[]) {
   return (
     elems.length === 1 &&
-    FORBIDDEN_TYPES.includes(elems[0].type) &&
+    FORBIDDEN_TYPES.has(elems[0].type) &&
     !EXCEPTION_META_CHARACTERS.includes(elems[0].raw)
   );
 }

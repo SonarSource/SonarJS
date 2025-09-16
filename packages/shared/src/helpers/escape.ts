@@ -23,7 +23,7 @@ export function unicodeEscape(s: string): string {
   return s
     .split('')
     .map(char => {
-      const charCode = char.charCodeAt(0);
+      const charCode = char.codePointAt(0) ?? 0;
       return charCode < 32 || charCode > 127 ? unicodeCharEscape(charCode) : char;
     })
     .join('');
@@ -34,5 +34,5 @@ function padWithLeadingZeros(s: string) {
 }
 
 function unicodeCharEscape(charCode: number) {
-  return '\\u' + padWithLeadingZeros(charCode.toString(16));
+  return String.raw`\u` + padWithLeadingZeros(charCode.toString(16));
 }

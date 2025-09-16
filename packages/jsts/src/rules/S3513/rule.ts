@@ -30,10 +30,11 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       // Ignore root scope containing global variables
-      'Program:exit': (node: estree.Node) =>
-        context.sourceCode
-          .getScope(node)
-          .childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child)),
+      'Program:exit': (node: estree.Node) => {
+        for (const child of context.sourceCode.getScope(node).childScopes) {
+          checkArgumentsUsageInScopeRecursively(context, child);
+        }
+      },
     };
   },
 };
@@ -42,10 +43,12 @@ function checkArgumentsUsageInScopeRecursively(
   context: Rule.RuleContext,
   scope: Scope.Scope,
 ): void {
-  scope.variables
-    .filter(variable => variable.name === 'arguments')
-    .forEach(variable => checkArgumentsVariableWithoutDefinition(context, variable));
-  scope.childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child));
+  for (const variable of scope.variables.filter(variable => variable.name === 'arguments')) {
+    checkArgumentsVariableWithoutDefinition(context, variable);
+  }
+  for (const child of scope.childScopes) {
+    checkArgumentsUsageInScopeRecursively(context, child);
+  }
 }
 
 function checkArgumentsVariableWithoutDefinition(

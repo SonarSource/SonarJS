@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
       const { sourceCode } = context;
       const siblingIfStatements = getSiblingIfStatements(statements as TSESTree.Node[]);
 
-      siblingIfStatements.forEach(siblingIfStatement => {
+      for (const siblingIfStatement of siblingIfStatements) {
         const precedingIf = siblingIfStatement.first;
         const followingIf = siblingIfStatement.following;
         if (
@@ -82,7 +82,7 @@ export const rule: Rule.RuleModule = {
             [toSecondaryLocation(precedingIfLastToken)],
           );
         }
-      });
+      }
     }
 
     return {

@@ -68,11 +68,13 @@ function isLiteralException(node: estree.Node) {
 
 function isWithinSortCallback(context: Rule.RuleContext, node: estree.Node) {
   const ancestors = context.sourceCode.getAncestors(node).reverse();
-  const maybeCallback = ancestors.find(node =>
-    ['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type),
+  const maybeCallback = ancestors.find(
+    node => node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression',
   );
   if (maybeCallback) {
-    const callback = maybeCallback as TSESTree.Node;
+    const callback = maybeCallback as
+      | TSESTree.ArrowFunctionExpression
+      | TSESTree.FunctionExpression;
     const parent = callback.parent;
     if (parent?.type === 'CallExpression') {
       const { callee, arguments: args } = parent;
@@ -82,7 +84,7 @@ function isWithinSortCallback(context: Rule.RuleContext, node: estree.Node) {
       } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
         funcName = callee.property.name;
       }
-      return funcName?.match(/sort/i) && args.some(arg => arg === callback);
+      return funcName?.match(/sort/i) && args.includes(callback);
     }
   }
   return false;

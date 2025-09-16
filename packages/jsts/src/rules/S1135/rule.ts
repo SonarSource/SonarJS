@@ -45,15 +45,15 @@ export function reportPatternInComment(
   messageId: string,
 ) {
   const sourceCode = context.sourceCode;
-  (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
+  for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
     const rawText = comment.value.toLowerCase();
 
     if (rawText.includes(pattern)) {
       const lines = rawText.split(/\r\n?|\n/);
 
-      for (let i = 0; i < lines.length; i++) {
-        const index = lines[i].indexOf(pattern);
-        if (index >= 0 && !isLetterAround(lines[i], index, pattern)) {
+      for (const [i, line] of lines.entries()) {
+        const index = line.indexOf(pattern);
+        if (index >= 0 && !isLetterAround(line, index, pattern)) {
           context.report({
             messageId,
             loc: getPatternPosition(i, index, comment, pattern),
@@ -61,7 +61,7 @@ export function reportPatternInComment(
         }
       }
     }
-  });
+  }
 }
 
 function isLetterAround(line: string, start: number, pattern: string) {

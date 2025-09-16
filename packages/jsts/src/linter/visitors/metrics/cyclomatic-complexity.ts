@@ -41,12 +41,12 @@ const FUNCTION_NODES = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunct
 /**
  * The ESLint node types increasing complexity
  */
-const COMPLEXITY_NODES = [
+const COMPLEXITY_NODES = new Set([
   ...CONDITIONAL_NODES,
   ...FUNCTION_NODES,
   ...LOOP_NODES,
   'LogicalExpression',
-];
+]);
 
 /**
  * Computes the cyclomatic complexity of an ESLint source code
@@ -56,7 +56,7 @@ const COMPLEXITY_NODES = [
 export function computeCyclomaticComplexity(sourceCode: SourceCode): number {
   let complexity = 0;
   visit(sourceCode, node => {
-    if (COMPLEXITY_NODES.includes(node.type)) {
+    if (COMPLEXITY_NODES.has(node.type)) {
       complexity++;
     }
   });

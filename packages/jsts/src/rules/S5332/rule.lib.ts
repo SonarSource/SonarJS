@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { URL } from 'url';
+import { URL } from 'node:url';
 import {
   getFullyQualifiedName,
   getParent,
@@ -29,7 +29,7 @@ import { normalizeFQN } from '../helpers/aws/cdk.js';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.\d+){0,2}\.\d+$|\/\/(?:0*:)*?:?0*1$/;
-const EXCEPTION_FULL_HOSTS = [
+const EXCEPTION_FULL_HOSTS = new Set([
   'www.w3.org',
   'xml.apache.org',
   'schemas.xmlsoap.org',
@@ -45,7 +45,7 @@ const EXCEPTION_FULL_HOSTS = [
   'graphml.graphdrawing.org',
   'json-schema.org',
   'schemas.microsoft.com',
-];
+]);
 const EXCEPTION_TOP_HOSTS = [
   /\.example$/,
   /\.?example\.com$/,
@@ -171,24 +171,6 @@ export const rule: Rule.RuleModule = {
       return hasExceptionHost(value);
     }
 
-    function hasExceptionHost(value: string) {
-      let url;
-
-      try {
-        url = new URL(value);
-      } catch (err) {
-        return false;
-      }
-
-      const host = url.hostname;
-      return (
-        host.length === 0 ||
-        LOOPBACK_PATTERN.test(host) ||
-        EXCEPTION_FULL_HOSTS.some(exception => exception === host) ||
-        EXCEPTION_TOP_HOSTS.some(exception => exception.test(host))
-      );
-    }
-
     return {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
@@ -241,4 +223,22 @@ function getMessageAndData(protocol: string) {
       alternative = 'ssh';
   }
   return { messageId: 'insecureProtocol', data: { protocol, alternative } };
+}
+
+function hasExceptionHost(value: string) {
+  let url;
+
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+
+  const host = url.hostname;
+  return (
+    host.length === 0 ||
+    LOOPBACK_PATTERN.test(host) ||
+    EXCEPTION_FULL_HOSTS.has(host) ||
+    EXCEPTION_TOP_HOSTS.some(exception => exception.test(host))
+  );
 }

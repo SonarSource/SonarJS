@@ -32,18 +32,18 @@ export const rule: Rule.RuleModule = {
         const compositeType = node as unknown as TSESTree.TSUnionType | TSESTree.TSIntersectionType;
         const groupedTypes: Map<string, Array<TSESTree.Node>> = new Map();
 
-        compositeType.types.forEach(typescriptType => {
+        for (const typescriptType of compositeType.types) {
           const nodeValue = sourceCode.getText(typescriptType as unknown as estree.Node);
           const nodesWithGivenType = groupedTypes.get(nodeValue);
           const nodeType = typescriptType as TSESTree.Node;
-          if (!nodesWithGivenType) {
-            groupedTypes.set(nodeValue, [nodeType]);
-          } else {
+          if (nodesWithGivenType) {
             nodesWithGivenType.push(nodeType);
+          } else {
+            groupedTypes.set(nodeValue, [nodeType]);
           }
-        });
+        }
 
-        groupedTypes.forEach(duplicates => {
+        for (const duplicates of groupedTypes.values()) {
           if (duplicates.length > 1) {
             const suggest = getSuggestions(compositeType, duplicates, context);
             const primaryNode = duplicates.splice(1, 1)[0];
@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = {
               secondaryLocations,
             );
           }
-        });
+        }
       },
     };
   },

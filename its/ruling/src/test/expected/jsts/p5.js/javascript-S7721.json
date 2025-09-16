@@ -31,24 +31,11 @@
 4293,
 8109
 ],
-"p5.js:src/core/main.js": [
-546,
-549
-],
-"p5.js:src/io/p5.Table.js": [
-808
-],
-"p5.js:src/typography/p5.Font.js": [
-813
-],
 "p5.js:src/webgl/p5.RendererGL.js": [
 1439,
 1451,
 1456,
 1460
-],
-"p5.js:src/webgl/p5.Texture.js": [
-292
 ],
 "p5.js:src/webgl/text.js": [
 211,

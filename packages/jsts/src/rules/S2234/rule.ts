@@ -167,9 +167,7 @@ export const rule: Rule.RuleModule = {
       argumentIndex: number,
       node: estree.CallExpression,
     ) {
-      const indexInFunctionDeclaration = functionParameters.findIndex(
-        functionParameterName => functionParameterName === argumentName,
-      );
+      const indexInFunctionDeclaration = functionParameters.indexOf(argumentName);
       if (indexInFunctionDeclaration >= 0 && indexInFunctionDeclaration !== argumentIndex) {
         const potentiallySwappedArgument = argumentNames[indexInFunctionDeclaration];
         if (
@@ -242,7 +240,7 @@ function getSecondaryLocations(functionDeclaration: FunctionNodeType | undefined
 
 function getParametersClauseLocation(parameters: Array<estree.Node>) {
   const firstParam = parameters[0] as TSESTree.Node;
-  const lastParam = parameters[parameters.length - 1] as TSESTree.Node;
+  const lastParam = parameters.at(-1) as TSESTree.Node;
   return { start: firstParam.loc.start, end: lastParam.loc.end };
 }
 

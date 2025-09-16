@@ -20,7 +20,7 @@ import { Comment } from './comments.js';
 import { FileIssues } from './file.js';
 
 const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
-const NON_COMPLIANT_PATTERN = RegExp(
+const NON_COMPLIANT_PATTERN = new RegExp(
   ' *Noncompliant' +
     LINE_ADJUSTMENT +
     // quickfixes, ex: [[qf1,qf2]]
@@ -28,12 +28,12 @@ const NON_COMPLIANT_PATTERN = RegExp(
     QUICKFIX_ID +
     ')?' +
     // messages, ex: {{msg1}} {{msg2}}
-    ' *(?<messages>(\\{\\{.*?\\}\\} *)+)?',
+    String.raw` *(?<messages>(\{\{.*?\}\} *)+)?`,
   'i',
 );
 
 export class LineIssues {
-  public primaryLocation: PrimaryLocation | null;
+  public primaryLocation: PrimaryLocation | null = null;
   public quickfixes: QuickFix[] = [];
   constructor(
     readonly line: number,
@@ -41,13 +41,12 @@ export class LineIssues {
     quickfixes: string | undefined,
     quickFixesMap: Map<string, QuickFix>,
   ) {
-    this.primaryLocation = null;
     if (quickfixes?.length) {
       this.quickfixes = quickfixes
-        .split(RegExp(QUICKFIX_SEPARATOR))
+        .split(new RegExp(QUICKFIX_SEPARATOR))
         .map((quickfixAndMessage, index) => {
           const [quickfixId, messageIndexStr] = quickfixAndMessage.split('=');
-          const messageIndex = !messageIndexStr ? index : parseInt(messageIndexStr);
+          const messageIndex = messageIndexStr ? Number.parseInt(messageIndexStr) : index;
           if (quickFixesMap.has(quickfixId)) {
             throw new Error(`QuickFix ID ${quickfixId} has already been declared`);
           }
@@ -101,7 +100,7 @@ export function extractLineIssues(file: FileIssues, comment: Comment) {
 }
 
 function extractMessages(messageGroup: string | undefined) {
-  if (typeof messageGroup !== 'undefined') {
+  if (messageGroup !== undefined) {
     const messageContent = messageGroup.trim();
     return messageContent
       .substring('{{'.length, messageContent.length - '}}'.length)

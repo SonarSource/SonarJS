@@ -28,48 +28,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function isAssignmentStatement(parent: estree.Node) {
-      return parent.type === 'ExpressionStatement';
-    }
-
-    function isEnclosingChain(parent: estree.Node) {
-      return parent.type === 'AssignmentExpression';
-    }
-
-    function isEnclosingRelation(parent: estree.Node) {
-      return (
-        parent.type === 'BinaryExpression' &&
-        ['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(parent.operator)
-      );
-    }
-
-    function isEnclosingSequence(parent: estree.Node) {
-      return parent.type === 'SequenceExpression';
-    }
-
-    function isEnclosingDeclarator(parent: estree.Node) {
-      return parent.type === 'VariableDeclarator';
-    }
-
-    function isLambdaBody(parent: estree.Node, expr: estree.AssignmentExpression) {
-      return parent.type === 'ArrowFunctionExpression' && parent.body === expr;
-    }
-
-    function isConditionalAssignment(parent: estree.Node, expr: estree.AssignmentExpression) {
-      return parent.type === 'LogicalExpression' && parent.right === expr;
-    }
-
-    function isWhileCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
-      return (
-        (parent.type === 'DoWhileStatement' || parent.type === 'WhileStatement') &&
-        parent.test === expr
-      );
-    }
-
-    function isForInitOrUpdate(parent: estree.Node, expr: estree.AssignmentExpression) {
-      return parent.type === 'ForStatement' && (parent.init === expr || parent.update === expr);
-    }
-
     return {
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
@@ -108,4 +66,45 @@ function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext
     },
     loc: operator!.loc,
   });
+}
+
+function isAssignmentStatement(parent: estree.Node) {
+  return parent.type === 'ExpressionStatement';
+}
+
+function isEnclosingChain(parent: estree.Node) {
+  return parent.type === 'AssignmentExpression';
+}
+
+function isEnclosingRelation(parent: estree.Node) {
+  return (
+    parent.type === 'BinaryExpression' &&
+    ['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(parent.operator)
+  );
+}
+
+function isEnclosingSequence(parent: estree.Node) {
+  return parent.type === 'SequenceExpression';
+}
+
+function isEnclosingDeclarator(parent: estree.Node) {
+  return parent.type === 'VariableDeclarator';
+}
+
+function isLambdaBody(parent: estree.Node, expr: estree.AssignmentExpression) {
+  return parent.type === 'ArrowFunctionExpression' && parent.body === expr;
+}
+
+function isConditionalAssignment(parent: estree.Node, expr: estree.AssignmentExpression) {
+  return parent.type === 'LogicalExpression' && parent.right === expr;
+}
+
+function isWhileCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
+  return (
+    (parent.type === 'DoWhileStatement' || parent.type === 'WhileStatement') && parent.test === expr
+  );
+}
+
+function isForInitOrUpdate(parent: estree.Node, expr: estree.AssignmentExpression) {
+  return parent.type === 'ForStatement' && (parent.init === expr || parent.update === expr);
 }

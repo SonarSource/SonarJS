@@ -17,11 +17,11 @@
 import { debug, info } from '../logging.js';
 
 const READ_CHARACTERS_LIMIT = 2048;
-const COMMENT = '/\\*.*\\*/';
+const COMMENT = String.raw`/\*.*\*/`;
 const OPERATOR = '[!;+(]';
 const OPTIONAL_FUNCTION_NAME = '(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?';
 const COMMENT_OPERATOR_FUNCTION = new RegExp(
-  COMMENT + '\\s*' + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + '\\(',
+  COMMENT + String.raw`\s*` + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + String.raw`\(`,
   's',
 );
 let hasInfoBeenLogged = false;

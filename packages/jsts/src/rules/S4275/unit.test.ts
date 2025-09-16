@@ -22,24 +22,6 @@ describe('S4275', () => {
   it('S4275', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    function missingReturn(...codes: string[]) {
-      return codes.map(code => ({
-        code,
-        errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
-        settings: { sonarRuntime: true },
-      }));
-    }
-
-    function missingAlwaysReturn(...codes: string[]) {
-      return codes.map(code => ({
-        code,
-        errors: [
-          '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
-        ],
-        settings: { sonarRuntime: true },
-      }));
-    }
-
     ruleTester.run('Getters and setters should access the expected fields', rule, {
       valid: [
         {
@@ -949,3 +931,21 @@ describe('S4275', () => {
     });
   });
 });
+
+function missingReturn(...codes: string[]) {
+  return codes.map(code => ({
+    code,
+    errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
+    settings: { sonarRuntime: true },
+  }));
+}
+
+function missingAlwaysReturn(...codes: string[]) {
+  return codes.map(code => ({
+    code,
+    errors: [
+      '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
+    ],
+    settings: { sonarRuntime: true },
+  }));
+}

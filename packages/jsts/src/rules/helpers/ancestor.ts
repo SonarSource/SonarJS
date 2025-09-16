@@ -53,7 +53,7 @@ export function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) 
 
 export function getParent(context: Rule.RuleContext, node: estree.Node) {
   const ancestors = context.sourceCode.getAncestors(node);
-  return ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined;
+  return ancestors.length > 0 ? ancestors.at(-1) : undefined;
 }
 
 /**

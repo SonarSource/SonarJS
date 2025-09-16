@@ -50,11 +50,11 @@ export class Cache {
       debug(`Computing tsconfig ${tsConfigPath} from bridge`);
       try {
         const tsConfigFile = createProgramOptions(tsConfigPath);
-        tsConfigFile.rootNames.forEach(file => {
+        for (const file of tsConfigFile.rootNames) {
           if (!this.inputFileToTsConfigFilesMap.has(file)) {
             this.inputFileToTsConfigFilesMap.set(file, tsConfigPath);
           }
-        });
+        }
         await this.addReferencedTsConfig(tsConfigFile.projectReferences);
         if (this.inputFileToTsConfigFilesMap.has(inputFile)) {
           const foundTsConfigFile = this.inputFileToTsConfigFilesMap.get(inputFile)!;
@@ -137,13 +137,13 @@ export class Cache {
   private getImprovedPendingTsConfigOrder(inputFile: string) {
     const newPendingTsConfigFiles: string[] = [];
     const notMatchingPendingTsConfigFiles: string[] = [];
-    this.pendingTsConfigFiles.forEach(ts => {
+    for (const ts of this.pendingTsConfigFiles) {
       if (inputFile.startsWith(dirname(ts))) {
         newPendingTsConfigFiles.push(ts);
       } else {
         notMatchingPendingTsConfigFiles.push(ts);
       }
-    });
+    }
     newPendingTsConfigFiles.push(...notMatchingPendingTsConfigFiles);
     return newPendingTsConfigFiles.reverse();
   }

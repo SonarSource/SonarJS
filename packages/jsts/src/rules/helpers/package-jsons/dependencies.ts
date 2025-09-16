@@ -30,13 +30,13 @@ export const dependenciesCache = new ComputedCache((dir: string, topDir: string 
   const result = new Set<string | Minimatch>();
 
   if (closestPackageJSONDirName) {
-    getManifests(closestPackageJSONDirName, topDir, fs).forEach(manifest => {
+    for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
       const manifestDependencies = getDependenciesFromPackageJson(manifest);
 
-      manifestDependencies.forEach(dependency => {
+      for (const dependency of manifestDependencies) {
         result.add(dependency.name);
-      });
-    });
+      }
+    }
   }
   return result;
 });

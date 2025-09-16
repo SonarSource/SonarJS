@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getVariableFromIdentifier,
+  last,
   ReachingDefinitions,
   reachingDefinitions,
   resolveAssignedValues,
@@ -59,9 +60,9 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         reachingDefinitions(reachingDefsMap);
-        reachingDefsMap.forEach(defs => {
+        for (const defs of reachingDefsMap.values()) {
           checkSegment(defs);
-        });
+        }
         reachingDefsMap.clear();
         variableUsages.clear();
         while (codePathStack.length > 0) {
@@ -89,21 +90,25 @@ export const rule: Rule.RuleModule = {
     };
 
     function popAssignmentContext() {
-      const assignment = peek(codePathStack).assignmentStack.pop()!;
-      assignment.rhs.forEach(r => processReference(r));
-      assignment.lhs.forEach(r => processReference(r));
+      const assignment = last(codePathStack).assignmentStack.pop()!;
+      for (const r of assignment.rhs) {
+        processReference(r);
+      }
+      for (const r of assignment.lhs) {
+        processReference(r);
+      }
     }
 
     function pushAssignmentContext(node: AssignmentLike) {
-      peek(codePathStack).assignmentStack.push(new AssignmentContext(node));
+      last(codePathStack).assignmentStack.push(new AssignmentContext(node));
     }
 
     function checkSegment(reachingDefs: ReachingDefinitions) {
       const assignedValuesMap = new Map<Scope.Variable, Values>(reachingDefs.in);
-      reachingDefs.references.forEach(ref => {
+      for (const ref of reachingDefs.references) {
         const variable = ref.resolved;
         if (!variable || !ref.isWrite() || !shouldReport(ref)) {
-          return;
+          continue;
         }
         const lhsValues = assignedValuesMap.get(variable);
         const rhsValues = resolveAssignedValues(
@@ -117,7 +122,7 @@ export const rule: Rule.RuleModule = {
           checkRedundantAssignement(ref, ref.writeExpr, lhsVal, rhsValues, variable.name);
         }
         assignedValuesMap.set(variable, rhsValues);
-      });
+      }
     }
 
     function checkRedundantAssignement(
@@ -189,15 +194,15 @@ export const rule: Rule.RuleModule = {
     }
 
     function processReference(ref: Scope.Reference) {
-      const assignmentStack = peek(codePathStack).assignmentStack;
+      const assignmentStack = last(codePathStack).assignmentStack;
       if (assignmentStack.length > 0) {
-        const assignment = peek(assignmentStack);
+        const assignment = last(assignmentStack);
         assignment.add(ref);
       } else {
-        currentCodePathSegments.forEach(segment => {
+        for (const segment of currentCodePathSegments) {
           const reachingDefs = reachingDefsForSegment(segment);
           reachingDefs.add(ref);
-        });
+        }
       }
     }
 
@@ -213,7 +218,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function updateVariableUsages(variable: Scope.Variable) {
-      const codePathId = peek(codePathStack).codePath.id;
+      const codePathId = last(codePathStack).codePath.id;
       if (variableUsages.has(variable)) {
         variableUsages.get(variable)!.add(codePathId);
       } else {
@@ -310,10 +315,6 @@ class AssignmentContext {
       throw new Error('failed to find assignment lhs/rhs');
     }
   }
-}
-
-function peek<T>(arr: Array<T>) {
-  return arr[arr.length - 1];
 }
 
 function isSelfAssignement(ref: Scope.Reference) {

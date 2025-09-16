@@ -16,7 +16,7 @@
  */
 import express from 'express';
 import { errorMiddleware } from '../../src/errors/index.js';
-import assert from 'assert';
+import assert from 'node:assert';
 
 import { describe, it, beforeEach, afterEach, mock, type Mock } from 'node:test';
 import { APIError, ErrorCode } from '../../../shared/src/errors/error.js';

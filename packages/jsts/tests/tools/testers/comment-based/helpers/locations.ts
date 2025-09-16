@@ -104,10 +104,10 @@ function matcherToLocation(
   const effectiveLine = extractEffectiveLine(line - 1, matcher);
   const range = fileRange(effectiveLine, column, offset, matcher);
   const direction = matcher.groups?.direction;
-  if (!direction) {
-    return new PrimaryLocation(range);
-  } else {
+  if (direction) {
     return new SecondaryLocation(range, matcher.groups?.message, direction === '<');
+  } else {
+    return new PrimaryLocation(range);
   }
 }
 
@@ -115,7 +115,7 @@ export function extractEffectiveLine(line: number, matcher: RegExpMatchArray) {
   const lineAdjustmentGroup = matcher.groups?.lineAdjustment;
   const relativeAdjustmentGroup = matcher.groups?.relativeAdjustment;
   const referenceLine = relativeAdjustmentGroup ? line : 0;
-  return lineAdjustmentGroup ? referenceLine + parseInt(lineAdjustmentGroup) : line;
+  return lineAdjustmentGroup ? referenceLine + Number.parseInt(lineAdjustmentGroup) : line;
 }
 
 function fileRange(line: number, column: number, offset: number, matcher: RegExpMatchArray) {

@@ -41,8 +41,8 @@ function isNull(n: estree.Node): boolean {
   return isNullLiteral(n) || isUndefined(n);
 }
 
-const equalOperators = ['==', '==='];
-const notEqualOperators = ['!=', '!=='];
+const equalOperators = new Set(['==', '===']);
+const notEqualOperators = new Set(['!=', '!==']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -97,10 +97,10 @@ function getNullState(
     (isNull(left) &&
       areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.sourceCode))
   ) {
-    if (notEqualOperators.includes(expr.operator)) {
+    if (notEqualOperators.has(expr.operator)) {
       return Null.discarded;
     }
-    if (equalOperators.includes(expr.operator)) {
+    if (equalOperators.has(expr.operator)) {
       return Null.confirmed;
     }
   }

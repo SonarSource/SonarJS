@@ -23,7 +23,7 @@ import * as meta from './generated-meta.js';
 
 const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;
-const specialChars = ['+', '*', '{'];
+const specialChars = new Set(['+', '*', '{']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -85,7 +85,7 @@ function isUnsafeRegexLiteral(value: string) {
 function hasEnoughNumberOfSpecialChars(value: string) {
   let numberOfSpecialChars = 0;
   for (const c of value) {
-    if (specialChars.includes(c)) {
+    if (specialChars.has(c)) {
       numberOfSpecialChars++;
     }
     if (numberOfSpecialChars === 2) {

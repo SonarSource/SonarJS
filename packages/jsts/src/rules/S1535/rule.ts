@@ -28,18 +28,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function isAttrCopy(statement: estree.Node) {
-      if (statement.type !== 'ExpressionStatement') {
-        return false;
-      }
-      const expression = statement.expression;
-      return (
-        expression.type === 'AssignmentExpression' &&
-        expression.left.type === 'MemberExpression' &&
-        expression.left.computed
-      );
-    }
-
     return {
       ForInStatement(node) {
         const forInStatement = node as estree.ForInStatement;
@@ -67,3 +55,15 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isAttrCopy(statement: estree.Node) {
+  if (statement.type !== 'ExpressionStatement') {
+    return false;
+  }
+  const expression = statement.expression;
+  return (
+    expression.type === 'AssignmentExpression' &&
+    expression.left.type === 'MemberExpression' &&
+    expression.left.computed
+  );
+}

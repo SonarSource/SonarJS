@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       segment: Rule.CodePathSegment,
       initialSegment: Rule.CodePathSegment,
     ) {
-      const stack = [];
+      const stack: Rule.CodePathSegment[] = [];
       const visitedSegments: Set<string> = new Set();
       stack.push(segment);
       while (stack.length !== 0) {
@@ -55,7 +55,11 @@ export const rule: Rule.RuleModule = {
           if (current === initialSegment) {
             return false;
           }
-          current.prevSegments.filter(p => !visitedSegments.has(p.id)).forEach(p => stack.push(p));
+          for (const codePathSegment of current.prevSegments.filter(
+            p => !visitedSegments.has(p.id),
+          )) {
+            stack.push(codePathSegment);
+          }
         }
       }
       return true;
@@ -109,7 +113,7 @@ export const rule: Rule.RuleModule = {
         if (
           isReachable &&
           switchCase.consequent.length > 0 &&
-          cases[cases.length - 1] !== node &&
+          cases.at(-1) !== node &&
           noComment(switchCase)
         ) {
           context.report({

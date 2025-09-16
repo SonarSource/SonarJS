@@ -35,21 +35,19 @@ export const rule: Rule.RuleModule = {
       'Program:exit'(node: estree.Node) {
         const globalScope = context.sourceCode.getScope(node);
         const alreadyReported: Set<string> = new Set();
-        globalScope.through
-          .filter(ref => ref.isWrite())
-          .forEach(ref => {
-            const name = ref.identifier.name;
-            if (!alreadyReported.has(name) && !excludedNames.has(name)) {
-              alreadyReported.add(name);
-              context.report({
-                messageId: 'explicitModifier',
-                data: {
-                  variable: name,
-                },
-                node: ref.identifier,
-              });
-            }
-          });
+        for (const ref of globalScope.through.filter(ref => ref.isWrite())) {
+          const name = ref.identifier.name;
+          if (!alreadyReported.has(name) && !excludedNames.has(name)) {
+            alreadyReported.add(name);
+            context.report({
+              messageId: 'explicitModifier',
+              data: {
+                variable: name,
+              },
+              node: ref.identifier,
+            });
+          }
+        }
       },
     };
   },

@@ -77,7 +77,9 @@ export const rule: Rule.RuleModule = {
         }
       },
       'Program:exit': () => {
-        regexNodes.forEach(regexNode => checkRegexComplexity(regexNode, threshold, context));
+        for (const regexNode of regexNodes) {
+          checkRegexComplexity(regexNode, threshold, context);
+        }
       },
     };
   },
@@ -94,9 +96,9 @@ function checkRegexComplexity(
     for (const regexPart of regexParts) {
       const calculator = new ComplexityCalculator(regexPart, context);
       calculator.visit();
-      calculator.components.forEach(component => {
+      for (const component of calculator.components) {
         secondaryLocations.push(toSecondaryLocation(component.location, component.message));
-      });
+      }
       complexity += calculator.complexity;
     }
     if (complexity > threshold) {

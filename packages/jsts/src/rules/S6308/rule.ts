@@ -115,10 +115,6 @@ function domainChecker(options: DomainCheckerOptions) {
       });
     }
 
-    function isUnencrypted(node: Node) {
-      return isBooleanLiteral(node) && !node.value;
-    }
-
     function getSearchEngine(node: Node) {
       let version: string | null;
 
@@ -139,4 +135,8 @@ function domainChecker(options: DomainCheckerOptions) {
       return null;
     }
   };
+}
+
+function isUnencrypted(node: Node) {
+  return isBooleanLiteral(node) && !node.value;
 }

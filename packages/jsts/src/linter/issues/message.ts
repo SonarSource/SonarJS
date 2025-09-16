@@ -28,9 +28,9 @@ function getESLintKeys(sonarKey: string) {
   const keys = new Set<string>();
   keys.add(ruleMeta.eslintId);
   if (ruleMeta.implementation === 'decorated') {
-    ruleMeta.externalRules.forEach(externalRule => {
+    for (const externalRule of ruleMeta.externalRules) {
       keys.add(externalRule.externalRule);
-    });
+    }
   }
   return Array.from(keys);
 }

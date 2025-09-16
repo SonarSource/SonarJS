@@ -26,8 +26,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'VariableDeclaration[kind="const"]': (node: estree.Node) => {
-        context.sourceCode.getDeclaredVariables(node).forEach(variable =>
-          variable.references.filter(isModifyingReference).forEach(reference =>
+        for (const variable of context.sourceCode.getDeclaredVariables(node)) {
+          for (const reference of variable.references.filter(isModifyingReference)) {
             report(
               context,
               {
@@ -35,9 +35,9 @@ export const rule: Rule.RuleModule = {
                 node: reference.identifier,
               },
               [toSecondaryLocation(node, 'Const declaration')],
-            ),
-          ),
-        );
+            );
+          }
+        }
       },
     };
   },

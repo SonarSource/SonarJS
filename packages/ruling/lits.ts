@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs/promises';
-import path from 'path';
+import path from 'node:path';
 import { ProjectAnalysisOutput } from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 
 /**

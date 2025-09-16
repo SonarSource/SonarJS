@@ -18,7 +18,7 @@ import protobuf from 'protobufjs';
 import base64 from '@protobufjs/base64';
 import type { TSESTree } from '@typescript-eslint/utils';
 
-import path from 'path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { debug } from '../../../shared/src/helpers/logging.js';
 
@@ -389,21 +389,21 @@ function visitLiteral(node: TSESTree.Literal) {
     // simple literal
     return { raw: node.raw, ...translateValue(node.value) };
   }
+}
 
-  function translateValue(value: string | number | boolean | null) {
-    if (typeof value === 'string') {
-      return { valueString: value };
-    }
-    if (typeof value === 'number') {
-      return { valueNumber: value };
-    }
-    if (typeof value === 'boolean') {
-      return { valueBoolean: value };
-    }
-    // The null value is represented by the TS language value 'null'.
-    if (value === null) {
-      return {};
-    }
+function translateValue(value: string | number | boolean | null) {
+  if (typeof value === 'string') {
+    return { valueString: value };
+  }
+  if (typeof value === 'number') {
+    return { valueNumber: value };
+  }
+  if (typeof value === 'boolean') {
+    return { valueBoolean: value };
+  }
+  // The null value is represented by the TS language value 'null'.
+  if (value === null) {
+    return {};
   }
 }
 
@@ -879,14 +879,14 @@ function visitEmptyStatement(_node: TSESTree.EmptyStatement) {
 }
 
 function visitExpressionStatement(node: TSESTree.ExpressionStatement) {
-  if (node.directive !== undefined) {
+  if (node.directive === undefined) {
     return {
       expression: visitNode(node.expression),
-      directive: node.directive,
     };
   } else {
     return {
       expression: visitNode(node.expression),
+      directive: node.directive,
     };
   }
 }

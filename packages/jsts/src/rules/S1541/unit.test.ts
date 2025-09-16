@@ -380,87 +380,85 @@ describe('S1541', () => {
         ),
       ],
     });
-
-    function invalid(code: string, threshold = 2) {
-      const issue = {
-        complexity: 0,
-        primaryLocation: {} as IssueLocation,
-        secondaryLocations: [] as IssueLocation[],
-      };
-      const lines = code.split('\n');
-      for (const [index, line] of lines.entries()) {
-        let found: RegExpMatchArray | null;
-
-        const primary = /\/\/P\s*(\^+)/;
-        found = line.match(primary);
-        if (found) {
-          const marker = found[1];
-          const column = line.indexOf(marker);
-          issue.primaryLocation = location(index, column, index, column + marker.length);
-        }
-
-        const secondary = /\/\/\s*[^\^]*(\^+)/;
-        found = line.match(secondary);
-        if (found) {
-          const marker = found[1];
-          const column = line.indexOf(marker);
-          issue.complexity += 1;
-          issue.secondaryLocations.push(
-            location(index, column, index, column + marker.length, '+1'),
-          );
-        }
-      }
-
-      return {
-        code,
-        errors: [error(issue, threshold)],
-        options: [
-          {
-            threshold,
-          },
-        ],
-      };
-    }
-
-    function error(
-      issue: {
-        complexity: number;
-        primaryLocation: IssueLocation;
-        secondaryLocations: IssueLocation[];
-      },
-      threshold: number,
-    ) {
-      const { line, column, endLine, endColumn } = issue.primaryLocation;
-      return {
-        message: encode(issue.complexity, threshold, issue.secondaryLocations),
-        line,
-        column: column + 1,
-        endColumn: endColumn + 1,
-        endLine,
-      };
-    }
-
-    function encode(
-      complexity: number,
-      threshold: number,
-      secondaryLocations: IssueLocation[],
-    ): string {
-      const encodedMessage: EncodedMessage = {
-        message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
-        cost: complexity - threshold,
-        secondaryLocations,
-      };
-      return JSON.stringify(encodedMessage);
-    }
-
-    function location(
-      line: number,
-      column: number,
-      endLine: number,
-      endColumn: number,
-      message?: string,
-    ): IssueLocation {
-      return { line, column, endLine, endColumn, message };
-    }
   });
 });
+
+function invalid(code: string, threshold = 2) {
+  const issue = {
+    complexity: 0,
+    primaryLocation: {} as IssueLocation,
+    secondaryLocations: [] as IssueLocation[],
+  };
+  const lines = code.split('\n');
+  for (const [index, line] of lines.entries()) {
+    let found: RegExpMatchArray | null;
+
+    const primary = /\/\/P\s*(\^+)/;
+    found = line.match(primary);
+    if (found) {
+      const marker = found[1];
+      const column = line.indexOf(marker);
+      issue.primaryLocation = location(index, column, index, column + marker.length);
+    }
+
+    const secondary = /\/\/\s*[^\^]*(\^+)/;
+    found = line.match(secondary);
+    if (found) {
+      const marker = found[1];
+      const column = line.indexOf(marker);
+      issue.complexity += 1;
+      issue.secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
+    }
+  }
+
+  return {
+    code,
+    errors: [error(issue, threshold)],
+    options: [
+      {
+        threshold,
+      },
+    ],
+  };
+}
+
+function error(
+  issue: {
+    complexity: number;
+    primaryLocation: IssueLocation;
+    secondaryLocations: IssueLocation[];
+  },
+  threshold: number,
+) {
+  const { line, column, endLine, endColumn } = issue.primaryLocation;
+  return {
+    message: encode(issue.complexity, threshold, issue.secondaryLocations),
+    line,
+    column: column + 1,
+    endColumn: endColumn + 1,
+    endLine,
+  };
+}
+
+function encode(
+  complexity: number,
+  threshold: number,
+  secondaryLocations: IssueLocation[],
+): string {
+  const encodedMessage: EncodedMessage = {
+    message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
+    cost: complexity - threshold,
+    secondaryLocations,
+  };
+  return JSON.stringify(encodedMessage);
+}
+
+function location(
+  line: number,
+  column: number,
+  endLine: number,
+  endColumn: number,
+  message?: string,
+): IssueLocation {
+  return { line, column, endLine, endColumn, message };
+}

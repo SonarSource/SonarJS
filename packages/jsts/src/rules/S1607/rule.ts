@@ -65,7 +65,7 @@ export const rule: Rule.RuleModule = {
     function jasmineListener(): Rule.RuleListener {
       return {
         CallExpression(node: estree.CallExpression) {
-          if (isIgnoredTest(node) && !hasExplanationComment(node)) {
+          if (isJasmineIgnoredTest(node) && !hasExplanationComment(node)) {
             context.report({
               node: node.callee,
               messageId: 'removeOrExplainTest',
@@ -73,10 +73,6 @@ export const rule: Rule.RuleModule = {
           }
         },
       };
-
-      function isIgnoredTest(node: estree.CallExpression) {
-        return isIdentifier(node.callee, 'xit', 'xdescribe', 'xcontext');
-      }
     }
 
     /**
@@ -87,7 +83,7 @@ export const rule: Rule.RuleModule = {
     function jestListener(): Rule.RuleListener {
       return {
         CallExpression(node: estree.CallExpression) {
-          if (isIgnoredTest(node) && !hasExplanationComment(node)) {
+          if (isJestIgnoredTest(node) && !hasExplanationComment(node)) {
             context.report({
               node: node.callee,
               messageId: 'removeOrExplainTest',
@@ -95,17 +91,6 @@ export const rule: Rule.RuleModule = {
           }
         },
       };
-
-      function isIgnoredTest(node: estree.CallExpression) {
-        return (
-          isMethodInvocation(node, 'test', 'skip', 0) ||
-          isMethodInvocation(node, 'it', 'skip', 0) ||
-          isMethodInvocation(node, 'describe', 'skip', 0) ||
-          isFunctionInvocation(node, 'xtest', 0) ||
-          isFunctionInvocation(node, 'xit', 0) ||
-          isFunctionInvocation(node, 'xdescribe', 0)
-        );
-      }
     }
 
     /**
@@ -116,7 +101,7 @@ export const rule: Rule.RuleModule = {
     function mochaListener(): Rule.RuleListener {
       return {
         CallExpression(node: estree.CallExpression) {
-          if (isIgnoredTest(node) && !hasExplanationComment(node)) {
+          if (isMochaIgnoredTest(node) && !hasExplanationComment(node)) {
             context.report({
               node: node.callee,
               messageId: 'removeOrExplainTest',
@@ -124,14 +109,6 @@ export const rule: Rule.RuleModule = {
           }
         },
       };
-
-      function isIgnoredTest(node: estree.CallExpression) {
-        return (
-          isMethodInvocation(node, 'it', 'skip', 0) ||
-          isMethodInvocation(node, 'describe', 'skip', 0) ||
-          isMethodInvocation(node, 'context', 'skip', 0)
-        );
-      }
     }
 
     /**
@@ -161,75 +138,75 @@ export const rule: Rule.RuleModule = {
           }
         },
       };
+    }
 
-      /**
-       * Handle the pattern `test('name', t => { t.skip(); })`.
-       */
-      function handleSkipMethod(node: estree.CallExpression) {
-        const fn = resolveFunction(context, node.arguments[1]);
-        if (!fn) {
-          return;
-        }
-
-        const testCtxParam = fn.params[0];
-        if (!testCtxParam || !isIdentifier(testCtxParam)) {
-          return;
-        }
-
-        const scopeVariables = context.sourceCode.scopeManager.getDeclaredVariables(fn);
-        const testCtxVar = scopeVariables.find(v => v.name === testCtxParam.name);
-        if (!testCtxVar) {
-          return;
-        }
-
-        for (const testCtxRef of testCtxVar.references) {
-          const testCtxIden = testCtxRef.identifier as TSESTree.Identifier;
-
-          const maybeSkipCall = testCtxIden?.parent?.parent;
-          if (maybeSkipCall?.type !== 'CallExpression') {
-            continue;
-          }
-
-          const skipCall = maybeSkipCall as estree.CallExpression;
-          if (!isMethodInvocation(skipCall, testCtxIden.name, 'skip', 0)) {
-            continue;
-          }
-
-          const skipArg = skipCall.arguments[0];
-          if (!skipArg || (isLiteral(skipArg) && skipArg.value === '')) {
-            context.report({
-              node: skipCall.callee,
-              messageId: 'removeOrExplainTest',
-            });
-            break;
-          }
-        }
+    /**
+     * Handle the pattern `test('name', t => { t.skip(); })`.
+     */
+    function handleSkipMethod(node: estree.CallExpression) {
+      const fn = resolveFunction(context, node.arguments[1]);
+      if (!fn) {
+        return;
       }
 
-      /**
-       * Handle the pattern `test('name', { skip: true }, () => {})`.
-       */
-      function handleSkipOption(node: estree.CallExpression) {
-        const options = getValueOfExpression(context, node.arguments[1], 'ObjectExpression');
-        if (!options) {
-          return;
-        }
-
-        const skipProperty = getProperty(options, 'skip', context);
-        if (!skipProperty) {
-          return;
-        }
-
-        const skipValue = getValueOfExpression(context, skipProperty.value, 'Literal');
-        if (!skipValue || (skipValue.value !== true && skipValue.value !== '')) {
-          return;
-        }
-
-        context.report({
-          node: skipProperty,
-          messageId: 'removeOrExplainTest',
-        });
+      const testCtxParam = fn.params[0];
+      if (!testCtxParam || !isIdentifier(testCtxParam)) {
+        return;
       }
+
+      const scopeVariables = context.sourceCode.scopeManager.getDeclaredVariables(fn);
+      const testCtxVar = scopeVariables.find(v => v.name === testCtxParam.name);
+      if (!testCtxVar) {
+        return;
+      }
+
+      for (const testCtxRef of testCtxVar.references) {
+        const testCtxIden = testCtxRef.identifier as TSESTree.Identifier;
+
+        const maybeSkipCall = testCtxIden?.parent?.parent;
+        if (maybeSkipCall?.type !== 'CallExpression') {
+          continue;
+        }
+
+        const skipCall = maybeSkipCall as estree.CallExpression;
+        if (!isMethodInvocation(skipCall, testCtxIden.name, 'skip', 0)) {
+          continue;
+        }
+
+        const skipArg = skipCall.arguments[0];
+        if (!skipArg || (isLiteral(skipArg) && skipArg.value === '')) {
+          context.report({
+            node: skipCall.callee,
+            messageId: 'removeOrExplainTest',
+          });
+          break;
+        }
+      }
+    }
+
+    /**
+     * Handle the pattern `test('name', { skip: true }, () => {})`.
+     */
+    function handleSkipOption(node: estree.CallExpression) {
+      const options = getValueOfExpression(context, node.arguments[1], 'ObjectExpression');
+      if (!options) {
+        return;
+      }
+
+      const skipProperty = getProperty(options, 'skip', context);
+      if (!skipProperty) {
+        return;
+      }
+
+      const skipValue = getValueOfExpression(context, skipProperty.value, 'Literal');
+      if (!skipValue || (skipValue.value !== true && skipValue.value !== '')) {
+        return;
+      }
+
+      context.report({
+        node: skipProperty,
+        messageId: 'removeOrExplainTest',
+      });
     }
 
     /**
@@ -251,3 +228,26 @@ export const rule: Rule.RuleModule = {
     }
   },
 };
+
+function isJasmineIgnoredTest(node: estree.CallExpression) {
+  return isIdentifier(node.callee, 'xit', 'xdescribe', 'xcontext');
+}
+
+function isJestIgnoredTest(node: estree.CallExpression) {
+  return (
+    isMethodInvocation(node, 'test', 'skip', 0) ||
+    isMethodInvocation(node, 'it', 'skip', 0) ||
+    isMethodInvocation(node, 'describe', 'skip', 0) ||
+    isFunctionInvocation(node, 'xtest', 0) ||
+    isFunctionInvocation(node, 'xit', 0) ||
+    isFunctionInvocation(node, 'xdescribe', 0)
+  );
+}
+
+function isMochaIgnoredTest(node: estree.CallExpression) {
+  return (
+    isMethodInvocation(node, 'it', 'skip', 0) ||
+    isMethodInvocation(node, 'describe', 'skip', 0) ||
+    isMethodInvocation(node, 'context', 'skip', 0)
+  );
+}

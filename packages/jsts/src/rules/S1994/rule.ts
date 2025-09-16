@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
+import { areEquivalent, generateMeta, getParent, last } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 
@@ -60,14 +60,14 @@ export const rule: Rule.RuleModule = {
         parentChain.push(node);
         const forLoopChild = getChild(currentLoop.forLoop);
         if (forLoopChild) {
-          return parentChain.some(parentChainNode => forLoopChild === parentChainNode);
+          return parentChain.includes(forLoopChild);
         }
       }
       return false;
     }
 
     function peekFor() {
-      return forLoopStack[forLoopStack.length - 1];
+      return last(forLoopStack);
     }
 
     return {
@@ -107,7 +107,9 @@ export const rule: Rule.RuleModule = {
           const assignedExpressions: estree.Node[] = [];
           computeAssignedExpressions(left, assignedExpressions);
           const { updatedExpressions } = peekFor();
-          assignedExpressions.forEach(ass => updatedExpressions.push(ass));
+          for (const ass of assignedExpressions) {
+            updatedExpressions.push(ass);
+          }
         }
       },
 
@@ -163,10 +165,14 @@ function getCalleeObject(node: estree.CallExpression) {
 function computeAssignedExpressions(node: estree.Node | null, assigned: Array<estree.Node | null>) {
   switch (node?.type) {
     case 'ArrayPattern':
-      node.elements.forEach(element => computeAssignedExpressions(element, assigned));
+      for (const element of node.elements) {
+        computeAssignedExpressions(element, assigned);
+      }
       break;
     case 'ObjectPattern':
-      node.properties.forEach(property => computeAssignedExpressions(property, assigned));
+      for (const property of node.properties) {
+        computeAssignedExpressions(property, assigned);
+      }
       break;
     case 'Property':
       computeAssignedExpressions(node.value, assigned);

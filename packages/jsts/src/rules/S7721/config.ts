@@ -14,20 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AddressInfo } from 'node:net';
-import http from 'node:http';
+// https://sonarsource.github.io/rspec/#/rspec/S7721/javascript
 
-/**
- * Sends an HTTP request to a server's endpoint running on localhost.
- */
-export async function request(server: http.Server, path: string, method: string, body: any = {}) {
-  const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'checkArrowFunctions',
+      default: false,
     },
-    method,
-    body: method === 'GET' ? undefined : JSON.stringify(body),
-  });
-
-  return res.text();
-}
+  ],
+] as const satisfies ESLintConfiguration;

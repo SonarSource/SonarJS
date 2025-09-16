@@ -27,6 +27,7 @@ import {
   isIfStatement,
   isLogicalExpression,
   IssueLocation,
+  last,
   report,
   RuleContext,
   toSecondaryLocation,
@@ -228,20 +229,20 @@ export const rule: Rule.RuleModule = {
         // top level function
         if (topLevelHasStructuralComplexity && !reactFunctionalComponent.isConfirmed()) {
           let totalComplexity = topLevelOwnComplexity;
-          secondLevelFunctions.forEach(secondLevelFunction => {
+          for (const secondLevelFunction of secondLevelFunctions) {
             totalComplexity = totalComplexity.concat(secondLevelFunction.complexityIfNested);
-          });
+          }
 
           fileComplexity += totalComplexity.reduce((acc, cur) => acc + cur.complexity, 0);
         } else {
           fileComplexity += topLevelOwnComplexity.reduce((acc, cur) => acc + cur.complexity, 0);
 
-          secondLevelFunctions.forEach(secondLevelFunction => {
+          for (const secondLevelFunction of secondLevelFunctions) {
             fileComplexity += secondLevelFunction.complexityIfThisSecondaryIsTopLevel.reduce(
               (acc, cur) => acc + cur.complexity,
               0,
             );
-          });
+          }
         }
       } else if (enclosingFunctions.length === 1) {
         // second level function
@@ -359,7 +360,9 @@ export const rule: Rule.RuleModule = {
     function visitLogicalExpression(logicalExpression: TSESTree.LogicalExpression) {
       const jsxShortCircuitNodes = getJsxShortCircuitNodes(logicalExpression);
       if (jsxShortCircuitNodes != null) {
-        jsxShortCircuitNodes.forEach(node => consideredLogicalExpressions.add(node));
+        for (const node of jsxShortCircuitNodes) {
+          consideredLogicalExpressions.add(node);
+        }
         return;
       }
 
@@ -413,9 +416,8 @@ export const rule: Rule.RuleModule = {
       }
 
       if (functionOwnComplexity.length > 0) {
-        const addedWithoutFunctionNesting =
-          functionOwnControlFlowNesting[functionOwnControlFlowNesting.length - 1] + 1;
-        functionOwnComplexity[functionOwnComplexity.length - 1].push({
+        const addedWithoutFunctionNesting = last(functionOwnControlFlowNesting) + 1;
+        last(functionOwnComplexity).push({
           complexity: addedWithoutFunctionNesting,
           location,
         });
@@ -425,7 +427,7 @@ export const rule: Rule.RuleModule = {
     function addComplexity(location: TSESTree.SourceLocation) {
       const complexityPoint = { complexity: 1, location };
       if (functionOwnComplexity.length > 0) {
-        functionOwnComplexity[functionOwnComplexity.length - 1].push(complexityPoint);
+        last(functionOwnComplexity).push(complexityPoint);
       }
 
       if (enclosingFunctions.length === 0) {

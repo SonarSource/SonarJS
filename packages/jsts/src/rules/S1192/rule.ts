@@ -26,13 +26,13 @@ import { FromSchema } from 'json-schema-to-ts';
 // Number of times a literal must be duplicated to trigger an issue
 const MIN_LENGTH = 10;
 const NO_SEPARATOR_REGEXP = /^\w*$/;
-const EXCLUDED_CONTEXTS = [
+const EXCLUDED_CONTEXTS = new Set([
   'ImportDeclaration',
   'ImportExpression',
   'JSXAttribute',
   'ExportAllDeclaration',
   'ExportNamedDeclaration',
-];
+]);
 const message = 'Define a constant instead of duplicating this literal {{times}} times.';
 
 const DEFAULT_OPTIONS = {
@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
             !whitelist.includes(literal.value) &&
             !isExcludedByUsageContext(context, literal) &&
             stringContent.length >= MIN_LENGTH &&
-            !NO_SEPARATOR_REGEXP.exec(stringContent)
+            !NO_SEPARATOR_REGEXP.test(stringContent)
           ) {
             const sameStringLiterals = literalsByValue.get(stringContent) || [];
             sameStringLiterals.push(literal);
@@ -79,7 +79,7 @@ export const rule: Rule.RuleModule = {
       },
 
       'Program:exit'() {
-        literalsByValue.forEach(literals => {
+        for (const literals of literalsByValue.values()) {
           if (literals.length >= threshold) {
             const [primaryNode, ...secondaryNodes] = literals;
             const secondaryIssues = secondaryNodes.map(node =>
@@ -95,7 +95,7 @@ export const rule: Rule.RuleModule = {
               secondaryIssues,
             );
           }
-        });
+        }
       },
     };
   },
@@ -106,7 +106,7 @@ function isExcludedByUsageContext(context: Rule.RuleContext, literal: estree.Lit
   const parentType = parent.type;
 
   return (
-    EXCLUDED_CONTEXTS.includes(parentType) ||
+    EXCLUDED_CONTEXTS.has(parentType) ||
     isRequireContext(parent as estree.Node, context) ||
     isObjectPropertyKey(parent as estree.Node, literal)
   );

@@ -17,7 +17,7 @@
 import { parsersMap } from '../../src/parsers/eslint.js';
 import { parse } from '../../src/parsers/parse.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';
@@ -52,7 +52,7 @@ describe('parseForESLint', () => {
     );
   });
 
-  parseFunctions.forEach(({ parser, usingBabel, errorMessage }) => {
+  for (const { parser, usingBabel, errorMessage } of parseFunctions) {
     it(`should parse a valid input with ${parser.meta!.name}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
       const fileContent = await readFile(filePath);
@@ -90,5 +90,5 @@ describe('parseForESLint', () => {
         APIError.parsingError(errorMessage, { line: 1 }),
       );
     });
-  });
+  }
 });

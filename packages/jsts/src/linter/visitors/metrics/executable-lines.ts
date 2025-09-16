@@ -20,7 +20,7 @@ import { visit } from '../visitor.js';
 /**
  * The ESLint executable node types
  */
-const EXECUTABLE_NODES = [
+const EXECUTABLE_NODES = new Set([
   'ExpressionStatement',
   'IfStatement',
   'LabeledStatement',
@@ -38,7 +38,7 @@ const EXECUTABLE_NODES = [
   'DebuggerStatement',
   'VariableDeclaration',
   'ForOfStatement',
-];
+]);
 
 /**
  * Finds the line numbers of executable lines in the source code
@@ -46,7 +46,7 @@ const EXECUTABLE_NODES = [
 export function findExecutableLines(sourceCode: SourceCode): number[] {
   const lines: Set<number> = new Set();
   visit(sourceCode, node => {
-    if (EXECUTABLE_NODES.includes(node.type) && node.loc) {
+    if (EXECUTABLE_NODES.has(node.type) && node.loc) {
       lines.add(node.loc.start.line);
     }
   });

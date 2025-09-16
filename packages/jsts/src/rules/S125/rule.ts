@@ -19,12 +19,12 @@
 import { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
-import path from 'path';
+import path from 'node:path';
 
-const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
+const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
 const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
 
@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
           groupedComments.push({ value: comment.value, nodes: [comment] });
         } else if (
           currentGroup.length === 0 ||
-          areAdjacentLineComments(currentGroup[currentGroup.length - 1], comment)
+          areAdjacentLineComments(last(currentGroup), comment)
         ) {
           currentGroup.push(comment);
         } else {
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
         const groupedComments = getGroupedComments(
           context.sourceCode.getAllComments() as TSESTree.Comment[],
         );
-        groupedComments.forEach(groupComment => {
+        for (const groupComment of groupedComments) {
           const rawTextTrimmed = groupComment.value.trim();
           if (
             rawTextTrimmed !== '}' &&
@@ -100,14 +100,14 @@ export const rule: Rule.RuleModule = {
                   messageId: 'commentedCodeFix',
                   fix(fixer) {
                     const start = groupComment.nodes[0].range[0];
-                    const end = groupComment.nodes[groupComment.nodes.length - 1].range[1];
+                    const end = last(groupComment.nodes).range[1];
                     return fixer.removeRange([start, end]);
                   },
                 },
               ],
             });
           }
-        });
+        }
       },
     };
   },
@@ -133,7 +133,7 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   if (parsedBody.length === 1) {
     const singleStatement = parsedBody[0];
     return (
-      EXCLUDED_STATEMENTS.includes(singleStatement.type) ||
+      EXCLUDED_STATEMENTS.has(singleStatement.type) ||
       isReturnThrowExclusion(singleStatement) ||
       isExpressionExclusion(singleStatement, code)
     );
@@ -160,13 +160,13 @@ function containsCode(value: string, context: Rule.RuleContext) {
       'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
     const parseResult = new SourceCode(value, result as AST.Program);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
-  } catch (exception) {
+  } catch {
     return false;
   }
+}
 
-  function couldBeJsCode(input: string): boolean {
-    return recognizer.extractCodeLines(input.split('\n')).length > 0;
-  }
+function couldBeJsCode(input: string): boolean {
+  return recognizer.extractCodeLines(input.split('\n')).length > 0;
 }
 
 function injectMissingBraces(value: string) {
@@ -174,9 +174,9 @@ function injectMissingBraces(value: string) {
   const closeCurlyBraceNum = (value.match(/}/g) ?? []).length;
   const missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
   if (missingBraces > 0) {
-    return value + Array(missingBraces).fill('}').join('');
+    return value + '}'.repeat(missingBraces);
   } else if (missingBraces < 0) {
-    return Array(-missingBraces).fill('{').join('') + value;
+    return '{'.repeat(-missingBraces) + value;
   } else {
     return value;
   }
@@ -185,7 +185,7 @@ function injectMissingBraces(value: string) {
 function getCommentLocation(nodes: TSESTree.Comment[]) {
   return {
     start: nodes[0].loc.start,
-    end: nodes[nodes.length - 1].loc.end,
+    end: last(nodes).loc.end,
   };
 }
 

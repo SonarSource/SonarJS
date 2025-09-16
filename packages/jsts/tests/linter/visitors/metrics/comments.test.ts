@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.js';
-import path from 'path';
+import path from 'node:path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
@@ -60,12 +60,11 @@ const cases = [
 ];
 
 describe('findCommentLines', () => {
-  cases.forEach(({ given, fixture, ignoreHeader, expectedLines }) =>
+  for (const { given, fixture, ignoreHeader, expectedLines } of cases)
     it(`should find comment lines ${given}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'comments', `${fixture}.js`);
       const { sourceCode } = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
-    }),
-  );
+    });
 });

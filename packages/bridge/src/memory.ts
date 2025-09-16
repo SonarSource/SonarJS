@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import v8 from 'v8';
-import os from 'os';
+import v8 from 'node:v8';
+import os from 'node:os';
 import { readFile } from 'node:fs/promises';
-import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
+import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'node:perf_hooks';
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
 
 const MB = 1024 * 1024;
@@ -83,17 +83,16 @@ export function logMemoryError(err: any) {
 
 export function registerGarbageCollectionObserver() {
   const obs = new PerformanceObserver(items => {
-    items
+    for (const item of items
       .getEntries()
       .filter(
         item =>
           (item.detail as NodeGCPerformanceDetail)?.kind === constants.NODE_PERFORMANCE_GC_MAJOR,
-      )
-      .forEach(item => {
-        debug(`Major GC event`);
-        debug(JSON.stringify(item));
-        logHeapStatistics(true);
-      });
+      )) {
+      debug(`Major GC event`);
+      debug(JSON.stringify(item));
+      logHeapStatistics(true);
+    }
   });
   obs.observe({ entryTypes: ['gc'] });
   return () => {

@@ -32,9 +32,9 @@ export function getImportDeclarations(context: Rule.RuleContext) {
 export function getRequireCalls(context: Rule.RuleContext) {
   const required: estree.CallExpression[] = [];
   const { scopeManager } = context.sourceCode;
-  scopeManager.scopes.forEach(scope =>
-    scope.variables.forEach(variable =>
-      variable.defs.forEach(def => {
+  for (const scope of scopeManager.scopes) {
+    for (const variable of scope.variables) {
+      for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
           if (isRequire(def.node.init)) {
             required.push(def.node.init as estree.CallExpression);
@@ -42,9 +42,10 @@ export function getRequireCalls(context: Rule.RuleContext) {
             required.push(def.node.init.object as estree.CallExpression);
           }
         }
-      }),
-    ),
-  );
+      }
+    }
+  }
+
   return required;
 }
 

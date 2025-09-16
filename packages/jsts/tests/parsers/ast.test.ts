@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 
 import { Parser, parsersMap } from '../../src/parsers/eslint.js';
 import type { TSESTree } from '@typescript-eslint/utils';
@@ -33,7 +33,7 @@ import {
   VisitNodeReturnType,
 } from '../../src/parsers/ast.js';
 import { parse } from '../../src/parsers/parse.js';
-import assert from 'assert';
+import assert from 'node:assert';
 
 const parseFunctions = [
   {
@@ -68,7 +68,7 @@ async function parseSourceCode(code: string, parser: Parser) {
 
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
-    parseFunctions.forEach(({ parser, usingBabel }) =>
+    for (const { parser, usingBabel } of parseFunctions)
       test('should not lose information between serialize and deserializing JavaScript', async () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
@@ -76,8 +76,7 @@ describe('ast', () => {
         const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
-      }),
-    );
+      });
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;
@@ -330,12 +329,12 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body).toEqual(undefined);
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
   });
-  [
+  for (const { nodeType, code } of [
     { nodeType: 'TSTypeAliasDeclaration', code: `type A = { a: string };` },
     { nodeType: 'TSInterfaceDeclaration', code: `interface A { a: string; }` },
     { nodeType: 'TSEnumDeclaration', code: `enum Direction {}` },
     { nodeType: 'TSDeclareFunction', code: `declare function foo()` },
-  ].forEach(({ nodeType, code }) =>
+  ])
     test(`should serialize ${nodeType} to empty object`, async () => {
       const ast = await parseSourceCode(code, parsersMap.typescript);
       const protoMessage = visitNode(ast as TSESTree.Program);
@@ -344,8 +343,7 @@ describe('ast', () => {
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
       checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
-    }),
-  );
+    });
 
   test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
     const code = `class Foo { bar() }`;
@@ -393,7 +391,7 @@ function compareASTs(parsedAst, deserializedAst) {
     if (key === 'type') continue;
     if (Array.isArray(value)) {
       if (!Array.isArray(deserializedAst[key])) {
-        throw new Error(`Expected array for key ${key} in ${parsedAst.type}`);
+        throw new TypeError(`Expected array for key ${key} in ${parsedAst.type}`);
       }
       expected = value.length;
       received = deserializedAst[key].length;
@@ -402,8 +400,8 @@ function compareASTs(parsedAst, deserializedAst) {
           `Length mismatch for key ${key} in ${parsedAst.type}. Expected ${expected}, got ${received}`,
         );
       }
-      for (let i = 0; i < value.length; i++) {
-        compareASTs(value[i], deserializedAst[key][i]);
+      for (const [i, element] of value.entries()) {
+        compareASTs(element, deserializedAst[key][i]);
       }
     } else if (typeof value === 'object') {
       compareASTs(value, deserializedAst[key]);
@@ -415,14 +413,13 @@ function compareASTs(parsedAst, deserializedAst) {
       }
     }
   }
+}
 
-  function areDifferent(a, b) {
-    if (isNullOrUndefined(a) && isNullOrUndefined(b)) return false;
-    return a !== b;
-    function isNullOrUndefined(a) {
-      return a === null || a === undefined;
-    }
+function areDifferent(a: unknown, b: unknown) {
+  if (!a && !b) {
+    return false;
   }
+  return a !== b;
 }
 
 function checkAstIsProperlySerializedAndDeserialized(

@@ -109,18 +109,18 @@ describe('S1940', () => {
         },
       ],
     });
-
-    function error(invertedOperator: string, output: string) {
-      return {
-        messageId: 'useOppositeOperator',
-        data: { invertedOperator },
-        suggestions: [
-          {
-            messageId: 'suggestOperationInversion',
-            output,
-          },
-        ],
-      };
-    }
   });
 });
+
+function error(invertedOperator: string, output: string) {
+  return {
+    messageId: 'useOppositeOperator',
+    data: { invertedOperator },
+    suggestions: [
+      {
+        messageId: 'suggestOperationInversion',
+        output,
+      },
+    ],
+  };
+}

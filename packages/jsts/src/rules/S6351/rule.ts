@@ -60,10 +60,12 @@ export const rule: Rule.RuleModule = {
         extractRegex(node, regexes);
       },
       'Program:exit': () => {
-        regexes.forEach(regex => checkGlobalStickyRegex(regex, context));
-        invocations.forEach((usages, regex) =>
-          checkMultipleInputsRegex(regex, usages, resets, context),
-        );
+        for (const regex of regexes) {
+          checkGlobalStickyRegex(regex, context);
+        }
+        for (const [regex, usages] of invocations.entries()) {
+          checkMultipleInputsRegex(regex, usages, resets, context);
+        }
       },
     };
   },

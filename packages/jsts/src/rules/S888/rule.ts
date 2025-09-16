@@ -21,9 +21,9 @@ import type estree from 'estree';
 import { generateMeta, getVariableFromName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const allEqualityOperators = ['!=', '==', '!==', '==='];
-const notEqualOperators = ['!==', '!='];
-const plusMinusOperators = ['+=', '-='];
+const allEqualityOperators = new Set(['!=', '==', '!==', '===']);
+const notEqualOperators = new Set(['!==', '!=']);
+const plusMinusOperators = new Set(['+=', '-=']);
 
 interface CompleteForStatement extends estree.BaseStatement {
   type: 'ForStatement';
@@ -68,9 +68,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
-  return (
-    expression.type === 'BinaryExpression' && allEqualityOperators.includes(expression.operator)
-  );
+  return expression.type === 'BinaryExpression' && allEqualityOperators.has(expression.operator);
 }
 
 function isUpdateIncDec(expression: estree.Expression): boolean {
@@ -83,9 +81,7 @@ function isUpdateIncDec(expression: estree.Expression): boolean {
 }
 
 function isIncDec(expression: estree.Expression): expression is estree.AssignmentExpression {
-  return (
-    expression.type === 'AssignmentExpression' && plusMinusOperators.includes(expression.operator)
-  );
+  return expression.type === 'AssignmentExpression' && plusMinusOperators.has(expression.operator);
 }
 
 function isException(forStatement: CompleteForStatement, context: Rule.RuleContext) {
@@ -111,7 +107,9 @@ function collectCounters(expression: estree.Expression, counters: Array<string>)
   } else if (expression.type === 'UpdateExpression') {
     counter = expression.argument;
   } else if (expression.type === 'SequenceExpression') {
-    expression.expressions.forEach(e => collectCounters(e, counters));
+    for (const e of expression.expressions) {
+      collectCounters(e, counters);
+    }
   }
 
   if (counter && counter.type === 'Identifier') {
@@ -140,7 +138,7 @@ function isTrivialIteratorException(forStatement: CompleteForStatement, context:
 }
 
 function isNotEqual(node: estree.Node): node is estree.BinaryExpression {
-  return node.type === 'BinaryExpression' && notEqualOperators.includes(node.operator);
+  return node.type === 'BinaryExpression' && notEqualOperators.has(node.operator);
 }
 
 function checkForUpdateByOne(

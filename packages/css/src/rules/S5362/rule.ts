@@ -19,7 +19,7 @@ import stylelint from 'stylelint';
 import postcssValueParser from 'postcss-value-parser';
 
 const ruleName = 'sonar/function-calc-no-invalid';
-const operators = ['+', '-', '*', '/'];
+const operators = new Set(['+', '-', '*', '/']);
 
 // exported for testing purpose
 export const messages = {
@@ -97,7 +97,7 @@ const ruleImpl: stylelint.RuleBase = () => {
       }
 
       function isOperator(node: postcssValueParser.Node) {
-        return (node.type === 'word' && operators.includes(node.value)) || node.type === 'div';
+        return (node.type === 'word' && operators.has(node.value)) || node.type === 'div';
       }
 
       function isDivision(node: postcssValueParser.Node) {
@@ -105,7 +105,7 @@ const ruleImpl: stylelint.RuleBase = () => {
       }
 
       function isZero(node: postcssValueParser.Node) {
-        return node.type === 'word' && parseFloat(node.value) === 0;
+        return node.type === 'word' && Number.parseFloat(node.value) === 0;
       }
 
       function report(message: string) {

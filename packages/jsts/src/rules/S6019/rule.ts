@@ -18,14 +18,16 @@
 
 import type { Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, last } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-template.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
-      node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
+      for (const { elements } of node.pattern.alternatives) {
+        checkElements(elements, context);
+      }
     },
   };
 }, generateMeta(meta));
@@ -45,7 +47,7 @@ function checkElements(elements: regexpp.AST.Element[], context: RegexRuleContex
     return;
   }
 
-  const lastElement = elements[elements.length - 1];
+  const lastElement = last(elements);
   if (lastElement.type === 'Quantifier' && !lastElement.greedy) {
     report(lastElement, context);
     return;
@@ -55,7 +57,7 @@ function checkElements(elements: regexpp.AST.Element[], context: RegexRuleContex
     return;
   }
 
-  const lastButOneElement = elements[elements.length - 2];
+  const lastButOneElement = elements.at(-2)!;
   if (lastButOneElement.type === 'Quantifier' && !lastButOneElement.greedy) {
     if (lastElement.type === 'Assertion' && lastElement.kind === 'end') {
       context.reportRegExpNode({

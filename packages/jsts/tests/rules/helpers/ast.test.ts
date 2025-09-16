@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 
 import { Linter, Rule } from 'eslint';
 import { getProperty } from '../../../src/rules/helpers/index.js';
@@ -24,34 +24,33 @@ import { expect } from 'expect';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 
 describe('getProperty', () => {
-  (
+  const cases = [
     [
-      [
-        'should read property of simple object',
-        'normalObject.js',
-        'foo',
-        property => expect(property.value.type).toEqual('Literal'),
-      ],
-      [
-        'should return null if key not found in simple object',
-        'normalObject.js',
-        'baz',
-        property => expect(property).toBeNull(),
-      ],
-      [
-        'should read property of object with a recursive spread operator',
-        'objectWithSpread.js',
-        'bar',
-        property => expect(property.value.type).toEqual('Literal'),
-      ],
-      [
-        'should read undefined of object with a recursive spread operator if key not found',
-        'objectWithSpread.js',
-        'baz',
-        property => expect(property).toBeUndefined(),
-      ],
-    ] as [_: string, fixtureFile: string, key: string, verifier: (property) => void][]
-  ).forEach(([_, fixtureFile, key, verifier]) => {
+      'should read property of simple object',
+      'normalObject.js',
+      'foo',
+      property => expect(property.value.type).toEqual('Literal'),
+    ],
+    [
+      'should return null if key not found in simple object',
+      'normalObject.js',
+      'baz',
+      property => expect(property).toBeNull(),
+    ],
+    [
+      'should read property of object with a recursive spread operator',
+      'objectWithSpread.js',
+      'bar',
+      property => expect(property.value.type).toEqual('Literal'),
+    ],
+    [
+      'should read undefined of object with a recursive spread operator if key not found',
+      'objectWithSpread.js',
+      'baz',
+      property => expect(property).toBeUndefined(),
+    ],
+  ] as const;
+  for (const [_, fixtureFile, key, verifier] of cases) {
     test(`it ${_}`, async () => {
       const baseDir = path.join(import.meta.dirname, 'fixtures');
 
@@ -84,5 +83,5 @@ describe('getProperty', () => {
         { filename: filePath, allowInlineConfig: false },
       );
     });
-  });
+  }
 });

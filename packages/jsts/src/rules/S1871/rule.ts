@@ -23,6 +23,7 @@ import {
   collectSwitchBranches,
   generateMeta,
   isIfStatement,
+  last,
   report,
   takeWithoutBreak,
   toSecondaryLocation,
@@ -57,7 +58,9 @@ export const rule: Rule.RuleModule = {
       const { branches, endsWithElse } = collectIfBranches(ifStmt);
 
       if (allEquivalentWithoutDefault(branches, endsWithElse)) {
-        branches.slice(1).forEach((branch, i) => reportIssue(branch, branches[i], 'branch'));
+        for (const [i, branch] of branches.slice(1).entries()) {
+          reportIssue(branch, branches[i], 'branch');
+        }
         return;
       }
 
@@ -83,9 +86,9 @@ export const rule: Rule.RuleModule = {
       );
 
       if (allEquivalentWithoutDefault(casesWithoutBreak, endsWithDefault)) {
-        nonEmptyCases
-          .slice(1)
-          .forEach((caseStmt, i) => reportIssue(caseStmt, nonEmptyCases[i], 'case'));
+        for (const [i, caseStmt] of nonEmptyCases.slice(1).entries()) {
+          reportIssue(caseStmt, nonEmptyCases[i], 'case');
+        }
         return;
       }
 
@@ -115,11 +118,9 @@ export const rule: Rule.RuleModule = {
       if (nodes.length > 0) {
         const tokens = [
           ...context.sourceCode.getTokens(nodes[0]),
-          ...context.sourceCode.getTokens(nodes[nodes.length - 1]),
+          ...context.sourceCode.getTokens(last(nodes)),
         ].filter(token => token.value !== '{' && token.value !== '}');
-        return (
-          tokens.length > 0 && tokens[tokens.length - 1].loc.end.line > tokens[0].loc.start.line
-        );
+        return tokens.length > 0 && last(tokens).loc.end.line > tokens[0].loc.start.line;
       }
       return false;
     }
@@ -130,16 +131,6 @@ export const rule: Rule.RuleModule = {
         reportIssue(a, b, 'branch');
       }
       return equivalent;
-    }
-
-    function expandSingleBlockStatement(nodes: estree.Statement[]) {
-      if (nodes.length === 1) {
-        const node = nodes[0];
-        if (node.type === 'BlockStatement') {
-          return node.body;
-        }
-      }
-      return nodes;
     }
 
     function allEquivalentWithoutDefault(
@@ -170,3 +161,13 @@ export const rule: Rule.RuleModule = {
     }
   },
 };
+
+function expandSingleBlockStatement(nodes: estree.Statement[]) {
+  if (nodes.length === 1) {
+    const node = nodes[0];
+    if (node.type === 'BlockStatement') {
+      return node.body;
+    }
+  }
+  return nodes;
+}

@@ -124,8 +124,7 @@ function getUndefinedRemovalSuggestion(
         const tokenBefore = context.sourceCode.getTokenBefore(unionTypeNode);
         const tokenAfter = context.sourceCode.getTokenAfter(unionTypeNode);
         if (tokenBefore?.value === '(' && tokenAfter?.value === ')') {
-          fixes.push(fixer.remove(tokenBefore));
-          fixes.push(fixer.remove(tokenAfter));
+          fixes.push(fixer.remove(tokenBefore), fixer.remove(tokenAfter));
         }
       } else {
         const index = unionType.types.indexOf(undefinedType);

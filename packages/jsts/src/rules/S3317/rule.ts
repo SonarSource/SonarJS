@@ -18,7 +18,7 @@
 
 import { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import path from 'path';
+import path from 'node:path';
 import { generateMeta, getVariableFromName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -76,8 +76,8 @@ export const rule: Rule.RuleModule = {
 };
 
 function sameName(nameOfExported: string, fileName: string) {
-  const normalizedFileName = fileName.replace(/_/g, '').replace(/-/g, '').replace(/\./g, '');
-  const normalizedNameOfExported = nameOfExported.replace(/_/g, '').replace(/-/g, '');
+  const normalizedFileName = fileName.replaceAll('_', '').replaceAll('-', '').replaceAll('.', '');
+  const normalizedNameOfExported = nameOfExported.replaceAll('_', '').replaceAll('-', '');
   return normalizedNameOfExported.toLowerCase() === normalizedFileName.toLowerCase();
 }
 

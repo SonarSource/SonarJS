@@ -37,7 +37,7 @@ const loopLike = 'WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,Fo
 
 const functionLike = 'FunctionDeclaration,FunctionExpression,ArrowFunctionExpression';
 
-const allowedCallbacks = [
+const allowedCallbacks = new Set([
   'replace',
   'forEach',
   'filter',
@@ -50,23 +50,17 @@ const allowedCallbacks = [
   'reduceRight',
   'sort',
   'each',
-];
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
-      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as
-        | LoopLike
-        | undefined;
-    }
-
     return {
       [functionLike]: (node: estree.Node) => {
         const loopNode = getLocalEnclosingLoop(node);
         if (
           loopNode &&
-          !isIIEF(node, context) &&
+          !isIIFE(node, context) &&
           !isAllowedCallbacks(context, node) &&
           context.sourceCode.getScope(node).through.some(ref => !isSafe(ref, loopNode))
         ) {
@@ -88,7 +82,13 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isIIEF(node: estree.Node, context: Rule.RuleContext) {
+function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
+  return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as
+    | LoopLike
+    | undefined;
+}
+
+function isIIFE(node: estree.Node, context: Rule.RuleContext) {
   const parent = getParent(context, node);
   return (
     parent &&
@@ -102,9 +102,7 @@ function isAllowedCallbacks(context: Rule.RuleContext, node: estree.Node) {
   if (parent && parent.type === 'CallExpression') {
     const callee = parent.callee;
     if (callee.type === 'MemberExpression') {
-      return (
-        callee.property.type === 'Identifier' && allowedCallbacks.includes(callee.property.name)
-      );
+      return callee.property.type === 'Identifier' && allowedCallbacks.has(callee.property.name);
     }
   }
   return false;

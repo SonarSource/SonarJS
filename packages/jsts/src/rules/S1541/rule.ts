@@ -50,14 +50,14 @@ export const rule: Rule.RuleModule = {
         functionsImmediatelyInvoked = [];
       },
       'Program:exit': () => {
-        functionsWithParent.forEach((parent, func) => {
+        for (const [func, parent] of functionsWithParent.entries()) {
           if (
             !functionsDefiningModule.includes(func) &&
             !functionsImmediatelyInvoked.includes(func)
           ) {
             raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
           }
-        });
+        }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
         functionsWithParent.set(node, getParent(context, node)),
@@ -143,9 +143,7 @@ class FunctionComplexityVisitor {
       let token: ComplexityToken | undefined | null;
 
       if (isFunctionNode(node)) {
-        if (node !== this.root) {
-          return;
-        } else {
+        if (node === this.root) {
           token = {
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionLike,
@@ -153,6 +151,8 @@ class FunctionComplexityVisitor {
               this.context as unknown as RuleContext,
             ),
           };
+        } else {
+          return;
         }
       } else {
         switch (node.type) {
@@ -189,7 +189,9 @@ class FunctionComplexityVisitor {
         this.tokens.push(token);
       }
 
-      childrenOf(node, sourceCode.visitorKeys).forEach(visitNode);
+      for (const childNode of childrenOf(node, sourceCode.visitorKeys)) {
+        visitNode(childNode);
+      }
     };
 
     visitNode(this.root);

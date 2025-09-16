@@ -60,7 +60,7 @@ export class SourceFileStore implements FileStore {
       return true;
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
-    return typeof this.store.found.files !== 'undefined';
+    return this.store.found.files !== undefined;
   }
 
   getFoundFiles() {

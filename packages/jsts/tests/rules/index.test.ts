@@ -16,7 +16,7 @@
  */
 import { configs, meta } from '../../src/rules/plugin.js';
 import { readdir } from 'node:fs/promises';
-import path from 'path';
+import path from 'node:path';
 import { valid } from 'semver';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

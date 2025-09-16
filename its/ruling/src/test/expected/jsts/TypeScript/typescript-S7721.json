@@ -119,9 +119,6 @@
 "TypeScript:src/compiler/comments.ts": [
 176
 ],
-"TypeScript:src/compiler/core.ts": [
-1174
-],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 455,
 574,
@@ -140,8 +137,7 @@
 2851
 ],
 "TypeScript:src/compiler/moduleNameResolver.ts": [
-385,
-710
+385
 ],
 "TypeScript:src/compiler/parser.ts": [
 6457,
@@ -159,10 +155,6 @@
 ],
 "TypeScript:src/compiler/scanner.ts": [
 1135
-],
-"TypeScript:src/compiler/transformer.ts": [
-102,
-103
 ],
 "TypeScript:src/compiler/transformers/es2015.ts": [
 549,
@@ -238,7 +230,6 @@
 645
 ],
 "TypeScript:src/harness/fourslash.ts": [
-457,
 1601,
 1604,
 2038,
@@ -262,7 +253,6 @@
 430
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
-95,
 147
 ],
 "TypeScript:src/harness/sourceMapRecorder.ts": [
@@ -271,10 +261,6 @@
 ],
 "TypeScript:src/server/editorServices.ts": [
 869
-],
-"TypeScript:src/server/project.ts": [
-742,
-896
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
 522

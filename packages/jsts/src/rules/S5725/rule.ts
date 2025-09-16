@@ -38,59 +38,6 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    function shouldReport(assignedVariable: Scope.Variable) {
-      let nbSrcAssignment = 0;
-      let hasUnsafeSrcAssignment = false;
-      let hasIntegrityAssignment = false;
-      assignedVariable.references.forEach(ref => {
-        const parentNode = (ref.identifier as TSESTree.Node).parent;
-        if (!parentNode) {
-          return;
-        }
-        nbSrcAssignment += isSrcAssignment(parentNode) ? 1 : 0;
-        hasUnsafeSrcAssignment = hasUnsafeSrcAssignment || isUnsafeSrcAssignment(parentNode);
-        hasIntegrityAssignment = hasIntegrityAssignment || isIntegrityAssignment(parentNode);
-      });
-      return nbSrcAssignment === 1 && hasUnsafeSrcAssignment && !hasIntegrityAssignment;
-    }
-
-    function isIntegrityAssignment(memberExpression: TSESTree.Node): boolean {
-      if (memberExpression.type !== 'MemberExpression') {
-        return false;
-      }
-      return (
-        memberExpression.property.type === 'Identifier' &&
-        memberExpression.property.name === 'integrity'
-      );
-    }
-
-    function isSrcAssignment(memberExpression: TSESTree.Node): boolean {
-      if (memberExpression.type !== 'MemberExpression') {
-        return false;
-      }
-      if (
-        memberExpression.property.type !== 'Identifier' ||
-        memberExpression.property.name !== 'src'
-      ) {
-        return false;
-      }
-      const assignmentExpression = memberExpression.parent;
-      if (assignmentExpression?.type !== 'AssignmentExpression') {
-        return false;
-      }
-      return true;
-    }
-
-    function isUnsafeSrcAssignment(memberExpression: TSESTree.Node): boolean {
-      if (!isSrcAssignment(memberExpression)) {
-        return false;
-      }
-      const right = (memberExpression.parent as estree.AssignmentExpression).right;
-      if (right.type !== 'Literal') {
-        return false;
-      }
-      return !!right.raw && (!!right.raw.match('^"http') || !!right.raw.match('^"//'));
-    }
 
     return {
       'VariableDeclarator[init.type="CallExpression"]': (node: estree.Node) => {
@@ -127,3 +74,51 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isIntegrityAssignment(memberExpression: TSESTree.Node): boolean {
+  if (memberExpression.type !== 'MemberExpression') {
+    return false;
+  }
+  return (
+    memberExpression.property.type === 'Identifier' &&
+    memberExpression.property.name === 'integrity'
+  );
+}
+
+function isSrcAssignment(memberExpression: TSESTree.Node): boolean {
+  if (memberExpression.type !== 'MemberExpression') {
+    return false;
+  }
+  if (memberExpression.property.type !== 'Identifier' || memberExpression.property.name !== 'src') {
+    return false;
+  }
+  const assignmentExpression = memberExpression.parent;
+  return assignmentExpression?.type === 'AssignmentExpression';
+}
+
+function isUnsafeSrcAssignment(memberExpression: TSESTree.Node): boolean {
+  if (!isSrcAssignment(memberExpression)) {
+    return false;
+  }
+  const right = (memberExpression.parent as estree.AssignmentExpression).right;
+  if (right.type !== 'Literal') {
+    return false;
+  }
+  return !!right.raw && (!!right.raw.match('^"http') || !!right.raw.match('^"//'));
+}
+
+function shouldReport(assignedVariable: Scope.Variable) {
+  let nbSrcAssignment = 0;
+  let hasUnsafeSrcAssignment = false;
+  let hasIntegrityAssignment = false;
+  for (const ref of assignedVariable.references) {
+    const parentNode = (ref.identifier as TSESTree.Node).parent;
+    if (!parentNode) {
+      continue;
+    }
+    nbSrcAssignment += isSrcAssignment(parentNode) ? 1 : 0;
+    hasUnsafeSrcAssignment = hasUnsafeSrcAssignment || isUnsafeSrcAssignment(parentNode);
+    hasIntegrityAssignment = hasIntegrityAssignment || isIntegrityAssignment(parentNode);
+  }
+  return nbSrcAssignment === 1 && hasUnsafeSrcAssignment && !hasIntegrityAssignment;
+}

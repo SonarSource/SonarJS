@@ -27,9 +27,9 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const EXEC_FUNCTIONS = ['exec', 'execSync'];
+const EXEC_FUNCTIONS = new Set(['exec', 'execSync']);
 
-const SPAWN_EXEC_FILE_FUNCTIONS = ['spawn', 'spawnSync', 'execFile', 'execFileSync'];
+const SPAWN_EXEC_FILE_FUNCTIONS = new Set(['spawn', 'spawnSync', 'execFile', 'execFileSync']);
 
 const CHILD_PROCESS_MODULE = 'child_process';
 
@@ -69,10 +69,10 @@ function isQuestionable(method: string, [command, ...otherArguments]: Argument[]
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
-  if (SPAWN_EXEC_FILE_FUNCTIONS.includes(method)) {
+  if (SPAWN_EXEC_FILE_FUNCTIONS.has(method)) {
     return containsShellOption(otherArguments);
   }
-  return EXEC_FUNCTIONS.includes(method);
+  return EXEC_FUNCTIONS.has(method);
 }
 
 function containsShellOption(otherArguments: Argument[]) {

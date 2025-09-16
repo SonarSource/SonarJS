@@ -200,10 +200,10 @@ describe('S117', () => {
       },
     );
   });
-
-  function error(symbol: string, symbolType: string, format: string) {
-    return {
-      message: `Rename this ${symbolType} "${symbol}" to match the regular expression ${format}.`,
-    };
-  }
 });
+
+function error(symbol: string, symbolType: string, format: string) {
+  return {
+    message: `Rename this ${symbolType} "${symbol}" to match the regular expression ${format}.`,
+  };
+}

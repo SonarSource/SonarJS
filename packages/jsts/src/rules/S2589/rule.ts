@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       const ancestors = (context as unknown as RuleContext).sourceCode.getAncestors(
         node as TSESTree.Node,
       );
-      return !!ancestors.find(ancestor => ancestor.type === 'JSXExpressionContainer');
+      return ancestors.some(ancestor => ancestor.type === 'JSXExpressionContainer');
     }
 
     return {
@@ -98,12 +98,12 @@ export const rule: Rule.RuleModule = {
           map: Map<TSESTree.Statement, Scope.Reference[]>,
           truthy: boolean,
         ) => {
-          map.forEach(references => {
+          for (const references of map.values()) {
             const ref = references.find(ref => ref.resolved === symbol);
             if (ref) {
               reportIssue(id, ref, context, truthy);
             }
-          });
+          }
         };
 
         checkIfKnownAndReport(truthyMap, true);

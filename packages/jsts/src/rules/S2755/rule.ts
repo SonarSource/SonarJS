@@ -39,10 +39,6 @@ export const rule: Rule.RuleModule = {
       return XML_PARSERS.some(parser => fqn === `${XML_LIBRARY}.${parser}`);
     }
 
-    function isNoEntSet(property: estree.Property) {
-      return property.value.type === 'Literal' && property.value.raw === 'true';
-    }
-
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -63,3 +59,7 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isNoEntSet(property: estree.Property) {
+  return property.value.type === 'Literal' && property.value.raw === 'true';
+}

@@ -171,8 +171,7 @@ describe('S3801', () => {
         }`,
           errors: [
             {
-              message:
-                '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":24,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":24,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}`,
               line: 2,
               endLine: 2,
               column: 25,
@@ -190,8 +189,7 @@ describe('S3801', () => {
         }`,
           errors: [
             {
-              message:
-                '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":22,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":22,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}`,
               line: 2,
               endLine: 2,
               column: 35,
@@ -204,8 +202,7 @@ describe('S3801', () => {
           code: `var inconsistentArrow = (p) => {if (p) { return true; } return; };`,
           errors: [
             {
-              message:
-                '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":41,"line":1,"endColumn":53,"endLine":1},{"message":"Return without value","column":56,"line":1,"endColumn":63,"endLine":1}]}',
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":41,"line":1,"endColumn":53,"endLine":1},{"message":"Return without value","column":56,"line":1,"endColumn":63,"endLine":1}]}`,
               line: 1,
               endLine: 1,
               column: 29,
@@ -227,8 +224,7 @@ describe('S3801', () => {
         }`,
           errors: [
             {
-              message:
-                '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":8,"endColumn":24,"endLine":8},{"message":"Implicit return without value","column":8,"line":10,"endColumn":9,"endLine":10}]}',
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":8,"endColumn":24,"endLine":8},{"message":"Implicit return without value","column":8,"line":10,"endColumn":9,"endLine":10}]}`,
               line: 2,
               endLine: 2,
               column: 19,
@@ -250,8 +246,7 @@ describe('S3801', () => {
         }`,
           errors: [
             {
-              message:
-                '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":14,"line":7,"endColumn":26,"endLine":7},{"message":"Implicit return without value","column":10,"line":9,"endColumn":11,"endLine":9}]}',
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":14,"line":7,"endColumn":26,"endLine":7},{"message":"Implicit return without value","column":10,"line":9,"endColumn":11,"endLine":9}]}`,
               line: 5,
               endLine: 5,
               column: 20,

@@ -31,8 +31,8 @@ export const rule: Rule.RuleModule = {
     let usage: Map<string, TSESTree.Node[]>;
     return {
       Program: () => (usage = new Map<string, TSESTree.Node[]>()),
-      'Program:exit': () =>
-        usage.forEach(nodes => {
+      'Program:exit': () => {
+        for (const nodes of usage.values()) {
           if (nodes.length > USAGE_THRESHOLD) {
             const [node, ...rest] = nodes;
             const kind = node.type === 'TSUnionType' ? 'union' : 'intersection';
@@ -43,7 +43,8 @@ export const rule: Rule.RuleModule = {
               rest.map(node => toSecondaryLocation(node, 'Following occurrence.')),
             );
           }
-        }),
+        }
+      },
       'TSUnionType, TSIntersectionType': (node: estree.Node) => {
         const ancestors = context.sourceCode.getAncestors(node);
         const declaration = ancestors.find(
@@ -67,11 +68,11 @@ export const rule: Rule.RuleModule = {
           .sort((a, b) => a.localeCompare(b))
           .join('|');
         let occurrences = usage.get(text);
-        if (!occurrences) {
+        if (occurrences) {
+          occurrences.push(composite);
+        } else {
           occurrences = [composite];
           usage.set(text, occurrences);
-        } else {
-          occurrences.push(composite);
         }
       },
     };

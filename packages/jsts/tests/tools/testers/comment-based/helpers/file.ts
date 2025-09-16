@@ -90,7 +90,9 @@ export class FileIssues {
         range: primary.range,
       };
     }
-    this.orphanSecondaryLocations.forEach(secondary => primary.secondaryLocations.push(secondary));
+    for (const secondary of this.orphanSecondaryLocations) {
+      primary.secondaryLocations.push(secondary);
+    }
     this.orphanSecondaryLocations = [];
     lineIssues.primaryLocation = primary;
     this.currentPrimary = primary;

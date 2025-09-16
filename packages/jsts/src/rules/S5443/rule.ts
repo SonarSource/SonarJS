@@ -36,10 +36,10 @@ const UNIX_DIRECTORIES = [
 ].map(v => new RegExp(`^${v}`, 'i'));
 
 const WINDOWS_DIRECTORIES_PATTERN = new RegExp(
-  '^[^\\\\]*(\\\\){1,2}(Windows(\\\\){1,2}Temp|Temp|TMP)(\\\\.*|$)',
+  String.raw`^[^\\]*(\\){1,2}(Windows(\\){1,2}Temp|Temp|TMP)(\\.*|$)`,
   'i',
 );
-const SENSITIVE_ENV_VARIABLES = ['TMPDIR', 'TMP', 'TEMPDIR', 'TEMP'];
+const SENSITIVE_ENV_VARIABLES = new Set(['TMPDIR', 'TMP', 'TEMPDIR', 'TEMP']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -52,10 +52,10 @@ export const rule: Rule.RuleModule = {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
         // Using literal.raw instead of literal.value as the latter escapes backslashes
-        const value = literal.raw?.slice(1, literal.raw.length - 1);
+        const value = literal.raw?.slice(1, -1);
         if (
           value &&
-          (UNIX_DIRECTORIES.find(i => value.match(i)) || value.match(WINDOWS_DIRECTORIES_PATTERN))
+          (UNIX_DIRECTORIES.some(i => value.match(i)) || WINDOWS_DIRECTORIES_PATTERN.test(value))
         ) {
           context.report({
             node: literal,
@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
         const { object, property } = memberExpression;
         if (
           property.type !== 'Identifier' ||
-          !SENSITIVE_ENV_VARIABLES.includes(property.name) ||
+          !SENSITIVE_ENV_VARIABLES.has(property.name) ||
           object.type !== 'MemberExpression'
         ) {
           return;

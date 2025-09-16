@@ -70,8 +70,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5}]}`,
               line: 3,
               endLine: 3,
               column: 22,
@@ -91,8 +90,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":18,"line":5,"endColumn":23,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}`,
               line: 7,
               endLine: 7,
               column: 22,
@@ -113,8 +111,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":25,"line":3,"endColumn":30,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":25,"line":3,"endColumn":30,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}`,
               line: 8,
               endLine: 8,
               column: 22,
@@ -189,8 +186,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6}]}`,
               line: 4,
               endLine: 4,
               column: 7,
@@ -211,8 +207,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":18,"line":6,"endColumn":23,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}`,
               line: 8,
               endLine: 8,
               column: 7,
@@ -234,8 +229,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}`,
               line: 9,
               endLine: 9,
               column: 7,
@@ -283,8 +277,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":54,"line":3,"endColumn":59,"endLine":3}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":54,"line":3,"endColumn":59,"endLine":3}]}`,
               line: 3,
               endLine: 3,
               column: 28,
@@ -301,8 +294,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":46,"line":3,"endColumn":51,"endLine":3},{"column":25,"line":3,"endColumn":53,"endLine":3}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":46,"line":3,"endColumn":51,"endLine":3},{"column":25,"line":3,"endColumn":53,"endLine":3}]}`,
               line: 4,
               endLine: 4,
               column: 28,
@@ -318,8 +310,7 @@ describe('S3330', () => {
             `,
           errors: [
             {
-              message:
-                '{"message":"Make sure creating this cookie without the \\"httpOnly\\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}',
+              message: String.raw`{"message":"Make sure creating this cookie without the \"httpOnly\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}`,
               line: 3,
               endLine: 3,
               column: 28,

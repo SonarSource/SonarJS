@@ -28,36 +28,14 @@ import { getFlags } from '../helpers/regex/flags.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { isRegExpConstructor } from '../helpers/regex/ast.js';
 
-const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
+const MODIFIABLE_REGEXP_FLAGS_TYPES = new Set([
   'Literal',
   'TemplateLiteral',
   'TaggedTemplateExpression',
-];
+]);
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
-    function characters(nodes: CharacterClassElement[]): Character[][] {
-      let current: Character[] = [];
-      const sequences: Character[][] = [current];
-      for (const node of nodes) {
-        if (node.type === 'Character') {
-          current.push(node);
-        } else if (node.type === 'CharacterClassRange') {
-          // for following regexp [xa-z] we produce [[xa],[z]]
-          // we would report for example if instead of 'xa' there would be unicode combined class
-          current.push(node.min);
-          current = [node.max];
-          sequences.push(current);
-        } else if (node.type === 'CharacterSet' && current.length > 0) {
-          // CharacterSet is for example [\d], ., or \p{ASCII}
-          // see https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L222
-          current = [];
-          sequences.push(current);
-        }
-      }
-      return sequences;
-    }
-
     function checkSequence(sequence: Character[]) {
       // Stop on the first illegal character in the sequence
       for (let index = 0; index < sequence.length; index++) {
@@ -247,6 +225,28 @@ export const rule: Rule.RuleModule = createRegExpRule(
   generateMeta(meta, { hasSuggestions: true }),
 );
 
+function characters(nodes: CharacterClassElement[]): Character[][] {
+  let current: Character[] = [];
+  const sequences: Character[][] = [current];
+  for (const node of nodes) {
+    if (node.type === 'Character') {
+      current.push(node);
+    } else if (node.type === 'CharacterClassRange') {
+      // for following regexp [xa-z] we produce [[xa],[z]]
+      // we would report for example if instead of 'xa' there would be unicode combined class
+      current.push(node.min);
+      current = [node.max];
+      sequences.push(current);
+    } else if (node.type === 'CharacterSet' && current.length > 0) {
+      // CharacterSet is for example [\d], ., or \p{ASCII}
+      // see https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L222
+      current = [];
+      sequences.push(current);
+    }
+  }
+  return sequences;
+}
+
 function isCombiningCharacter(codePoint: number) {
   return /^[\p{Mc}\p{Me}\p{Mn}]$/u.test(String.fromCodePoint(codePoint));
 }
@@ -279,7 +279,7 @@ function hasModifiableFlags(regExpConstructor: estree.CallExpression | estree.Ne
     typeof args[1]?.range?.[0] === 'number' &&
     typeof args[1]?.range?.[1] === 'number' &&
     getFlags(regExpConstructor) != null &&
-    MODIFIABLE_REGEXP_FLAGS_TYPES.includes(args[1].type)
+    MODIFIABLE_REGEXP_FLAGS_TYPES.has(args[1].type)
   );
 }
 

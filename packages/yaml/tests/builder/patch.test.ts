@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'path';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
@@ -57,7 +57,7 @@ describe('patchSourceCode', () => {
     );
   });
 
-  ['body', 'tokens', 'comments'].forEach(property => {
+  for (const property of ['body', 'tokens', 'comments']) {
     it(`should patch ast ${property}`, async () => {
       const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
@@ -79,7 +79,7 @@ describe('patchSourceCode', () => {
 
       expect(patchedNodes).toEqual(referenceNodes);
     });
-  });
+  }
 
   it('should patch parsing errors', async () => {
     const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', 'parsing-error');

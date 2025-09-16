@@ -18,26 +18,19 @@ import Detector from '../Detector.js';
 
 export default class CamelCaseDetector extends Detector {
   scan(line: string): number {
-    let previousChar = ' ';
-    let currentChar;
-    for (let i = 0; i < line.length; i++) {
-      currentChar = line.charAt(i);
-      if (isLowerCaseThenUpperCase(previousChar, currentChar)) {
+    for (let i = 0; i < line.length - 1; i++) {
+      if (isLowerCase(line.charAt(i)) && isUpperCase(line.charAt(i + 1))) {
         return 1;
       }
-      previousChar = currentChar;
     }
     return 0;
   }
 }
 
-function isLowerCaseThenUpperCase(previousChar: string, char: string): boolean {
-  return isLowercase(previousChar) && isUpprcase(char);
+function isLowerCase(char: string): boolean {
+  return char.toLowerCase() === char;
+}
 
-  function isLowercase(char: string): boolean {
-    return char.toLowerCase() === char;
-  }
-  function isUpprcase(char: string): boolean {
-    return char.toUpperCase() === char;
-  }
+function isUpperCase(char: string): boolean {
+  return char.toUpperCase() === char;
 }

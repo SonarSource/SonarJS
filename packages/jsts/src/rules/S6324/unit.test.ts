@@ -86,7 +86,7 @@ describe('S6324', () => {
           ],
         },
         {
-          code: "var regex = new RegExp('\\x1f\\x1e')",
+          code: String.raw`var regex = new RegExp('\x1f\x1e')`,
           errors: [
             {
               message: String.raw`Remove this control character.`,
@@ -105,15 +105,15 @@ describe('S6324', () => {
           ],
         },
         {
-          code: "var regex = new RegExp('\\x1fFOO\\x00')",
+          code: String.raw`var regex = new RegExp('\x1fFOO\x00')`,
           errors: 2,
         },
         {
-          code: "var regex = new RegExp('FOO\\x1fFOO\\x1f')",
+          code: String.raw`var regex = new RegExp('FOO\x1fFOO\x1f')`,
           errors: 2,
         },
         {
-          code: "var regex = RegExp('\\x1f')",
+          code: String.raw`var regex = RegExp('\x1f')`,
           errors: 1,
         },
         {

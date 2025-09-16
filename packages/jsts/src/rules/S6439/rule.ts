@@ -85,8 +85,7 @@ function report(node: estree.Node, context: Rule.RuleContext) {
             nextToken.value === ')' &&
             nextToken.range[0] >= node.range[1]
           ) {
-            fixes.push(fixer.remove(previousToken));
-            fixes.push(fixer.remove(nextToken));
+            fixes.push(fixer.remove(previousToken), fixer.remove(nextToken));
           }
           fixes.push(fixer.replaceText(node, `!!(${sourceCode.getText(node)})`));
           return fixes;

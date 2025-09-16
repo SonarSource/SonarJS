@@ -25,6 +25,7 @@ import {
   interceptReport,
   isMethodInvocation,
   isStringLiteral,
+  last,
   mergeRules,
   report,
   toSecondaryLocation,
@@ -124,7 +125,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as AccessorNode;
         const accessorInfo = getObjectOrClassAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = currentFieldsStack[currentFieldsStack.length - 1];
+          const fieldMap = last(currentFieldsStack);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },
@@ -478,9 +479,7 @@ function findMatchingFields(currentFields: Map<string, Field>, name: string) {
   const exactFieldName = currentFields.get(name);
   const underscoreFieldName1 = currentFields.get(underscoredTargetName1);
   const underscoreFieldName2 = currentFields.get(underscoredTargetName2);
-  return [exactFieldName, underscoreFieldName1, underscoreFieldName2].filter(
-    field => field,
-  ) as Field[];
+  return [exactFieldName, underscoreFieldName1, underscoreFieldName2].filter(Boolean) as Field[];
 }
 
 function getFunctionBody(node: TSESTree.Node) {

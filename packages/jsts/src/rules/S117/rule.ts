@@ -55,20 +55,22 @@ function checkVariable(decl: TSESTree.VariableDeclaration, context: Rule.RuleCon
   if (decl.declare) {
     return;
   }
-  decl.declarations.forEach(declaration =>
-    resolveIdentifiers(declaration.id).forEach(id =>
-      raiseOnInvalidIdentifier(id, 'local variable', context),
-    ),
-  );
+  for (const declaration of decl.declarations) {
+    for (const id of resolveIdentifiers(declaration.id)) {
+      raiseOnInvalidIdentifier(id, 'local variable', context);
+    }
+  }
 }
 
 function checkFunction(func: FunctionLike, context: Rule.RuleContext) {
   if (func.declare) {
     return;
   }
-  func.params.forEach(param =>
-    resolveIdentifiers(param).forEach(id => raiseOnInvalidIdentifier(id, 'parameter', context)),
-  );
+  for (const param of func.params) {
+    for (const id of resolveIdentifiers(param)) {
+      raiseOnInvalidIdentifier(id, 'parameter', context);
+    }
+  }
 }
 
 function checkProperty(prop: TSESTree.PropertyDefinition, context: Rule.RuleContext) {
@@ -79,9 +81,9 @@ function checkProperty(prop: TSESTree.PropertyDefinition, context: Rule.RuleCont
 
 function checkCatch(catchh: TSESTree.CatchClause, context: Rule.RuleContext) {
   if (catchh.param) {
-    resolveIdentifiers(catchh.param).forEach(id =>
-      raiseOnInvalidIdentifier(id, 'parameter', context),
-    );
+    for (const id of resolveIdentifiers(catchh.param)) {
+      raiseOnInvalidIdentifier(id, 'parameter', context);
+    }
   }
 }
 

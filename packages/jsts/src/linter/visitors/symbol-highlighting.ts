@@ -74,11 +74,13 @@ export const rule: Rule.RuleModule = {
         variables = new Set();
       },
       '*': (node: estree.Node) => {
-        context.sourceCode.getDeclaredVariables(node).forEach(v => variables.add(v));
+        for (const v of context.sourceCode.getDeclaredVariables(node)) {
+          variables.add(v);
+        }
       },
       'Program:exit': (node: estree.Node) => {
         const result: SymbolHighlight[] = [];
-        variables.forEach(v => {
+        for (const v of variables) {
           // if variable is initialized during declaration it is part of references as well
           // so we merge declarations and references to remove duplicates and take the earliest in the file as the declaration
           const allRef = [
@@ -88,18 +90,18 @@ export const rule: Rule.RuleModule = {
             .sort((a, b) => a.loc!.start.line - b.loc!.start.line);
           if (allRef.length === 0) {
             // defensive check, this should never happen
-            return;
+            continue;
           }
           const highlightedSymbol: SymbolHighlight = {
             declaration: identifierLocation(allRef[0] as TSESTree.Node),
             references: allRef.slice(1).map(r => identifierLocation(r as TSESTree.Node)),
           };
           result.push(highlightedSymbol);
-        });
+        }
 
         const openCurlyBracesStack: AST.Token[] = [];
         const openHtmlTagsStack: AST.Token[] = [];
-        extractTokensAndComments(context.sourceCode).tokens.forEach(token => {
+        for (const token of extractTokensAndComments(context.sourceCode).tokens) {
           switch (token.type) {
             case 'Punctuator':
               if (token.value === '{') {
@@ -130,7 +132,7 @@ export const rule: Rule.RuleModule = {
               break;
             }
           }
-        });
+        }
 
         // as issues are the only communication channel of a rule
         // we pass data as serialized json as an issue message

@@ -33,7 +33,13 @@ const MICROPHONE = 'microphone';
 const NOTIFICATIONS = 'notifications';
 const PERSISTENT_STORAGE = 'persistent-storage';
 
-const supportedPermissions = [GEOLOCATION, CAMERA, MICROPHONE, NOTIFICATIONS, PERSISTENT_STORAGE];
+const supportedPermissions = new Set([
+  GEOLOCATION,
+  CAMERA,
+  MICROPHONE,
+  NOTIFICATIONS,
+  PERSISTENT_STORAGE,
+]);
 
 const DEFAULT_PERMISSIONS = [GEOLOCATION];
 
@@ -212,7 +218,7 @@ function hasNamePropertyWithPermission(
     return (
       value &&
       typeof value.value === 'string' &&
-      supportedPermissions.includes(value.value) &&
+      supportedPermissions.has(value.value) &&
       permissions.includes(value.value)
     );
   }

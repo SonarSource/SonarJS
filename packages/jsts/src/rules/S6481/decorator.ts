@@ -46,5 +46,5 @@ function changeRuleMessagesWith(
 
 function lineRemover() {
   const lineRegexp = / \(at line [^)]+\)/g;
-  return (message: string) => message.replace(lineRegexp, '');
+  return (message: string) => message.replaceAll(lineRegexp, '');
 }

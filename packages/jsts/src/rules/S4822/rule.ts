@@ -60,21 +60,24 @@ function visitTryStatement(
     const capturedPromises: TSESTree.Node[] = [];
 
     let hasPotentiallyThrowingCalls = false;
-    CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(callLikeExpr => {
+    for (const callLikeExpr of CallLikeExpressionVisitor.getCallExpressions(
+      tryStmt.block,
+      context,
+    )) {
       if (
         callLikeExpr.type === 'AwaitExpression' ||
         !isThenable(callLikeExpr as estree.Node, services)
       ) {
         hasPotentiallyThrowingCalls = true;
-        return;
+        continue;
       }
 
       if (isAwaitLike(callLikeExpr) || isThened(callLikeExpr) || isCatch(callLikeExpr)) {
-        return;
+        continue;
       }
 
       (isCaught(callLikeExpr) ? capturedPromises : openPromises).push(callLikeExpr);
-    });
+    }
 
     if (!hasPotentiallyThrowingCalls) {
       checkForWrongCatch(tryStmt, openPromises, context);
@@ -105,7 +108,9 @@ class CallLikeExpressionVisitor {
         case 'ArrowFunctionExpression':
           return;
       }
-      childrenOf(node as estree.Node, context.sourceCode.visitorKeys).forEach(visitNode);
+      for (const childNode of childrenOf(node as estree.Node, context.sourceCode.visitorKeys)) {
+        visitNode(childNode);
+      }
     };
     visitNode(root as estree.Node);
   }

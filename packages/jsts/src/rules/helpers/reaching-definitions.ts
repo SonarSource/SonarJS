@@ -41,7 +41,9 @@ export function reachingDefinitions(reachingDefinitionsMap: Map<string, Reaching
     const reachingDefs = reachingDefinitionsMap.get(current.id)!;
     const outHasChanged = reachingDefs.propagate(reachingDefinitionsMap);
     if (outHasChanged) {
-      current.nextSegments.forEach(next => worklist.push(next));
+      for (const next of current.nextSegments) {
+        worklist.push(next);
+      }
     }
   }
 }
@@ -71,16 +73,18 @@ export class ReachingDefinitions {
 
   propagate(reachingDefinitionsMap: Map<string, ReachingDefinitions>) {
     this.in.clear();
-    this.segment.prevSegments.forEach(prev => {
+    for (const prev of this.segment.prevSegments) {
       this.join(reachingDefinitionsMap.get(prev.id)!.out);
-    });
+    }
     const newOut = new Map<Scope.Variable, Values>(this.in);
-    this.references.forEach(ref => this.updateProgramState(ref, newOut));
-    if (!equals(this.out, newOut)) {
+    for (const ref of this.references) {
+      this.updateProgramState(ref, newOut);
+    }
+    if (equals(this.out, newOut)) {
+      return false;
+    } else {
       this.out = newOut;
       return true;
-    } else {
-      return false;
     }
   }
 
@@ -101,7 +105,9 @@ export class ReachingDefinitions {
     for (const [key, values] of previousOut.entries()) {
       const inValues = this.in.get(key) ?? new AssignedValues();
       if (inValues.type === 'AssignedValues' && values.type === 'AssignedValues') {
-        values.forEach(val => inValues.add(val));
+        for (const val of values) {
+          inValues.add(val);
+        }
         this.in.set(key, inValues);
       } else {
         this.in.set(key, unknownValue);

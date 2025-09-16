@@ -65,17 +65,19 @@ function addDependencies(
   dependencies: PackageJson.Dependency,
   isGlob = false,
 ) {
-  Object.keys(dependencies)
-    .filter(name => {
-      // Add this filter, as the PackageJson.Dependency can be any arbitrary JSON contrary to the claimed Record<String, String> typing.
-      const value = dependencies[name];
-      return typeof value === 'string' || typeof value === 'undefined';
-    })
-    .forEach(name => addDependency(result, name, isGlob, dependencies[name]));
+  for (const name of Object.keys(dependencies).filter(name => {
+    // Add this filter, as the PackageJson.Dependency can be any arbitrary JSON contrary to the claimed Record<String, String> typing.
+    const value = dependencies[name];
+    return typeof value === 'string' || value === undefined;
+  })) {
+    addDependency(result, name, isGlob, dependencies[name]);
+  }
 }
 
 function addDependenciesArray(result: Set<Dependency>, dependencies: string[], isGlob = true) {
-  dependencies.forEach(name => addDependency(result, name, isGlob));
+  for (const name of dependencies) {
+    addDependency(result, name, isGlob);
+  }
 }
 
 function addDependency(

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import yaml from 'yaml';
-import path from 'path';
+import path from 'node:path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/yaml/format.js';
@@ -24,7 +24,7 @@ import { readFile } from '../../../shared/src/helpers/files.js';
 describe('isSupportedFormat', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');
 
-  SUPPORTED_STRING_FORMATS.forEach(format => {
+  for (const format of SUPPORTED_STRING_FORMATS) {
     test('should support the string format %o', async () => {
       const filePath = path.join(fixtures, `${format}.yaml`);
       const fileContents = await readFile(filePath);
@@ -37,7 +37,7 @@ describe('isSupportedFormat', () => {
       } = doc as any;
       expect(isSupportedFormat(pair)).toBeTruthy();
     });
-  });
+  }
 
   test('should not support an unsupported string format', async () => {
     const filePath = path.join(fixtures, 'unsupported.yaml');

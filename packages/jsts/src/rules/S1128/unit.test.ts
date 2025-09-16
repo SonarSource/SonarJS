@@ -19,7 +19,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 import parser from 'vue-eslint-parser';
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ruleTester = new RuleTester();
@@ -463,16 +463,16 @@ bar();`,
       ],
     });
   });
-
-  function errorWithSuggestion(output: string, desc = 'Remove this variable import') {
-    return {
-      messageId: 'removeUnusedImport',
-      suggestions: [
-        {
-          desc,
-          output,
-        },
-      ],
-    };
-  }
 });
+
+function errorWithSuggestion(output: string, desc = 'Remove this variable import') {
+  return {
+    messageId: 'removeUnusedImport',
+    suggestions: [
+      {
+        desc,
+        output,
+      },
+    ],
+  };
+}

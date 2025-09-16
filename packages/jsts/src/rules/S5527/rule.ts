@@ -111,7 +111,6 @@ export const rule: Rule.RuleModule = {
           context,
         );
         if (
-          returnStatements.length === 0 ||
           returnStatements.every(r => {
             return (
               !r.argument || getValueOfExpression(context, r.argument, 'Literal')?.value === true
@@ -162,7 +161,9 @@ class ReturnStatementsVisitor {
         case 'ArrowFunctionExpression':
           return;
       }
-      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
+      for (const childNode of childrenOf(node, context.sourceCode.visitorKeys)) {
+        visitNode(childNode);
+      }
     };
     visitNode(root);
   }

@@ -269,25 +269,25 @@ describe('S2234', () => {
         `),
       ],
     });
-
-    function invalid(code: string) {
-      const errors: { messageId: 'sonarRuntime'; line: number; endLine: number }[] = [];
-      const lines = code.split('\n');
-      for (let i = 1; i <= lines.length; i++) {
-        const line = lines[i - 1];
-        if (line.includes('// Noncompliant')) {
-          errors.push({
-            messageId: 'sonarRuntime',
-            line: i,
-            endLine: i,
-          });
-        }
-      }
-      return {
-        code: code,
-        errors,
-        settings: { sonarRuntime: true },
-      };
-    }
   });
 });
+
+function invalid(code: string) {
+  const errors: { messageId: 'sonarRuntime'; line: number; endLine: number }[] = [];
+  const lines = code.split('\n');
+  for (let i = 1; i <= lines.length; i++) {
+    const line = lines[i - 1];
+    if (line.includes('// Noncompliant')) {
+      errors.push({
+        messageId: 'sonarRuntime',
+        line: i,
+        endLine: i,
+      });
+    }
+  }
+  return {
+    code: code,
+    errors,
+    settings: { sonarRuntime: true },
+  };
+}

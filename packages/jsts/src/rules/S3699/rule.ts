@@ -44,7 +44,7 @@ function isReturnValueUsed(callExpr: TSESTree.Node) {
   }
 
   if (parent.type === 'SequenceExpression') {
-    return parent.expressions[parent.expressions.length - 1] === callExpr;
+    return parent.expressions.at(-1) === callExpr;
   }
 
   if (parent.type === 'ConditionalExpression') {
@@ -146,7 +146,7 @@ export const rule: Rule.RuleModule = {
       },
 
       'Program:exit'() {
-        callExpressionsToCheck.forEach((functionDeclaration, callee) => {
+        for (const [callee, functionDeclaration] of callExpressionsToCheck.entries()) {
           if (!functionsWithReturnValue.has(functionDeclaration)) {
             context.report({
               messageId: 'removeUseOfOutput',
@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
               data: { name: callee.name },
             });
           }
-        });
+        }
       },
     };
   },

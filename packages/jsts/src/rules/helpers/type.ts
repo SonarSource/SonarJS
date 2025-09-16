@@ -60,7 +60,7 @@ export const UTILITY_TYPES = new Set([
  * JavaScript typed arrays
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays
  */
-const TYPED_ARRAY_TYPES = [
+const TYPED_ARRAY_TYPES = new Set([
   'Int8Array',
   'Uint8Array',
   'Uint8ClampedArray',
@@ -72,7 +72,7 @@ const TYPED_ARRAY_TYPES = [
   'Float64Array',
   'BigInt64Array',
   'BigUint64Array',
-];
+]);
 
 /**
  * Checks if the provided node is a JS typed array like "BigInt64Array". See TYPED_ARRAY_TYPES
@@ -83,7 +83,7 @@ const TYPED_ARRAY_TYPES = [
  */
 export function isTypedArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
-  return TYPED_ARRAY_TYPES.includes(type.symbol?.name);
+  return TYPED_ARRAY_TYPES.has(type.symbol?.name);
 }
 
 export function isString(node: estree.Node, services: RequiredParserServices) {

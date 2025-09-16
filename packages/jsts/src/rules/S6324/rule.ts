@@ -22,7 +22,7 @@ import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
-const EXCEPTIONS = ['\t', '\n'];
+const EXCEPTIONS = new Set(['\t', '\n']);
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -31,8 +31,10 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       if (
         value >= 0x00 &&
         value <= 0x1f &&
-        (isSameInterpreted(raw, value) || raw.startsWith('\\x') || raw.startsWith('\\u')) &&
-        !EXCEPTIONS.includes(raw)
+        (isSameInterpreted(raw, value) ||
+          raw.startsWith(String.raw`\x`) ||
+          raw.startsWith(String.raw`\u`)) &&
+        !EXCEPTIONS.has(raw)
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',

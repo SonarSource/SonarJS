@@ -29,7 +29,7 @@ import * as meta from './generated-meta.js';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
-const SENSITIVE_ACTIONS = [
+const SENSITIVE_ACTIONS = new Set([
   'cloudformation:CreateStack',
   'datapipeline:CreatePipeline',
   'datapipeline:PutPipelineDefinition',
@@ -56,7 +56,7 @@ const SENSITIVE_ACTIONS = [
   'lambda:InvokeFunction',
   'lambda:UpdateFunctionCode',
   'sts:AssumeRole',
-];
+]);
 
 const MESSAGES = {
   message: (attackVectorName: string) =>
@@ -108,7 +108,7 @@ function getSensitiveResource(properties: Result, options: PolicyCheckerOptions)
 }
 
 function isSensitiveAction(action: StringLiteral) {
-  return SENSITIVE_ACTIONS.includes(action.value);
+  return SENSITIVE_ACTIONS.has(action.value);
 }
 
 function isSensitiveResource(resource: StringLiteral) {

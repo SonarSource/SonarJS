@@ -81,13 +81,6 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isInsideConditional(node: estree.Node): boolean {
-      return (
-        findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'IfStatement') !==
-        undefined
-      );
-    }
-
     let reactComponentScope: Scope.Scope | null; // Scope.Scope of the React component render function.
     const setters: Scope.Variable[] = []; // Setter variables returned by the React useState() function.
 
@@ -136,7 +129,7 @@ export const rule: Rule.RuleModule = {
         const maybeSetterCall = node as SetterCall;
 
         const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name, node);
-        if (setters.some(variable => variable === calleeVariable)) {
+        if (calleeVariable && setters.includes(calleeVariable)) {
           context.report({
             messageId: 'noHookSetterInBody',
             node: node.callee,
@@ -146,6 +139,13 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isInsideConditional(node: estree.Node): boolean {
+  return (
+    findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'IfStatement') !==
+    undefined
+  );
+}
 
 function hasParent(node: estree.Node): node is Rule.Node {
   return (node as Rule.Node).parent != null;

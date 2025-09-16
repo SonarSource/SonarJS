@@ -118,62 +118,62 @@ describe('S134', () => {
       },
     );
   });
+});
 
-  function invalid(code: string, threshold = THRESHOLD) {
-    let primaryLocation: IssueLocation;
-    const secondaryLocations: IssueLocation[] = [];
-    const lines = code.split('\n');
-    for (const [index, line] of lines.entries()) {
-      let found: RegExpMatchArray | null;
+function invalid(code: string, threshold = THRESHOLD) {
+  let primaryLocation: IssueLocation;
+  const secondaryLocations: IssueLocation[] = [];
+  const lines = code.split('\n');
+  for (const [index, line] of lines.entries()) {
+    let found: RegExpMatchArray | null;
 
-      const primary = /\/\/\s*\-+(\^+)\-+/;
-      found = line.match(primary);
-      if (found) {
-        const marker = found[1];
-        const column = line.indexOf(marker) + 1; // Column is one-based in tests
-        const msg = `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`;
-        primaryLocation = location(index, column, index, column + marker.length, msg);
-      }
-
-      const secondary = /\/\/\s*(\^+)/;
-      found = line.match(secondary);
-      if (found) {
-        const marker = found[1];
-        const column = line.indexOf(marker);
-        secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
-      }
+    const primary = /\/\/\s*\-+(\^+)\-+/;
+    found = line.match(primary);
+    if (found) {
+      const marker = found[1];
+      const column = line.indexOf(marker) + 1; // Column is one-based in tests
+      const msg = `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`;
+      primaryLocation = location(index, column, index, column + marker.length, msg);
     }
 
-    return {
-      code,
-      errors: [error(primaryLocation!, secondaryLocations)],
-      options: createOptions(threshold),
-      settings: { sonarRuntime: true },
-    };
+    const secondary = /\/\/\s*(\^+)/;
+    found = line.match(secondary);
+    if (found) {
+      const marker = found[1];
+      const column = line.indexOf(marker);
+      secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
+    }
   }
 
-  function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
-    return {
-      ...primaryLocation,
-      message: encode(primaryLocation.message!, secondaryLocations),
-    };
-  }
+  return {
+    code,
+    errors: [error(primaryLocation!, secondaryLocations)],
+    options: createOptions(threshold),
+    settings: { sonarRuntime: true },
+  };
+}
 
-  function encode(message: string, secondaryLocations: IssueLocation[]): string {
-    const encodedMessage: EncodedMessage = {
-      message,
-      secondaryLocations,
-    };
-    return JSON.stringify(encodedMessage);
-  }
+function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
+  return {
+    ...primaryLocation,
+    message: encode(primaryLocation.message!, secondaryLocations),
+  };
+}
 
-  function location(
-    line: number,
-    column: number,
-    endLine: number,
-    endColumn: number,
-    message: string,
-  ): IssueLocation {
-    return { message, column, line, endColumn, endLine };
-  }
-});
+function encode(message: string, secondaryLocations: IssueLocation[]): string {
+  const encodedMessage: EncodedMessage = {
+    message,
+    secondaryLocations,
+  };
+  return JSON.stringify(encodedMessage);
+}
+
+function location(
+  line: number,
+  column: number,
+  endLine: number,
+  endColumn: number,
+  message: string,
+): IssueLocation {
+  return { message, column, line, endColumn, endLine };
+}

@@ -23,28 +23,6 @@ describe('S2598', () => {
   it('S2598', () => {
     const ruleTester = new DefaultParserRuleTester();
 
-    function encodedMessage(
-      message: string,
-      secondary?: { line: number; column: number; endColumn: number; endLine: number },
-    ) {
-      let secondaryLocations: IssueLocation[] = [];
-      if (secondary) {
-        secondaryLocations = [
-          {
-            message: 'no destination specified',
-            column: secondary.column,
-            line: secondary.line,
-            endColumn: secondary.endColumn,
-            endLine: secondary.endLine,
-          },
-        ];
-      }
-      return JSON.stringify({
-        message,
-        secondaryLocations,
-      });
-    }
-
     ruleTester.run('File uploads should be restricted', rule, {
       valid: [
         {
@@ -286,3 +264,25 @@ describe('S2598', () => {
     });
   });
 });
+
+function encodedMessage(
+  message: string,
+  secondary?: { line: number; column: number; endColumn: number; endLine: number },
+) {
+  let secondaryLocations: IssueLocation[] = [];
+  if (secondary) {
+    secondaryLocations = [
+      {
+        message: 'no destination specified',
+        column: secondary.column,
+        line: secondary.line,
+        endColumn: secondary.endColumn,
+        endLine: secondary.endLine,
+      },
+    ];
+  }
+  return JSON.stringify({
+    message,
+    secondaryLocations,
+  });
+}
