@@ -17,6 +17,7 @@
 import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
+import { createRequire } from 'node:module';
 
 await esbuild.build({
   entryPoints: ['./server.mjs'],
@@ -65,6 +66,12 @@ await esbuild.build({
           'const eslintUtils = require("@eslint-community/eslint-utils")',
         ],
       ],
+    }),
+    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    textReplace({
+      include:
+        /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
     }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
