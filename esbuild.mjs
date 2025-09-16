@@ -58,12 +58,11 @@ await esbuild.build({
     }),
     // Remove createRequire from rolldown, used by tsdown, used by @stylistic
     textReplace({
-      include:
-        /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+      include: /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]vendor\.js$/,
       pattern: [
         [
-          'var __require = /* @__PURE__ */ createRequire(import.meta.url);',
-          'var __require = require; require("@eslint-community/eslint-utils");',
+          'const eslintUtils = __importStar(__require("@eslint-community/eslint-utils"))',
+          'const eslintUtils = require("@eslint-community/eslint-utils")',
         ],
       ],
     }),
