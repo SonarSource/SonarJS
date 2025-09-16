@@ -81,6 +81,7 @@ await esbuild.build({
           '__importStar(__require("@eslint-community/eslint-utils"))',
           'require("@eslint-community/eslint-utils")',
         ],
+        ['__require("@typescript-eslint/types")', 'require("@typescript-eslint/types")'],
       ],
     }),
     // Remove createRequire from rolldown, used by tsdown, used by @stylistic
