@@ -62,8 +62,24 @@ await esbuild.build({
       include: /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]vendor\.js$/,
       pattern: [
         [
-          'const eslintUtils = __importStar(__require("@eslint-community/eslint-utils"))',
-          'const eslintUtils = require("@eslint-community/eslint-utils")',
+          '__importStar$4(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$3(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$2(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar$1(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
+        ],
+        [
+          '__importStar(__require("@eslint-community/eslint-utils"))',
+          'require("@eslint-community/eslint-utils")',
         ],
       ],
     }),
