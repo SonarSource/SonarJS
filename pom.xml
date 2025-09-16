@@ -76,7 +76,7 @@
     <gson.version>2.13.2</gson.version>
     <analyzer-commons.version>2.18.0.3393</analyzer-commons.version>
     <sslr.version>1.24.0.633</sslr.version>
-    <sonarlint.plugin.api.version>10.30.0.82224</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>10.31.0.82282</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
