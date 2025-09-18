@@ -29,53 +29,63 @@ describe('S2187', () => {
         },
         {
           code: `
-/* a test file using 'it' */
-it('1 + 2 should give 3', () => {
-    expect(1 + 2).toBe(3)
-});`,
+        /* a test file using 'it' */
+        it('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
           filename: 'foo.test.js',
         },
         {
           code: `
-/* a test file using 'it.only' */
-it.only('1 + 2 should give 3', () => {
-    expect(1 + 2).toBe(3)
-});`,
+        /* a test file using 'it.only' */
+        it.only('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
           filename: 'foo.test.js',
         },
         {
           code: `
-/* a test file using 'test' */
-test('1 + 2 should give 3', () => {
-    expect(1 + 2).toBe(3)
-});`,
+        /* a test file using 'test' */
+        test('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
           filename: 'foo.test.js',
         },
         {
           code: `
-/* a test file using 'test.only' */
-test.only('1 + 2 should give 3', () => {
-    expect(1 + 2).toBe(3)
-});`,
+        /* a test file using 'test.only' */
+        test.only('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
           filename: 'foo.test.js',
         },
         {
           code: `
-/* a spec file using 'it' */
-it('1 + 2 should give 3', () => {
-    expect(1 + 2).toBe(3)
-});`,
+        /* a spec file using 'it' */
+        it('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
           filename: 'foo.spec.js',
         },
         {
           code: `test.for([
-  [1, 1, 2],
-  [1, 2, 3],
-  [2, 1, 3],
-])('add(%i, %i) -> %i', ([a, b, expected]) => { 
-  expect(a + b).toBe(expected)
-})`,
+          [1, 1, 2],
+          [1, 2, 3],
+          [2, 1, 3],
+        ])('add(%i, %i) -> %i', ([a, b, expected]) => {
+          expect(a + b).toBe(expected)
+        })`,
           filename: 'foo.spec.js',
+        },
+        {
+          code: `
+        const ruleTester = new NoTypeCheckingRuleTester();
+        ruleTester.run('Sections of code should not be commented out', rule, {
+          valid: [
+            {}
+          ],
+        });`,
+          filename: 'unit.test.ts',
         },
       ],
       invalid: [

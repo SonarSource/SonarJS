@@ -26,7 +26,7 @@ import { SonarMeta } from '../../../../src/rules/helpers/index.js';
  * These fixtures are to be found in the rule directory and should be named as `*.fixture.<ext>`.
  * The directory can include options (`cb.options.json`) to configure the rule behaviour.
  */
-export function check(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir: string) {
+export function test(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir: string) {
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */

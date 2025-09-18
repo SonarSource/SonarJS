@@ -14,18 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { check } from '../../../tests/tools/testers/comment-based/index.js';
+import { test } from '../../../tests/tools/testers/comment-based/checker.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 import path from 'node:path';
 import * as meta from './generated-meta.js';
 
 describe('Rule S6544', () => {
-  check(meta, rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
-  check(
+  test(meta, rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
+  test(
     meta,
     rule,
     path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'),
   );
-  check(meta, rule, path.join(import.meta.dirname, 'fixtures', 'voidReturnProperty'));
+  test(meta, rule, path.join(import.meta.dirname, 'fixtures', 'voidReturnProperty'));
 });
