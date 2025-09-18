@@ -40,6 +40,7 @@ export const rule: Rule.RuleModule = {
       suggestOperationInversion: 'Invert inner operation (apply if NaN is not expected)',
     },
     hasSuggestions: true,
+    fixable: 'code',
   }),
   create(context) {
     return {

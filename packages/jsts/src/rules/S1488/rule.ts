@@ -35,6 +35,7 @@ export const rule: Rule.RuleModule = {
       doImmediateAction:
         'Immediately {{action}} this expression instead of assigning it to the temporary variable "{{variable}}".',
     },
+    fixable: 'code',
   }),
   create(context) {
     return {
