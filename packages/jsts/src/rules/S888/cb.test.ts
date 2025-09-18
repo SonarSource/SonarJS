@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { check } from '../../../tests/tools/testers/comment-based/index.js';
+import { test } from '../../../tests/tools/testers/comment-based/checker.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';
 
 describe('Rule S888', () => {
-  check(meta, rule, import.meta.dirname);
+  test(meta, rule, import.meta.dirname);
 });

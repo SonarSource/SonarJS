@@ -78,6 +78,8 @@ const APIs = new Set([
   'it.runIf',
   'test.for',
   'it.for',
+  // eslint rule tester
+  'ruleTester.run',
 ]);
 
 export const rule: Rule.RuleModule = {
