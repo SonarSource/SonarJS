@@ -26,7 +26,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       replaceForWithWhileLoop: 'Replace this "for" loop with a "while" loop.',
     },
-    fixable: 'code',
   }),
   create(context) {
     return {

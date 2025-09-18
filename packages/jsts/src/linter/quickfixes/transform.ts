@@ -17,7 +17,6 @@
 import { Linter, Rule, SourceCode } from 'eslint';
 import { getQuickFixMessage } from './messages.js';
 import { QuickFix, QuickFixEdit } from './quickfix.js';
-import { quickFixRules } from './rules.js';
 
 /**
  * Transforms ESLint fixes and suggestions into SonarLint quick fixes
@@ -58,12 +57,7 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
  * @returns true if the message is convertible
  */
 function hasQuickFix(message: Linter.LintMessage): boolean {
-  if (!message.fix && (!message.suggestions || message.suggestions.length === 0)) {
-    return false;
-  }
-  return (
-    !!message.ruleId && quickFixRules.has(message.ruleId.slice(8) /* remove "sonarjs/" prefix*/)
-  );
+  return !!(message.fix || message.suggestions?.length);
 }
 
 /**
