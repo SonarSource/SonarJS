@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-as-const';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = "Replace with 'as const'";

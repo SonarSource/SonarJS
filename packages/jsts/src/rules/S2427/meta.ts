@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'radix';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Add 10 as radix';

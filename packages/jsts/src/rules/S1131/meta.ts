@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-trailing-spaces';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Remove trailing space';

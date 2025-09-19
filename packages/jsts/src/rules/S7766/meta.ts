@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-math-min-max';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with Math.min/max';

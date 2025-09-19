@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-useless-rename';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Remove alias';

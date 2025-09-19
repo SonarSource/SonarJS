@@ -16,3 +16,4 @@
  */
 export const implementation = 'original';
 export const eslintId = 'prefer-while';
+export const quickFixMessage = "Replace with 'while' loop";

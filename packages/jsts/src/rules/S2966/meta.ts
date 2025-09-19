@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-non-null-assertion';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = "Replace with optional chaining '.?'";

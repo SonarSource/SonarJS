@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-modern-dom-apis';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Use replaceWith() called directly on the element to be replaced';

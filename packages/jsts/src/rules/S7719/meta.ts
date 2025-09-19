@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'consistent-date-clone';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Pass the Date object directly';

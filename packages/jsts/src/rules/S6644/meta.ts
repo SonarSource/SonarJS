@@ -18,3 +18,4 @@ export const implementation = 'external';
 export const eslintId = 'no-unneeded-ternary';
 export const externalPlugin = 'eslint';
 export * from './config.js';
+export const quickFixMessage = 'Replace with a simpler expression';

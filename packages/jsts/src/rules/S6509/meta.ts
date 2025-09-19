@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-extra-boolean-cast';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Remove extra cast';

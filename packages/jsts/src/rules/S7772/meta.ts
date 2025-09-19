@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-node-protocol';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = "Add the 'node:' prefix";

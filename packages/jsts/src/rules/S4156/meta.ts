@@ -19,3 +19,4 @@ export const eslintId = 'prefer-namespace-keyword';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'prefer-namespace-keyword' },
 ];
+export const quickFixMessage = "Replace with 'namespace' keyword";

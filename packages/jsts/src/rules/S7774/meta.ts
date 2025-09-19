@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-prototype-methods';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Use prototype methods';

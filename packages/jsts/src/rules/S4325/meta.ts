@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-unnecessary-type-assertion';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = 'Remove type assertion';

@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-useless-length-check';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove the redundant length check';

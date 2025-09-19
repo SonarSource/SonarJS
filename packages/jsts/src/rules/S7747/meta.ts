@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-useless-spread';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove unnecessary spread syntax';

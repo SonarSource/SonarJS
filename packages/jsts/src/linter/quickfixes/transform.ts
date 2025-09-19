@@ -17,6 +17,7 @@
 import { Linter, Rule, SourceCode } from 'eslint';
 import { getQuickFixMessage } from './messages.js';
 import { QuickFix, QuickFixEdit } from './quickfix.js';
+import * as ruleMetas from '../../rules/metas.js';
 
 /**
  * Transforms ESLint fixes and suggestions into SonarLint quick fixes
@@ -51,13 +52,16 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
  *
  * An ESLint fix is convertible into a SonarLint quick fix iff:
  * - it includes a fix or suggestions
- * - the quick fix of the rule is enabled
+ * - the quick fix message of the rule is present
  *
  * @param message an ESLint message
  * @returns true if the message is convertible
  */
 function hasQuickFix(message: Linter.LintMessage): boolean {
-  return !!(message.fix || message.suggestions?.length);
+  const hasQuickFixInMessage = !!(message.fix || message.suggestions?.length);
+  if (!hasQuickFixInMessage) return false;
+  const ruleId = message.ruleId?.slice('sonarjs/'.length);
+  return !!ruleId && 'quickFixMessage' in ruleMetas[ruleId as keyof typeof ruleMetas];
 }
 
 /**

@@ -16,3 +16,4 @@
  */
 export const implementation = 'original';
 export const eslintId = 'prefer-immediate-return';
+export const quickFixMessage = 'Return value immediately';

@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-undef-init';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Remove initialization';

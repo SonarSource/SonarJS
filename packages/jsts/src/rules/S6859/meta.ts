@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-absolute-path';
 export const externalPlugin = 'import';
+export const quickFixMessage = 'Replace with a relative path';

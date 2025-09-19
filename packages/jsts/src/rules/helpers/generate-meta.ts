@@ -36,6 +36,7 @@ export type SonarMeta = {
     externalPlugin: string;
     externalRule: string;
   }[];
+  quickFixMessage?: string;
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {
