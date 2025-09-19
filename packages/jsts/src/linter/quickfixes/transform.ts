@@ -72,7 +72,7 @@ function hasQuickFix(message: Linter.LintMessage): boolean {
 }
 
 function hasSuggestion(message: Linter.LintMessage): boolean {
-  return message.suggestions?.length > 0;
+  return !!message.suggestions?.length;
 }
 
 /**
