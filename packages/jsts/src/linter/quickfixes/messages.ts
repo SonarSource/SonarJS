@@ -28,7 +28,7 @@ import * as ruleMetas from '../../rules/metas.js';
  */
 export function getQuickFixMessage(ruleKey: string): string {
   const ruleMeta = ruleMetas[ruleKey as keyof typeof ruleMetas];
-  if (!('quickFixMessage' in ruleMeta)) {
+  if (!ruleMeta || !('quickFixMessage' in ruleMeta)) {
     throw new Error(`Missing message for quick fix '${ruleKey}'`);
   }
   return ruleMeta.quickFixMessage;

@@ -26,7 +26,7 @@ import * as ruleMetas from '../../rules/metas.js';
  * @returns the transformed quick fixes
  */
 export function transformFixes(source: SourceCode, messages: Linter.LintMessage): QuickFix[] {
-  if (!hasQuickFix(messages)) {
+  if (!hasSonarLintQuickFix(messages)) {
     return [];
   }
   const quickFixes: QuickFix[] = [];
@@ -57,11 +57,22 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
  * @param message an ESLint message
  * @returns true if the message is convertible
  */
+function hasSonarLintQuickFix(message: Linter.LintMessage): boolean {
+  return hasQuickFix(message) || hasSuggestion(message);
+}
+
 function hasQuickFix(message: Linter.LintMessage): boolean {
-  const hasQuickFixInMessage = !!(message.fix || message.suggestions?.length);
-  if (!hasQuickFixInMessage) return false;
+  if (!message.fix) return false;
   const ruleId = message.ruleId?.slice('sonarjs/'.length);
-  return !!ruleId && 'quickFixMessage' in ruleMetas[ruleId as keyof typeof ruleMetas];
+  return (
+    !!ruleId &&
+    ruleId in ruleMetas &&
+    'quickFixMessage' in ruleMetas[ruleId as keyof typeof ruleMetas]
+  );
+}
+
+function hasSuggestion(message: Linter.LintMessage): boolean {
+  return message.suggestions?.length > 0;
 }
 
 /**
