@@ -19,3 +19,4 @@ export const implementation = 'external';
 export const eslintId = 'numeric-separators-style';
 export const externalPlugin = 'unicorn';
 export * from './config.js';
+export const quickFixMessage = 'Use consistent numeric separators';

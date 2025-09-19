@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-negated-condition';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Invert the negated boolean condition';

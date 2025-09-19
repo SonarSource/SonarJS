@@ -19,3 +19,4 @@ export const eslintId = 'prefer-function-type';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'prefer-function-type' },
 ];
+export const quickFixMessage = 'Replace with a function type';

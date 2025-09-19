@@ -17,3 +17,4 @@
 export const implementation = 'decorated';
 export const eslintId = 'object-shorthand';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'object-shorthand' }];
+export const quickFixMessage = 'Use shorthand property';

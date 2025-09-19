@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-useless-fallback-in-spread';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove the unnecessary fallback empty object';

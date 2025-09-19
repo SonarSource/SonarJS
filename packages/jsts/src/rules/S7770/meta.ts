@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-native-coercion-functions';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with built-in type conversions';

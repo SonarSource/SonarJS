@@ -18,3 +18,4 @@ export const implementation = 'external';
 export const eslintId = 'prefer-const';
 export const externalPlugin = 'eslint';
 export * from './config.js';
+export const quickFixMessage = "Replace with 'const'";

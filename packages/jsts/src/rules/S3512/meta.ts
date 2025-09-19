@@ -17,3 +17,4 @@
 export const implementation = 'decorated';
 export const eslintId = 'prefer-template';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'prefer-template' }];
+export const quickFixMessage = 'Replace with template string literal';

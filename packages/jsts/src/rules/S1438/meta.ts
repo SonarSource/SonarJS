@@ -17,3 +17,4 @@
 export const implementation = 'decorated';
 export const eslintId = 'semi';
 export const externalRules = [{ externalPlugin: '@stylistic/eslint-plugin', externalRule: 'semi' }];
+export const quickFixMessage = 'Add semicolon';

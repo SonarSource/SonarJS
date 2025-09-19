@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-zero-fractions';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove unnecessary decimal points';

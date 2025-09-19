@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-duplicates';
 export const externalPlugin = 'import';
+export const quickFixMessage = 'Remove this duplicate import';

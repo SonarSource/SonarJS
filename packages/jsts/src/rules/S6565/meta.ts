@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-return-this-type';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = "Replace return type with 'this'";

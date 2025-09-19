@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-global-this';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = "Replace with 'globalThis'";

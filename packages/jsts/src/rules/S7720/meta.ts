@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'consistent-empty-array-spread';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Fix to use consistent types';

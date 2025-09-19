@@ -18,3 +18,4 @@ export const implementation = 'external';
 export const eslintId = 'quotes';
 export const externalPlugin = 'eslint';
 export * from './config.js';
+export const quickFixMessage = 'Fix quotes';

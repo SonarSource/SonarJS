@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-modern-math-apis';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with modern Math APIs';

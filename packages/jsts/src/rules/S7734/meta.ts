@@ -18,3 +18,5 @@
 export const implementation = 'external';
 export const eslintId = 'no-named-default';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage =
+  'Replace named import of default with dedicated default import syntax';

@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-object-has-own';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Replace with Object.hasOwn()';

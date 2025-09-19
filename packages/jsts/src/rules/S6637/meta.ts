@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-extra-bind';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Remove .bind() call';

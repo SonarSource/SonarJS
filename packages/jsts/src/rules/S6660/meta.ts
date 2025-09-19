@@ -17,3 +17,4 @@
 export const implementation = 'decorated';
 export const eslintId = 'no-lonely-if';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'no-lonely-if' }];
+export const quickFixMessage = "Replace with 'else if'";

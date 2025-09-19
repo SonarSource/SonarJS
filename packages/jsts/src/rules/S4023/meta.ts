@@ -20,3 +20,4 @@ export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'no-empty-interface' },
 ];
 export * from './config.js';
+export const quickFixMessage = 'Replace with type alias';

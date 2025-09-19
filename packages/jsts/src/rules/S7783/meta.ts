@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-string-trim-start-end';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = "Replace with 'trimStart'/'trimEnd'";

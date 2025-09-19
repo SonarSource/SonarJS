@@ -22,8 +22,6 @@ import { Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
-import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
-import { readdir } from 'node:fs/promises';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -512,88 +510,6 @@ describe('Linter', () => {
         },
         references: [],
       },
-    ]);
-  });
-
-  for (const ruleId of Array.from(quickFixRules))
-    it(`should provide quick fixes from enabled fixable rule ${ruleId}`, async () => {
-      // we ignore SXXX rules: they are aliases of ESLint keys, for which we have proper fixtures
-      if (/^S\d+$/.test(ruleId)) {
-        return;
-      }
-
-      const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'quickfixes');
-      const files = await readdir(fixtures);
-
-      let fixture: string;
-      let language: JsTsLanguage;
-      for (const file of files) {
-        const { ext, name } = path.parse(file);
-        if (ext !== '.json' && name === ruleId) {
-          fixture = file;
-          if (['.js', '.jsx'].includes(ext)) {
-            language = 'js';
-          } else {
-            language = 'ts';
-          }
-          break;
-        }
-      }
-
-      const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const filePath = path.join(fixtures, fixture!);
-      const parser = language! === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
-      const parseResult = await parser(filePath, [tsConfig]);
-      const rules: RuleConfig[] = [
-        {
-          key: ruleId,
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-      ];
-
-      await Linter.initialize({ baseDir: fixtures, rules });
-      const {
-        issues: [issue],
-      } = Linter.lint(parseResult, filePath);
-
-      expect(issue).toEqual(
-        expect.objectContaining({
-          ruleId,
-        }),
-      );
-      expect(issue.quickFixes?.length).toBeGreaterThan(0);
-    });
-
-  it('should not provide quick fixes from disabled fixable rules', async () => {
-    const baseDir = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'quickfixes');
-    const filePath = path.join(baseDir, 'disabled.js');
-    const parseResult = await parseJavaScriptSourceFile(filePath);
-
-    const ruleId = 'S1105';
-    const rules: RuleConfig[] = [
-      {
-        key: ruleId,
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ];
-
-    await Linter.initialize({
-      baseDir,
-      rules,
-    });
-    const { issues } = Linter.lint(parseResult, filePath);
-
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId,
-        quickFixes: [],
-      }),
     ]);
   });
 });

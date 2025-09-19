@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-await-expression-member';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Use destructuring assignment';

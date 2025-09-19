@@ -17,7 +17,7 @@
 import { Linter, Rule, SourceCode } from 'eslint';
 import { getQuickFixMessage } from './messages.js';
 import { QuickFix, QuickFixEdit } from './quickfix.js';
-import { quickFixRules } from './rules.js';
+import * as ruleMetas from '../../rules/metas.js';
 
 /**
  * Transforms ESLint fixes and suggestions into SonarLint quick fixes
@@ -26,13 +26,13 @@ import { quickFixRules } from './rules.js';
  * @returns the transformed quick fixes
  */
 export function transformFixes(source: SourceCode, messages: Linter.LintMessage): QuickFix[] {
-  if (!hasQuickFix(messages)) {
+  if (!hasSonarLintQuickFix(messages)) {
     return [];
   }
   const quickFixes: QuickFix[] = [];
   if (messages.fix) {
     quickFixes.push({
-      message: getQuickFixMessage(messages.ruleId!.slice(8) /* remove "sonarjs/" prefix*/),
+      message: getQuickFixMessage(messages.ruleId!.slice('sonarjs/'.length)),
       edits: [fixToEdit(source, messages.fix)],
     });
   }
@@ -52,18 +52,29 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
  *
  * An ESLint fix is convertible into a SonarLint quick fix iff:
  * - it includes a fix or suggestions
- * - the quick fix of the rule is enabled
+ * - the quick fix message of the rule is present
  *
  * @param message an ESLint message
  * @returns true if the message is convertible
  */
+function hasSonarLintQuickFix(message: Linter.LintMessage): boolean {
+  return hasQuickFix(message) || hasSuggestion(message);
+}
+
 function hasQuickFix(message: Linter.LintMessage): boolean {
-  if (!message.fix && (!message.suggestions || message.suggestions.length === 0)) {
+  if (!message.fix) {
     return false;
   }
+  const ruleId = message.ruleId?.slice('sonarjs/'.length);
   return (
-    !!message.ruleId && quickFixRules.has(message.ruleId.slice(8) /* remove "sonarjs/" prefix*/)
+    !!ruleId &&
+    ruleId in ruleMetas &&
+    'quickFixMessage' in ruleMetas[ruleId as keyof typeof ruleMetas]
   );
+}
+
+function hasSuggestion(message: Linter.LintMessage): boolean {
+  return !!message.suggestions?.length;
 }
 
 /**

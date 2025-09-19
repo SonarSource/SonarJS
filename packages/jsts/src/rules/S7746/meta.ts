@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-useless-promise-resolve-reject';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove the unnecessary Promise.resolve() wrapper';

@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-string-raw';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = "Use 'String.raw' template literal";

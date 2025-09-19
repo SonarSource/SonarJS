@@ -24,7 +24,7 @@
   "ruleSpecification": "RSPEC-5868",
   "sqKey": "S5868",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"

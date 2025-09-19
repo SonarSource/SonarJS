@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'contextual-lifecycle';
 export const externalPlugin = '@angular-eslint';
+export const quickFixMessage = 'Fix lifecycle method';

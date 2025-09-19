@@ -17,6 +17,8 @@
 import { getQuickFixMessage } from '../../../src/linter/quickfixes/messages.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import * as ruleMetas from '../../../src/rules/metas.js';
+import * as rules from '../../../src/rules/rules.js';
 
 describe('messages', () => {
   it('should return a quick fix message', () => {
@@ -27,5 +29,13 @@ describe('messages', () => {
     expect(() => getQuickFixMessage('no-such-rule')).toThrow(
       `Missing message for quick fix 'no-such-rule'`,
     );
+  });
+
+  it('should have a quick fix message for all rules with quickfixes', () => {
+    for (const [key, meta] of Object.entries(ruleMetas)) {
+      if (meta.meta.fixable && !rules[key].meta.hasSuggestions) {
+        expect(getQuickFixMessage(key)).toBeDefined();
+      }
+    }
   });
 });
