@@ -17,6 +17,9 @@
 import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
+import { readFileSync } from 'node:fs';
+
+const stylelingPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 
 await esbuild.build({
   entryPoints: ['./server.mjs'],
@@ -57,6 +60,17 @@ await esbuild.build({
         ['config.parser = espreePath;', ''],
       ],
     }),
+    // Remove dynamic import of unused stylelint extensions
+    textReplace({
+      include:
+        /node_modules[\/\\]postcss-html[\/\\]lib[\/\\]syntax[\/\\]build-syntax-resolver\.js$/,
+      pattern: [
+        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L56
+        ['sugarss: () => require("sugarss"),', ''],
+        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L781
+        ['"postcss-styl": () => require("postcss-styl"),', ''],
+      ],
+    }),
     // Remove createRequire from rolldown, used by tsdown, used by @stylistic
     textReplace({
       include: /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]vendor\.js$/,
@@ -88,6 +102,19 @@ await esbuild.build({
     textReplace({
       include:
         /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+    }),
+    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    textReplace({
+      include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data-patch\.js$/,
+      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+    }),
+    textReplace({
+      include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data\.js$/,
+      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+    }),
+    textReplace({
+      include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]version\.js$/,
       pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
     }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
@@ -131,6 +158,17 @@ await esbuild.build({
           // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
           "postcssDoc && postcssDoc.constructor === require('postcss-syntax/document') ? postcssDoc.nodes : [postcssDoc]",
+        ],
+      ],
+    }),
+    // do not let stylelint fs read its package.json
+    textReplace({
+      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]FileCache.mjs$/,
+      pattern: [
+        [
+          // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
+          "JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));",
+          stylelingPkgJson,
         ],
       ],
     }),
