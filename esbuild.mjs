@@ -19,19 +19,22 @@ import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
 
-const stylelingPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
+const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 
 await esbuild.build({
   entryPoints: ['./server.mjs'],
   outfile: './bin/server.cjs',
   format: 'cjs',
   bundle: true,
+  loader: {
+    '.json': 'copy',
+  },
   // we mark this file as external because it does not exist on EsLint any more and in any case
   // the code never reaches this dynamic require as this is a fallback if 'eslint/use-at-your-own-risk'
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
-  minify: true,
+  //minify: true,
   plugins: [
     textReplace({
       include: /server\.mjs$/,
@@ -107,15 +110,15 @@ await esbuild.build({
     // Remove createRequire from rolldown, used by tsdown, used by @stylistic
     textReplace({
       include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data-patch\.js$/,
-      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+      pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     textReplace({
       include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data\.js$/,
-      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+      pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     textReplace({
       include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]version\.js$/,
-      pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+      pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
@@ -168,7 +171,7 @@ await esbuild.build({
         [
           // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
           "JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));",
-          stylelingPkgJson,
+          stylelintPkgJson,
         ],
       ],
     }),
