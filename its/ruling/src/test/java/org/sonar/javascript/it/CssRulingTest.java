@@ -17,115 +17,87 @@
 package org.sonar.javascript.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.it.JsTsRulingTest.LITS_VERSION;
 
-import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.container.Edition;
-import com.sonar.orchestrator.junit5.OrchestratorExtension;
-import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
-import org.junit.jupiter.api.BeforeAll;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonarsource.analyzer.commons.ProfileGenerator;
+import org.sonar.check.Rule;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
+import shadow.com.sonar.orchestrator.locator.FileLocation;
+import shadow.com.sonar.orchestrator.locator.MavenLocation;
 
 class CssRulingTest {
 
-  private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String PROJECT_KEY = "project";
 
-  @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
-    .useDefaultAdminCredentialsForBuilds(true)
-    .setEdition(Edition.ENTERPRISE_LW)
-    .activateLicense()
-    .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
-    .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
-    .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
-    .addPlugin(
+  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
+    .withProduct(SonarServerContext.Product.SERVER)
+    .withEngineVersion(EngineVersion.latestRelease())
+    .withLanguage("css", "CSS", CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.DEFAULT_FILE_SUFFIXES)
+    .withPlugin(
+      MavenLocation.of(
+        "org.sonarsource.sonar-lits-plugin",
+        "sonar-lits-plugin",
+        JsTsRulingTest.LITS_VERSION
+      )
+    )
+    .withPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
+    .withPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
+    .withPlugin(
       FileLocation.byWildcardMavenFilename(
         new File("../../sonar-plugin/sonar-javascript-plugin/target"),
         "sonar-javascript-plugin-*-multi.jar"
       )
     )
-    .addPlugin(
-      MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION)
-    )
+    .withActiveRules(getActiveRules())
     .build();
 
-  @BeforeAll
-  public static void prepare_quality_profile() throws IOException {
-    ProfileGenerator.RulesConfiguration parameters = new ProfileGenerator.RulesConfiguration();
-    String serverUrl = ORCHESTRATOR.getServer().getUrl();
-    File profileFile = ProfileGenerator.generateProfile(
-      serverUrl,
-      "css",
-      "css",
-      parameters,
-      Collections.emptySet()
-    );
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.of(profileFile));
-    loadEmptyProfile("php");
-    loadEmptyProfile("web");
-    loadEmptyProfile("js");
-    loadEmptyProfile("ts");
-  }
-
-  private static void loadEmptyProfile(String language) throws IOException {
-    String profile = profile(language);
-    File file = File.createTempFile("profile", ".xml");
-    Files.write(file.toPath(), profile.getBytes());
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.of(file));
-    file.delete();
-  }
-
-  private static String profile(String language) {
-    return (
-      "<profile>" +
-      "<name>rules</name>" +
-      "<language>" +
-      language +
-      "</language>" +
-      "<rules></rules>" +
-      "</profile>"
-    );
+  private static List<SonarServerContext.ActiveRule> getActiveRules() {
+    return CssRules.getRuleClasses()
+      .stream()
+      .map(cssClass -> {
+        var key = cssClass.getAnnotation(Rule.class).key();
+        return new SonarServerContext.ActiveRule(
+          new SonarServerContext.ActiveRule.RuleKey("css", key),
+          key,
+          SonarServerContext.ActiveRule.Severity.INFO,
+          "css",
+          null
+        );
+      })
+      .toList();
   }
 
   @Test
   void test() throws Exception {
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", "rules");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "php", "rules");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "web", "rules");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "rules");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "rules");
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
-    SonarScanner build = SonarScanner.create(FileLocation.of("../sources/css").getFile())
-      .setProperty("sonar.scanner.skipJreProvisioning", "true")
-      .setProjectKey(PROJECT_KEY)
-      .setProjectName(PROJECT_KEY)
-      .setProjectVersion("1")
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProperty(
-        "sonar.lits.dump.old",
-        FileLocation.of("src/test/expected/css").getFile().getAbsolutePath()
+    ScannerInput build = ScannerInput.create(PROJECT_KEY, Path.of("..", "sources", "css"))
+      .withSourceDirs(".")
+      .withSourceEncoding("UTF-8")
+      .withCpdExclusionForAllFiles()
+      .skipJreProvisioning()
+      .withFailFast()
+      .withScannerProperties(
+        Map.of(
+          "sonar.lits.dump.old",
+          FileLocation.of("src/test/expected/css").getFile().getAbsolutePath(),
+          "sonar.lits.dump.new",
+          FileLocation.of("target/actual/css").getFile().getAbsolutePath(),
+          "sonar.lits.differences",
+          litsDifferencesFile.getAbsolutePath()
+        )
       )
-      .setProperty(
-        "sonar.lits.dump.new",
-        FileLocation.of("target/actual/css").getFile().getAbsolutePath()
-      )
-      .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())
-      .setProperty("sonar.internal.analysis.failFast", "true")
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2000m");
-    ORCHESTRATOR.executeBuild(build);
+      .build();
 
+    ScannerRunner.run(SERVER_CONTEXT, build);
     String litsDifferences = Files.readString(litsDifferencesFile.toPath());
     assertThat(litsDifferences).isEmpty();
   }
