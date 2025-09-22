@@ -120,6 +120,10 @@ await esbuild.build({
       include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]version\.js$/,
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
+    textReplace({
+      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]mathMLTags\.mjs$/,
+      pattern: [['const require = createRequire(import.meta.url);', '']],
+    }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
       include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
