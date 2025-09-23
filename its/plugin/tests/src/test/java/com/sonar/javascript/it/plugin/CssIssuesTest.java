@@ -16,157 +16,208 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarScanner;
-import java.util.Collections;
+import com.sonarsource.scanner.integrationtester.dsl.Log;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.issues.SearchRequest;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
+import shadow.com.sonar.orchestrator.locator.FileLocation;
 
-@ExtendWith(OrchestratorStarter.class)
 class CssIssuesTest {
 
   private static final String PROJECT_KEY = "css-issues-project";
 
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
+    .withProduct(SonarServerContext.Product.SERVER)
+    .withLanguage(
+      CssLanguage.KEY,
+      "CSS",
+      CssLanguage.FILE_SUFFIXES_KEY,
+      CssLanguage.DEFAULT_FILE_SUFFIXES
+    )
+    .withPlugin(
+      FileLocation.byWildcardMavenFilename(
+        new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
+        "sonar-javascript-plugin-*-multi.jar"
+      )
+    )
+    .withActiveRules(getActiveRules())
+    .build();
 
-  private static BuildResult buildResult;
+  private static final ScannerInput build = ScannerInput.create(
+    PROJECT_KEY,
+    Path.of("..", "projects", PROJECT_KEY)
+  )
+    .withSourceDirs("src")
+    .withScannerProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css")
+    .withVerbose()
+    .build();
+  private static final ScannerResult result = ScannerRunner.run(SERVER_CONTEXT, build);
 
-  @BeforeAll
-  public static void prepare() {
-    ProfileGenerator.RulesConfiguration rulesConfiguration =
-      new ProfileGenerator.RulesConfiguration();
-    rulesConfiguration.add("S4660", "ignorePseudoElements", "ng-deep, /^custom-/");
-    var profile = ProfileGenerator.generateProfile(
-      orchestrator,
-      "css",
-      "css",
-      rulesConfiguration,
-      emptySet()
-    );
-    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "css", profile);
+  private static List<SonarServerContext.ActiveRule> getActiveRules() {
+    return CssRules.getRuleClasses()
+      .stream()
+      .map(cssClass -> {
+        var key = cssClass.getAnnotation(Rule.class).key();
+        var params = Arrays.stream(cssClass.getDeclaredFields())
+          .flatMap(field ->
+            Arrays.stream(field.getAnnotationsByType(RuleProperty.class)).map(ruleProperty ->
+              new SonarServerContext.ActiveRule.Param(
+                ruleProperty.key(),
+                ruleProperty.defaultValue()
+              )
+            )
+          )
+          .toArray(SonarServerContext.ActiveRule.Param[]::new);
+        if (key.equals("S4660")) {
+          params = new SonarServerContext.ActiveRule.Param[] {
+            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/"),
+          };
+        }
 
-    SonarScanner scanner = CssTestsUtils.createScanner(PROJECT_KEY);
-    scanner.setProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css");
-    buildResult = orchestrator.executeBuild(scanner);
+        return new SonarServerContext.ActiveRule(
+          new SonarServerContext.ActiveRule.RuleKey(CssLanguage.KEY, key),
+          key,
+          SonarServerContext.ActiveRule.Severity.INFO,
+          CssLanguage.KEY,
+          params
+        );
+      })
+      .toList();
   }
 
   @Test
   void parsing_error_not_on_excluded_files() {
-    assertThat(buildResult.getLogs())
-      .doesNotMatch(
+    assertThat(
+      result
+        .logOutput()
+        .stream()
+        .anyMatch(
+          s ->
+            s
+              .message()
+              .matches(
+                "Failed to parse file file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*"
+              ) &&
+            s.level() == Log.Level.WARN
+        )
+    ).isTrue();
+    assertThat(result.logOutput().stream()).noneSatisfy(s ->
+      assertThat(s.message()).matches(
         "(?s).*WARN: Failed to parse file file:\\S*file-with-parsing-error-excluded\\.css.*"
       )
-      .matches(
-        "(?s).*WARN: Failed to parse file file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*"
-      );
+    );
   }
 
   @Test
   void issue_list() {
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-    List<Issue> issuesList = newWsClient(orchestrator)
-      .issues()
-      .search(request)
-      .getIssuesList()
+    var issuesList = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
       .stream()
-      .filter(i -> i.getRule().startsWith("css:"))
-      .collect(Collectors.toList());
+      .filter(ScannerOutputReader.FileIssue.class::isInstance)
+      .map(ScannerOutputReader.FileIssue.class::cast)
+      .toList();
 
     assertThat(issuesList)
-      .extracting(Issue::getRule, Issue::getComponent)
+      .extracting(
+        ScannerOutputReader.FileIssue::ruleKey,
+        ScannerOutputReader.FileIssue::componentPath
+      )
       .containsExactlyInAnyOrder(
-        tuple("css:S4662", "css-issues-project:src/cssModules.css"),
-        tuple("css:S4667", "css-issues-project:src/empty1.css"),
-        tuple("css:S4667", "css-issues-project:src/empty2.less"),
-        tuple("css:S4667", "css-issues-project:src/empty3.scss"),
-        tuple("css:S1128", "css-issues-project:src/file1.css"),
-        tuple("css:S1116", "css-issues-project:src/file1.css"),
-        tuple("css:S4664", "css-issues-project:src/file1.css"),
-        tuple("css:S4660", "css-issues-project:src/file1.css"),
-        tuple("css:S4659", "css-issues-project:src/file1.css"),
-        tuple("css:S4647", "css-issues-project:src/file1.css"),
-        tuple("css:S4663", "css-issues-project:src/file1.css"),
-        tuple("css:S4652", "css-issues-project:src/file1.css"),
-        tuple("css:S4656", "css-issues-project:src/file1.css"),
-        tuple("css:S4649", "css-issues-project:src/file1.css"),
-        tuple("css:S4648", "css-issues-project:src/file1.css"),
-        tuple("css:S4654", "css-issues-project:src/file1.css"),
-        tuple("css:S4657", "css-issues-project:src/file1.css"),
-        tuple("css:S4650", "css-issues-project:src/file1.css"),
-        tuple("css:S4650", "css-issues-project:src/file1.css"),
-        tuple("css:S4668", "css-issues-project:src/file1.css"),
-        tuple("css:S4654", "css-issues-project:src/file1.css"),
-        tuple("css:S4651", "css-issues-project:src/file1.css"),
-        tuple("css:S4666", "css-issues-project:src/file1.css"),
-        tuple("css:S4670", "css-issues-project:src/file1.css"),
-        tuple("css:S4662", "css-issues-project:src/file1.css"),
-        tuple("css:S4655", "css-issues-project:src/file1.css"),
-        tuple("css:S4658", "css-issues-project:src/file1.css"),
-        tuple("css:S4661", "css-issues-project:src/file1.css"),
-        tuple("css:S1128", "css-issues-project:src/file2.less"),
-        tuple("css:S1116", "css-issues-project:src/file2.less"),
-        tuple("css:S4664", "css-issues-project:src/file2.less"),
-        tuple("css:S4660", "css-issues-project:src/file2.less"),
-        tuple("css:S4659", "css-issues-project:src/file2.less"),
-        tuple("css:S4647", "css-issues-project:src/file2.less"),
-        tuple("css:S4663", "css-issues-project:src/file2.less"),
-        tuple("css:S4652", "css-issues-project:src/file2.less"),
-        tuple("css:S4656", "css-issues-project:src/file2.less"),
-        tuple("css:S4649", "css-issues-project:src/file2.less"),
-        tuple("css:S4648", "css-issues-project:src/file2.less"),
-        tuple("css:S4654", "css-issues-project:src/file2.less"),
-        tuple("css:S4657", "css-issues-project:src/file2.less"),
-        tuple("css:S4650", "css-issues-project:src/file2.less"),
-        tuple("css:S4650", "css-issues-project:src/file2.less"),
-        tuple("css:S4651", "css-issues-project:src/file2.less"),
-        tuple("css:S4666", "css-issues-project:src/file2.less"),
-        tuple("css:S4670", "css-issues-project:src/file2.less"),
-        tuple("css:S4662", "css-issues-project:src/file2.less"),
-        tuple("css:S4655", "css-issues-project:src/file2.less"),
-        tuple("css:S4658", "css-issues-project:src/file2.less"),
-        tuple("css:S4661", "css-issues-project:src/file2.less"),
-        tuple("css:S1128", "css-issues-project:src/file3.scss"),
-        tuple("css:S1116", "css-issues-project:src/file3.scss"),
-        tuple("css:S4664", "css-issues-project:src/file3.scss"),
-        tuple("css:S4660", "css-issues-project:src/file3.scss"),
-        tuple("css:S4659", "css-issues-project:src/file3.scss"),
-        tuple("css:S4647", "css-issues-project:src/file3.scss"),
-        tuple("css:S4663", "css-issues-project:src/file3.scss"),
-        tuple("css:S4652", "css-issues-project:src/file3.scss"),
-        tuple("css:S4656", "css-issues-project:src/file3.scss"),
-        tuple("css:S4649", "css-issues-project:src/file3.scss"),
-        tuple("css:S4648", "css-issues-project:src/file3.scss"),
-        tuple("css:S4654", "css-issues-project:src/file3.scss"),
-        tuple("css:S4657", "css-issues-project:src/file3.scss"),
-        tuple("css:S4650", "css-issues-project:src/file3.scss"),
-        tuple("css:S4650", "css-issues-project:src/file3.scss"),
-        tuple("css:S4651", "css-issues-project:src/file3.scss"),
-        tuple("css:S4666", "css-issues-project:src/file3.scss"),
-        tuple("css:S4670", "css-issues-project:src/file3.scss"),
-        tuple("css:S4662", "css-issues-project:src/file3.scss"),
-        tuple("css:S4655", "css-issues-project:src/file3.scss"),
-        tuple("css:S4658", "css-issues-project:src/file3.scss"),
-        tuple("css:S4661", "css-issues-project:src/file3.scss"),
-        tuple("css:S1116", "css-issues-project:src/file5.htm"),
-        tuple("css:S1116", "css-issues-project:src/file6.vue"),
-        tuple("css:S5362", "css-issues-project:src/file1.css"),
-        tuple("css:S5362", "css-issues-project:src/file2.less"),
-        tuple("css:S5362", "css-issues-project:src/file3.scss"),
-        tuple("css:S1116", "css-issues-project:src/file5-1.html"),
-        tuple("css:S125", "css-issues-project:src/file2.less")
+        tuple("css:S4662", "src/cssModules.css"),
+        tuple("css:S4667", "src/empty1.css"),
+        tuple("css:S4667", "src/empty2.less"),
+        tuple("css:S4667", "src/empty3.scss"),
+        tuple("css:S1128", "src/file1.css"),
+        tuple("css:S1116", "src/file1.css"),
+        tuple("css:S4664", "src/file1.css"),
+        tuple("css:S4660", "src/file1.css"),
+        tuple("css:S4659", "src/file1.css"),
+        tuple("css:S4647", "src/file1.css"),
+        tuple("css:S4663", "src/file1.css"),
+        tuple("css:S4652", "src/file1.css"),
+        tuple("css:S4656", "src/file1.css"),
+        tuple("css:S4649", "src/file1.css"),
+        tuple("css:S4648", "src/file1.css"),
+        tuple("css:S4654", "src/file1.css"),
+        tuple("css:S4657", "src/file1.css"),
+        tuple("css:S4650", "src/file1.css"),
+        tuple("css:S4650", "src/file1.css"),
+        tuple("css:S4668", "src/file1.css"),
+        tuple("css:S4654", "src/file1.css"),
+        tuple("css:S4651", "src/file1.css"),
+        tuple("css:S4666", "src/file1.css"),
+        tuple("css:S4670", "src/file1.css"),
+        tuple("css:S4662", "src/file1.css"),
+        tuple("css:S4655", "src/file1.css"),
+        tuple("css:S4658", "src/file1.css"),
+        tuple("css:S4661", "src/file1.css"),
+        tuple("css:S1128", "src/file2.less"),
+        tuple("css:S1116", "src/file2.less"),
+        tuple("css:S4664", "src/file2.less"),
+        tuple("css:S4660", "src/file2.less"),
+        tuple("css:S4659", "src/file2.less"),
+        tuple("css:S4647", "src/file2.less"),
+        tuple("css:S4663", "src/file2.less"),
+        tuple("css:S4652", "src/file2.less"),
+        tuple("css:S4656", "src/file2.less"),
+        tuple("css:S4649", "src/file2.less"),
+        tuple("css:S4648", "src/file2.less"),
+        tuple("css:S4654", "src/file2.less"),
+        tuple("css:S4657", "src/file2.less"),
+        tuple("css:S4650", "src/file2.less"),
+        tuple("css:S4650", "src/file2.less"),
+        tuple("css:S4651", "src/file2.less"),
+        tuple("css:S4666", "src/file2.less"),
+        tuple("css:S4670", "src/file2.less"),
+        tuple("css:S4662", "src/file2.less"),
+        tuple("css:S4655", "src/file2.less"),
+        tuple("css:S4658", "src/file2.less"),
+        tuple("css:S4661", "src/file2.less"),
+        tuple("css:S1128", "src/file3.scss"),
+        tuple("css:S1116", "src/file3.scss"),
+        tuple("css:S4664", "src/file3.scss"),
+        tuple("css:S4660", "src/file3.scss"),
+        tuple("css:S4659", "src/file3.scss"),
+        tuple("css:S4647", "src/file3.scss"),
+        tuple("css:S4663", "src/file3.scss"),
+        tuple("css:S4652", "src/file3.scss"),
+        tuple("css:S4656", "src/file3.scss"),
+        tuple("css:S4649", "src/file3.scss"),
+        tuple("css:S4648", "src/file3.scss"),
+        tuple("css:S4654", "src/file3.scss"),
+        tuple("css:S4657", "src/file3.scss"),
+        tuple("css:S4650", "src/file3.scss"),
+        tuple("css:S4650", "src/file3.scss"),
+        tuple("css:S4651", "src/file3.scss"),
+        tuple("css:S4666", "src/file3.scss"),
+        tuple("css:S4670", "src/file3.scss"),
+        tuple("css:S4662", "src/file3.scss"),
+        tuple("css:S4655", "src/file3.scss"),
+        tuple("css:S4658", "src/file3.scss"),
+        tuple("css:S4661", "src/file3.scss"),
+        tuple("css:S1116", "src/file5.htm"),
+        tuple("css:S1116", "src/file6.vue"),
+        tuple("css:S5362", "src/file1.css"),
+        tuple("css:S5362", "src/file2.less"),
+        tuple("css:S5362", "src/file3.scss"),
+        tuple("css:S1116", "src/file5-1.html"),
+        tuple("css:S125", "src/file2.less")
       );
   }
 }

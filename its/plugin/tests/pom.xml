@@ -33,6 +33,12 @@
       <artifactId>sonar-orchestrator-junit5</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.sonarsource.scanner.integrationtester</groupId>
+      <artifactId>sonar-scanner-integration-tester</artifactId>
+      <version>0.1.0.142</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
     </dependency>
