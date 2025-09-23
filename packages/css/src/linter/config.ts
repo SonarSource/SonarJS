@@ -20,6 +20,7 @@ import postcssSass from 'postcss-sass';
 import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html';
+import postcssVueConfig from 'stylelint-config-html/vue';
 import { sonarPlugins } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
 
@@ -68,7 +69,7 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
     // explicitly so that no dynamic requires happen at bundle time.
     overrides: [
       {
-        files: postcssHtmlConfig.overrides[0].files,
+        files: [...postcssHtmlConfig.overrides[0].files, ...postcssVueConfig.overrides[0].files],
         customSyntax: postcssHtml({
           scss: postcssScss,
           sass: postcssSass,
