@@ -75,6 +75,18 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
           less: postcssLess,
         }),
       },
+      {
+        files: ['**/*.scss'],
+        customSyntax: postcssScss,
+      },
+      {
+        files: ['**/*.sass'],
+        customSyntax: postcssSass,
+      },
+      {
+        files: ['**/*.less'],
+        customSyntax: postcssLess,
+      },
     ],
     rules: configRules,
     plugins: [...sonarPlugins, ...stylisticPlugins],
