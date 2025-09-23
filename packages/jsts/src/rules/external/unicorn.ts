@@ -15,4 +15,5 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-export const rules = eslintPluginUnicorn.rules!;
+import type { Rule } from 'eslint';
+export const rules: Record<string, Rule.RuleModule> = eslintPluginUnicorn.rules!;
