@@ -19,6 +19,7 @@ package com.sonar.javascript.it.plugin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
@@ -29,7 +30,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -44,6 +44,7 @@ class CssIssuesTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
+    .withEngineVersion(EngineVersion.latestRelease())
     .withLanguage(
       CssLanguage.KEY,
       "CSS",
@@ -52,7 +53,7 @@ class CssIssuesTest {
     )
     .withLanguage(
       JavaScriptLanguage.KEY,
-      "JavaScript",
+      "JAVASCRIPT",
       JavaScriptLanguage.FILE_SUFFIXES_KEY,
       JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
@@ -64,21 +65,6 @@ class CssIssuesTest {
     )
     .withActiveRules(getActiveRules())
     .build();
-
-  private static final ScannerInput build = ScannerInput.create(
-    PROJECT_KEY,
-    Path.of("..", "projects", PROJECT_KEY)
-  )
-    .withSourceDirs("src")
-    .withScannerProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css")
-    .build();
-
-  private static ScannerResult result;
-
-  @BeforeAll
-  static void setUp() {
-    result = ScannerRunner.run(SERVER_CONTEXT, build);
-  }
 
   private static List<SonarServerContext.ActiveRule> getActiveRules() {
     return CssRules.getRuleClasses()
@@ -113,7 +99,18 @@ class CssIssuesTest {
   }
 
   @Test
-  void parsing_error_not_on_excluded_files() {
+  void test() {
+    ScannerInput build = ScannerInput.create(PROJECT_KEY, Path.of("..", "projects", PROJECT_KEY))
+      .withSourceDirs("src")
+      .withScannerProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css")
+      .build();
+
+    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    checkIssues(result);
+    parsingErrorsNotExcluded(result);
+  }
+
+  void parsingErrorsNotExcluded(ScannerResult result) {
     assertThat(
       result
         .logOutput()
@@ -135,8 +132,7 @@ class CssIssuesTest {
     );
   }
 
-  @Test
-  void issue_list() {
+  void checkIssues(ScannerResult result) {
     var issuesList = result
       .scannerOutputReader()
       .getProject()
