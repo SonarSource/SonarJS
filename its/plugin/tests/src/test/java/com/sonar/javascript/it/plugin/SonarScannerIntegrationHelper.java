@@ -22,6 +22,8 @@ import shadow.com.sonar.orchestrator.locator.MavenLocation;
 
 public final class SonarScannerIntegrationHelper {
 
+  static final String LITS_VERSION = "0.11.0.2659";
+
   public static FileLocation getJavascriptPlugin() {
     return FileLocation.byWildcardMavenFilename(
       new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
@@ -35,5 +37,9 @@ public final class SonarScannerIntegrationHelper {
 
   public static MavenLocation getHtmlPlugin() {
     return MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE");
+  }
+
+  public static MavenLocation getLitsPlugin() {
+    return MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION);
   }
 }
