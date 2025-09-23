@@ -29,11 +29,13 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class CssIssuesTest {
@@ -47,6 +49,12 @@ class CssIssuesTest {
       "CSS",
       CssLanguage.FILE_SUFFIXES_KEY,
       CssLanguage.DEFAULT_FILE_SUFFIXES
+    )
+    .withLanguage(
+      JavaScriptLanguage.KEY,
+      "JavaScript",
+      JavaScriptLanguage.FILE_SUFFIXES_KEY,
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
     .withPlugin(
       FileLocation.byWildcardMavenFilename(
@@ -63,9 +71,14 @@ class CssIssuesTest {
   )
     .withSourceDirs("src")
     .withScannerProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css")
-    .withVerbose()
     .build();
-  private static final ScannerResult result = ScannerRunner.run(SERVER_CONTEXT, build);
+
+  private static ScannerResult result;
+
+  @BeforeAll
+  static void setUp() {
+    result = ScannerRunner.run(SERVER_CONTEXT, build);
+  }
 
   private static List<SonarServerContext.ActiveRule> getActiveRules() {
     return CssRules.getRuleClasses()
