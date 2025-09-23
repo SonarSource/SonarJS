@@ -16,78 +16,100 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.setEmptyProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.Log;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues.Issue;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 
-@ExtendWith(OrchestratorStarter.class)
 class EslintReportTest {
-
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final String PROJECT_KEY_PREFIX = "SonarJS-eslint-report-test";
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
 
+  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
+    .withProduct(SonarServerContext.Product.SERVER)
+    .withEngineVersion(EngineVersion.latestMasterBuild())
+    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
+    .withLanguage(
+      TypeScriptLanguage.KEY,
+      "TYPESCRIPT",
+      TypeScriptLanguage.FILE_SUFFIXES_KEY,
+      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
+    )
+    .withLanguage(
+      JavaScriptLanguage.KEY,
+      "JAVASCRIPT",
+      JavaScriptLanguage.FILE_SUFFIXES_KEY,
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+    )
+    .build();
+
   @Test
   void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR.toPath())
+      .withSourceDirs("src")
+      .withScmDisabled()
+      .withScannerProperty("sonar.eslint.reportPaths", "report.json")
+      .build();
 
-    SonarScanner build = OrchestratorStarter.createScanner()
-      .setProjectDir(PROJECT_DIR)
-      .setProjectKey(projectKey)
-      .setProjectName(projectKey)
-      .setProjectVersion("1.0")
-      .setSourceDirs("src");
-
-    setEmptyProfile(projectKey);
-    build.setProperty("sonar.eslint.reportPaths", "report.json");
-    orchestrator.executeBuild(build);
-
-    assertIssues(projectKey);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    try {
+      assertIssues(result.scannerOutputReader().getProject().getAllIssues());
+    } catch (UnsupportedOperationException e) {
+      System.out.print(e.toString());
+    }
   }
 
   @Test
   void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
-    String projectKey = PROJECT_KEY_PREFIX + "-absolute";
-    SonarScanner build = OrchestratorStarter.createScanner()
-      .setProjectDir(PROJECT_DIR)
-      .setProjectKey(projectKey)
-      .setProjectName(projectKey)
-      .setProjectVersion("1.0")
-      .setSourceDirs("src");
-
-    setEmptyProfile(projectKey);
-
     File reportWithRelativePaths = new File(PROJECT_DIR, "report.json");
     File reportWithAbsolutePaths = new File(PROJECT_DIR, "report_absolute_paths.json");
     createReportWithAbsolutePaths(reportWithRelativePaths, reportWithAbsolutePaths);
 
-    build.setProperty("sonar.eslint.reportPaths", reportWithAbsolutePaths.getAbsolutePath());
-    orchestrator.executeBuild(build);
+    String projectKey = PROJECT_KEY_PREFIX + "-absolute";
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR.toPath())
+      .withSourceDirs("src")
+      .withScmDisabled()
+      .withScannerProperty("sonar.eslint.reportPaths", reportWithAbsolutePaths.getAbsolutePath())
+      .build();
 
-    assertIssues(projectKey);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    assertIssues(result.scannerOutputReader().getProject().getAllIssues());
 
     Files.delete(reportWithAbsolutePaths.toPath());
   }
 
-  private void assertIssues(String projectKey) {
-    List<Issue> jsIssuesList = getIssues(projectKey + ":src/file.js");
-    List<Issue> tsIssuesList = getIssues(projectKey + ":src/file.ts");
+  private void assertIssues(List<ScannerOutputReader.Issue> issues) {
+    var fileIssues = issues
+      .stream()
+      .filter(ScannerOutputReader.FileIssue.class::isInstance)
+      .map(ScannerOutputReader.FileIssue.class::cast)
+      .toList();
+    List<ScannerOutputReader.FileIssue> jsIssuesList = fileIssues
+      .stream()
+      .filter(issue -> issue.componentPath().equals("src/file.js"))
+      .toList();
+    List<ScannerOutputReader.FileIssue> tsIssuesList = fileIssues
+      .stream()
+      .filter(issue -> issue.componentPath().equals("src/file.ts"))
+      .toList();
 
     assertThat(jsIssuesList)
-      .extracting(Issue::getLine, Issue::getRule)
+      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
@@ -97,7 +119,7 @@ class EslintReportTest {
       );
 
     assertThat(tsIssuesList)
-      .extracting(Issue::getLine, Issue::getRule)
+      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
