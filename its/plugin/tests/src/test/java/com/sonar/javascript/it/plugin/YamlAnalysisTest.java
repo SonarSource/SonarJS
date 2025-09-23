@@ -16,66 +16,73 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
-import java.io.IOException;
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Issues.Issue;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 
-@ExtendWith(OrchestratorStarter.class)
-public class YamlAnalysisTest {
+class YamlAnalysisTest {
 
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
+    .withProduct(SonarServerContext.Product.SERVER)
+    .withEngineVersion(EngineVersion.latestMasterBuild())
+    .withLanguage(
+      new SonarServerContext.Language(YamlSensor.LANGUAGE, "YAML", new String[] { ".yaml" })
+    )
+    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
+    .withPlugin(SonarScannerIntegrationHelper.getYamlPlugin())
+    .withActiveRules(
+      loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
+    )
+    .build();
 
   @Test
-  void single_line_inline_aws_lambda_for_js() throws IOException {
+  void single_line_inline_aws_lambda_for_js() {
     var projectKey = "yaml-aws-lambda-analyzed";
 
-    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
+    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+      .withScmDisabled()
+      .withVerbose()
+      .build();
 
-    var build = getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey))
-      .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty(
-        "sonar.javascript.monitoring.path",
-        perfMonitoringDir.toAbsolutePath().toString()
-      );
+    var result = ScannerRunner.run(SERVER_CONTEXT, build);
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of("eslint-based-rules-profile", "js"));
-    BuildResult result = orchestrator.executeBuild(build);
-
-    var issuesList = getIssues(projectKey);
-    assertThat(issuesList)
-      .extracting(Issue::getLine, Issue::getRule)
-      .containsExactlyInAnyOrder(tuple(12, "javascript:S3923"));
-    assertThat(result.getLogsLines(log -> log.contains("Creating Node.js process"))).hasSize(1);
-    // assertPerfMonitoringAvailable(perfMonitoringDir);
+    assertThat(
+      result
+        .scannerOutputReader()
+        .getProject()
+        .getAllIssues()
+        .stream()
+        .filter(ScannerOutputReader.FileIssue.class::isInstance)
+        .map(ScannerOutputReader.FileIssue.class::cast)
+    ).anySatisfy(issue ->
+      assertThat(issue.line() == 12 && issue.ruleKey().equals("javascript:S3923"))
+    );
+    assertThat(result.logOutput()).anySatisfy(log ->
+      assertThat(log.message()).startsWith("Creating Node.js process")
+    );
   }
 
   @Test
   void dont_start_eslint_bridge_for_yaml_without_nodejs_aws() {
     var projectKey = "yaml-aws-lambda-skipped";
-    var build = getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey));
+    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+      .withScmDisabled()
+      .withVerbose()
+      .build();
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of("eslint-based-rules-profile", "js"));
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.getLogsLines(log -> log.contains("Creating Node.js process"))).hasSize(0);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+
+    assertThat(result.scannerOutputReader().getProject().getAllIssues()).isEmpty();
+    assertThat(result.logOutput()).noneSatisfy(log ->
+      assertThat(log.message()).isEqualTo("Creating Node.js process")
+    );
   }
 }

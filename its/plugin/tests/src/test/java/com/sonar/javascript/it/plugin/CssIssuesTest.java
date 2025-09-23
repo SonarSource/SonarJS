@@ -26,7 +26,6 @@ import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.sonar.check.RuleProperty;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class CssIssuesTest {
 
@@ -57,12 +55,7 @@ class CssIssuesTest {
       JavaScriptLanguage.FILE_SUFFIXES_KEY,
       JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
-    .withPlugin(
-      FileLocation.byWildcardMavenFilename(
-        new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
-        "sonar-javascript-plugin-*-multi.jar"
-      )
-    )
+    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
     .withActiveRules(getActiveRules())
     .build();
 

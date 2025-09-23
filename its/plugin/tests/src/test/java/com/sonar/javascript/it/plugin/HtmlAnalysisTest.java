@@ -16,51 +16,62 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonar.orchestrator.Orchestrator;
-import java.util.Map;
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
+import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Issues.Issue;
 
-@ExtendWith(OrchestratorStarter.class)
 class HtmlAnalysisTest {
 
-  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
+  private SonarServerContext getServerContext(List<String> profiles) {
+    var result = SonarServerContext.builder()
+      .withProduct(SonarServerContext.Product.SERVER)
+      .withEngineVersion(EngineVersion.latestMasterBuild())
+      .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
+      .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
+      .withPlugin(SonarScannerIntegrationHelper.getHtmlPlugin());
+    for (var profile : profiles) {
+      result.withActiveRules(
+        loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", profile))
+      );
+    }
+    return result.build();
+  }
 
   @Test
   void should_raise_issues_in_html_files() {
     var projectKey = "html-project";
     var uniqueProjectKey = projectKey + UUID.randomUUID();
-    var build = getSonarScanner()
-      .setProjectKey(uniqueProjectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey));
 
-    OrchestratorStarter.setProfiles(
-      uniqueProjectKey,
-      Map.of("html-profile", "web", "eslint-based-rules-profile", "js")
-    );
-    orchestrator.executeBuild(build);
+    var build = ScannerInput.create(uniqueProjectKey, TestUtils.projectDir(projectKey).toPath())
+      .withScmDisabled()
+      .build();
 
-    var issuesList = getIssues(uniqueProjectKey);
+    var serverContext = getServerContext(List.of("html-profile.xml", "eslint-based-rules.xml"));
+    var result = ScannerRunner.run(serverContext, build);
+    var issues = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
+      .stream()
+      .filter(ScannerOutputReader.FileIssue.class::isInstance)
+      .map(ScannerOutputReader.FileIssue.class::cast)
+      .toList();
 
-    Common.TextRange primaryLocation = issuesList.get(2).getTextRange();
-    // S3834 no longer reports secondaryLocation
-
-    assertThat(primaryLocation.getStartOffset()).isEqualTo(19);
-    assertThat(primaryLocation.getEndOffset()).isEqualTo(25);
-
-    assertThat(issuesList)
-      .extracting(Issue::getLine, Issue::getRule)
+    assertThat(issues).hasSize(3);
+    var issue = issues.get(2);
+    assertThat(issue.range()).isEqualTo(new ScannerOutputReader.TextRange(7, 7, 19, 25));
+    assertThat(issues)
+      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923"),
@@ -71,23 +82,23 @@ class HtmlAnalysisTest {
   @Test
   void should_not_raise_issues_for_blacklisted_rules() {
     var projectKey = "html-project-blacklisted-rules";
-    var build = getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey));
+    var build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+      .withScmDisabled()
+      .build();
 
-    OrchestratorStarter.setProfiles(
-      projectKey,
-      Map.of("html-profile", "web", "html-blacklist-profile", "js")
-    );
-    orchestrator.executeBuild(build);
+    var serverContext = getServerContext(List.of("html-blacklist-profile.xml", "html-profile.xml"));
+    var result = ScannerRunner.run(serverContext, build);
+    var issues = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
+      .stream()
+      .filter(ScannerOutputReader.FileIssue.class::isInstance)
+      .map(ScannerOutputReader.FileIssue.class::cast)
+      .toList();
 
-    var issuesList = getIssues(projectKey);
-
-    assertThat(issuesList)
-      .extracting(Issue::getLine, Issue::getRule)
+    assertThat(issues)
+      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923")
