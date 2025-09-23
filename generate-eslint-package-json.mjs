@@ -33,6 +33,7 @@ const eslintPluginDependencies = [
 
 const fixedVersions = {
   typescript: '>=5',
+  'builtin-modules': '3.3.0',
 };
 
 const mainPackageJson = JSON.parse(
