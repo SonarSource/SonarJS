@@ -16,7 +16,14 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
 import shadow.com.sonar.orchestrator.locator.FileLocation;
 import shadow.com.sonar.orchestrator.locator.MavenLocation;
 
@@ -41,5 +48,37 @@ public final class SonarScannerIntegrationHelper {
 
   public static MavenLocation getLitsPlugin() {
     return MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION);
+  }
+
+  public static List<SonarServerContext.ActiveRule> getAllCSSRules() {
+    return CssRules.getRuleClasses()
+      .stream()
+      .map(cssClass -> {
+        var key = cssClass.getAnnotation(Rule.class).key();
+        var params = Arrays.stream(cssClass.getDeclaredFields())
+          .flatMap(field ->
+            Arrays.stream(field.getAnnotationsByType(RuleProperty.class)).map(ruleProperty ->
+              new SonarServerContext.ActiveRule.Param(
+                ruleProperty.key(),
+                ruleProperty.defaultValue()
+              )
+            )
+          )
+          .toArray(SonarServerContext.ActiveRule.Param[]::new);
+        if (key.equals("S4660")) {
+          params = new SonarServerContext.ActiveRule.Param[] {
+            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/"),
+          };
+        }
+
+        return new SonarServerContext.ActiveRule(
+          new SonarServerContext.ActiveRule.RuleKey(CssLanguage.KEY, key),
+          key,
+          SonarServerContext.ActiveRule.Severity.INFO,
+          CssLanguage.KEY,
+          params
+        );
+      })
+      .toList();
   }
 }

@@ -27,13 +27,8 @@ import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.css.CssLanguage;
-import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 class CssIssuesTest {
@@ -56,40 +51,8 @@ class CssIssuesTest {
       JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withActiveRules(getActiveRules())
+    .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
     .build();
-
-  private static List<SonarServerContext.ActiveRule> getActiveRules() {
-    return CssRules.getRuleClasses()
-      .stream()
-      .map(cssClass -> {
-        var key = cssClass.getAnnotation(Rule.class).key();
-        var params = Arrays.stream(cssClass.getDeclaredFields())
-          .flatMap(field ->
-            Arrays.stream(field.getAnnotationsByType(RuleProperty.class)).map(ruleProperty ->
-              new SonarServerContext.ActiveRule.Param(
-                ruleProperty.key(),
-                ruleProperty.defaultValue()
-              )
-            )
-          )
-          .toArray(SonarServerContext.ActiveRule.Param[]::new);
-        if (key.equals("S4660")) {
-          params = new SonarServerContext.ActiveRule.Param[] {
-            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/"),
-          };
-        }
-
-        return new SonarServerContext.ActiveRule(
-          new SonarServerContext.ActiveRule.RuleKey(CssLanguage.KEY, key),
-          key,
-          SonarServerContext.ActiveRule.Severity.INFO,
-          CssLanguage.KEY,
-          params
-        );
-      })
-      .toList();
-  }
 
   @Test
   void test() {
