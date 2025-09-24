@@ -101,13 +101,12 @@ await esbuild.build({
         ['__require("@typescript-eslint/types")', 'require("@typescript-eslint/types")'],
       ],
     }),
-    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
+    // Remove createRequires
     textReplace({
       include:
         /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
       pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
     }),
-    // Remove createRequire from rolldown, used by tsdown, used by @stylistic
     textReplace({
       include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data-patch\.js$/,
       pattern: [['const require = createRequire(import.meta.url);', '']],
@@ -135,36 +134,14 @@ await esbuild.build({
         ],
       ],
     }),
-    // the html extractor for stylelint calls a "loadSyntax" function in postcss-syntax/load-syntax.js
-    // That function has a dynamic require which always resolves to same dependencies given
-    // our stylelint options.
-    textReplace({
-      include: /node_modules[\/\\]postcss-html[\/\\]extract\.js$/,
-      pattern: [
-        [
-          //https://github.com/ota-meshi/postcss-html/blob/v0.36.0/extract.js#L108
-          'style.syntax = loadSyntax(opts, __dirname);',
-          `style.syntax = {
-            parse: require("postcss-html/template-parse"), 
-            stringify: require("postcss/lib/stringify")
-          }; 
-          opts.syntax.config["css"] = {
-            stringify: require("postcss/lib/stringify"),
-            parse: require("postcss/lib/parse")
-          }`,
-          // ^^ modifying "opts.syntax.config" is a side effect done in postcss-syntax/get-syntax.js
-        ],
-      ],
-    }),
     // The comparison by constructor name made by stylelint is not valid in the bundle because
     // the Document object is named differently. We need to compare constructor object directly
     textReplace({
-      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.js$/,
+      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.mjs$/,
       pattern: [
         [
-          // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
-          "postcssDoc && postcssDoc.constructor === require('postcss-syntax/document') ? postcssDoc.nodes : [postcssDoc]",
+          "postcssDoc && postcssDoc.constructor.name === require('postcss').Document.name ? postcssDoc.nodes : [postcssDoc]",
         ],
       ],
     }),
@@ -173,7 +150,6 @@ await esbuild.build({
       include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]FileCache.mjs$/,
       pattern: [
         [
-          // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
           "JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));",
           stylelintPkgJson,
         ],
