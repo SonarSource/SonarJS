@@ -41,11 +41,10 @@
             <phase>generate-resources</phase>
             <configuration>
               <executable>npm</executable>
+              <basedir>${project.build.outputDirectory}</basedir>
               <arguments>
                 <argument>pack</argument>
                 <argument>${project.basedir}/bundle</argument>
-                <argument>--pack-destination</argument>
-                <argument>${project.build.outputDirectory}</argument>
               </arguments>
             </configuration>
             <goals>
