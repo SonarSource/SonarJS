@@ -19,7 +19,6 @@ package com.sonar.javascript.it.plugin;
 import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
@@ -30,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class TypeScriptRuleTest {
 
