@@ -34,7 +34,7 @@ await esbuild.build({
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
-  //minify: true,
+  minify: true,
   plugins: [
     textReplace({
       include: /server\.mjs$/,
@@ -68,9 +68,7 @@ await esbuild.build({
       include:
         /node_modules[\/\\]postcss-html[\/\\]lib[\/\\]syntax[\/\\]build-syntax-resolver\.js$/,
       pattern: [
-        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L56
         ['sugarss: () => require("sugarss"),', ''],
-        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L781
         ['"postcss-styl": () => require("postcss-styl"),', ''],
       ],
     }),
