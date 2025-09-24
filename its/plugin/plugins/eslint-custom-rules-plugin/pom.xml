@@ -41,7 +41,7 @@
             <phase>generate-resources</phase>
             <configuration>
               <executable>npm</executable>
-              <basedir>${project.build.outputDirectory}</basedir>
+              <basedir>target/classes</basedir>
               <arguments>
                 <argument>pack</argument>
                 <argument>${project.basedir}/bundle</argument>
