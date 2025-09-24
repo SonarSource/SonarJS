@@ -179,7 +179,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn clean package -f its/plugin/plugins/pom.xml
+    - mvn package -f its/plugin/plugins/pom.xml
     - mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
     - mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
 
