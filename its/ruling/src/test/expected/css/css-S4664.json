@@ -1112,11 +1112,8 @@
 70
 ],
 "project:projects/bulma-0.9.2/docs/_sass/example.sass": [
-36,
-100,
-100,
-107,
-107,
+102,
+108,
 111,
 140,
 148,
@@ -1125,15 +1122,13 @@
 211,
 213,
 227,
-238,
 248,
 253
 ],
 "project:projects/bulma-0.9.2/docs/_sass/expo.sass": [
 29,
 33,
-50,
-55
+50
 ],
 "project:projects/bulma-0.9.2/docs/_sass/footer.sass": [
 170
@@ -1151,28 +1146,24 @@
 30,
 108,
 164,
-164,
+165,
 172,
 175,
 246,
-252,
+253,
 256,
-304,
 328,
 335,
 365,
 384,
-386,
-399
+386
 ],
 "project:projects/bulma-0.9.2/docs/_sass/love.sass": [
 88
 ],
 "project:projects/bulma-0.9.2/docs/_sass/main.sass": [
 55,
-141,
 142,
-156,
 162,
 184,
 214
@@ -1944,22 +1935,6 @@
 16059,
 16069
 ],
-"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-flagged.css": [
-448,
-485
-],
-"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-important.css": [
-448,
-485
-],
-"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-no-color-opacity.css": [
-448,
-485
-],
-"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output.css": [
-448,
-485
-],
 "project:projects/bulma-0.9.2/sass/base/generic.sass": [
 114,
 144
@@ -1973,8 +1948,6 @@
 35,
 50,
 51,
-55,
-55,
 64,
 74
 ],
@@ -2003,9 +1976,8 @@
 89,
 98,
 99,
-104,
 122,
-122,
+123,
 137,
 139
 ],
@@ -2021,7 +1993,7 @@
 ],
 "project:projects/bulma-0.9.2/sass/elements/button.sass": [
 106,
-259,
+260,
 291
 ],
 "project:projects/bulma-0.9.2/sass/elements/content.sass": [
@@ -2032,26 +2004,22 @@
 95,
 111,
 120,
-133,
-138
+134,
+139
 ],
 "project:projects/bulma-0.9.2/sass/elements/table.sass": [
 77,
-77,
+78,
 83,
-83,
+84,
 96,
-96,
-99,
+97,
 119,
-119,
-123,
-124,
+120,
 125
 ],
 "project:projects/bulma-0.9.2/sass/elements/tag.sass": [
 32,
-37,
 38,
 40,
 61
@@ -2063,10 +2031,8 @@
 114,
 116,
 121,
-128,
 129,
 132,
-134,
 135,
 138,
 150,
@@ -2081,30 +2047,33 @@
 72
 ],
 "project:projects/bulma-0.9.2/sass/form/tools.sass": [
-69,
-69,
-69,
-72,
-72,
-72,
-91,
 97,
-99,
-111,
 163,
-172,
-172,
-174,
-174,
 183,
 183,
 192,
-192,
+193,
 198,
-198
+199
 ],
 "project:projects/bulma-0.9.2/sass/layout/hero.sass": [
 146
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-flagged.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-important.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-no-color-opacity.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output.css": [
+448,
+485
 ],
 "project:projects/tailwindcss-2.0.3/src/plugins/css/preflight.css": [
 148,

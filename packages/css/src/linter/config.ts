@@ -19,8 +19,8 @@ import postcssHtml from 'postcss-html';
 import postcssSass from 'postcss-sass';
 import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
-import postcssHtmlConfig from 'stylelint-config-html/html';
-import postcssVueConfig from 'stylelint-config-html/vue';
+import postcssHtmlConfig from 'stylelint-config-html/html.js';
+import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarPlugins } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
 
