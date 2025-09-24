@@ -76,7 +76,7 @@ class ExternalTSConfigDependencyTest {
         )
     );
 
-    File rootDrive = PROJECT_DIR;
+    File rootDrive = PROJECT_DIR.toFile();
     while (rootDrive.getParentFile() != null) {
       rootDrive = rootDrive.getParentFile();
     }

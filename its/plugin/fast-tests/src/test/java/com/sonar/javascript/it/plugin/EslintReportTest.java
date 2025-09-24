@@ -76,12 +76,12 @@ class EslintReportTest {
 
   @Test
   void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
-    File reportWithRelativePaths = new File(PROJECT_DIR, "report.json");
-    File reportWithAbsolutePaths = new File(PROJECT_DIR, "report_absolute_paths.json");
+    File reportWithRelativePaths = new File(PROJECT_DIR.toFile(), "report.json");
+    File reportWithAbsolutePaths = new File(PROJECT_DIR.toFile(), "report_absolute_paths.json");
     createReportWithAbsolutePaths(reportWithRelativePaths, reportWithAbsolutePaths);
 
     String projectKey = PROJECT_KEY_PREFIX + "-absolute";
-    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR.toPath())
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR)
       .withSourceDirs("src")
       .withScmDisabled()
       .withScannerProperty("sonar.eslint.reportPaths", reportWithAbsolutePaths.getAbsolutePath())
@@ -139,7 +139,10 @@ class EslintReportTest {
       .stream()
       .map(s -> {
         if (s.contains(prefix)) {
-          File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
+          File file = new File(
+            PROJECT_DIR.toFile(),
+            "src/file." + (s.contains(".js") ? "js" : "ts")
+          );
           String absolutePath = file.getAbsolutePath();
           if (System.getProperty("os.name").startsWith("Windows")) {
             // FIXME https://sonarsource.atlassian.net/browse/JS-747 import of ESLint report with absolute path containing lower-case drive letter does not work for SQ Developer Edition and above

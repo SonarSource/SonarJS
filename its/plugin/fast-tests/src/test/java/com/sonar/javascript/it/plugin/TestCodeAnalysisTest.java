@@ -20,69 +20,61 @@ import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLo
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
-class YamlAnalysisTest {
+class TestCodeAnalysisTest {
+
+  private static final String PROJECT = "test-code-project";
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
     .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withLanguage(
-      new SonarServerContext.Language(YamlSensor.LANGUAGE, "YAML", new String[] { ".yaml" })
-    )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withPlugin(SonarScannerIntegrationHelper.getYamlPlugin())
+    .withLanguage(
+      JavaScriptLanguage.KEY,
+      "JAVASCRIPT",
+      JavaScriptLanguage.FILE_SUFFIXES_KEY,
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+    )
     .withActiveRules(
-      loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
+      loadActiveRulesFromXmlProfile(
+        Path.of("src", "test", "resources", "test-eslint-based-rules.xml")
+      )
     )
     .build();
 
   @Test
-  void single_line_inline_aws_lambda_for_js() {
-    var projectKey = "yaml-aws-lambda-analyzed";
-
-    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey))
+  void sonarqube() {
+    String sourceDir = "src";
+    String testDir = "test";
+    ScannerInput build = ScannerInput.create(PROJECT, TestUtils.projectDir(PROJECT))
       .withScmDisabled()
-      .withVerbose()
+      .withSourceDirs(sourceDir)
+      .withTestDirs(testDir)
       .build();
 
     var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var issues = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
+      .stream()
+      .filter(ScannerOutputReader.FileIssue.class::isInstance)
+      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(issue -> issue.ruleKey().equals("javascript:S1848"))
+      .toList();
 
-    assertThat(
-      result
-        .scannerOutputReader()
-        .getProject()
-        .getAllIssues()
-        .stream()
-        .filter(ScannerOutputReader.FileIssue.class::isInstance)
-        .map(ScannerOutputReader.FileIssue.class::cast)
-    ).anySatisfy(issue ->
-      assertThat(issue.line() == 12 && issue.ruleKey().equals("javascript:S3923"))
-    );
-    assertThat(result.logOutput()).anySatisfy(log ->
-      assertThat(log.message()).startsWith("Creating Node.js process")
-    );
-  }
-
-  @Test
-  void dont_start_eslint_bridge_for_yaml_without_nodejs_aws() {
-    var projectKey = "yaml-aws-lambda-skipped";
-    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey))
-      .withScmDisabled()
-      .withVerbose()
-      .build();
-
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
-
-    assertThat(result.scannerOutputReader().getProject().getAllIssues()).isEmpty();
-    assertThat(result.logOutput()).noneSatisfy(log ->
-      assertThat(log.message()).isEqualTo("Creating Node.js process")
-    );
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).componentPath()).isEqualTo("src/file.js");
+    assertThat(result.logOutput())
+      .extracting(Log::message)
+      .contains("2 source files to be analyzed");
   }
 }
