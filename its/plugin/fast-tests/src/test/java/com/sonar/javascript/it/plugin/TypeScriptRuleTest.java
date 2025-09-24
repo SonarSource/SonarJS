@@ -23,7 +23,6 @@ import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +33,7 @@ import shadow.com.sonar.orchestrator.locator.FileLocation;
 class TypeScriptRuleTest {
 
   private static final String PROJECT_KEY = "ts-rule-project";
-  private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
+  private static final Path PROJECT_DIR = TestUtils.projectDir(PROJECT_KEY);
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
@@ -56,9 +55,9 @@ class TypeScriptRuleTest {
 
   @Test
   void test() throws Exception {
-    ExpectedIssues.parseForExpectedIssues(PROJECT_KEY, PROJECT_DIR.toPath());
+    ExpectedIssues.parseForExpectedIssues(PROJECT_KEY, PROJECT_DIR);
 
-    ScannerInput build = ScannerInput.create(PROJECT_KEY, PROJECT_DIR.toPath())
+    ScannerInput build = ScannerInput.create(PROJECT_KEY, PROJECT_DIR)
       .withScmDisabled()
       .withScannerProperty(
         "sonar.lits.dump.old",

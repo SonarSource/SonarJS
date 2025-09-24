@@ -16,20 +16,19 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
-import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
-class MultiTsconfigTest {
+class TslintExternalReportTest {
+
+  private static final String PROJECT_KEY = "SonarJS-tslint-report-test";
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
@@ -41,22 +40,17 @@ class MultiTsconfigTest {
       TypeScriptLanguage.FILE_SUFFIXES_KEY,
       TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "ts-eslint-based-rules.xml")
-      )
-    )
     .build();
 
-  private static final String PROJECT = "multi-tsconfig-test-project";
-  private static final Path PROJECT_DIR = TestUtils.projectDir(PROJECT);
-
   @Test
-  void test() {
-    ScannerInput build = ScannerInput.create(PROJECT, PROJECT_DIR)
-      // setting inclusions like this will exclude tsconfig.json files, which is what we want to test
-      .withScannerProperty("sonar.inclusions", "**/*.ts")
+  void should_save_issues_from_external_report() {
+    ScannerInput build = ScannerInput.create(
+      PROJECT_KEY,
+      TestUtils.projectDir("tslint-report-project")
+    )
+      .withSourceDirs("src")
       .withScmDisabled()
+      .withScannerProperty("sonar.typescript.tslint.reportPaths", "report.json")
       .build();
 
     var result = ScannerRunner.run(SERVER_CONTEXT, build);
@@ -70,15 +64,15 @@ class MultiTsconfigTest {
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(ScannerOutputReader.FileIssue::line)
+      .containsExactlyInAnyOrder(3, 5, 5, 7);
+    assertThat(issues)
+      .extracting(ScannerOutputReader.FileIssue::ruleKey)
       .containsExactlyInAnyOrder(
-        tuple(4, "src/bar/main.ts"),
-        tuple(3, "src/dir1/main.ts"),
-        tuple(3, "src/dir2/main.ts"),
-        tuple(3, "src/foo/main.ts"),
-        // following are detected because we analyze files not included in tsconfig
-        tuple(4, "src/bar/excluded/main.ts"),
-        tuple(4, "src/excluded/main.ts")
+        "external_tslint_repo:no-unused-expression",
+        "external_tslint_repo:prefer-const",
+        "external_tslint_repo:semicolon",
+        "external_tslint_repo:curly"
       );
   }
 }

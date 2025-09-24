@@ -41,10 +41,7 @@ class CssNoCssFileProjectTest {
 
   @Test
   void test() {
-    ScannerInput build = ScannerInput.create(
-      PROJECT_KEY,
-      TestUtils.projectDir(PROJECT_KEY).toPath()
-    )
+    ScannerInput build = ScannerInput.create(PROJECT_KEY, TestUtils.projectDir(PROJECT_KEY))
       .withSourceDirs("src")
       .withScmDisabled()
       .build();

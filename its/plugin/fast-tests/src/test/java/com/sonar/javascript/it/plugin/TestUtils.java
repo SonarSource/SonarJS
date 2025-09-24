@@ -40,12 +40,12 @@ public class TestUtils {
     return HOME;
   }
 
-  public static File projectDirNoCopy(String projectName) {
+  public static Path projectDirNoCopy(String projectName) {
     var projectDir = homeDir().toPath().resolve("projects/" + projectName);
     if (!Files.exists(projectDir)) {
       throw new IllegalStateException("Invalid project directory " + projectDir);
     }
-    return projectDir.toFile();
+    return projectDir;
   }
 
   /**
@@ -55,12 +55,12 @@ public class TestUtils {
    * @return the path to the temporary directory
    *
    */
-  public static File projectDir(String projectName) {
-    var projectDir = projectDirNoCopy(projectName).toPath();
+  public static Path projectDir(String projectName) {
+    var projectDir = projectDirNoCopy(projectName);
     try {
       Path tmpProjectDir = createTempDirForProject(projectName);
       copyFolder(projectDir, tmpProjectDir);
-      return tmpProjectDir.toFile();
+      return tmpProjectDir;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

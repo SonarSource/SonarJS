@@ -23,7 +23,6 @@ import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
-import java.io.File;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -45,15 +44,13 @@ class NoSonarTest {
     )
     .build();
 
-  private static final File PROJECT_DIR = TestUtils.projectDir("nosonar");
+  private static final Path PROJECT_DIR = TestUtils.projectDir("nosonar");
 
   @Test
   void test() {
     String projectKey = "nosonar-project";
 
-    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR.toPath())
-      .withScmDisabled()
-      .build();
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR).withScmDisabled().build();
 
     var issues = ScannerRunner.run(SERVER_CONTEXT, build)
       .scannerOutputReader()

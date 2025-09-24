@@ -47,7 +47,7 @@ class YamlAnalysisTest {
   void single_line_inline_aws_lambda_for_js() {
     var projectKey = "yaml-aws-lambda-analyzed";
 
-    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey))
       .withScmDisabled()
       .withVerbose()
       .build();

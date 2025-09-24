@@ -52,7 +52,7 @@ class HtmlAnalysisTest {
     var projectKey = "html-project";
     var uniqueProjectKey = projectKey + UUID.randomUUID();
 
-    var build = ScannerInput.create(uniqueProjectKey, TestUtils.projectDir(projectKey).toPath())
+    var build = ScannerInput.create(uniqueProjectKey, TestUtils.projectDir(projectKey))
       .withScmDisabled()
       .build();
 
@@ -82,7 +82,7 @@ class HtmlAnalysisTest {
   @Test
   void should_not_raise_issues_for_blacklisted_rules() {
     var projectKey = "html-project-blacklisted-rules";
-    var build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+    var build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey))
       .withScmDisabled()
       .build();
 

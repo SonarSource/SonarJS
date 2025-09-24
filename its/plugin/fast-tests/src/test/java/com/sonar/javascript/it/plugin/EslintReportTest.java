@@ -27,6 +27,7 @@ import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 class EslintReportTest {
 
   private static final String PROJECT_KEY_PREFIX = "SonarJS-eslint-report-test";
-  private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
+  private static final Path PROJECT_DIR = TestUtils.projectDir("eslint_report");
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
@@ -59,7 +60,7 @@ class EslintReportTest {
   @Test
   void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
-    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR.toPath())
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR)
       .withSourceDirs("src")
       .withScmDisabled()
       .withScannerProperty("sonar.eslint.reportPaths", "report.json")

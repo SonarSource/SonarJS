@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 class ExternalTSConfigDependencyTest {
 
   private static final String PROJECT = "external-tsconfig-dependency-project";
-  private static final File PROJECT_DIR = TestUtils.projectDirNoCopy(PROJECT);
+  private static final Path PROJECT_DIR = TestUtils.projectDirNoCopy(PROJECT);
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
@@ -54,9 +54,7 @@ class ExternalTSConfigDependencyTest {
 
   @Test
   void test() {
-    ScannerInput build = ScannerInput.create(PROJECT, PROJECT_DIR.toPath())
-      .withScmDisabled()
-      .build();
+    ScannerInput build = ScannerInput.create(PROJECT, PROJECT_DIR).withScmDisabled().build();
     var result = ScannerRunner.run(SERVER_CONTEXT, build);
     var issues = result
       .scannerOutputReader()

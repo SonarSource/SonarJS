@@ -49,7 +49,7 @@ class ECMAScriptModulesTest {
   @Test
   void test() {
     String projectKey = "esm-project";
-    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey).toPath())
+    ScannerInput build = ScannerInput.create(projectKey, TestUtils.projectDir(projectKey))
       .withScmDisabled()
       .build();
 
