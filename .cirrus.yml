@@ -110,10 +110,12 @@ npm_cache_definition: &NPM_CACHE
 win_cache_definition: &WIN_CACHE
   win_cache:
     folders:
-      - '~/.m2/repository'
-      - '~/node_modules'
-    fingerprint_script: |
-      powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat; cat package-lock.json"
+      - '.m2/repository'
+      - 'node_modules'
+    fingerprint_script:
+      - powershell.exe Write-Output "CWD: $PWD"
+      - powershell.exe Write-Output "CIRRUS_WORKING_DIR: $env:CIRRUS_WORKING_DIR"
+      - powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat; cat package-lock.json"
     populate_script:
       - npm ci
       - mvn install -DskipTests
