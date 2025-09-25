@@ -298,25 +298,6 @@ build_win_task:
     - source cirrus-env BUILD
     - mvn clean install -e
 
-ws_scan_task:
-  depends_on:
-    - build
-  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
-  # run only on master and long-term branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
-  env:
-    WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
-  <<: *MAVEN_CACHE
-  <<: *NPM_CACHE
-  whitesource_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - source ws_scan.sh
-  allow_failures: 'true'
-  always:
-    ws_artifacts:
-      path: 'whitesource/**/*'
-
 plugin_qa_with_node_task:
   alias: plugin_qa_with_node
   <<: *PLUGIN_QA_BODY
@@ -491,7 +472,6 @@ eslint_plugin_task:
 
 promote_task:
   depends_on:
-    - ws_scan
     - build_win
     - plugin_qa_with_node
     - plugin_qa_without_node
