@@ -110,7 +110,7 @@ npm_cache_definition: &NPM_CACHE
 win_cache_definition: &WIN_CACHE
   win_cache:
     folders:
-      - '.m2/repository'
+      - '.m2\repository'
       - 'node_modules'
     fingerprint_script:
       - powershell.exe Write-Output "CWD: $PWD"
