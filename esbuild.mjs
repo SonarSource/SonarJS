@@ -139,7 +139,7 @@ await esbuild.build({
       pattern: [
         [
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
-          "postcssDoc && postcssDoc.constructor.name === require('postcss').Document.name ? postcssDoc.nodes : [postcssDoc]",
+          "postcssDoc && (postcssDoc instanceof require('postcss').Document) ? postcssDoc.nodes : [postcssDoc]",
         ],
       ],
     }),
