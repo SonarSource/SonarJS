@@ -64,13 +64,6 @@ maven_cache_definition: &MAVEN_CACHE
     fingerprint_script: |
       find . -name pom.xml -exec cat {} \+
 
-maven_win_cache_definition: &MAVEN_WIN_CACHE
-  maven_win_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-    fingerprint_script: |
-      powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
-    populate_script: mvn install -DskipTests
-
 orchestrator_cache_preparation_definition_monthly: &ORCHESTRATOR_CACHE_MONTHLY
   set_orchestrator_home_script: |
     export THIS_MONTH=$(date '+%Y-%m')
@@ -111,12 +104,16 @@ npm_cache_definition: &NPM_CACHE
     fingerprint_script: cat package-lock.json
     populate_script: npm ci
 
-npm_win_cache_definition: &NPM_WIN_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
-  npm_win_cache:
-    folder: ${CIRRUS_WORKING_DIR}/node_modules
-    fingerprint_script: echo "WIN$(cat package-lock.json)"
-    populate_script: npm ci
+win_cache_definition: &WIN_CACHE
+  maven_win_cache:
+    folders:
+      - ${CIRRUS_WORKING_DIR}/.m2/repository
+      - ${CIRRUS_WORKING_DIR}/node_modules
+    fingerprint_script: |
+      - powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat; cat package-lock.json"
+    populate_script:
+      - npm ci
+      - mvn install -DskipTests
 
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
   eslint_build_cache:
@@ -286,19 +283,10 @@ run_iris_task:
   script:
     - source .cirrus/run-iris.sh
 
-populate_win_cache_task:
-  <<: *WINDOWS_VM_DEFINITION
-  <<: *ONLY_SONARSOURCE_QA
-  <<: *NPM_WIN_CACHE
-  <<: *MAVEN_WIN_CACHE
-
 build_win_task:
-  depends_on:
-    - populate_win_cache
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
-  <<: *MAVEN_WIN_CACHE
-  <<: *NPM_WIN_CACHE
+  <<: *WIN_CACHE
   build_script:
     - source cirrus-env BUILD
     - mvn install -e
@@ -386,8 +374,7 @@ plugin_qa_fast_without_node_task:
 plugin_qa_win_task:
   depends_on:
     - build
-    - populate_win_cache
-  <<: *MAVEN_WIN_CACHE
+  <<: *WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
@@ -397,8 +384,7 @@ plugin_qa_win_task:
 plugin_qa_win_fast_with_node_task:
   depends_on:
     - build
-    - populate_win_cache
-  <<: *MAVEN_WIN_CACHE
+  <<: *WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
