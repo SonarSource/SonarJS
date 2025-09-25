@@ -62,12 +62,13 @@ maven_cache_definition: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: |
-      if [ "$CIRRUS_OS" = "windows" ]; then
-        powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
-      fi
-      if [ "$CIRRUS_OS" = "linux" ]; then
-        find . -name pom.xml -exec cat {} \+
-      fi
+      find . -name pom.xml -exec cat {} \+
+
+maven_win_cache_definition: &MAVEN_WIN_CACHE
+  maven_win_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+    fingerprint_script: |
+      powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
 
 orchestrator_cache_preparation_definition_monthly: &ORCHESTRATOR_CACHE_MONTHLY
   set_orchestrator_home_script: |
@@ -172,7 +173,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
@@ -186,7 +186,6 @@ plugin_qa_fast_body: &PLUGIN_QA_FAST_BODY
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
@@ -254,6 +253,7 @@ test_java_task:
     - mvn install -T1C -Pcoverage,coverage-report
 
 analyze_task:
+  alias: analyze
   <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
   depends_on:
     - test_js
@@ -306,13 +306,15 @@ run_iris_task:
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
-  <<: *MAVEN_CACHE
+  <<: *MAVEN_WIN_CACHE
   <<: *NPM_WIN_CACHE
   build_script:
     - source cirrus-env BUILD
-    - mvn clean install -e
+    - mvn install -e
 
 plugin_qa_with_node_task:
+  alias: plugin_qa_with_node
+  <<: *MAVEN_CACHE
   <<: *PLUGIN_QA_BODY
   <<: *ORCHESTRATOR_CACHE_MONTHLY
   <<: *CONTAINER_DEFINITION
@@ -326,6 +328,8 @@ plugin_qa_with_node_task:
   matrix: # {{NODE_TASKS}}
 
 plugin_qa_fast_with_node_task:
+  alias: plugin_qa_fast_with_node
+  <<: *MAVEN_CACHE
   <<: *PLUGIN_QA_FAST_BODY
   <<: *CONTAINER_DEFINITION
   eks_container:
@@ -340,6 +344,8 @@ plugin_qa_fast_with_node_task:
   matrix: # {{FAST_NODE_TASKS}}
 
 plugin_qa_without_node_task:
+  alias: plugin_qa_without_node
+  <<: *MAVEN_CACHE
   <<: *PLUGIN_QA_BODY
   matrix:
     - name: 'QA without node on host Ubuntu SQ:LATEST'
@@ -362,6 +368,8 @@ plugin_qa_without_node_task:
         SONARJS_ARTIFACT: multi
 
 plugin_qa_fast_without_node_task:
+  alias: plugin_qa_fast_without_node
+  <<: *MAVEN_CACHE
   <<: *PLUGIN_QA_FAST_BODY
   env:
     # EslintCustomRulesTest requires Node.js in host OS
@@ -387,6 +395,7 @@ plugin_qa_fast_without_node_task:
 plugin_qa_win_task:
   depends_on:
     - build_win
+  <<: *MAVEN_WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
@@ -397,6 +406,7 @@ plugin_qa_win_task:
 plugin_qa_win_fast_with_node_task:
   depends_on:
     - build_win
+  <<: *MAVEN_WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   <<: *WIN_SSD_AND_CLONE
   env:
@@ -470,6 +480,7 @@ css_ruling_task:
       path: '**/target/actual/**/*'
 
 eslint_plugin_task:
+  alias: eslint_plugin
   depends_on:
     - build_eslint
   env:
@@ -501,6 +512,7 @@ eslint_plugin_task:
 promote_task:
   depends_on:
     - build_win
+    - eslint_plugin
     - plugin_qa_with_node
     - plugin_qa_without_node
     - plugin_qa_fast_with_node
