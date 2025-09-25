@@ -144,25 +144,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     preemptible: false
     use_ssd: true
 
-win_ssd_and_clone:
-  &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
-  prepare_disk_script:
-    - ps: |
-        Get-Disk -Number 2 | Initialize-Disk -PassThru | New-Partition -UseMaximumSize -DriveLetter Z
-        Format-Volume -DriveLetter Z -FileSystem NTFS -Confirm:$false
-    - echo "CIRRUS_WORKING_DIR=Z:/cirrus-ci-build" >> $CIRRUS_ENV
-  # we don't clone submodules because they are not needed for the tests
-  clone_script: |
-    git config --system core.longpaths true
-    if [ -z "$CIRRUS_PR" ]; then
-      git clone --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
-      git reset --hard $CIRRUS_CHANGE_IN_REPO
-    else
-      git clone https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
-      git fetch origin pull/$CIRRUS_PR/head:pull/$CIRRUS_PR
-      git reset --hard $CIRRUS_CHANGE_IN_REPO
-    fi
-
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
@@ -176,7 +157,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn package -f its/plugin/plugins/pom.xml
+    - mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
     - mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
     - mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
 
