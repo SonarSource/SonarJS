@@ -69,6 +69,7 @@ maven_win_cache_definition: &MAVEN_WIN_CACHE
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: |
       powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
+    populate_script: mvn install -DskipTests
 
 orchestrator_cache_preparation_definition_monthly: &ORCHESTRATOR_CACHE_MONTHLY
   set_orchestrator_home_script: |
@@ -285,7 +286,15 @@ run_iris_task:
   script:
     - source .cirrus/run-iris.sh
 
+populate_win_cache_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  <<: *MAVEN_WIN_CACHE
+
 build_win_task:
+  depends_on:
+    - populate_win_cache
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_WIN_CACHE
@@ -376,21 +385,21 @@ plugin_qa_fast_without_node_task:
 
 plugin_qa_win_task:
   depends_on:
-    - build_win
+    - build
+    - populate_win_cache
   <<: *MAVEN_WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
-  #  <<: *WIN_SSD_AND_CLONE
   <<: *ORCHESTRATOR_CACHE_MONTHLY
   <<: *PLUGIN_QA_BODY
 
 plugin_qa_win_fast_with_node_task:
   depends_on:
-    - build_win
+    - build
+    - populate_win_cache
   <<: *MAVEN_WIN_CACHE
   <<: *WINDOWS_VM_DEFINITION
-  #  <<: *WIN_SSD_AND_CLONE
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
