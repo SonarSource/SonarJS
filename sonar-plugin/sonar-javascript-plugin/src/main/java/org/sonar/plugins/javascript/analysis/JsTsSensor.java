@@ -95,7 +95,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .global()
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("JavaScript/TypeScript analysis");
   }

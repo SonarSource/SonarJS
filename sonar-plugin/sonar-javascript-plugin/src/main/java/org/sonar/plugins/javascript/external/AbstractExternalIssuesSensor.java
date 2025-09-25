@@ -42,7 +42,6 @@ abstract class AbstractExternalIssuesSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor
-      .global()
       .onlyWhenConfiguration(conf -> conf.hasKey(reportsPropertyName()))
       .name("Import of " + linterName() + " issues");
   }

@@ -47,7 +47,6 @@ public class CoverageSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .global()
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .onlyWhenConfiguration(
         conf -> conf.hasKey(LCOV_REPORT_PATHS) || conf.hasKey(LCOV_REPORT_PATHS_ALIAS)
