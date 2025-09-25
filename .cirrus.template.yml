@@ -105,12 +105,12 @@ npm_cache_definition: &NPM_CACHE
     populate_script: npm ci
 
 win_cache_definition: &WIN_CACHE
-  maven_win_cache:
+  win_cache:
     folders:
       - ${CIRRUS_WORKING_DIR}/.m2/repository
       - ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: |
-      - powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat; cat package-lock.json"
+      powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat; cat package-lock.json"
     populate_script:
       - npm ci
       - mvn install -DskipTests
