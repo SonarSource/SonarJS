@@ -62,7 +62,7 @@ public class YamlSensor extends AbstractBridgeSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.global().name("JavaScript inside YAML analysis").onlyOnLanguage(LANGUAGE);
+    descriptor.name("JavaScript inside YAML analysis").onlyOnLanguage(LANGUAGE);
   }
 
   @Override

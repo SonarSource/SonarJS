@@ -67,7 +67,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.global().createIssuesForRuleRepository("css").name("CSS Rules");
+    descriptor.createIssuesForRuleRepository("css").name("CSS Rules");
 
     processesFilesIndependently(descriptor);
   }
