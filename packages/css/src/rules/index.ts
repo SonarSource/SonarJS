@@ -20,5 +20,5 @@ import { rule as S5362 } from './S5362/index.js';
 /**
  * The set of internal Stylelint-based rules
  */
-const sonarPlugins = [S125, S5362];
-export { sonarPlugins };
+const sonarRules = [S125, S5362];
+export { sonarRules };

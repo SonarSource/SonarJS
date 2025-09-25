@@ -21,7 +21,7 @@ import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
-import { sonarPlugins } from '../rules/index.js';
+import { sonarRules } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
 
 /**
@@ -90,6 +90,6 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       },
     ],
     rules: configRules,
-    plugins: [...sonarPlugins, ...stylisticPlugins],
+    plugins: [...sonarRules, ...stylisticPlugins],
   };
 }

@@ -223,10 +223,9 @@ class SonarLintIntegrationTest {
     triggerAnalysisByFileOpened(fileDTO);
 
     assertResults(results -> {
-      assertThat(results).hasSize(3);
-      assertThat(results.get(0).getRuleKey()).isEqualTo("css:S1116");
-      assertThat(results.get(1).getRuleKey()).isEqualTo("css:S1128");
-      assertThat(results.get(2).getRuleKey()).isEqualTo("css:S4660");
+      assertThat(results)
+        .extracting(RaisedIssueDto::getRuleKey)
+        .containsExactlyInAnyOrder("css:S1116", "css:S1128", "css:S4660");
     });
   }
 
