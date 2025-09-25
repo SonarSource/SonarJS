@@ -151,10 +151,10 @@ class SonarLintIntegrationTest {
       assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
       assertThat(client.getLogMessages()).contains(
         "Using tsConfig " +
-        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-        " for file source file " +
-        jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-        " (0/1 tsconfigs not yet checked)"
+          tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+          " for file source file " +
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+          " (0/1 tsconfigs not yet checked)"
       );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
       assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
@@ -171,10 +171,10 @@ class SonarLintIntegrationTest {
       assertThat(client.getLogMessages()).doesNotContain("Resetting the TsConfigCache");
       assertThat(client.getLogMessages()).doesNotContain(
         "Using tsConfig " +
-        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-        "  for file source file " +
-        jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-        " (0/1 tsconfigs not yet checked)"
+          tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+          "  for file source file " +
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+          " (0/1 tsconfigs not yet checked)"
       );
     });
     backend
@@ -188,8 +188,8 @@ class SonarLintIntegrationTest {
     assertResults(results -> {
       assertThat(client.getLogMessages()).contains(
         "Processing file event " +
-        tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-        " with event MODIFIED"
+          tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+          " with event MODIFIED"
       );
     });
 
@@ -223,10 +223,9 @@ class SonarLintIntegrationTest {
     triggerAnalysisByFileOpened(fileDTO);
 
     assertResults(results -> {
-      assertThat(results).hasSize(3);
-      assertThat(results.get(0).getRuleKey()).isEqualTo("css:S1128");
-      assertThat(results.get(1).getRuleKey()).isEqualTo("css:S1116");
-      assertThat(results.get(2).getRuleKey()).isEqualTo("css:S4660");
+      assertThat(results)
+        .extracting(RaisedIssueDto::getRuleKey)
+        .containsExactlyInAnyOrder("css:S1116", "css:S1128", "css:S4660");
     });
   }
 

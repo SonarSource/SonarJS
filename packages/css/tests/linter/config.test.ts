@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { plugins } from '../../src/rules/index.js';
+import { sonarRules } from '../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { createStylelintConfig, RuleConfig } from '../../src/linter/config.js';
@@ -30,6 +30,8 @@ describe('createStylelintConfig', () => {
       foo: true,
       bar: [42],
     });
-    expect(config.plugins).toEqual(plugins);
+    for (const sonarRule of sonarRules) {
+      expect(config.plugins).toContain(sonarRule);
+    }
   });
 });

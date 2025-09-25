@@ -23,6 +23,6 @@ public class NoExtraSemicolons implements CssRule {
 
   @Override
   public String stylelintKey() {
-    return "no-extra-semicolons";
+    return "@stylistic/no-extra-semicolons";
   }
 }

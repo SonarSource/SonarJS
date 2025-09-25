@@ -39,7 +39,7 @@ class CssRuleTest {
       String stylelintRuleKeyWithoutUnderscore = rule
         .stylelintKey()
         .replace("-", "")
-        .replace("sonar/", "");
+        .replaceFirst("^[^/]*/", "");
       assertThat(ruleClass.getSimpleName()).isEqualToIgnoringCase(
         stylelintRuleKeyWithoutUnderscore
       );

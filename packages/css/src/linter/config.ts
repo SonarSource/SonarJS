@@ -19,8 +19,10 @@ import postcssHtml from 'postcss-html';
 import postcssSass from 'postcss-sass';
 import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
-import postcss from 'postcss-syntax';
-import { plugins } from '../rules/index.js';
+import postcssHtmlConfig from 'stylelint-config-html/html.js';
+import postcssVueConfig from 'stylelint-config-html/vue.js';
+import { sonarRules } from '../rules/index.js';
+import stylisticPlugins from '@stylistic/stylelint-plugin';
 
 /**
  * A Stylelint rule configuration
@@ -65,13 +67,29 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
     // We can pass just postcss function to the bundle and the module will resolve all plugins
     // automatically. However, esbuild will not be able to resolve our dependencies. We pass them
     // explicitly so that no dynamic requires happen at bundle time.
-    customSyntax: postcss({
-      html: postcssHtml,
-      scss: postcssScss,
-      sass: postcssSass,
-      less: postcssLess,
-    }),
+    overrides: [
+      {
+        files: [...postcssHtmlConfig.overrides[0].files, ...postcssVueConfig.overrides[0].files],
+        customSyntax: postcssHtml({
+          scss: postcssScss,
+          sass: postcssSass,
+          less: postcssLess,
+        }),
+      },
+      {
+        files: ['**/*.scss'],
+        customSyntax: postcssScss,
+      },
+      {
+        files: ['**/*.sass'],
+        customSyntax: postcssSass,
+      },
+      {
+        files: ['**/*.less'],
+        customSyntax: postcssLess,
+      },
+    ],
     rules: configRules,
-    plugins,
+    plugins: [...sonarRules, ...stylisticPlugins],
   };
 }
