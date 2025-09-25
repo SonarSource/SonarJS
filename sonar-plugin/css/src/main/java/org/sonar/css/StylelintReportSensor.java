@@ -71,7 +71,6 @@ public class StylelintReportSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .global()
       .onlyWhenConfiguration(conf -> conf.hasKey(STYLELINT_REPORT_PATHS))
       .name("Import of stylelint issues");
   }
@@ -89,17 +88,15 @@ public class StylelintReportSensor implements Sensor {
       BOMInputStream bomInputStream = BOMInputStream.builder()
         .setInputStream(Files.newInputStream(report.toPath()))
         .setByteOrderMarks(BYTE_ORDER_MARKS)
-        .get();
+        .get()
     ) {
       String charsetName = bomInputStream.getBOMCharsetName();
       if (charsetName == null) {
         charsetName = StandardCharsets.UTF_8.name();
       }
 
-      IssuesPerFile[] issues = new Gson().fromJson(
-        new InputStreamReader(bomInputStream, charsetName),
-        IssuesPerFile[].class
-      );
+      IssuesPerFile[] issues = new Gson()
+        .fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
       for (IssuesPerFile issuesPerFile : issues) {
         InputFile inputFile = getInputFile(context, issuesPerFile.source);
         if (inputFile != null) {
