@@ -107,8 +107,8 @@ npm_cache_definition: &NPM_CACHE
 win_cache_definition: &WIN_CACHE
   win_cache:
     folders:
-      - '.m2\repository'
-      - 'node_modules'
+      - $CIRRUS_WORKING_DIR/.m2/repository
+      - $CIRRUS_WORKING_DIR/node_modules'
     fingerprint_script:
       - powershell.exe Write-Output "CWD: $PWD"
       - powershell.exe Write-Output "CIRRUS_WORKING_DIR: $env:CIRRUS_WORKING_DIR"
