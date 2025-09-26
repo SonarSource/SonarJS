@@ -62,7 +62,12 @@ maven_cache_definition: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: |
-      find . -name pom.xml -exec cat {} \+
+      if [ "$CIRRUS_OS" = "windows" ]; then
+        powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
+      fi
+      if [ "$CIRRUS_OS" = "linux" ]; then
+        find . -name pom.xml -exec cat {} \+
+      fi
 
 orchestrator_cache_preparation_definition_monthly: &ORCHESTRATOR_CACHE_MONTHLY
   set_orchestrator_home_script: |
@@ -103,13 +108,6 @@ npm_cache_definition: &NPM_CACHE
     folder: ${CIRRUS_WORKING_DIR}/node_modules
     fingerprint_script: cat package-lock.json
     populate_script: npm ci
-
-maven_win_cache_definition: &MAVEN_WIN_CACHE
-  maven_win_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-    fingerprint_script: |
-      powershell.exe -NoLogo -Command "Get-ChildItem -Path . -Filter "pom.xml" -Recurse -ErrorAction SilentlyContinue -Force | cat"
-    populate_script: mvn install -DskipTests
 
 npm_win_cache_definition: &NPM_WIN_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
@@ -290,10 +288,33 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *NPM_WIN_CACHE
-  <<: *MAVEN_WIN_CACHE
+  <<: *MAVEN_CACHE
   build_script:
     - source cirrus-env BUILD
-    - mvn install -e
+    - mvn install -e -DskipTests
+
+test_js_win_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  depends_on:
+    - build_win
+  test_js_script:
+    - source cirrus-env QA
+    - npm run generate-meta
+    - npm run bridge:compile
+    - npm run bridge:test:js
+
+test_java_win_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  <<: *MAVEN_CACHE
+  depends_on:
+    - build_win
+  test_java_script:
+    - source cirrus-env QA
+    - mvn install -T1C
 
 plugin_qa_with_node_task:
   alias: plugin_qa_with_node
@@ -378,8 +399,7 @@ plugin_qa_fast_without_node_task:
 plugin_qa_win_task:
   depends_on:
     - build
-  <<: *NPM_WIN_CACHE
-  <<: *MAVEN_WIN_CACHE
+  <<: *MAVEN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
@@ -389,8 +409,7 @@ plugin_qa_win_task:
 plugin_qa_win_fast_with_node_task:
   depends_on:
     - build
-  <<: *NPM_WIN_CACHE
-  <<: *MAVEN_WIN_CACHE
+  <<: *MAVEN_CACHE
   <<: *WINDOWS_VM_DEFINITION
   env:
     SQ_VERSION: LATEST_RELEASE
@@ -494,7 +513,8 @@ eslint_plugin_task:
 
 promote_task:
   depends_on:
-    - build_win
+    - test_js_win
+    - test_java_win
     - eslint_plugin
     - plugin_qa_with_node
     - plugin_qa_without_node
