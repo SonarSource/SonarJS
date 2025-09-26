@@ -1,27 +1,25 @@
-name: Releasability status
-'on':
-  check_suite:
-    types:
-      - completed
+name: Releasability Status
+on:
+  workflow_run:
+    workflows: [ "Build" ]  # Name must match the name of the build workflow
+    types: [ completed ]
+    branches:
+      - master
+      - dogfood-*
+      - branch-*
+
 jobs:
-  update_releasability_status:
-    runs-on: github-ubuntu-latest-s
+  releasability-status:
     name: Releasability status
+    runs-on: sonar-xs # Use any runner
     permissions:
       id-token: write
       statuses: write
       contents: read
-    if: >-
-      (contains(fromJSON('["main", "master"]'),
-      github.event.check_suite.head_branch) ||
-      startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
-      startsWith(github.event.check_suite.head_branch, 'branch-')) &&
-      github.event.check_suite.conclusion == 'success' &&
-      github.event.check_suite.app.slug == 'cirrus-ci'
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
-      -   uses: >-
-            SonarSource/gh-action_releasability/releasability-status@v2
+      -   uses: SonarSource/gh-action_releasability/releasability-status@v3
           with:
             optional_checks: "Jira"
           env:
-            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+            GITHUB_TOKEN: ${{ github.token }}
