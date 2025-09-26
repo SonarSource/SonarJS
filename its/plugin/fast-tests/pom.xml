@@ -64,15 +64,15 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-            <!-- Number of JVMs to run in parallel -->
-            <forkCount>6</forkCount>
-            <!-- Reuse JVMs for multiple test classes -->
-            <reuseForks>true</reuseForks>
-            <!-- Run test classes in parallel across forks -->
-            <parallel>classes</parallel>
-            <useUnlimitedThreads>true</useUnlimitedThreads>
-        </configuration>
+<!--        <configuration>-->
+<!--            &lt;!&ndash; Number of JVMs to run in parallel &ndash;&gt;-->
+<!--            <forkCount>6</forkCount>-->
+<!--            &lt;!&ndash; Reuse JVMs for multiple test classes &ndash;&gt;-->
+<!--            <reuseForks>true</reuseForks>-->
+<!--            &lt;!&ndash; Run test classes in parallel across forks &ndash;&gt;-->
+<!--            <parallel>classes</parallel>-->
+<!--            <useUnlimitedThreads>true</useUnlimitedThreads>-->
+<!--        </configuration>-->
       </plugin>
     </plugins>
   </build>
