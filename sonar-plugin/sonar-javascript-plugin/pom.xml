@@ -535,7 +535,6 @@
               <licensesOutputDirectory>${project.basedir}/src/main/resources/licenses/THIRD_PARTY_LICENSES</licensesOutputDirectory>
               <licensesOutputFile>${project.build.directory}/licenses.xml</licensesOutputFile>
               <organizeLicensesByDependencies>true</organizeLicensesByDependencies>
-              <excludedGroups>org.sonarsource.javascript|org.sonarsource.analyzer-commons|org.sonarsource.sslr</excludedGroups>
               <licenseUrlReplacements>
                 <licenseUrlReplacement>
                   <regexp>https?://www.apache.org/licenses/LICENSE-2.0.txt</regexp>
@@ -565,12 +564,12 @@
               <licensesConfigFile>${project.basedir}/src/main/license-resources/missing-licenses-config-file.xml</licensesConfigFile>
               <licenseUrlFileNameSanitizers>
                 <LicenseUrlReplacement>
-                  <regexp>.txt</regexp>
+                  <regexp>_.*\.txt</regexp>
                 </LicenseUrlReplacement>
-                <!--                 Append .txt -->
+                <!--                 Append -LICENSE.txt -->
                 <LicenseUrlReplacement>
                   <regexp>$</regexp>
-                  <replacement>.txt</replacement>
+                  <replacement>-LICENSE.txt</replacement>
                 </LicenseUrlReplacement>
               </licenseUrlFileNameSanitizers>
             </configuration>
