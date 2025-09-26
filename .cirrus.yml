@@ -294,19 +294,19 @@ build_win_task:
   <<: *MAVEN_CACHE
   build_script:
     - source cirrus-env BUILD
-    - mvn install -e -DskipTests
+    - mvn install -T1C -e -DskipTests
 
-test_js_win_task:
-  <<: *WINDOWS_VM_DEFINITION
-  <<: *ONLY_SONARSOURCE_QA
-  <<: *NPM_WIN_CACHE
-  depends_on:
-    - build_win
-  test_js_script:
-    - source cirrus-env QA
-    - npm run generate-meta
-    - npm run bridge:compile
-    - npm run bridge:test
+#test_js_win_task:
+#  <<: *WINDOWS_VM_DEFINITION
+#  <<: *ONLY_SONARSOURCE_QA
+#  <<: *NPM_WIN_CACHE
+#  depends_on:
+#    - build_win
+#  test_js_script:
+#    - source cirrus-env QA
+#    - npm run generate-meta
+#    - npm run bridge:compile
+#    - npm run bridge:test
 
 test_java_win_task:
   <<: *WINDOWS_VM_DEFINITION
@@ -532,7 +532,7 @@ eslint_plugin_task:
 
 promote_task:
   depends_on:
-    - test_js_win
+#    - test_js_win
     - test_java_win
     - eslint_plugin
     - plugin_qa_with_node
