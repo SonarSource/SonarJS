@@ -532,7 +532,7 @@ eslint_plugin_task:
 
 promote_task:
   depends_on:
-#    - test_js_win
+    #    - test_js_win
     - test_java_win
     - eslint_plugin
     - plugin_qa_with_node

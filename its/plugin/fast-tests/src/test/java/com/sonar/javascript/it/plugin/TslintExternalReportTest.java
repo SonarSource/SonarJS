@@ -59,15 +59,15 @@ class TslintExternalReportTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line)
+      .extracting(ScannerOutputReader.TextRangeIssue::line)
       .containsExactlyInAnyOrder(3, 5, 5, 7);
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(ScannerOutputReader.TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         "external_tslint_repo:no-unused-expression",
         "external_tslint_repo:prefer-const",

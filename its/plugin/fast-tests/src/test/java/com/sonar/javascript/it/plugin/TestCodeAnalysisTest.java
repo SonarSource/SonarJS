@@ -66,8 +66,8 @@ class TestCodeAnalysisTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S1848"))
       .toList();
 

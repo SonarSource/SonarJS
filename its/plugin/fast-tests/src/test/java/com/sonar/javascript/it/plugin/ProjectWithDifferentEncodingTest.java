@@ -66,14 +66,14 @@ class ProjectWithDifferentEncodingTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
       .extracting(
-        ScannerOutputReader.FileIssue::line,
-        ScannerOutputReader.FileIssue::componentPath,
-        ScannerOutputReader.FileIssue::ruleKey
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath,
+        ScannerOutputReader.TextRangeIssue::ruleKey
       )
       .containsExactly(tuple(2, "fileWithUtf16.js", "javascript:S3923"));
   }

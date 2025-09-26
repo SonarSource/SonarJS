@@ -94,22 +94,23 @@ class EslintReportTest {
   }
 
   private void assertIssues(List<ScannerOutputReader.Issue> issues) {
-    var fileIssues = issues
+    var TextRangeIssues = issues
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
-    List<ScannerOutputReader.FileIssue> jsIssuesList = fileIssues
-      .stream()
+    List<ScannerOutputReader.TextRangeIssue> jsIssuesList = TextRangeIssues.stream()
       .filter(issue -> issue.componentPath().equals("src/file.js"))
       .toList();
-    List<ScannerOutputReader.FileIssue> tsIssuesList = fileIssues
-      .stream()
+    List<ScannerOutputReader.TextRangeIssue> tsIssuesList = TextRangeIssues.stream()
       .filter(issue -> issue.componentPath().equals("src/file.ts"))
       .toList();
 
     assertThat(jsIssuesList)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::ruleKey
+      )
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
@@ -119,7 +120,10 @@ class EslintReportTest {
       );
 
     assertThat(tsIssuesList)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::ruleKey
+      )
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),

@@ -56,15 +56,15 @@ class CssStylelintReportTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line)
+      .extracting(ScannerOutputReader.TextRangeIssue::line)
       .containsExactlyInAnyOrder(111, 81, 55, 58, 58, 114);
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(ScannerOutputReader.TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         "external_stylelint:no-missing-end-of-source-newline",
         "external_stylelint:no-missing-end-of-source-newline",

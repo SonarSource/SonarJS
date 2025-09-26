@@ -51,15 +51,15 @@ class CssNoCssFileProjectTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::line,
-        ScannerOutputReader.FileIssue::componentPath
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
       )
       .containsExactlyInAnyOrder(tuple("css:S4658", 7, "src/index.html"));
   }

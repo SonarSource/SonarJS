@@ -109,8 +109,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -133,8 +133,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -156,8 +156,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3525"))
       .toList();
 
@@ -189,13 +189,13 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues)
       .hasSize(1)
-      .extracting(ScannerOutputReader.FileIssue::componentPath)
+      .extracting(ScannerOutputReader.TextRangeIssue::componentPath)
       .containsExactly("main.js");
   }
 
@@ -258,8 +258,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S1116"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -295,13 +295,13 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::componentPath
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::componentPath
       )
       .containsExactlyInAnyOrder(
         tuple("javascript:S3403", "file.js"), // rule requires type information

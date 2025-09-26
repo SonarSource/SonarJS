@@ -94,14 +94,14 @@ class CssIssuesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issuesList)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::componentPath
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::componentPath
       )
       .containsExactlyInAnyOrder(
         tuple("css:S4662", "src/cssModules.css"),

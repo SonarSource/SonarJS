@@ -63,15 +63,18 @@ class HtmlAnalysisTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues).hasSize(3);
     var issue = issues.get(2);
     assertThat(issue.range()).isEqualTo(new ScannerOutputReader.TextRange(7, 7, 19, 25));
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::ruleKey
+      )
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923"),
@@ -93,12 +96,15 @@ class HtmlAnalysisTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::ruleKey)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::ruleKey
+      )
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923")

@@ -65,12 +65,15 @@ class MultiTsconfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
+      )
       .containsExactlyInAnyOrder(
         tuple(4, "src/bar/main.ts"),
         tuple(3, "src/dir1/main.ts"),

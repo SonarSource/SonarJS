@@ -105,8 +105,8 @@ class EslintCustomRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     var eslintCustomRuleIssues = issues
       .stream()
@@ -116,10 +116,10 @@ class EslintCustomRulesTest {
     assertThat(eslintCustomRuleIssues).hasSize(2);
     assertThat(eslintCustomRuleIssues)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::componentPath,
-        ScannerOutputReader.FileIssue::line,
-        ScannerOutputReader.FileIssue::message
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::componentPath,
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
         new Tuple("eslint-custom-rules:sqKey", "src/dir/Person.js", 21, "call"),
@@ -131,10 +131,10 @@ class EslintCustomRulesTest {
       .toList();
     assertThat(tsEslintCustomRuleIssues)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::componentPath,
-        ScannerOutputReader.FileIssue::line,
-        ScannerOutputReader.FileIssue::message
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::componentPath,
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
         new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsrule call")

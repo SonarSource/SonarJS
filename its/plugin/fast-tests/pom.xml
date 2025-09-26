@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.sonarsource.scanner.integrationtester</groupId>
       <artifactId>sonar-scanner-integration-tester</artifactId>
-      <version>0.2.0.152</version>
+      <version>0.2.0.166</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -65,10 +65,13 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <includes>
-            <include>**/*Test.java</include>
-          </includes>
-          <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+            <!-- Number of JVMs to run in parallel -->
+            <forkCount>6</forkCount>
+            <!-- Reuse JVMs for multiple test classes -->
+            <reuseForks>true</reuseForks>
+            <!-- Run test classes in parallel across forks -->
+            <parallel>classes</parallel>
+            <useUnlimitedThreads>true</useUnlimitedThreads>
         </configuration>
       </plugin>
     </plugins>

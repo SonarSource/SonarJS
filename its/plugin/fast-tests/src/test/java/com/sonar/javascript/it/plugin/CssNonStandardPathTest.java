@@ -59,13 +59,13 @@ class CssNonStandardPathTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
       .extracting(
-        ScannerOutputReader.FileIssue::ruleKey,
-        ScannerOutputReader.FileIssue::componentPath
+        ScannerOutputReader.TextRangeIssue::ruleKey,
+        ScannerOutputReader.TextRangeIssue::componentPath
       )
       .containsExactly(tuple("css:S1128", "src/file1.css"));
   }

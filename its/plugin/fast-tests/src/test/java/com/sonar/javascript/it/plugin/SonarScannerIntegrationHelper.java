@@ -64,11 +64,11 @@ public final class SonarScannerIntegrationHelper {
               )
             )
           )
-          .toArray(SonarServerContext.ActiveRule.Param[]::new);
+          .toList();
         if (key.equals("S4660")) {
-          params = new SonarServerContext.ActiveRule.Param[] {
-            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/"),
-          };
+          params = List.of(
+            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/")
+          );
         }
 
         return new SonarServerContext.ActiveRule(
@@ -76,6 +76,7 @@ public final class SonarScannerIntegrationHelper {
           key,
           SonarServerContext.ActiveRule.Severity.INFO,
           CssLanguage.KEY,
+          null,
           params
         );
       })

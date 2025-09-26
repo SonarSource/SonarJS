@@ -107,11 +107,14 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
+      )
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"));
     // Missing issues for main.es6.ts
 
@@ -135,11 +138,14 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues2)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
+      )
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"), tuple(4, "src/main.es6.ts"));
   }
 
@@ -176,11 +182,14 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
+      )
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"));
   }
 
@@ -192,7 +201,6 @@ class TypeCheckerConfigTest {
   @Test
   void should_analyze_javascript_with_jsconfig() {
     var project = "jsconfig";
-    var key = createName(project);
     var result = ScannerRunner.run(SERVER_CONTEXT, getSonarScannerBuilder(project).build());
 
     assertThat(result.logOutput())
@@ -239,11 +247,14 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.FileIssue.class::isInstance)
-      .map(ScannerOutputReader.FileIssue.class::cast)
+      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+      .map(ScannerOutputReader.TextRangeIssue.class::cast)
       .toList();
     Assertions.assertThat(issues)
-      .extracting(ScannerOutputReader.FileIssue::line, ScannerOutputReader.FileIssue::componentPath)
+      .extracting(
+        ScannerOutputReader.TextRangeIssue::line,
+        ScannerOutputReader.TextRangeIssue::componentPath
+      )
       .containsExactlyInAnyOrder(project.getIssues());
   }
 

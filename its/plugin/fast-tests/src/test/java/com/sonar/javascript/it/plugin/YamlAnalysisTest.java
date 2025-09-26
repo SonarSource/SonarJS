@@ -60,8 +60,8 @@ class YamlAnalysisTest {
         .getProject()
         .getAllIssues()
         .stream()
-        .filter(ScannerOutputReader.FileIssue.class::isInstance)
-        .map(ScannerOutputReader.FileIssue.class::cast)
+        .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
+        .map(ScannerOutputReader.TextRangeIssue.class::cast)
     ).anySatisfy(issue ->
       assertThat(issue.line() == 12 && issue.ruleKey().equals("javascript:S3923"))
     );

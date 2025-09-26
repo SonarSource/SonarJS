@@ -56,7 +56,7 @@ class ECMAScriptModulesTest {
     var result = ScannerRunner.run(SERVER_CONTEXT, build);
     var issues = result.scannerOutputReader().getProject().getAllIssues();
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0)).isInstanceOf(ScannerOutputReader.FileIssue.class);
-    Assertions.assertThat(((ScannerOutputReader.FileIssue) issues.get(0)).line()).isEqualTo(2);
+    assertThat(issues.get(0)).isInstanceOf(ScannerOutputReader.TextRangeIssue.class);
+    Assertions.assertThat(((ScannerOutputReader.TextRangeIssue) issues.get(0)).line()).isEqualTo(2);
   }
 }
