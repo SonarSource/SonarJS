@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>js-with-ts-eslint-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3525</key>
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

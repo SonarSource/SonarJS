@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>eslint-based-rules-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3923</key> <!-- all duplicate branches -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3403</key> <!-- different-types-comparison -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3834</key> <!-- no-new-native-nonconstructor -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

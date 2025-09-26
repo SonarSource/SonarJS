@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>html-profile</name>
+  <language>web</language>
+  <rules>
+    <rule>
+      <repositoryKey>Web</repositoryKey>
+      <key>DoctypePresenceCheck</key>
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

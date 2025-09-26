@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>eslint-based-rules-profile</name>
+  <language>ts</language>
+  <rules>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S3923</key> <!-- all duplicate branches -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S107</key>
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4325</key>    <!-- useless cast -->
+      <priority>INFO</priority>
+  </rule>
+  </rules>
+</profile>

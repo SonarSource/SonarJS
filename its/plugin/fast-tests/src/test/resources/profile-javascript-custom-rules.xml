@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>javascript-custom-rules-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>deprecated-custom-rules</repositoryKey>
+      <key>base</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>deprecated-custom-rules</repositoryKey>
+      <key>subscription</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <key>base</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <key>subscription</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>eslint-custom-rules</repositoryKey>
+      <key>sqKey</key>
+      <priority>MAJOR</priority>
+    </rule>
+  </rules>
+</profile>
+
