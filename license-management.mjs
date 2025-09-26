@@ -76,7 +76,7 @@ async function downloadLicenses() {
           await fs.access(info.licenseFile);
           const packageNameWithoutVersion = packageName.substring(0, packageName.lastIndexOf('@'));
           const safePackageName = packageNameWithoutVersion.replace(/\//g, '-');
-          const licenseFileName = `${safePackageName}-${info.licenses}.txt`;
+          const licenseFileName = `${safePackageName}-LICENSE.txt`;
           const licensePath = path.join(THIRD_PARTY_LICENSES_DIR, licenseFileName);
 
           // Read the license file
