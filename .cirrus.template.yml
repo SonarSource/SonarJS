@@ -303,7 +303,7 @@ test_js_win_task:
     - source cirrus-env QA
     - npm run generate-meta
     - npm run bridge:compile
-    - npm run bridge:test:js
+    - npm run bridge:test
 
 test_java_win_task:
   <<: *WINDOWS_VM_DEFINITION
