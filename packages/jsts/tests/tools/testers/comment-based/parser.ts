@@ -14,10 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path/posix';
-import { FileType } from '../../../../../shared/src/helpers/files.js';
+import { dirname, join, parse } from 'node:path/posix';
+import { FileType, toUnixPath } from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
 /**
@@ -31,7 +30,11 @@ function parseForESLint(
 ) {
   const { filePath } = options;
   const tsConfigs = [
-    path.join(dirname(fileURLToPath(import.meta.url)), '../../../../src/rules', 'tsconfig.cb.json'),
+    join(
+      dirname(toUnixPath(fileURLToPath(import.meta.url))),
+      '../../../../src/rules',
+      'tsconfig.cb.json',
+    ),
   ];
   const { sourceCode } = build({
     filePath,
@@ -58,7 +61,7 @@ function parseForESLint(
 function languageFromFile(fileContent: string, filePath: string): JsTsLanguage {
   // Keep this regex aligned with the one in JavaScriptFilePredicate.java to have the same flow
   const hasScriptTagWithLangTs = /<script[^>]+lang=['"]ts['"][^>]*>/;
-  const { ext } = path.parse(filePath);
+  const { ext } = parse(filePath);
   if (
     ['.ts', '.tsx'].includes(ext) ||
     (ext === '.vue' && hasScriptTagWithLangTs.test(fileContent))
