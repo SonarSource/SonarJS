@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter } from 'eslint';
-import path from 'node:path';
 import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
@@ -24,12 +23,17 @@ import { transformMessages } from '../../../src/linter/issues/transform.js';
 import * as rules from '../../../src/rules/rules.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { dirname } from 'node:path/posix';
+import { dirname, join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
-    const filePath = path.join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'message.js');
+    const filePath = join(
+      dirname(toUnixPath(fileURLToPath(import.meta.url))),
+      'fixtures',
+      'message.js',
+    );
     const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3504';
@@ -68,7 +72,7 @@ describe('transformMessages', () => {
   });
 
   it('should normalize ESLint locations', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'location.js');
+    const filePath = join(import.meta.dirname, 'fixtures', 'location.js');
     const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1172';
@@ -106,7 +110,7 @@ describe('transformMessages', () => {
   });
 
   it('should transform ESLint fixes', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'fix.js');
+    const filePath = join(import.meta.dirname, 'fixtures', 'fix.js');
     const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
@@ -155,7 +159,7 @@ describe('transformMessages', () => {
   });
 
   it('should decode secondary locations', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
+    const filePath = join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
     const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
@@ -196,14 +200,14 @@ describe('transformMessages', () => {
   });
 
   it('should remove ucfg issues', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
+    const filePath = join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
     const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const messages = [
       {
         ruleId: 'sonarjs/ucfg',
-        message: path.join(import.meta.dirname, 'fixtures', 'secondary.ts'),
+        message: join(import.meta.dirname, 'fixtures', 'secondary.ts'),
       } as Linter.LintMessage,
     ];
 
