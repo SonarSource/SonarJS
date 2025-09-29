@@ -1,49 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-it-plugin</artifactId>
     <version>${revision}</version>
   </parent>
 
-  <artifactId>javascript-it-plugin-sonarlint-tests</artifactId>
-  <name>JavaScript :: IT :: Plugin :: SonarLint Tests</name>
+  <artifactId>javascript-it-plugin-fast-tests</artifactId>
+  <name>JavaScript :: IT :: Plugin :: Fast :: Tests</name>
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
-    <!-- sonar scanner properties -->
     <sonar.sources/>
     <sonar.tests>src/test</sonar.tests>
   </properties>
 
-  <!--
-  This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
-  -->
   <dependencies>
     <dependency>
-      <groupId>org.sonarsource.sonarlint.core</groupId>
-      <artifactId>sonarlint-core-test-utils</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarlint.core</groupId>
-      <artifactId>sonarlint-rpc-java-client</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <groupId>org.sonarsource.analyzer-commons</groupId>
+      <artifactId>sonar-analyzer-commons</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarlint.core</groupId>
-      <artifactId>sonarlint-rpc-protocol</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <groupId>com.sonarsource.scanner.integrationtester</groupId>
+      <artifactId>sonar-scanner-integration-tester</artifactId>
+      <version>0.2.0.166</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
-      <scope>test</scope>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -51,8 +49,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -65,6 +64,15 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+<!--        <configuration>-->
+<!--            &lt;!&ndash; Number of JVMs to run in parallel &ndash;&gt;-->
+<!--            <forkCount>6</forkCount>-->
+<!--            &lt;!&ndash; Reuse JVMs for multiple test classes &ndash;&gt;-->
+<!--            <reuseForks>true</reuseForks>-->
+<!--            &lt;!&ndash; Run test classes in parallel across forks &ndash;&gt;-->
+<!--            <parallel>classes</parallel>-->
+<!--            <useUnlimitedThreads>true</useUnlimitedThreads>-->
+<!--        </configuration>-->
       </plugin>
     </plugins>
   </build>
@@ -137,5 +145,4 @@
       </build>
     </profile>
   </profiles>
-
 </project>
