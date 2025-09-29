@@ -57,7 +57,6 @@ class HtmlSecurityTest {
     var projectKey = "html-project";
     var projectPath = TestUtils.projectDir(projectKey);
     var workDir = Files.createDirectory(projectPath.resolve(".scannerwork"));
-    Files.createDirectory(workDir.resolve("scanner-report"));
 
     var build = ScannerInput.create(projectKey, projectPath)
       .withScmDisabled()

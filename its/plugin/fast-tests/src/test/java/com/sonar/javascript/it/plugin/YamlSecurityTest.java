@@ -55,7 +55,6 @@ class YamlSecurityTest {
     var projectPath = TestUtils.projectDir(projectKey);
     var uniqueProjectKey = projectKey + "-" + UUID.randomUUID();
     var workDir = Files.createDirectory(projectPath.resolve(".scannerwork"));
-    Files.createDirectory(workDir.resolve("scanner-report"));
 
     var build = ScannerInput.create(uniqueProjectKey, projectPath)
       .withScmDisabled()
