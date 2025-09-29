@@ -34,7 +34,7 @@ import shadow.com.sonar.orchestrator.locator.MavenLocation;
 class HtmlSecurityTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
+    .withProduct(SonarServerContext.Product.CLOUD)
     .withEngineVersion(EngineVersion.latestMasterBuild())
     .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
     .withLanguage(
@@ -63,6 +63,7 @@ class HtmlSecurityTest {
 
     var build = ScannerInput.create(projectKey, projectPath)
       .withScmDisabled()
+      .withOrganizationKey("myOrg")
       .withVerbose()
       .build();
     var result = ScannerRunner.run(SERVER_CONTEXT, build);
