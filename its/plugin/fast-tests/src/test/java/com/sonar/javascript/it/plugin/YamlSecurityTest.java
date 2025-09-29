@@ -26,40 +26,38 @@ import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 
-class HtmlSecurityTest {
+class YamlSecurityTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.CLOUD)
     .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
     .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+      new SonarServerContext.Language(YamlSensor.LANGUAGE, "YAML", new String[] { ".yaml" })
     )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withPlugin(SonarScannerIntegrationHelper.getHtmlPlugin())
+    .withPlugin(SonarScannerIntegrationHelper.getYamlPlugin())
     .withPlugin(SonarScannerIntegrationHelper.getSecurityPlugin())
     .withPlugin(SonarScannerIntegrationHelper.getSecurityJsFrontendPlugin())
     .withActiveRules(
       loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "html-security-profile.xml")
+        Path.of("src", "test", "resources", "yaml-security-profile.xml")
       )
     )
     .build();
 
   @Test
-  void should_not_generate_ucfgs_for_html() throws IOException {
-    var projectKey = "html-project";
+  void should_generate_ucfgs_for_yaml() throws IOException {
+    var projectKey = "yaml-aws-lambda-analyzed";
     var projectPath = TestUtils.projectDir(projectKey);
+    var uniqueProjectKey = projectKey + "-" + UUID.randomUUID();
     var workDir = Files.createDirectory(projectPath.resolve(".scannerwork"));
     Files.createDirectory(workDir.resolve("scanner-report"));
 
-    var build = ScannerInput.create(projectKey, projectPath)
+    var build = ScannerInput.create(uniqueProjectKey, projectPath)
       .withScmDisabled()
       .withOrganizationKey("myOrg")
       .withVerbose()
@@ -69,6 +67,6 @@ class HtmlSecurityTest {
     assertThat(result.exitCode()).isEqualTo(0);
 
     var stream = Files.find(projectPath.resolve(".scannerwork"), 3, TestUtils::isUcfgFile);
-    assertThat(stream.toList()).isEmpty();
+    assertThat(stream.toList()).hasSize(1);
   }
 }
