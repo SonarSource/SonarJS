@@ -21,11 +21,12 @@ import { rules } from '../external/typescript-eslint/index.js';
 import parser from '@babel/eslint-parser';
 import { decorate } from './decorator.js';
 import { Linter } from 'eslint';
-import { dirname, join } from 'node:path';
+import { dirname, join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path/posix';
 import { expect } from 'expect';
+import { toUnixPath } from '../helpers/index.js';
 
 const ruleTester = new RuleTester({
   parser,
@@ -52,7 +53,11 @@ describe('S6647', () => {
     // When this test fails to pass, we can remove our implementation and go back to decorated
     // 'no-useless-constructor' from 'typescript-eslint'
     // https://github.com/SonarSource/SonarJS/pull/4473
-    const problemFile = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'problemCode.js');
+    const problemFile = join(
+      dirname(toUnixPath(fileURLToPath(import.meta.url))),
+      'fixtures',
+      'problemCode.js',
+    );
     const linter = new Linter();
     let failed = false;
     try {
