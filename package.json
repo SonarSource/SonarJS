@@ -76,7 +76,7 @@
     "@types/tmp": "0.2.6",
     "@types/ws": "8.18.1",
     "cpy-cli": "6.0.0",
-    "cross-env": "10.0.0",
+    "cross-env": "10.1.0",
     "dir-compare": "5.0.0",
     "esbuild": "0.25.10",
     "esbuild-plugin-copy": "2.1.1",
