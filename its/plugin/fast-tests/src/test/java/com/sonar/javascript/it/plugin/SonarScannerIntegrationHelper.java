@@ -46,6 +46,18 @@ public final class SonarScannerIntegrationHelper {
     return MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE");
   }
 
+  public static MavenLocation getSecurityPlugin() {
+    return MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "LATEST_RELEASE");
+  }
+
+  public static MavenLocation getSecurityJsFrontendPlugin() {
+    return MavenLocation.of(
+      "com.sonarsource.security",
+      "sonar-security-js-frontend-plugin",
+      "LATEST_RELEASE"
+    );
+  }
+
   public static MavenLocation getLitsPlugin() {
     return MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION);
   }
