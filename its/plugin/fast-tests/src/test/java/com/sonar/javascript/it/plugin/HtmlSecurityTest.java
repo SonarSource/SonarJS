@@ -33,7 +33,7 @@ class HtmlSecurityTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.CLOUD)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
+    .withEngineVersion(EngineVersion.build("11.22.0.978"))
     .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
     .withLanguage(
       JavaScriptLanguage.KEY,

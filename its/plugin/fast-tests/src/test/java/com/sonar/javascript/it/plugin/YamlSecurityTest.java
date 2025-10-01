@@ -34,7 +34,7 @@ class YamlSecurityTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.CLOUD)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
+    .withEngineVersion(EngineVersion.build("11.22.0.978"))
     .withLanguage(
       new SonarServerContext.Language(YamlSensor.LANGUAGE, "YAML", new String[] { ".yaml" })
     )
