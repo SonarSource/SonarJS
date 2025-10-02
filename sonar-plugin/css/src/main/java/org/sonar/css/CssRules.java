@@ -47,6 +47,7 @@ import org.sonar.css.rules.NoDuplicateSelectors;
 import org.sonar.css.rules.NoEmptySource;
 import org.sonar.css.rules.NoExtraSemicolons;
 import org.sonar.css.rules.NoInvalidDoubleSlashComments;
+import org.sonar.css.rules.NoRestrictOrientation;
 import org.sonar.css.rules.PropertyNoUnknown;
 import org.sonar.css.rules.SelectorPseudoClassNoUnknown;
 import org.sonar.css.rules.SelectorPseudoElementNoUnknown;
@@ -94,6 +95,7 @@ public class CssRules {
         NoEmptySource.class,
         NoExtraSemicolons.class,
         NoInvalidDoubleSlashComments.class,
+        NoRestrictOrientation.class,
         PropertyNoUnknown.class,
         SelectorPseudoClassNoUnknown.class,
         SelectorPseudoElementNoUnknown.class,
