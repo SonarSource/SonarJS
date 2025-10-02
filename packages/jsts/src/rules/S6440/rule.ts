@@ -17,11 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6441/javascript
 
 import type { Rule } from 'eslint';
-import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
+import eslintPlugin from 'eslint-plugin-react-hooks';
+const rulesOfHooks = (eslintPlugin as any).rules['rules-of-hooks'];
 import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-
-const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { ...rulesOfHooks.meta }),
