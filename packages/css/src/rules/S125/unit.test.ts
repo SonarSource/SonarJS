@@ -16,77 +16,82 @@
  */
 import { StylelintRuleTester } from '../../../tests/tools/tester/index.js';
 import { rule } from './rule.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new StylelintRuleTester(rule);
-ruleTester.run('sonar/no-commented-code', {
-  valid: [
-    {
-      description: 'no comment',
-      code: 'p {}',
-    },
-    {
-      description: 'no commented code',
-      code: '/* hello, world! */',
-    },
-  ],
-  invalid: [
-    {
-      description: 'selector',
+const ruleTester = new StylelintRuleTester(rule.ruleName);
+describe('S125', () => {
+  it('no comment', () => ruleTester.valid({ code: 'p {}' }));
+
+  it('no commented code', () => ruleTester.valid({ code: '/* hello, world! */' }));
+
+  it('selector', () =>
+    ruleTester.invalid({
       code: '/* p {} */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'multiple selectors',
+    }));
+
+  it('multiple selectors', () =>
+    ruleTester.invalid({
       code: '/* p, div {} */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'declaration',
+    }));
+
+  it('declaration', () =>
+    ruleTester.invalid({
       code: '/* color: blue; */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'selector declaration',
+    }));
+
+  it('selector declaration', () =>
+    ruleTester.invalid({
       code: '/* p { color: blue; } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'multiple declarations',
+    }));
+
+  it('multiple declarations', () =>
+    ruleTester.invalid({
       code: '/* div { font-size: 20px; color: red; } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'class selector',
+    }));
+
+  it('class selector', () =>
+    ruleTester.invalid({
       code: '/* .class { background-color: red; } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'id selector',
+    }));
+
+  it('id selector', () =>
+    ruleTester.invalid({
       code: '/* #id:hover { border: 1px solid black; } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'attribute selector',
+    }));
+
+  it('attribute selector', () =>
+    ruleTester.invalid({
       code: '/* a[href] { color: purple; } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'media query',
+    }));
+
+  it('media query', () =>
+    ruleTester.invalid({
       code: '/* @media (max-width: 600px) { .class { font-size: 18px; } } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: '@keyframes',
+    }));
+
+  it('@keyframes', () =>
+    ruleTester.invalid({
       code: '/* @keyframes mymove { 0% { top: 0px; } 100% { top: 200px; } } */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'import',
+    }));
+
+  it('import', () =>
+    ruleTester.invalid({
       code: '/* @import url("styles.css"); */',
       errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
-    },
-    {
-      description: 'multline',
+    }));
+
+  it('multline', () =>
+    ruleTester.invalid({
       code: `
 /*
 p {
@@ -95,6 +100,5 @@ p {
 */
       `,
       errors: [{ text: 'Remove this commented out code.', line: 2, column: 1 }],
-    },
-  ],
+    }));
 });

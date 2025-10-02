@@ -16,88 +16,100 @@
  */
 import { StylelintRuleTester } from '../../../tests/tools/tester/index.js';
 import { messages, rule } from './rule.js';
+import { describe, it } from 'node:test';
 
-const ruleTester = new StylelintRuleTester(rule);
-ruleTester.run('function-calc-no-invalid', {
-  valid: [
-    {
-      description: 'single expression',
+const ruleTester = new StylelintRuleTester(rule.ruleName);
+describe('S5362', () => {
+  it('single expression', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100%);}',
-    },
-    {
-      description: 'compound expression',
+    }));
+
+  it('compound expression', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100% - 80px + 60pt);}',
-    },
-    {
-      description: 'division by 1',
+    }));
+
+  it('division by 1', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100% / 1);}',
-    },
-    {
-      description: 'division by 0.1',
+    }));
+
+  it('division by 0.1', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100% / 0.1);}',
-    },
-    {
-      description: 'division by 1px',
+    }));
+
+  it('division by 1px', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100% / 1px);}',
-    },
-    {
-      description: 'comma divider',
+    }));
+
+  it('comma divider', () =>
+    ruleTester.valid({
       code: '.foo {width: calc(100% + var(--text-color, 0px));}',
-    },
-  ],
-  invalid: [
-    {
-      description: 'empty expression',
+    }));
+
+  it('empty expression', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc();}',
       errors: [{ text: messages.empty, line: 1, column: 7 }],
-    },
-    {
-      description: 'space-only expression',
+    }));
+
+  it('space-only expression', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(   );}',
       errors: [{ text: messages.empty }],
-    },
-    {
-      description: 'comment-only expression',
+    }));
+
+  it('comment-only expression', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(/* this a comment */);}',
       errors: [{ text: messages.empty }],
-    },
-    {
-      description: 'missing operator',
+    }));
+
+  it('missing operator', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100% 80px);}',
       errors: [{ text: messages.malformed }],
-    },
-    {
-      description: 'division by 0',
+    }));
+
+  it('division by 0', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100% / 0);}',
       errors: [{ text: messages.divByZero }],
-    },
-    {
-      description: 'division by 0.0',
+    }));
+
+  it('division by 0.0', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100% / 0.0);}',
       errors: [{ text: messages.divByZero }],
-    },
-    {
-      description: 'division by 0px',
+    }));
+
+  it('division by 0px', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100% / 0px);}',
       errors: [{ text: messages.divByZero }],
-    },
-    {
-      description: 'sibling calc-s',
+    }));
+
+  it('sibling calc-s', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc() + calc(100% / 0px);}',
       errors: [
         { text: messages.empty, line: 1, column: 7 },
         { text: messages.divByZero, line: 1, column: 7 },
       ],
-    },
-    {
-      description: 'nested calc-s',
+    }));
+
+  it('nested calc-s', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100% / 0px + calc());}',
       errors: [{ text: messages.divByZero }, { text: messages.empty }],
-    },
-    {
-      description: 'nested expressions',
+    }));
+
+  it('nested expressions', () =>
+    ruleTester.invalid({
       code: '.foo {width: calc(100 + ("foo" / (-0.9) * abs(80%) (70px+"bar")));}',
       errors: [{ text: messages.malformed }, { text: messages.malformed }],
-    },
-  ],
+    }));
 });
