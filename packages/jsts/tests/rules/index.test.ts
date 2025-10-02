@@ -27,7 +27,7 @@ import { rules as reactRules } from '../../src/rules/external/react.js';
 import { getESLintCoreRule } from '../../src/rules/external/core.js';
 import { rules as tsEslintRules } from '../../src/rules/external/typescript-eslint/index.js';
 import { rules as importRules } from 'eslint-plugin-import';
-import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
+import reactHooksRules from 'eslint-plugin-react-hooks';
 import angularPlugin from '@angular-eslint/eslint-plugin';
 const { rules: angularRules } = angularPlugin;
 import { rules as unicornRules } from '../../src/rules/external/unicorn.js';
@@ -39,7 +39,7 @@ const allExternalRules = {
   'jsx-a11y': key => a11yRules[key],
   import: key => importRules[key],
   react: key => reactRules[key],
-  'react-hooks': key => reactHooksRules[key],
+  'react-hooks': key => (reactHooksRules as any).rules[key],
   '@stylistic/eslint-plugin': async key => await import(`@stylistic/eslint-plugin/rules/${key}`),
   '@angular-eslint': key => angularRules[key],
   unicorn: key => unicornRules[key],
