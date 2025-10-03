@@ -53,63 +53,69 @@ describe('S5362', () => {
   it('empty expression', () =>
     ruleTester.invalid({
       code: '.foo {width: calc();}',
-      errors: [{ text: messages.empty, line: 1, column: 7 }],
+      errors: [{ text: `${messages.empty} (sonar/function-calc-no-invalid)`, line: 1, column: 7 }],
     }));
 
   it('space-only expression', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(   );}',
-      errors: [{ text: messages.empty }],
+      errors: [{ text: `${messages.empty} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('comment-only expression', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(/* this a comment */);}',
-      errors: [{ text: messages.empty }],
+      errors: [{ text: `${messages.empty} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('missing operator', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100% 80px);}',
-      errors: [{ text: messages.malformed }],
+      errors: [{ text: `${messages.malformed} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('division by 0', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100% / 0);}',
-      errors: [{ text: messages.divByZero }],
+      errors: [{ text: `${messages.divByZero} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('division by 0.0', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100% / 0.0);}',
-      errors: [{ text: messages.divByZero }],
+      errors: [{ text: `${messages.divByZero} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('division by 0px', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100% / 0px);}',
-      errors: [{ text: messages.divByZero }],
+      errors: [{ text: `${messages.divByZero} (sonar/function-calc-no-invalid)` }],
     }));
 
   it('sibling calc-s', () =>
     ruleTester.invalid({
       code: '.foo {width: calc() + calc(100% / 0px);}',
       errors: [
-        { text: messages.empty, line: 1, column: 7 },
-        { text: messages.divByZero, line: 1, column: 7 },
+        { text: `${messages.empty} (sonar/function-calc-no-invalid)`, line: 1, column: 7 },
+        { text: `${messages.divByZero} (sonar/function-calc-no-invalid)`, line: 1, column: 7 },
       ],
     }));
 
   it('nested calc-s', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100% / 0px + calc());}',
-      errors: [{ text: messages.divByZero }, { text: messages.empty }],
+      errors: [
+        { text: `${messages.divByZero} (sonar/function-calc-no-invalid)` },
+        { text: `${messages.empty} (sonar/function-calc-no-invalid)` },
+      ],
     }));
 
   it('nested expressions', () =>
     ruleTester.invalid({
       code: '.foo {width: calc(100 + ("foo" / (-0.9) * abs(80%) (70px+"bar")));}',
-      errors: [{ text: messages.malformed }, { text: messages.malformed }],
+      errors: [
+        { text: `${messages.malformed} (sonar/function-calc-no-invalid)` },
+        { text: `${messages.malformed} (sonar/function-calc-no-invalid)` },
+      ],
     }));
 });

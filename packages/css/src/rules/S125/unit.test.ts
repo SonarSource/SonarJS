@@ -27,67 +27,89 @@ describe('S125', () => {
   it('selector', () =>
     ruleTester.invalid({
       code: '/* p {} */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('multiple selectors', () =>
     ruleTester.invalid({
       code: '/* p, div {} */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('declaration', () =>
     ruleTester.invalid({
       code: '/* color: blue; */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('selector declaration', () =>
     ruleTester.invalid({
       code: '/* p { color: blue; } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('multiple declarations', () =>
     ruleTester.invalid({
       code: '/* div { font-size: 20px; color: red; } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('class selector', () =>
     ruleTester.invalid({
       code: '/* .class { background-color: red; } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('id selector', () =>
     ruleTester.invalid({
       code: '/* #id:hover { border: 1px solid black; } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('attribute selector', () =>
     ruleTester.invalid({
       code: '/* a[href] { color: purple; } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('media query', () =>
     ruleTester.invalid({
       code: '/* @media (max-width: 600px) { .class { font-size: 18px; } } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('@keyframes', () =>
     ruleTester.invalid({
       code: '/* @keyframes mymove { 0% { top: 0px; } 100% { top: 200px; } } */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('import', () =>
     ruleTester.invalid({
       code: '/* @import url("styles.css"); */',
-      errors: [{ text: 'Remove this commented out code.', line: 1, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
     }));
 
   it('multline', () =>
@@ -99,6 +121,8 @@ p {
 }
 */
       `,
-      errors: [{ text: 'Remove this commented out code.', line: 2, column: 1 }],
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 2, column: 1 },
+      ],
     }));
 });
