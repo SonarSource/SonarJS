@@ -196,7 +196,7 @@ class CssRuleSensorTest {
   @Test
   void should_trim_rule_key_from_message() throws IOException {
     AnalysisResponse responseIssues = response(
-      "{ issues: [{\"line\":2,\"ruleId\":\"color-no-invalid-hex\",\"message\":\"some message (color-no-invalid-hex)\"}]}"
+      "{ issues: [{\"line\":2,\"ruleId\":\"color-no-invalid-hex\",\"message\":\"some message (sonar/color-no-invalid-hex)\"}]}"
     );
     when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
