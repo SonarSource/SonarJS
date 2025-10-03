@@ -28,6 +28,9 @@ export const messages = {
   locked: 'Do not lock content to a specific display orientation.',
 };
 
+const incorrectAngles = [90, 270];
+const tolerance = 30;
+
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
     root.walkAtRules((atRule: PostCSS.AtRule) => {
@@ -54,7 +57,11 @@ function isAngleInvalid(angle: number | undefined) {
     return false;
   }
   // Check if angle is within range of 90° (60° to 120°) or within range of 270° (240° to 300°)
-  return (angle >= 60 && angle <= 120) || (angle >= 240 && angle <= 300);
+  return incorrectAngles.some(incorrectAngle => {
+    const lowerBound = incorrectAngle - tolerance;
+    const upperBound = incorrectAngle + tolerance;
+    return angle >= lowerBound && angle <= upperBound;
+  });
 }
 
 function getAngle(node: postcssValueParser.Node) {
@@ -63,7 +70,7 @@ function getAngle(node: postcssValueParser.Node) {
   }
   const functionName = node.value.toLowerCase();
   switch (functionName) {
-    case 'rotate':
+    case 'rotate': //rotate is an alias to rotateZ
     case 'rotatez': {
       if (
         node.nodes?.length === 1 &&
@@ -78,6 +85,7 @@ function getAngle(node: postcssValueParser.Node) {
       const nodes = getWordNodes(node.nodes);
       if (
         nodes?.length === 4 &&
+        // 3rd node refers to rotation in z-axis
         Number.parseInt(nodes[2].value) === 1 &&
         angleRegex.test(nodes[3].value)
       ) {
@@ -86,7 +94,7 @@ function getAngle(node: postcssValueParser.Node) {
       break;
     }
     case 'matrix':
-    // 90°: matrix(0, 1, -1, 0, tx, ty)
+    // 90°: matrix(0, 1, -1, 0, tx, ty) where first param = cos(90°) = 0, second param = sin(90°) = 1
     // 270°: matrix(0, -1, 1, 0, tx, ty)
     case 'matrix3d':
       // 90°: matrix3d(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
