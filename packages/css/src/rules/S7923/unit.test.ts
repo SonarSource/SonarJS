@@ -85,7 +85,7 @@ describe('S7423', () => {
 		Page Content
 	</body>
 </html>`,
-      errors: [{ text: messages.locked, line: 8 }],
+      errors: [{ text: `${messages.locked} (sonar/no-restrict-orientation)`, line: 8 }],
     }));
 
   it('restricts the element to landscape orientation with rotate3d', () =>
@@ -107,7 +107,7 @@ describe('S7423', () => {
 		Page Content
 	</body>
 </html>`,
-      errors: [{ text: messages.locked, line: 8 }],
+      errors: [{ text: `${messages.locked} (sonar/no-restrict-orientation)`, line: 8 }],
     }));
 
   it('restricts the element to landscape orientation with matrix3d', () =>
@@ -129,7 +129,7 @@ describe('S7423', () => {
 		Page Content
 	</body>
 </html>`,
-      errors: [{ text: messages.locked, line: 8 }],
+      errors: [{ text: `${messages.locked} (sonar/no-restrict-orientation)`, line: 8 }],
     }));
 
   it('restricts the element to landscape orientation with rotate with tolerance', () =>
@@ -155,6 +155,6 @@ describe('S7423', () => {
 		Page Content
 	</body>
 </html>`,
-      errors: [{ text: messages.locked, line: 12 }],
+      errors: [{ text: `${messages.locked} (sonar/no-restrict-orientation)`, line: 12 }],
     }));
 });
