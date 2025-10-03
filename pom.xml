@@ -69,7 +69,7 @@
     <mockito.version>5.20.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
     <jetbrains.annotations.version>26.0.2-1</jetbrains.annotations.version>
-    <sonar.version>25.9.0.112764</sonar.version>
+    <sonar.version>25.10.0.114319</sonar.version>
     <sonar.api.version>13.2.0.3137</sonar.api.version>
     <sonar-orchestrator.version>5.6.2.2625</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
