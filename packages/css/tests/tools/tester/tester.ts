@@ -15,73 +15,59 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import stylelint from 'stylelint';
-import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { createStylelintConfig } from '../../../src/linter/config.js';
 
-type ValidAssertion = { description: string; code: string };
+type ValidAssertion = { code: string; codeFilename?: string };
 type InvalidAssertion = {
-  description: string;
   code: string;
+  codeFilename?: string;
   errors: { text?: string; line?: number; column?: number }[];
 };
 
 class StylelintRuleTester {
   private readonly config: stylelint.Config;
 
-  constructor(rule: { ruleName: string; rule: stylelint.Rule }) {
-    stylelint.rules[rule.ruleName] = rule.rule;
-    this.config = { rules: { [rule.ruleName]: true } };
+  constructor(rule: string, configuration?: any[]) {
+    this.config = createStylelintConfig([{ key: rule, configurations: configuration ?? [] }]);
   }
 
-  run(description: string, assertions: { valid: ValidAssertion[]; invalid: InvalidAssertion[] }) {
-    describe(description, () => {
-      for (const assertion of assertions.valid) {
-        StylelintRuleTester.accept(assertion, this.config);
-      }
-      for (const assertion of assertions.invalid) {
-        StylelintRuleTester.reject(assertion, this.config);
-      }
+  public async valid(assertion: ValidAssertion) {
+    const { code, codeFilename = 'test.css' } = assertion;
+    const {
+      results: [{ parseErrors, warnings }],
+    } = await stylelint.lint({
+      code,
+      codeFilename,
+      config: this.config,
     });
+    expect(parseErrors).toHaveLength(0);
+    expect(warnings).toHaveLength(0);
   }
 
-  private static accept(assertion: ValidAssertion, config: stylelint.Config) {
-    const { description, code } = assertion;
-    it(description, async () => {
-      const {
-        results: [{ parseErrors, warnings }],
-      } = await stylelint.lint({
-        code,
-        config,
-      });
-      expect(parseErrors).toHaveLength(0);
-      expect(warnings).toHaveLength(0);
+  public async invalid(assertion: InvalidAssertion) {
+    const { code, codeFilename = 'test.css', errors } = assertion;
+    const {
+      results: [{ warnings }],
+    } = await stylelint.lint({
+      code,
+      codeFilename,
+      config: this.config,
     });
-  }
-
-  private static reject(assertion: InvalidAssertion, config: stylelint.Config) {
-    const { description, code, errors } = assertion;
-    it(description, async () => {
-      const {
-        results: [{ warnings }],
-      } = await stylelint.lint({
-        code,
-        config,
-      });
-      expect(warnings).toHaveLength(errors.length);
-      for (const [index, warning] of warnings.entries()) {
-        const { text: actualMessage, line: actualLine, column: actualColumn } = warning;
-        const { text: expectedMessage, line: expectedLine, column: expectedColumn } = errors[index];
-        if (expectedMessage) {
-          expect(actualMessage).toBe(expectedMessage);
-        }
-        if (expectedLine) {
-          expect(actualLine).toBe(expectedLine);
-        }
-        if (expectedColumn) {
-          expect(actualColumn).toBe(expectedColumn);
-        }
+    expect(warnings).toHaveLength(errors.length);
+    for (const [index, warning] of warnings.entries()) {
+      const { text: actualMessage, line: actualLine, column: actualColumn } = warning;
+      const { text: expectedMessage, line: expectedLine, column: expectedColumn } = errors[index];
+      if (expectedMessage) {
+        expect(actualMessage).toBe(expectedMessage);
       }
-    });
+      if (expectedLine) {
+        expect(actualLine).toBe(expectedLine);
+      }
+      if (expectedColumn) {
+        expect(actualColumn).toBe(expectedColumn);
+      }
+    }
   }
 }
 

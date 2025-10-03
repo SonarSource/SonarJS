@@ -16,16 +16,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S125/css
 
-import pkg from 'stylelint';
+import pkg, { type PostcssResult } from 'stylelint';
 const { createPlugin, utils } = pkg;
+import type PostCSS from 'postcss';
 import { parse } from 'postcss';
 
 const ruleName = 'sonar/no-commented-code';
 const messages = { commentedCode: 'Remove this commented out code.' };
 
 const ruleImpl: pkg.RuleBase = () => {
-  return (root: any, result: any) => {
-    root.walkComments((comment: any) => {
+  return (root: PostCSS.Root, result: PostcssResult) => {
+    root.walkComments((comment: PostCSS.Comment) => {
       const { text } = comment;
       if (isLikelyCss(text)) {
         try {
