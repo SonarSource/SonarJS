@@ -30,6 +30,6 @@ describe('S7424', () => {
     ruleTester.invalid({
       codeFilename: 'badContrast.html',
       code: '<p style="color: #AAA; background: white;">Some text in a human language</p>',
-      errors: [{ text: messages.contrast, line: 1, column: 7 }],
+      errors: [{ text: `${messages.contrast} (sonar/minimum-contrast)`, line: 1 }],
     }));
 });
