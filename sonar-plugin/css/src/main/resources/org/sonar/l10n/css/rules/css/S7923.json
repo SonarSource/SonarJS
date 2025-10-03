@@ -22,8 +22,5 @@
       "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "RESPECTFUL"
-  },
-  "compatibleLanguages": [
-    "CSS"
-  ]
+  }
 }
