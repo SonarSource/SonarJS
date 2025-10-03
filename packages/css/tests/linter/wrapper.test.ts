@@ -56,7 +56,7 @@ describe('LinterWrapper', () => {
         ruleId: S5362.ruleName,
         line: 1,
         column: 6,
-        message: `Fix this malformed 'calc' expression.`,
+        message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
       },
     ]);
   });

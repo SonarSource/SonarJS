@@ -255,7 +255,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   private static String normalizeMessage(String message) {
     // stylelint messages have format "message (rulekey)"
-    Pattern pattern = Pattern.compile("(.+)\\([a-z\\-]+\\)");
+    Pattern pattern = Pattern.compile("(.+)\\([a-z\\-/]+\\)");
     Matcher matcher = pattern.matcher(message);
     if (matcher.matches()) {
       return matcher.group(1);
