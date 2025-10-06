@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7923/css
+// https://sonarsource.github.io/rspec/#/rspec/S7924/css
+
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
-import Color from 'color-string';
-import postcssValueParser from 'postcss-value-parser';
+import { contrast, getColorFromBackground, getColorFromString } from '../../helpers/color.js';
 
 const ruleName = 'sonar/minimum-contrast';
 
@@ -31,14 +31,19 @@ const THRESHOLD = 4.5;
 
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
-    let textColor: number[] | null = null;
-    let backgroundColor: number[] | null = null;
+    let textColor: number[] | undefined = undefined;
+    let backgroundColor: number[] | undefined = undefined;
+    let parent: PostCSS.Node | undefined = undefined;
     root.walkDecls((decl: PostCSS.Declaration) => {
-      console.log(decl.value);
+      if (decl.parent !== parent) {
+        parent = decl.parent;
+        textColor = undefined;
+        backgroundColor = undefined;
+      }
       if (decl.prop.toLowerCase() === 'color') {
-        textColor = Color.get.rgb(decl.value);
+        textColor = getColorFromString(decl.value);
       } else if (decl.prop.toLowerCase() === 'background-color') {
-        backgroundColor = Color.get.rgb(decl.value);
+        backgroundColor = getColorFromString(decl.value);
       } else if (decl.prop.toLowerCase() === 'background') {
         backgroundColor = getColorFromBackground(decl.value);
       }
@@ -54,16 +59,6 @@ const ruleImpl: stylelint.RuleBase = () => {
   };
 };
 
-function getColorFromBackground(value: string) {
-  let color: number[] | null = null;
-  postcssValueParser(value).walk(node => {
-    if (node.type === 'word' && !color) {
-      color = Color.get.rgb(node.value);
-    }
-  });
-  return color;
-}
-
 export const rule = stylelint.createPlugin(
   ruleName,
   Object.assign(ruleImpl, {
@@ -71,27 +66,3 @@ export const rule = stylelint.createPlugin(
     ruleName,
   }),
 ) as { ruleName: string; rule: stylelint.Rule };
-
-/// https://stackoverflow.com/a/63270816
-const RED = 0.2126;
-const GREEN = 0.7152;
-const BLUE = 0.0722;
-const GAMMA = 2.4;
-
-function luminance(...rgb: number[]) {
-  const a = rgb.slice(0, 3).map(v => {
-    v /= 255;
-    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** GAMMA;
-  });
-  return a[0] * RED + a[1] * GREEN + a[2] * BLUE;
-}
-
-function contrast(rgb1: number[], rgb2: number[]) {
-  const lum1 = luminance(...rgb1);
-  const lum2 = luminance(...rgb2);
-  const [brightest, darkest] = lum1 > lum2 ? [lum1, lum2] : [lum2, lum1];
-  return (brightest + 0.05) / (darkest + 0.05);
-}
-
-console.log(contrast([255, 255, 255], [255, 255, 0])); // 1.074 for yellow
-console.log(contrast([255, 255, 255], [0, 0, 255])); // 8.592 for blue
