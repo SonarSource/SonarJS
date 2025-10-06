@@ -21,15 +21,15 @@ import postcssValueParser from 'postcss-value-parser';
 import unitConverter, { type CSSUnits } from 'css-unit-converter';
 
 const ruleName = 'sonar/no-restrict-orientation';
-const angleRegex = /(?<angle>-?\d+(?:\.\d+)?)\s*(?<unit>deg|rad|grad|turn)/i;
+const angleRegex = /(?<angle>-?\d+(?:\.\d+)?)\s*(?<unit>deg|rad|grad|turn)?/i;
 
 // exported for testing purpose
 export const messages = {
   locked: 'Do not lock content to a specific display orientation.',
 };
 
-const incorrectAngles = [90, 270];
-const tolerance = 30;
+const RIGHT_ANGLE = 90;
+const TOLERANCE = 30;
 
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
@@ -56,15 +56,11 @@ function isAngleInvalid(angle: number | undefined) {
   if (angle === undefined) {
     return false;
   }
-  // Check if angle is within range of 90° (60° to 120°) or within range of 270° (240° to 300°)
-  return incorrectAngles.some(incorrectAngle => {
-    const lowerBound = incorrectAngle - tolerance;
-    const upperBound = incorrectAngle + tolerance;
-    return angle >= lowerBound && angle <= upperBound;
-  });
+  // Check if the angle is within range of 90° (60° to 120°) or within range of 270° (240° to 300°)
+  return Math.abs((angle % 180) - RIGHT_ANGLE) <= TOLERANCE;
 }
 
-function getAngle(node: postcssValueParser.Node) {
+export function getAngle(node: postcssValueParser.Node) {
   if (node.type !== 'function') {
     return;
   }
@@ -85,8 +81,10 @@ function getAngle(node: postcssValueParser.Node) {
       const nodes = getWordNodes(node.nodes);
       if (
         nodes?.length === 4 &&
-        // 3rd node refers to rotation in z-axis
-        Number.parseInt(nodes[2].value) === 1 &&
+        // nodes[2] refers to rotation in z-axis and nodes[3] refers to the actual angle
+        Number.parseInt(nodes[0].value) === 0 &&
+        Number.parseInt(nodes[1].value) === 0 &&
+        Number.parseInt(nodes[2].value) !== 0 &&
         angleRegex.test(nodes[3].value)
       ) {
         return getAngleFromString(nodes[3].value);
@@ -104,7 +102,7 @@ function getAngle(node: postcssValueParser.Node) {
 }
 
 function getAngleFromString(node: string) {
-  const { angle, unit } = angleRegex.exec(node)?.groups ?? {};
+  const { angle, unit = 'deg' } = angleRegex.exec(node)?.groups ?? {};
   if (angle && unit) {
     return normalize360Angle(unitConverter(Number.parseFloat(angle), unit as CSSUnits, 'deg'));
   }
@@ -125,7 +123,7 @@ function getAngleFromMatrix(node: postcssValueParser.FunctionNode) {
 }
 
 function normalize360Angle(angle: number) {
-  return (angle + 360) % 360;
+  return ((angle % 360) + 360) % 360;
 }
 
 function getWordNodes(nodes: postcssValueParser.Node[]) {
