@@ -118,6 +118,7 @@
     "@typescript/native-preview": "7.0.0-dev.20250922.1",
     "builtin-modules": "5.0.0",
     "bytes": "3.1.2",
+    "css-unit-converter": "1.1.2",
     "eslint": "9.37.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
