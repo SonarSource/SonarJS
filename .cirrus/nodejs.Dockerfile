@@ -16,6 +16,7 @@ RUN apt-get update \
     && tar -xJf node.tar.xz -C /usr/local --strip-components=1 \
     && rm node.tar.xz \
     && apt-get clean \
+    && deno --version \
     && node -v \
     && npm -v
 
