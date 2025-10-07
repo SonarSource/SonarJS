@@ -166,6 +166,7 @@ export async function start(
       if (worker) {
         debug('Shutting down the worker');
         worker.postMessage({ type: 'close' });
+        closeServer();
       } else {
         closeServer();
       }

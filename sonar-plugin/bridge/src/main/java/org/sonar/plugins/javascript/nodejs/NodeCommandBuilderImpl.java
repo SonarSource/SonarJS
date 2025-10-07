@@ -41,8 +41,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(NodeCommandBuilderImpl.class);
 
-  public static final String NODE_EXECUTABLE_DEFAULT = "node";
-  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/bin/run-node";
+  public static final String NODE_EXECUTABLE_DEFAULT = "deno";
+  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "/usr/local/bin/deno";
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
@@ -84,7 +84,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   @Override
   public NodeCommandBuilder maxOldSpaceSize(int maxOldSpaceSize) {
-    nodeJsArgs("--max-old-space-size=" + maxOldSpaceSize);
+    //nodeJsArgs("--max-old-space-size=" + maxOldSpaceSize);
+    //    nodeJsArgs("--allow-all");
     LOG.info("Configured Node.js --max-old-space-size={}.", maxOldSpaceSize);
     return this;
   }
@@ -176,18 +177,18 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     LOG.debug("Checking Node.js version");
 
-    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
-    actualNodeVersion = nodeVersion(versionString);
-    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
-      throw new NodeCommandException(
-        String.format(
-          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
-          actualNodeVersion
-        )
-      );
-    }
-
-    LOG.debug("Using Node.js {}.", versionString);
+    //    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
+    //    actualNodeVersion = nodeVersion(versionString);
+    //    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
+    //      throw new NodeCommandException(
+    //        String.format(
+    //          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
+    //          actualNodeVersion
+    //        )
+    //      );
+    //    }
+    //
+    //    LOG.debug("Using Node.js {}.", versionString);
   }
 
   // Visible for testing
@@ -308,7 +309,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
     List<String> stdOut = new ArrayList<>();
     Process whereTool = processWrapper.startProcess(
-      asList("C:\\Windows\\System32\\where.exe", "$PATH:node.exe"),
+      asList("C:\\Windows\\System32\\where.exe", "$PATH:deno.cmd"),
       emptyMap(),
       stdOut::add,
       LOG::error

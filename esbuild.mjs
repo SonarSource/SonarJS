@@ -34,12 +34,12 @@ await esbuild.build({
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
-  minify: true,
+  // minify: true,
   target: 'node20',
   plugins: [
     textReplace({
       include: /server\.mjs$/,
-      pattern: [['new URL(import.meta.url)', '__filename']],
+      pattern: [['new URL(import.meta.url)', '`file://${__filename}`']],
     }),
     textReplace({
       include: /lib[\/\\]jsts[\/\\]src[\/\\]parsers[\/\\]ast\.js$/,
