@@ -96,7 +96,7 @@ public class NodeCommand {
   ) {
     List<String> result = new ArrayList<>();
     result.add(nodeExecutable);
-    //result.addAll(nodeJsArgs);
+    result.addAll(nodeJsArgs);
     if (scriptFilename != null) {
       result.add(scriptFilename);
     }
