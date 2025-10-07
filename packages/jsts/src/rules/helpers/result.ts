@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Node } from 'estree';
+import type { Node } from 'estree';
 import {
   getProperty,
   getUniqueWriteUsageOrNode,

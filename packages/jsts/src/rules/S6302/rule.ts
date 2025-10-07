@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6302/javascript
 
 import type { Rule } from 'eslint';
-import { Node } from 'estree';
+import type { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import {
   AwsIamPolicyTemplate,

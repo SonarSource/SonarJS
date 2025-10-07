@@ -23,7 +23,7 @@ import {
   isNullOrUndefinedType,
   isObjectType,
 } from '../helpers/index.js';
-import { type LogicalExpression } from 'estree';
+import type { LogicalExpression } from 'estree';
 import * as meta from './generated-meta.js';
 import { isTypeUnknownType, isTypeAnyType } from '@typescript-eslint/type-utils';
 

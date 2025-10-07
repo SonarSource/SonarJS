@@ -26,7 +26,7 @@ import {
   toSecondaryLocation,
 } from '../index.js';
 import { normalizeFQN } from './cdk.js';
-import { RulesMeta } from '@eslint/core';
+import type { RulesMeta } from '@eslint/core';
 
 /**
  * A rule template for AWS S3 Buckets

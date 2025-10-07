@@ -14,14 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
+import type {
   Character,
   CharacterClassElement,
   CharacterClassRange,
   CharacterSet,
   Flags,
   Node,
-} from '@eslint-community/regexpp/ast';
+} from '@eslint-community/regexpp';
 import * as regexpp from '@eslint-community/regexpp';
 import createTree from 'functional-red-black-tree';
 
