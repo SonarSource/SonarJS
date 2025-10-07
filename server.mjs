@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
-import { start } from './lib/bridge/src/server.js';
-import { createWorker } from './lib/shared/src/helpers/worker.js';
+import { start } from './packages/bridge/src/server.js';
+import { createWorker } from './packages/shared/src/helpers/worker.js';
 
 // import containing code which is only executed if it's a child process
-import './lib/bridge/src/worker.js';
+import './packages/bridge/src/worker.js';
 
 if (isMainThread) {
   /**
@@ -16,8 +16,8 @@ if (isMainThread) {
    * timeoutSeconds - timeout for the node server to wait before shutting down. If not provided or 0,
    */
 
-  const port = process.argv[2];
-  const host = process.argv[3];
+  const port = process.argv[2] ?? 21632;
+  const host = process.argv[3] ?? '127.0.0.1';
   const debugMemory = process.argv[4] === 'true';
   const timeoutSeconds = Number(process.argv[5]) || 0;
 
