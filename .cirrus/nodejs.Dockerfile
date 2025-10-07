@@ -6,17 +6,12 @@ USER root
 ARG NODE_VERSION=20.12.0
 
 RUN apt-get update \
-    && apt-get install -y ca-certificates curl unzip xz-utils \
-    && curl -fsSL https://github.com/denoland/deno/releases/download/v2.5.3/deno-x86_64-unknown-linux-gnu.zip -o deno.zip \
-    && unzip deno.zip -d /usr/local/bin \
-    && rm deno.zip \
-    && chmod +x /usr/local/bin/deno \
-    && deno --version \
+    && apt-get install -y ca-certificates curl xz-utils \
     && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o node.tar.xz \
     && tar -xJf node.tar.xz -C /usr/local --strip-components=1 \
     && rm node.tar.xz \
     && apt-get clean \
     && node -v \
-    && npm -v \
+    && npm -v
 
 USER sonarsource
