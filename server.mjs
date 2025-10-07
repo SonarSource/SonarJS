@@ -20,6 +20,7 @@ if (isMainThread) {
   const host = process.argv[3] || '127.0.0.1';
   const debugMemory = process.argv[4] === 'true';
   const timeoutSeconds = Number(process.argv[5]) || 0;
+  console.log('import meta:', new URL(import.meta.url));
 
   Promise.resolve().then(async () => {
     return start(

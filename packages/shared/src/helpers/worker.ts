@@ -21,6 +21,7 @@ const isDeno = typeof (globalThis as any).Deno !== 'undefined';
 const isNode = typeof process !== 'undefined' && process.versions?.node;
 
 export async function createWorker(url: string, workerData?: WorkerData): Promise<any> {
+  console.log('creating worker with url: ' + url + ' and workerData: ' + workerData + '');
   if (isDeno) {
     // Use Deno's Web Worker API
     return new Promise<any>((resolve, reject) => {
