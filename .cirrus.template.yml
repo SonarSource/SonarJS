@@ -434,6 +434,7 @@ js_ts_ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
+    - npm install -g deno
     - npm run ruling
   on_failure:
     debug_script:
