@@ -18,8 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import * as regexpp from '@eslint-community/regexpp';
-import type { RegExpLiteral } from '@eslint-community/regexpp';
+import { type AST, visitRegExpAST } from '@eslint-community/regexpp';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { extractReferences, type GroupReference } from '../helpers/regex/group.js';
@@ -87,9 +86,9 @@ class CapturingGroups {
   }
 }
 
-function extractGroups(regex: RegExpLiteral) {
+function extractGroups(regex: AST.RegExpLiteral) {
   const groups = new CapturingGroups();
-  regexpp.visitRegExpAST(regex, {
+  visitRegExpAST(regex, {
     onCapturingGroupEnter: group => groups.add(group.name),
   });
   return groups;

@@ -19,7 +19,7 @@
 import { AST, Rule } from 'eslint';
 import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.js';
 import { RegExpValidator } from '@eslint-community/regexpp';
-import { Character, CharacterClassElement } from '@eslint-community/regexpp';
+import type { AST as RegexppAST } from '@eslint-community/regexpp';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
@@ -36,7 +36,7 @@ const MODIFIABLE_REGEXP_FLAGS_TYPES = new Set([
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
-    function checkSequence(sequence: Character[]) {
+    function checkSequence(sequence: RegexppAST.Character[]) {
       // Stop on the first illegal character in the sequence
       for (let index = 0; index < sequence.length; index++) {
         if (checkCharacter(sequence[index], index, sequence)) {
@@ -45,7 +45,11 @@ export const rule: Rule.RuleModule = createRegExpRule(
       }
     }
 
-    function checkCharacter(character: Character, index: number, characters: Character[]) {
+    function checkCharacter(
+      character: RegexppAST.Character,
+      index: number,
+      characters: RegexppAST.Character[],
+    ) {
       // Stop on the first failed check as there may be overlaps between checks
       // for instance a zero-width-sequence containing a modified emoji.
       for (const check of characterChecks) {
@@ -56,7 +60,11 @@ export const rule: Rule.RuleModule = createRegExpRule(
       return false;
     }
 
-    function checkCombinedCharacter(character: Character, index: number, characters: Character[]) {
+    function checkCombinedCharacter(
+      character: RegexppAST.Character,
+      index: number,
+      characters: RegexppAST.Character[],
+    ) {
       let reported = false;
       if (
         index !== 0 &&
@@ -72,9 +80,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
     }
 
     function checkSurrogatePairTailCharacter(
-      character: Character,
+      character: RegexppAST.Character,
       index: number,
-      characters: Character[],
+      characters: RegexppAST.Character[],
     ) {
       let reported = false;
       if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
@@ -128,9 +136,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
     }
 
     function checkModifiedEmojiCharacter(
-      character: Character,
+      character: RegexppAST.Character,
       index: number,
-      characters: Character[],
+      characters: RegexppAST.Character[],
     ) {
       let reported = false;
       if (
@@ -147,9 +155,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
     }
 
     function checkRegionalIndicatorCharacter(
-      character: Character,
+      character: RegexppAST.Character,
       index: number,
-      characters: Character[],
+      characters: RegexppAST.Character[],
     ) {
       let reported = false;
       if (
@@ -166,9 +174,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
     }
 
     function checkZeroWidthJoinerCharacter(
-      character: Character,
+      character: RegexppAST.Character,
       index: number,
-      characters: Character[],
+      characters: RegexppAST.Character[],
     ) {
       let reported = false;
       if (
@@ -225,9 +233,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
   generateMeta(meta, { hasSuggestions: true }),
 );
 
-function characters(nodes: CharacterClassElement[]): Character[][] {
-  let current: Character[] = [];
-  const sequences: Character[][] = [current];
+function characters(nodes: RegexppAST.CharacterClassElement[]): RegexppAST.Character[][] {
+  let current: RegexppAST.Character[] = [];
+  const sequences: RegexppAST.Character[][] = [current];
   for (const node of nodes) {
     if (node.type === 'Character') {
       current.push(node);

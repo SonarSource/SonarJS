@@ -14,15 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  Character,
-  CharacterClassElement,
-  CharacterClassRange,
-  CharacterSet,
-  Flags,
-  Node,
-} from '@eslint-community/regexpp';
-import * as regexpp from '@eslint-community/regexpp';
+import type { AST } from '@eslint-community/regexpp';
 import createTree from 'functional-red-black-tree';
 
 const MAX_CODE_POINT = 0x10ffff;
@@ -38,24 +30,24 @@ export class SimplifiedRegexCharacterClass {
    * non-null and the tree returned by {@code value} will be the element of the character class which matches that
    * code point.
    */
-  private contents = createTree<number, Node | undefined>();
+  private contents = createTree<number, AST.Node | undefined>();
 
   constructor(
-    private readonly flags: Flags,
-    element?: CharacterClassElement,
+    private readonly flags: AST.Flags,
+    element?: AST.CharacterClassElement,
   ) {
     if (element) {
       this.add(element);
     }
   }
 
-  public add(element: CharacterClassElement) {
+  public add(element: AST.CharacterClassElement) {
     new SimplifiedRegexCharacterClass.Builder(this).visit(element);
   }
 
   public findIntersections(that: SimplifiedRegexCharacterClass) {
     const iter = that.contents.begin;
-    const intersections: Node[] = [];
+    const intersections: AST.Node[] = [];
     if (iter.key === undefined) {
       return intersections;
     }
@@ -85,7 +77,7 @@ export class SimplifiedRegexCharacterClass {
     return isEmpty;
   }
 
-  addRange(from: number, to: number, element: CharacterClassElement) {
+  addRange(from: number, to: number, element: AST.CharacterClassElement) {
     const oldEntry = this.contents.le(to);
     const oldEnd = oldEntry.key === undefined ? undefined : this.contents.gt(oldEntry.key).key;
     this.contents = this.put(from, element, this.contents);
@@ -108,8 +100,8 @@ export class SimplifiedRegexCharacterClass {
 
   put(
     key: number,
-    value: Node | undefined,
-    tree: createTree.Tree<number, regexpp.AST.Node | undefined>,
+    value: AST.Node | undefined,
+    tree: createTree.Tree<number, AST.Node | undefined>,
   ) {
     const entry = tree.find(key);
     if (entry.valid) {
@@ -121,7 +113,7 @@ export class SimplifiedRegexCharacterClass {
   private static readonly Builder = class {
     constructor(private readonly characters: SimplifiedRegexCharacterClass) {}
 
-    public visit(element: CharacterClassElement) {
+    public visit(element: AST.CharacterClassElement) {
       switch (element.type) {
         case 'Character':
           this.visitCharacter(element);
@@ -135,15 +127,15 @@ export class SimplifiedRegexCharacterClass {
       }
     }
 
-    visitCharacter(character: Character) {
+    visitCharacter(character: AST.Character) {
       this.addRange(character.value, character.value, character);
     }
 
-    visitCharacterClassRange(characterRange: CharacterClassRange) {
+    visitCharacterClassRange(characterRange: AST.CharacterClassRange) {
       this.addRange(characterRange.min.value, characterRange.max.value, characterRange);
     }
 
-    visitCharacterSet(characterSet: CharacterSet) {
+    visitCharacterSet(characterSet: AST.CharacterSet) {
       switch (characterSet.kind) {
         case 'digit':
           if (characterSet.negate) {
@@ -226,7 +218,7 @@ export class SimplifiedRegexCharacterClass {
       }
     }
 
-    addRange(from: number, to: number, element: CharacterClassElement) {
+    addRange(from: number, to: number, element: AST.CharacterClassElement) {
       const upperCaseFrom = this.codePoint(String.fromCodePoint(from).toUpperCase());
       const upperCaseTo = this.codePoint(String.fromCodePoint(to).toUpperCase());
       const lowerCaseFrom = this.codePoint(String.fromCodePoint(upperCaseFrom).toLowerCase());
