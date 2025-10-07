@@ -17,7 +17,6 @@
 import express from 'express';
 import { handleRequest } from './handle-request.js';
 import { info, debug, error } from '../../shared/src/helpers/logging.js';
-import type { Worker } from 'node:worker_threads';
 import type { BridgeRequest, RequestResult, RequestType, WsIncrementalResult } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import type { RawData, WebSocket } from 'ws';
@@ -71,9 +70,9 @@ function handleResult(
   response: express.Response,
   next: express.NextFunction,
 ) {
-  switch (message.type) {
+  switch (message.data.type) {
     case 'success':
-      response.send(message.result);
+      response.send(message.data.result);
       break;
 
     case 'failure':

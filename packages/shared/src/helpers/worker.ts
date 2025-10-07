@@ -36,25 +36,17 @@ export async function createWorker(url: string | URL, workerData?: WorkerData): 
       },
     );
 
-    // Send initial data to worker
-    if (workerData) {
-      worker.postMessage(workerData);
-    }
-
-    // Simulate "online" event: first message from worker
-    worker.onmessage = event => {
-      debug(`Main received message from worker: ${JSON.stringify(event.data)}`);
-      resolve(worker);
-    };
-
-    worker.onerror = err => {
+    worker.addEventListener('error', err => {
       debug(`The worker thread failed: ${err.message ?? err}`);
       reject(err);
-    };
+    });
 
     // Deno workers don't have "exit" event — you can listen for close
-    worker.onmessageerror = err => {
-      debug(`Message error in worker: ${err}`);
-    };
+    worker.addEventListener('exit', ev => {
+      debug(`The worker thread exited with code ${ev}`);
+    });
+
+    console.log('Auto resolve worker theread');
+    resolve(worker);
   });
 }

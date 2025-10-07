@@ -32,7 +32,7 @@ export default function router(
 ): express.Router {
   const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
   if (worker) {
-    worker.onmessage(message => {
+    worker.addEventListener('message', message => {
       for (const listener of workerMessageListeners.permanent) {
         listener(message);
       }

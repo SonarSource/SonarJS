@@ -14,28 +14,47 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { parentPort, workerData } from 'node:worker_threads';
+// worker.js (Web Worker version)
 import { handleRequest } from './handle-request.js';
-import { BridgeRequest, WsIncrementalResult } from './request.js';
+import { WsIncrementalResult } from './request.js';
 
-/**
- * Code executed by the worker thread
- */
-if (parentPort) {
-  const parentThread = parentPort;
-  parentThread.on(
-    'message',
-    async (message: (BridgeRequest | { type: 'close' }) & { ws?: boolean }) => {
-      const { type, ws } = message;
-      if (type === 'close') {
-        parentThread.close();
-      } else if (ws) {
-        await handleRequest(message, workerData, (results: WsIncrementalResult) =>
-          parentThread.postMessage({ ws: true, results }),
-        );
-      } else {
-        parentThread.postMessage(await handleRequest(message, workerData));
-      }
-    },
-  );
+let workerData = {
+  debugMemory: false,
+};
+
+async function isWorkerContext() {
+  // Node.js detection
+  if (typeof process !== 'undefined' && process.versions?.node) {
+    try {
+      const { isMainThread } = await import('node:worker_threads');
+      return !isMainThread;
+    } catch {
+      // If import fails, assume not a worker
+      return false;
+    }
+  }
+
+  // Browser / Deno Web Worker detection
+  return typeof self !== 'undefined' && self.constructor?.name === 'DedicatedWorkerGlobalScope';
+}
+
+if (await isWorkerContext()) {
+  console.log('Worker added message handler');
+  self.addEventListener('message', async event => {
+    const message = event.data;
+
+    const { type, ws } = message;
+
+    if (type === 'close') {
+      self.close(); // Terminates the worker
+    } else if (ws) {
+      await handleRequest(message, workerData, (results: WsIncrementalResult) => {
+        self.postMessage({ ws: true, results });
+      });
+    } else {
+      self.postMessage(await handleRequest(message, workerData));
+    }
+  });
+} else {
+  console.log('In main thread, doing nothing');
 }

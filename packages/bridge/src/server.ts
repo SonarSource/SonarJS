@@ -75,15 +75,12 @@ export async function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    if (worker?.onmessage) {
-      worker.onmessage(ev => {
-        console.log('worker on message: ', ev);
+    if (worker) {
+      worker.addEventListener('close', () => {
         closeServer();
       });
-    }
-    if (worker?.onmessageerror) {
-      worker.onmessageerror(err => {
-        debugger;
+
+      worker.addEventListener('error', err => {
         logMemoryError(err);
       });
     }
