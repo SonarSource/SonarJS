@@ -434,8 +434,30 @@ js_ts_ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
-    - npm install -g deno
     - npm run ruling
+  on_failure:
+    debug_script:
+      - sh tools/ruling-debug-script.sh packages/ruling/actual/jsts
+
+js_ts_ruling_deno_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  <<: *NPM_CACHE
+  # needed because we need to build the plugin
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - npm run build:fast
+    - npm install -g deno
+    - npm run ruling-deno
   on_failure:
     debug_script:
       - sh tools/ruling-debug-script.sh packages/ruling/actual/jsts
