@@ -217,6 +217,38 @@ test_java_task:
     - source cirrus-env QA
     - mvn install -T1C -Pcoverage,coverage-report
 
+build_win_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  <<: *MAVEN_CACHE
+  build_script:
+    - source cirrus-env BUILD
+    - mvn install -T1C -e -DskipTests
+
+test_js_win_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  depends_on:
+    - build_win
+  test_js_script:
+    - source cirrus-env QA
+    - npm run generate-meta
+    - npm run bridge:compile
+    - npm run bridge:test:js
+
+test_java_win_task:
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *NPM_WIN_CACHE
+  <<: *MAVEN_CACHE
+  depends_on:
+    - build_win
+  test_java_script:
+    - source cirrus-env QA
+    - mvn install -T1C
+
 plugin_qa_with_node_task:
   alias: plugin_qa_with_node
   <<: *MAVEN_CACHE
@@ -255,6 +287,27 @@ plugin_qa_fast_with_node_task:
       eks_container:
         docker_arguments:
           NODE_VERSION: 22.11.0
+
+plugin_qa_win_task:
+  depends_on:
+    - build
+  <<: *MAVEN_CACHE
+  <<: *WINDOWS_VM_DEFINITION
+  env:
+    SQ_VERSION: LATEST_RELEASE
+  <<: *ORCHESTRATOR_CACHE_MONTHLY
+  <<: *PLUGIN_QA_BODY
+
+plugin_qa_win_fast_with_node_task:
+  depends_on:
+    - build
+  <<: *MAVEN_CACHE
+  <<: *WINDOWS_VM_DEFINITION
+  env:
+    SQ_VERSION: LATEST_RELEASE
+    MVN_TEST: ''
+    IGNORE_CLASSES: ''
+  <<: *PLUGIN_QA_FAST_BODY
 
 js_ts_ruling_task:
   depends_on:
@@ -304,7 +357,7 @@ ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
+  <<: *CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
@@ -325,7 +378,7 @@ css_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
+  <<: *CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
