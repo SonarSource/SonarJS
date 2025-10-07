@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import esbuild from 'esbuild';
-import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
+import textReplace from 'esbuild-plugin-text-replace';
 import { readFileSync } from 'node:fs';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
@@ -35,6 +35,7 @@ await esbuild.build({
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
   minify: true,
+  target: 'node20',
   plugins: [
     textReplace({
       include: /server\.mjs$/,
@@ -150,6 +151,16 @@ await esbuild.build({
         [
           "JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));",
           stylelintPkgJson,
+        ],
+      ],
+    }),
+    // Fix top-level await in worker.js for CommonJS compatibility
+    textReplace({
+      include: /lib[\/\\]bridge[\/\\]src[\/\\]worker\.js$/,
+      pattern: [
+        [
+          "const { parentPort, workerData: nodeWorkerData } = await import('node:worker_threads');",
+          "const { parentPort, workerData: nodeWorkerData } = require('node:worker_threads');",
         ],
       ],
     }),
