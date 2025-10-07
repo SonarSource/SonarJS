@@ -85,7 +85,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   @Override
   public NodeCommandBuilder maxOldSpaceSize(int maxOldSpaceSize) {
     //nodeJsArgs("--max-old-space-size=" + maxOldSpaceSize);
-    nodeJsArgs("--allow-all");
+    //    nodeJsArgs("--allow-all");
     LOG.info("Configured Node.js --max-old-space-size={}.", maxOldSpaceSize);
     return this;
   }
