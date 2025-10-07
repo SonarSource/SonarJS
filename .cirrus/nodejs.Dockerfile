@@ -12,12 +12,12 @@ RUN apt-get update \
     && unzip deno.zip -d /usr/local/bin \
     && rm deno.zip \
     && chmod +x /usr/local/bin/deno \
+    && deno --version \
     && curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o node.tar.xz \
     && tar -xJf node.tar.xz -C /usr/local --strip-components=1 \
     && rm node.tar.xz \
     && apt-get clean \
-    && deno --version \
     && node -v \
-    && npm -v
+    && npm -v \
 
 USER sonarsource
