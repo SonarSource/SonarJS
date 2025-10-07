@@ -22,7 +22,6 @@ import { errorMiddleware } from './errors/index.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'node:net';
-import type { Worker } from 'node:worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
@@ -76,12 +75,15 @@ export async function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    if (worker) {
-      worker.on('exit', () => {
+    if (worker?.onmessage) {
+      worker.onmessage(ev => {
+        console.log('worker on message: ', ev);
         closeServer();
       });
-
-      worker.on('error', err => {
+    }
+    if (worker?.onmessageerror) {
+      worker.onmessageerror(err => {
+        debugger;
         logMemoryError(err);
       });
     }

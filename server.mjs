@@ -16,8 +16,8 @@ if (isMainThread) {
    * timeoutSeconds - timeout for the node server to wait before shutting down. If not provided or 0,
    */
 
-  const port = process.argv[2] ?? 21632;
-  const host = process.argv[3] ?? '127.0.0.1';
+  const port = process.argv[2];
+  const host = process.argv[3];
   const debugMemory = process.argv[4] === 'true';
   const timeoutSeconds = Number(process.argv[5]) || 0;
 

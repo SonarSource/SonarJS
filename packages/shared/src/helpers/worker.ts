@@ -33,10 +33,6 @@ export async function createWorker(url: string | URL, workerData?: WorkerData): 
       {
         type: 'module',
         name: 'sonarqube-worker',
-        deno: {
-          namespace: true, // allow Deno APIs in worker
-          permissions: 'inherit', // inherit permissions from main thread
-        },
       },
     );
 
@@ -47,12 +43,8 @@ export async function createWorker(url: string | URL, workerData?: WorkerData): 
 
     // Simulate "online" event: first message from worker
     worker.onmessage = event => {
-      if (event.data === '__ready__') {
-        debug('The worker thread is running');
-        resolve(worker);
-      } else {
-        debug(`Main received message from worker: ${JSON.stringify(event.data)}`);
-      }
+      debug(`Main received message from worker: ${JSON.stringify(event.data)}`);
+      resolve(worker);
     };
 
     worker.onerror = err => {
