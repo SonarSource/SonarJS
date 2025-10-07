@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { RegExpLiteral } from '@eslint-community/regexpp/ast';
+import type { RegExpLiteral } from '@eslint-community/regexpp';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { extractReferences, type GroupReference } from '../helpers/regex/group.js';

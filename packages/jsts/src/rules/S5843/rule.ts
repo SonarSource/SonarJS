@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import {
+import type {
   Assertion,
   Backreference,
   CapturingGroup,
@@ -28,7 +28,7 @@ import {
   LookaroundAssertion,
   Pattern,
   Quantifier,
-} from '@eslint-community/regexpp/ast';
+} from '@eslint-community/regexpp';
 import {
   generateMeta,
   getUniqueWriteUsage,

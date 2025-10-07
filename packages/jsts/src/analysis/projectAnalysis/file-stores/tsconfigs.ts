@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TsConfigJson } from 'type-fest';
+import type { TsConfigJson } from 'type-fest';
 import { writeFile } from 'node:fs/promises';
 import { debug, error, info } from '../../../../../shared/src/helpers/logging.js';
 import { Cache } from '../tsconfigCache.js';

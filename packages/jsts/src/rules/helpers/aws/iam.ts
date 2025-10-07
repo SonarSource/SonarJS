@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { CallExpression, NewExpression, Node } from 'estree';
+import type { CallExpression, NewExpression, Node } from 'estree';
 import type { Rule } from 'eslint';
 import { AwsCdkTemplate, normalizeFQN } from './cdk.js';
 import { getResultOfExpression, Result } from '../result.js';
 import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.js';
 import { getFullyQualifiedName } from '../module.js';
-import { RulesMeta } from '@eslint/core';
+import type { RulesMeta } from '@eslint/core';
 
 export interface PolicyCheckerOptions {
   effect: {

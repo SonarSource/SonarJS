@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6270/javascript
 
 import type { Rule } from 'eslint';
-import { NewExpression, Node } from 'estree';
+import type { NewExpression, Node } from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,

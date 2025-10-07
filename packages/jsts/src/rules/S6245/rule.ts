@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6245/javascript
 
 import type { Rule } from 'eslint';
-import { MemberExpression } from 'estree';
+import type { MemberExpression } from 'estree';
 import {
   findPropagatedSetting,
   generateMeta,

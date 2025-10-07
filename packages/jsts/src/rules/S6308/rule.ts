@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { AwsCdkTemplate } from '../helpers/aws/cdk.js';
-import { NewExpression, Node } from 'estree';
+import type { NewExpression, Node } from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,

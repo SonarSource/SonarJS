@@ -25,7 +25,7 @@ import {
   report,
   toSecondaryLocation,
 } from './index.js';
-import { RulesMeta } from '@eslint/core';
+import type { RulesMeta } from '@eslint/core';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
