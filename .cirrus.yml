@@ -357,7 +357,7 @@ ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  <<: *CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
@@ -378,7 +378,7 @@ css_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
-  <<: *CONTAINER_DEFINITION
+  <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
