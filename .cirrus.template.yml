@@ -42,7 +42,7 @@ small_container_definition: &SMALL_CONTAINER
 node_min_supported_container_definition: &NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   <<: *CONTAINER_DEFINITION
   eks_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
+    dockerfile: .cirrus/denojs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
 
@@ -323,7 +323,7 @@ plugin_qa_with_node_task:
   <<: *ORCHESTRATOR_CACHE_MONTHLY
   <<: *CONTAINER_DEFINITION
   eks_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
+    dockerfile: .cirrus/denojs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
   env:
@@ -337,7 +337,7 @@ plugin_qa_fast_with_node_task:
   <<: *PLUGIN_QA_FAST_BODY
   <<: *CONTAINER_DEFINITION
   eks_container:
-    dockerfile: .cirrus/nodejs.Dockerfile
+    dockerfile: .cirrus/denojs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
   env:
