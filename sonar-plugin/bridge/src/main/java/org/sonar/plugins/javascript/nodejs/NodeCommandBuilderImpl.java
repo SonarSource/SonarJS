@@ -309,7 +309,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
     List<String> stdOut = new ArrayList<>();
     Process whereTool = processWrapper.startProcess(
-      asList("C:\\Windows\\System32\\where.exe", "$PATH:deno.exe"),
+      asList("C:\\Windows\\System32\\where.exe", "$PATH:deno.cmd"),
       emptyMap(),
       stdOut::add,
       LOG::error
