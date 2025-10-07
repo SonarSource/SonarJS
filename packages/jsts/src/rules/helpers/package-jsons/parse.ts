@@ -16,7 +16,7 @@
  */
 
 import { Minimatch } from 'minimatch';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 
 const DefinitelyTyped = '@types/';
 

@@ -17,14 +17,14 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5842/javascript
 
 import type { Rule } from 'eslint';
-import { Node, Quantifier } from '@eslint-community/regexpp/ast';
+import type { AST } from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
-    onQuantifierEnter: (node: Quantifier) => {
+    onQuantifierEnter: (node: AST.Quantifier) => {
       const { element } = node;
       if (matchEmptyString(element)) {
         context.reportRegExpNode({
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 }, generateMeta(meta));
 
-function matchEmptyString(node: Node): boolean {
+function matchEmptyString(node: AST.Node): boolean {
   switch (node.type) {
     case 'Alternative':
       return node.elements.every(matchEmptyString);

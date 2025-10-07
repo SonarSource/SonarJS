@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6759/javascript
 
 import type { Rule } from 'eslint';
-import { Function, Node, ReturnStatement } from 'estree';
+import type { Function, Node, ReturnStatement } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,

@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5869/javascript
 
 import { AST, Rule } from 'eslint';
-import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
+import type { AST as RegexppAST } from '@eslint-community/regexpp';
 import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
@@ -25,13 +25,13 @@ import { SimplifiedRegexCharacterClass } from '../helpers/regex/simplified-regex
 import { getRegexpLocation } from '../helpers/regex/location.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-  let flags: Flags;
+  let flags: RegexppAST.Flags;
   return {
-    onRegExpLiteralEnter: (node: RegExpLiteral) => {
+    onRegExpLiteralEnter: (node: RegexppAST.RegExpLiteral) => {
       flags = node.flags;
     },
-    onCharacterClassEnter: (node: CharacterClass) => {
-      const duplicates = new Set<Node>();
+    onCharacterClassEnter: (node: RegexppAST.CharacterClass) => {
+      const duplicates = new Set<RegexppAST.Node>();
       const characterClass = new SimplifiedRegexCharacterClass(flags);
       for (const element of node.elements) {
         const intersections = new SimplifiedRegexCharacterClass(flags, element).findIntersections(

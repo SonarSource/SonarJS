@@ -23,7 +23,7 @@ import { generateMeta, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import pkg from 'jsx-ast-utils-x';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
-import { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

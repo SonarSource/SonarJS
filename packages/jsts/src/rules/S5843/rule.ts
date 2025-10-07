@@ -18,17 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import * as regexpp from '@eslint-community/regexpp';
-import {
-  Assertion,
-  Backreference,
-  CapturingGroup,
-  CharacterClass,
-  Group,
-  LookaroundAssertion,
-  Pattern,
-  Quantifier,
-} from '@eslint-community/regexpp/ast';
+import { visitRegExpAST } from '@eslint-community/regexpp';
+import type { AST } from '@eslint-community/regexpp';
 import {
   generateMeta,
   getUniqueWriteUsage,
@@ -171,13 +162,13 @@ class RegexPartFinder {
   }
 }
 
-type Disjunction = CapturingGroup | Group | LookaroundAssertion | Pattern;
+type Disjunction = AST.CapturingGroup | AST.Group | AST.LookaroundAssertion | AST.Pattern;
 
 class ComplexityCalculator {
   nesting = 1;
   complexity = 0;
   components: { location: LocationHolder; message: string }[] = [];
-  regexPartAST: regexpp.AST.Node | null;
+  regexPartAST: AST.Node | null;
 
   constructor(
     readonly regexPart: RegexPart,
@@ -190,8 +181,8 @@ class ComplexityCalculator {
     if (!this.regexPartAST) {
       return;
     }
-    regexpp.visitRegExpAST(this.regexPartAST, {
-      onAssertionEnter: (node: Assertion) => {
+    visitRegExpAST(this.regexPartAST, {
+      onAssertionEnter: (node: AST.Assertion) => {
         /* lookaround */
         if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
           const [start, end] = getRegexpRange(this.regexPart, node);
@@ -203,65 +194,65 @@ class ComplexityCalculator {
           this.onDisjunctionEnter(node);
         }
       },
-      onAssertionLeave: (node: Assertion) => {
+      onAssertionLeave: (node: AST.Assertion) => {
         /* lookaround */
         if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
           this.onDisjunctionLeave(node);
           this.nesting--;
         }
       },
-      onBackreferenceEnter: (node: Backreference) => {
+      onBackreferenceEnter: (node: AST.Backreference) => {
         this.increaseComplexity(1, node);
       },
-      onCapturingGroupEnter: (node: CapturingGroup) => {
+      onCapturingGroupEnter: (node: AST.CapturingGroup) => {
         /* disjunction */
         this.onDisjunctionEnter(node);
       },
-      onCapturingGroupLeave: (node: CapturingGroup) => {
+      onCapturingGroupLeave: (node: AST.CapturingGroup) => {
         /* disjunction */
         this.onDisjunctionLeave(node);
       },
-      onCharacterClassEnter: (node: CharacterClass) => {
+      onCharacterClassEnter: (node: AST.CharacterClass) => {
         /* character class */
         const [start, end] = getRegexpRange(this.regexPart, node);
         this.increaseComplexity(1, node, [0, -(end - start - 1)]);
         this.nesting++;
       },
-      onCharacterClassLeave: (_node: CharacterClass) => {
+      onCharacterClassLeave: (_node: AST.CharacterClass) => {
         /* character class */
         this.nesting--;
       },
-      onGroupEnter: (node: Group) => {
+      onGroupEnter: (node: AST.Group) => {
         /* disjunction */
         this.onDisjunctionEnter(node);
       },
-      onGroupLeave: (node: Group) => {
+      onGroupLeave: (node: AST.Group) => {
         /* disjunction */
         this.onDisjunctionLeave(node);
       },
-      onPatternEnter: (node: Pattern) => {
+      onPatternEnter: (node: AST.Pattern) => {
         /* disjunction */
         this.onDisjunctionEnter(node);
       },
-      onPatternLeave: (node: Pattern) => {
+      onPatternLeave: (node: AST.Pattern) => {
         /* disjunction */
         this.onDisjunctionLeave(node);
       },
-      onQuantifierEnter: (node: Quantifier) => {
+      onQuantifierEnter: (node: AST.Quantifier) => {
         /* repetition */
         const [start] = getRegexpRange(this.regexPart, node);
         const [, end] = getRegexpRange(this.regexPart, node.element);
         this.increaseComplexity(this.nesting, node, [end - start, 0]);
         this.nesting++;
       },
-      onQuantifierLeave: (_node: Quantifier) => {
+      onQuantifierLeave: (_node: AST.Quantifier) => {
         /* repetition */
         this.nesting--;
       },
     });
   }
 
-  private increaseComplexity(increment: number, node: regexpp.AST.Node, offset?: number[]) {
+  private increaseComplexity(increment: number, node: AST.Node, offset?: number[]) {
     this.complexity += increment;
     let message = '+' + increment;
     if (increment > 1) {

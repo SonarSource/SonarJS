@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6324/javascript
 
 import type { Rule } from 'eslint';
-import { Character } from '@eslint-community/regexpp/ast';
+import type { AST } from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
@@ -26,7 +26,7 @@ const EXCEPTIONS = new Set(['\t', '\n']);
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
-    onCharacterEnter: (character: Character) => {
+    onCharacterEnter: (character: AST.Character) => {
       const { value, raw } = character;
       if (
         value >= 0x00 &&

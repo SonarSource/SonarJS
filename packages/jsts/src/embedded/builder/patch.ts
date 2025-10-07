@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AST, SourceCode } from 'eslint';
-import { Comment, Node } from 'estree';
+import type { Comment, Node } from 'estree';
 import { APIError } from '../../../../shared/src/errors/error.js';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { visit } from '../../linter/visitors/visitor.js';

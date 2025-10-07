@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { Node } from 'estree';
+import type { Node } from 'estree';
 
 const detectReactSelector = [
   ':matches(',

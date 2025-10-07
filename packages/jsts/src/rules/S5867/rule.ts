@@ -17,23 +17,23 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5867/javascript
 
 import type { Rule } from 'eslint';
-import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
+import type { AST } from '@eslint-community/regexpp';
 import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-  const unicodeProperties: { character: Character; offset: number }[] = [];
-  const unicodeCharacters: Quantifier[] = [];
+  const unicodeProperties: { character: AST.Character; offset: number }[] = [];
+  const unicodeCharacters: AST.Quantifier[] = [];
   let rawPattern: string;
   let isUnicodeEnabled = false;
   return {
-    onRegExpLiteralEnter: (node: RegExpLiteral) => {
+    onRegExpLiteralEnter: (node: AST.RegExpLiteral) => {
       rawPattern = node.raw;
       isUnicodeEnabled = node.flags.unicode;
     },
-    onQuantifierEnter: (quantifier: Quantifier) => {
+    onQuantifierEnter: (quantifier: AST.Quantifier) => {
       if (isUnicodeEnabled) {
         return;
       }
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         unicodeCharacters.push(quantifier);
       }
     },
-    onCharacterEnter: (character: Character) => {
+    onCharacterEnter: (character: AST.Character) => {
       if (isUnicodeEnabled) {
         return;
       }
@@ -117,7 +117,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         }
       } while (state !== 'end');
     },
-    onRegExpLiteralLeave: (regexp: RegExpLiteral) => {
+    onRegExpLiteralLeave: (regexp: AST.RegExpLiteral) => {
       if (!isUnicodeEnabled && (unicodeProperties.length > 0 || unicodeCharacters.length > 0)) {
         const secondaryLocations: IssueLocation[] = [];
         for (const p of unicodeProperties) {

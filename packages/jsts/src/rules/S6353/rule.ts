@@ -17,7 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6353/javascript
 
 import type { Rule } from 'eslint';
-import { CharacterClass, Flags, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
+import type {
+  CharacterClass,
+  Flags,
+  Quantifier,
+  RegExpLiteral,
+} from '@eslint-community/regexpp/ast';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-template.js';

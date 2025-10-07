@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5852/javascript
 
 import type { Rule } from 'eslint';
-import { RegExpLiteral } from '@eslint-community/regexpp/ast';
+import type { AST } from '@eslint-community/regexpp';
 import { analyse } from 'scslre';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
@@ -27,7 +27,7 @@ const message = `Make sure the regex used here, which is vulnerable to super-lin
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
-    onRegExpLiteralEnter: (node: RegExpLiteral) => {
+    onRegExpLiteralEnter: (node: AST.RegExpLiteral) => {
       const { reports } = analyse(node);
       if (reports.length > 0) {
         context.report({

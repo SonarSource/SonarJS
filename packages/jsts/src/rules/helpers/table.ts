@@ -20,7 +20,7 @@ const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
 import { isHtmlElement } from './isHtmlElement.js';
 import { getElementType } from './accessibility.js';
-import { JSXOpeningElement } from 'estree-jsx';
+import type { JSXOpeningElement } from 'estree-jsx';
 
 export type TableCell = {
   isHeader: boolean;
