@@ -17,18 +17,18 @@
 
 import express from 'express';
 import * as http from 'node:http';
-import router from './router.js';
-import { errorMiddleware } from './errors/index.js';
-import { debug } from '../../shared/src/helpers/logging.js';
-import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'node:net';
 import type { Worker } from 'node:worker_threads';
+import { WebSocketServer } from 'ws';
+import { debug } from '../../shared/src/helpers/logging.js';
+import { errorMiddleware } from './errors/index.js';
 import {
-  registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
+  registerGarbageCollectionObserver,
 } from './memory.js';
-import { WebSocketServer } from 'ws';
+import router from './router.js';
+import { timeoutMiddleware } from './timeout/index.js';
 
 /**
  * The maximum request body size
@@ -77,13 +77,27 @@ export async function start(
     debug('Starting the bridge server');
 
     if (worker) {
-      worker.on('exit', () => {
-        closeServer();
-      });
+      // Detect worker type and handle accordingly
+      const isDenoWorker = typeof (worker as any).on !== 'function';
 
-      worker.on('error', err => {
-        logMemoryError(err);
-      });
+      if (isDenoWorker) {
+        // Deno Web Worker
+        (worker as any).onerror = (err: any) => {
+          logMemoryError(err);
+        };
+
+        // For Deno workers, we can't listen for 'exit' events
+        // The worker will handle cleanup internally
+      } else {
+        // Node.js Worker Thread
+        worker.on('exit', () => {
+          closeServer();
+        });
+
+        worker.on('error', err => {
+          logMemoryError(err);
+        });
+      }
     }
 
     const app = express();

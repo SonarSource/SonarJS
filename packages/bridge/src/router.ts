@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as express from 'express';
-import { Worker } from 'node:worker_threads';
-import { createDelegator, createWsDelegator } from './delegate.js';
-import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
+import { Worker } from 'node:worker_threads';
 import { WebSocketServer } from 'ws';
+import { WorkerData } from '../../shared/src/helpers/worker.js';
+import { createDelegator, createWsDelegator } from './delegate.js';
 
 export type WorkerMessageListeners = {
   permanent: ((message: any) => void)[];
@@ -33,15 +33,33 @@ export default function router(
 ): express.Router {
   const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
   if (worker) {
-    worker.on('message', message => {
-      for (const listener of workerMessageListeners.permanent) {
-        listener(message);
-      }
-      for (const listener of workerMessageListeners.oneTimers) {
-        listener(message);
-      }
-      workerMessageListeners.oneTimers = [];
-    });
+    // Detect worker type and handle accordingly
+    const isDenoWorker = typeof (worker as any).on !== 'function';
+
+    if (isDenoWorker) {
+      // Deno Web Worker
+      (worker as any).onmessage = (event: MessageEvent) => {
+        const message = event.data;
+        for (const listener of workerMessageListeners.permanent) {
+          listener(message);
+        }
+        for (const listener of workerMessageListeners.oneTimers) {
+          listener(message);
+        }
+        workerMessageListeners.oneTimers = [];
+      };
+    } else {
+      // Node.js Worker Thread
+      worker.on('message', message => {
+        for (const listener of workerMessageListeners.permanent) {
+          listener(message);
+        }
+        for (const listener of workerMessageListeners.oneTimers) {
+          listener(message);
+        }
+        workerMessageListeners.oneTimers = [];
+      });
+    }
   }
 
   const router = express.Router();
