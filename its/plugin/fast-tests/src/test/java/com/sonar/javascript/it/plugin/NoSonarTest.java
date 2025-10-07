@@ -50,7 +50,10 @@ class NoSonarTest {
   void test() {
     String projectKey = "nosonar-project";
 
-    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR).withScmDisabled().build();
+    ScannerInput build = ScannerInput.create(projectKey, PROJECT_DIR)
+      .withVerbose()
+      .withScmDisabled()
+      .build();
 
     var issues = ScannerRunner.run(SERVER_CONTEXT, build)
       .scannerOutputReader()

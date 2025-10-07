@@ -177,18 +177,18 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     LOG.debug("Checking Node.js version");
 
-    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
-    actualNodeVersion = nodeVersion(versionString);
-    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
-      throw new NodeCommandException(
-        String.format(
-          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
-          actualNodeVersion
-        )
-      );
-    }
-
-    LOG.debug("Using Node.js {}.", versionString);
+    //    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
+    //    actualNodeVersion = nodeVersion(versionString);
+    //    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
+    //      throw new NodeCommandException(
+    //        String.format(
+    //          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
+    //          actualNodeVersion
+    //        )
+    //      );
+    //    }
+    //
+    //    LOG.debug("Using Node.js {}.", versionString);
   }
 
   // Visible for testing

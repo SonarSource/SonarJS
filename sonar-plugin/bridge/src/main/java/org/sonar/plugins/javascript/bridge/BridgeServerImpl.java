@@ -248,7 +248,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
     establishWebSocketConnection();
 
-    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
+    //    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
 
   void establishWebSocketConnection() {
@@ -292,6 +292,7 @@ public class BridgeServerImpl implements BridgeServer {
     var nodeTimeout = config.getInt(NODE_TIMEOUT_PROPERTY).orElse(DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS);
 
     nodeCommandBuilder
+      .nodeJsArgs("--allow-all", "--sloppy-imports")
       .outputConsumer(new LogOutputConsumer())
       .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
@@ -442,7 +443,7 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       throw new IllegalStateException(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
-        "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
+          "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
         e
       );
     }
