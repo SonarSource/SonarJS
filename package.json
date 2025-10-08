@@ -17,7 +17,7 @@
     "ruling-sync": "rsync -avh packages/ruling/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
     "bridge:compile:ts5": "tsc -b packages && npm run _:bridge:copy-protofiles",
     "bridge:compile": "tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && npm run _:bridge:copy-protofiles",
-    "bridge:test": "deno task test --test-concurrency=4 --test-reporter=spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/**/tests/**/*.test.ts\"",
+    "bridge:test": "deno task test --reporter=pretty \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/**/tests/**/*.test.ts\"",
     "bridge:test:js": "deno task run tools/copy-test-resources.ts && deno task test --enable-source-maps --test-concurrency=4 --test-reporter=spec --test-reporter-destination stdout \"lib/*/src/rules/*[!node_modules]/**/*.test.js\" \"lib/**/tests/**/*.test.js\"",
     "bridge:test:cov": "cross-env 'NODE_OPTIONS=--import ./tools/nyc-esm-hook-loader.js' nyc npm run bridge:test:js",
     "bridge:bundle": "node esbuild.mjs",

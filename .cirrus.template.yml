@@ -201,7 +201,7 @@ test_js_task:
     - source cirrus-env QA
     - npm run generate-meta
     - npm run bridge:compile
-    - npm run bridge:test:cov
+    - npm run bridge:test
 
 test_java_task:
   <<: *NODE_RECOMMENDED_CONTAINER_DEFINITION
