@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "run": "deno run --allow-all --sloppy-imports",
+    "test": "deno test --allow-all --sloppy-imports",
+    "check": "deno check --allow-all --sloppy-imports"
+  }
+}

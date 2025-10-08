@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path/posix';
 import { defaultOptions } from '../packages/jsts/src/rules/helpers/configs.js';
 import {
@@ -27,7 +28,6 @@ import {
   TS_TEMPLATES_FOLDER,
   typeMatrix,
 } from './helpers.js';
-import { readFile } from 'fs/promises';
 
 const sonarWayProfile = JSON.parse(
   await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
