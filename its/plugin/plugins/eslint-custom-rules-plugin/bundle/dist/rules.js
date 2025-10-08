@@ -1,4 +1,4 @@
-export const rules = [
+const rules = [
   {
     ruleId: 'customrule',
     ruleModule: {
@@ -37,3 +37,7 @@ export const rules = [
     ruleConfig: [],
   },
 ];
+
+module.exports = {
+  rules,
+};
