@@ -63,7 +63,6 @@ export async function start(
   timeout = 0,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
-  const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
     resolveClosed = resolve;
@@ -135,7 +134,6 @@ export async function start(
 
     app.post('/close', (_: express.Request, response: express.Response) => {
       response.status(200).end();
-      pendingCloseRequests.push(response);
 
       // Wait for the response to be sent before closing the server
       response.on('finish', () => {
@@ -189,9 +187,6 @@ export async function start(
         debug('Closed WebSocket connection');
         unregisterGarbageCollectionObserver();
         if (server.listening) {
-          while (pendingCloseRequests.length) {
-            pendingCloseRequests.pop()?.end();
-          }
           // Don't close all connections immediately - let them finish naturally
           // server.closeAllConnections();
           server.close();
