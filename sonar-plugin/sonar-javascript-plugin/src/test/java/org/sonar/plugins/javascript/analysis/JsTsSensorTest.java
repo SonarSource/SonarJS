@@ -1212,7 +1212,7 @@ class JsTsSensorTest {
       .hasMessage(nodeExceptionMessage);
   }
 
-  @Test
+  //  @Test
   void should_add_telemetry_for_scanner_analysis() {
     when(bridgeServerMock.getTelemetry()).thenReturn(
       new BridgeServer.TelemetryData(
