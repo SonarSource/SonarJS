@@ -173,9 +173,9 @@ await esbuild.build({
           from: ['./node_modules/typescript/lib/*.d.ts'],
           to: ['./bin/'],
         },
-        // We copy run-node into the bundle, as it's used from the java side on Mac
+        // We copy run-deno into the bundle, as it's used from the java side on Mac
         {
-          from: ['./run-node'],
+          from: ['./run-deno'],
           to: ['./bin/'],
         },
         // We copy the protofile as it needs to be accessible for the bundle

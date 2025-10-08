@@ -340,7 +340,7 @@ class NodeCommandTest {
     assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("host");
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).hasSize(2);
-    assertThat(value.get(0)).endsWith("src/test/resources/package/bin/run-node");
+    assertThat(value.get(0)).endsWith("src/test/resources/package/bin/run-deno");
     assertThat(value.get(1)).isEqualTo("script.js");
   }
 
@@ -452,7 +452,7 @@ class NodeCommandTest {
       .embeddedNode(en)
       .build();
     var commandParts = nodeCommand.toString().split(" ");
-    assertThat(commandParts[0]).endsWith("src/test/resources/package/bin/run-node");
+    assertThat(commandParts[0]).endsWith("src/test/resources/package/bin/run-deno");
     assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("force-host");
   }
 
