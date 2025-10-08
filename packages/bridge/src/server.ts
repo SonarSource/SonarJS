@@ -63,7 +63,6 @@ export async function start(
   timeout = 0,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
-  const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
     resolveClosed = resolve;
@@ -134,8 +133,12 @@ export async function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
-      pendingCloseRequests.push(response);
-      close();
+      response.status(200).end();
+
+      // Wait for the response to be sent before closing the server
+      response.on('finish', () => {
+        close();
+      });
     });
 
     server.on('close', () => {
@@ -184,16 +187,8 @@ export async function start(
         debug('Closed WebSocket connection');
         unregisterGarbageCollectionObserver();
         if (server.listening) {
-          while (pendingCloseRequests.length) {
-            pendingCloseRequests.pop()?.end();
-          }
-          /**
-           * At this point, the worker thread can no longer respond to any request from the plugin.
-           * If we reached this due to worker failure, existing requests are stalled until they time out.
-           * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
-           * close all connections and avoid waiting unnecessarily for them to eventually close.
-           */
-          server.closeAllConnections();
+          // Don't close all connections immediately - let them finish naturally
+          // server.closeAllConnections();
           server.close();
         }
       });
