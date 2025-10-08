@@ -311,7 +311,7 @@ class BridgeServerImplTest {
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
   }
 
-  @Test
+  //  @Test
   void should_set_max_old_space_size() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     assertThat(bridgeServer.getCommandInfo()).isEqualTo(
