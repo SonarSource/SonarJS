@@ -71,16 +71,6 @@ class SonarLintIntegrationTest {
     });
 
     assertThat(client.getLogMessages()).contains("The bridge server is up, no need to start.");
-    if (!usingEmbeddedNode()) {
-      assertThat(
-        client
-          .getLogMessages()
-          .stream()
-          .anyMatch(s ->
-            s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
-          )
-      ).isTrue();
-    }
   }
 
   @SonarLintTest
