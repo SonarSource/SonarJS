@@ -293,7 +293,9 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
         defaultNode,
         NODE_EXECUTABLE_PROPERTY
       );
-      throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
+      throw new NodeCommandException(
+        "Default Node.js executable for MacOS does not exist. " + defaultNode
+      );
     } else {
       Files.setPosixFilePermissions(
         file.toPath(),
