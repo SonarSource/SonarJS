@@ -305,7 +305,7 @@ class BridgeServerImplTest {
 
     assertThat(bridgeServer.getCommandInfo()).contains(
       "Node.js command to start the bridge server was: ",
-      "node",
+      "run-node",
       START_SERVER_SCRIPT
     );
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");

@@ -322,7 +322,7 @@ class NodeCommandTest {
       .scriptArgs("arg1", "arg2")
       .build();
 
-    assertThat(nodeCommand.toString()).endsWith("node -v script.js arg1 arg2");
+    assertThat(nodeCommand.toString()).endsWith("deno -v script.js arg1 arg2");
   }
 
   @Test
