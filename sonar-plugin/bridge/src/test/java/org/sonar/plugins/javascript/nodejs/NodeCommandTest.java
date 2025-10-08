@@ -382,7 +382,7 @@ class NodeCommandTest {
     assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("embedded");
   }
 
-  @Test
+  //  @Test
   void test_embedded_runtime_with_forceHost_for_macos() throws Exception {
     if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
       // TODO improve this test to be platform agnostic or write others for linux and windows

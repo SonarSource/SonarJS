@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -83,7 +84,10 @@ public class RulesBundles {
             "Failed to deploy bundle " + bundle + ". Didn't find 'package' dir."
           );
         }
-        unpackedBundles.add(Paths.get(deployedBundle.toString(), "dist", "rules.js"));
+        var oldPath = Paths.get(deployedBundle.toString(), "dist", "rules.js");
+        var newPath = Paths.get(deployedBundle.toString(), "dist", "rules.cjs");
+        Files.move(oldPath, newPath);
+        unpackedBundles.add(newPath);
       } catch (IOException e) {
         LOG.error("Failed to extract bundle " + bundle, e);
       }
@@ -92,6 +96,9 @@ public class RulesBundles {
   }
 
   public Optional<RulesBundle> getUcfgRulesBundle() {
-    return bundles.stream().filter(bundle -> "ucfg".equals(bundle.bundleKey())).findAny();
+    return bundles
+      .stream()
+      .filter(bundle -> "ucfg".equals(bundle.bundleKey()))
+      .findAny();
   }
 }
