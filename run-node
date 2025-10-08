@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 # MIT License © Sindre Sorhus
+# Modified for Deno
 
-if [[ -f "$PWD/node_modules/node/bin/node" ]]; then
-	PATH="$PWD/node_modules/node/bin:$PATH"
-	export PATH
-fi
-
-if [[ -z $RUN_NODE_CACHE_PATH ]]; then
-	PATH_CACHE="$HOME"/.node_path
+if [[ -z $RUN_DENO_CACHE_PATH ]]; then
+	PATH_CACHE="$HOME"/.deno_path
 else
-	PATH_CACHE="$RUN_NODE_CACHE_PATH"
+	PATH_CACHE="$RUN_DENO_CACHE_PATH"
 	if [[ -f "$PATH_CACHE" ]]; then
 		. "$PATH_CACHE"
 		export PATH
@@ -32,26 +28,26 @@ set_path() {
 	export PATH
 }
 
-has_node() {
-	command -v node >/dev/null 2>&1
+has_deno() {
+	command -v deno >/dev/null 2>&1
 }
 
-if ! has_node; then
+if ! has_deno; then
 	set_path
 
 	# Retry by deleting old path cache
-	if ! has_node; then
-		rm "$PATH_CACHE"
+	if ! has_deno; then
+		rm -f "$PATH_CACHE"
 		set_path
 	fi
 fi
 
-if has_node; then
-	node "$@"
+if has_deno; then
+	deno "$@"
 else
-	if [[ -z $RUN_NODE_ERROR_MSG ]]; then
-		echo "Couldn't find the Node.js binary. Ensure you have Node.js installed. Open an issue on https://github.com/sindresorhus/run-node"
+	if [[ -z $RUN_DENO_ERROR_MSG ]]; then
+		echo "Couldn't find the Deno binary. Ensure you have Deno installed: https://deno.land/#installation"
 	else
-		echo "$RUN_NODE_ERROR_MSG"
+		echo "$RUN_DENO_ERROR_MSG"
 	fi
 fi
