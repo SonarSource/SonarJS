@@ -1,4 +1,4 @@
-exports.rules = [
+export const rules = [
   {
     ruleId: 'customrule',
     ruleModule: {

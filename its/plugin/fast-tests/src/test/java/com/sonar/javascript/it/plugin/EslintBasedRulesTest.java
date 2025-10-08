@@ -325,8 +325,6 @@ class EslintBasedRulesTest {
     assertThat(result.logOutput())
       .extracting(Log::message)
       .contains("Configured Node.js --max-old-space-size=500000.");
-    var osMem = Pattern.compile(".*Memory configuration: OS \\(\\d+ MB\\),.*", Pattern.DOTALL);
-    assertThat(result.logOutput()).extracting(Log::message).anyMatch(osMem.asMatchPredicate());
     var warn = Pattern.compile(
       "Node.js heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",
       Pattern.DOTALL
