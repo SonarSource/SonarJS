@@ -41,7 +41,6 @@ const nodeTasks = prefix =>
 // 3. Replace placeholder in template
 let output = template
   .replace(' # {{NODE_TASKS}}', nodeTasks(''))
-  .replace(' # {{NODE_TASKS}}', nodeTasks(''))
   .replace(' # {{FAST_NODE_TASKS}}', nodeTasks('Fast '));
 
 // 4. Add auto-generated header
