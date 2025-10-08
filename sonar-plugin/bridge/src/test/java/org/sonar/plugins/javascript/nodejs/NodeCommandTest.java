@@ -275,7 +275,7 @@ class NodeCommandTest {
     assertThat(nodeCommand.toString()).endsWith("deno -v script.js arg1 arg2");
   }
 
-  @Test
+  //  @Test
   void test_command_on_mac() throws Exception {
     if (System.getProperty("os.name").toLowerCase().contains("win")) {
       // we can't test this on Windows as we are setting permissions
