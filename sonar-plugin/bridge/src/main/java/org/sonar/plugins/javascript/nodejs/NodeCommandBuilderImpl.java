@@ -42,7 +42,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(NodeCommandBuilderImpl.class);
 
   public static final String NODE_EXECUTABLE_DEFAULT = "deno";
-  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "/usr/local/bin/deno";
+  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/bin/run-node";
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
