@@ -17,9 +17,6 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -200,22 +197,6 @@ public class BridgeServerImpl implements BridgeServer {
       bundle.setDeployLocation(Path.of(bundlePath.get()));
     } else {
       bundle.deploy(temporaryDeployLocation);
-    }
-    if (
-      configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent() ||
-      configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false) ||
-      configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)
-    ) {
-      String property;
-      if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent()) {
-        property = NODE_EXECUTABLE_PROPERTY;
-      } else if (configuration.get(SKIP_NODE_PROVISIONING_PROPERTY).isPresent()) {
-        property = SKIP_NODE_PROVISIONING_PROPERTY;
-      } else {
-        property = NODE_FORCE_HOST_PROPERTY;
-      }
-      LOG.info("'{}' is set. Skipping embedded Node.js runtime deployment.", property);
-      return;
     }
     embeddedNode.deploy();
   }

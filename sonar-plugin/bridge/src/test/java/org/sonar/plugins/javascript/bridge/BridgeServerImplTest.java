@@ -30,9 +30,6 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import java.io.File;
 import java.io.IOException;
@@ -700,57 +697,6 @@ class BridgeServerImplTest {
     );
     var response = bridgeServer.analyzeJsTs(request);
     assertThat(response.ast()).isNull();
-  }
-
-  @Test
-  void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {
-    var existingDoesntMatterScript = "logging.js";
-    bridgeServer = createBridgeServer(existingDoesntMatterScript);
-    context.setSettings(new MapSettings().setProperty(NODE_EXECUTABLE_PROPERTY, "whatever"));
-    BridgeServerConfig serverConfigForExecutableProperty = BridgeServerConfig.fromSensorContext(
-      context
-    );
-    assertThatThrownBy(() ->
-      bridgeServer.startServerLazily(serverConfigForExecutableProperty)
-    ).isInstanceOf(NodeCommandException.class);
-
-    assertThat(logTester.logs(INFO)).contains(
-      "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
-    );
-  }
-
-  @Test
-  void should_not_deploy_runtime_if_skip_node_provisioning_is_set() throws Exception {
-    var script = "logging.js";
-    bridgeServer = createBridgeServer(script);
-
-    var settings = new MapSettings().setProperty(SKIP_NODE_PROVISIONING_PROPERTY, true);
-    context.setSettings(settings);
-
-    var config = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServerLazily(config);
-
-    assertThat(logTester.logs(INFO)).contains(
-      "'" +
-        SKIP_NODE_PROVISIONING_PROPERTY +
-        "' is set. Skipping embedded Node.js runtime deployment."
-    );
-  }
-
-  @Test
-  void should_not_deploy_runtime_if_node_force_host_is_set() throws Exception {
-    var script = "logging.js";
-    bridgeServer = createBridgeServer(script);
-
-    var settings = new MapSettings().setProperty(NODE_FORCE_HOST_PROPERTY, true);
-    context.setSettings(settings);
-
-    var config = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServerLazily(config);
-
-    assertThat(logTester.logs(INFO)).contains(
-      "'" + NODE_FORCE_HOST_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
-    );
   }
 
   @Test

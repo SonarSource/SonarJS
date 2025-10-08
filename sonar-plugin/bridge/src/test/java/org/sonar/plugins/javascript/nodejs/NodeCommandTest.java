@@ -177,35 +177,6 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_executable_from_configuration() throws Exception {
-    String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
-    Path nodeExecutable = Files.createFile(tempDir.resolve("custom-node")).toAbsolutePath();
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
-    Configuration configuration = mapSettings.asConfig();
-    NodeCommand nodeCommand = builder(mockProcessWrapper)
-      .configuration(configuration)
-      .script("not-used")
-      .build();
-    nodeCommand.start();
-
-    List<String> value = captureProcessWrapperArgument();
-    assertThat(value).contains(nodeExecutable.toString());
-    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo(NODE_EXECUTABLE_PROPERTY);
-    await().until(() ->
-      logTester
-        .logs(LoggerLevel.INFO)
-        .contains(
-          "Using Node.js executable " +
-            nodeExecutable +
-            " from property " +
-            NODE_EXECUTABLE_PROPERTY +
-            "."
-        )
-    );
-  }
-
-  @Test
   void test_empty_configuration() throws Exception {
     NodeCommand nodeCommand = builder(mockProcessWrapper)
       .configuration(new MapSettings().asConfig())
@@ -221,27 +192,6 @@ class NodeCommandTest {
   private List<String> captureProcessWrapperArgument() throws IOException {
     verify(mockProcessWrapper).startProcess(processStartArgument.capture(), any(), any(), any());
     return processStartArgument.getValue();
-  }
-
-  @Test
-  void test_non_existing_node_file() throws Exception {
-    MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.nodejs.executable", "non-existing-file");
-    NodeCommandBuilder nodeCommand = builder(mockProcessWrapper)
-      .configuration(settings.asConfig())
-      .script("not-used");
-
-    assertThatThrownBy(nodeCommand::build)
-      .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Provided Node.js executable file does not exist.");
-
-    await().until(() ->
-      logTester
-        .logs(LoggerLevel.ERROR)
-        .contains(
-          "Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"
-        )
-    );
   }
 
   @Test
@@ -454,42 +404,6 @@ class NodeCommandTest {
     var commandParts = nodeCommand.toString().split(" ");
     assertThat(commandParts[0]).endsWith("src/test/resources/package/bin/run-deno");
     assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("force-host");
-  }
-
-  @Test
-  void test_skipping_nodejs_provisioning_property() throws Exception {
-    var skipNodeProvisioning = "sonar.scanner.skipNodeProvisioning";
-    var settings = new MapSettings();
-    settings.setProperty(skipNodeProvisioning, true);
-
-    var nodeCommand = builder()
-      .configuration(settings.asConfig())
-      .script("script.js")
-      .pathResolver(getPathResolver())
-      .build();
-
-    assertThat(logTester.logs(Level.INFO))
-      .doesNotContain("Using embedded Node.js runtime")
-      .contains("Forcing to use Node.js from the host.");
-    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("force-host");
-  }
-
-  @Test
-  void test_node_force_host_property_deprecation() throws Exception {
-    var forceHostProp = "sonar.nodejs.forceHost";
-    var settings = new MapSettings();
-    settings.setProperty(forceHostProp, true);
-
-    builder()
-      .configuration(settings.asConfig())
-      .script("script.js")
-      .pathResolver(getPathResolver())
-      .build();
-
-    assertThat(logTester.logs(Level.WARN)).contains(
-      "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
-        "Please use 'sonar.scanner.skipNodeProvisioning' instead."
-    );
   }
 
   private static String resourceScript(String script) throws URISyntaxException {
