@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path/posix';
 import { createNewRule } from './create-rule-boilerplate.js';
-import { readFile } from 'fs/promises';
 
 type RuleConfig = {
   name: string;

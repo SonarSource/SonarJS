@@ -48,7 +48,7 @@ import org.tukaani.xz.XZInputStream;
 public class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
-  private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
+  private static final String DEPLOY_LOCATION = Path.of("js", "deno-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedNode.class);
   private final Path deployLocation;
@@ -97,9 +97,9 @@ public class EmbeddedNode {
      */
     String binary() {
       if (this == WIN_X64) {
-        return "node.exe";
+        return "deno.exe";
       } else {
-        return "node";
+        return "deno";
       }
     }
 
@@ -235,11 +235,8 @@ public class EmbeddedNode {
    * @param targetDirectory
    * @throws IOException
    */
-  private void extractWithLocking(
-    InputStream source,
-    Path targetRuntime,
-    Path targetDirectory
-  ) throws IOException {
+  private void extractWithLocking(InputStream source, Path targetRuntime, Path targetDirectory)
+    throws IOException {
     var targetLockFile = targetDirectory.resolve("lockfile");
     Files.createDirectories(targetDirectory);
     try (
@@ -260,8 +257,8 @@ public class EmbeddedNode {
         try {
           LOG.debug(
             "Lock taken, waiting " +
-            EXTRACTION_LOCK_WAIT_TIME_MILLIS +
-            "ms for other process to extract node runtime."
+              EXTRACTION_LOCK_WAIT_TIME_MILLIS +
+              "ms for other process to extract node runtime."
           );
           Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
         } catch (InterruptedException e) {

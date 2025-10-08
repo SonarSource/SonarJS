@@ -14,15 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import prettier from 'prettier';
-import { readdir, readFile, stat, writeFile } from 'fs/promises';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import prettier from 'prettier';
 //@ts-ignore
-import { prettier as prettierOpts } from '../package.json';
-import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
 import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
+import packageJson from '../package.json' with { type: 'json' };
+import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
+
+const { prettier: prettierOpts } = packageJson;
 
 export const ruleRegex = /^S\d+/;
 const DIRNAME = dirname(fileURLToPath(import.meta.url));

@@ -15,13 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path/posix';
-import { header, inflateTemplateToFile, RULES_FOLDER, TS_TEMPLATES_FOLDER } from './helpers.js';
-import { mkdir } from 'node:fs/promises';
-import { writeFile } from 'fs/promises';
 import { generateMetaForRule } from './generate-eslint-meta.js';
 import { generateJavaCheckClass } from './generate-java-rule-classes.js';
 import { updateIndexes } from './generate-rule-indexes.js';
+import { header, inflateTemplateToFile, RULES_FOLDER, TS_TEMPLATES_FOLDER } from './helpers.js';
 
 const JS_RULE_DATA_FOLDER = join(
   'sonar-plugin',

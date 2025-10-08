@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import esbuild from 'esbuild';
-import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
+import textReplace from 'esbuild-plugin-text-replace';
 import { readFileSync } from 'node:fs';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
@@ -34,11 +34,12 @@ await esbuild.build({
   // does not exist. we need to keep an eye on this in the future.
   external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
-  minify: true,
+  // minify: true,
+  target: 'node20',
   plugins: [
     textReplace({
       include: /server\.mjs$/,
-      pattern: [['new URL(import.meta.url)', '__filename']],
+      pattern: [['new URL(import.meta.url)', '`file://${__filename}`']],
     }),
     textReplace({
       include: /lib[\/\\]jsts[\/\\]src[\/\\]parsers[\/\\]ast\.js$/,
@@ -153,6 +154,16 @@ await esbuild.build({
         ],
       ],
     }),
+    // Fix top-level await in worker.js for CommonJS compatibility
+    textReplace({
+      include: /lib[\/\\]bridge[\/\\]src[\/\\]worker\.js$/,
+      pattern: [
+        [
+          "const { parentPort, workerData: nodeWorkerData } = await import('node:worker_threads');",
+          "const { parentPort, workerData: nodeWorkerData } = require('node:worker_threads');",
+        ],
+      ],
+    }),
     copy({
       resolveFrom: 'cwd',
       assets: [
@@ -162,9 +173,9 @@ await esbuild.build({
           from: ['./node_modules/typescript/lib/*.d.ts'],
           to: ['./bin/'],
         },
-        // We copy run-node into the bundle, as it's used from the java side on Mac
+        // We copy run-deno into the bundle, as it's used from the java side on Mac
         {
-          from: ['./run-node'],
+          from: ['./run-deno'],
           to: ['./bin/'],
         },
         // We copy the protofile as it needs to be accessible for the bundle

@@ -17,18 +17,18 @@
 
 import express from 'express';
 import * as http from 'node:http';
-import router from './router.js';
-import { errorMiddleware } from './errors/index.js';
-import { debug } from '../../shared/src/helpers/logging.js';
-import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'node:net';
 import type { Worker } from 'node:worker_threads';
+import { WebSocketServer } from 'ws';
+import { debug } from '../../shared/src/helpers/logging.js';
+import { errorMiddleware } from './errors/index.js';
 import {
-  registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
+  registerGarbageCollectionObserver,
 } from './memory.js';
-import { WebSocketServer } from 'ws';
+import router from './router.js';
+import { timeoutMiddleware } from './timeout/index.js';
 
 /**
  * The maximum request body size
@@ -63,7 +63,6 @@ export async function start(
   timeout = 0,
 ): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   let unregisterGarbageCollectionObserver = () => {};
-  const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
     resolveClosed = resolve;
@@ -77,13 +76,27 @@ export async function start(
     debug('Starting the bridge server');
 
     if (worker) {
-      worker.on('exit', () => {
-        closeServer();
-      });
+      // Detect worker type and handle accordingly
+      const isDenoWorker = typeof (worker as any).on !== 'function';
 
-      worker.on('error', err => {
-        logMemoryError(err);
-      });
+      if (isDenoWorker) {
+        // Deno Web Worker
+        (worker as any).onerror = (err: any) => {
+          logMemoryError(err);
+        };
+
+        // For Deno workers, we can't listen for 'exit' events
+        // The worker will handle cleanup internally
+      } else {
+        // Node.js Worker Thread
+        worker.on('exit', () => {
+          closeServer();
+        });
+
+        worker.on('error', err => {
+          logMemoryError(err);
+        });
+      }
     }
 
     const app = express();
@@ -120,8 +133,12 @@ export async function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
-      pendingCloseRequests.push(response);
-      close();
+      response.status(200).end();
+
+      // Wait for the response to be sent before closing the server
+      response.on('finish', () => {
+        close();
+      });
     });
 
     server.on('close', () => {
@@ -152,6 +169,7 @@ export async function start(
       if (worker) {
         debug('Shutting down the worker');
         worker.postMessage({ type: 'close' });
+        closeServer();
       } else {
         closeServer();
       }
@@ -169,16 +187,8 @@ export async function start(
         debug('Closed WebSocket connection');
         unregisterGarbageCollectionObserver();
         if (server.listening) {
-          while (pendingCloseRequests.length) {
-            pendingCloseRequests.pop()?.end();
-          }
-          /**
-           * At this point, the worker thread can no longer respond to any request from the plugin.
-           * If we reached this due to worker failure, existing requests are stalled until they time out.
-           * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
-           * close all connections and avoid waiting unnecessarily for them to eventually close.
-           */
-          server.closeAllConnections();
+          // Don't close all connections immediately - let them finish naturally
+          // server.closeAllConnections();
           server.close();
         }
       });

@@ -41,12 +41,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(NodeCommandBuilderImpl.class);
 
-  public static final String NODE_EXECUTABLE_DEFAULT = "node";
-  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/bin/run-node";
-
-  public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
-  public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
-  public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
+  public static final String NODE_EXECUTABLE_DEFAULT = "deno";
+  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/bin/run-deno";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
     "v?(\\d+)\\.(\\d+)\\.(\\d+)"
@@ -84,7 +80,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   @Override
   public NodeCommandBuilder maxOldSpaceSize(int maxOldSpaceSize) {
-    nodeJsArgs("--max-old-space-size=" + maxOldSpaceSize);
+    //nodeJsArgs("--max-old-space-size=" + maxOldSpaceSize);
+    //    nodeJsArgs("--allow-all");
     LOG.info("Configured Node.js --max-old-space-size={}.", maxOldSpaceSize);
     return this;
   }
@@ -147,8 +144,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    */
   @Override
   public NodeCommand build() throws NodeCommandException, IOException {
-    String nodeExecutable = retrieveNodeExecutable(configuration);
-    checkNodeCompatibility(nodeExecutable);
+    String nodeExecutable = locateNode();
 
     if (nodeJsArgs.isEmpty() && scriptFilename == null && args.isEmpty()) {
       throw new IllegalArgumentException("Missing arguments for Node.js.");
@@ -170,26 +166,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     );
   }
 
-  private void checkNodeCompatibility(String nodeExecutable) throws NodeCommandException {
-    if (minNodeVersion == null) {
-      return;
-    }
-    LOG.debug("Checking Node.js version");
-
-    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
-    actualNodeVersion = nodeVersion(versionString);
-    if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
-      throw new NodeCommandException(
-        String.format(
-          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
-          actualNodeVersion
-        )
-      );
-    }
-
-    LOG.debug("Using Node.js {}.", versionString);
-  }
-
   // Visible for testing
   static Version nodeVersion(String versionString) throws NodeCommandException {
     Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(versionString);
@@ -206,51 +182,9 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
   }
 
-  /**
-   * Finds a node runtime by looking into:
-   * 1. sonar.nodejs.executable
-   * 2. an embedded runtime bundled with the analyzer
-   * 3. a runtime on the host
-   * If sonar.nodejs.forceHost is enabled, 2. is ignored
-   *
-   * @param configuration
-   * @return
-   * @throws NodeCommandException
-   * @throws IOException
-   */
-  private String retrieveNodeExecutable(Configuration configuration)
-    throws NodeCommandException, IOException {
-    if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
-      nodeExecutableOrigin = NODE_EXECUTABLE_PROPERTY;
-      String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
-      File file = new File(nodeExecutable);
-      if (file.exists()) {
-        LOG.info(
-          "Using Node.js executable {} from property {}.",
-          file.getAbsoluteFile(),
-          NODE_EXECUTABLE_PROPERTY
-        );
-        return nodeExecutable;
-      } else {
-        LOG.error(
-          "Provided Node.js executable file does not exist. Property '{}' was set to '{}'",
-          NODE_EXECUTABLE_PROPERTY,
-          nodeExecutable
-        );
-        throw new NodeCommandException("Provided Node.js executable file does not exist.");
-      }
-    }
-
-    return locateNode(isForceHost(configuration));
-  }
-
-  private String locateNode(boolean isForceHost) throws IOException {
+  private String locateNode() throws IOException {
     var defaultNode = NODE_EXECUTABLE_DEFAULT;
-    if (embeddedNode.isAvailable() && !isForceHost) {
-      LOG.info("Using embedded Node.js runtime.");
-      defaultNode = embeddedNode.binary().toString();
-      nodeExecutableOrigin = "embedded";
-    } else if (processWrapper.isMac()) {
+    if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
       nodeExecutableOrigin = "host";
     } else if (processWrapper.isWindows()) {
@@ -258,26 +192,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       nodeExecutableOrigin = "host";
     }
 
-    if (isForceHost) {
-      LOG.info("Forcing to use Node.js from the host.");
-      nodeExecutableOrigin = "force-host";
-    }
-
     LOG.info("Using Node.js executable: '{}'.", defaultNode);
     return defaultNode;
-  }
-
-  private static boolean isForceHost(Configuration configuration) {
-    var forceHost = configuration.getBoolean(NODE_FORCE_HOST_PROPERTY);
-    if (forceHost.isPresent()) {
-      LOG.warn(
-        "Property '{}' is deprecated and will be removed in a future version. Please use '{}' instead.",
-        NODE_FORCE_HOST_PROPERTY,
-        SKIP_NODE_PROVISIONING_PROPERTY
-      );
-      return forceHost.get();
-    }
-    return configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false);
   }
 
   private String locateNodeOnMac() throws IOException {
@@ -287,11 +203,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     String defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
     File file = new File(defaultNode);
     if (!file.exists()) {
-      LOG.error(
-        "Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'",
-        defaultNode,
-        NODE_EXECUTABLE_PROPERTY
-      );
+      LOG.error("Default Node.js executable for MacOS does not exist");
       throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
     } else {
       Files.setPosixFilePermissions(
@@ -308,7 +220,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
     List<String> stdOut = new ArrayList<>();
     Process whereTool = processWrapper.startProcess(
-      asList("C:\\Windows\\System32\\where.exe", "$PATH:node.exe"),
+      asList("C:\\Windows\\System32\\where.exe", "$PATH:deno.cmd"),
       emptyMap(),
       stdOut::add,
       LOG::error

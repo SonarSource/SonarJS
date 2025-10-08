@@ -17,9 +17,6 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -201,22 +198,6 @@ public class BridgeServerImpl implements BridgeServer {
     } else {
       bundle.deploy(temporaryDeployLocation);
     }
-    if (
-      configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent() ||
-      configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false) ||
-      configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)
-    ) {
-      String property;
-      if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent()) {
-        property = NODE_EXECUTABLE_PROPERTY;
-      } else if (configuration.get(SKIP_NODE_PROVISIONING_PROPERTY).isPresent()) {
-        property = SKIP_NODE_PROVISIONING_PROPERTY;
-      } else {
-        property = NODE_FORCE_HOST_PROPERTY;
-      }
-      LOG.info("'{}' is set. Skipping embedded Node.js runtime deployment.", property);
-      return;
-    }
     embeddedNode.deploy();
   }
 
@@ -248,7 +229,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
     establishWebSocketConnection();
 
-    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
+    //    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
 
   void establishWebSocketConnection() {
@@ -292,6 +273,7 @@ public class BridgeServerImpl implements BridgeServer {
     var nodeTimeout = config.getInt(NODE_TIMEOUT_PROPERTY).orElse(DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS);
 
     nodeCommandBuilder
+      .nodeJsArgs("--allow-all", "--sloppy-imports")
       .outputConsumer(new LogOutputConsumer())
       .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
@@ -442,7 +424,7 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       throw new IllegalStateException(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
-        "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
+          "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
         e
       );
     }

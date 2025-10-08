@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import fs from 'fs/promises';
-import semver from 'semver';
+import fs from 'node:fs/promises';
 import path from 'node:path/posix';
+import semver from 'semver';
 
 const dirs = process.argv[2]
   ? [process.argv[2]]
