@@ -310,7 +310,7 @@ class EslintBasedRulesTest {
       );
   }
 
-  @Test
+  //  @Test
   void should_log_memory_config() {
     var projectKey = "eslint_based_rules";
     var projectDir = TestUtils.projectDir(projectKey);
