@@ -24,5 +24,9 @@ export const fields = [
       field: 'onlyIfContainsSeparator',
       default: true,
     },
+    {
+      field: 'number',
+      default: { minimumDigits: 0, groupLength: 3 },
+    },
   ],
 ] as const satisfies ESLintConfiguration;
