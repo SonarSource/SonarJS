@@ -43,6 +43,12 @@ describe('S1135', () => {
         {
           code: '// todos ',
         },
+        {
+          code: `
+        /* eslint-disable-next-line sonarjs/todo-tag */
+        // TODO whatever
+        `,
+        },
       ],
       invalid: [
         {
