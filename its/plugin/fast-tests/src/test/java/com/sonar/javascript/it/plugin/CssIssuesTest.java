@@ -105,6 +105,7 @@ class CssIssuesTest {
       )
       .containsExactlyInAnyOrder(
         tuple("css:S4662", "src/cssModules.css"),
+        tuple("css:S7924", "src/cssModules.css"),
         tuple("css:S4667", "src/empty1.css"),
         tuple("css:S4667", "src/empty2.less"),
         tuple("css:S4667", "src/empty3.scss"),

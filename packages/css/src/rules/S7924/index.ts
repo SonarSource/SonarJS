@@ -14,14 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule as S125 } from './S125/index.js';
-import { rule as S5362 } from './S5362/index.js';
-import { rule as S7923 } from './S7923/index.js';
-import { rule as S7924 } from './S7924/index.js';
-
-/**
- * The set of internal Stylelint-based rules
- */
-const sonarRules = [S125, S5362, S7923, S7924];
-
-export { sonarRules };
+export { rule } from './rule.js';
