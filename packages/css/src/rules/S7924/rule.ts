@@ -36,9 +36,9 @@ const THRESHOLD = 4.5;
 
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
-    let textColor: number[] | undefined = undefined;
-    let backgroundColor: number[] | undefined = undefined;
-    let parent: PostCSS.Node | undefined = undefined;
+    let textColor: number[] | undefined;
+    let backgroundColor: number[] | undefined;
+    let parent: PostCSS.Node | undefined;
     root.walkDecls((decl: PostCSS.Declaration) => {
       if (decl.parent !== parent) {
         parent = decl.parent;

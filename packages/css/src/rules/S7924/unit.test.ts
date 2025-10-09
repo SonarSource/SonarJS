@@ -25,7 +25,7 @@ describe('S7924', () => {
     ruleTester.valid({
       code: `
         .good-contrast {
-          color: #333;
+          color: #333; /* darkgray */
           background-color: white;
         }
       `,

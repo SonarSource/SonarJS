@@ -20,7 +20,7 @@ import Color from 'color';
 /**
  * Get color from the CSS background property. The background property contains other properties
  * like image, repeat, position, etc. so we try to extract the color from any of the values.
- * @param value
+ * @param value string of the background property
  * @returns [r,g,b,a] array or undefined if not a valid color
  */
 export function getColorFromBackground(value: string) {
@@ -48,13 +48,13 @@ export function getColorFromString(value: string) {
 
 /**
  * Check if the color is almost transparent. 4th value in rgba array is alpha.
- * @param color1
- * @param tolerance
+ * @param color - [r,g,b,a] array
  */
-export function isAlmostTransparent(color1: number[], tolerance = 0.01) {
-  return color1.length > 3 && color1[3] < tolerance;
+export function isAlmostTransparent(color: number[]) {
+  return color.length > 3 && color[3] < 0.01;
 }
-/// https://stackoverflow.com/a/63270816
+
+/// contrast and luminance calculation taken from https://stackoverflow.com/a/63270816
 
 /*
 Added to both luminance values to avoid division by zero and account for ambient light reflection.
