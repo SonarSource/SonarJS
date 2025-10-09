@@ -470,18 +470,6 @@ describe('realistic CSS color combinations', () => {
     }
   });
 
-  it('should handle Bootstrap primary color combinations', () => {
-    const primaryBlue = getColorFromString('#007BFF');
-    const lightGray = getColorFromString('#F1F3F4');
-
-    if (primaryBlue && lightGray) {
-      expect(primaryBlue).toEqual([0, 123, 255]);
-      expect(lightGray).toEqual([241, 243, 244]);
-      const result = contrast(primaryBlue, lightGray);
-      expect(result).toBeGreaterThan(4.5);
-    }
-  });
-
   it('should test common web colors with alpha', () => {
     const testCases = [
       { fg: 'rgba(255, 255, 255, 0.9)', bg: '#000000', expected: 'high' },

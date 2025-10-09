@@ -18,7 +18,12 @@
 
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
-import { contrast, getColorFromBackground, getColorFromString } from '../../helpers/color.js';
+import {
+  contrast,
+  getColorFromBackground,
+  getColorFromString,
+  isAlmostTransparent,
+} from '../../helpers/color.js';
 
 const ruleName = 'sonar/minimum-contrast';
 
@@ -47,7 +52,13 @@ const ruleImpl: stylelint.RuleBase = () => {
       } else if (decl.prop.toLowerCase() === 'background') {
         backgroundColor = getColorFromBackground(decl.value);
       }
-      if (backgroundColor && textColor && contrast(backgroundColor, textColor) < THRESHOLD) {
+      if (!textColor || !backgroundColor) {
+        return;
+      }
+      if (isAlmostTransparent(backgroundColor) || isAlmostTransparent(textColor)) {
+        return;
+      }
+      if (contrast(backgroundColor, textColor) < THRESHOLD) {
         stylelint.utils.report({
           ruleName,
           result,

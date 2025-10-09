@@ -27,11 +27,19 @@ functionality.</p>
 array.forEach(element =&gt; {
     console.log(element);
 }); // Noncompliant
+
+array.forEach((element, index) =&gt; {
+	console.log(element, index);
+}); // Noncompliant
 </pre>
 <h4>Compliant code example</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 for (const element of array) {
     console.log(element);
+}
+
+for (const [index, element] of array.entries()) {
+	console.log(element, index);
 }
 </pre>
 <h3>Documentation</h3>
