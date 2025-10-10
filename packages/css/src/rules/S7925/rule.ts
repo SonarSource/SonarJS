@@ -18,25 +18,33 @@
 
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
+import postcssValueParser from 'postcss-value-parser';
 
 const ruleName = 'sonar/text-spacing';
 
 function message(property: string) {
-  return `Remove '!important' from ${property} to allow accessibility adjustments.`;
+  return `Increase this value or remove '!important' from ${property} to allow accessibility adjustments.`;
 }
+
+const spaceRegex = /(?<spaceStr>-?\d+(?:\.\d+)?)(?<unit>r?(?:em|ex|ch|ic|cap)|%)?/i;
 
 export const messages = {
   'word-spacing': message('word-spacing'),
   'letter-spacing': message('letter-spacing'),
   'line-height': message('line-height'),
 };
+export const threshold = {
+  'word-spacing': 0.16,
+  'letter-spacing': 0.12,
+  'line-height': 1.5,
+};
 
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
     root.walkDecls((decl: PostCSS.Declaration) => {
-      let property = decl.prop.toLowerCase().trim();
+      const property = decl.prop.toLowerCase().trim();
 
-      if (!Object.keys(messages).includes(property)) {
+      if (!isTargetedProperty(property)) {
         return;
       }
 
@@ -44,15 +52,56 @@ const ruleImpl: stylelint.RuleBase = () => {
         return;
       }
 
-      stylelint.utils.report({
-        ruleName,
-        result,
-        message: messages[property as keyof typeof messages],
-        node: decl,
+      let invalid = false;
+      postcssValueParser(decl.value).walk((node: postcssValueParser.Node) => {
+        if (node.type === 'word' && spaceRegex.test(node.value) && !invalid) {
+          const space = getEmSpacing(node);
+          if (typeof space === 'number' && space < threshold[property]) {
+            invalid = true;
+          }
+        }
       });
+
+      if (invalid) {
+        stylelint.utils.report({
+          ruleName,
+          result,
+          message: messages[property],
+          node: decl,
+        });
+      }
     });
   };
 };
+
+function getEmSpacing(node: postcssValueParser.Node) {
+  const { spaceStr, unit } = spaceRegex.exec(node.value)?.groups ?? {};
+  if (!spaceStr || !unit) {
+    return undefined;
+  }
+  let space: number = Number.parseFloat(spaceStr);
+  switch (unit) {
+    case '%': {
+      return space / 100;
+    }
+    case 'rch':
+    case 'ch':
+    case 'rex':
+    case 'ex': {
+      return space / 2;
+    }
+    case 'rcap':
+    case 'cap': {
+      return space * 0.7;
+    }
+    // all other cases are em-equivalent
+  }
+  return space;
+}
+
+function isTargetedProperty(key: string): key is keyof typeof messages {
+  return key in messages;
+}
 
 export const rule = stylelint.createPlugin(
   ruleName,
