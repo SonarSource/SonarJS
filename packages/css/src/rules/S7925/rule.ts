@@ -79,7 +79,7 @@ function getEmSpacing(node: postcssValueParser.Node) {
   if (!spaceStr || !unit) {
     return undefined;
   }
-  let space: number = Number.parseFloat(spaceStr);
+  const space: number = Number.parseFloat(spaceStr);
   switch (unit) {
     case '%': {
       return space / 100;
