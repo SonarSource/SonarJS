@@ -33,7 +33,7 @@ export const messages = {
   'letter-spacing': message('letter-spacing'),
   'line-height': message('line-height'),
 };
-export const threshold = {
+const threshold = {
   'word-spacing': 0.16,
   'letter-spacing': 0.12,
   'line-height': 1.5,
