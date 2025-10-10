@@ -1,22 +1,22 @@
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index f46f5e3..aa203b9 100755
+index a806aa1..c90405a 100755
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
-@@ -1934,7 +1934,7 @@ class Linter {
+@@ -1933,7 +1933,7 @@ class Linter {
  						loc,
  					} of inlineConfigResult.configs) {
  						Object.keys(inlineConfig.rules).forEach(ruleId => {
 -							const rule = config.getRuleDefinition(ruleId);
-+              const rule = (providedOptions.getRule ?? config.getRuleDefinition)(ruleId);
++              const rule = (providedOptions.getRule ?? config.getRuleDefinition).apply(config, [ruleId]);
  							const ruleValue = inlineConfig.rules[ruleId];
  
  							if (!rule) {
-@@ -2084,12 +2084,19 @@ class Linter {
+@@ -2083,12 +2083,19 @@ class Linter {
  			options.allowInlineConfig && !options.warnInlineConfig
  				? getDirectiveCommentsForFlatConfig(
  						sourceCode,
 -						ruleId => config.getRuleDefinition(ruleId),
-+            ruleId => (providedOptions.getRule ?? config.getRuleDefinition)(ruleId),
++            ruleId => (providedOptions.getRule ?? config.getRuleDefinition).apply(config, [ruleId]),
  						config.language,
  						report,
  					)
