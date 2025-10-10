@@ -6,6 +6,9 @@ more control flow options.</p>
 <p>More importantly, <code>forEach</code> limits your control flow options. You cannot use <code>break</code> to exit early or <code>continue</code>
 to skip iterations, as these statements don’t work inside callback functions. This forces developers to use workarounds like throwing exceptions or
 complex conditional logic.</p>
+<p>Additionally, <code>forEach</code> doesn’t work properly with async/await. The callback function in <code>forEach</code> is called for each element
+immediately without waiting for any asynchronous operations to complete, which can lead to unexpected behavior when processing arrays that require
+async operations.</p>
 <p>In TypeScript projects, <code>forEach</code> creates a function boundary that breaks type narrowing. Variables that were narrowed to specific types
 before the loop may lose their narrowed type inside the callback. Additionally, TypeScript’s analysis of variable mutations can be disrupted by the
 function boundary, potentially missing important usage patterns.</p>
@@ -31,6 +34,12 @@ array.forEach(element =&gt; {
 array.forEach((element, index) =&gt; {
 	console.log(element, index);
 }); // Noncompliant
+
+// Doesn't work as expected with async operations
+urls.forEach(async (url) =&gt; {
+    const response = await fetch(url); // These requests happen concurrently, not sequentially
+    console.log(response.status);
+}); // Noncompliant
 </pre>
 <h4>Compliant code example</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
@@ -40,6 +49,12 @@ for (const element of array) {
 
 for (const [index, element] of array.entries()) {
 	console.log(element, index);
+}
+
+// Properly handles async operations sequentially
+for (const url of urls) {
+    const response = await fetch(url); // These requests happen one after another
+    console.log(response.status);
 }
 </pre>
 <h3>Documentation</h3>

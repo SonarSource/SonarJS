@@ -14,15 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule as S125 } from './S125/index.js';
-import { rule as S5362 } from './S5362/index.js';
-import { rule as S7923 } from './S7923/index.js';
-import { rule as S7924 } from './S7924/index.js';
-import { rule as S7925 } from './S7925/index.js';
+package org.sonar.css.rules;
 
-/**
- * The set of internal Stylelint-based rules
- */
-const sonarRules = [S125, S5362, S7923, S7924, S7925];
+import org.sonar.check.Rule;
 
-export { sonarRules };
+@Rule(key = "S7925")
+public class TextSpacing implements CssRule {
+
+  @Override
+  public String stylelintKey() {
+    return "sonar/text-spacing";
+  }
+}
