@@ -1,35 +1,43 @@
-<p>This rule raises an issue when CSS properties that affect text spacing (<code>line-height</code>, <code>letter-spacing</code>,
-<code>word-spacing</code>, or <code>margin</code>) are declared with <code>!important</code> in HTML style attributes.</p>
-<h2>Why is this an issue?</h2>
-<p>Text spacing is crucial for readability, especially for users with dyslexia, visual processing disorders, or other reading difficulties. The WCAG
-2.2 Text Spacing criterion requires that users be able to adjust spacing properties to meet their individual needs.</p>
-<p>When text spacing properties are marked as <code>!important</code> in inline styles, they cannot be overridden by user stylesheets or browser
-extensions that help with accessibility. This creates a barrier for users who need to customize text spacing to read content effectively.</p>
-<p>User agents and assistive technologies rely on the CSS cascade to allow users to apply their own styles. The <code>!important</code> declaration in
-inline styles has the highest specificity in CSS, making it impossible for users to override these values with their own accessibility-focused
-stylesheets.</p>
-<p>This particularly affects users who need to:</p>
+<p>This rule checks that the <code>style</code> attribute is not used to lock text spacing properties (<code>line-height</code>,
+<code>letter-spacing</code>, <code>word-spacing</code>) with <code>!important</code>, except when the values already meet accessibility
+requirements:</p>
 <ul>
-  <li> Increase line height for better readability </li>
-  <li> Adjust letter spacing to reduce visual crowding </li>
-  <li> Modify word spacing to improve text parsing </li>
-  <li> Control paragraph margins for better content flow </li>
+  <li> <code>word-spacing</code> must be at least 0.16 times the font size. </li>
+  <li> <code>letter-spacing</code> must be at least 0.12 times the font size </li>
+  <li> <code>line-height</code> must be at least 1.5 times the font size. </li>
 </ul>
-<h3>What is the potential impact?</h3>
-<p>Users with reading difficulties, dyslexia, or visual processing disorders may be unable to customize text spacing to meet their accessibility
-needs. This can make content completely unreadable for some users, violating WCAG 2.2 Level AA requirements and potentially excluding users from
-accessing important information or services.</p>
-<h2>How to fix it</h2>
-<p>Remove the <code>!important</code> declaration from text spacing properties in style attributes. This allows users to override these values with
-their own stylesheets when needed for accessibility.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-&lt;p style="line-height: 1.2 !important; letter-spacing: 0.1em !important;"&gt;Text content&lt;/p&gt; &lt;!-- Noncompliant --&gt;
+<h2>Why is this an issue?</h2>
+<p>Text spacing directly affects readability. WCAG 2.2 requires that users be able to adjust spacing to meet their needs — for example, increasing
+line height to reduce crowding or adjusting letter/word spacing for better parsing.</p>
+<p>When these properties are set with <code>!important</code> in inline styles, they override user stylesheets and accessibility tools. This can block
+users with dyslexia, visual processing disorders, or other reading difficulties from customizing spacing. However, if the values already meet or
+exceed the thresholds above, they are considered sufficiently accessible and <code>!important</code> is allowed.</p>
+<h2>Impact</h2>
+<p>If <code>!important</code> is applied with values below thresholds, some users may find the text difficult or impossible to read, potentially
+violating WCAG 2.2 Level AA.</p>
+<h2>How to fix</h2>
+<ul>
+  <li> Remove <code>!important</code> from these properties in inline styles, <strong>or</strong> </li>
+  <li> Ensure the values meet/exceed the thresholds. </li>
+</ul>
+<h3>Examples</h3>
+<h4>Noncompliant</h4>
+<pre>
+&lt;p style="line-height: 1.2 !important; letter-spacing: 0.1em !important;"&gt;
+  Text content
+&lt;/p&gt;
 </pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
-&lt;p style="line-height: 1.2; letter-spacing: 0.1em;"&gt;Text content&lt;/p&gt;
+<h4>Compliant (meets thresholds)</h4>
+<pre>
+&lt;p style="line-height: 1.5 !important; letter-spacing: 0.12em !important;"&gt;
+  Text content
+&lt;/p&gt;
+</pre>
+<h4>Compliant (no !important)</h4>
+<pre>
+&lt;p style="line-height: 1.2; letter-spacing: 0.1em;"&gt;
+  Text content
+&lt;/p&gt;
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
@@ -38,14 +46,4 @@ their own stylesheets when needed for accessibility.</p>
   requirements</a> </li>
   <li> CSS Cascade and Inheritance - <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Cascade">MDN documentation on CSS cascade and how
   !important affects specificity</a> </li>
-</ul>
-<h3>Standards</h3>
-<ul>
-  <li> WCAG 2.2-1.4.12-Text Spacing - <a href="https://www.w3.org/TR/WCAG22/#text-spacing">Web Content Accessibility Guidelines requirement for
-  customizable text spacing</a> </li>
-</ul>
-<h3>Related rules</h3>
-<ul>
-  <li> axe-avoid-inline-spacing - <a href="https://dequeuniversity.com/rules/axe/4.10/avoid-inline-spacing">Axe accessibility rule for avoiding inline
-  spacing with !important</a> </li>
 </ul>

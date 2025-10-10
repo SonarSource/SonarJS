@@ -33,7 +33,7 @@ export const messages = {
   'letter-spacing': message('letter-spacing'),
   'line-height': message('line-height'),
 };
-const threshold = {
+const thresholds = {
   'word-spacing': 0.16,
   'letter-spacing': 0.12,
   'line-height': 1.5,
@@ -56,7 +56,7 @@ const ruleImpl: stylelint.RuleBase = () => {
       postcssValueParser(decl.value).walk((node: postcssValueParser.Node) => {
         if (node.type === 'word' && spaceRegex.test(node.value) && !invalid) {
           const space = getEmSpacing(node);
-          if (typeof space === 'number' && space < threshold[property]) {
+          if (typeof space === 'number' && space < thresholds[property]) {
             invalid = true;
           }
         }
