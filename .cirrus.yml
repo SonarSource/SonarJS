@@ -109,14 +109,14 @@ npm_cache_definition: &NPM_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   npm_cache:
     folder: ${CIRRUS_WORKING_DIR}/node_modules
-    fingerprint_script: cat package-lock.json
+    fingerprint_script: cat package-lock.json && cat patches/*
     populate_script: npm ci
 
 npm_win_cache_definition: &NPM_WIN_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
   npm_win_cache:
     folder: ${CIRRUS_WORKING_DIR}/node_modules
-    fingerprint_script: echo "WIN$(cat package-lock.json)"
+    fingerprint_script: echo "WIN$(cat package-lock.json && cat patches/*)"
     populate_script: npm ci
 
 eslint_build_cache_definition: &ESLINT_BUILD_CACHE
