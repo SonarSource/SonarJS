@@ -334,9 +334,7 @@ public class AnalysisProcessor {
       if (isSqQuickFixCompatible(context)) {
         newIssue.setQuickFixAvailable(true);
       }
-      if (isQuickFixCompatible(context)) {
-        addQuickFixes(issue, newIssue, file);
-      }
+      addQuickFixes(issue, newIssue, file);
     }
 
     var ruleKey = findRuleKey(issue);

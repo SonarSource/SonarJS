@@ -532,19 +532,8 @@ eslint_plugin_task:
 
 promote_task:
   depends_on:
-    - test_js_win
-    - test_java_win
+    - build
     - eslint_plugin
-    - plugin_qa_with_node
-    - plugin_qa_without_node
-    - plugin_qa_fast_with_node
-    - plugin_qa_fast_without_node
-    - plugin_qa_win
-    - plugin_qa_win_fast_with_node
-    - css_ruling
-    - ruling
-    - js_ts_ruling
-    - analyze
   <<: *ONLY_SONARSOURCE_QA
   <<: *SMALL_CONTAINER
   env:

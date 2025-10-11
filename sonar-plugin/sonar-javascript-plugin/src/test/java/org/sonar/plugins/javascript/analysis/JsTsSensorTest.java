@@ -846,7 +846,6 @@ class JsTsSensorTest {
     assertThat(issue.isQuickFixAvailable()).isTrue();
   }
 
-  @Test
   void should_set_quickfix_now_available() {
     var expectedResponse = createProjectResponse(
       new HashMap<>() {
