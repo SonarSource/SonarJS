@@ -278,6 +278,7 @@ class PRAnalysisTest {
       .addPlugin(
         MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
       )
+      .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", "DEV"))
       .addPlugin(
         MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
       );
@@ -299,14 +300,17 @@ class PRAnalysisTest {
   }
 
   private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
-    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Main.BRANCH);
+    return getScanner(projectDir, projectKey)
+      .setProperty("sonar.branch.name", Main.BRANCH)
+      .setProperty("sonar.jasmin.internal.disabled", "true");
   }
 
   private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
     return getScanner(projectDir, projectKey)
       .setProperty("sonar.pullrequest.key", PR.BRANCH)
       .setProperty("sonar.pullrequest.branch", PR.BRANCH)
-      .setProperty("sonar.pullrequest.base", Main.BRANCH);
+      .setProperty("sonar.pullrequest.base", Main.BRANCH)
+      .setProperty("sonar.jasmin.internal.disabled", "true");
   }
 
   private static SonarScanner getScanner(Path projectDir, String projectKey) {

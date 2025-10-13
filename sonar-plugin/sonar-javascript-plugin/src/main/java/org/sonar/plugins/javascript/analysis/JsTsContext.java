@@ -46,33 +46,6 @@ import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 
 public class JsTsContext<T extends SensorContext> implements AnalysisConfiguration {
 
-  /**
-   * Internal property to enable SonarArmor (disabled by default), now called Jasmin
-   * @deprecated Kept for backwards compatibility until SonarArmor has been renamed to Jasmin, to allow for a smooth transition. Roadmap:
-   * 1. Merge this
-   * 2. Rename SonarArmor to Jasmin on SonarArmor repository, this includes renaming the flag
-   * 3. Once Jasmin renaming is on master, change the flags in the Peachee jobs
-   * 4. Finally, remove this flag here
-   */
-  @Deprecated(forRemoval = true)
-  private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
-
-  /**
-   * Internal property to disabled Jasmin (enabled by default)
-   * @deprecated JsAnalysisConsumer consumers can override isEnabled to disable themselves
-   * @see org.sonar.plugins.javascript.api.JsAnalysisConsumer#isEnabled()
-   **/
-  @Deprecated(forRemoval = true)
-  private static final String JASMIN_INTERNAL_DISABLED = "sonar.jasmin.internal.disabled";
-
-  /**
-   * Internal property to enable JaRED (disabled by default)
-   * @deprecated JsAnalysisConsumer consumers can override isEnabled to disable themselves
-   * @see org.sonar.plugins.javascript.api.JsAnalysisConsumer#isEnabled()
-   **/
-  @Deprecated(forRemoval = true)
-  private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
-
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsContext.class);
@@ -108,21 +81,6 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   public boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
-  }
-
-  @Deprecated(forRemoval = true)
-  private boolean isSonarArmorEnabled() {
-    return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
-  }
-
-  @Deprecated(forRemoval = true)
-  private boolean isSonarJasminEnabled() {
-    return !context.config().getBoolean(JASMIN_INTERNAL_DISABLED).orElse(false);
-  }
-
-  @Deprecated(forRemoval = true)
-  private boolean isSonarJaredEnabled() {
-    return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
   }
 
   public boolean allowTsParserJsFiles() {
@@ -183,10 +141,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public boolean skipAst(AnalysisConsumers consumers) {
-    return (
-      !consumers.isEnabled() ||
-      !(isSonarArmorEnabled() || isSonarJasminEnabled() || isSonarJaredEnabled())
-    );
+    return (!consumers.isEnabled());
   }
 
   public Set<String> getTsConfigPaths() {
