@@ -39,12 +39,19 @@ const ruleImpl: stylelint.RuleBase = () => {
     let textColor: number[] | undefined;
     let backgroundColor: number[] | undefined;
     let parent: PostCSS.Node | undefined;
+    let issueRaised = false;
     root.walkDecls((decl: PostCSS.Declaration) => {
       if (decl.parent !== parent) {
         parent = decl.parent;
         textColor = undefined;
         backgroundColor = undefined;
+        issueRaised = false;
       }
+      if (issueRaised) {
+        // we only want to report once per rule
+        return;
+      }
+
       if (decl.prop.toLowerCase() === 'color') {
         textColor = getColorFromString(decl.value);
       } else if (decl.prop.toLowerCase() === 'background-color') {
@@ -59,6 +66,7 @@ const ruleImpl: stylelint.RuleBase = () => {
         return;
       }
       if (contrast(backgroundColor, textColor) < THRESHOLD) {
+        issueRaised = true;
         stylelint.utils.report({
           ruleName,
           result,
