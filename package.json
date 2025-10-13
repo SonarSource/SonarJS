@@ -96,11 +96,11 @@
     "pretty-quick": "4.2.2",
     "rimraf": "6.0.1",
     "tsx": "4.20.6",
-    "type-fest": "5.0.1",
+    "type-fest": "5.1.0",
     "typedoc": "0.28.14"
   },
   "dependencies": {
-    "@angular-eslint/eslint-plugin": "20.3.0",
+    "@angular-eslint/eslint-plugin": "20.4.0",
     "@babel/core": "7.28.4",
     "@babel/eslint-parser": "7.28.4",
     "@babel/plugin-proposal-decorators": "7.28.0",
