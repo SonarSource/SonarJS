@@ -494,47 +494,6 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_not_send_the_skipAst_flag_when_jared_is_enabled() {
-    context.setSettings(new MapSettings().setProperty("sonar.jared.internal.enabled", "true"));
-    assertThat(
-      executeSensorAndCaptureHandler(createSensorWithConsumer(), context)
-        .getRequest()
-        .getConfiguration()
-        .skipAst()
-    ).isFalse();
-  }
-
-  /**
-   * @deprecated Should be removed when the sonar.armor.internal.enabled is removed, see comments in ContextUtils#ARMOR_INTERNAL_ENABLED
-   */
-  @Deprecated(forRemoval = true)
-  @Test
-  void should_send_the_skipAst_flag_when_there_are_consumers_but_armor_is_disabled() {
-    context.setSettings(
-      new MapSettings()
-        .setProperty("sonar.armor.internal.enabled", "false")
-        .setProperty("sonar.jasmin.internal.disabled", "true")
-    );
-    assertThat(
-      executeSensorAndCaptureHandler(createSensorWithConsumer(), context)
-        .getRequest()
-        .getConfiguration()
-        .skipAst()
-    ).isTrue();
-  }
-
-  @Test
-  void should_send_the_skipAst_flag_when_there_are_consumers_but_jasmin_is_disabled() {
-    context.setSettings(new MapSettings().setProperty("sonar.jasmin.internal.disabled", "true"));
-    assertThat(
-      executeSensorAndCaptureHandler(createSensorWithConsumer(), context)
-        .getRequest()
-        .getConfiguration()
-        .skipAst()
-    ).isTrue();
-  }
-
-  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
@@ -588,8 +547,8 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ parsingError: { message: \"Debug Failure. False expression.\", code: \"" +
-              BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
-              "\"} }",
+                BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
+                "\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -775,10 +734,10 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{" +
-              "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-              "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
-              "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"language\":\"js\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
-              "]}",
+                "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+                "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
+                "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"language\":\"js\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+                "]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -830,10 +789,10 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{" +
-              "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
-              "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
-              "}" +
-              "]}",
+                "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+                "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
+                "}" +
+                "]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -855,10 +814,10 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{" +
-              "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
-              "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
-              "}" +
-              "]}",
+                "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+                "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
+                "}" +
+                "]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -887,11 +846,11 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
-              "\"cost\": 14," +
-              "\"secondaryLocations\": [" +
-              "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
-              "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-              "]}]}",
+                "\"cost\": 14," +
+                "\"secondaryLocations\": [" +
+                "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
+                "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
+                "]}]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -933,9 +892,9 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
-              "\"secondaryLocations\": [" +
-              "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-              "]}]}",
+                "\"secondaryLocations\": [" +
+                "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
+                "]}]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -961,8 +920,8 @@ class JsTsSensorTest {
             inputFile.absolutePath(),
             GSON.fromJson(
               "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
-              "\"cost\": 42," +
-              "\"secondaryLocations\": []}]}",
+                "\"cost\": 42," +
+                "\"secondaryLocations\": []}]}",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -1429,16 +1388,16 @@ class JsTsSensorTest {
   private BridgeServer.AnalysisResponseDTO createResponse() {
     return GSON.fromJson(
       "{" +
-      createIssues() +
-      "," +
-      createHighlights() +
-      "," +
-      createMetrics() +
-      "," +
-      createCpdTokens() +
-      "," +
-      createHighlightedSymbols() +
-      "}",
+        createIssues() +
+        "," +
+        createHighlights() +
+        "," +
+        createMetrics() +
+        "," +
+        createCpdTokens() +
+        "," +
+        createHighlightedSymbols() +
+        "}",
       BridgeServer.AnalysisResponseDTO.class
     );
   }
