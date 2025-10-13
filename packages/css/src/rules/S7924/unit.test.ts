@@ -65,7 +65,7 @@ describe('S7924', () => {
   it('should fail for poor contrast combinations in HTML', () =>
     ruleTester.invalid({
       codeFilename: 'badContrast.html',
-      code: '<p style="color: #fff; background: #00b89c;">Some text in a human language</p>',
+      code: '<p style="color: #fff; background: #00b89c; text-align: left;">Some text in a human language</p>',
       errors: [{ text: `${messages.contrast} (sonar/minimum-contrast)`, line: 1 }],
     }));
 });
