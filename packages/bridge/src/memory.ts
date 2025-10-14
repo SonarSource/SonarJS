@@ -82,6 +82,7 @@ export function registerGarbageCollectionObserver() {
       .getEntries()
       .filter(
         item =>
+          'detail' in item &&
           (item.detail as NodeGCPerformanceDetail)?.kind === constants.NODE_PERFORMANCE_GC_MAJOR,
       )) {
       debug(`Major GC event`);
