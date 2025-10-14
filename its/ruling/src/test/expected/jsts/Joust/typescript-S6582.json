@@ -16,7 +16,12 @@
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 75,
-80
+80,
+146,
+162,
+174,
+212,
+213
 ],
 "Joust:ts/components/GameWidget.tsx": [
 333
@@ -66,5 +71,8 @@
 ],
 "Joust:ts/state/GameStateScrubber.ts": [
 234
+],
+"Joust:ts/state/plugins/Timer.ts": [
+66
 ]
 }

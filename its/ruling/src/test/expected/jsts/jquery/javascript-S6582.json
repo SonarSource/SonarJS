@@ -34,7 +34,8 @@
 244
 ],
 "jquery:src/css/adjustCSS.js": [
-16
+16,
+23
 ],
 "jquery:src/data.js": [
 96
@@ -47,6 +48,7 @@
 377
 ],
 "jquery:src/effects.js": [
+125,
 133,
 153,
 543,
@@ -76,13 +78,15 @@
 "jquery:src/selector.js": [
 154,
 213,
+410,
 458,
 722,
 749,
 897
 ],
 "jquery:src/selector/contains.js": [
-6
+6,
+8
 ],
 "jquery:src/traversing.js": [
 73,

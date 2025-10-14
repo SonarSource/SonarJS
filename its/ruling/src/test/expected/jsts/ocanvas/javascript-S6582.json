@@ -5,8 +5,14 @@
 "ocanvas:src/background.js": [
 33
 ],
+"ocanvas:src/core.js": [
+209
+],
 "ocanvas:src/displayobject.js": [
 320
+],
+"ocanvas:src/keyboard.js": [
+84
 ],
 "ocanvas:src/mouse.js": [
 40,

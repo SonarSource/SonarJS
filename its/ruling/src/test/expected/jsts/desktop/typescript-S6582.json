@@ -9,6 +9,7 @@
 "desktop:app/src/lib/api.ts": [
 76,
 76,
+555,
 1689
 ],
 "desktop:app/src/lib/diff-parser.ts": [
@@ -16,6 +17,13 @@
 ],
 "desktop:app/src/lib/git/for-each-ref.ts": [
 27
+],
+"desktop:app/src/lib/git/rebase.ts": [
+282
+],
+"desktop:app/src/lib/git/reflog.ts": [
+45,
+116
 ],
 "desktop:app/src/lib/http.ts": [
 38,
@@ -45,6 +53,15 @@
 91,
 123
 ],
+"desktop:app/src/lib/oauth.ts": [
+45
+],
+"desktop:app/src/lib/progress/git.ts": [
+282
+],
+"desktop:app/src/lib/progress/lfs.ts": [
+55
+],
 "desktop:app/src/lib/stats/stats-store.ts": [
 638,
 939,
@@ -70,6 +87,9 @@
 1246,
 1260
 ],
+"desktop:app/src/lib/stores/github-user-store.ts": [
+55
+],
 "desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
 44
 ],
@@ -82,11 +102,23 @@
 "desktop:app/src/lib/text-token-parser.ts": [
 221
 ],
+"desktop:app/src/lib/thank-you.ts": [
+35
+],
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
+76
+],
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
 108
 ],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 22
+],
+"desktop:app/src/models/app-menu.ts": [
+432
+],
+"desktop:app/src/models/branch.ts": [
+88
 ],
 "desktop:app/src/models/repository.ts": [
 64
@@ -103,17 +135,19 @@
 172,
 403
 ],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+296,
+309
+],
 "desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
 124
-],
-"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
-650
 ],
 "desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 773,
 855
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
+499,
 729,
 1310
 ],
@@ -143,5 +177,9 @@
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 329,
 330
+],
+"desktop:script/changelog/parser.ts": [
+21,
+76
 ]
 }

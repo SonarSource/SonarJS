@@ -39,7 +39,11 @@
 124,
 124,
 126,
-348
+348,
+362
+],
+"eigen:src/app/Scenes/Artwork/Components/AboutArtist.tsx": [
+17
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tsx": [
 41,
@@ -90,9 +94,13 @@
 15
 ],
 "eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx": [
+123,
 132,
 137,
 142
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomLevel.tsx": [
+180
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomPyramid.ts": [
 68
@@ -182,6 +190,9 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 62
 ],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
+73
+],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Shipping.tsx": [
 42
 ],
@@ -265,6 +276,7 @@
 51
 ],
 "eigen:src/app/utils/useWebViewEvent.ts": [
+52,
 59
 ],
 "eigen:src/app/utils/verifyEmail.ts": [
