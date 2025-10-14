@@ -45,6 +45,9 @@
 "Ghost:core/client/app/helpers/gh-format-timeago.js": [
 6
 ],
+"Ghost:core/client/app/mixins/404-handler.js": [
+6
+],
 "Ghost:core/client/app/mixins/editor-base-controller.js": [
 251,
 253
@@ -94,7 +97,8 @@
 161,
 175,
 181,
-266
+266,
+334
 ],
 "Ghost:core/server/api/utils.js": [
 59,
@@ -115,9 +119,11 @@
 170
 ],
 "Ghost:core/server/controllers/frontend/context.js": [
+25,
 53
 ],
 "Ghost:core/server/data/import/data-importer.js": [
+32,
 49,
 50
 ],
@@ -146,6 +152,9 @@
 "Ghost:core/server/data/xml/rss/index.js": [
 40,
 41
+],
+"Ghost:core/server/data/xml/sitemap/page-generator.js": [
+51
 ],
 "Ghost:core/server/errors/index.js": [
 316
@@ -197,14 +206,21 @@
 20,
 58,
 71,
+95,
 105
 ],
 "Ghost:core/server/middleware/auth.js": [
 17,
 19,
+54,
 78,
 82,
-103
+103,
+111,
+120
+],
+"Ghost:core/server/middleware/check-ssl.js": [
+22
 ],
 "Ghost:core/server/middleware/private-blogging.js": [
 121
@@ -226,7 +242,8 @@
 "Ghost:core/server/models/user.js": [
 110,
 113,
-130
+130,
+655
 ],
 "Ghost:core/server/permissions/index.js": [
 39,

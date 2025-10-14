@@ -30,7 +30,13 @@
 12
 ],
 "qunit:src/core/utilities.js": [
+17,
+35,
 112
+],
+"qunit:src/equiv.js": [
+45,
+48
 ],
 "qunit:src/export.js": [
 10,
@@ -42,6 +48,8 @@
 10
 ],
 "qunit:src/test.js": [
+104,
+353,
 538,
 556,
 576

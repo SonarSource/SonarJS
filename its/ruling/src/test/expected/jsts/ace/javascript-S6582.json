@@ -33,11 +33,16 @@
 44
 ],
 "ace:lib/ace/mode/css/csslint.js": [
+7602,
 7632,
 7781,
 7782,
 7896,
 7897,
+10186,
+10389,
+10532,
+10621,
 10635
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
@@ -48,8 +53,10 @@
 10317
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
+242,
 460,
 1516,
+2495,
 2524,
 3830,
 4586,
@@ -62,11 +69,20 @@
 6420,
 6422,
 6640,
+6665,
 6934,
 6934,
 6963,
 6963,
+7494,
+7499,
+7628,
+7635,
+7720,
+7809,
+7839,
 8025,
+8028,
 8035,
 8464,
 8524,
@@ -78,10 +94,19 @@
 8851,
 9179,
 9228,
+9232,
+9274,
 9275,
 9741,
+9836,
+10366,
+10695,
+10706,
+10718,
+10722,
 10865,
 10998,
+11096,
 13304,
 13307,
 13311,
@@ -89,6 +114,7 @@
 15958,
 15959,
 15960,
+15968,
 16063,
 16089,
 18185,
@@ -103,6 +129,7 @@
 175
 ],
 "ace:lib/ace/mode/xml/dom.js": [
+349,
 453,
 717,
 760
@@ -119,6 +146,7 @@
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 3117,
+4031,
 4054,
 4059,
 4169,
@@ -155,7 +183,8 @@
 257,
 305,
 307,
-434
+434,
+437
 ],
 "ace:src/autocomplete/popup.js": [
 147
@@ -191,10 +220,13 @@
 30,
 34,
 79,
-86
+86,
+313,
+377
 ],
 "ace:src/edit_session/fold_line.js": [
-143
+143,
+166
 ],
 "ace:src/edit_session/folding.js": [
 586,
@@ -202,6 +234,8 @@
 ],
 "ace:src/editor.js": [
 77,
+138,
+140,
 145,
 231,
 232,
@@ -218,7 +252,8 @@
 ],
 "ace:src/ext/beautify.js": [
 56,
-308
+308,
+361
 ],
 "ace:src/ext/code_lens.js": [
 45,
@@ -227,7 +262,8 @@
 99,
 102,
 103,
-162
+162,
+163
 ],
 "ace:src/ext/code_lens_test.js": [
 37
@@ -289,33 +325,44 @@
 79
 ],
 "ace:src/keyboard/textinput.js": [
+90,
 120,
 336
 ],
 "ace:src/keyboard/textinput_test.js": [
-42
+42,
+61
 ],
 "ace:src/keyboard/vim.js": [
 172,
 183,
 190,
+206,
 230,
+304,
 371,
 565,
 590,
+834,
 872,
 899,
+901,
+1194,
+1204,
 1400,
 1401,
 1483,
+1997,
 3140,
 3403,
 3456,
+3901,
 4397,
 5710,
 5716,
 5787,
 5941,
+6025,
 6269,
 6647,
 6656
@@ -380,8 +427,12 @@
 325
 ],
 "ace:src/mode/_test/highlight_rules_test.js": [
+115,
+118,
+121,
 163,
 225,
+315,
 341
 ],
 "ace:src/mode/behaviour.js": [
@@ -389,10 +440,18 @@
 ],
 "ace:src/mode/behaviour/css.js": [
 17,
-45
+20,
+45,
+48
 ],
 "ace:src/mode/behaviour/cstyle.js": [
 61
+],
+"ace:src/mode/behaviour/xml.js": [
+163
+],
+"ace:src/mode/behaviour/xquery.js": [
+34
 ],
 "ace:src/mode/c9search_highlight_rules.js": [
 44
@@ -405,7 +464,14 @@
 71
 ],
 "ace:src/mode/folding/fold_mode.js": [
-18
+18,
+48
+],
+"ace:src/mode/folding/latex.js": [
+113
+],
+"ace:src/mode/folding/lua.js": [
+93
 ],
 "ace:src/mode/folding/mixed.js": [
 41,
@@ -419,7 +485,11 @@
 19
 ],
 "ace:src/mode/javascript_highlight_rules.js": [
-382
+382,
+445
+],
+"ace:src/mode/logiql.js": [
+64
 ],
 "ace:src/mode/lua.js": [
 97
@@ -475,7 +545,8 @@
 54
 ],
 "ace:src/search.js": [
-82
+82,
+129
 ],
 "ace:src/selection.js": [
 739
@@ -514,8 +585,12 @@
 "ace:src/test/mockrenderer.js": [
 75
 ],
+"ace:src/tokenizer.js": [
+279
+],
 "ace:src/tokenizer_dev.js": [
-94
+94,
+112
 ],
 "ace:src/tooltip.js": [
 109
@@ -525,6 +600,7 @@
 ],
 "ace:src/virtual_renderer.js": [
 414,
+583,
 627,
 635,
 827,
@@ -542,7 +618,10 @@
 29
 ],
 "ace:tool/tmlanguage.js": [
+89,
 125,
+139,
+364,
 413,
 558,
 571
