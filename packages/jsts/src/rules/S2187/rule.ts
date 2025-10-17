@@ -106,6 +106,15 @@ export const rule: Rule.RuleModule = {
           hasTest = true;
         }
       },
+      TaggedTemplateExpression(node) {
+        if (hasTest) {
+          return;
+        }
+        const fqn = fullyQualifiedName(node.tag);
+        if (APIs.has(fqn)) {
+          hasTest = true;
+        }
+      },
       'Program:exit'() {
         if (!hasTest) {
           context.report({
