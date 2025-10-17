@@ -87,6 +87,19 @@ describe('S2187', () => {
         });`,
           filename: 'unit.test.ts',
         },
+        {
+          code: `
+        /* a test file using 'it.each' with tagged template literals */
+                it.each\`
+            text          | expected
+            ${'00003000'} | ${'3000'}
+            ${'00003030'} | ${'3030'}
+        \`('it should do something: $text', ({ text, expected }) => {
+            const result = TextUtils.doSomething(text);
+            expect(result).toStrictEqual(expected);
+        });`,
+          filename: 'foo.test.js',
+        },
       ],
       invalid: [
         {
