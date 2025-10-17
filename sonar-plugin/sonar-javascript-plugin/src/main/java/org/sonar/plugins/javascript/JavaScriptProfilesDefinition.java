@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +46,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
+  static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
+  public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
@@ -90,6 +91,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(SONAR_WAY, language);
     activateBuiltInRules(newProfile);
     activateAdditionalRules(newProfile);
+    activateSecurityRules(newProfile, language);
     newProfile.done();
   }
 
@@ -126,10 +128,39 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     LOG.debug("Adding extra {} ruleKeys {}", language, rules);
   }
 
+  /**
+   * Security rules are added by reflectively invoking specific classes from the Jasmin plugin, which provides
+   * rule keys to add to the built-in profiles.
+   * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
+   */
+  private static void activateSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
+    try {
+      Class<?> rulesClass = Class.forName(SONAR_JASMIN_RULES_CLASS_NAME);
+      Method getRuleKeysMethod = rulesClass.getMethod(SECURITY_RULE_KEYS_METHOD_NAME, String.class);
+      Set<RuleKey> sonarJasminRuleKeys = (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
+      LOG.debug("Adding security ruleKeys {}", sonarJasminRuleKeys);
+      sonarJasminRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+    } catch (ClassNotFoundException e) {
+      LOG.debug("{} is not found, {}", SONAR_JASMIN_RULES_CLASS_NAME, securityRuleMessage(e));
+    } catch (NoSuchMethodException e) {
+      LOG.debug(
+        "Method not found on {}, {}",
+        SONAR_JASMIN_RULES_CLASS_NAME,
+        securityRuleMessage(e)
+      );
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      LOG.debug("{}: {}", e.getClass().getSimpleName(), securityRuleMessage(e));
+    }
+  }
+
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
     return checks
       .stream()
       .map(c -> c.getAnnotation(Rule.class).key())
       .collect(Collectors.toSet());
+  }
+
+  private static String securityRuleMessage(Exception e) {
+    return "no security rules added to builtin profile: " + e.getMessage();
   }
 }
