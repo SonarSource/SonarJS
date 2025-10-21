@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package com.sonar.plugins.security.api;
+package com.sonar.plugins.jasmin.api;
 
 import java.util.HashSet;
 import java.util.Set;

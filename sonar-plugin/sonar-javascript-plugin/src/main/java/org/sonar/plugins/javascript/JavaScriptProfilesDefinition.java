@@ -19,6 +19,7 @@ package org.sonar.plugins.javascript;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -134,23 +135,34 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
    */
   private static void activateSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
+    Set<RuleKey> sonarJasminRuleKeys = getSecurityRuleKeys(
+      SONAR_JASMIN_RULES_CLASS_NAME,
+      SECURITY_RULE_KEYS_METHOD_NAME,
+      language
+    );
+    LOG.debug("Adding security ruleKeys {}", sonarJasminRuleKeys);
+    sonarJasminRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+  }
+
+  // Visible for testing
+  static Set<RuleKey> getSecurityRuleKeys(
+    String className,
+    String ruleKeysMethodName,
+    String language
+  ) {
     try {
-      Class<?> rulesClass = Class.forName(SONAR_JASMIN_RULES_CLASS_NAME);
-      Method getRuleKeysMethod = rulesClass.getMethod(SECURITY_RULE_KEYS_METHOD_NAME, String.class);
-      Set<RuleKey> sonarJasminRuleKeys = (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
-      LOG.debug("Adding security ruleKeys {}", sonarJasminRuleKeys);
-      sonarJasminRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+      Class<?> rulesClass = Class.forName(className);
+      Method getRuleKeysMethod = rulesClass.getMethod(ruleKeysMethodName, String.class);
+      return (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
     } catch (ClassNotFoundException e) {
-      LOG.debug("{} is not found, {}", SONAR_JASMIN_RULES_CLASS_NAME, securityRuleMessage(e));
+      LOG.debug("{} is not found, {}", className, securityRuleMessage(e));
     } catch (NoSuchMethodException e) {
-      LOG.debug(
-        "Method not found on {}, {}",
-        SONAR_JASMIN_RULES_CLASS_NAME,
-        securityRuleMessage(e)
-      );
+      LOG.debug("Method not found on {}, {}", className, securityRuleMessage(e));
     } catch (IllegalAccessException | InvocationTargetException e) {
       LOG.debug("{}: {}", e.getClass().getSimpleName(), securityRuleMessage(e));
     }
+
+    return Collections.emptySet();
   }
 
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
