@@ -15,12 +15,6 @@
 150,
 157
 ],
-"rxjs:src/SubjectSubscription.ts": [
-29
-],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-380
-],
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
 176,
 196,
