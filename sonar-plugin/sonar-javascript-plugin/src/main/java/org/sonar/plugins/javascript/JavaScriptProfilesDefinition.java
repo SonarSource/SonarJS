@@ -47,7 +47,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
-  static final String SONAR_SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
@@ -131,19 +130,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   /**
-   * Security rules are added by reflectively invoking specific classes from the SonarSecurity and Jasmin plugins, which provides
+   * Security rules are added by reflectively invoking specific classes from the Jasmin plugin, which provides
    * rule keys to add to the built-in profiles.
    * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
    */
   private static void activateSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
-    Set<RuleKey> sonarSecurityRuleKeys = getSecurityRuleKeys(
-      SONAR_SECURITY_RULES_CLASS_NAME,
-      SECURITY_RULE_KEYS_METHOD_NAME,
-      language
-    );
-    LOG.debug("Adding security ruleKeys {}", sonarSecurityRuleKeys);
-    sonarSecurityRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
-
     Set<RuleKey> sonarJasminRuleKeys = getSecurityRuleKeys(
       SONAR_JASMIN_RULES_CLASS_NAME,
       SECURITY_RULE_KEYS_METHOD_NAME,
@@ -175,7 +166,10 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
-    return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
+    return checks
+      .stream()
+      .map(c -> c.getAnnotation(Rule.class).key())
+      .collect(Collectors.toSet());
   }
 
   private static String securityRuleMessage(Exception e) {
