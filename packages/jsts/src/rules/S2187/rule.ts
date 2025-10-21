@@ -95,16 +95,24 @@ export const rule: Rule.RuleModule = {
     }
 
     let hasTest = false;
+
+    function checkIfTestCall(node: Node) {
+      if (hasTest) {
+        return;
+      }
+
+      const fqn = fullyQualifiedName(node);
+      if (APIs.has(fqn)) {
+        hasTest = true;
+      }
+    }
+
     return {
       CallExpression(node) {
-        if (hasTest) {
-          return;
-        }
-
-        const fqn = fullyQualifiedName(node.callee);
-        if (APIs.has(fqn)) {
-          hasTest = true;
-        }
+        checkIfTestCall(node.callee);
+      },
+      TaggedTemplateExpression(node) {
+        checkIfTestCall(node.tag);
       },
       'Program:exit'() {
         if (!hasTest) {
