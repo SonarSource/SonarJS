@@ -14,7 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
-export const eslintId = 'prefer-promise-reject-errors';
-export const externalPlugin = 'typescript-eslint';
-export * from './config.js';
+// https://sonarsource.github.io/rspec/#/rspec/S6671/javascript
+
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'allowThrowingAny',
+      default: true,
+    },
+    {
+      field: 'allowThrowingUnknown',
+      default: true,
+    },
+  ],
+] as const satisfies ESLintConfiguration;
