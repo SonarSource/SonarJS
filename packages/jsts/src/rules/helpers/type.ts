@@ -320,13 +320,13 @@ export function typeHasMethod(
 
   // Also check if it's a property that contains a function
   if (property.flags & ts.SymbolFlags.Property) {
-    const propertyType = services.program
-      .getTypeChecker()
-      .getTypeOfSymbolAtLocation(property, property.valueDeclaration!);
+    const typeChecker = services.program.getTypeChecker();
+    const propertyType = property.valueDeclaration
+      ? typeChecker.getTypeOfSymbolAtLocation(property, property.valueDeclaration)
+      : typeChecker.getTypeOfSymbol(property);
 
     // Check if the property type is callable (has call signatures)
     return propertyType.getCallSignatures().length > 0;
   }
-
   return false;
 }
