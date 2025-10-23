@@ -47,12 +47,12 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     tsNode.parent?.type === 'CallExpression' &&
     tsNode.parent.callee.type === 'MemberExpression'
   ) {
-    if (node === tsNode.parent.arguments[3]) {
+    if (node === tsNode.parent.arguments[2]) {
       // thisArg is the 3rd argument, the supposed array is the first argument.
       // no need to check for type in this case
       // Array.from(items, mapFn, thisArg)
       context.report(descriptor);
-    } else if (!isRequiredParserServices(context.sourceCode.parserServices)) {
+    } else if (isRequiredParserServices(context.sourceCode.parserServices)) {
       // else thisArg node is the second argument, the supposed array is the object in the callee
       // Array.find(callbackFn, thisArg)
       // this case we only raise if the type checker is available and the node is an array
