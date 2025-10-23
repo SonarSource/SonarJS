@@ -232,6 +232,7 @@ export class TsConfigStore implements FileStore {
       compilerOptions: {
         allowJs: true,
         noImplicitAny: true,
+        lib: ['esnext', 'dom'],
       },
       include,
       files,
