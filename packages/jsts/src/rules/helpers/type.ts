@@ -300,3 +300,33 @@ export function isNullOrUndefinedType({ flags }: ts.Type) {
 export function isObjectType({ flags }: ts.Type) {
   return flags & ts.TypeFlags.Object;
 }
+
+export function typeHasMethod(
+  node: estree.Node,
+  methodName: string,
+  services: RequiredParserServices,
+): boolean {
+  const type = getTypeFromTreeNode(node, services);
+  const property = type.getProperty(methodName);
+
+  if (!property) {
+    return false;
+  }
+
+  // Check if it's a method by examining the symbol flags
+  if (property.flags & ts.SymbolFlags.Method) {
+    return true;
+  }
+
+  // Also check if it's a property that contains a function
+  if (property.flags & ts.SymbolFlags.Property) {
+    const typeChecker = services.program.getTypeChecker();
+    const propertyType = property.valueDeclaration
+      ? typeChecker.getTypeOfSymbolAtLocation(property, property.valueDeclaration)
+      : typeChecker.getTypeOfSymbol(property);
+
+    // Check if the property type is callable (has call signatures)
+    return propertyType.getCallSignatures().length > 0;
+  }
+  return false;
+}
