@@ -1,0 +1,66 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+
+import type estree from 'estree';
+import {
+  generateMeta,
+  interceptReport,
+  isArray,
+  isRequiredParserServices,
+} from '../helpers/index.js';
+import * as meta from './generated-meta.js';
+import type { Rule } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(meta, rule.meta),
+    },
+    reportExempting,
+  );
+}
+
+function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return;
+  }
+
+  if ('node' in descriptor) {
+    const { node, ...rest } = descriptor;
+    let tsNode: TSESTree.Node = node as TSESTree.Node;
+    if (
+      tsNode.parent?.type === 'CallExpression' &&
+      tsNode.parent.callee.type === 'MemberExpression'
+    ) {
+      // the reported node is thisArg, need to check the supposed array
+      const nodeToCheck =
+        node === tsNode.parent.arguments[1]
+          ? // if thisArg node is the second argument, the supposed array is the object in the callee
+            // Array.find(callbackFn, thisArg)
+            (tsNode.parent.callee.object as estree.Node)
+          : //else thisArg is the 3rd argument, the supposed array is the first argument
+            // Array.from(items, mapFn, thisArg)
+            (tsNode.parent.arguments[0] as estree.Node);
+      if (nodeToCheck && isArray(nodeToCheck, services)) {
+        context.report({ node, ...rest });
+      }
+    }
+  }
+}
