@@ -37,28 +37,28 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-  const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) {
+  if (!('node' in descriptor)) {
     return;
   }
+  const { node, ...rest } = descriptor;
+  const tsNode: TSESTree.Node = node as TSESTree.Node;
+  // the reported node is thisArg, need to check the supposed array
+  if (
+    tsNode.parent?.type === 'CallExpression' &&
+    tsNode.parent.callee.type === 'MemberExpression'
+  ) {
+    if (node === tsNode.parent.arguments[3]) {
+      // thisArg is the 3rd argument, the supposed array is the first argument.
+      // no need to check for type in this case
+      // Array.from(items, mapFn, thisArg)
+      context.report(descriptor);
+    } else if (!isRequiredParserServices(context.sourceCode.parserServices)) {
+      // else thisArg node is the second argument, the supposed array is the object in the callee
+      // Array.find(callbackFn, thisArg)
+      // this case we only raise if the type checker is available and the node is an array
+      const nodeToCheck = tsNode.parent.callee.object as estree.Node;
 
-  if ('node' in descriptor) {
-    const { node, ...rest } = descriptor;
-    let tsNode: TSESTree.Node = node as TSESTree.Node;
-    if (
-      tsNode.parent?.type === 'CallExpression' &&
-      tsNode.parent.callee.type === 'MemberExpression'
-    ) {
-      // the reported node is thisArg, need to check the supposed array
-      const nodeToCheck =
-        node === tsNode.parent.arguments[1]
-          ? // if thisArg node is the second argument, the supposed array is the object in the callee
-            // Array.find(callbackFn, thisArg)
-            (tsNode.parent.callee.object as estree.Node)
-          : //else thisArg is the 3rd argument, the supposed array is the first argument
-            // Array.from(items, mapFn, thisArg)
-            (tsNode.parent.arguments[0] as estree.Node);
-      if (nodeToCheck && isArray(nodeToCheck, services)) {
+      if (nodeToCheck && isArray(nodeToCheck, context.sourceCode.parserServices)) {
         context.report({ node, ...rest });
       }
     }
