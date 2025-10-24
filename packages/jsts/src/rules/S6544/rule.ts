@@ -93,7 +93,6 @@ export const rule: Rule.RuleModule = {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
     },
-    hasSuggestions: true,
     schema: [
       {
         type: 'object',

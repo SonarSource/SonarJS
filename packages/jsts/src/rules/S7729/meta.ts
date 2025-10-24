@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-array-method-this-argument';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove usage of argument "this" in array method';

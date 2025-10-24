@@ -19,3 +19,4 @@ export const eslintId = 'prefer-string-starts-ends-with';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'prefer-string-starts-ends-with' },
 ];
+export const quickFixMessage = 'Use startsWith() or endsWith()';

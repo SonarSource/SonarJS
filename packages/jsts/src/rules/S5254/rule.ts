@@ -36,7 +36,6 @@ function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    hasSuggestions: true,
     messages: {
       ...langRule.meta!.messages,
       ...decoratedHasLangRule.meta!.messages,

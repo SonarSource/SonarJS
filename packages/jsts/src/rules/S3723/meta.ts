@@ -17,3 +17,4 @@
 export const implementation = 'original';
 export const eslintId = 'enforce-trailing-comma';
 export * from './config.js';
+export const quickFixMessage = 'Add trailing comma';

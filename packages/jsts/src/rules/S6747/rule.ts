@@ -66,7 +66,8 @@ const twiceDecoratedNoUnknownProp = interceptReport(
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    hasSuggestions: true,
+    ...decoratedAriaPropsRule.meta,
+    ...twiceDecoratedNoUnknownProp.meta,
     messages: {
       ...decoratedAriaPropsRule.meta!.messages,
       ...twiceDecoratedNoUnknownProp.meta!.messages,
