@@ -18,3 +18,4 @@
 export const implementation = 'decorated';
 export const eslintId = 'prefer-at';
 export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'prefer-at' }];
+export const quickFixMessage = 'Replace with Array.prototype.at()';

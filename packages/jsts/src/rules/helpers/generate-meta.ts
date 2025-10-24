@@ -40,9 +40,15 @@ export type SonarMeta = {
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {
-  if (sonarMeta.meta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
+  if (!!sonarMeta.meta.fixable !== !!(ruleMeta?.fixable || ruleMeta?.hasSuggestions)) {
     throw new Error(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${sonarMeta.meta.docs!.url}`,
+    );
+  }
+
+  if (ruleMeta?.fixable && !sonarMeta.quickFixMessage) {
+    throw new Error(
+      `Rule ${sonarMeta.sonarKey} is marked as fixable but no quick fix message is provided.`,
     );
   }
   // sonarMeta should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead

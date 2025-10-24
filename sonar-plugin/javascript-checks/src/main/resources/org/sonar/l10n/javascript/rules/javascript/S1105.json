@@ -23,7 +23,7 @@
   "ruleSpecification": "RSPEC-1105",
   "sqKey": "S1105",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"

@@ -36,7 +36,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       ...rule,
       meta: generateMeta(meta, {
         ...rule.meta!,
-        hasSuggestions: true,
       }),
     },
     (context, reportDescriptor) => {

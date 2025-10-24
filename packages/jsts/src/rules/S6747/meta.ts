@@ -21,3 +21,4 @@ export const externalRules = [
   { externalPlugin: 'jsx-a11y', externalRule: 'aria-props' },
 ];
 export * from './config.js';
+export const quickFixMessage = 'Replace unknown property';

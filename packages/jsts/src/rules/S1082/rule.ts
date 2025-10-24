@@ -26,7 +26,6 @@ const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    hasSuggestions: true,
     messages: {
       ...mouseEventsHaveKeyEvents.meta!.messages,
       ...clickEventsHaveKeyEvents.meta!.messages,

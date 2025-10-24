@@ -19,3 +19,4 @@ export const eslintId = 'prefer-optional-chain';
 export const externalRules = [
   { externalPlugin: 'typescript-eslint', externalRule: 'prefer-optional-chain' },
 ];
+export const quickFixMessage = 'Use optional chaining';
