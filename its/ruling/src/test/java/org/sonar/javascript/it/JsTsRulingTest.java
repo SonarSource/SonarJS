@@ -249,7 +249,7 @@ class JsTsRulingTest {
   }
 
   private static void installScanner() {
-    var installer = new SonarScannerInstaller(orchestrator.getConfiguration().locators());
+    var installer = new SonarScannerInstaller(orchestrator.getLocators());
     installer.install(Version.create(SCANNER_VERSION), Path.of("target").toFile());
   }
 
@@ -366,8 +366,8 @@ class JsTsRulingTest {
     } else {
       throw new IllegalStateException(
         "Could not retrieve profile key : Template rule " +
-        ruleTemplateKey +
-        " has not been activated"
+          ruleTemplateKey +
+          " has not been activated"
       );
     }
   }
