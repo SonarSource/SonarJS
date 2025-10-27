@@ -1,0 +1,11 @@
+{
+"vuetify:packages/docs/build/api-plugin.ts": [
+131
+],
+"vuetify:packages/docs/src/components/api/utils.ts": [
+45
+],
+"vuetify:packages/docs/src/components/examples/Example.vue": [
+120
+]
+}
