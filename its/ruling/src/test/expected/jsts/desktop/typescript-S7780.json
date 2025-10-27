@@ -1,4 +1,7 @@
 {
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+225
+],
 "desktop:app/src/lib/editors/win32.ts": [
 71,
 74
@@ -25,6 +28,10 @@
 ],
 "desktop:app/src/main-process/desktop-file-transport.ts": [
 17
+],
+"desktop:app/src/ui/add-repository/licenses.ts": [
+56,
+59
 ],
 "desktop:script/build.ts": [
 199,
