@@ -26,6 +26,7 @@ import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import merge from 'lodash.merge';
+import { fillFileContent } from '../../../../shared/src/types/analysis.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -80,13 +81,22 @@ async function analyzeFilesFromEntryPoint(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const compilerOptions = merge({}, ...results.compilerOptions);
+  const compilerOptions: ts.CompilerOptions = merge({}, ...results.compilerOptions);
 
   for (const pendingFile of pendingFiles) {
     if (isAnalysisCancelled()) {
       return;
     }
-    const program = createProgramFromSingleFile(pendingFile, compilerOptions);
+    if (!pendingFiles.has(pendingFile) || !files[pendingFile]) {
+      // pendingFiles is modified during the loop; when a file
+      // was already analyzed from another entry point, it gets removed
+      continue;
+    }
+    const program = createProgramFromSingleFile(
+      pendingFile,
+      (await fillFileContent(files[pendingFile])).fileContent,
+      compilerOptions,
+    );
     await analyzeProgram(
       program,
       files,

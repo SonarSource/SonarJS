@@ -40,7 +40,7 @@ type ProgramResult = {
   program: ts.Program;
 };
 
-export const defaultCompilerOptions: ts.CompilerOptions = {
+const defaultCompilerOptions: ts.CompilerOptions = {
   target: ts.ScriptTarget.ESNext,
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.NodeNext,
