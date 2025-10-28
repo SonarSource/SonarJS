@@ -159,10 +159,10 @@ class TypeScriptAnalysisTest {
       result.getLogsLines(l ->
         l.contains(
           "Found 2 tsconfig.json file(s): " +
-          tsconfigs
-            .stream()
-            .map(tsconfig -> tsconfig.toString().replace("\\", "/"))
-            .toList()
+            tsconfigs
+              .stream()
+              .map(tsconfig -> tsconfig.toString().replace("\\", "/"))
+              .toList()
         )
       )
     ).hasSize(1);
@@ -247,14 +247,7 @@ class TypeScriptAnalysisTest {
 
     assertThat(
       result.getLogsLines(l ->
-        l.contains(
-          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
-        )
-      )
-    ).hasSize(1);
-    assertThat(
-      result.getLogsLines(l ->
-        l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
+        l.matches(".*Creating TypeScript(\\(\\d\\.\\d\\.\\d\\))? program from entry point.*")
       )
     ).hasSize(1);
   }
