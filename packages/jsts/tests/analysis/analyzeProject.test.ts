@@ -131,6 +131,7 @@ describe('analyzeProject', () => {
     const baseDir = join(fixtures, 'empty-folder');
     const result = await analyzeProject(prepareInput(baseDir, {}));
     expect(result).toEqual({
+      compilerOptions: [],
       files: {},
       meta: {
         warnings: [],
