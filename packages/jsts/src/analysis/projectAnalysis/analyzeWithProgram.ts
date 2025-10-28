@@ -92,11 +92,21 @@ async function analyzeFilesFromEntryPoint(
       // was already analyzed from another entry point, it gets removed
       continue;
     }
-    const program = createProgramFromSingleFile(
-      pendingFile,
-      (await fillFileContent(files[pendingFile])).fileContent,
-      compilerOptions,
-    );
+    let program: ts.Program;
+    info(`Creating TypeScript(${ts.version}) program from entry point ${pendingFile}`);
+    try {
+      program = createProgramFromSingleFile(
+        pendingFile,
+        (await fillFileContent(files[pendingFile])).fileContent,
+        compilerOptions,
+      );
+    } catch (e) {
+      error('Failed to create program: ' + e);
+      results.meta.warnings.push(
+        `Failed to create TypeScript program program from entry point ${pendingFile}.`,
+      );
+      return;
+    }
     await analyzeProgram(
       program,
       files,
@@ -121,8 +131,7 @@ async function analyzeFilesFromTsConfig(
     return;
   }
   processedTSConfigs.add(tsConfig);
-  info('Creating TypeScript program');
-  info(`TypeScript(${ts.version}) configuration file ${tsConfig}`);
+  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsConfig}`);
   let program, projectReferences, missingTsConfig;
   try {
     ({ program, projectReferences, missingTsConfig } = createProgram(tsConfig));
