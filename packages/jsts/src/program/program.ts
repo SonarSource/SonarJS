@@ -194,7 +194,9 @@ export function createProgramFromSingleFile(
     host: {
       ...compilerHost,
       getSourceFile: (name: string) => {
-        if (name === fileName) return sourceFile;
+        if (name === fileName) {
+          return sourceFile;
+        }
         return compilerHost.getSourceFile(name, target);
       },
       fileExists: (name: string) => name === fileName || ts.sys.fileExists(name),
