@@ -231,7 +231,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ !matrix.only_nightly || github.event_name == 'schedule' }}
+    if: ${{ matrix.only_nightly != true || github.event_name == 'schedule' }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
