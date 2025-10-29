@@ -29,11 +29,10 @@ jobs:
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           version: 2025.7.12
-      - uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # 3.1.0
-        id: secrets
+      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
+        id: config
         with:
-          secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-${{ env.ARTIFACTORY_DEPLOYER_ROLE }} access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
+          artifactory-reader-role: private-reader
       - name: Cache NPM dependencies
         uses: SonarSource/ci-github-actions/cache@v1
         with:
