@@ -23,16 +23,12 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - &checkout
+        name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           version: 2025.7.12
-      - name: Setup npmrc
-        run: |
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/packages/jsts/src/rules/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/its/eslint8-plugin-sonarjs/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/its/eslint9-plugin-sonarjs/.npmrc
       - name: Cache NPM dependencies
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -50,6 +46,7 @@ jobs:
           deploy-pull-request: true
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
+          maven-args: ''
 
   promote:
     needs:
@@ -208,41 +205,14 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze - ${{ matrix.name }}
     needs: [test_js, test_java]
-    strategy:
-      matrix:
-        include:
-          - name: SonarQube Next
-            sonar_host_url: https://next.sonarqube.com/sonarqube
-            sonar_token_vault_path: development/kv/data/next
-            sonar_project_key: org.sonarsource.javascript:javascript
-            sonar_organization: sonarsource
-          - name: SonarCloud
-            sonar_host_url: https://sonarcloud.io
-            sonar_token_vault_path: development/kv/data/sonarcloud
-            sonar_project_key: SonarSource_SonarJS
-            sonar_organization: sonarsource
-            only_nightly: true
-          - name: SonarQube US
-            sonar_host_url: https://sonarqube.us
-            sonar_token_vault_path: development/kv/data/sonarqube-us
-            sonar_project_key: SonarSource_SonarJS
-            sonar_organization: sonarsource
-            only_nightly: true
     permissions:
       id-token: write
       contents: read
-    if: ${{ matrix.only_nightly != true || github.event_name == 'schedule' }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           version: 2025.7.12
-      - name: Setup npmrc
-        run: |
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/packages/jsts/src/rules/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/its/eslint8-plugin-sonarjs/.npmrc
-          cp .cirrus/npmrc $GITHUB_WORKSPACE/its/eslint9-plugin-sonarjs/.npmrc
       - name: Cache Maven repository
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -269,8 +239,7 @@ jobs:
         id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
-          secrets: |
-            ${{ matrix.sonar_token_vault_path }} token | SONAR_TOKEN;
+          secrets: SONAR_TOKEN;
       - name: Run SonarQube analysis
         env:
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
@@ -288,50 +257,6 @@ jobs:
             -Dmaven.install.skip=true \
             -Dmaven.deploy.skip=true \
             -DskipTests
-
-  run_iris:
-    runs-on: github-ubuntu-latest-s
-    name: IRIS - ${{ matrix.name }}
-    needs: [analyze]
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        include:
-          - name: Next to SonarCloud
-            target_url: https://sonarcloud.io
-            target_token_path: development/kv/data/iris
-            target_token_field: data.sqc-eu
-          - name: Next to SonarQube US
-            target_url: https://sonarqube.us
-            target_token_path: development/kv/data/iris
-            target_token_field: data.sqc-us
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
-        with:
-          version: 2025.7.12
-      - name: Vault
-        id: secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader username | ARTIFACTORY_PRIVATE_USERNAME;
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-            development/kv/data/repox artifactory_url | ARTIFACTORY_URL;
-            development/kv/data/iris data.next | SONAR_SOURCE_IRIS_TOKEN;
-            ${{ matrix.target_token_path }} ${{ matrix.target_token_field }} | SONAR_TARGET_IRIS_TOKEN;
-      - name: Run IRIS
-        env:
-          ARTIFACTORY_PRIVATE_USERNAME: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_PRIVATE_USERNAME }}
-          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          ARTIFACTORY_URL: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_URL }}
-          SONAR_SOURCE_IRIS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_SOURCE_IRIS_TOKEN }}
-          SONAR_TARGET_IRIS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TARGET_IRIS_TOKEN }}
-          SONAR_TARGET_URL: ${{ matrix.target_url }}
-        run: bash .cirrus/run-iris.sh
 
   build_win:
     runs-on: windows-latest
