@@ -53,7 +53,7 @@ node_recommended_container_definition: &NODE_RECOMMENDED_CONTAINER_DEFINITION
   <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
   eks_container:
     docker_arguments:
-      NODE_VERSION: 22.11.0
+      NODE_VERSION: 24.0.0
 
 node16_container_definition: &NODE16_CONTAINER_DEFINITION
   <<: *NODE_MIN_SUPPORTED_CONTAINER_DEFINITION
@@ -341,6 +341,10 @@ plugin_qa_with_node_task:
       eks_container:
         docker_arguments:
           NODE_VERSION: 22.11.0
+    - name: 'QA with node 24 on host Ubuntu SQ:LATEST'
+      eks_container:
+        docker_arguments:
+          NODE_VERSION: 24.0.0
 
 plugin_qa_fast_with_node_task:
   alias: plugin_qa_fast_with_node
@@ -365,6 +369,10 @@ plugin_qa_fast_with_node_task:
       eks_container:
         docker_arguments:
           NODE_VERSION: 22.11.0
+    - name: 'Fast QA with node 24 on host Ubuntu SQ:LATEST'
+      eks_container:
+        docker_arguments:
+          NODE_VERSION: 24.0.0
 
 plugin_qa_without_node_task:
   alias: plugin_qa_without_node
