@@ -63,6 +63,7 @@ export const meta = {
   version: '0.0.0-SNAPSHOT',
 };
 
-export default { rules, configs, meta } as ESLint.Plugin;
+const plugin: ESLint.Plugin = { rules, configs, meta };
+export default plugin;
 
 export { rules } from './plugin-rules.js';
