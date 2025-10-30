@@ -33,7 +33,10 @@ import babelPluginDecorators from '@babel/plugin-proposal-decorators';
  * @param usingBabel a flag to indicate if we intend to parse with Babel
  * @returns the parser options for the input
  */
-export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBabel = false) {
+export function buildParserOptions(
+  initialOptions: Linter.ParserOptions,
+  usingBabel = false,
+): Linter.ParserOptions {
   const options: Linter.ParserOptions = {
     tokens: true,
     comment: true,

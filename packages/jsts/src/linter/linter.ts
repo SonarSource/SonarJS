@@ -239,7 +239,7 @@ export class Linter {
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
-  ) {
+  ): ESLintLinter.RulesRecord {
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -279,7 +279,7 @@ export class Linter {
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
     }
-    return Linter.rulesConfigCache.get(linterConfigKey);
+    return Linter.rulesConfigCache.get(linterConfigKey)!;
   }
 
   /**

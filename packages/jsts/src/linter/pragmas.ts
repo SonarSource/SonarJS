@@ -61,7 +61,11 @@ function getRuleId(ruleId: string | null) {
   return ruleId?.split('/').at(-1)!;
 }
 
-export function createOptions(filename: string) {
+export function createOptions(filename: string): Linter.LintOptions & {
+  getRule: (ruleId: string) => string;
+  patchDirectives: (disableDirectives: Directive[]) => void;
+  patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
+} {
   const mappedParentDirectives = new Set();
 
   return {
