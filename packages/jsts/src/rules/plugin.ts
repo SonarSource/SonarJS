@@ -18,7 +18,7 @@
  * This is the entry point of the ESLint Plugin.
  * Said differently, this is the public API of the ESLint Plugin.
  */
-import type { Linter } from 'eslint';
+import type { ESLint, Linter } from 'eslint';
 
 import { rules } from './plugin-rules.js';
 
@@ -47,7 +47,10 @@ for (const [key, rule] of Object.entries(rules)) {
 recommendedLegacyConfig.rules = recommendedConfig.rules;
 recommendedLegacyConfig.settings = recommendedConfig.settings;
 
-export const configs = {
+export const configs: {
+  recommended: Linter.FlatConfig;
+  'recommended-legacy': Linter.LegacyConfig;
+} = {
   recommended: recommendedConfig,
   'recommended-legacy': recommendedLegacyConfig,
 };
@@ -60,6 +63,6 @@ export const meta = {
   version: '0.0.0-SNAPSHOT',
 };
 
-export default { rules, configs, meta };
+export default { rules, configs, meta } as ESLint.Plugin;
 
 export { rules } from './plugin-rules.js';

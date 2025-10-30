@@ -17,13 +17,14 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import { last } from './collection.js';
+import type { RuleTextEdit } from '@eslint/core';
 
 export function removeNodeWithLeadingWhitespaces(
   context: Rule.RuleContext,
   node: estree.Node,
   fixer: Rule.RuleFixer,
   removeUntil?: number,
-) {
+): RuleTextEdit {
   const previousComments = context.sourceCode.getCommentsBefore(node);
   let start = 0;
   if (previousComments.length === 0) {
