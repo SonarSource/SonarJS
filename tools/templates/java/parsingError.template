@@ -2,13 +2,13 @@ ___HEADER___
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2260")
-public class S2260 implements JavaScriptCheck {
+public class S2260 extends Check {
   // this class exists only to provide metadata for rule
 }

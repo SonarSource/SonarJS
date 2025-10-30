@@ -26,8 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.Language;
 
 class CheckListTest {
@@ -50,9 +49,9 @@ class CheckListTest {
    */
   @Test
   void test() {
-    List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
+    List<Class<? extends Check>> checks = CheckList.getAllChecks();
 
-    for (Class<? extends JavaScriptCheck> cls : checks) {
+    for (Class<? extends Check> cls : checks) {
       if (!cls.getSimpleName().equals("S2260") && !isEslintBasedCheck(cls)) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
@@ -90,7 +89,7 @@ class CheckListTest {
     assertThat(typeScriptChecks)
       .isNotEmpty()
       .isNotEqualTo(CheckList.getAllChecks())
-      .allMatch(c -> c == S2260.class || EslintBasedCheck.class.isAssignableFrom(c));
+      .allMatch(c -> c == S2260.class || Check.class.isAssignableFrom(c));
   }
 
   @Test
@@ -111,10 +110,8 @@ class CheckListTest {
 
   @Test
   void testEveryCheckBelongsToLanguage() {
-    Set<Class<? extends JavaScriptCheck>> allChecks = new HashSet<>(CheckList.getAllChecks());
-    Set<Class<? extends JavaScriptCheck>> tsAndJsChecks = new HashSet<>(
-      CheckList.getTypeScriptChecks()
-    );
+    Set<Class<? extends Check>> allChecks = new HashSet<>(CheckList.getAllChecks());
+    Set<Class<? extends Check>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
 
     assertThat(allChecks).isEqualTo(tsAndJsChecks);
@@ -138,7 +135,7 @@ class CheckListTest {
     assertThat(count).isEqualTo(CHECKS_PROPERTIES_COUNT);
   }
 
-  private boolean isEslintBasedCheck(Class<? extends JavaScriptCheck> cls) {
+  private boolean isEslintBasedCheck(Class<? extends Check> cls) {
     try {
       cls.getMethod("eslintKey");
       return true;

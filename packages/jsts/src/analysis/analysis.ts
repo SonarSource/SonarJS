@@ -71,7 +71,6 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
-  ucfgPaths?: string[];
 }
 
 export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {

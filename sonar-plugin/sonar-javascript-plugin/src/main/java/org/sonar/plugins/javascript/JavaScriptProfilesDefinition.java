@@ -32,7 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -165,7 +165,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     return Collections.emptySet();
   }
 
-  private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
+  private static Set<String> ruleKeys(List<Class<? extends Check>> checks) {
     return checks
       .stream()
       .map(c -> c.getAnnotation(Rule.class).key())

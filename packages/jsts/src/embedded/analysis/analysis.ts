@@ -40,7 +40,6 @@ export type CompleteEmbeddedAnalysisInput = Omit<EmbeddedAnalysisInput, 'fileCon
  */
 export interface EmbeddedAnalysisOutput extends AnalysisOutput {
   issues: Issue[];
-  ucfgPaths?: string[];
   metrics: {
     ncloc: number[];
   };

@@ -198,25 +198,4 @@ describe('transformMessages', () => {
       },
     ]);
   });
-
-  it('should remove ucfg issues', async () => {
-    const filePath = join(import.meta.dirname, 'fixtures', 'secondary.ts');
-    const tsConfigs = [];
-    const { sourceCode } = await parseTypeScriptSourceFile(filePath, tsConfigs);
-
-    const messages = [
-      {
-        ruleId: 'sonarjs/ucfg',
-        message: join(import.meta.dirname, 'fixtures', 'secondary.ts'),
-      } as Linter.LintMessage,
-    ];
-
-    const { issues, ucfgPaths } = transformMessages(messages as Linter.LintMessage[], 'ts', {
-      sourceCode,
-      ruleMetas: {},
-      filePath: 'foo.js',
-    });
-    expect(ucfgPaths.length).toEqual(1);
-    expect(issues.length).toEqual(0);
-  });
 });

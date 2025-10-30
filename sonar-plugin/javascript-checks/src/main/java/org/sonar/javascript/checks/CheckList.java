@@ -18,7 +18,7 @@ package org.sonar.javascript.checks;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -32,29 +32,32 @@ public final class CheckList {
 
   private CheckList() {}
 
-  public static List<Class<? extends JavaScriptCheck>> getTypeScriptChecks() {
+  public static List<Class<? extends Check>> getTypeScriptChecks() {
     return filterChecksByAnnotation(TypeScriptRule.class);
   }
 
-  public static List<Class<? extends JavaScriptCheck>> getJavaScriptChecks() {
+  public static List<Class<? extends Check>> getJavaScriptChecks() {
     return filterChecksByAnnotation(JavaScriptRule.class);
   }
 
-  public static List<Class<? extends JavaScriptCheck>> getChecksForLanguage(Language language) {
+  public static List<Class<? extends Check>> getChecksForLanguage(Language language) {
     return switch (language) {
       case JAVASCRIPT -> getJavaScriptChecks();
       case TYPESCRIPT -> getTypeScriptChecks();
     };
   }
 
-  private static List<Class<? extends JavaScriptCheck>> filterChecksByAnnotation(
+  private static List<Class<? extends Check>> filterChecksByAnnotation(
     Class<? extends Annotation> annotation
   ) {
-    List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
-    return allChecks.stream().filter(c -> c.isAnnotationPresent(annotation)).toList();
+    List<Class<? extends Check>> allChecks = getAllChecks();
+    return allChecks
+      .stream()
+      .filter(c -> c.isAnnotationPresent(annotation))
+      .toList();
   }
 
-  public static List<Class<? extends JavaScriptCheck>> getAllChecks() {
+  public static List<Class<? extends Check>> getAllChecks() {
     return AllChecks.rules;
   }
 }
