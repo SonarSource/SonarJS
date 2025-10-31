@@ -177,9 +177,8 @@ public class JsTsChecks {
           .getValue()
           .all()
           .stream()
-          .filter(Check.class::isInstance)
-          .map(Check.class::cast)
           .filter(EslintHook::isEnabled)
+          .filter(check -> check.eslintKey() != null)
           .map(check ->
             new EslintRule(
               check.eslintKey(),
