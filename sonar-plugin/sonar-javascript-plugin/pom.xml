@@ -214,7 +214,7 @@
                 <artifactItem>
                   <groupId>org.sonarsource.nodejs</groupId>
                   <artifactId>nodejs-runtime</artifactId>
-                  <version>22.16.0.28</version>
+                  <version>24.11.0.70</version>
                   <type>jar</type>
                   <outputDirectory>${project.build.directory}/downloads</outputDirectory>
                   <includes>**/*.xz,**/version.txt</includes>
