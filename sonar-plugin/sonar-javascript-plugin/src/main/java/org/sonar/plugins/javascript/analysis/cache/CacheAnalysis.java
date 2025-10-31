@@ -23,35 +23,20 @@ import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class CacheAnalysis {
 
-  private final List<String> ucfgPaths;
   private final List<CpdToken> cpdTokens;
   private final Node ast;
 
-  public CacheAnalysis(
-    @Nullable List<String> ucfgPaths,
-    List<CpdToken> cpdTokens,
-    @Nullable Node ast
-  ) {
-    this.ucfgPaths = ucfgPaths;
+  public CacheAnalysis(List<CpdToken> cpdTokens, @Nullable Node ast) {
     this.cpdTokens = cpdTokens;
     this.ast = ast;
   }
 
-  public static CacheAnalysis fromResponse(
-    List<String> ucfgPaths,
-    List<CpdToken> cpdTokens,
-    @Nullable Node ast
-  ) {
-    return new CacheAnalysis(ucfgPaths, cpdTokens, ast);
+  public static CacheAnalysis fromResponse(List<CpdToken> cpdTokens, @Nullable Node ast) {
+    return new CacheAnalysis(cpdTokens, ast);
   }
 
   static CacheAnalysis fromCache(List<CpdToken> cpdTokens, @Nullable Node ast) {
-    return new CacheAnalysis(null, cpdTokens, ast);
-  }
-
-  @Nullable
-  public List<String> getUcfgPaths() {
-    return ucfgPaths;
+    return new CacheAnalysis(cpdTokens, ast);
   }
 
   public List<CpdToken> getCpdTokens() {

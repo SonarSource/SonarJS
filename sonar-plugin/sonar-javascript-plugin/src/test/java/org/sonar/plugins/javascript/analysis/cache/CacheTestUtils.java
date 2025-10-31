@@ -75,14 +75,6 @@ public class CacheTestUtils {
     context.setCanSkipUnchangedFiles(true);
 
     var cache = context.previousCache();
-    when(cache.contains("jssecurity:ucfgs:JSON:1.0:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:JSON:1.0:moduleKey:" + filePath)).thenReturn(
-      new ByteArrayInputStream("{\"fileSizes\":[]}".getBytes(StandardCharsets.UTF_8))
-    );
-    when(cache.contains("jssecurity:ucfgs:SEQ:1.0:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:SEQ:1.0:moduleKey:" + filePath)).thenReturn(
-      new ByteArrayInputStream(new byte[0])
-    );
 
     when(cache.contains("js:cpd:DATA:1.0:moduleKey:" + filePath)).thenReturn(true);
     when(cache.contains("js:cpd:STRING_TABLE:1.0:moduleKey:" + filePath)).thenReturn(true);
@@ -103,7 +95,7 @@ public class CacheTestUtils {
     when(cache.read("js:filemetadata:1.0:moduleKey:" + filePath)).thenReturn(
       inputStream(
         "{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
-        "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"
+          "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"
       )
     );
 

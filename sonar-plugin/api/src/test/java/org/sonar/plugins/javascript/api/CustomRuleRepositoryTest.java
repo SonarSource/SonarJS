@@ -39,7 +39,7 @@ class CustomRuleRepositoryTest {
     }
 
     @Override
-    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+    public List<Class<? extends Check>> checkClasses() {
       return Collections.singletonList(CustomCheck.class);
     }
   }

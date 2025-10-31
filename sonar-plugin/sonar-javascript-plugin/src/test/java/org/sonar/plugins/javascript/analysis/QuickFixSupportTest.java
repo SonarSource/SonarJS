@@ -111,7 +111,6 @@ class QuickFixSupportTest {
       List.of(),
       new Metrics(),
       List.of(),
-      List.of(),
       null
     );
 
@@ -165,7 +164,6 @@ class QuickFixSupportTest {
       List.of(),
       new Metrics(),
       List.of(),
-      List.of(),
       null
     );
 
@@ -199,7 +197,6 @@ class QuickFixSupportTest {
       List.of(),
       List.of(),
       new Metrics(),
-      List.of(),
       List.of(),
       null
     );

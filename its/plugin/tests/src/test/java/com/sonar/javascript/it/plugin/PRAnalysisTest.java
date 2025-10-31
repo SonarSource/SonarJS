@@ -94,8 +94,7 @@ class PRAnalysisTest {
           "Accepted file: " + indexFile,
           "Processing file " + helloFile,
           "Processing file " + indexFile
-        )
-        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+        );
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
@@ -105,7 +104,7 @@ class PRAnalysisTest {
       BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
-          "DEBUG: Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
+          "DEBUG: Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
         )
         .cacheFileStrategy("READ_AND_WRITE")
         .forFiles(indexFile)
@@ -124,79 +123,11 @@ class PRAnalysisTest {
           "Accepted file: " + indexFile,
           "Processing file " + helloFile,
           "Processing file " + indexFile
-        )
-        .generatesUcfgFilesForAll(projectPath, indexFile, helloFile);
+        );
       assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
         .hasSize(1)
         .extracting(Issues.Issue::getComponent)
         .contains(projectKey + ":" + helloFile);
-    }
-  }
-
-  @Test
-  void should_analyse_yaml_pull_requests() {
-    var cloudformation = TestProject.YAML;
-    var projectKey = cloudformation.getProjectKey();
-    var projectPath = gitBaseDir.resolve(projectKey).toAbsolutePath();
-
-    OrchestratorStarter.setProfiles(
-      orchestrator,
-      projectKey,
-      Map.of(TestProject.JS.getProfileName(), TestProject.JS.getLanguage())
-    );
-
-    try (var gitExecutor = cloudformation.createIn(projectPath)) {
-      gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
-        .withProjectKey(projectKey)
-        .logsAtLeastOnce(
-          "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
-        )
-        .cacheFileStrategy("WRITE_ONLY")
-        .withReason("current analysis requires all files to be analyzed")
-        .forFiles("file1.yaml", "file2.yaml")
-        .withCachedFilesCounts(1, 1)
-        .isUsed()
-        .logsOnce(
-          "INFO: Hit the cache for 0 out of 2",
-          "Miss the cache for 2 out of 2: ANALYSIS_MODE_INELIGIBLE [2/2]"
-        )
-        .generatesUcfgFilesForAll(
-          projectPath,
-          "file2_SomeLambdaFunction_yaml",
-          "file1_SomeLambdaFunction_yaml"
-        );
-      assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null)).isEmpty();
-
-      gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
-        .withProjectKey(projectKey)
-        .logsAtLeastOnce(
-          "DEBUG: Files which didn't change will only be analyzed for taint and architecture rules, other rules will not be executed"
-        )
-        .cacheFileStrategy("READ_AND_WRITE")
-        .forFiles("file1.yaml")
-        .withCachedFilesCounts(1)
-        .isUsed()
-        .cacheFileStrategy("WRITE_ONLY")
-        .withReason("the current file is changed")
-        .forFiles("file2.yaml")
-        .withCachedFilesCounts(1)
-        .isUsed()
-        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
-        .logsOnce(
-          "INFO: Hit the cache for 1 out of 2",
-          "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"
-        )
-        .generatesUcfgFilesForAll(
-          projectPath,
-          "file2_SomeLambdaFunction_yaml",
-          "file1_SomeLambdaFunction_yaml"
-        );
-      assertThat(getIssues(orchestrator, projectKey, null, PR.BRANCH))
-        .hasSize(1)
-        .extracting(issue -> tuple(issue.getComponent(), issue.getRule()))
-        .contains(tuple(projectKey + ":file2.yaml", "javascript:S1116"));
     }
   }
 
@@ -261,7 +192,7 @@ class PRAnalysisTest {
   }
 
   @BeforeAll
-  public static void startOrchestrator() {
+  static void startOrchestrator() {
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -274,10 +205,6 @@ class PRAnalysisTest {
       )
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
-      .addPlugin(
-        MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
-      )
       .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", "DEV"))
       .addPlugin(
         MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
@@ -288,7 +215,7 @@ class PRAnalysisTest {
     }
 
     orchestrator = builder.build();
-    // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
+    // Installation of the SQ server in orchestrator is not thread-safe, so we need to synchronize
     synchronized (OrchestratorStarter.class) {
       orchestrator.start();
     }
@@ -300,17 +227,14 @@ class PRAnalysisTest {
   }
 
   private static SonarScanner getMasterScannerIn(Path projectDir, String projectKey) {
-    return getScanner(projectDir, projectKey)
-      .setProperty("sonar.branch.name", Main.BRANCH)
-      .setProperty("sonar.jasmin.internal.disabled", "true");
+    return getScanner(projectDir, projectKey).setProperty("sonar.branch.name", Main.BRANCH);
   }
 
   private static SonarScanner getBranchScannerIn(Path projectDir, String projectKey) {
     return getScanner(projectDir, projectKey)
       .setProperty("sonar.pullrequest.key", PR.BRANCH)
       .setProperty("sonar.pullrequest.branch", PR.BRANCH)
-      .setProperty("sonar.pullrequest.base", Main.BRANCH)
-      .setProperty("sonar.jasmin.internal.disabled", "true");
+      .setProperty("sonar.pullrequest.base", Main.BRANCH);
   }
 
   private static SonarScanner getScanner(Path projectDir, String projectKey) {

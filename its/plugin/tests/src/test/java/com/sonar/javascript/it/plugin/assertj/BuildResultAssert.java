@@ -69,18 +69,6 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     };
   }
 
-  private static List<Path> findUcfgFilesIn(Path projectPath) throws IOException {
-    try (
-      var stream = Files.find(projectPath.resolve(".scannerwork"), 3, BuildResultAssert::isUcfgFile)
-    ) {
-      return stream.toList();
-    }
-  }
-
-  public static boolean isUcfgFile(Path path, BasicFileAttributes attrs) {
-    return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfgs");
-  }
-
   public FileCacheStrategy cacheFileStrategy(String strategy) {
     return new FileCacheStrategy(strategy);
   }
@@ -136,33 +124,6 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     );
   }
 
-  public BuildResultAssert generatesUcfgFilesForAll(Path projectPath, String... filenames) {
-    List<Path> ucfgFiles;
-    try {
-      ucfgFiles = findUcfgFilesIn(projectPath);
-      for (var ucfgFile : ucfgFiles) {
-        // Filenames: file2_SomeLambdaFunction_yaml
-        // ucfgFile: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit14107160890921213721/pr-analysis-yaml/.scannerwork/ucfg2/js/daFunction_yaml_1.ucfgs
-        // We check if file2_SomeLambdaFunction_yaml ends with daFunction_yaml
-        // or
-        // Filenames: index.ts
-        // ucfg: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit2107948845245431806/pr-analysis-ts/.scannerwork/ucfg2/js/sis_ts_index_ts.ucfgs
-        // We check if sis_ts_index_ts ends with index_ts
-
-        var key = ucfgFile.getFileName().toString().replaceFirst("(_\\d+)?[.][^.]+$", ""); // We remove index and extension: _1.ucfgs
-        Assertions.assertThat(filenames)
-          .filteredOn(
-            filename ->
-              filename.replace('.', '_').endsWith(key) || key.endsWith(filename.replace('.', '_'))
-          )
-          .isNotEmpty();
-      }
-    } catch (IOException e) {
-      fail("Failed", e);
-    }
-    return this;
-  }
-
   public class FileCacheStrategy {
 
     private final String strategy;
@@ -198,50 +159,11 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
 
     private void check(Tuple tuple) {
       var file = (String) tuple.toList().get(0);
-      var cachedFileCount = (Integer) tuple.toList().get(1);
 
       if ("WRITE_ONLY".equals(strategy)) {
         logsOnce(format("Cache strategy set to '%s' for file '%s' as %s", strategy, file, reason));
-        logsOnce(
-          compile(
-            format(
-              "DEBUG: Cache entry created for key 'jssecurity:ucfgs:SEQ:(.+):%s:%s' containing %d file\\(s\\)",
-              projectKey,
-              file,
-              cachedFileCount
-            )
-          )
-        );
-        logsOnce(
-          compile(
-            format(
-              "DEBUG: Cache entry created for key 'jssecurity:ucfgs:JSON:(.+):%s:%s'",
-              projectKey,
-              file
-            )
-          )
-        );
       } else if ("READ_AND_WRITE".equals(strategy)) {
         logsOnce(String.format("Cache strategy set to 'READ_AND_WRITE' for file '%s'", file));
-        logsOnce(
-          Pattern.compile(
-            String.format(
-              "DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:SEQ:(.+):%s:%s' containing %d file\\(s\\)",
-              projectKey,
-              file,
-              cachedFileCount
-            )
-          )
-        );
-        logsOnce(
-          Pattern.compile(
-            String.format(
-              "DEBUG: Cache entry extracted for key 'jssecurity:ucfgs:JSON:(.+):%s:%s'",
-              projectKey,
-              file
-            )
-          )
-        );
       } else {
         fail("Unknown strategy " + strategy);
       }

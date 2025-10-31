@@ -18,7 +18,7 @@ package org.sonar.plugins.javascript.api;
 
 import org.sonar.check.Rule;
 
-public class Check implements EslintBasedCheck {
+public class Check implements EslintHook {
 
   /**
    * This should be named `key()`, but we keep the compatibility with the legacy semantic.

@@ -35,17 +35,16 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
- * Wrapper around Checks Object to ease the manipulation of the different JavaScript rule repositories.
+ * Wrapper around Check Object to ease the manipulation of the different JavaScript rule repositories.
  */
 @ScannerSide
 @SonarLintSide
@@ -57,7 +56,7 @@ public class JsTsChecks {
   private final Map<Language, Set<EslintHook>> eslintHooksByLanguage = new EnumMap<>(
     Language.class
   );
-  private final Map<LanguageAndRepository, Checks<JavaScriptCheck>> checks = new HashMap<>();
+  private final Map<LanguageAndRepository, Checks<Check>> checks = new HashMap<>();
   private final Map<String, Map<Language, RuleKey>> eslintKeyToRuleKey = new HashMap<>();
   private RuleKey parseErrorRuleKey;
 
@@ -84,7 +83,7 @@ public class JsTsChecks {
     for (var registrar : eslintHookRegistrars) {
       registrar.register(
         ((language, hook) ->
-            eslintHooksByLanguage.computeIfAbsent(language, it -> new HashSet<>()).add(hook))
+          eslintHooksByLanguage.computeIfAbsent(language, it -> new HashSet<>()).add(hook))
       );
     }
     doAddChecks(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
@@ -97,17 +96,16 @@ public class JsTsChecks {
   private void doAddChecks(
     Language language,
     String repositoryKey,
-    Iterable<Class<? extends JavaScriptCheck>> checkClass
+    Iterable<Class<? extends Check>> checkClass
   ) {
-    var chks = checkFactory.<JavaScriptCheck>create(repositoryKey).addAnnotatedChecks(checkClass);
+    var chks = checkFactory.<Check>create(repositoryKey).addAnnotatedChecks(checkClass);
     var key = new LanguageAndRepository(language, repositoryKey);
     this.checks.put(key, chks);
     LOG.debug("Added {} checks for {}", chks.all().size(), key);
     chks
       .all()
       .stream()
-      .filter(EslintBasedCheck.class::isInstance)
-      .map(EslintBasedCheck.class::cast)
+      .map(Check.class::cast)
       .forEach(check ->
         eslintKeyToRuleKey
           .computeIfAbsent(check.eslintKey(), k -> new EnumMap<>(Language.class))
@@ -123,16 +121,19 @@ public class JsTsChecks {
     }
   }
 
-  private Stream<JavaScriptCheck> all() {
-    return checks.values().stream().flatMap(c -> c.all().stream());
+  private Stream<Check> all() {
+    return checks
+      .values()
+      .stream()
+      .flatMap(c -> c.all().stream());
   }
 
-  Stream<EslintBasedCheck> eslintBasedChecks() {
-    return all().filter(EslintBasedCheck.class::isInstance).map(EslintBasedCheck.class::cast);
+  Stream<Check> eslintBasedChecks() {
+    return all().filter(Check.class::isInstance).map(Check.class::cast);
   }
 
   @Nullable
-  private RuleKey ruleKeyFor(JavaScriptCheck check) {
+  private RuleKey ruleKeyFor(Check check) {
     return checks
       .values()
       .stream()
@@ -175,8 +176,6 @@ public class JsTsChecks {
           .getValue()
           .all()
           .stream()
-          .filter(EslintBasedCheck.class::isInstance)
-          .map(EslintBasedCheck.class::cast)
           .filter(EslintHook::isEnabled)
           .map(check ->
             new EslintRule(

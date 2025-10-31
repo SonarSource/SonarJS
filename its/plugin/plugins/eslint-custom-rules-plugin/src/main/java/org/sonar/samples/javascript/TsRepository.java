@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.Language;
 
 /**
@@ -42,7 +42,7 @@ public class TsRepository implements CustomRuleRepository {
   }
 
   @Override
-  public List<Class<? extends JavaScriptCheck>> checkClasses() {
+  public List<Class<? extends Check>> checkClasses() {
     return Collections.singletonList(TsRule.class);
   }
 }

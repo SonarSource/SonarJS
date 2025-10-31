@@ -53,7 +53,7 @@ public interface EslintHook {
   }
 
   /**
-   * Whether the hook should be executed on JS side.
+   * Whether the hook should be executed on the JS side.
    */
   default boolean isEnabled() {
     return true;

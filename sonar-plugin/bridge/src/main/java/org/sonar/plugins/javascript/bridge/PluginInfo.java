@@ -16,7 +16,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ public class PluginInfo {
   private static final Logger LOG = LoggerFactory.getLogger(PluginInfo.class);
 
   private static String version;
-  private static String ucfgPluginVersion;
 
   private PluginInfo() {}
 
@@ -36,15 +34,6 @@ public class PluginInfo {
       LOG.info("Plugin version: [{}]", version);
     }
     return version;
-  }
-
-  public static Optional<String> getUcfgPluginVersion() {
-    return Optional.ofNullable(ucfgPluginVersion);
-  }
-
-  public static void setUcfgPluginVersion(@Nullable String ucfgPluginVersion) {
-    LOG.debug("Security Frontend version is available: [{}]", ucfgPluginVersion);
-    PluginInfo.ucfgPluginVersion = ucfgPluginVersion;
   }
 
   /**

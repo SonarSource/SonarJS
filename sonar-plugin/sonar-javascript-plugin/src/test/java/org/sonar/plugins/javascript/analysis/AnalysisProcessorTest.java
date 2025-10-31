@@ -65,7 +65,6 @@ class AnalysisProcessorTest {
       List.of(),
       new Metrics(),
       List.of(),
-      List.of(),
       null
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
@@ -92,7 +91,6 @@ class AnalysisProcessorTest {
       List.of(symbol),
       new Metrics(),
       List.of(),
-      List.of(),
       null
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
@@ -108,7 +106,6 @@ class AnalysisProcessorTest {
       List.of(),
       List.of(symbol),
       new Metrics(),
-      List.of(),
       List.of(),
       null
     );
@@ -136,7 +133,6 @@ class AnalysisProcessorTest {
       List.of(),
       new Metrics(),
       List.of(cpd),
-      List.of(),
       null
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
@@ -175,7 +171,6 @@ class AnalysisProcessorTest {
       List.of(),
       List.of(),
       new Metrics(),
-      List.of(),
       List.of(),
       null
     );

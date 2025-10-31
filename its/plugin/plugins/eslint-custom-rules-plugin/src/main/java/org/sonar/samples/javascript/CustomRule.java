@@ -17,14 +17,14 @@
 package org.sonar.samples.javascript;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = CustomRule.RULE_KEY)
-public class CustomRule implements EslintBasedCheck {
+public class CustomRule extends Check {
 
   public static final String RULE_KEY = "sqKey";
 

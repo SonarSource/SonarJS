@@ -33,13 +33,11 @@ import { SonarMeta } from '../../rules/helpers/index.js';
  * highlighting and cognitive complexity.
  *
  * @param issues the issues found in the code
- * @param ucfgPaths list of paths of ucfg files written to disk
  * @param highlightedSymbols the symbol highlighting of the code
  * @param cognitiveComplexity the cognitive complexity of the code
  */
 export type LintingResult = {
   issues: Issue[];
-  ucfgPaths: string[];
   highlightedSymbols: SymbolHighlight[];
   cognitiveComplexity?: number;
 };
@@ -48,8 +46,8 @@ export type LintingResult = {
  * Transforms ESLint messages into SonarQube issues
  *
  * The result of linting a source code requires post-linting transformations
- * to return SonarQube issues. These transformations include extracting ucfg
- * paths, decoding issues with secondary locations as well as converting
+ * to return SonarQube issues. These transformations include
+ * decoding issues with secondary locations as well as converting
  * quick fixes.
  *
  * Besides issues, a few metrics are computed during linting in the form of
@@ -57,7 +55,6 @@ export type LintingResult = {
  * highlighting. These custom rules also produce issues that are extracted.
  *
  * Transforming an ESLint message into a SonarQube issue implies:
- * - extracting UCFG rule file paths
  * - converting ESLint messages into SonarQube issues
  * - converting ESLint fixes into SonarLint quick fixes
  * - decoding encoded secondary locations
@@ -74,17 +71,12 @@ export function transformMessages(
   ctx: { sourceCode: SourceCode; ruleMetas: { [key: string]: SonarMeta }; filePath: string },
 ): LintingResult {
   const issues: Issue[] = [];
-  const ucfgPaths: string[] = [];
 
   for (const message of messages) {
-    if (message.ruleId === 'sonarjs/ucfg') {
-      ucfgPaths.push(message.message);
-    } else {
-      let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
-      if (issue !== null) {
-        issue = normalizeLocation(decodeSecondaryLocations(ctx.ruleMetas[issue.ruleId], issue));
-        issues.push(issue);
-      }
+    let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
+    if (issue !== null) {
+      issue = normalizeLocation(decodeSecondaryLocations(ctx.ruleMetas[issue.ruleId], issue));
+      issues.push(issue);
     }
   }
 
@@ -92,7 +84,6 @@ export function transformMessages(
   const cognitiveComplexity = extractCognitiveComplexity(issues);
   return {
     issues,
-    ucfgPaths,
     highlightedSymbols,
     cognitiveComplexity,
   };

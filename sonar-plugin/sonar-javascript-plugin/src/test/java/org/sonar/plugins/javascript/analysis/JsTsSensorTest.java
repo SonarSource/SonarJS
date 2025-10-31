@@ -145,8 +145,6 @@ class JsTsSensorTest {
   void setUp() throws Exception {
     MockitoAnnotations.openMocks(this).close();
 
-    // reset is required as this static value might be set by another test
-    PluginInfo.setUcfgPluginVersion(null);
     // this is required to avoid the test to use real plugin version from the manifest
     PluginInfo.setVersion(PLUGIN_VERSION);
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
@@ -1348,7 +1346,6 @@ class JsTsSensorTest {
       List.of(),
       new BridgeServer.Metrics(),
       List.of(),
-      List.of(),
       Base64.getEncoder().encodeToString(node.toByteArray())
     );
 
@@ -1379,7 +1376,6 @@ class JsTsSensorTest {
       List.of(),
       List.of(),
       new BridgeServer.Metrics(),
-      List.of(),
       List.of(),
       null
     );

@@ -58,30 +58,27 @@ export async function analyzeEmbedded(
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
   const aggregatedIssues: Issue[] = [];
-  const aggregatedUcfgPaths: string[] = [];
   let ncloc: number[] = [];
   for (const extendedParseResult of extendedParseResults) {
-    const { issues, ucfgPaths, ncloc: singleNcLoc } = analyzeSnippet(extendedParseResult);
+    const { issues, ncloc: singleNcLoc } = analyzeSnippet(extendedParseResult);
     ncloc = ncloc.concat(singleNcLoc);
     const filteredIssues = removeNonJsIssues(extendedParseResult.sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
-    aggregatedUcfgPaths.push(...ucfgPaths);
   }
   return {
     issues: aggregatedIssues,
-    ucfgPaths: aggregatedUcfgPaths,
     metrics: { ncloc },
   };
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-  const { issues, ucfgPaths } = Linter.lint(
+  const { issues } = Linter.lint(
     extendedParseResult,
     extendedParseResult.syntheticFilePath,
     'MAIN',
   );
   const ncloc = findNcloc(extendedParseResult.sourceCode);
-  return { issues, ucfgPaths, ncloc };
+  return { issues, ncloc };
 }
 
 /**

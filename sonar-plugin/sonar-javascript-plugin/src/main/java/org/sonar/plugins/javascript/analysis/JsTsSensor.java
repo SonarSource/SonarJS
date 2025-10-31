@@ -219,7 +219,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
         externalIssues.remove(filePath);
         try {
           cacheStrategy.writeAnalysisToCache(
-            CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
+            CacheAnalysis.fromResponse(response.cpdTokens(), response.ast()),
             file
           );
         } catch (IOException e) {
