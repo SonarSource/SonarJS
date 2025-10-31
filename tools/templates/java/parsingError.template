@@ -11,4 +11,8 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2260")
 public class S2260 extends Check {
   // this class exists only to provide metadata for rule
+  @Override
+  public boolean isEnabled() {
+    return false;
+  }
 }

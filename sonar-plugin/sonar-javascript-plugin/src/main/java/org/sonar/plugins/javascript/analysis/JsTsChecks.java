@@ -44,7 +44,7 @@ import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
- * Wrapper around Checks Object to ease the manipulation of the different JavaScript rule repositories.
+ * Wrapper around Check Object to ease the manipulation of the different JavaScript rule repositories.
  */
 @ScannerSide
 @SonarLintSide
@@ -105,7 +105,6 @@ public class JsTsChecks {
     chks
       .all()
       .stream()
-      .filter(Check.class::isInstance)
       .map(Check.class::cast)
       .forEach(check ->
         eslintKeyToRuleKey
@@ -178,7 +177,6 @@ public class JsTsChecks {
           .all()
           .stream()
           .filter(EslintHook::isEnabled)
-          .filter(check -> check.eslintKey() != null)
           .map(check ->
             new EslintRule(
               check.eslintKey(),
