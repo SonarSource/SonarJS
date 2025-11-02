@@ -58,6 +58,7 @@ export async function analyzeProject(
   const { rules, files, configuration = {}, bundles = [], rulesWorkdir } = input;
   const results: ProjectAnalysisOutput = {
     files: {},
+    compilerOptions: [],
     meta: {
       warnings: [],
     },
