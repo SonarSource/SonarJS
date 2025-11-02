@@ -524,6 +524,82 @@ describe('ast', () => {
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
   });
 
+  test('should support JSXAttribute with no value (boolean attribute)', async () => {
+    const code = `<input disabled/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
+
+    expect(openingElement.attributes.length).toEqual(1);
+    const attributeNode = openingElement.attributes[0];
+    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
+
+    const attribute = attributeNode.jSXAttribute;
+    expect(attribute.name.jSXIdentifier.name).toEqual('disabled');
+    // Boolean attribute has no value
+    expect(attribute.value).toBeUndefined();
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support JSXAttribute with JSXElement value', async () => {
+    const code = `<div prop={<span/>}/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
+
+    expect(openingElement.attributes.length).toEqual(1);
+    const attributeNode = openingElement.attributes[0];
+    const attribute = attributeNode.jSXAttribute;
+
+    expect(attribute.name.jSXIdentifier.name).toEqual('prop');
+    // Value should be a JSXExpressionContainer containing a JSXElement
+    expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    const expressionContainer = attribute.value.jSXExpressionContainer;
+    expect(expressionContainer.expression.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(
+      expressionContainer.expression.jSXElement.openingElement.jSXOpeningElement.name.jSXIdentifier
+        .name,
+    ).toEqual('span');
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support JSXAttribute with JSXNamespacedName', async () => {
+    const code = `<svg xmlns:xlink="http://www.w3.org/1999/xlink"/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
+
+    expect(openingElement.attributes.length).toEqual(1);
+    const attributeNode = openingElement.attributes[0];
+    const attribute = attributeNode.jSXAttribute;
+
+    // Attribute name should be a JSXNamespacedName
+    expect(attribute.name.type).toEqual(NODE_TYPE_ENUM.values['JSXNamespacedNameType']);
+    const namespacedName = attribute.name.jSXNamespacedName;
+    expect(namespacedName.namespace.jSXIdentifier.name).toEqual('xmlns');
+    expect(namespacedName.name.jSXIdentifier.name).toEqual('xlink');
+
+    // Value should be a Literal
+    expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
+    expect(attribute.value.literal.valueString).toEqual('http://www.w3.org/1999/xlink');
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
   test('should support JSXMemberExpression nodes', async () => {
     const code = `<Foo.Bar/>`;
     const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
@@ -542,6 +618,36 @@ describe('ast', () => {
     expect(memberExpression.object.jSXIdentifier.name).toEqual('Foo');
     expect(memberExpression.property.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
     expect(memberExpression.property.jSXIdentifier.name).toEqual('Bar');
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support deeply nested JSXMemberExpression', async () => {
+    const code = `<Foo.Bar.Baz.Qux/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const nameNode = jsxElementNode.jSXElement.openingElement.jSXOpeningElement.name;
+
+    // Root should be a JSXMemberExpression
+    expect(nameNode.type).toEqual(NODE_TYPE_ENUM.values['JSXMemberExpressionType']);
+
+    // Traverse: Foo.Bar.Baz.Qux
+    // Should be: ((Foo.Bar).Baz).Qux
+    const quxMember = nameNode.jSXMemberExpression;
+    expect(quxMember.property.jSXIdentifier.name).toEqual('Qux');
+
+    const bazMember = quxMember.object.jSXMemberExpression;
+    expect(bazMember.property.jSXIdentifier.name).toEqual('Baz');
+
+    const barMember = bazMember.object.jSXMemberExpression;
+    expect(barMember.property.jSXIdentifier.name).toEqual('Bar');
+
+    const fooIdentifier = barMember.object.jSXIdentifier;
+    expect(fooIdentifier.name).toEqual('Foo');
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
   });
@@ -658,6 +764,62 @@ describe('ast', () => {
       NODE_TYPE_ENUM.values['JSXEmptyExpressionType'],
     );
     expect(expressionContainer.expression.jSXEmptyExpression).toEqual({});
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support mixed JSX children types', async () => {
+    const code = `<div>Hello {world}<Child/>{...items}</div>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const jsxElement = jsxElementNode.jSXElement;
+
+    // Should have 4 children: text, expression container, element, spread child
+    expect(jsxElement.children.length).toEqual(4);
+
+    // Child 1: JSXText "Hello "
+    const textNode = jsxElement.children[0];
+    expect(textNode.type).toEqual(NODE_TYPE_ENUM.values['JSXTextType']);
+    expect(textNode.jSXText.value).toEqual('Hello ');
+
+    // Child 2: JSXExpressionContainer {world}
+    const exprContainerNode = jsxElement.children[1];
+    expect(exprContainerNode.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    expect(exprContainerNode.jSXExpressionContainer.expression.identifier.name).toEqual('world');
+
+    // Child 3: JSXElement <Child/>
+    const childElementNode = jsxElement.children[2];
+    expect(childElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(
+      childElementNode.jSXElement.openingElement.jSXOpeningElement.name.jSXIdentifier.name,
+    ).toEqual('Child');
+
+    // Child 4: JSXSpreadChild {...items}
+    const spreadChildNode = jsxElement.children[3];
+    expect(spreadChildNode.type).toEqual(NODE_TYPE_ENUM.values['JSXSpreadChildType']);
+    expect(spreadChildNode.jSXSpreadChild.expression.identifier.name).toEqual('items');
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support self-closing JSXElement', async () => {
+    const code = `<Component/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    const jsxElement = jsxElementNode.jSXElement;
+
+    // Self-closing element should have no closing element
+    expect(jsxElement.closingElement).toBeUndefined();
+    expect(jsxElement.openingElement.jSXOpeningElement.selfClosing).toEqual(true);
+    expect(jsxElement.children.length).toEqual(0);
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
   });
