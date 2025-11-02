@@ -1,0 +1,53 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - branch-*
+      - dogfood-*
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: github-ubuntu-latest-s
+    name: Build
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - &checkout
+        name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
+        id: config
+        with:
+          artifactory-reader-role: private-reader
+      - name: Cache NPM dependencies
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+      - name: Install NPM dependencies
+        run: npm ci
+      - name: Cache Maven repository
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+          maven-args: ''
