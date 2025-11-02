@@ -1147,7 +1147,7 @@ public class ESTreeFactory {
       fromLocation(node.getLoc()),
       from(jsxAttribute.getName(), ESTree.JSXIdentifierOrJSXNamespacedName.class),
       jsxAttribute.hasValue()
-        ? Optional.of(from(jsxAttribute.getValue(), ESTree.Node.class))
+        ? Optional.of(from(jsxAttribute.getValue(), ESTree.JSXAttributeValue.class))
         : Optional.empty()
     );
   }

@@ -58,7 +58,7 @@ public class ESTree {
       BlockStatementOrExpression,
       ExpressionOrJSXEmptyExpression {}
 
-  public sealed interface Literal extends Expression, IdentifierOrLiteral {
+  public sealed interface Literal extends Expression, IdentifierOrLiteral, JSXAttributeValue {
     String raw();
   }
 
@@ -105,6 +105,8 @@ public class ESTree {
   public sealed interface IdentifierOrLiteral extends IdentifierOrLiteralOrTSQualifiedName {}
 
   public sealed interface IdentifierOrLiteralOrTSQualifiedName extends Node {}
+
+  public sealed interface JSXAttributeValue extends Node {}
 
   public record ArrayExpression(
     Location loc,
@@ -701,7 +703,7 @@ public class ESTree {
     JSXOpeningElement openingElement,
     Optional<JSXClosingElement> closingElement,
     List<JSXChild> children
-  ) implements Expression, JSXChild {}
+  ) implements Expression, JSXChild, JSXAttributeValue {}
 
   public record JSXFragment(
     Location loc,
@@ -727,7 +729,7 @@ public class ESTree {
   public record JSXAttribute(
     Location loc,
     JSXIdentifierOrJSXNamespacedName name,
-    Optional<Node> value
+    Optional<JSXAttributeValue> value
   ) implements JSXAttributeOrJSXSpreadAttribute {}
 
   public sealed interface JSXIdentifierOrJSXNamespacedName extends Node {}
@@ -753,7 +755,7 @@ public class ESTree {
   public record JSXExpressionContainer(
     Location loc,
     ExpressionOrJSXEmptyExpression expression
-  ) implements JSXChild {}
+  ) implements JSXChild, JSXAttributeValue {}
 
   public sealed interface ExpressionOrJSXEmptyExpression extends Node {}
 
