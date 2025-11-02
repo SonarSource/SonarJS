@@ -115,6 +115,7 @@ enum NodeType {
   JSXSpreadChildType = 96;
   JSXTextType = 97;
   JSXEmptyExpressionType = 98;
+  TSTypeParameterInstantiationType = 99;
   UnknownNodeType = 1000;
 }
 message Node {

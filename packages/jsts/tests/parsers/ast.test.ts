@@ -133,7 +133,9 @@ describe('ast', () => {
     expect(identifier.identifier.name).toEqual('foo');
   });
 
-  test('should support TSTypeAssertion nodes', async () => {
+  test('should not crash on TSTypeAssertion nodes', async () => {
+    // Note that we don't really support TSTypeAssertion nodes.
+    // We merely pretend they are identifier nodes.
     const code = `<Foo>foo;`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
@@ -453,6 +455,47 @@ describe('ast', () => {
     const h2Element = h2ElementNode.jSXElement;
     expect(h1Element.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('h1');
     expect(h2Element.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('h2');
+
+    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+  });
+
+  test('should support JSXElement nodes with type arguments', async () => {
+    const code = `<Component<a> prop="value"/>`;
+    const ast = await parseSourceCode(code, parsersMap.typescript, /* enableJsx */ true);
+    const protoMessage = visitNode(ast as TSESTree.Program);
+
+    assert.ok(protoMessage);
+
+    const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
+    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+
+    const jsxElement = jsxElementNode.jSXElement;
+    const openingElementNode = jsxElement.openingElement;
+    expect(openingElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXOpeningElementType']);
+
+    const openingElement = openingElementNode.jSXOpeningElement;
+
+    // Verify the element name
+    expect(openingElement.name.jSXIdentifier.name).toEqual('Component');
+
+    // Verify it's self-closing
+    expect(openingElement.selfClosing).toEqual(true);
+
+    // Verify the typeArguments field exists and contains a TSTypeParameterInstantiation
+    expect(openingElement.typeArguments).toBeDefined();
+    expect(openingElement.typeArguments.type).toEqual(
+      NODE_TYPE_ENUM.values['TSTypeParameterInstantiationType'],
+    );
+
+    // TSTypeParameterInstantiation is converted to an empty node (no params field)
+    expect(openingElement.typeArguments.tSTypeParameterInstantiation).toEqual({});
+
+    // Verify the attribute is present (the element should behave like <Component prop="value"/>)
+    expect(openingElement.attributes.length).toEqual(1);
+    const attributeNode = openingElement.attributes[0];
+    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
+    expect(attributeNode.jSXAttribute.name.jSXIdentifier.name).toEqual('prop');
+    expect(attributeNode.jSXAttribute.value.literal.valueString).toEqual('value');
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
   });

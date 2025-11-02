@@ -337,6 +337,7 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSEnumDeclaration':
     case 'TSDeclareFunction':
     case 'TSAbstractMethodDefinition':
+    case 'TSTypeParameterInstantiation':
       shape = {};
       break;
     // JSX node types

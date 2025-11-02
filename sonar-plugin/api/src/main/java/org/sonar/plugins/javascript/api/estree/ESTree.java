@@ -686,6 +686,8 @@ public class ESTree {
   public record TSAbstractMethodDefinition(Location loc) implements
     MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
 
+  public record TSTypeParameterInstantiation(Location loc) implements Node {}
+
   public sealed interface JSXChild extends Node {}
 
   public sealed interface JSXTagNameExpression extends Node {}
@@ -712,7 +714,8 @@ public class ESTree {
     Location loc,
     JSXElementName name,
     List<JSXAttributeOrJSXSpreadAttribute> attributes,
-    boolean selfClosing
+    boolean selfClosing,
+    Optional<TSTypeParameterInstantiation> typeArguments
   ) implements Node {}
 
   public record JSXClosingElement(Location loc, JSXElementName name) implements Node {}

@@ -207,6 +207,7 @@ public class ESTreeFactory {
       case TSDeclareFunctionType -> fromTSDeclareFunction(node);
       case TSEmptyBodyFunctionExpressionType -> fromTSEmptyBodyFunctionExpression(node);
       case TSAbstractMethodDefinitionType -> fromTSAbstractMethodDefinition(node);
+      case TSTypeParameterInstantiationType -> fromTSTypeParameterInstantiation(node);
       case JSXElementType -> fromJSXElement(node);
       case JSXFragmentType -> fromJSXFragment(node);
       case JSXOpeningElementType -> fromJSXOpeningElement(node);
@@ -1083,6 +1084,10 @@ public class ESTreeFactory {
     return new ESTree.TSEmptyBodyFunctionExpression(fromLocation(node.getLoc()));
   }
 
+  private static ESTree.TSTypeParameterInstantiation fromTSTypeParameterInstantiation(Node node) {
+    return new ESTree.TSTypeParameterInstantiation(fromLocation(node.getLoc()));
+  }
+
   private static ESTree.JSXElement fromJSXElement(Node node) {
     JSXElement jsxElement = node.getJSXElement();
     return new ESTree.JSXElement(
@@ -1111,7 +1116,12 @@ public class ESTreeFactory {
       fromLocation(node.getLoc()),
       from(jsxOpeningElement.getName(), ESTree.JSXElementName.class),
       from(jsxOpeningElement.getAttributesList(), ESTree.JSXAttributeOrJSXSpreadAttribute.class),
-      jsxOpeningElement.getSelfClosing()
+      jsxOpeningElement.getSelfClosing(),
+      jsxOpeningElement.hasTypeArguments()
+        ? Optional.of(
+            from(jsxOpeningElement.getTypeArguments(), ESTree.TSTypeParameterInstantiation.class)
+          )
+        : Optional.empty()
     );
   }
 
