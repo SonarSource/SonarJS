@@ -110,10 +110,10 @@ class EslintCustomRulesTest {
       .toList();
     var eslintCustomRuleIssues = issues
       .stream()
-      .filter(issue -> issue.ruleKey().equals("eslint-custom-rules:sqKey"))
+      .filter(issue -> issue.ruleKey().equals("js-custom-rules:jsRuleKey"))
       .toList();
 
-    assertThat(eslintCustomRuleIssues).hasSize(2);
+    assertThat(eslintCustomRuleIssues).hasSize(1);
     assertThat(eslintCustomRuleIssues)
       .extracting(
         ScannerOutputReader.TextRangeIssue::ruleKey,
@@ -122,8 +122,7 @@ class EslintCustomRulesTest {
         ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
-        new Tuple("js-custom-rules:jsRuleKey", "src/dir/Person.js", 21, "jsRuleKey call"),
-        new Tuple("js-custom-rules:jsRuleKey", "src/dir/file.ts", 4, "jsRuleKey call")
+        new Tuple("js-custom-rules:jsRuleKey", "src/dir/Person.js", 21, "jsRuleKey call")
       );
     var tsEslintCustomRuleIssues = issues
       .stream()

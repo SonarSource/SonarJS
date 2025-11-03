@@ -32,7 +32,6 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.checks.MainFileCheck;
 import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
@@ -56,7 +55,7 @@ public class JsTsChecks {
   private final Map<Language, Set<EslintHook>> eslintHooksByLanguage = new EnumMap<>(
     Language.class
   );
-  private final Map<LanguageAndRepository, Checks<MainFileCheck>> checks = new HashMap<>();
+  private final Map<LanguageAndRepository, Checks<EslintHook>> checks = new HashMap<>();
   private final Map<String, Map<Language, RuleKey>> eslintKeyToRuleKey = new HashMap<>();
   private RuleKey parseErrorRuleKey;
 
@@ -98,14 +97,13 @@ public class JsTsChecks {
     String repositoryKey,
     Iterable<Class<? extends EslintHook>> checkClass
   ) {
-    var chks = checkFactory.<MainFileCheck>create(repositoryKey).addAnnotatedChecks(checkClass);
+    var chks = checkFactory.<EslintHook>create(repositoryKey).addAnnotatedChecks(checkClass);
     var key = new LanguageAndRepository(language, repositoryKey);
     this.checks.put(key, chks);
     LOG.debug("Added {} checks for {}", chks.all().size(), key);
     chks
       .all()
       .stream()
-      .map(MainFileCheck.class::cast)
       .forEach(check ->
         eslintKeyToRuleKey
           .computeIfAbsent(check.eslintKey(), k -> new EnumMap<>(Language.class))
@@ -121,19 +119,15 @@ public class JsTsChecks {
     }
   }
 
-  private Stream<MainFileCheck> all() {
+  Stream<EslintHook> all() {
     return checks
       .values()
       .stream()
       .flatMap(c -> c.all().stream());
   }
 
-  Stream<MainFileCheck> eslintBasedChecks() {
-    return all().filter(MainFileCheck.class::isInstance).map(MainFileCheck.class::cast);
-  }
-
   @Nullable
-  private RuleKey ruleKeyFor(MainFileCheck check) {
+  private RuleKey ruleKeyFor(EslintHook check) {
     return checks
       .values()
       .stream()

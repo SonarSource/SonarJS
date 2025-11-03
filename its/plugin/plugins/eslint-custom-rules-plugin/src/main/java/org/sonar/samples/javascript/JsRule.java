@@ -16,12 +16,14 @@
  */
 package org.sonar.samples.javascript;
 
+import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
+@Rule(key = JsRule.RULE_KEY)
 public class JsRule implements EslintHook {
 
   public static final String RULE_KEY = "jsRuleKey";

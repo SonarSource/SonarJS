@@ -55,7 +55,7 @@ class JsTsChecksTest {
       checkFactory("repo", "customcheck"),
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
-    assertThat(checks.eslintBasedChecks()).hasSize(1);
+    assertThat(checks.all()).hasSize(1);
     assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT)).isEqualTo(
       RuleKey.parse("repo:customcheck")
     );
@@ -106,7 +106,7 @@ class JsTsChecksTest {
       ),
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
-    assertThat(checks.eslintBasedChecks()).hasSize(2);
+    assertThat(checks.all()).hasSize(2);
     assertThat(checks.ruleKeyByEslintKey("customcheck", JAVASCRIPT)).isEqualTo(
       RuleKey.parse("js-repo:customcheck")
     );

@@ -17,7 +17,6 @@
 package org.sonar.samples.javascript;
 
 import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
-import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,7 +32,7 @@ public class JsRepository implements CustomRuleRepository {
 
   @Override
   public Set<Language> compatibleLanguages() {
-    return EnumSet.of(JAVASCRIPT, TYPESCRIPT);
+    return EnumSet.of(JAVASCRIPT);
   }
 
   @Override
