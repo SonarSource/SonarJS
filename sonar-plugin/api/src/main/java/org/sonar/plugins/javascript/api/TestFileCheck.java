@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -14,20 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.samples.javascript;
+package org.sonar.plugins.javascript.api;
 
-import org.sonar.plugins.javascript.api.EslintHook;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
 
-@JavaScriptRule
-@TypeScriptRule
-public class CustomRule implements EslintHook {
-
-  public static final String RULE_KEY = "sqKey";
+/**
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
+public abstract class TestFileCheck extends Check {
 
   @Override
-  public String eslintKey() {
-    return "customrule";
+  public List<InputFile.Type> targets() {
+    return Collections.singletonList(InputFile.Type.TEST);
   }
 }

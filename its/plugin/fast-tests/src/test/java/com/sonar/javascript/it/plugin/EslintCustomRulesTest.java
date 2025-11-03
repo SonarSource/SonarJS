@@ -122,8 +122,8 @@ class EslintCustomRulesTest {
         ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
-        new Tuple("eslint-custom-rules:sqKey", "src/dir/Person.js", 21, "call"),
-        new Tuple("eslint-custom-rules:sqKey", "src/dir/file.ts", 4, "call")
+        new Tuple("js-custom-rules:jsRuleKey", "src/dir/Person.js", 21, "jsRuleKey call"),
+        new Tuple("js-custom-rules:jsRuleKey", "src/dir/file.ts", 4, "jsRuleKey call")
       );
     var tsEslintCustomRuleIssues = issues
       .stream()
@@ -137,7 +137,7 @@ class EslintCustomRulesTest {
         ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
-        new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsrule call")
+        new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsRuleKey call")
       );
   }
 }

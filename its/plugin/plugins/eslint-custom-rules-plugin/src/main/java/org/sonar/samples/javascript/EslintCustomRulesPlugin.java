@@ -26,7 +26,7 @@ public class EslintCustomRulesPlugin implements Plugin {
     context.addExtensions(
       EslintRulesBundle.class,
       CustomRulesDefinition.class,
-      RuleRepository.class,
+      JsRepository.class,
       TsRepository.class,
       AnalysisMode.class
     );

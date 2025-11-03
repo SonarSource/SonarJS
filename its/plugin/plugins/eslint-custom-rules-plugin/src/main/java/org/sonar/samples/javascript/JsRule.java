@@ -16,33 +16,18 @@
  */
 package org.sonar.samples.javascript;
 
-import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
-import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
-import org.sonar.plugins.javascript.api.Language;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public class RuleRepository implements CustomRuleRepository {
+@JavaScriptRule
+@TypeScriptRule
+public class JsRule implements EslintHook {
 
-  public static final String REPOSITORY_KEY = "eslint-custom-rules";
-
-  @Override
-  public Set<Language> compatibleLanguages() {
-    return EnumSet.of(JAVASCRIPT, TYPESCRIPT);
-  }
+  public static final String RULE_KEY = "jsRuleKey";
 
   @Override
-  public String repositoryKey() {
-    return REPOSITORY_KEY;
-  }
-
-  @Override
-  public List<Class<? extends EslintHook>> checkClasses() {
-    return Collections.singletonList(CustomRule.class);
+  public String eslintKey() {
+    return RULE_KEY;
   }
 }
