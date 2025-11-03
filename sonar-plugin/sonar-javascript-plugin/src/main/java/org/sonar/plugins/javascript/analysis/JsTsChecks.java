@@ -92,11 +92,7 @@ public class JsTsChecks {
     initParsingErrorRuleKey();
   }
 
-  private void doAddChecks(
-    Language language,
-    String repositoryKey,
-    Iterable<Class<? extends EslintHook>> checkClass
-  ) {
+  private void doAddChecks(Language language, String repositoryKey, Iterable<?> checkClass) {
     var chks = checkFactory.<EslintHook>create(repositoryKey).addAnnotatedChecks(checkClass);
     var key = new LanguageAndRepository(language, repositoryKey);
     this.checks.put(key, chks);
