@@ -1,4 +1,13 @@
 {
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+240
+],
+"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
+122
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+87
+],
 "courselit:apps/web/payments/stripe-payment.ts": [
 23,
 42
