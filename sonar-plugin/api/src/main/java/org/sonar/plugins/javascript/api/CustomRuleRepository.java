@@ -40,5 +40,5 @@ public interface CustomRuleRepository {
   /**
    * List of the custom rules classes.
    */
-  List<Class<? extends Check>> checkClasses();
+  List<Class<? extends EslintHook>> checkClasses();
 }

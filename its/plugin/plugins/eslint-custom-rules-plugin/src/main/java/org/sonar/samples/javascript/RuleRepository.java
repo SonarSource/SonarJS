@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
 
 public class RuleRepository implements CustomRuleRepository {
@@ -42,7 +42,7 @@ public class RuleRepository implements CustomRuleRepository {
   }
 
   @Override
-  public List<Class<? extends Check>> checkClasses() {
+  public List<Class<? extends EslintHook>> checkClasses() {
     return Collections.singletonList(CustomRule.class);
   }
 }

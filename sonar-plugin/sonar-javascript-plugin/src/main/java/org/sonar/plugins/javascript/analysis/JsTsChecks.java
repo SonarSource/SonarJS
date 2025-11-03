@@ -32,10 +32,10 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.MainFileCheck;
 import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
@@ -56,7 +56,7 @@ public class JsTsChecks {
   private final Map<Language, Set<EslintHook>> eslintHooksByLanguage = new EnumMap<>(
     Language.class
   );
-  private final Map<LanguageAndRepository, Checks<Check>> checks = new HashMap<>();
+  private final Map<LanguageAndRepository, Checks<MainFileCheck>> checks = new HashMap<>();
   private final Map<String, Map<Language, RuleKey>> eslintKeyToRuleKey = new HashMap<>();
   private RuleKey parseErrorRuleKey;
 
@@ -96,16 +96,16 @@ public class JsTsChecks {
   private void doAddChecks(
     Language language,
     String repositoryKey,
-    Iterable<Class<? extends Check>> checkClass
+    Iterable<Class<? extends EslintHook>> checkClass
   ) {
-    var chks = checkFactory.<Check>create(repositoryKey).addAnnotatedChecks(checkClass);
+    var chks = checkFactory.<MainFileCheck>create(repositoryKey).addAnnotatedChecks(checkClass);
     var key = new LanguageAndRepository(language, repositoryKey);
     this.checks.put(key, chks);
     LOG.debug("Added {} checks for {}", chks.all().size(), key);
     chks
       .all()
       .stream()
-      .map(Check.class::cast)
+      .map(MainFileCheck.class::cast)
       .forEach(check ->
         eslintKeyToRuleKey
           .computeIfAbsent(check.eslintKey(), k -> new EnumMap<>(Language.class))
@@ -121,19 +121,19 @@ public class JsTsChecks {
     }
   }
 
-  private Stream<Check> all() {
+  private Stream<MainFileCheck> all() {
     return checks
       .values()
       .stream()
       .flatMap(c -> c.all().stream());
   }
 
-  Stream<Check> eslintBasedChecks() {
-    return all().filter(Check.class::isInstance).map(Check.class::cast);
+  Stream<MainFileCheck> eslintBasedChecks() {
+    return all().filter(MainFileCheck.class::isInstance).map(MainFileCheck.class::cast);
   }
 
   @Nullable
-  private RuleKey ruleKeyFor(Check check) {
+  private RuleKey ruleKeyFor(MainFileCheck check) {
     return checks
       .values()
       .stream()

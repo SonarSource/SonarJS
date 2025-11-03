@@ -32,7 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
  */
 public interface EslintHook {
   /**
-   * Key for the hook to be executed on JS side.
+   * Key for the hook to be executed on the JS side.
    */
   String eslintKey();
 

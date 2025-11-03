@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintHook;
 
-public class Check implements EslintHook {
+public class MainFileCheck implements EslintHook {
 
   /**
    * This should be named `key()`, but we keep the compatibility with the legacy semantic.

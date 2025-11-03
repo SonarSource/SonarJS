@@ -2,14 +2,13 @@ ___HEADER___
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2260")
-public class S2260 extends Check {
+public class S2260 extends MainFileCheck {
   // this class exists only to provide metadata for rule
   @Override
   public boolean isEnabled() {

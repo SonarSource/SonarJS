@@ -36,8 +36,7 @@ import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.api.Check;
-import org.sonar.plugins.javascript.api.Check;
+import org.sonar.plugins.javascript.api.EslintHook;
 
 class TypeScriptRulesDefinitionTest {
 
@@ -72,8 +71,8 @@ class TypeScriptRulesDefinitionTest {
 
   @Test
   void compatibleLanguagesInJson() {
-    List<Class<? extends Check>> typeScriptChecks = CheckList.getTypeScriptChecks();
-    List<Class<? extends Check>> javaScriptChecks = CheckList.getJavaScriptChecks();
+    List<Class<? extends EslintHook>> typeScriptChecks = CheckList.getTypeScriptChecks();
+    List<Class<? extends EslintHook>> javaScriptChecks = CheckList.getJavaScriptChecks();
     CheckList.getAllChecks().forEach(c -> {
       boolean isTypeScriptCheck = typeScriptChecks.contains(c);
       boolean isJavaScriptCheck = javaScriptChecks.contains(c);

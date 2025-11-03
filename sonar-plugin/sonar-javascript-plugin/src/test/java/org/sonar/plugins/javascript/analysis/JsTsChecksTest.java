@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.Check;
-import org.sonar.plugins.javascript.api.Check;
+import org.sonar.javascript.checks.MainFileCheck;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
@@ -144,7 +143,7 @@ class JsTsChecksTest {
     }
 
     @Override
-    public List<Class<? extends Check>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomTsCheck.class);
     }
   }
@@ -157,7 +156,7 @@ class JsTsChecksTest {
     }
 
     @Override
-    public List<Class<? extends Check>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomTsCheck.class);
     }
   }
@@ -165,5 +164,5 @@ class JsTsChecksTest {
   @TypeScriptRule
   @JavaScriptRule
   @Rule(key = "customcheck")
-  public static class CustomTsCheck extends Check {}
+  public static class CustomTsCheck extends MainFileCheck {}
 }

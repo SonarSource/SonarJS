@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 
-public abstract class TestFileCheck extends Check {
+public abstract class TestFileCheck extends MainFileCheck {
 
   @Override
   public List<InputFile.Type> targets() {

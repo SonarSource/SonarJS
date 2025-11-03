@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -14,20 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.samples.javascript;
+package org.sonar.plugins.javascript.api;
 
-import org.sonar.plugins.javascript.api.EslintHook;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-@JavaScriptRule
-@TypeScriptRule
-public class CustomRule implements EslintHook {
-
-  public static final String RULE_KEY = "sqKey";
-
-  @Override
-  public String eslintKey() {
-    return "customrule";
-  }
-}
+/**
+ * Marker interface for all JavaScript checks.
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
+public interface JavaScriptCheck {}

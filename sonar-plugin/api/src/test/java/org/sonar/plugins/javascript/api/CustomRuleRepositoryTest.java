@@ -39,11 +39,16 @@ class CustomRuleRepositoryTest {
     }
 
     @Override
-    public List<Class<? extends Check>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomCheck.class);
     }
   }
 
-  @Rule(key = "key")
-  static class CustomCheck extends Check {}
+  static class CustomCheck implements EslintHook {
+
+    @Override
+    public String eslintKey() {
+      return "key";
+    }
+  }
 }

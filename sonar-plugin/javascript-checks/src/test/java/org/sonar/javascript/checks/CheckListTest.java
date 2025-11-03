@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.Check;
+import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
 
 class CheckListTest {
@@ -49,9 +49,9 @@ class CheckListTest {
    */
   @Test
   void test() {
-    List<Class<? extends Check>> checks = CheckList.getAllChecks();
+    List<Class<? extends EslintHook>> checks = CheckList.getAllChecks();
 
-    for (Class<? extends Check> cls : checks) {
+    for (Class<? extends EslintHook> cls : checks) {
       if (!cls.getSimpleName().equals("S2260") && !isEslintBasedCheck(cls)) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
@@ -89,7 +89,7 @@ class CheckListTest {
     assertThat(typeScriptChecks)
       .isNotEmpty()
       .isNotEqualTo(CheckList.getAllChecks())
-      .allMatch(c -> c == S2260.class || Check.class.isAssignableFrom(c));
+      .allMatch(c -> c == S2260.class || MainFileCheck.class.isAssignableFrom(c));
   }
 
   @Test
@@ -110,8 +110,8 @@ class CheckListTest {
 
   @Test
   void testEveryCheckBelongsToLanguage() {
-    Set<Class<? extends Check>> allChecks = new HashSet<>(CheckList.getAllChecks());
-    Set<Class<? extends Check>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
+    Set<Class<? extends EslintHook>> allChecks = new HashSet<>(CheckList.getAllChecks());
+    Set<Class<? extends EslintHook>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
 
     assertThat(allChecks).isEqualTo(tsAndJsChecks);
@@ -135,7 +135,7 @@ class CheckListTest {
     assertThat(count).isEqualTo(CHECKS_PROPERTIES_COUNT);
   }
 
-  private boolean isEslintBasedCheck(Class<? extends Check> cls) {
+  private boolean isEslintBasedCheck(Class<? extends EslintHook> cls) {
     try {
       cls.getMethod("eslintKey");
       return true;
