@@ -87,7 +87,7 @@
     "glob": "11.0.3",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
-    "knip": "5.67.0",
+    "knip": "5.67.1",
     "license-checker": "25.0.1",
     "memfs": "4.50.0",
     "nyc": "17.1.0",
