@@ -712,3 +712,7 @@ export function isUnresolved(node: estree.Node | undefined | null, ctx: Rule.Rul
   }
   return false;
 }
+
+export function hasParent(node: estree.Node): node is estree.Node & Rule.NodeParentExtension {
+  return 'parent' in node && node.parent !== null;
+}
