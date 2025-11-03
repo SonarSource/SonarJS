@@ -130,7 +130,8 @@ const ruleExtension: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      TSEmptyBodyFunctionExpression: (functionLike: TSESTree.TSEmptyBodyFunctionExpression) => {
+      TSEmptyBodyFunctionExpression(node: Rule.Node) {
+        const functionLike = node as unknown as TSESTree.TSEmptyBodyFunctionExpression;
         const parent = functionLike.parent;
         let name = 'Empty function';
         if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {

@@ -103,7 +103,7 @@ function reportWithQuickFix(
   const name = reportDescriptor.data!.name;
   const openingBrace = context.sourceCode.getFirstToken(func.body)!;
   const closingBrace = context.sourceCode.getLastToken(func.body)!;
-  suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
+  suggestEmptyBlockQuickFix(context, reportDescriptor, name as string, openingBrace, closingBrace);
 }
 
 function suggestEmptyBlockQuickFix(

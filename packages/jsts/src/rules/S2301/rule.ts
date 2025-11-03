@@ -21,21 +21,15 @@ import {
   generateMeta,
   getTypeFromTreeNode,
   getVariableFromIdentifier,
+  hasParent,
   isBooleanType,
   isRequiredParserServices,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import type {
-  ArrowFunctionExpression,
-  BlockStatement,
-  FunctionExpression,
-  Node as ESTreeNode,
-} from 'estree';
+import type { ArrowFunctionExpression, BlockStatement, FunctionExpression, Node } from 'estree';
 import * as meta from './generated-meta.js';
 import { TSESTree } from '@typescript-eslint/utils';
-
-type Node = ESTreeNode & Rule.NodeParentExtension;
 
 const message =
   'Provide multiple methods instead of using "{{parameterName}}" to determine which action to take.';
@@ -67,15 +61,13 @@ export const rule: Rule.RuleModule = {
     };
 
     const isAChildOf = (identifier: Node, node: Node): boolean => {
-      if (identifier.parent === node) {
-        return true;
+      if (hasParent(identifier)) {
+        if (identifier.parent === node) {
+          return true;
+        }
+        return isAChildOf(identifier.parent, node);
       }
-
-      if (identifier.parent === null) {
-        return false;
-      }
-
-      return isAChildOf(identifier.parent, node);
+      return false;
     };
 
     return {
