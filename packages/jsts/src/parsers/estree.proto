@@ -100,7 +100,7 @@ enum NodeType {
   TSEnumDeclarationType = 81;
   TSDeclareFunctionType = 82;
   TSAbstractMethodDefinitionType = 83;
-  JSXElementType = 84;
+  TSTypeParameterInstantiationType = 84;
   JSXFragmentType = 85;
   JSXOpeningElementType = 86;
   JSXClosingElementType = 87;
@@ -115,7 +115,7 @@ enum NodeType {
   JSXSpreadChildType = 96;
   JSXTextType = 97;
   JSXEmptyExpressionType = 98;
-  TSTypeParameterInstantiationType = 99;
+  JSXElementType = 99;
   UnknownNodeType = 1000;
 }
 message Node {

@@ -1015,7 +1015,6 @@ function visitJSXElement(node: TSESTree.JSXElement) {
    */
   return {
     openingElement: visitNode(node.openingElement),
-    // `closingElement` optionality is handled in `visitNode`
     closingElement: visitNode(node.closingElement),
     children: node.children.map(visitNode),
   };
@@ -1049,7 +1048,6 @@ function visitJSXOpeningElement(node: TSESTree.JSXOpeningElement) {
     name: visitNode(node.name),
     attributes: node.attributes.map(visitNode),
     selfClosing: node.selfClosing,
-    // `typeArguments` optionality is handled in `visitNode`
     typeArguments: visitNode(node.typeArguments),
   };
 }
@@ -1090,7 +1088,6 @@ function visitJSXAttribute(node: TSESTree.JSXAttribute) {
    */
   return {
     name: visitNode(node.name),
-    // `value` optionality is handled in `visitNode`
     value: visitNode(node.value),
   };
 }

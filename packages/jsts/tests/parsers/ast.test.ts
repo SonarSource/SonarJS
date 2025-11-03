@@ -133,9 +133,7 @@ describe('ast', () => {
     expect(identifier.identifier.name).toEqual('foo');
   });
 
-  test('should not crash on TSTypeAssertion nodes', async () => {
-    // Note that we don't really support TSTypeAssertion nodes.
-    // We merely pretend they are identifier nodes.
+  test('should support TSTypeAssertion nodes', async () => {
     const code = `<Foo>foo;`;
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
@@ -443,7 +441,6 @@ describe('ast', () => {
     expect(openingFragmentNode.jSXOpeningFragment).toEqual({});
     expect(closingFragmentNode.jSXClosingFragment).toEqual({});
 
-    // Check the children (h1 and h2 elements)
     expect(jsxFragment.children.length).toEqual(2);
 
     const h1ElementNode = jsxFragment.children[0];
@@ -474,24 +471,15 @@ describe('ast', () => {
     expect(openingElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXOpeningElementType']);
 
     const openingElement = openingElementNode.jSXOpeningElement;
-
-    // Verify the element name
     expect(openingElement.name.jSXIdentifier.name).toEqual('Component');
-
-    // Verify it's self-closing
     expect(openingElement.selfClosing).toEqual(true);
-
-    // Verify the typeArguments field exists and contains a TSTypeParameterInstantiation
     expect(openingElement.typeArguments).toBeDefined();
     expect(openingElement.typeArguments.type).toEqual(
       NODE_TYPE_ENUM.values['TSTypeParameterInstantiationType'],
     );
-
-    // TSTypeParameterInstantiation is converted to an empty node (no params field)
     expect(openingElement.typeArguments.tSTypeParameterInstantiation).toEqual({});
-
-    // Verify the attribute is present (the element should behave like <Component prop="value"/>)
     expect(openingElement.attributes.length).toEqual(1);
+
     const attributeNode = openingElement.attributes[0];
     expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
     expect(attributeNode.jSXAttribute.name.jSXIdentifier.name).toEqual('prop');
@@ -533,14 +521,13 @@ describe('ast', () => {
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
     const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
-
     expect(openingElement.attributes.length).toEqual(1);
+
     const attributeNode = openingElement.attributes[0];
     expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
 
     const attribute = attributeNode.jSXAttribute;
     expect(attribute.name.jSXIdentifier.name).toEqual('disabled');
-    // Boolean attribute has no value
     expect(attribute.value).toBeUndefined();
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
@@ -555,14 +542,13 @@ describe('ast', () => {
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
     const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
-
     expect(openingElement.attributes.length).toEqual(1);
+
     const attributeNode = openingElement.attributes[0];
     const attribute = attributeNode.jSXAttribute;
-
     expect(attribute.name.jSXIdentifier.name).toEqual('prop');
-    // Value should be a JSXExpressionContainer containing a JSXElement
     expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+
     const expressionContainer = attribute.value.jSXExpressionContainer;
     expect(expressionContainer.expression.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
     expect(
@@ -582,18 +568,15 @@ describe('ast', () => {
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
     const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
-
     expect(openingElement.attributes.length).toEqual(1);
+
     const attributeNode = openingElement.attributes[0];
     const attribute = attributeNode.jSXAttribute;
-
-    // Attribute name should be a JSXNamespacedName
     expect(attribute.name.type).toEqual(NODE_TYPE_ENUM.values['JSXNamespacedNameType']);
+
     const namespacedName = attribute.name.jSXNamespacedName;
     expect(namespacedName.namespace.jSXIdentifier.name).toEqual('xmlns');
     expect(namespacedName.name.jSXIdentifier.name).toEqual('xlink');
-
-    // Value should be a Literal
     expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
     expect(attribute.value.literal.valueString).toEqual('http://www.w3.org/1999/xlink');
 
@@ -631,12 +614,11 @@ describe('ast', () => {
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
     const nameNode = jsxElementNode.jSXElement.openingElement.jSXOpeningElement.name;
-
-    // Root should be a JSXMemberExpression
     expect(nameNode.type).toEqual(NODE_TYPE_ENUM.values['JSXMemberExpressionType']);
 
     // Traverse: Foo.Bar.Baz.Qux
     // Should be: ((Foo.Bar).Baz).Qux
+
     const quxMember = nameNode.jSXMemberExpression;
     expect(quxMember.property.jSXIdentifier.name).toEqual('Qux');
 
@@ -776,32 +758,34 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    const jsxElement = jsxElementNode.jSXElement;
+    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
 
-    // Should have 4 children: text, expression container, element, spread child
+    const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.children.length).toEqual(4);
 
-    // Child 1: JSXText "Hello "
     const textNode = jsxElement.children[0];
     expect(textNode.type).toEqual(NODE_TYPE_ENUM.values['JSXTextType']);
-    expect(textNode.jSXText.value).toEqual('Hello ');
 
-    // Child 2: JSXExpressionContainer {world}
+    const text = textNode.jSXText;
+    expect(text.value).toEqual('Hello ');
+
     const exprContainerNode = jsxElement.children[1];
     expect(exprContainerNode.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
-    expect(exprContainerNode.jSXExpressionContainer.expression.identifier.name).toEqual('world');
 
-    // Child 3: JSXElement <Child/>
+    const expressionContainer = exprContainerNode.jSXExpressionContainer;
+    expect(expressionContainer.expression.identifier.name).toEqual('world');
+
     const childElementNode = jsxElement.children[2];
     expect(childElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
-    expect(
-      childElementNode.jSXElement.openingElement.jSXOpeningElement.name.jSXIdentifier.name,
-    ).toEqual('Child');
 
-    // Child 4: JSXSpreadChild {...items}
+    const childElement = childElementNode.jSXElement;
+    expect(childElement.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('Child');
+
     const spreadChildNode = jsxElement.children[3];
     expect(spreadChildNode.type).toEqual(NODE_TYPE_ENUM.values['JSXSpreadChildType']);
-    expect(spreadChildNode.jSXSpreadChild.expression.identifier.name).toEqual('items');
+
+    const spreadChild = spreadChildNode.jSXSpreadChild;
+    expect(spreadChild.expression.identifier.name).toEqual('items');
 
     checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
   });
@@ -814,9 +798,9 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    const jsxElement = jsxElementNode.jSXElement;
+    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
 
-    // Self-closing element should have no closing element
+    const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.closingElement).toBeUndefined();
     expect(jsxElement.openingElement.jSXOpeningElement.selfClosing).toEqual(true);
     expect(jsxElement.children.length).toEqual(0);
