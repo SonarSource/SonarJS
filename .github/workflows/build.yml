@@ -93,8 +93,10 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - <<: *config_npm
+      - uses: SonarSource/ci-github-actions/config-npm@master
         id: config_eslint
+        with:
+          artifactory-reader-role: private-reader
       - *npm_cache
       - *npm_install
       - name: Build ESLint plugin
@@ -124,7 +126,6 @@ jobs:
       - *npm_cache
       - name: Run knip
         run: |
-          npm install --no-package-lock
           npm run bbf
           npx knip
 
@@ -178,10 +179,16 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - <<: *js_coverage_cache
-        name: Restore JS coverage
-      - <<: *java_coverage_cache
-        name: Restore Java coverage
+      - name: Restore JS coverage
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ github.sha }}
+      - name: Restore Java coverage
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/java
+          key: java-coverage-${{ github.sha }}
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
           sonar-platform: next
@@ -206,10 +213,16 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - <<: *js_coverage_cache
-        name: Restore JS coverage
-      - <<: *java_coverage_cache
-        name: Restore Java coverage
+      - name: Restore JS coverage
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ github.sha }}
+      - name: Restore Java coverage
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/java
+          key: java-coverage-${{ github.sha }}
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
           sonar-platform: ${{ matrix.sonar-platform }}
@@ -225,8 +238,12 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - <<: *npm_cache
-        name: Cache NPM dependencies (Windows)
+      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
+        id: config_build_win
+        with:
+          artifactory-reader-role: private-reader
+      - name: Cache NPM dependencies (Windows)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
@@ -244,8 +261,8 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - <<: *npm_cache
-        name: Cache NPM dependencies (Windows)
+      - name: Cache NPM dependencies (Windows)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
@@ -264,8 +281,8 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - <<: *npm_cache
-        name: Cache NPM dependencies (Windows)
+      - name: Cache NPM dependencies (Windows)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
@@ -283,16 +300,21 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - <<: *mise
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "22.11.0"
         env:
           MISE_NODE_VERSION: ${{ matrix.node-version }}
-      - <<: *config_npm
-        id: config_qa_node
       - *npm_cache
-      - *npm_install
       - *maven_cache
       - &orchestrator_cache_monthly
         name: Cache Orchestrator (monthly)
@@ -315,16 +337,21 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - <<: *mise
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "22.11.0"
         env:
           MISE_NODE_VERSION: ${{ matrix.node-version }}
-      - <<: *config_npm
-        id: config_qa_fast_node
       - *npm_cache
-      - *npm_install
       - *maven_cache
       - name: Run Fast Plugin QA
         run: |
@@ -354,14 +381,12 @@ jobs:
             artifact: multi
             cache-type: daily
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
-      - <<: *config_npm
-        id: config_qa_no_node
       - *npm_cache
-      - *npm_install
       - *maven_cache
       - name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
@@ -395,14 +420,12 @@ jobs:
             sq-version: DEV
             artifact: multi
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
-      - <<: *config_npm
-        id: config_qa_fast_no_node
       - *npm_cache
-      - *npm_install
       - *maven_cache
       - name: Run Fast Plugin QA without Node
         run: |
@@ -418,18 +441,16 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
-      - <<: *config_npm
-        id: config_qa_win
-      - <<: *npm_cache
-        name: Cache NPM dependencies (Windows)
+      - name: Cache NPM dependencies (Windows)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - *npm_install
       - *maven_cache
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
@@ -445,18 +466,16 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
-      - <<: *config_npm
-        id: config_qa_win_fast
-      - <<: *npm_cache
-        name: Cache NPM dependencies (Windows)
+      - name: Cache NPM dependencies (Windows)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - *npm_install
       - *maven_cache
       - name: Run Fast Plugin QA on Windows
         run: |
@@ -471,7 +490,8 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
@@ -495,7 +515,8 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
@@ -518,7 +539,8 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - <<: *checkout
+      - name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
@@ -555,13 +577,25 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - <<: *mise
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "22.11.0"
         env:
           MISE_NODE_VERSION: ${{ matrix.node-version }}
-      - <<: *config_npm
+      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
         id: config_eslint_test
-      - <<: *eslint_build_cache
-        name: Restore ESLint build
+        with:
+          artifactory-reader-role: private-reader
+      - name: Restore ESLint build
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: lib
+          key: eslint-build-${{ github.sha }}
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
@@ -617,7 +651,7 @@ jobs:
     permissions: *write_permissions
     steps:
       - *checkout
-      - <<: *mise
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           cache_save: false
           version: 2025.7.12
