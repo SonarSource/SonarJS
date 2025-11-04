@@ -747,7 +747,7 @@ public class ESTree {
     Location loc,
     JSXIdentifier name,
     JSXIdentifier namespace
-  ) implements JSXAttributeName {}
+  ) implements JSXAttributeName, JSXTagNameExpression {}
 
   public record JSXSpreadAttribute(Location loc, Expression argument) implements
     JSXOpeningElementAttribute {}
