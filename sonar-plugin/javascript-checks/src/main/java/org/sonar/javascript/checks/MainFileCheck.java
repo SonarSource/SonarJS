@@ -14,38 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.analysis.cache;
+package org.sonar.javascript.checks;
 
-import java.util.List;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintHook;
 
-class FilesManifest {
+public class MainFileCheck implements EslintHook {
 
-  private final List<FileSize> fileSizes;
-
-  FilesManifest(List<FileSize> fileSizes) {
-    this.fileSizes = List.copyOf(fileSizes);
-  }
-
-  List<FileSize> getFileSizes() {
-    return fileSizes;
-  }
-
-  static class FileSize {
-
-    private final String name;
-    private final long size;
-
-    FileSize(String name, long size) {
-      this.name = name;
-      this.size = size;
-    }
-
-    String getName() {
-      return name;
-    }
-
-    long getSize() {
-      return size;
-    }
+  /**
+   * This should be named `key()`, but we keep the compatibility with the legacy semantic.
+   */
+  @Override
+  public String eslintKey() {
+    return this.getClass().getAnnotation(Rule.class).key();
   }
 }

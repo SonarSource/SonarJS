@@ -274,7 +274,6 @@ public interface BridgeServer extends Startable {
     List<HighlightedSymbol> highlightedSymbols,
     Metrics metrics,
     List<CpdToken> cpdTokens,
-    List<String> ucfgPaths,
     @Nullable String ast
   ) {}
 
@@ -285,11 +284,10 @@ public interface BridgeServer extends Startable {
     List<HighlightedSymbol> highlightedSymbols,
     Metrics metrics,
     List<CpdToken> cpdTokens,
-    List<String> ucfgPaths,
     @Nullable Node ast
   ) {
     public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), null);
     }
 
     public AnalysisResponse(
@@ -299,7 +297,6 @@ public interface BridgeServer extends Startable {
       @Nullable List<HighlightedSymbol> highlightedSymbols,
       @Nullable Metrics metrics,
       @Nullable List<CpdToken> cpdTokens,
-      List<String> ucfgPaths,
       @Nullable Node ast
     ) {
       this.parsingError = parsingError;
@@ -308,7 +305,6 @@ public interface BridgeServer extends Startable {
       this.highlightedSymbols = highlightedSymbols != null ? highlightedSymbols : List.of();
       this.metrics = metrics != null ? metrics : new Metrics();
       this.cpdTokens = cpdTokens != null ? cpdTokens : List.of();
-      this.ucfgPaths = ucfgPaths;
       this.ast = ast;
     }
 
@@ -328,7 +324,6 @@ public interface BridgeServer extends Startable {
         analysisResponseDTO.highlightedSymbols,
         analysisResponseDTO.metrics,
         analysisResponseDTO.cpdTokens,
-        analysisResponseDTO.ucfgPaths,
         ast
       );
     }

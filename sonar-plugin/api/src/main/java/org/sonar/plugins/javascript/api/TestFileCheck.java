@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 
+/**
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
 public abstract class TestFileCheck extends Check {
 
   @Override

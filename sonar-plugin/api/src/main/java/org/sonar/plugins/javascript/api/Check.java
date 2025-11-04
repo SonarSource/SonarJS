@@ -18,6 +18,10 @@ package org.sonar.plugins.javascript.api;
 
 import org.sonar.check.Rule;
 
+/**
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
 public class Check implements EslintBasedCheck {
 
   /**

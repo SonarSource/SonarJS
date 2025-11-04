@@ -16,4 +16,8 @@
  */
 package org.sonar.plugins.javascript.api;
 
+/**
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
 public interface EslintBasedCheck extends EslintHook, JavaScriptCheck {}

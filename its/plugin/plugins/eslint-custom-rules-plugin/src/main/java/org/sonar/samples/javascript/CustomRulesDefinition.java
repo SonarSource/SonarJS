@@ -23,10 +23,10 @@ public class CustomRulesDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repository = context
-      .createRepository(RuleRepository.REPOSITORY_KEY, "js")
+      .createRepository(JsRepository.REPOSITORY_KEY, "js")
       .setName("ESLint Custom Rules");
     repository
-      .createRule(CustomRule.RULE_KEY)
+      .createRule(JsRule.RULE_KEY)
       .setName("ESLint Custom Rule")
       .setHtmlDescription("Description");
     repository.done();

@@ -92,9 +92,6 @@ class HtmlSensorTest {
   void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    // reset is required as this static value might be set by another test
-    PluginInfo.setUcfgPluginVersion(null);
-
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
@@ -123,9 +120,9 @@ class HtmlSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse expectedResponse = response(
       "{ issues: [" +
-      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
-      "]}"
+        "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+        "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
+        "]}"
     );
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
 
@@ -194,11 +191,10 @@ class HtmlSensorTest {
   @Test
   void should_raise_a_parsing_error() throws IOException {
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
 
     createInputFile(context);

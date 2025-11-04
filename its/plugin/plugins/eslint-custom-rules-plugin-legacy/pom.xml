@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript-it-plugin-plugins</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>eslint-custom-rules-plugin-legacy</artifactId>
+  <packaging>sonar-plugin</packaging>
+
+  <name>JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules</name>
+  <description>ESLint based custom rules</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.javascript</groupId>
+      <artifactId>api</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>npm pack</id>
+            <phase>generate-resources</phase>
+            <configuration>
+              <executable>npm</executable>
+              <basedir>${project.build.outputDirectory}</basedir>
+              <arguments>
+                <argument>pack</argument>
+                <argument>${project.basedir}/bundle</argument>
+              </arguments>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <basePlugin>javascript</basePlugin>
+          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
+          <pluginClass>org.sonar.samples.javascript.EslintCustomRulesPlugin</pluginClass>
+          <requiredForLanguages>js</requiredForLanguages>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <properties>
+    <!-- sonar scanner properties -->
+    <sonar.sources>src/main</sonar.sources>
+    <sonar.tests/>
+    <sonar.coverage.exclusions>src/**/*</sonar.coverage.exclusions>
+  </properties>
+</project>

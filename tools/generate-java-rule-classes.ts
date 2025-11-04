@@ -93,10 +93,8 @@ export async function generateJavaCheckClass(
   let javaCheckClass: string;
   if (ruleRspecMeta.scope === 'Tests') {
     javaCheckClass = 'TestFileCheck';
-    imports.add('import org.sonar.plugins.javascript.api.TestFileCheck;');
   } else {
-    javaCheckClass = 'Check';
-    imports.add('import org.sonar.plugins.javascript.api.Check;');
+    javaCheckClass = 'MainFileCheck';
   }
 
   const derivedLanguages = ruleRspecMeta.compatibleLanguages;

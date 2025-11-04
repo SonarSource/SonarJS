@@ -347,9 +347,6 @@ public class BridgeServerImpl implements BridgeServer {
     workdir = serverConfig.workDirAbsolutePath();
     Files.createDirectories(temporaryDeployLocation.resolve("package"));
     deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
-    rulesBundles
-      .getUcfgRulesBundle()
-      .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
 
     try {
       if (isAlive()) {
@@ -442,7 +439,7 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       throw new IllegalStateException(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
-        "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
+          "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
         e
       );
     }

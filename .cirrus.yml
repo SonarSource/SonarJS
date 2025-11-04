@@ -396,8 +396,8 @@ plugin_qa_fast_without_node_task:
   <<: *PLUGIN_QA_FAST_BODY
   env:
     # EslintCustomRulesTest requires Node.js in host OS
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest'
-    IGNORE_CLASSES: '--projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest'
+    IGNORE_CLASSES: '--projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy'
   matrix:
     - name: 'Fast QA without node on host Ubuntu SQ:LATEST'
       <<: *CONTAINER_DEFINITION

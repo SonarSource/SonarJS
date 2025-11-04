@@ -29,11 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.Check;
+import org.sonar.javascript.checks.MainFileCheck;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -56,7 +55,7 @@ class JsTsChecksTest {
       checkFactory("repo", "customcheck"),
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
-    assertThat(checks.eslintBasedChecks()).hasSize(1);
+    assertThat(checks.all()).hasSize(1);
     assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT)).isEqualTo(
       RuleKey.parse("repo:customcheck")
     );
@@ -107,7 +106,7 @@ class JsTsChecksTest {
       ),
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
-    assertThat(checks.eslintBasedChecks()).hasSize(2);
+    assertThat(checks.all()).hasSize(2);
     assertThat(checks.ruleKeyByEslintKey("customcheck", JAVASCRIPT)).isEqualTo(
       RuleKey.parse("js-repo:customcheck")
     );
@@ -144,7 +143,7 @@ class JsTsChecksTest {
     }
 
     @Override
-    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomTsCheck.class);
     }
   }
@@ -157,7 +156,7 @@ class JsTsChecksTest {
     }
 
     @Override
-    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomTsCheck.class);
     }
   }
@@ -165,5 +164,5 @@ class JsTsChecksTest {
   @TypeScriptRule
   @JavaScriptRule
   @Rule(key = "customcheck")
-  public static class CustomTsCheck extends Check {}
+  public static class CustomTsCheck extends MainFileCheck {}
 }

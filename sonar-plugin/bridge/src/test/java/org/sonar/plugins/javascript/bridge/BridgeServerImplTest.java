@@ -341,11 +341,21 @@ class BridgeServerImplTest {
     String starting = "Creating Node.js process to start the bridge server on port";
     bridgeServer = createBridgeServer("startServer.js");
     bridgeServer.startServerLazily(serverConfig);
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(
+      logTester
+        .logs(DEBUG)
+        .stream()
+        .anyMatch(s -> s.startsWith(starting))
+    ).isTrue();
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
     logTester.clear();
     bridgeServer.startServerLazily(serverConfig);
-    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(
+      logTester
+        .logs(DEBUG)
+        .stream()
+        .noneMatch(s -> s.startsWith(starting))
+    ).isTrue();
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
   }
 
@@ -366,19 +376,34 @@ class BridgeServerImplTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(wrongPortRange);
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
-    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(
+      logTester
+        .logs(DEBUG)
+        .stream()
+        .noneMatch(s -> s.startsWith(starting))
+    ).isTrue();
 
     doReturn("a").when(bridgeServerMock).getExistingNodeProcessPort();
     assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(wrongPortValue);
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
-    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(
+      logTester
+        .logs(DEBUG)
+        .stream()
+        .noneMatch(s -> s.startsWith(starting))
+    ).isTrue();
 
     //Port 0 will be considered as not set, and a new node process will be started on a random port
     doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
     bridgeServerMock.startServerLazily(serverConfig);
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
+    assertThat(
+      logTester
+        .logs(DEBUG)
+        .stream()
+        .anyMatch(s -> s.startsWith(starting))
+    ).isTrue();
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
     bridgeServerMock.clean();
 
@@ -570,37 +595,23 @@ class BridgeServerImplTest {
     bridgeServer.startServerLazily(serverConfig);
     bridgeServer.stop();
     assertThat(
-      logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("no-commented-code"))
+      logTester
+        .logs(INFO)
+        .stream()
+        .anyMatch(s -> s.startsWith("no-commented-code"))
     ).isTrue();
     assertThat(
-      logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("arguments-order"))
+      logTester
+        .logs(INFO)
+        .stream()
+        .anyMatch(s -> s.startsWith("arguments-order"))
     ).isTrue();
-    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("deprecation"))).isTrue();
-  }
-
-  @Test
-  void test_ucfg_bundle_version() throws Exception {
-    RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle(
-      "/test-bundle.tgz"
-    );
-
-    RulesBundles rulesBundles = mock(RulesBundles.class);
-    when(rulesBundles.getUcfgRulesBundle()).thenReturn(Optional.of(ucfgRulesBundle));
-
-    bridgeServer = new BridgeServerImpl(
-      builder(),
-      TEST_TIMEOUT_SECONDS,
-      new TestBundle(START_SERVER_SCRIPT),
-      rulesBundles,
-      deprecationWarning,
-      tempFolder,
-      unsupportedEmbeddedRuntime
-    );
-    bridgeServer.startServerLazily(serverConfig);
-
-    assertThat(logTester.logs(DEBUG)).contains(
-      "Security Frontend version is available: [some_bundle_version]"
-    );
+    assertThat(
+      logTester
+        .logs(INFO)
+        .stream()
+        .anyMatch(s -> s.startsWith("deprecation"))
+    ).isTrue();
   }
 
   @Test
@@ -696,8 +707,8 @@ class BridgeServerImplTest {
 
     assertThat(logTester.logs(INFO)).contains(
       "'" +
-      SKIP_NODE_PROVISIONING_PROPERTY +
-      "' is set. Skipping embedded Node.js runtime deployment."
+        SKIP_NODE_PROVISIONING_PROPERTY +
+        "' is set. Skipping embedded Node.js runtime deployment."
     );
   }
 
@@ -721,8 +732,10 @@ class BridgeServerImplTest {
   void should_start_bridge_from_path() throws IOException, InterruptedException {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test/resources";
-    var settings = new MapSettings()
-      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    var settings = new MapSettings().setProperty(
+      BridgeServerImpl.SONARLINT_BUNDLE_PATH,
+      deployLocation
+    );
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);
@@ -736,8 +749,10 @@ class BridgeServerImplTest {
   void should_fail_on_bad_bridge_path() {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test";
-    var settings = new MapSettings()
-      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    var settings = new MapSettings().setProperty(
+      BridgeServerImpl.SONARLINT_BUNDLE_PATH,
+      deployLocation
+    );
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);

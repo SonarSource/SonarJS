@@ -37,21 +37,6 @@ async function bar() {
   await foo(); // Compliant
 }
 </pre>
-<h3>Exceptions</h3>
-<p>The rule does not raise issues if you are awaiting a function whose definition contains JSdoc with <code>@returns</code> or <code>@return</code>
-tags. This is due to JSdoc often mistakenly declaring a returning type without mentioning that it is resolved by a promise. For example:</p>
-<pre>
-async function foo () {
-  await bar(); // Compliant
-}
-
-/**
- * @return {number}
- */
-async function bar () {
-  return 42;
-}
-</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

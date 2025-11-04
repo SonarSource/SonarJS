@@ -24,8 +24,13 @@ import org.sonar.check.Rule;
 
 class EslintBasedCheckTest {
 
-  @Rule(key = "key")
-  static class CustomCheck extends Check {}
+  static class CustomCheck implements EslintHook {
+
+    @Override
+    public String eslintKey() {
+      return "key";
+    }
+  }
 
   @Test
   void test() {

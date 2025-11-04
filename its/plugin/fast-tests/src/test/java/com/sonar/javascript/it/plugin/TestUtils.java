@@ -133,8 +133,4 @@ public class TestUtils {
       throw new UncheckedIOException(e);
     }
   }
-
-  public static boolean isUcfgFile(Path path, BasicFileAttributes attrs) {
-    return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfgs");
-  }
 }
