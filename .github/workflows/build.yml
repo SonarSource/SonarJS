@@ -5,6 +5,7 @@ on:
       - master
       - branch-*
       - dogfood-*
+      - gh-actions  # Temporary: for testing the migration
   pull_request:
   merge_group:
   workflow_dispatch:
