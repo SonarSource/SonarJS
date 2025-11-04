@@ -79,7 +79,7 @@ jobs:
         with:
           path: .m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: false  # Don't deploy yet - wait for tests to pass
           deploy-pull-request: false
@@ -221,7 +221,7 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           sonar-platform: next
           artifactory-reader-role: private-reader
@@ -255,7 +255,7 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           sonar-platform: ${{ matrix.sonar-platform }}
           artifactory-reader-role: private-reader
@@ -648,7 +648,7 @@ jobs:
             node = "22.11.0"
       - *maven_cache
       # Deploy to Artifactory QA repo (now that tests passed)
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
           deploy-pull-request: true
