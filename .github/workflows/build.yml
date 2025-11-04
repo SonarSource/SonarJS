@@ -101,25 +101,56 @@ jobs:
       - *npm_install
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
-      - &eslint_build_cache
-        name: Cache ESLint build
+      - &eslint_tarball_cache
+        name: Cache ESLint plugin tarball
         uses: SonarSource/ci-github-actions/cache@v1
         with:
-          path: lib
-          key: eslint-build-${{ github.sha }}
-      - name: Upload ESLint plugin artifact
-        uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
+          path: lib/*.tgz
+          key: eslint-tarball-${{ github.sha }}
+
+  # ESLint plugin testing
+  test_eslint_plugin:
+    runs-on: github-ubuntu-latest-s
+    name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
+    needs: build_eslint
+    permissions: &read_permissions
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - eslint-version: 9
+            node-version: '18.18.0'
+            node-label: 'min supported'
+          - eslint-version: 8
+            node-version: '18.18.0'
+            node-label: 'min supported'
+          - eslint-version: 8
+            node-version: '16.20.2'
+            node-label: 'node 16'
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
-          name: eslint-plugin
-          path: lib/
+          version: 2025.7.12
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "${{ matrix.node-version }}"
+      - *eslint_tarball_cache
+      - name: Test ESLint Plugin
+        run: |
+          cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
+          npm install
+          npx tsc --noEmit
+          npm run test
 
   knip:
     runs-on: github-ubuntu-latest-s
     name: Knip - Check unused dependencies
     needs: build
-    permissions: &read_permissions
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -556,52 +587,6 @@ jobs:
         with:
           name: ruling-differences-css
           path: its/ruling/target/actual/
-
-  # ESLint plugin testing
-  eslint_plugin:
-    runs-on: github-ubuntu-latest-s
-    name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: build_eslint
-    permissions: *read_permissions
-    strategy:
-      matrix:
-        include:
-          - eslint-version: 9
-            node-version: '20.12.0'
-            node-label: 'min supported'
-          - eslint-version: 8
-            node-version: '20.12.0'
-            node-label: 'min supported'
-          - eslint-version: 8
-            node-version: '16.20.2'
-            node-label: 'node 16'
-    steps:
-      - *checkout
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
-        with:
-          version: 2025.7.12
-          mise_toml: |
-            [tools]
-            java = "17.0"
-            maven = "3.9"
-            node = "22.11.0"
-        env:
-          MISE_NODE_VERSION: ${{ matrix.node-version }}
-      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
-        id: config_eslint_test
-        with:
-          artifactory-reader-role: private-reader
-      - name: Restore ESLint build
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: lib
-          key: eslint-build-${{ github.sha }}
-      - name: Test ESLint Plugin
-        run: |
-          cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install
-          npx tsc --noEmit
-          npm run test
 
   # IRIS tasks (nightly only)
   run_iris:
