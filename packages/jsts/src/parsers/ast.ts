@@ -331,15 +331,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSModuleDeclaration':
       shape = visitTSModuleDeclaration(node);
       break;
-    case 'TSTypeAliasDeclaration':
-    case 'TSInterfaceDeclaration':
-    case 'TSEmptyBodyFunctionExpression':
-    case 'TSEnumDeclaration':
-    case 'TSDeclareFunction':
-    case 'TSAbstractMethodDefinition':
-    case 'TSTypeParameterInstantiation':
-      shape = {};
-      break;
     // JSX node types
     case 'JSXElement':
       shape = visitJSXElement(node);
@@ -385,6 +376,15 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       break;
     case 'JSXEmptyExpression':
       shape = visitJSXEmptyExpression(node);
+      break;
+    case 'TSTypeAliasDeclaration':
+    case 'TSInterfaceDeclaration':
+    case 'TSEmptyBodyFunctionExpression':
+    case 'TSEnumDeclaration':
+    case 'TSDeclareFunction':
+    case 'TSAbstractMethodDefinition':
+    case 'TSTypeParameterInstantiation':
+      shape = {};
       break;
     default:
       unsupportedNodeTypes.set(node.type, (unsupportedNodeTypes.get(node.type) ?? 0) + 1);
