@@ -2,24 +2,9 @@
 "eigen:src/app/Scenes/Artwork/Components/RequestConditionReport.tsx": [
 47
 ],
-"eigen:src/app/Scenes/AuctionResult/AuctionResult.tsx": [
-191
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ItemArtwork.tsx": [
-20
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ItemShow.tsx": [
-20
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tsx": [
 42,
 75
-],
-"eigen:src/app/Scenes/MyBids/Components/SaleCard.tsx": [
-20
-],
-"eigen:src/app/Scenes/Sale/Components/SaleActiveBidItem.tsx": [
-27
 ],
 "eigen:src/app/Scenes/Show/Components/ShowContextCard.tsx": [
 202,
