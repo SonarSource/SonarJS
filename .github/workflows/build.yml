@@ -83,7 +83,8 @@ jobs:
         with:
           deploy: false  # Don't deploy yet - wait for tests to pass
           deploy-pull-request: false
-          artifactory-reader-role: private-reader
+          artifactory-reader-role: private-reader    # Override default public-reader
+          artifactory-deployer-role: qa-deployer     # Override default public-deployer
           sonar-platform: none
           maven-args: '-DskipTests'
 
