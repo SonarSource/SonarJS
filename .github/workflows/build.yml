@@ -62,6 +62,8 @@ jobs:
       - &config_npm
         uses: SonarSource/ci-github-actions/config-npm@master # dogfood
         id: config
+        with:
+          artifactory-reader-role: private-reader
       - &npm_cache
         name: Cache NPM dependencies
         uses: SonarSource/ci-github-actions/cache@v1
@@ -81,6 +83,7 @@ jobs:
         with:
           deploy: false  # Don't deploy yet - wait for tests to pass
           deploy-pull-request: false
+          artifactory-reader-role: private-reader
           sonar-platform: none
           maven-args: '-DskipTests'
 
@@ -93,6 +96,8 @@ jobs:
       - *mise
       - uses: SonarSource/ci-github-actions/config-npm@master
         id: config_eslint
+        with:
+          artifactory-reader-role: private-reader
       - *npm_cache
       - *npm_install
       - name: Build ESLint plugin
@@ -219,6 +224,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           sonar-platform: next
+          artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
   analyze_shadows:
@@ -252,6 +258,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           sonar-platform: ${{ matrix.sonar-platform }}
+          artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
   # Windows builds and tests
@@ -265,6 +272,8 @@ jobs:
       - *mise
       - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
         id: config_build_win
+        with:
+          artifactory-reader-role: private-reader
       - name: Cache NPM dependencies (Windows)
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -643,6 +652,8 @@ jobs:
         with:
           deploy: true
           deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
           sonar-platform: none
           maven-args: '-DskipTests -Dmaven.main.skip=true -Dmaven.test.skip=true'
       # Promote from QA to production repo
