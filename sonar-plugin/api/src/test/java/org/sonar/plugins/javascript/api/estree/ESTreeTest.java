@@ -40,7 +40,7 @@ class ESTreeTest {
   void test_node_subclasses() {
     Class<?> sealedClass = ESTree.Node.class;
     Class<?>[] permittedSubclasses = sealedClass.getPermittedSubclasses();
-    assertThat(permittedSubclasses).hasSize(38);
+    assertThat(permittedSubclasses).hasSize(37);
   }
 
   @Test

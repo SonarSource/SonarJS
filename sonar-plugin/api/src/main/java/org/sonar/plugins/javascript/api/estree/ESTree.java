@@ -694,9 +694,9 @@ public class ESTree {
 
   public sealed interface JSXTagNameExpression extends Node {}
 
-  public sealed interface JSXElementName extends Node {}
+  public sealed interface JSXOpeningElementAttribute extends Node {}
 
-  public sealed interface JSXAttributeOrJSXSpreadAttribute extends Node {}
+  public sealed interface JSXExpression extends JSXChild, JSXAttributeValue {}
 
   public record JSXElement(
     Location loc,
@@ -714,13 +714,13 @@ public class ESTree {
 
   public record JSXOpeningElement(
     Location loc,
-    JSXElementName name,
-    List<JSXAttributeOrJSXSpreadAttribute> attributes,
+    JSXTagNameExpression name,
+    List<JSXOpeningElementAttribute> attributes,
     boolean selfClosing,
     Optional<TSTypeParameterInstantiation> typeArguments
   ) implements Node {}
 
-  public record JSXClosingElement(Location loc, JSXElementName name) implements Node {}
+  public record JSXClosingElement(Location loc, JSXTagNameExpression name) implements Node {}
 
   public record JSXOpeningFragment(Location loc) implements Node {}
 
@@ -728,39 +728,39 @@ public class ESTree {
 
   public record JSXAttribute(
     Location loc,
-    JSXIdentifierOrJSXNamespacedName name,
+    JSXAttributeName name,
     Optional<JSXAttributeValue> value
-  ) implements JSXAttributeOrJSXSpreadAttribute {}
+  ) implements JSXOpeningElementAttribute {}
 
-  public sealed interface JSXIdentifierOrJSXNamespacedName extends Node {}
+  public sealed interface JSXAttributeName extends Node {}
 
   public record JSXIdentifier(Location loc, String name) implements
-    JSXTagNameExpression, JSXElementName, JSXIdentifierOrJSXNamespacedName {}
+    JSXTagNameExpression, JSXAttributeName {}
 
   public record JSXMemberExpression(
     Location loc,
     JSXTagNameExpression object,
     JSXIdentifier property
-  ) implements JSXTagNameExpression, JSXElementName {}
+  ) implements JSXTagNameExpression {}
 
   public record JSXNamespacedName(
     Location loc,
     JSXIdentifier name,
     JSXIdentifier namespace
-  ) implements JSXIdentifierOrJSXNamespacedName, JSXElementName {}
+  ) implements JSXAttributeName {}
 
   public record JSXSpreadAttribute(Location loc, Expression argument) implements
-    JSXAttributeOrJSXSpreadAttribute {}
+    JSXOpeningElementAttribute {}
 
   public record JSXExpressionContainer(
     Location loc,
     ExpressionOrJSXEmptyExpression expression
-  ) implements JSXChild, JSXAttributeValue {}
+  ) implements JSXExpression {}
 
   public sealed interface ExpressionOrJSXEmptyExpression extends Node {}
 
   public record JSXSpreadChild(Location loc, ExpressionOrJSXEmptyExpression expression) implements
-    JSXChild {}
+    JSXExpression {}
 
   public record JSXText(Location loc, String raw, String value) implements JSXChild {}
 

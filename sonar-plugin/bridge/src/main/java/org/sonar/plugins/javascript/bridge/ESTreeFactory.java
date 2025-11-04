@@ -1114,8 +1114,8 @@ public class ESTreeFactory {
     JSXOpeningElement jsxOpeningElement = node.getJSXOpeningElement();
     return new ESTree.JSXOpeningElement(
       fromLocation(node.getLoc()),
-      from(jsxOpeningElement.getName(), ESTree.JSXElementName.class),
-      from(jsxOpeningElement.getAttributesList(), ESTree.JSXAttributeOrJSXSpreadAttribute.class),
+      from(jsxOpeningElement.getName(), ESTree.JSXTagNameExpression.class),
+      from(jsxOpeningElement.getAttributesList(), ESTree.JSXOpeningElementAttribute.class),
       jsxOpeningElement.getSelfClosing(),
       jsxOpeningElement.hasTypeArguments()
         ? Optional.of(
@@ -1129,7 +1129,7 @@ public class ESTreeFactory {
     JSXClosingElement jsxClosingElement = node.getJSXClosingElement();
     return new ESTree.JSXClosingElement(
       fromLocation(node.getLoc()),
-      from(jsxClosingElement.getName(), ESTree.JSXElementName.class)
+      from(jsxClosingElement.getName(), ESTree.JSXTagNameExpression.class)
     );
   }
 
@@ -1145,7 +1145,7 @@ public class ESTreeFactory {
     JSXAttribute jsxAttribute = node.getJSXAttribute();
     return new ESTree.JSXAttribute(
       fromLocation(node.getLoc()),
-      from(jsxAttribute.getName(), ESTree.JSXIdentifierOrJSXNamespacedName.class),
+      from(jsxAttribute.getName(), ESTree.JSXAttributeName.class),
       jsxAttribute.hasValue()
         ? Optional.of(from(jsxAttribute.getValue(), ESTree.JSXAttributeValue.class))
         : Optional.empty()
