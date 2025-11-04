@@ -50,6 +50,18 @@ import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.ImportDefaultSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ImportExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ImportSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXAttribute;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXClosingElement;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXElement;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXExpressionContainer;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXFragment;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXIdentifier;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXMemberExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXNamespacedName;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXOpeningElement;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXSpreadAttribute;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXSpreadChild;
+import org.sonar.plugins.javascript.bridge.protobuf.JSXText;
 import org.sonar.plugins.javascript.bridge.protobuf.Literal;
 import org.sonar.plugins.javascript.bridge.protobuf.LogicalExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -962,7 +974,7 @@ class ESTreeFactoryTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "Expected class org.sonar.plugins.javascript.api.estree.ESTree$Super " +
-        "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
+          "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
       );
   }
 
@@ -996,5 +1008,366 @@ class ESTreeFactoryTest {
   private static <T> void assertNodeTypeIsParsedToExpectedClass(NodeType nodeType, Class<T> clazz) {
     Node tsTypeAliasDeclaration = Node.newBuilder().setType(nodeType).build();
     assertThat(ESTreeFactory.from(tsTypeAliasDeclaration, ESTree.Node.class)).isInstanceOf(clazz);
+  }
+
+  @Test
+  void should_create_jsx_identifier() {
+    // <MyComponent/> - the `MyComponent` part
+    JSXIdentifier jsxIdentifier = JSXIdentifier.newBuilder().setName("MyComponent").build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXIdentifierType)
+      .setJSXIdentifier(jsxIdentifier)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXIdentifier.class, jsx -> {
+      assertThat(jsx.name()).isEqualTo("MyComponent");
+    });
+  }
+
+  @Test
+  void should_create_jsx_text() {
+    // <h1>Hello, World!</h1> - the `Hello, World!` part
+    JSXText jsxText = JSXText.newBuilder()
+      .setRaw("Hello, World!")
+      .setValue("Hello, World!")
+      .build();
+    Node protobufNode = Node.newBuilder().setType(NodeType.JSXTextType).setJSXText(jsxText).build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXText.class, jsx -> {
+      assertThat(jsx.raw()).isEqualTo("Hello, World!");
+      assertThat(jsx.value()).isEqualTo("Hello, World!");
+    });
+  }
+
+  @Test
+  void should_create_jsx_empty_expression() {
+    // <div>{}</div> - the `{}` part
+    Node protobufNode = Node.newBuilder().setType(NodeType.JSXEmptyExpressionType).build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.JSXEmptyExpression.class);
+  }
+
+  @Test
+  void should_create_jsx_opening_fragment() {
+    // <>...</> - the `<>` part
+    Node protobufNode = Node.newBuilder().setType(NodeType.JSXOpeningFragmentType).build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.JSXOpeningFragment.class);
+  }
+
+  @Test
+  void should_create_jsx_closing_fragment() {
+    // <>...</> - the `</>` part
+    Node protobufNode = Node.newBuilder().setType(NodeType.JSXClosingFragmentType).build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.JSXClosingFragment.class);
+  }
+
+  @Test
+  void should_create_jsx_expression_container() {
+    // <div>{value}</div> - the `{value}` part
+    JSXExpressionContainer jsxExpressionContainer = JSXExpressionContainer.newBuilder()
+      .setExpression(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXExpressionContainerType)
+      .setJSXExpressionContainer(jsxExpressionContainer)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXExpressionContainer.class, jsx -> {
+      assertThat(jsx.expression()).isInstanceOf(ESTree.Identifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_spread_child() {
+    // <div>{...children}</div> - the `{...children}` part
+    JSXSpreadChild jsxSpreadChild = JSXSpreadChild.newBuilder()
+      .setExpression(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXSpreadChildType)
+      .setJSXSpreadChild(jsxSpreadChild)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXSpreadChild.class, jsx -> {
+      assertThat(jsx.expression()).isInstanceOf(ESTree.Identifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_spread_attribute() {
+    // <div {...props}/> - the `{...props}` part
+    JSXSpreadAttribute jsxSpreadAttribute = JSXSpreadAttribute.newBuilder()
+      .setArgument(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXSpreadAttributeType)
+      .setJSXSpreadAttribute(jsxSpreadAttribute)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXSpreadAttribute.class, jsx -> {
+      assertThat(jsx.argument()).isInstanceOf(ESTree.Identifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_member_expression() {
+    // <Foo.Bar/> - the `Foo.Bar` part
+    JSXMemberExpression jsxMemberExpression = JSXMemberExpression.newBuilder()
+      .setObject(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .setProperty(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXMemberExpressionType)
+      .setJSXMemberExpression(jsxMemberExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXMemberExpression.class, jsx -> {
+      assertThat(jsx.object()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.property()).isInstanceOf(ESTree.JSXIdentifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_namespaced_name() {
+    // <foo:bar/> - the `foo:bar` part
+    JSXNamespacedName jsxNamespacedName = JSXNamespacedName.newBuilder()
+      .setNamespace(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXNamespacedNameType)
+      .setJSXNamespacedName(jsxNamespacedName)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXNamespacedName.class, jsx -> {
+      assertThat(jsx.namespace()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_attribute_with_value() {
+    // <div id="test"/> - the `id="test"` part
+    JSXAttribute jsxAttribute = JSXAttribute.newBuilder()
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .setValue(Node.newBuilder().setType(NodeType.LiteralType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXAttributeType)
+      .setJSXAttribute(jsxAttribute)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXAttribute.class, jsx -> {
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.value()).isPresent();
+      assertThat(jsx.value().get()).isInstanceOf(ESTree.Literal.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_attribute_without_value() {
+    // <input disabled/> - the `disabled` part
+    JSXAttribute jsxAttribute = JSXAttribute.newBuilder()
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXAttributeType)
+      .setJSXAttribute(jsxAttribute)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXAttribute.class, jsx -> {
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.value()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_jsx_closing_element() {
+    // <h1>...</h1> - the `</h1>` part
+    JSXClosingElement jsxClosingElement = JSXClosingElement.newBuilder()
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXClosingElementType)
+      .setJSXClosingElement(jsxClosingElement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXClosingElement.class, jsx -> {
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_opening_element() {
+    // <h1>...</h1> - the `<h1>` part
+    JSXOpeningElement jsxOpeningElement = JSXOpeningElement.newBuilder()
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .setSelfClosing(false)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXOpeningElementType)
+      .setJSXOpeningElement(jsxOpeningElement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXOpeningElement.class, jsx -> {
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.selfClosing()).isFalse();
+      assertThat(jsx.attributes()).isEmpty();
+      assertThat(jsx.typeArguments()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_jsx_opening_element_with_type_arguments() {
+    // <Component<T> prop="value"/> - the `<Component<T> ...>` part
+    JSXOpeningElement jsxOpeningElement = JSXOpeningElement.newBuilder()
+      .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+      .setSelfClosing(true)
+      .setTypeArguments(
+        Node.newBuilder().setType(NodeType.TSTypeParameterInstantiationType).build()
+      )
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXOpeningElementType)
+      .setJSXOpeningElement(jsxOpeningElement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXOpeningElement.class, jsx -> {
+      assertThat(jsx.name()).isInstanceOf(ESTree.JSXIdentifier.class);
+      assertThat(jsx.selfClosing()).isTrue();
+      assertThat(jsx.typeArguments()).isPresent();
+      assertThat(jsx.typeArguments().get()).isInstanceOf(ESTree.TSTypeParameterInstantiation.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_element_with_closing_element() {
+    // <h1>text</h1>
+    Node openingElement = Node.newBuilder()
+      .setType(NodeType.JSXOpeningElementType)
+      .setJSXOpeningElement(
+        JSXOpeningElement.newBuilder()
+          .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+          .setSelfClosing(false)
+          .build()
+      )
+      .build();
+    Node closingElement = Node.newBuilder()
+      .setType(NodeType.JSXClosingElementType)
+      .setJSXClosingElement(
+        JSXClosingElement.newBuilder()
+          .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+          .build()
+      )
+      .build();
+    Node textChild = Node.newBuilder()
+      .setType(NodeType.JSXTextType)
+      .setJSXText(JSXText.newBuilder().setRaw("text").setValue("text").build())
+      .build();
+    JSXElement jsxElement = JSXElement.newBuilder()
+      .setOpeningElement(openingElement)
+      .setClosingElement(closingElement)
+      .addChildren(textChild)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXElementType)
+      .setJSXElement(jsxElement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXElement.class, jsx -> {
+      assertThat(jsx.openingElement()).isInstanceOf(ESTree.JSXOpeningElement.class);
+      assertThat(jsx.closingElement()).isPresent();
+      assertThat(jsx.closingElement().get()).isInstanceOf(ESTree.JSXClosingElement.class);
+      assertThat(jsx.children()).hasSize(1);
+      assertThat(jsx.children().get(0)).isInstanceOf(ESTree.JSXText.class);
+    });
+  }
+
+  @Test
+  void should_create_jsx_element_self_closing() {
+    // <Component/>
+    Node openingElement = Node.newBuilder()
+      .setType(NodeType.JSXOpeningElementType)
+      .setJSXOpeningElement(
+        JSXOpeningElement.newBuilder()
+          .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+          .setSelfClosing(true)
+          .build()
+      )
+      .build();
+    JSXElement jsxElement = JSXElement.newBuilder().setOpeningElement(openingElement).build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXElementType)
+      .setJSXElement(jsxElement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXElement.class, jsx -> {
+      assertThat(jsx.openingElement()).isInstanceOf(ESTree.JSXOpeningElement.class);
+      assertThat(jsx.closingElement()).isEmpty();
+      assertThat(jsx.children()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_jsx_fragment() {
+    // <><Element/><Element/></>
+    Node openingFragment = Node.newBuilder().setType(NodeType.JSXOpeningFragmentType).build();
+    Node closingFragment = Node.newBuilder().setType(NodeType.JSXClosingFragmentType).build();
+    Node childElement = Node.newBuilder()
+      .setType(NodeType.JSXElementType)
+      .setJSXElement(
+        JSXElement.newBuilder()
+          .setOpeningElement(
+            Node.newBuilder()
+              .setType(NodeType.JSXOpeningElementType)
+              .setJSXOpeningElement(
+                JSXOpeningElement.newBuilder()
+                  .setName(Node.newBuilder().setType(NodeType.JSXIdentifierType).build())
+                  .setSelfClosing(true)
+                  .build()
+              )
+              .build()
+          )
+          .build()
+      )
+      .build();
+    JSXFragment jsxFragment = JSXFragment.newBuilder()
+      .setOpeningFragment(openingFragment)
+      .setClosingFragment(closingFragment)
+      .addChildren(childElement)
+      .addChildren(childElement)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.JSXFragmentType)
+      .setJSXFragment(jsxFragment)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.JSXFragment.class, jsx -> {
+      assertThat(jsx.openingFragment()).isInstanceOf(ESTree.JSXOpeningFragment.class);
+      assertThat(jsx.closingFragment()).isInstanceOf(ESTree.JSXClosingFragment.class);
+      assertThat(jsx.children()).hasSize(2);
+      assertThat(jsx.children().get(0)).isInstanceOf(ESTree.JSXElement.class);
+      assertThat(jsx.children().get(1)).isInstanceOf(ESTree.JSXElement.class);
+    });
   }
 }

@@ -331,12 +331,59 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSModuleDeclaration':
       shape = visitTSModuleDeclaration(node);
       break;
+    // JSX node types
+    case 'JSXElement':
+      shape = visitJSXElement(node);
+      break;
+    case 'JSXFragment':
+      shape = visitJSXFragment(node);
+      break;
+    case 'JSXOpeningElement':
+      shape = visitJSXOpeningElement(node);
+      break;
+    case 'JSXClosingElement':
+      shape = visitJSXClosingElement(node);
+      break;
+    case 'JSXOpeningFragment':
+      shape = visitJSXOpeningFragment(node);
+      break;
+    case 'JSXClosingFragment':
+      shape = visitJSXClosingFragment(node);
+      break;
+    case 'JSXAttribute':
+      shape = visitJSXAttribute(node);
+      break;
+    case 'JSXIdentifier':
+      shape = visitJSXIdentifier(node);
+      break;
+    case 'JSXMemberExpression':
+      shape = visitJSXMemberExpression(node);
+      break;
+    case 'JSXNamespacedName':
+      shape = visitJSXNamespacedName(node);
+      break;
+    case 'JSXSpreadAttribute':
+      shape = visitJSXSpreadAttribute(node);
+      break;
+    case 'JSXExpressionContainer':
+      shape = visitJSXExpressionContainer(node);
+      break;
+    case 'JSXSpreadChild':
+      shape = visitJSXSpreadChild(node);
+      break;
+    case 'JSXText':
+      shape = visitJSXText(node);
+      break;
+    case 'JSXEmptyExpression':
+      shape = visitJSXEmptyExpression(node);
+      break;
     case 'TSTypeAliasDeclaration':
     case 'TSInterfaceDeclaration':
     case 'TSEmptyBodyFunctionExpression':
     case 'TSEnumDeclaration':
     case 'TSDeclareFunction':
     case 'TSAbstractMethodDefinition':
+    case 'TSTypeParameterInstantiation':
       shape = {};
       break;
     default:
@@ -955,4 +1002,183 @@ function visitTSParameterProperty(node: TSESTree.TSParameterProperty) {
 // Exported for testing purpose
 export function lowerCaseFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+function visitJSXElement(node: TSESTree.JSXElement) {
+  /*
+   * export interface JSXElement extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXElement;
+   *   children: JSXChild[];
+   *   closingElement: JSXClosingElement | null;
+   *   openingElement: JSXOpeningElement;
+   * }
+   */
+  return {
+    openingElement: visitNode(node.openingElement),
+    closingElement: visitNode(node.closingElement),
+    children: node.children.map(visitNode),
+  };
+}
+function visitJSXFragment(node: TSESTree.JSXFragment) {
+  /*
+   * export interface JSXFragment extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXFragment;
+   *   children: JSXChild[];
+   *   closingFragment: JSXClosingFragment;
+   *   openingFragment: JSXOpeningFragment;
+   * }
+   */
+  return {
+    openingFragment: visitNode(node.openingFragment),
+    closingFragment: visitNode(node.closingFragment),
+    children: node.children.map(visitNode),
+  };
+}
+function visitJSXOpeningElement(node: TSESTree.JSXOpeningElement) {
+  /*
+   * export interface JSXOpeningElement extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXOpeningElement;
+   *   attributes: (JSXAttribute | JSXSpreadAttribute)[];
+   *   name: JSXTagNameExpression;
+   *   selfClosing: boolean;
+   *   typeArguments: TSTypeParameterInstantiation | undefined;
+   * }
+   */
+  return {
+    name: visitNode(node.name),
+    attributes: node.attributes.map(visitNode),
+    selfClosing: node.selfClosing,
+    typeArguments: visitNode(node.typeArguments),
+  };
+}
+function visitJSXClosingElement(node: TSESTree.JSXClosingElement) {
+  /*
+   * export interface JSXClosingElement extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXClosingElement;
+   *   name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
+   * }
+   */
+  return {
+    name: visitNode(node.name),
+  };
+}
+function visitJSXOpeningFragment(_node: TSESTree.JSXOpeningFragment) {
+  /*
+   * export interface JSXOpeningFragment extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXOpeningFragment;
+   * }
+   */
+  return {};
+}
+function visitJSXClosingFragment(_node: TSESTree.JSXClosingFragment) {
+  /*
+   * export interface JSXClosingFragment extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXClosingFragment;
+   * }
+   */
+  return {};
+}
+function visitJSXAttribute(node: TSESTree.JSXAttribute) {
+  /*
+   * export interface JSXAttribute extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXAttribute;
+   *   name: JSXIdentifier | JSXNamespacedName;
+   *   value: JSXElement | JSXExpression | Literal | null;
+   * }
+   */
+  return {
+    name: visitNode(node.name),
+    value: visitNode(node.value),
+  };
+}
+function visitJSXIdentifier(node: TSESTree.JSXIdentifier) {
+  /*
+   * export interface JSXIdentifier extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXIdentifier;
+   *   name: string;
+   * }
+   */
+  return {
+    name: node.name,
+  };
+}
+function visitJSXMemberExpression(node: TSESTree.JSXMemberExpression) {
+  /*
+   * export interface JSXMemberExpression extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXMemberExpression;
+   *   object: JSXTagNameExpression;
+   *   property: JSXIdentifier;
+   * }
+   */
+  return {
+    object: visitNode(node.object),
+    property: visitNode(node.property),
+  };
+}
+function visitJSXNamespacedName(node: TSESTree.JSXNamespacedName) {
+  /*
+   * export interface JSXNamespacedName extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXNamespacedName;
+   *   name: JSXIdentifier;
+   *   namespace: JSXIdentifier;
+   * }
+   */
+  return {
+    name: visitNode(node.name),
+    namespace: visitNode(node.namespace),
+  };
+}
+function visitJSXSpreadAttribute(node: TSESTree.JSXSpreadAttribute) {
+  /*
+   * export interface JSXSpreadAttribute extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXSpreadAttribute;
+   *   argument: Expression;
+   * }
+   */
+  return {
+    argument: visitNode(node.argument),
+  };
+}
+function visitJSXExpressionContainer(node: TSESTree.JSXExpressionContainer) {
+  /*
+   * export interface JSXExpressionContainer extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXExpressionContainer;
+   *   expression: Expression | JSXEmptyExpression;
+   * }
+   */
+  return {
+    expression: visitNode(node.expression),
+  };
+}
+function visitJSXSpreadChild(node: TSESTree.JSXSpreadChild) {
+  /*
+   * export interface JSXSpreadChild extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXSpreadChild;
+   *   expression: Expression | JSXEmptyExpression;
+   * }
+   */
+  return {
+    expression: visitNode(node.expression),
+  };
+}
+function visitJSXText(node: TSESTree.JSXText) {
+  /*
+   * export interface JSXText extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXText;
+   *   raw: string;
+   *   value: string;
+   * }
+   */
+  return {
+    raw: node.raw,
+    value: node.value,
+  };
+}
+function visitJSXEmptyExpression(_node: TSESTree.JSXEmptyExpression) {
+  /*
+   * export interface JSXEmptyExpression extends BaseNode {
+   *   type: AST_NODE_TYPES.JSXEmptyExpression;
+   * }
+   */
+  return {};
 }
