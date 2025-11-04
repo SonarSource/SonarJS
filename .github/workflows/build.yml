@@ -86,7 +86,7 @@ jobs:
           artifactory-reader-role: private-reader    # Override default public-reader
           artifactory-deployer-role: qa-deployer     # Override default public-deployer
           sonar-platform: none
-          maven-args: 'clean install -DskipTests'
+          maven-args: '-DskipTests'
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
