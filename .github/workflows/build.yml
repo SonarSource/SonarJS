@@ -86,7 +86,7 @@ jobs:
           sonar-platform: none
           maven-args: '-DskipTests'
 
-  build_eslint:
+  build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
     name: Build ESLint Plugin
     permissions: *write_permissions
@@ -112,7 +112,7 @@ jobs:
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: build_eslint
+    needs: build_eslint_plugin
     permissions: &read_permissions
       id-token: write
       contents: read
@@ -622,7 +622,7 @@ jobs:
       - test_js_win
       - test_java_win
       - analyze_primary
-      - eslint_plugin
+      - test_eslint_plugin
       - plugin_qa_with_node
       - plugin_qa_without_node
       - plugin_qa_fast_with_node
