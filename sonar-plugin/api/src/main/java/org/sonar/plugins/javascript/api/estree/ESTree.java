@@ -106,8 +106,6 @@ public class ESTree {
 
   public sealed interface IdentifierOrLiteralOrTSQualifiedName extends Node {}
 
-  public sealed interface JSXAttributeValue extends Node {}
-
   public record ArrayExpression(
     Location loc,
     List<Optional<ExpressionOrSpreadElement>> elements
@@ -694,9 +692,13 @@ public class ESTree {
 
   public sealed interface JSXTagNameExpression extends Node {}
 
+  public sealed interface JSXExpression extends JSXChild, JSXAttributeValue {}
+
   public sealed interface JSXOpeningElementAttribute extends Node {}
 
-  public sealed interface JSXExpression extends JSXChild, JSXAttributeValue {}
+  public sealed interface JSXAttributeValue extends Node {}
+
+  public sealed interface ExpressionOrJSXEmptyExpression extends Node {}
 
   public record JSXElement(
     Location loc,
@@ -756,8 +758,6 @@ public class ESTree {
     Location loc,
     ExpressionOrJSXEmptyExpression expression
   ) implements JSXExpression {}
-
-  public sealed interface ExpressionOrJSXEmptyExpression extends Node {}
 
   public record JSXSpreadChild(Location loc, ExpressionOrJSXEmptyExpression expression) implements
     JSXExpression {}
