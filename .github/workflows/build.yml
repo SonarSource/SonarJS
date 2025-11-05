@@ -240,6 +240,7 @@ jobs:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
       - &config_maven
+        id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader    # Override default public-reader
@@ -334,9 +335,9 @@ jobs:
           key: orchestrator-${{ github.run_id }}
       - name: Run Plugin QA
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   plugin_qa_fast_with_node:
     runs-on: github-ubuntu-latest-s
@@ -353,8 +354,8 @@ jobs:
       - *config_maven
       - name: Run Fast Plugin QA
         run: |
-          mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   # Plugin QA jobs without Node.js
   plugin_qa_without_node:
@@ -397,9 +398,9 @@ jobs:
           key: orchestrator-${{ matrix.cache-type }}-${{ github.run_id }}
       - name: Run Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
 
@@ -428,8 +429,8 @@ jobs:
       - *config_maven
       - name: Run Fast Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
 
@@ -447,9 +448,9 @@ jobs:
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-s
@@ -464,8 +465,8 @@ jobs:
       - *config_maven
       - name: Run Fast Plugin QA on Windows
         run: |
-          mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   # Ruling tasks
   js_ts_ruling:
