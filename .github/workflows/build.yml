@@ -80,17 +80,15 @@ jobs:
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-      - &config_maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+      - &build_maven
+        uses: SonarSource/ci-github-actions/build-maven@master
         with:
-          artifactory-reader-role: private-reader    # Override default public-reader
-      - uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # 3.1.0
-        with:
-          secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
-      - &run_build
-        run: mvn deploy -T1C -e -DskipTests
+          deploy: true
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+          sonar-platform: none
+          maven-args: '-DskipTests'
 
   # Windows builds and tests
   build_win:
@@ -107,8 +105,7 @@ jobs:
       - *npm_cache
       - *npm_install
       - *maven_cache
-      - *config_maven
-      - *run_build
+      - *build_maven
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -236,7 +233,10 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - *config_maven
+      - &config_maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader    # Override default public-reader
       - name: Run Java tests with coverage
         run: mvn install -T1C -Pcoverage,coverage-report
 
