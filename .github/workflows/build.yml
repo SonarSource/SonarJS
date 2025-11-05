@@ -65,6 +65,7 @@ jobs:
           artifactory-reader-role: private-reader
       - &unset_npm_versions
         name: Unset NPM version variables for Maven
+        shell: bash
         run: |
           echo "CURRENT_VERSION=" >> $GITHUB_ENV
           echo "PROJECT_VERSION=" >> $GITHUB_ENV
@@ -269,7 +270,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
     needs: [test_js, test_java]
-    permissions: *read_permissions
+    permissions: *write_permissions
     steps:
       - *checkout
       - *mise
@@ -288,7 +289,7 @@ jobs:
     name: Analyze in ${{ matrix.platform }}
     needs: [test_js, test_java]
     if: github.event_name == 'schedule'
-    permissions: *read_permissions
+    permissions: *write_permissions
     strategy:
       matrix:
         include:
@@ -402,13 +403,13 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - name: Disable existing node
+      - &remove_node_from_path
+        name: Disable existing node
         shell: bash
         run: |
           node --version
           NODE_PATH=$(which node)
           sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
-          node --version
       - name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -448,6 +449,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *remove_node_from_path
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -Drevision=${{ steps.config-maven.outputs.project-version }}
@@ -471,6 +473,7 @@ jobs:
       - *get_licenses_token
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
+        shell: bash
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
@@ -492,6 +495,7 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - name: Run Fast Plugin QA on Windows
+        shell: bash
         run: |
           mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
           mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
@@ -513,10 +517,9 @@ jobs:
         with:
           submodules: true
       - *mise
-      - *config_npm
+      - *npm_cache
       - name: Run JS/TS Ruling
         run: |
-          npm run build:fast
           npm run ruling
       - name: Upload ruling differences
         if: failure()
