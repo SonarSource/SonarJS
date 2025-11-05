@@ -58,3 +58,5 @@ node-info.properties
 # coverage
 .nyc_output/
 lcov.info
+
+.claude
