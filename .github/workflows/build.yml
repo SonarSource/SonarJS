@@ -50,9 +50,9 @@ jobs:
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - &mise
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        uses: jdx/mise-action@v3.4.0
         with:
-          version: 2025.7.12
+          version: 2025.11.2
           mise_toml: |
             [tools]
             java = "17.0"
@@ -132,9 +132,9 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+      - uses: jdx/mise-action@v3.4.0
         with:
-          version: 2025.7.12
+          version: 2025.11.2
           mise_toml: |
             [tools]
             java = "17.0"
@@ -338,9 +338,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+      - uses: jdx/mise-action@v3.4.0
         with:
-          version: 2025.7.12
+          version: 2025.11.2
           mise_toml: |
             [tools]
             java = "17.0"
@@ -376,9 +376,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+      - uses: jdx/mise-action@v3.4.0
         with:
-          version: 2025.7.12
+          version: 2025.11.2
           mise_toml: |
             [tools]
             java = "17.0"
@@ -641,10 +641,10 @@ jobs:
     permissions: *write_permissions
     steps:
       - *checkout
-      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+      - uses: jdx/mise-action@v3.4.0
         with:
           cache_save: false
-          version: 2025.7.12
+          version: 2025.11.2
           mise_toml: |
             [tools]
             java = "17.0"
