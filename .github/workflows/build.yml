@@ -262,6 +262,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
+      - *npm_cache
       - *config_maven
       - name: Run Java tests on Windows
         run: mvn install -T1C
@@ -280,6 +281,7 @@ jobs:
       - *java_coverage_cache
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
+          deploy: false
           sonar-platform: next
           artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
@@ -314,6 +316,7 @@ jobs:
           key: java-coverage-${{ github.sha }}
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
+          deploy: false
           sonar-platform: ${{ matrix.sonar-platform }}
           artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
@@ -520,6 +523,7 @@ jobs:
       - *npm_cache
       - name: Run JS/TS Ruling
         run: |
+          npm run generate-meta
           npm run ruling
       - name: Upload ruling differences
         if: failure()
