@@ -84,6 +84,11 @@ jobs:
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader    # Override default public-reader
+      - uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # 3.1.0
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-https://repox.jfrog.io/sonarsource access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
       - &run_build
         run: mvn deploy -T1C -e -DskipTests
 
