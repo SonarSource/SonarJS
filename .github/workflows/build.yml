@@ -40,7 +40,7 @@ jobs:
           echo "Generated Node.js version matrix from package.json: $MATRIX"
 
   build:
-    runs-on: github-ubuntu-latest-s
+    runs-on: [github-ubuntu-latest-s,github-windows-latest-s]
     name: Build
     permissions: &write_permissions
       id-token: write
@@ -59,10 +59,8 @@ jobs:
             maven = "3.9"
             node = "22.11.0"
             jq = "1.8.1"
-            jfrog-cli = "2.82.0"
       - &config_npm
         uses: SonarSource/ci-github-actions/config-npm@master # dogfood
-        id: config
         with:
           artifactory-reader-role: private-reader
       - &npm_cache
@@ -80,14 +78,28 @@ jobs:
         with:
           path: .m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-      - uses: SonarSource/ci-github-actions/build-maven@master
+      - &config_maven
+        uses: SonarSource/ci-github-actions/config-maven@master
         with:
-          deploy: false  # Don't deploy yet - wait for tests to pass
-          deploy-pull-request: false
           artifactory-reader-role: private-reader    # Override default public-reader
-          artifactory-deployer-role: qa-deployer     # Override default public-deployer
-          sonar-platform: none
-          maven-args: '-DskipTests'
+      - &run_build
+        run: mvn install -T1C -e -DskipTests
+
+  # Windows builds and tests
+  build_win:
+    runs-on: github-windows-latest-s
+    name: Build on Windows
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *write_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *config_npm
+      - *npm_cache
+      - *npm_install
+      - *maven_cache
+      - *config_maven
+      - *run_build
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -133,7 +145,8 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.4.0
+      - &mise_with_matrix_node
+        uses: jdx/mise-action@v3.4.0
         with:
           version: 2025.11.2
           mise_toml: |
@@ -141,7 +154,6 @@ jobs:
             java = "17.0"
             maven = "3.9"
             jq = "1.8.1"
-            jfrog-cli = "2.82.0"
             node = "${{ matrix.node-version }}"
       - *eslint_tarball_cache
       - name: Test ESLint Plugin
@@ -265,29 +277,6 @@ jobs:
           artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
-  # Windows builds and tests
-  build_win:
-    runs-on: github-windows-latest-s
-    name: Build on Windows
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *write_permissions
-    steps:
-      - *checkout
-      - *mise
-      - uses: SonarSource/ci-github-actions/config-npm@master # dogfood
-        id: config_build_win
-        with:
-          artifactory-reader-role: private-reader
-      - name: Cache NPM dependencies (Windows)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - *npm_install
-      - *maven_cache
-      - name: Build on Windows
-        run: mvn install -T1C -e -DskipTests
-
   test_js_win:
     runs-on: windows-latest
     name: Test JavaScript on Windows
@@ -340,18 +329,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - uses: jdx/mise-action@v3.4.0
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "17.0"
-            maven = "3.9"
-            node = "22.11.0"
-            jq = "1.8.1"
-            jfrog-cli = "2.82.0"
-        env:
-          MISE_NODE_VERSION: ${{ matrix.node-version }}
+      - *mise_with_matrix_node
       - *npm_cache
       - *maven_cache
       - &orchestrator_cache_monthly
@@ -379,18 +357,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - uses: jdx/mise-action@v3.4.0
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "17.0"
-            maven = "3.9"
-            node = "22.11.0"
-            jq = "1.8.1"
-            jfrog-cli = "2.82.0"
-        env:
-          MISE_NODE_VERSION: ${{ matrix.node-version }}
+      - *mise_with_matrix_node
       - *npm_cache
       - *maven_cache
       - name: Run Fast Plugin QA
@@ -645,17 +612,7 @@ jobs:
     permissions: *write_permissions
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.4.0
-        with:
-          cache_save: false
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "17.0"
-            maven = "3.9"
-            node = "22.11.0"
-            jq = "1.8.1"
-            jfrog-cli = "2.82.0"
+      - *mise
       - *maven_cache
       # Deploy to Artifactory QA repo (now that tests passed)
       - uses: SonarSource/ci-github-actions/build-maven@master
