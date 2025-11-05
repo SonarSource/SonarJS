@@ -40,7 +40,7 @@ jobs:
           echo "Generated Node.js version matrix from package.json: $MATRIX"
 
   build:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
     permissions: &write_permissions
       id-token: write
@@ -98,7 +98,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *write_permissions
@@ -284,6 +284,7 @@ jobs:
           deploy: false
           sonar-platform: next
           artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
   analyze_shadows:
@@ -319,6 +320,7 @@ jobs:
           deploy: false
           sonar-platform: ${{ matrix.sonar-platform }}
           artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
   # Plugin QA jobs with Node.js

@@ -4,4 +4,10 @@
 *.cjs text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.json text eol=lf
 .cirrus.yml linguist-generated=true
