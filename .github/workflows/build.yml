@@ -40,7 +40,7 @@ jobs:
           echo "Generated Node.js version matrix from package.json: $MATRIX"
 
   build:
-    runs-on: [github-ubuntu-latest-s,github-windows-latest-s]
+    runs-on: github-ubuntu-latest-s
     name: Build
     permissions: &write_permissions
       id-token: write
@@ -94,6 +94,8 @@ jobs:
     steps:
       - *checkout
       - *mise
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
       - *config_npm
       - *npm_cache
       - *npm_install
