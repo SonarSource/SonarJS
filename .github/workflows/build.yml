@@ -85,7 +85,7 @@ jobs:
         with:
           artifactory-reader-role: private-reader    # Override default public-reader
       - &run_build
-        run: mvn install -T1C -e -DskipTests
+        run: mvn deploy -T1C -e -DskipTests
 
   # Windows builds and tests
   build_win:
@@ -113,6 +113,7 @@ jobs:
     steps:
       - *checkout
       - *mise
+      - *config_npm
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -223,6 +224,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
+      - *npm_cache
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
@@ -574,17 +576,6 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
-      # Deploy to Artifactory QA repo (now that tests passed)
-      - uses: SonarSource/ci-github-actions/build-maven@master
-        with:
-          deploy: true
-          deploy-pull-request: true
-          artifactory-reader-role: private-reader
-          artifactory-deployer-role: qa-deployer
-          sonar-platform: none
-          maven-args: '-DskipTests -Dmaven.main.skip=true -Dmaven.test.skip=true'
-      # Promote from QA to production repo
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
           promote-pull-request: true
