@@ -63,6 +63,11 @@ jobs:
         uses: SonarSource/ci-github-actions/config-npm@master # dogfood
         with:
           artifactory-reader-role: private-reader
+      - &unset_npm_versions
+        name: Unset NPM version variables for Maven
+        run: |
+          echo "CURRENT_VERSION=" >> $GITHUB_ENV
+          echo "PROJECT_VERSION=" >> $GITHUB_ENV
       - &npm_cache
         name: Cache NPM dependencies
         id: npm-cache
@@ -102,6 +107,7 @@ jobs:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
       - *config_npm
+      - *unset_npm_versions
       - *npm_cache
       - *npm_install
       - *maven_cache
