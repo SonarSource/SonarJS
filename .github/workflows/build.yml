@@ -224,7 +224,7 @@ jobs:
           npm run bridge:test:js
 
   test_java:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: Test Java
     needs: build
     permissions: *read_permissions
@@ -248,7 +248,7 @@ jobs:
         run: mvn install -T1C -Pcoverage,coverage-report
 
   test_java_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Test Java on Windows
     needs: build_win
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -315,7 +315,7 @@ jobs:
 
   # Plugin QA jobs with Node.js
   plugin_qa_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -340,7 +340,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   plugin_qa_fast_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -359,7 +359,7 @@ jobs:
 
   # Plugin QA jobs without Node.js
   plugin_qa_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -405,7 +405,7 @@ jobs:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
 
   plugin_qa_fast_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -435,7 +435,7 @@ jobs:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
 
   plugin_qa_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: QA on Windows
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -453,7 +453,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
 
   plugin_qa_win_fast_with_node:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -470,7 +470,7 @@ jobs:
 
   # Ruling tasks
   js_ts_ruling:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -495,7 +495,7 @@ jobs:
           path: packages/ruling/actual/jsts/
 
   ruling:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: Ruling Test
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -517,7 +517,7 @@ jobs:
           path: its/ruling/target/actual/jsts/
 
   css_ruling:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-ubuntu-latest-m
     name: CSS Ruling
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -564,7 +564,7 @@ jobs:
           shadow1_platform: ${{ matrix.shadow-platform }}
 
   deploy_and_promote:
-    runs-on: sonar-xs
+    runs-on: github-ubuntu-latest-s
     name: Deploy and promote artifacts
     needs:
       - build
