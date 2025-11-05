@@ -107,6 +107,10 @@ jobs:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
       - *config_npm
+      - name: Remove .actions folder
+        shell: bash
+        run: |
+          rm -rf ".actions"
       - *unset_npm_versions
       - *npm_cache
       - *npm_install
