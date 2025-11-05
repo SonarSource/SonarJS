@@ -41,7 +41,7 @@ jobs:
 
   build:
     runs-on: github-ubuntu-latest-s
-    name: Build
+    name: Build SonarJS on Linux
     permissions: &write_permissions
       id-token: write
       contents: write
@@ -88,7 +88,7 @@ jobs:
   # Windows builds and tests
   build_win:
     runs-on: github-windows-latest-s
-    name: Build on Windows
+    name: Build SonarJS on Windows
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *write_permissions
     steps:
@@ -105,17 +105,13 @@ jobs:
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
+    needs: build
     name: Build ESLint Plugin
     permissions: *write_permissions
     steps:
       - *checkout
       - *mise
-      - uses: SonarSource/ci-github-actions/config-npm@master
-        id: config_eslint
-        with:
-          artifactory-reader-role: private-reader
       - *npm_cache
-      - *npm_install
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
       - &eslint_tarball_cache
@@ -188,17 +184,33 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - name: Run JS tests with coverage
-        run: |
-          npm run generate-meta
-          npm run bridge:compile
-          npm run bridge:test:cov
       - &js_coverage_cache
         name: Cache JS coverage
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: coverage/js
           key: js-coverage-${{ github.sha }}
+      - name: Run JS tests with coverage
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          npm run bridge:test:cov
+
+  test_js_win:
+    runs-on: github-windows-latest-s
+    name: Test JavaScript on Windows
+    needs: build_win
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - name: Run JS tests on Windows
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          npm run bridge:test:js
 
   test_java:
     runs-on: github-ubuntu-latest-s
@@ -208,16 +220,30 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *npm_cache
       - *maven_cache
-      - name: Run Java tests with coverage
-        run: mvn install -T1C -Pcoverage,coverage-report
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
+      - *config_maven
+      - name: Run Java tests with coverage
+        run: mvn install -T1C -Pcoverage,coverage-report
+
+  test_java_win:
+    runs-on: github-windows-latest-s
+    name: Test Java on Windows
+    needs: build_win
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *maven_cache
+      - *config_maven
+      - name: Run Java tests on Windows
+        run: mvn install -T1C
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
@@ -229,16 +255,8 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - name: Restore JS coverage
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: coverage/js
-          key: js-coverage-${{ github.sha }}
-      - name: Restore Java coverage
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: coverage/java
-          key: java-coverage-${{ github.sha }}
+      - *js_coverage_cache
+      - *java_coverage_cache
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           sonar-platform: next
@@ -279,44 +297,6 @@ jobs:
           artifactory-reader-role: private-reader
           maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
 
-  test_js_win:
-    runs-on: windows-latest
-    name: Test JavaScript on Windows
-    needs: build_win
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - name: Cache NPM dependencies (Windows)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - name: Run JS tests on Windows
-        run: |
-          npm run generate-meta
-          npm run bridge:compile
-          npm run bridge:test:js
-
-  test_java_win:
-    runs-on: windows-latest
-    name: Test Java on Windows
-    needs: build_win
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - name: Cache NPM dependencies (Windows)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - *maven_cache
-      - name: Run Java tests on Windows
-        run: mvn install -T1C
-
   # Plugin QA jobs with Node.js
   plugin_qa_with_node:
     runs-on: github-ubuntu-latest-s
@@ -327,13 +307,10 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise_with_matrix_node
-      - *npm_cache
       - *maven_cache
+      - *config_maven
       - &orchestrator_cache_monthly
         name: Cache Orchestrator (monthly)
         uses: SonarSource/ci-github-actions/cache@v1
@@ -355,13 +332,10 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise_with_matrix_node
-      - *npm_cache
       - *maven_cache
+      - *config_maven
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -390,13 +364,17 @@ jobs:
             artifact: multi
             cache-type: daily
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise
-      - *npm_cache
       - *maven_cache
+      - *config_maven
+      - name: Disable existing node
+        shell: bash
+        run: |
+          node --version
+          NODE_PATH=$(which node)
+          sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
+          node --version
       - name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -429,13 +407,10 @@ jobs:
             sq-version: DEV
             artifact: multi
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise
-      - *npm_cache
       - *maven_cache
+      - *config_maven
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
@@ -444,23 +419,16 @@ jobs:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
 
   plugin_qa_win:
-    runs-on: windows-latest
+    runs-on: github-windows-latest-s
     name: QA on Windows
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise
-      - name: Cache NPM dependencies (Windows)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
       - *maven_cache
+      - *config_maven
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
         run: |
@@ -469,23 +437,16 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
 
   plugin_qa_win_fast_with_node:
-    runs-on: windows-latest
+    runs-on: github-windows-latest-s
     name: Fast QA on Windows with Node
     needs: build
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout
       - *mise
-      - name: Cache NPM dependencies (Windows)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-win-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
       - *maven_cache
+      - *config_maven
       - name: Run Fast Plugin QA on Windows
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -499,13 +460,13 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - name: Checkout source code
+      - &checkout_with_submodules
+        name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
       - *mise
-      - *npm_cache
-      - *maven_cache
+      - *config_npm
       - name: Run JS/TS Ruling
         run: |
           npm run build:fast
@@ -524,12 +485,10 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout_with_submodules
       - *mise
       - *maven_cache
+      - *config_maven
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -548,12 +507,10 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          submodules: true
+      - *checkout_with_submodules
       - *mise
       - *maven_cache
+      - *config_maven
       - *orchestrator_cache_monthly
       - name: Run CSS Ruling
         run: |
