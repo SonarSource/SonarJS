@@ -58,6 +58,7 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "22.11.0"
+            jq = "1.8.1"
       - &config_npm
         uses: SonarSource/ci-github-actions/config-npm@master # dogfood
         id: config
@@ -138,6 +139,7 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
+            jq = "1.8.1"
             node = "${{ matrix.node-version }}"
       - *eslint_tarball_cache
       - name: Test ESLint Plugin
@@ -263,7 +265,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: windows-latest
+    runs-on: github-windows-latest-s
     name: Build on Windows
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *write_permissions
@@ -344,6 +346,7 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "22.11.0"
+            jq = "1.8.1"
         env:
           MISE_NODE_VERSION: ${{ matrix.node-version }}
       - *npm_cache
@@ -381,6 +384,7 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "22.11.0"
+            jq = "1.8.1"
         env:
           MISE_NODE_VERSION: ${{ matrix.node-version }}
       - *npm_cache
@@ -646,6 +650,7 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "22.11.0"
+            jq = "1.8.1"
       - *maven_cache
       # Deploy to Artifactory QA repo (now that tests passed)
       - uses: SonarSource/ci-github-actions/build-maven@master
