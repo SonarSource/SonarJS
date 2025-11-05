@@ -65,18 +65,20 @@ jobs:
           artifactory-reader-role: private-reader
       - &npm_cache
         name: Cache NPM dependencies
+        id: npm-cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
       - &npm_install
         name: Install NPM dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
       - &maven_cache
         name: Cache Maven repository
         uses: SonarSource/ci-github-actions/cache@v1
         with:
-          path: .m2/repository
+          path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
       - &config_maven
         uses: SonarSource/ci-github-actions/config-maven@master
