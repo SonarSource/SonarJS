@@ -327,6 +327,12 @@ jobs:
       - *mise_with_matrix_node
       - *maven_cache
       - *config_maven
+      - &get_licenses_token
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/licenses-ro token | licenses_token;
       - &orchestrator_cache_monthly
         name: Cache Orchestrator (monthly)
         uses: SonarSource/ci-github-actions/cache@v1
@@ -340,6 +346,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
     runs-on: github-ubuntu-latest-m
@@ -354,12 +361,14 @@ jobs:
       - *mise_with_matrix_node
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
           mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   # Plugin QA jobs without Node.js
   plugin_qa_without_node:
@@ -388,6 +397,7 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - name: Disable existing node
         shell: bash
         run: |
@@ -408,6 +418,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-m
@@ -432,6 +443,7 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -Drevision=${{ steps.config-maven.outputs.project-version }}
@@ -439,6 +451,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
     runs-on: github-windows-latest-m
@@ -451,6 +464,7 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
         run: |
@@ -459,6 +473,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
@@ -471,12 +486,14 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - name: Run Fast Plugin QA on Windows
         run: |
           mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
           mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   # Ruling tasks
   js_ts_ruling:
@@ -515,12 +532,14 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - name: Run Ruling Tests
         run: |
           cd its/ruling
           mvn test -Dtest=JsTsRulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
         uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
@@ -539,6 +558,7 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
+      - *get_licenses_token
       - *orchestrator_cache_monthly
       - name: Run CSS Ruling
         run: |
@@ -546,6 +566,7 @@ jobs:
           mvn test -DskipTests=false -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
         env:
           SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
         uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
