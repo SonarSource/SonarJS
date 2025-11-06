@@ -550,7 +550,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows
-    needs: build
+    needs: build_win
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -573,7 +573,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
-    needs: build
+    needs: build_win
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
