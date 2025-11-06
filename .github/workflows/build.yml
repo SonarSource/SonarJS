@@ -95,6 +95,15 @@ jobs:
           artifactory-deployer-role: qa-deployer
           sonar-platform: none
           maven-args: '-DskipTests -T1C'
+      - &upload_maven_targets
+        name: Upload Maven target artifacts
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+          path: |
+            **/target/
+            !**/target/site/
+          retention-days: 1
 
   # Windows builds and tests
   build_win:
@@ -117,6 +126,7 @@ jobs:
       - *npm_install
       - *maven_cache
       - *build_maven
+      - *upload_maven_targets
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -238,6 +248,17 @@ jobs:
       - *mise
       - *maven_cache
       - *npm_cache
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+      - &prevent_recompilation
+        name: Fix timestamps to prevent recompilation
+        shell: bash
+        run: |
+          # Make all class files and jars newer than source files to prevent Maven from recompiling
+          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
@@ -250,7 +271,7 @@ jobs:
         with:
           artifactory-reader-role: private-reader    # Override default public-reader
       - name: Run Java tests with coverage
-        run: mvn install -T1C -Pcoverage,coverage-report
+        run: mvn test -T1C -Pcoverage,coverage-report
 
   test_java_win:
     runs-on: github-windows-latest-m
@@ -263,14 +284,16 @@ jobs:
       - *mise
       - *maven_cache
       - *npm_cache
+      - *download_maven_targets
+      - *prevent_recompilation
       - *config_maven
       - name: Run Java tests on Windows
-        run: mvn install -T1C
+        run: mvn test -T1C
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [test_js, test_java]
+    needs: [test_js, test_java, build]
     permissions: *write_permissions
     steps:
       - *checkout
@@ -279,18 +302,46 @@ jobs:
       - *maven_cache
       - *js_coverage_cache
       - *java_coverage_cache
-      - uses: SonarSource/ci-github-actions/build-maven@master
+      - *download_maven_targets
+      - *prevent_recompilation
+      - &config_maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
         with:
-          deploy: false
-          sonar-platform: next
           artifactory-reader-role: private-reader
-          artifactory-deployer-role: qa-deployer
-          maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/next url | NEXT_URL;
+            development/kv/data/next token | NEXT_TOKEN;
+      - name: Run SonarQube analysis
+        env:
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).NEXT_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).NEXT_TOKEN }}
+        run: |
+          SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=org.sonarsource.javascript:javascript"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          SONAR_ARGS="$SONAR_ARGS -Dcommercial"
+
+          # Add branch/PR information
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.branch=${{ github.head_ref }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.base=${{ github.base_ref }}"
+          else
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
+          fi
+
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [test_js, test_java]
+    needs: [test_js, test_java, build]
     if: github.event_name == 'schedule'
     permissions: *write_permissions
     strategy:
@@ -315,13 +366,41 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - uses: SonarSource/ci-github-actions/build-maven@master
+      - *download_maven_targets
+      - *prevent_recompilation
+      - id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
         with:
-          deploy: false
-          sonar-platform: ${{ matrix.sonar-platform }}
           artifactory-reader-role: private-reader
-          artifactory-deployer-role: qa-deployer
-          maven-args: '-P-deploy-sonarsource,-release,-sign -Dsonar.organization=sonarsource -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -DskipTests'
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/${{ matrix.sonar-platform }} url | SONAR_URL;
+            development/kv/data/${{ matrix.sonar-platform }} token | SONAR_TOKEN;
+      - name: Run SonarQube analysis on ${{ matrix.platform }}
+        env:
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+        run: |
+          SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=SonarSource_SonarJS"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.organization=sonarsource"
+          SONAR_ARGS="$SONAR_ARGS -Dcommercial"
+
+          # Add branch/PR information
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.branch=${{ github.head_ref }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.base=${{ github.base_ref }}"
+          else
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
+          fi
+
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   # Plugin QA jobs with Node.js
   plugin_qa_with_node:
@@ -611,7 +690,7 @@ jobs:
           shadow1_project_key: SonarSource_SonarJS
           shadow1_platform: ${{ matrix.shadow-platform }}
 
-  deploy_and_promote:
+  promote:
     runs-on: github-ubuntu-latest-s
     name: Deploy and promote artifacts
     needs:
