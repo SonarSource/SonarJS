@@ -125,7 +125,13 @@ jobs:
       - *npm_cache
       - *npm_install
       - *maven_cache
-      - *build_maven
+      - name: Build Maven (no deploy)
+        uses: SonarSource/ci-github-actions/build-maven@master
+        with:
+          deploy: false
+          artifactory-reader-role: private-reader
+          sonar-platform: none
+          maven-args: '-DskipTests -T1C'
       - *upload_maven_targets
 
   build_eslint_plugin:
