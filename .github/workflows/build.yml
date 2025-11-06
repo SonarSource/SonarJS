@@ -59,10 +59,17 @@ jobs:
             maven = "3.9"
             node = "22.11.0"
             jq = "1.8.1"
-      - &config_npm
-        uses: SonarSource/ci-github-actions/config-npm@master # dogfood
+      - &secret_npm
+        uses: SonarSource/vault-action-wrapper@v3
+        id: secrets
         with:
-          artifactory-reader-role: private-reader
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - &config_npm
+        name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - &unset_npm_versions
         name: Unset NPM version variables for Maven
         shell: bash
@@ -114,13 +121,8 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v4
+      - *secret_npm
       - *config_npm
-      - name: Remove .actions folder
-        shell: bash
-        run: |
-          rm -rf ".actions"
       - *unset_npm_versions
       - *npm_cache
       - *npm_install
@@ -143,6 +145,7 @@ jobs:
     steps:
       - *checkout
       - *mise
+      - *secret_npm
       - *config_npm
       - *npm_cache
       - name: Build ESLint plugin
@@ -304,7 +307,7 @@ jobs:
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [test_js, test_java, build]
+    needs: [test_js, test_java]
     permissions: *write_permissions
     steps:
       - *checkout
@@ -315,21 +318,17 @@ jobs:
       - *java_coverage_cache
       - *download_maven_targets
       - *prevent_recompilation
-      - &config_maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
+      - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
-            development/kv/data/next url | NEXT_URL;
-            development/kv/data/next token | NEXT_TOKEN;
-      - name: Run SonarQube analysis
+            development/kv/data/next url | SONAR_URL;
+            development/kv/data/next token | SONAR_TOKEN;
+      - name: Run SonarQube analysis on Next
         env:
-          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).NEXT_URL }}
-          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).NEXT_TOKEN }}
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
         run: |
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
@@ -352,7 +351,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [test_js, test_java, build]
+    needs: [test_js, test_java]
     if: github.event_name == 'schedule'
     permissions: *write_permissions
     strategy:
@@ -367,22 +366,11 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - name: Restore JS coverage
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: coverage/js
-          key: js-coverage-${{ github.sha }}
-      - name: Restore Java coverage
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: coverage/java
-          key: java-coverage-${{ github.sha }}
+      - *js_coverage_cache
+      - *java_coverage_cache
       - *download_maven_targets
       - *prevent_recompilation
-      - id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
+      - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -441,9 +429,9 @@ jobs:
           key: orchestrator-${{ github.run_id }}
       - name: Run Plugin QA
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -464,8 +452,8 @@ jobs:
       - *get_licenses_token
       - name: Run Fast Plugin QA
         run: |
-          mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -512,9 +500,9 @@ jobs:
           key: orchestrator-${{ matrix.cache-type }}-${{ github.run_id }}
       - name: Run Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
@@ -547,8 +535,8 @@ jobs:
       - *remove_node_from_path
       - name: Run Fast Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
@@ -570,9 +558,9 @@ jobs:
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -592,8 +580,8 @@ jobs:
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
-          mvn package -f its/plugin/plugins/pom.xml -Drevision=${{ steps.config-maven.outputs.project-version }}
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -639,7 +627,7 @@ jobs:
       - name: Run Ruling Tests
         run: |
           cd its/ruling
-          mvn test -Dtest=JsTsRulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+          mvn test -Dtest=JsTsRulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -666,7 +654,7 @@ jobs:
       - name: Run CSS Ruling
         run: |
           cd its/ruling
-          mvn test -DskipTests=false -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Drevision=${{ steps.config-maven.outputs.project-version }} -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+          mvn test -DskipTests=false -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -703,7 +691,6 @@ jobs:
 
   promote:
     runs-on: github-ubuntu-latest-s
-    name: Deploy and promote artifacts
     needs:
       - build
       - test_js
