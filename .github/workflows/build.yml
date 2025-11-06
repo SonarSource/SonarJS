@@ -94,7 +94,7 @@ jobs:
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
           sonar-platform: none
-          maven-args: '-DskipTests'
+          maven-args: '-DskipTests -1TC'
 
   # Windows builds and tests
   build_win:
@@ -179,7 +179,7 @@ jobs:
 
   knip:
     runs-on: github-ubuntu-latest-s
-    name: Knip - Check unused dependencies
+    name: Knip
     needs: build
     permissions: *read_permissions
     steps:
@@ -192,8 +192,8 @@ jobs:
           npx knip
 
   test_js:
-    runs-on: github-ubuntu-latest-s
-    name: Test JavaScript/TypeScript
+    runs-on: github-ubuntu-latest-m
+    name: Unit tests JavaScript/TypeScript
     needs: build
     permissions: *read_permissions
     steps:
@@ -213,8 +213,8 @@ jobs:
           npm run bridge:test:cov
 
   test_js_win:
-    runs-on: github-windows-latest-s
-    name: Test JavaScript on Windows
+    runs-on: github-windows-latest-m
+    name: Unit tests JavaScript on Windows
     needs: build_win
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
@@ -230,7 +230,7 @@ jobs:
 
   test_java:
     runs-on: github-ubuntu-latest-m
-    name: Test Java
+    name: Unit tests Java
     needs: build
     permissions: *read_permissions
     steps:
@@ -254,7 +254,7 @@ jobs:
 
   test_java_win:
     runs-on: github-windows-latest-m
-    name: Test Java on Windows
+    name: Unit tests Java on Windows
     needs: build_win
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
