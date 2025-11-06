@@ -607,7 +607,7 @@ jobs:
           npm run ruling
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ruling-differences-jsts
           path: packages/ruling/actual/jsts/
@@ -633,7 +633,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ruling-differences
           path: its/ruling/target/actual/jsts/
@@ -660,7 +660,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ruling-differences-css
           path: its/ruling/target/actual/
