@@ -130,6 +130,7 @@ jobs:
         with:
           deploy: false
           artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
           sonar-platform: none
           maven-args: '-DskipTests -T1C'
       - *upload_maven_targets
