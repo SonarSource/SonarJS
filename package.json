@@ -27,7 +27,6 @@
     "plugin:build": "mvn install",
     "plugin:build:fast": "mvn install -DskipTests",
     "pbf": "npm run plugin:build:fast",
-    "td": "npm run generate-meta && npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
@@ -96,8 +95,7 @@
     "pretty-quick": "4.2.2",
     "rimraf": "6.1.0",
     "tsx": "4.20.6",
-    "type-fest": "5.2.0",
-    "typedoc": "0.28.14"
+    "type-fest": "5.2.0"
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "20.5.1",

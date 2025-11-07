@@ -141,7 +141,6 @@ It will also update some files which are not tracked by Git as they are automati
      ```
 4. Implement the rule logic in `S1234/rule.ts`
    - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   - Note that there are some helper functions in `src/rules/helpers/`, also [searchable online](https://sonarsource.github.io/SonarJS/typedoc/)
    - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
 
 5. If possible, implement quick fixes for the rule:
