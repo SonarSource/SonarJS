@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,10 +56,10 @@ public class NodeVersion {
     if (exitValue != 0) {
       throw new NodeCommandException(
         "Failed to determine the version of Node.js, exit value " +
-        exitValue +
-        ". Executed: '" +
-        nodeCommand +
-        "'"
+          exitValue +
+          ". Executed: '" +
+          nodeCommand +
+          "'"
       );
     }
     return output.toString();

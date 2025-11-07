@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -204,7 +204,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("Maximum size of analyzed files")
         .description(
           "Threshold for the maximum size of analyzed files (in kilobytes). " +
-          "Files that are larger are excluded from the analysis."
+            "Files that are larger are excluded from the analysis."
         )
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
@@ -226,9 +226,9 @@ public class JavaScriptPlugin implements Plugin {
         .name("JavaScript execution environments")
         .description(
           "List of environments names. The analyzer automatically adds global variables based on that list. " +
-          "Available environment names: " +
-          String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) +
-          "."
+            "Available environment names: " +
+            String.join(", ", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE) +
+            "."
         )
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
