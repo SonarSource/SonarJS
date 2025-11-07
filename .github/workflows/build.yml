@@ -57,7 +57,7 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
-            node = "22.11.0"
+            node = "24.11.0"
             jq = "1.8.1"
       - &secret_npm
         uses: SonarSource/vault-action-wrapper@v3
