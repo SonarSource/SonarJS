@@ -16,20 +16,84 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
+
+import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
+import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonarsource.scanner.integrationtester.dsl.ActiveRule;
+import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
-import shadow.com.sonar.orchestrator.locator.FileLocation;
-import shadow.com.sonar.orchestrator.locator.MavenLocation;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 public final class SonarScannerIntegrationHelper {
 
   static final String LITS_VERSION = "0.11.0.2659";
+
+  public static SonarServerContext getContext(
+    List<String> languages,
+    List<Location> pluginLocations,
+    List<Path> profiles
+  ) {
+    var builder = SonarServerContext.builder()
+      .withProduct(SonarServerContext.Product.SERVER)
+      .withEngineVersion(EngineVersion.latestMasterBuild());
+    for (var pluginLocation : pluginLocations) {
+      builder.withPlugin(pluginLocation);
+    }
+    for (var language : languages) {
+      switch (language) {
+        case TypeScriptLanguage.KEY:
+          builder.withLanguage(
+            TypeScriptLanguage.KEY,
+            "TYPESCRIPT",
+            TypeScriptLanguage.FILE_SUFFIXES_KEY,
+            TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
+          );
+          break;
+        case JavaScriptLanguage.KEY:
+          builder.withLanguage(
+            JavaScriptLanguage.KEY,
+            "JAVASCRIPT",
+            JavaScriptLanguage.FILE_SUFFIXES_KEY,
+            JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+          );
+          break;
+        case CssLanguage.KEY:
+          builder.withLanguage(
+            CssLanguage.KEY,
+            "CSS",
+            CssLanguage.FILE_SUFFIXES_KEY,
+            CssLanguage.DEFAULT_FILE_SUFFIXES
+          );
+          break;
+        case "web":
+          builder.withLanguage("web", "WEB", "sonar.html.file.suffixes", ".html");
+          break;
+        case YamlSensor.LANGUAGE:
+          builder.withLanguage(YamlSensor.LANGUAGE, "YAML", ".yaml");
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown language: " + language);
+      }
+    }
+    var projectContext = SonarProjectContext.builder();
+    for (var profilePath : profiles) {
+      projectContext.withActiveRules(loadActiveRulesFromXmlProfile(profilePath));
+    }
+    return builder.withProjectContext(projectContext.build()).build();
+  }
 
   public static FileLocation getJavascriptPlugin() {
     return FileLocation.byWildcardMavenFilename(
@@ -50,7 +114,7 @@ public final class SonarScannerIntegrationHelper {
     return MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION);
   }
 
-  public static List<SonarServerContext.ActiveRule> getAllCSSRules() {
+  public static List<ActiveRule> getAllCSSRules() {
     return CssRules.getRuleClasses()
       .stream()
       .map(cssClass -> {
@@ -58,27 +122,21 @@ public final class SonarScannerIntegrationHelper {
         var params = Arrays.stream(cssClass.getDeclaredFields())
           .flatMap(field ->
             Arrays.stream(field.getAnnotationsByType(RuleProperty.class)).map(ruleProperty ->
-              new SonarServerContext.ActiveRule.Param(
-                ruleProperty.key(),
-                ruleProperty.defaultValue()
-              )
+              new ActiveRule.Param(ruleProperty.key(), ruleProperty.defaultValue())
             )
           )
           .toList();
         if (key.equals("S4660")) {
-          params = List.of(
-            new SonarServerContext.ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/")
-          );
+          params = List.of(new ActiveRule.Param("ignorePseudoElements", "ng-deep, /^custom-/"));
         }
 
-        return new SonarServerContext.ActiveRule(
-          new SonarServerContext.ActiveRule.RuleKey(CssLanguage.KEY, key),
-          key,
-          SonarServerContext.ActiveRule.Severity.INFO,
-          CssLanguage.KEY,
-          null,
-          params
-        );
+        return new ActiveRule.Builder()
+          .withLanguageKey(CssLanguage.KEY)
+          .withName(key)
+          .withKey(CssLanguage.KEY, key)
+          .withSeverity(ActiveRule.Severity.INFO)
+          .withParameters(params)
+          .build();
       })
       .toList();
   }

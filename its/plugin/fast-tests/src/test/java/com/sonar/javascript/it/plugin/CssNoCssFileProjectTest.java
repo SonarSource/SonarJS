@@ -16,13 +16,13 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.SonarScannerIntegrationHelper.getAllCSSRules;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,11 @@ class CssNoCssFileProjectTest {
     .withEngineVersion(EngineVersion.latestRelease())
     .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withActiveRules(getAllCSSRules())
+    .withProjectContext(
+      SonarProjectContext.builder()
+        .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+        .build()
+    )
     .build();
 
   @Test

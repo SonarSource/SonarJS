@@ -16,11 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
@@ -32,19 +30,15 @@ import org.junit.jupiter.api.Test;
 
 class HtmlAnalysisTest {
 
-  private SonarServerContext getServerContext(List<String> profiles) {
-    var result = SonarServerContext.builder()
-      .withProduct(SonarServerContext.Product.SERVER)
-      .withEngineVersion(EngineVersion.latestMasterBuild())
-      .withLanguage("web", "HTML", "sonar.html.file.suffixes", ".html")
-      .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-      .withPlugin(SonarScannerIntegrationHelper.getHtmlPlugin());
-    for (var profile : profiles) {
-      result.withActiveRules(
-        loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", profile))
-      );
-    }
-    return result.build();
+  private SonarServerContext getServerContext(List<Path> profiles) {
+    return SonarScannerIntegrationHelper.getContext(
+      List.of("web"),
+      List.of(
+        SonarScannerIntegrationHelper.getJavascriptPlugin(),
+        SonarScannerIntegrationHelper.getHtmlPlugin()
+      ),
+      profiles
+    );
   }
 
   @Test
@@ -56,7 +50,12 @@ class HtmlAnalysisTest {
       .withScmDisabled()
       .build();
 
-    var serverContext = getServerContext(List.of("html-profile.xml", "eslint-based-rules.xml"));
+    var serverContext = getServerContext(
+      List.of(
+        Path.of("src", "test", "resources", "html-profile.xml"),
+        Path.of("src", "test", "resources", "eslint-based-rules.xml")
+      )
+    );
     var result = ScannerRunner.run(serverContext, build);
     var issues = result
       .scannerOutputReader()
@@ -89,7 +88,12 @@ class HtmlAnalysisTest {
       .withScmDisabled()
       .build();
 
-    var serverContext = getServerContext(List.of("html-blacklist-profile.xml", "html-profile.xml"));
+    var serverContext = getServerContext(
+      List.of(
+        Path.of("src", "test", "resources", "html-blacklist-profile.xml"),
+        Path.of("src", "test", "resources", "html-profile.xml")
+      )
+    );
     var result = ScannerRunner.run(serverContext, build);
     var issues = result
       .scannerOutputReader()

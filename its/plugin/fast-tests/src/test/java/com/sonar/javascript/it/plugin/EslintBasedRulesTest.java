@@ -17,8 +17,6 @@
 package com.sonar.javascript.it.plugin;
 
 import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -26,10 +24,9 @@ import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,38 +34,20 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 class EslintBasedRulesTest {
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY),
+    List.of(SonarScannerIntegrationHelper.getJavascriptPlugin()),
+    List.of(
+      Path.of("src", "test", "resources", "eslint-based-rules.xml"),
+      Path.of("src", "test", "resources", "ts-eslint-based-rules.xml")
     )
-    .withLanguage(
-      TypeScriptLanguage.KEY,
-      "TYPESCRIPT",
-      TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "ts-eslint-based-rules.xml")
-      )
-    )
-    .build();
+  );
 
   @Test
   void test_without_ts() {
@@ -354,7 +333,11 @@ class EslintBasedRulesTest {
         TypeScriptLanguage.FILE_SUFFIXES_KEY,
         TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
       )
-      .withActiveRules(loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", xml)))
+      .withProjectContext(
+        SonarProjectContext.builder()
+          .withActiveRules(loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", xml)))
+          .build()
+      )
       .build();
   }
 }
