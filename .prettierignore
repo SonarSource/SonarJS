@@ -28,7 +28,4 @@ sonar-plugin/javascript-checks/src/main/resources
 sonar-plugin/sonar-javascript-plugin/target
 sonar-plugin/sonar-javascript-plugin/src/test/resources
 
-typedoc/site
-typedoc/models
-
 tools/fetch-node/downloads
