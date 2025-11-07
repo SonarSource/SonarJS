@@ -8,6 +8,8 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -350,6 +352,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
     needs: [test_js, test_java]
+    if: github.event_name == 'schedule'
     permissions: *write_permissions
     strategy:
       matrix:
@@ -667,6 +670,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
     needs: [analyze_primary, analyze_shadows]
+    if: github.event_name == 'schedule'
     permissions:
       id-token: write
       contents: read
