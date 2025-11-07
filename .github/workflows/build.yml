@@ -490,9 +490,19 @@ jobs:
         name: Disable existing node
         shell: bash
         run: |
-          node --version
-          NODE_PATH=$(which node)
-          sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
+          # Disable all node binaries in PATH
+          while NODE_PATH=$(which node 2>/dev/null); do
+            echo "Disabling node at: $NODE_PATH"
+            sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
+          done
+
+          # Verify node is no longer accessible
+          if which node 2>/dev/null; then
+            echo "ERROR: node is still accessible!"
+            exit 1
+          else
+            echo "SUCCESS: node is no longer accessible"
+          fi
       - name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
         with:
