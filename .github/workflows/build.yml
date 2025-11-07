@@ -358,9 +358,9 @@ jobs:
       matrix:
         include:
           - platform: SonarCloud EU
-            sonar-platform: sqc-eu
+            sonar-platform: sonarcloud
           - platform: SonarQube US
-            sonar-platform: sqc-us
+            sonar-platform: sonarqube-us
     steps:
       - *checkout
       - *mise
