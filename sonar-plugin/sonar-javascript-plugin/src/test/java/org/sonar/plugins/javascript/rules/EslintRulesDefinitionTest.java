@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.rule("@angular-eslint/template/valid-aria")).isNotNull();
     assertThat(eslintRepo.rule("@typescript-eslint/member-delimiter-style")).isNotNull();
     assertThat(eslintRepo.rule("angular/function-type")).isNotNull();
-    assertThat(eslintRepo.rule(/*core*/"no-useless-escape")).isNotNull();
+    assertThat(eslintRepo.rule(/*core*/ "no-useless-escape")).isNotNull();
     assertThat(eslintRepo.rule("ember/routes-segments-snake-case")).isNotNull();
     assertThat(eslintRepo.rule("flowtype/space-before-generic-bracket")).isNotNull();
     assertThat(eslintRepo.rule("import/order")).isNotNull();

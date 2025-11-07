@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ class AstProtoUtilsTest {
     assertThat(AstProtoUtils.readProtobufFromBytes(new byte[] { 42 })).isNull();
     assertThat(logTester.logs(Level.ERROR)).containsExactly(
       "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
-      "This could mean either that the input has been truncated or that an embedded message misreported its own length."
+        "This could mean either that the input has been truncated or that an embedded message misreported its own length."
     );
   }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -223,8 +223,9 @@ public final class OrchestratorStarter
   }
 
   static WsClient newWsClient(Orchestrator orchestrator) {
-    return WsClientFactories.getDefault()
-      .newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).build());
+    return WsClientFactories.getDefault().newClient(
+      HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).build()
+    );
   }
 
   static List<Issue> getIssues(String componentKey) {

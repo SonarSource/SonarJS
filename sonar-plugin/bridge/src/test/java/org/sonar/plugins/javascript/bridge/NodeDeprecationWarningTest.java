@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ class NodeDeprecationWarningTest {
     assertWarnings(
       String.format(
         "Using Node.js version %s to execute analysis is not recommended. " +
-        "Please upgrade to a newer LTS version of Node.js: %s.",
+          "Please upgrade to a newer LTS version of Node.js: %s.",
         Version.parse(version),
         NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
       )
@@ -75,7 +75,7 @@ class NodeDeprecationWarningTest {
       assertWarnings(
         String.format(
           "Using Node.js version %s to execute analysis is not recommended. " +
-          "Please upgrade to a newer LTS version of Node.js: %s.",
+            "Please upgrade to a newer LTS version of Node.js: %s.",
           parsedVersion,
           NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
         )

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,14 +32,14 @@ public class JavaScriptFilePredicate {
   private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
   private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile(
     "(" +
-    String.join(
-      "|",
-      DIRECTIVE_IN_COMMENT,
-      DIRECTIVE_IN_SINGLE_QUOTE,
-      DIRECTIVE_IN_DOUBLE_QUOTE,
-      CODEFRESH_VARIABLES
-    ) +
-    ")"
+      String.join(
+        "|",
+        DIRECTIVE_IN_COMMENT,
+        DIRECTIVE_IN_SINGLE_QUOTE,
+        DIRECTIVE_IN_DOUBLE_QUOTE,
+        CODEFRESH_VARIABLES
+      ) +
+      ")"
   );
 
   private JavaScriptFilePredicate() {}
