@@ -16,32 +16,27 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 class YamlAnalysisTest {
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withLanguage(
-      new SonarServerContext.Language(YamlSensor.LANGUAGE, "YAML", new String[] { ".yaml" })
-    )
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withPlugin(SonarScannerIntegrationHelper.getYamlPlugin())
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
-    )
-    .build();
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(YamlSensor.LANGUAGE),
+    List.of(
+      SonarScannerIntegrationHelper.getJavascriptPlugin(),
+      SonarScannerIntegrationHelper.getYamlPlugin()
+    ),
+    List.of(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
+  );
 
   @Test
   void single_line_inline_aws_lambda_for_js() {

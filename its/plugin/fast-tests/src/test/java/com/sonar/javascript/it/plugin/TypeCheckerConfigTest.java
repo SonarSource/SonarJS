@@ -16,11 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
@@ -48,33 +46,15 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
  */
 class TypeCheckerConfigTest {
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY),
+    List.of(SonarScannerIntegrationHelper.getJavascriptPlugin()),
+    List.of(
+      Path.of("src", "test", "resources", "typechecker-config-js.xml"),
+      Path.of("src", "test", "resources", "typechecker-config-ts.xml")
     )
-    .withLanguage(
-      TypeScriptLanguage.KEY,
-      "TYPESCRIPT",
-      TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "typechecker-config-js.xml")
-      )
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "typechecker-config-ts.xml")
-      )
-    )
-    .build();
+  );
+
   private static final String PROJECT_ROOT = "typechecker-config";
 
   /**
@@ -86,7 +66,6 @@ class TypeCheckerConfigTest {
   @Test
   void multiple_targets() {
     var project = "multiple-targets";
-    var key = createName(project);
     var result = ScannerRunner.run(SERVER_CONTEXT, getSonarScannerBuilder(project).build());
 
     assertThat(result.logOutput())
@@ -157,7 +136,6 @@ class TypeCheckerConfigTest {
   @Test
   void extend_main_from_folder() {
     var project = "extend-main-from-folder";
-    var key = createName(project);
     var scanner = getSonarScannerBuilder(project);
     var result = ScannerRunner.run(SERVER_CONTEXT, scanner.build());
 

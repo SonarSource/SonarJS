@@ -16,37 +16,25 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 class MultiTsconfigTest {
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withLanguage(
-      TypeScriptLanguage.KEY,
-      "TYPESCRIPT",
-      TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "ts-eslint-based-rules.xml")
-      )
-    )
-    .build();
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(TypeScriptLanguage.KEY),
+    List.of(SonarScannerIntegrationHelper.getJavascriptPlugin()),
+    List.of(Path.of("src", "test", "resources", "ts-eslint-based-rules.xml"))
+  );
 
   private static final String PROJECT = "multi-tsconfig-test-project";
   private static final Path PROJECT_DIR = TestUtils.projectDir(PROJECT);

@@ -16,10 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
@@ -27,49 +26,30 @@ import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class EslintCustomRulesLegacyTest {
 
   private static final String PLUGIN_ARTIFACT_ID = "eslint-custom-rules-plugin-legacy";
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withPlugin(
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY),
+    List.of(
       FileLocation.byWildcardMavenFilename(
         new File("../plugins/" + PLUGIN_ARTIFACT_ID + "/target"),
         PLUGIN_ARTIFACT_ID + "-*.jar"
-      )
+      ),
+      SonarScannerIntegrationHelper.getJavascriptPlugin()
+    ),
+    List.of(
+      Path.of("src", "test", "resources", "profile-javascript-custom-rules-legacy.xml"),
+      Path.of("src", "test", "resources", "profile-typescript-custom-rules-legacy.xml")
     )
-    .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withLanguage(
-      TypeScriptLanguage.KEY,
-      "TYPESCRIPT",
-      TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "profile-javascript-custom-rules-legacy.xml")
-      )
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "profile-typescript-custom-rules-legacy.xml")
-      )
-    )
-    .build();
+  );
 
   @Test
   void test() {

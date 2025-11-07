@@ -24,6 +24,7 @@ import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
@@ -51,7 +52,11 @@ class CssIssuesTest {
       JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+    .withProjectContext(
+      SonarProjectContext.builder()
+        .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+        .build()
+    )
     .build();
 
   @Test

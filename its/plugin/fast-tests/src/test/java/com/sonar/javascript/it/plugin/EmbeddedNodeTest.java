@@ -16,10 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
@@ -27,33 +26,23 @@ import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class EmbeddedNodeTest {
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(JavaScriptLanguage.KEY),
+    List.of(
       FileLocation.byWildcardMavenFilename(
         new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
         "sonar-javascript-plugin-*" + classifier() + ".jar"
       )
-    )
-    .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
-    )
-    .build();
+    ),
+    List.of(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
+  );
 
   @Test
   void embedded_node() {
