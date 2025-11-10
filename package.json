@@ -98,7 +98,7 @@
     "type-fest": "5.2.0"
   },
   "dependencies": {
-    "@angular-eslint/eslint-plugin": "20.5.2",
+    "@angular-eslint/eslint-plugin": "20.6.0",
     "@babel/core": "7.28.5",
     "@babel/eslint-parser": "7.28.5",
     "@babel/plugin-proposal-decorators": "7.28.0",
