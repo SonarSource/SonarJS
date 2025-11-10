@@ -79,8 +79,8 @@ jobs:
           artifactory-reader-role: private-reader
       - name: Populate Maven dependencies
         run: |
-          # Download all dependencies including plugins and reactor modules
-          mvn dependency:go-offline -DexcludeReactor=false -B
+          # Download all external dependencies and plugins (excludes reactor/internal modules)
+          mvn dependency:go-offline -B
 
   populate_maven_cache_win:
     runs-on: github-windows-latest-s
@@ -418,6 +418,11 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
     needs: [setup, check_js_test_cache, test_js, test_java]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
     permissions: *write_permissions
     steps:
       - *checkout
@@ -462,6 +467,12 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, check_js_test_cache, test_js, test_java]
+    if: |
+      always() &&
+      github.event_name == 'schedule' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
     permissions: *write_permissions
     strategy:
       matrix:
@@ -829,7 +840,13 @@ jobs:
       - css_ruling
       - ruling
       - js_ts_ruling
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    if: |
+      always() &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped') &&
+      (needs.test_js_win.result == 'success' || needs.test_js_win.result == 'skipped')
     permissions: *write_permissions
     steps:
       - *checkout
