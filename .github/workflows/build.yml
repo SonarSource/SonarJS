@@ -319,7 +319,7 @@ jobs:
   test_js:
     runs-on: github-ubuntu-latest-l
     name: Unit tests JavaScript/TypeScript
-    needs: [check_js_test_cache, populate_npm_cache]
+    needs: [setup, check_js_test_cache, populate_npm_cache]
     if: needs.check_js_test_cache.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
@@ -342,7 +342,7 @@ jobs:
   test_js_win:
     runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
-    needs: [check_js_test_cache_win, populate_npm_cache_win]
+    needs: [setup, check_js_test_cache_win, populate_npm_cache_win]
     if: needs.check_js_test_cache_win.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
