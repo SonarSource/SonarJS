@@ -299,7 +299,7 @@ jobs:
           lookup-only: true
 
   check_js_test_cache_win:
-    runs-on: github-ubuntu-latest-s
+    runs-on: github-windows-latest-s
     name: Check JS test cache (Windows)
     needs: setup
     outputs:
