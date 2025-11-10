@@ -21,6 +21,7 @@ jobs:
     name: Setup - Generate Node.js version matrix
     outputs:
       node-matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      js-files-hash: ${{ steps.compute-js-hash.outputs.hash }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -38,18 +39,25 @@ jobs:
 
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
           echo "Generated Node.js version matrix from package.json: $MATRIX"
+      - name: Compute JS files hash for test caching
+        id: compute-js-hash
+        run: |
+          HASH=$(find packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed JS files hash: $HASH"
 
-  build:
+  populate_maven_cache:
     runs-on: github-ubuntu-latest-m
-    name: Build SonarJS on Linux
-    permissions: &write_permissions
+    name: Populate Maven cache for Linux
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
       id-token: write
-      contents: write
-    steps:
+      contents: read
+    steps: &populate_maven_cache_steps
       - &checkout
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - &mise
+      - name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
         with:
           version: 2025.11.2
@@ -57,8 +65,48 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
+      - &maven_cache
+        name: Cache Maven repository
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+      - name: Populate Maven dependencies
+        run: |
+          # Download all dependencies including plugins and reactor modules
+          mvn dependency:go-offline -DexcludeReactor=false -B
+
+  populate_maven_cache_win:
+    runs-on: github-windows-latest-s
+    name: Populate Maven cache for Windows
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
+      id-token: write
+      contents: read
+    steps: *populate_maven_cache_steps
+
+  populate_npm_cache:
+    runs-on: github-ubuntu-latest-s
+    name: Populate NPM cache for Linux
+    permissions:
+      id-token: write
+      contents: read
+    steps: &populate_npm_cache_steps
+      - *checkout
+      - &mise_node_only
+        name: Setup Node
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
             node = "24.11.0"
-            jq = "1.8.1"
       - &secret_npm
         uses: SonarSource/vault-action-wrapper@v3
         id: secrets
@@ -70,12 +118,6 @@ jobs:
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
-      - &unset_npm_versions
-        name: Unset NPM version variables for Maven
-        shell: bash
-        run: |
-          echo "CURRENT_VERSION=" >> $GITHUB_ENV
-          echo "PROJECT_VERSION=" >> $GITHUB_ENV
       - &npm_cache
         name: Cache NPM dependencies
         id: npm-cache
@@ -87,14 +129,44 @@ jobs:
         name: Install NPM dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
-      - &maven_cache
-        name: Cache Maven repository
+
+  populate_npm_cache_win:
+    runs-on: github-windows-latest-s
+    name: Populate NPM cache for Windows
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
+      id-token: write
+      contents: read
+    steps: *populate_npm_cache_steps
+
+  build:
+    runs-on: github-ubuntu-latest-m
+    name: Build SonarJS on Linux
+    needs: [populate_maven_cache, populate_npm_cache]
+    permissions: &write_permissions
+      id-token: write
+      contents: write
+    steps:
+      - *checkout
+      - &mise
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "24.11.0"
+            jq = "1.8.1"
+      - &npm_cache
+        name: Cache NPM dependencies
+        id: npm-cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-      - &build_maven
-        uses: SonarSource/ci-github-actions/build-maven@master
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+      - *maven_cache
+      - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
           deploy-pull-request: true
@@ -116,16 +188,13 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
+    needs: [populate_maven_cache_win, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *write_permissions
     steps:
       - *checkout
       - *mise
-      - *secret_npm
-      - *config_npm
-      - *unset_npm_versions
       - *npm_cache
-      - *npm_install
       - *maven_cache
       - name: Build Maven (no deploy)
         uses: SonarSource/ci-github-actions/build-maven@master
@@ -139,7 +208,7 @@ jobs:
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
-    needs: build
+    needs: populate_npm_cache
     name: Build ESLint Plugin
     permissions: *write_permissions
     steps:
@@ -200,7 +269,7 @@ jobs:
   knip:
     runs-on: github-ubuntu-latest-s
     name: Knip
-    needs: build
+    needs: populate_npm_cache
     permissions: *read_permissions
     steps:
       - *checkout
@@ -211,10 +280,47 @@ jobs:
           npm run bbf
           npx knip
 
+  check_js_test_cache:
+    runs-on: github-ubuntu-latest-s
+    name: Check JS test cache
+    needs: setup
+    outputs:
+      cache-hit: ${{ steps.check-cache.outputs.cache-hit }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Check JS coverage cache
+        id: check-cache
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
+          lookup-only: true
+
+  check_js_test_cache_win:
+    runs-on: github-ubuntu-latest-s
+    name: Check JS test cache (Windows)
+    needs: setup
+    outputs:
+      cache-hit: ${{ steps.check-cache.outputs.cache-hit }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Check JS test cache (Windows)
+        id: check-cache
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: .js-test-marker-win
+          key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
+          lookup-only: true
+
   test_js:
     runs-on: github-ubuntu-latest-l
     name: Unit tests JavaScript/TypeScript
-    needs: build
+    needs: [check_js_test_cache, build]
+    if: needs.check_js_test_cache.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
       - *checkout
@@ -222,10 +328,11 @@ jobs:
       - *npm_cache
       - &js_coverage_cache
         name: Cache JS coverage
+        id: js-coverage-cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: coverage/js
-          key: js-coverage-${{ github.sha }}
+          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - name: Run JS tests with coverage
         run: |
           npm run generate-meta
@@ -235,18 +342,25 @@ jobs:
   test_js_win:
     runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
-    needs: build_win
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    needs: [check_js_test_cache_win, build_win]
+    if: needs.check_js_test_cache_win.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *npm_cache
+      - name: Cache JS test results (Windows)
+        id: js-test-cache-win
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: .js-test-marker-win
+          key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
       - name: Run JS tests on Windows
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:js
+          mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
 
   test_java:
     runs-on: github-ubuntu-latest-m
@@ -279,11 +393,7 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - &config_maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader    # Override default public-reader
+      - *config_maven
       - name: Run Java tests with coverage
         run: mvn test -T1C -Pcoverage,coverage-report
 
@@ -307,7 +417,7 @@ jobs:
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [test_js, test_java]
+    needs: [setup, check_js_test_cache, test_js, test_java]
     permissions: *write_permissions
     steps:
       - *checkout
@@ -351,8 +461,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [test_js, test_java]
-    if: github.event_name == 'schedule'
+    needs: [setup, check_js_test_cache, test_js, test_java]
     permissions: *write_permissions
     strategy:
       matrix:
@@ -421,12 +530,18 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
+      - &set_monthly_cache_date
+        name: Set monthly cache date
+        run: echo "MONTHLY_CACHE_DATE=$(date +'%Y-%m')" >> $GITHUB_ENV
+      - &set_daily_cache_date
+        name: Set daily cache date
+        run: echo "DAILY_CACHE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       - &orchestrator_cache_monthly
         name: Cache Orchestrator (monthly)
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: orchestrator
-          key: orchestrator-${{ github.run_id }}
+          key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -486,6 +601,8 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *set_monthly_cache_date
+      - *set_daily_cache_date
       - &remove_node_from_path
         name: Disable existing node
         shell: bash
@@ -497,7 +614,7 @@ jobs:
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: orchestrator
-          key: orchestrator-${{ matrix.cache-type }}-${{ github.run_id }}
+          key: orchestrator-${{ matrix.cache-type }}-${{ matrix.cache-type == 'monthly' && env.MONTHLY_CACHE_DATE || env.DAILY_CACHE_DATE }}
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -545,7 +662,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows
-    needs: build_win
+    needs: [populate_maven_cache_win, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -554,6 +671,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *set_monthly_cache_date
       - *orchestrator_cache_monthly
       - name: Run Plugin QA on Windows
         shell: bash
@@ -568,7 +686,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
-    needs: build_win
+    needs: [populate_maven_cache_win, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -590,7 +708,7 @@ jobs:
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
-    needs: build
+    needs: populate_npm_cache
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -624,6 +742,8 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *set_monthly_cache_date
+      - *orchestrator_cache_monthly
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -650,6 +770,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *set_monthly_cache_date
       - *orchestrator_cache_monthly
       - name: Run CSS Ruling
         run: |
