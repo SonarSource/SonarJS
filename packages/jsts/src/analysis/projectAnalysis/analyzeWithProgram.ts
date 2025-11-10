@@ -87,11 +87,6 @@ async function analyzeFilesFromEntryPoint(
     if (isAnalysisCancelled()) {
       return;
     }
-    if (!pendingFiles.has(pendingFile) || !files[pendingFile]) {
-      // pendingFiles is modified during the loop; when a file
-      // was already analyzed from another entry point, it gets removed
-      continue;
-    }
     let program: ts.Program;
     info(`Creating TypeScript(${ts.version}) program from entry point ${pendingFile}`);
     try {
