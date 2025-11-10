@@ -543,12 +543,14 @@ jobs:
             development/github/token/licenses-ro token | licenses_token;
       - &set_monthly_cache_date
         name: Set monthly cache date
+        shell: bash
         run: |
           MONTHLY_CACHE_DATE=$(date +'%Y-%m')
           echo "MONTHLY_CACHE_DATE=$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
           echo "ORCHESTRATOR_HOME_MONTHLY=${{ github.workspace }}/orchestrator/$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
       - &set_daily_cache_date
         name: Set daily cache date
+        shell: bash
         run: |
           DAILY_CACHE_DATE=$(date +'%Y-%m-%d')
           echo "DAILY_CACHE_DATE=$DAILY_CACHE_DATE" >> $GITHUB_ENV
@@ -561,6 +563,7 @@ jobs:
           key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}
       - &setup_orchestrator_home_monthly
         name: Setup Orchestrator home directory (monthly)
+        shell: bash
         run: |
           mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
           echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
@@ -638,6 +641,7 @@ jobs:
           path: ${{ matrix.cache-type == 'monthly' && env.ORCHESTRATOR_HOME_MONTHLY || env.ORCHESTRATOR_HOME_DAILY }}
           key: orchestrator-${{ matrix.cache-type }}-${{ matrix.cache-type == 'monthly' && env.MONTHLY_CACHE_DATE || env.DAILY_CACHE_DATE }}
       - name: Setup Orchestrator home directory
+        shell: bash
         run: |
           if [ "${{ matrix.cache-type }}" = "monthly" ]; then
             mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
