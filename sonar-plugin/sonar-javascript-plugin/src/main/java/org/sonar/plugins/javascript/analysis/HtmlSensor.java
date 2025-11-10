@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -136,7 +136,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
       var response = bridgeServer.analyzeHtml(jsAnalysisRequest);
       issues = analysisProcessor.processResponse(context, checks, file, response);
       cacheStrategy.writeAnalysisToCache(
-        CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens(), response.ast()),
+        CacheAnalysis.fromResponse(response.cpdTokens(), response.ast()),
         file
       );
     } catch (IOException e) {

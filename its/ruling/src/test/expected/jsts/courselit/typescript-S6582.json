@@ -68,6 +68,7 @@
 65
 ],
 "courselit:apps/web/graphql/settings/logic.ts": [
+97,
 118
 ],
 "courselit:apps/web/graphql/users/logic.ts": [
@@ -85,6 +86,9 @@
 ],
 "courselit:apps/web/pages/post/[id]/[slug].tsx": [
 51
+],
+"courselit:apps/web/payments/stripe-payment.ts": [
+70
 ],
 "courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
 82

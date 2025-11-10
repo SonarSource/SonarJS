@@ -1,15 +1,5 @@
 {
 "mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-321,
-514,
-592,
-611,
-700
-],
-"mootools-core:Source/Fx/Fx.Tween.js": [
-89
-],
-"mootools-core:Source/Types/Array.js": [
-103
+611
 ]
 }

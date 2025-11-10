@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
 
 /**
- * This repository will register rule only for TypeScript. We reuse same rule implementation
+ * This repository will register rule only for TypeScript. We reuse the same rule implementation
  */
 public class TsRepository implements CustomRuleRepository {
 
@@ -42,7 +42,7 @@ public class TsRepository implements CustomRuleRepository {
   }
 
   @Override
-  public List<Class<? extends JavaScriptCheck>> checkClasses() {
+  public List<Class<? extends EslintHook>> checkClasses() {
     return Collections.singletonList(TsRule.class);
   }
 }

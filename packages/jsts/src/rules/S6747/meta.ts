@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,3 +21,4 @@ export const externalRules = [
   { externalPlugin: 'jsx-a11y', externalRule: 'aria-props' },
 ];
 export * from './config.js';
+export const quickFixMessage = 'Replace unknown property';

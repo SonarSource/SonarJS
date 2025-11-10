@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7755/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'prefer-at';
-export const externalPlugin = 'unicorn';
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'prefer-at' }];
+export const quickFixMessage = 'Replace with Array.prototype.at()';

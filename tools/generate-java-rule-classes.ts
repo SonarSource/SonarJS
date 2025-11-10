@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -93,10 +93,8 @@ export async function generateJavaCheckClass(
   let javaCheckClass: string;
   if (ruleRspecMeta.scope === 'Tests') {
     javaCheckClass = 'TestFileCheck';
-    imports.add('import org.sonar.plugins.javascript.api.TestFileCheck;');
   } else {
-    javaCheckClass = 'Check';
-    imports.add('import org.sonar.plugins.javascript.api.Check;');
+    javaCheckClass = 'MainFileCheck';
   }
 
   const derivedLanguages = ruleRspecMeta.compatibleLanguages;

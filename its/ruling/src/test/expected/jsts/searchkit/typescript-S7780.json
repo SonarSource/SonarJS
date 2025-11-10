@@ -1,5 +1,8 @@
 {
 "searchkit:packages/searchkit-sdk/src/facets/utils/index.ts": [
 2
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoFilters.test.ts": [
+60
 ]
 }

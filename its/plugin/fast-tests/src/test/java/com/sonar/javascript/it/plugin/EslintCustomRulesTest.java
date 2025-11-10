@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -16,10 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
+import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
@@ -27,49 +26,30 @@ import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import shadow.com.sonar.orchestrator.locator.FileLocation;
 
 class EslintCustomRulesTest {
 
   private static final String PLUGIN_ARTIFACT_ID = "eslint-custom-rules-plugin";
 
-  private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
-    .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
-    .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withPlugin(
+  private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
+    List.of(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY),
+    List.of(
       FileLocation.byWildcardMavenFilename(
         new File("../plugins/" + PLUGIN_ARTIFACT_ID + "/target"),
         PLUGIN_ARTIFACT_ID + "-*.jar"
-      )
+      ),
+      SonarScannerIntegrationHelper.getJavascriptPlugin()
+    ),
+    List.of(
+      Path.of("src", "test", "resources", "profile-javascript-custom-rules.xml"),
+      Path.of("src", "test", "resources", "profile-typescript-custom-rules.xml")
     )
-    .withLanguage(
-      JavaScriptLanguage.KEY,
-      "JAVASCRIPT",
-      JavaScriptLanguage.FILE_SUFFIXES_KEY,
-      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withLanguage(
-      TypeScriptLanguage.KEY,
-      "TYPESCRIPT",
-      TypeScriptLanguage.FILE_SUFFIXES_KEY,
-      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "profile-javascript-custom-rules.xml")
-      )
-    )
-    .withActiveRules(
-      loadActiveRulesFromXmlProfile(
-        Path.of("src", "test", "resources", "profile-typescript-custom-rules.xml")
-      )
-    )
-    .build();
+  );
 
   @Test
   void test() {
@@ -110,10 +90,10 @@ class EslintCustomRulesTest {
       .toList();
     var eslintCustomRuleIssues = issues
       .stream()
-      .filter(issue -> issue.ruleKey().equals("eslint-custom-rules:sqKey"))
+      .filter(issue -> issue.ruleKey().equals("js-custom-rules:jsRuleKey"))
       .toList();
 
-    assertThat(eslintCustomRuleIssues).hasSize(2);
+    assertThat(eslintCustomRuleIssues).hasSize(1);
     assertThat(eslintCustomRuleIssues)
       .extracting(
         ScannerOutputReader.TextRangeIssue::ruleKey,
@@ -122,8 +102,7 @@ class EslintCustomRulesTest {
         ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
-        new Tuple("eslint-custom-rules:sqKey", "src/dir/Person.js", 21, "call"),
-        new Tuple("eslint-custom-rules:sqKey", "src/dir/file.ts", 4, "call")
+        new Tuple("js-custom-rules:jsRuleKey", "src/dir/Person.js", 21, "jsRuleKey call")
       );
     var tsEslintCustomRuleIssues = issues
       .stream()
@@ -137,7 +116,7 @@ class EslintCustomRulesTest {
         ScannerOutputReader.TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
-        new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsrule call")
+        new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsRuleKey call")
       );
   }
 }

@@ -10,7 +10,7 @@
   <artifactId>bridge</artifactId>
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
-    <protobuf.version>4.32.1</protobuf.version>
+    <protobuf.version>4.33.0</protobuf.version>
   </properties>
   <dependencies>
     <dependency>
@@ -123,7 +123,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <id>Clean the npm dependencies</id>

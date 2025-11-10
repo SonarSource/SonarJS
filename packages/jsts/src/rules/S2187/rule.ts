@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2187/javascript
 
 import type { Rule } from 'eslint';
-import { Node } from 'estree';
+import type { Node } from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -95,16 +95,24 @@ export const rule: Rule.RuleModule = {
     }
 
     let hasTest = false;
+
+    function checkIfTestCall(node: Node) {
+      if (hasTest) {
+        return;
+      }
+
+      const fqn = fullyQualifiedName(node);
+      if (APIs.has(fqn)) {
+        hasTest = true;
+      }
+    }
+
     return {
       CallExpression(node) {
-        if (hasTest) {
-          return;
-        }
-
-        const fqn = fullyQualifiedName(node.callee);
-        if (APIs.has(fqn)) {
-          hasTest = true;
-        }
+        checkIfTestCall(node.callee);
+      },
+      TaggedTemplateExpression(node) {
+        checkIfTestCall(node.tag);
       },
       'Program:exit'() {
         if (!hasTest) {

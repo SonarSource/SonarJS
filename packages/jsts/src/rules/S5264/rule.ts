@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import { generateMeta, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import pkg from 'jsx-ast-utils-x';
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
-import { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

@@ -5,12 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.___DECORATOR___;
 
 @___DECORATOR___
 @Rule(key = "S1541")
-public class ___CLASS_NAME___ extends Check {
+public class ___CLASS_NAME___ extends MainFileCheck {
 
   private static final int DEFAULT_THRESHOLD = 10;
 

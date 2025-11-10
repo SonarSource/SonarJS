@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
 import { Linter, Rule } from 'eslint';
 import type estree from 'estree';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
@@ -61,7 +60,11 @@ function getRuleId(ruleId: string | null) {
   return ruleId?.split('/').at(-1)!;
 }
 
-export function createOptions(filename: string) {
+export function createOptions(filename: string): Linter.LintOptions & {
+  getRule: (ruleId: string) => string;
+  patchDirectives: (disableDirectives: Directive[]) => void;
+  patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
+} {
   const mappedParentDirectives = new Set();
 
   return {

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,3 +18,4 @@ export const implementation = 'decorated';
 export const eslintId = 'brace-style';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'brace-style' }];
 export * from './config.js';
+export const quickFixMessage = 'Follow curly brace style';

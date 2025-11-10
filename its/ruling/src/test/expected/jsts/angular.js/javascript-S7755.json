@@ -1,42 +1,10 @@
 {
-"angular.js:Gruntfile.js": [
-98,
-118
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-21
-],
-"angular.js:src/Angular.js": [
-1964,
-2018
-],
-"angular.js:src/auto/injector.js": [
-853,
-938,
-955
-],
-"angular.js:src/ng/controller.js": [
-131
-],
-"angular.js:src/ng/directive/input.js": [
-1455
-],
-"angular.js:src/ng/directive/ngRepeat.js": [
-454
-],
 "angular.js:src/ng/parse.js": [
 193,
 197
 ],
-"angular.js:src/ngAnimate/animateCss.js": [
-283
-],
-"angular.js:src/ngMessages/messages.js": [
-512
-],
 "angular.js:src/ngMock/angular-mocks.js": [
-136,
-1046
+136
 ],
 "angular.js:src/ngRoute/route.js": [
 234

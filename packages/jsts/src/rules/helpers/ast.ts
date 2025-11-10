@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -711,4 +711,8 @@ export function isUnresolved(node: estree.Node | undefined | null, ctx: Rule.Rul
     }
   }
   return false;
+}
+
+export function hasParent(node: estree.Node): node is estree.Node & Rule.NodeParentExtension {
+  return 'parent' in node && node.parent !== null;
 }

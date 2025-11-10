@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ export async function analyzeJSTS(
       debug('Clearing dependencies cache');
       clearDependenciesCache();
     }
-    const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = Linter.lint(
+    const { issues, highlightedSymbols, cognitiveComplexity } = Linter.lint(
       parseResult,
       filePath,
       fileType,
@@ -85,7 +85,6 @@ export async function analyzeJSTS(
 
     const result = {
       issues,
-      ucfgPaths,
       ...extendedMetrics,
     };
 

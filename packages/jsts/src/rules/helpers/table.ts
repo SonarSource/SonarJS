@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
 import { isHtmlElement } from './isHtmlElement.js';
 import { getElementType } from './accessibility.js';
-import { JSXOpeningElement } from 'estree-jsx';
+import type { JSXOpeningElement } from 'estree-jsx';
 
 export type TableCell = {
   isHeader: boolean;

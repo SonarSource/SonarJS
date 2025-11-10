@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -86,6 +86,28 @@ describe('S2187', () => {
           ],
         });`,
           filename: 'unit.test.ts',
+        },
+        {
+          code: `
+        /* a test file using 'it.each' with tagged template literals */
+                it.each\`
+            text          | expected
+            ${'00003000'} | ${'3000'}
+            ${'00003030'} | ${'3030'}
+        \`('it should do something: $text', ({ text, expected }) => {
+            const result = TextUtils.doSomething(text);
+            expect(result).toStrictEqual(expected);
+        });
+        
+        test.each\`
+          a    | b    | expected
+          ${1} | ${1} | ${2}
+          ${1} | ${2} | ${3}
+          ${2} | ${1} | ${3}
+        \`('returns $expected when $a is added to $b', ({a, b, expected}) => {
+          expect(a + b).toBe(expected);
+        });`,
+          filename: 'foo.test.js',
         },
       ],
       invalid: [

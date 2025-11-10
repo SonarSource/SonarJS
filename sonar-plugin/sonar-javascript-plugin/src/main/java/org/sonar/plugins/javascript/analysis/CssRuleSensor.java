@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -255,7 +255,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   private static String normalizeMessage(String message) {
     // stylelint messages have format "message (rulekey)"
-    Pattern pattern = Pattern.compile("(.+)\\([a-z\\-]+\\)");
+    Pattern pattern = Pattern.compile("(.+)\\([a-z\\-/]+\\)");
     Matcher matcher = pattern.matcher(message);
     if (matcher.matches()) {
       return matcher.group(1);

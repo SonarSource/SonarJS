@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -47,7 +47,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
-  static final String SONAR_SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
@@ -131,19 +130,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   /**
-   * Security rules are added by reflectively invoking specific classes from the SonarSecurity and Jasmin plugins, which provides
+   * Security rules are added by reflectively invoking specific classes from the Jasmin plugin, which provides
    * rule keys to add to the built-in profiles.
    * It is expected for the reflective calls to fail in case any plugin is not available, e.g., in SQ community edition.
    */
   private static void activateSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
-    Set<RuleKey> sonarSecurityRuleKeys = getSecurityRuleKeys(
-      SONAR_SECURITY_RULES_CLASS_NAME,
-      SECURITY_RULE_KEYS_METHOD_NAME,
-      language
-    );
-    LOG.debug("Adding security ruleKeys {}", sonarSecurityRuleKeys);
-    sonarSecurityRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
-
     Set<RuleKey> sonarJasminRuleKeys = getSecurityRuleKeys(
       SONAR_JASMIN_RULES_CLASS_NAME,
       SECURITY_RULE_KEYS_METHOD_NAME,
@@ -174,8 +165,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     return Collections.emptySet();
   }
 
-  private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
-    return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
+  private static Set<String> ruleKeys(List<Class<? extends EslintHook>> checks) {
+    return checks
+      .stream()
+      .map(c -> c.getAnnotation(Rule.class).key())
+      .collect(Collectors.toSet());
   }
 
   private static String securityRuleMessage(Exception e) {

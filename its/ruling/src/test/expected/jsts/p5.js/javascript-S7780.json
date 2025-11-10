@@ -65,10 +65,16 @@
 770
 ],
 "p5.js:src/core/error_helpers.js": [
-98
+98,
+791
 ],
 "p5.js:src/io/p5.Table.js": [
 808
+],
+"p5.js:src/utilities/string_functions.js": [
+524,
+527,
+530
 ],
 "p5.js:utils/sample-linter.js": [
 184,

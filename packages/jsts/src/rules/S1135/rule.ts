@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -46,6 +46,9 @@ export function reportPatternInComment(
 ) {
   const sourceCode = context.sourceCode;
   for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
+    if (comment.value.trim().startsWith('eslint-disable')) {
+      continue;
+    }
     const rawText = comment.value.toLowerCase();
 
     if (rawText.includes(pattern)) {

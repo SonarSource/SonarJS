@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>83.0.0.2369</version>
+    <version>84.0.0.3027</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -57,26 +57,26 @@
   </issueManagement>
 
   <properties>
-    <revision>11.5.0-SNAPSHOT</revision>
+    <revision>11.6.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
     <assertj.version>3.27.6</assertj.version>
-    <jgit.version>7.3.0.202506031305-r</jgit.version>
-    <junit.version>5.13.4</junit.version>
+    <jgit.version>7.4.0.202509020913-r</jgit.version>
+    <junit.version>6.0.1</junit.version>
     <mockito.version>5.20.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
     <jetbrains.annotations.version>26.0.2-1</jetbrains.annotations.version>
-    <sonar.version>25.9.0.112764</sonar.version>
-    <sonar.api.version>13.2.0.3137</sonar.api.version>
-    <sonar-orchestrator.version>5.6.2.2625</sonar-orchestrator.version>
+    <sonar.version>25.11.0.114957</sonar.version>
+    <sonar.api.version>13.4.0.3221</sonar.api.version>
+    <sonar-orchestrator.version>6.0.0.3852</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.13.2</gson.version>
-    <analyzer-commons.version>2.18.0.3393</analyzer-commons.version>
+    <analyzer-commons.version>2.19.0.3575</analyzer-commons.version>
     <sslr.version>1.24.0.633</sslr.version>
-    <sonarlint.plugin.api.version>10.32.0.82302</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>10.36.0.83732</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -154,7 +154,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.20.0</version>
+        <version>2.21.0</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
@@ -269,7 +269,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.18</version>
+        <version>1.5.20</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -329,7 +329,6 @@
                 <exclude>**/*.fixture.*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
-                <exclude>typedoc/**/*</exclude>
                 <exclude>coverage/**/*</exclude>
               </excludes>
             </licenseSet>
@@ -366,7 +365,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.6.2</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

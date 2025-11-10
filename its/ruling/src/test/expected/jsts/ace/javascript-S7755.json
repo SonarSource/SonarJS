@@ -1,316 +1,33 @@
 {
-"ace:lib/ace/mode/css/csslint.js": [
-4546,
-9914,
-9955
-],
 "ace:lib/ace/mode/html/saxparser.js": [
 286,
-842,
-1547,
-5216,
-10297
+5216
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-3825,
-4073,
-4965,
-9261,
 10684,
 11340,
 11352,
-15407,
-19104
-],
-"ace:lib/ace/mode/xml/sax.js": [
-353
-],
-"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
-4408
-],
-"ace:lib/ace/mode/xquery/xquery_lexer.js": [
-4240
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-518,
-519,
-527,
-3190
-],
-"ace:src/bidihandler.js": [
-128,
-153
-],
-"ace:src/config.js": [
-51,
-55,
-62
+15407
 ],
 "ace:src/document.js": [
 376
-],
-"ace:src/edit_session.js": [
-2150
-],
-"ace:src/edit_session/fold_line.js": [
-16
-],
-"ace:src/edit_session/folding.js": [
-335,
-336
-],
-"ace:src/editor.js": [
-1348
-],
-"ace:src/ext/whitespace.js": [
-33
-],
-"ace:src/keyboard/emacs.js": [
-76,
-223,
-445
-],
-"ace:src/keyboard/hash_handler.js": [
-202
-],
-"ace:src/keyboard/keybinding.js": [
-22,
-25,
-25,
-26,
-59
-],
-"ace:src/keyboard/vim.js": [
-1238,
-2025,
-3226,
-3247,
-4101,
-6012
 ],
 "ace:src/keyboard/vim_test.js": [
 167,
 490,
 490
 ],
-"ace:src/keyboard/vscode.js": [
-110
-],
-"ace:src/layer/lines.js": [
-88
-],
-"ace:src/layer/text.js": [
-608
-],
 "ace:src/lib/bidiutil.js": [
 334
 ],
-"ace:src/lib/lang.js": [
-4,
-114
-],
-"ace:src/line_widgets.js": [
-120
-],
 "ace:src/mode/_test/highlight_rules_test.js": [
-172,
-173,
-249,
 321,
 323
-],
-"ace:src/mode/ada.js": [
-24
-],
-"ace:src/mode/c_cpp.js": [
-33
-],
-"ace:src/mode/coffee.js": [
-51
-],
-"ace:src/mode/crystal.js": [
-30
-],
-"ace:src/mode/csharp.js": [
-29
-],
-"ace:src/mode/csound_preprocessor_highlight_rules.js": [
-261,
-265,
-286,
-288
-],
-"ace:src/mode/css.js": [
-31
-],
-"ace:src/mode/dot.js": [
-29
-],
-"ace:src/mode/elm_highlight_rules.js": [
-47
-],
-"ace:src/mode/fortran.js": [
-28
-],
-"ace:src/mode/gherkin.js": [
-26
-],
-"ace:src/mode/golang.js": [
-28
-],
-"ace:src/mode/golang_highlight_rules.js": [
-62
-],
-"ace:src/mode/haxe.js": [
-29
-],
-"ace:src/mode/javascript.js": [
-33
-],
-"ace:src/mode/jsx.js": [
-29
-],
-"ace:src/mode/less.js": [
-31
-],
-"ace:src/mode/liquid.js": [
-29
-],
-"ace:src/mode/livescript.js": [
-19
-],
-"ace:src/mode/logiql.js": [
-32
-],
-"ace:src/mode/lsl.js": [
-35
-],
-"ace:src/mode/mask.js": [
-28
-],
-"ace:src/mode/mushcode.js": [
-25
-],
-"ace:src/mode/ocaml.js": [
-48
-],
-"ace:src/mode/perl.js": [
-33
-],
-"ace:src/mode/php.js": [
-42
-],
-"ace:src/mode/php_test.js": [
-17,
-25
-],
-"ace:src/mode/powershell.js": [
-29
-],
-"ace:src/mode/praat.js": [
-27
-],
-"ace:src/mode/python.js": [
-26
-],
-"ace:src/mode/raku.js": [
-33
-],
-"ace:src/mode/red.js": [
-30
-],
-"ace:src/mode/ruby.js": [
-31
-],
-"ace:src/mode/ruby_highlight_rules.js": [
-208,
-218,
-228,
-238,
-248
-],
-"ace:src/mode/ruby_test.js": [
-57,
-58,
-69,
-73,
-80,
-81,
-84,
-87,
-88,
-89,
-92,
-93,
-96,
-100,
-101,
-104,
-114,
-115,
-119,
-125,
-132
-],
-"ace:src/mode/scad.js": [
-30
-],
-"ace:src/mode/scss.js": [
-31
-],
-"ace:src/mode/sh.js": [
-28
-],
-"ace:src/mode/tcl.js": [
-28
 ],
 "ace:src/mode/text.js": [
 271
 ],
-"ace:src/mode/twig.js": [
-25
-],
-"ace:src/mode/vala.js": [
-36
-],
-"ace:src/multi_select.js": [
-196,
-209,
-723
-],
-"ace:src/occur.js": [
-135
-],
-"ace:src/range_list.js": [
-115
-],
-"ace:src/search.js": [
-373
-],
 "ace:src/snippets.js": [
-457,
-606
-],
-"ace:src/test/asyncjs/test.js": [
-188
-],
-"ace:src/test/mockdom.js": [
-411
-],
-"ace:src/tokenizer.js": [
-190
-],
-"ace:src/undomanager.js": [
-188
-],
-"ace:tool/add_mode.js": [
-85
-],
-"ace:tool/lib.js": [
-90
-],
-"ace:tool/tmlanguage.js": [
-13,
-239
+457
 ]
 }

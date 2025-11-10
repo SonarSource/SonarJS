@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ import { describe, it } from 'node:test';
 describe('S1135', () => {
   it('S1135', () => {
     const ruleTester = new DefaultParserRuleTester();
-    ruleTester.run('Track uses of TODO tags', rule, {
+    ruleTester.run('todo-tag', rule, {
       valid: [
         {
           code: `// Just a regular comment`,
@@ -42,6 +42,12 @@ describe('S1135', () => {
         },
         {
           code: '// todos ',
+        },
+        {
+          code: `
+        /* eslint-disable-next-line rule-to-test/todo-tag */
+        // TODO whatever
+        `,
         },
       ],
       invalid: [

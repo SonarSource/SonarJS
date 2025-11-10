@@ -1,12 +1,6 @@
 {
-"jshint:src/cli.js": [
-766
-],
 "jshint:src/jshint.js": [
-528,
 3178,
-3887,
-4720,
 6084
 ],
 "jshint:src/lex.js": [

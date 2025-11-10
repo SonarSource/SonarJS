@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,6 +40,7 @@ import org.sonar.css.rules.FunctionCalcNoUnspacedOperator;
 import org.sonar.css.rules.FunctionLinearGradientNoNonstandardDirection;
 import org.sonar.css.rules.KeyframeDeclarationNoImportant;
 import org.sonar.css.rules.MediaFeatureNameNoUnknown;
+import org.sonar.css.rules.MinimumContrast;
 import org.sonar.css.rules.NoCommentedCode;
 import org.sonar.css.rules.NoDescendingSpecificity;
 import org.sonar.css.rules.NoDuplicateAtImportRules;
@@ -47,11 +48,13 @@ import org.sonar.css.rules.NoDuplicateSelectors;
 import org.sonar.css.rules.NoEmptySource;
 import org.sonar.css.rules.NoExtraSemicolons;
 import org.sonar.css.rules.NoInvalidDoubleSlashComments;
+import org.sonar.css.rules.NoRestrictOrientation;
 import org.sonar.css.rules.PropertyNoUnknown;
 import org.sonar.css.rules.SelectorPseudoClassNoUnknown;
 import org.sonar.css.rules.SelectorPseudoElementNoUnknown;
 import org.sonar.css.rules.SelectorTypeNoUnknown;
 import org.sonar.css.rules.StringNoNewline;
+import org.sonar.css.rules.TextSpacing;
 import org.sonar.css.rules.UnitNoUnknown;
 import org.sonar.plugins.javascript.bridge.StylelintRule;
 
@@ -87,6 +90,7 @@ public class CssRules {
         FunctionLinearGradientNoNonstandardDirection.class,
         KeyframeDeclarationNoImportant.class,
         MediaFeatureNameNoUnknown.class,
+        MinimumContrast.class,
         NoCommentedCode.class,
         NoDescendingSpecificity.class,
         NoDuplicateAtImportRules.class,
@@ -94,11 +98,13 @@ public class CssRules {
         NoEmptySource.class,
         NoExtraSemicolons.class,
         NoInvalidDoubleSlashComments.class,
+        NoRestrictOrientation.class,
         PropertyNoUnknown.class,
         SelectorPseudoClassNoUnknown.class,
         SelectorPseudoElementNoUnknown.class,
         SelectorTypeNoUnknown.class,
         StringNoNewline.class,
+        TextSpacing.class,
         UnitNoUnknown.class
       )
     );

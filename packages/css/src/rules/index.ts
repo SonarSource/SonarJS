@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +16,13 @@
  */
 import { rule as S125 } from './S125/index.js';
 import { rule as S5362 } from './S5362/index.js';
+import { rule as S7923 } from './S7923/index.js';
+import { rule as S7924 } from './S7924/index.js';
+import { rule as S7925 } from './S7925/index.js';
 
 /**
  * The set of internal Stylelint-based rules
  */
-const sonarRules = [S125, S5362];
+const sonarRules = [S125, S5362, S7923, S7924, S7925];
+
 export { sonarRules };

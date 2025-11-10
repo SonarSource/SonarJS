@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -39,11 +39,16 @@ class CustomRuleRepositoryTest {
     }
 
     @Override
-    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+    public List<Class<? extends EslintHook>> checkClasses() {
       return Collections.singletonList(CustomCheck.class);
     }
   }
 
-  @Rule(key = "key")
-  static class CustomCheck extends Check {}
+  static class CustomCheck implements EslintHook {
+
+    @Override
+    public String eslintKey() {
+      return "key";
+    }
+  }
 }

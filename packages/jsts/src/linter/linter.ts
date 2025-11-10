@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -94,7 +94,7 @@ export class Linter {
   public static readonly rulesConfigCache: Map<string, ESLintLinter.RulesRecord> = new Map();
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
-  /** The rules working directory (used for ucfg, architecture, dbd...) */
+  /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: string;
   /** whether we are running in sonarlint context */
   private static sonarlint: boolean;
@@ -120,7 +120,7 @@ export class Linter {
    * @param sonarlint whether we are running in sonarlint context
    * @param bundles paths to external rule bundles to import
    * @param baseDir the working directory
-   * @param rulesWorkdir the working directory for rules accessing FS (ucfg, architecture, dbd)
+   * @param rulesWorkdir the working directory for rules accessing FS (architecture, dbd)
    */
   static async initialize({
     rules,
@@ -140,7 +140,7 @@ export class Linter {
     Linter.rulesConfigCache.clear();
     Linter.baseDir = baseDir;
     /**
-     * Context bundles define a set of external custom rules (like the taint analysis rule)
+     * Context bundles define a set of external custom rules (like the architecture rule)
      * including rule keys and rule definitions that cannot be provided to the linter
      * using the same feeding channel as rules from the active quality profile.
      */
@@ -239,7 +239,7 @@ export class Linter {
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
-  ) {
+  ): ESLintLinter.RulesRecord {
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -279,7 +279,7 @@ export class Linter {
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
     }
-    return Linter.rulesConfigCache.get(linterConfigKey);
+    return Linter.rulesConfigCache.get(linterConfigKey)!;
   }
 
   /**

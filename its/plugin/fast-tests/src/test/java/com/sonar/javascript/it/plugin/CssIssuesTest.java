@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import java.nio.file.Path;
@@ -51,7 +52,11 @@ class CssIssuesTest {
       JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+    .withProjectContext(
+      SonarProjectContext.builder()
+        .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+        .build()
+    )
     .build();
 
   @Test
@@ -105,6 +110,7 @@ class CssIssuesTest {
       )
       .containsExactlyInAnyOrder(
         tuple("css:S4662", "src/cssModules.css"),
+        tuple("css:S7924", "src/cssModules.css"),
         tuple("css:S4667", "src/empty1.css"),
         tuple("css:S4667", "src/empty2.less"),
         tuple("css:S4667", "src/empty3.scss"),

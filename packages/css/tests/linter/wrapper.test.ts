@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ describe('LinterWrapper', () => {
         ruleId: S5362.ruleName,
         line: 1,
         column: 6,
-        message: `Fix this malformed 'calc' expression.`,
+        message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
       },
     ]);
   });

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-import { Node } from 'estree';
+import type { Node } from 'estree';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(

@@ -12,6 +12,9 @@
 ],
 "TypeScript:src/compiler/checker.ts": [
 972,
+1000,
+1045,
+1143,
 1406,
 1771,
 1828,
@@ -29,6 +32,8 @@
 4382,
 4421,
 4755,
+5131,
+5225,
 5989,
 6455,
 6717,
@@ -42,6 +47,7 @@
 12206,
 12445,
 13096,
+13381,
 14275,
 14563,
 14765,
@@ -51,10 +57,14 @@
 16104,
 17374,
 19263,
+19315,
 21672,
 23163,
 23169,
-23561
+23561,
+23574,
+23680,
+23713
 ],
 "TypeScript:src/compiler/commandLineParser.ts": [
 683,
@@ -70,6 +80,8 @@
 133
 ],
 "TypeScript:src/compiler/core.ts": [
+799,
+809,
 1220,
 1584,
 1688,
@@ -88,6 +100,7 @@
 "TypeScript:src/compiler/emitter.ts": [
 743,
 2177,
+2235,
 2693
 ],
 "TypeScript:src/compiler/factory.ts": [
@@ -120,7 +133,11 @@
 1013
 ],
 "TypeScript:src/compiler/parser.ts": [
-484
+484,
+888,
+6190,
+7426,
+7433
 ],
 "TypeScript:src/compiler/performance.ts": [
 5,
@@ -128,6 +145,7 @@
 68
 ],
 "TypeScript:src/compiler/program.ts": [
+141,
 589,
 632,
 665,
@@ -137,6 +155,7 @@
 1606
 ],
 "TypeScript:src/compiler/sourcemap.ts": [
+276,
 322,
 323,
 361,
@@ -203,6 +222,7 @@
 973,
 1011,
 1031,
+1085,
 1184,
 1306,
 1898,
@@ -213,7 +233,10 @@
 1956,
 1972,
 1984,
-2340
+2340,
+2349,
+2534,
+2610
 ],
 "TypeScript:src/harness/harness.ts": [
 742,
@@ -246,6 +269,9 @@
 "TypeScript:src/server/builder.ts": [
 338
 ],
+"TypeScript:src/server/client.ts": [
+509
+],
 "TypeScript:src/server/editorServices.ts": [
 448,
 943,
@@ -265,6 +291,9 @@
 418,
 697,
 887
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+555
 ],
 "TypeScript:src/server/server.ts": [
 40,
@@ -297,6 +326,7 @@
 60
 ],
 "TypeScript:src/services/codefixes/importFixes.ts": [
+159,
 251,
 278
 ],
@@ -305,6 +335,7 @@
 1198
 ],
 "TypeScript:src/services/documentHighlights.ts": [
+49,
 54,
 136
 ],
@@ -317,6 +348,7 @@
 1622
 ],
 "TypeScript:src/services/formatting/formatting.ts": [
+143,
 159,
 473
 ],
@@ -336,6 +368,7 @@
 "TypeScript:src/services/pathCompletions.ts": [
 57,
 93,
+171,
 292,
 533
 ],

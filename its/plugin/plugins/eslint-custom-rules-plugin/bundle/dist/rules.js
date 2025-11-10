@@ -1,6 +1,6 @@
 exports.rules = [
   {
-    ruleId: 'customrule',
+    ruleId: 'jsRuleKey',
     ruleModule: {
       meta: {},
       create(context) {
@@ -11,7 +11,7 @@ exports.rules = [
             console.log('detected call expression');
             context.report({
               node: node.callee,
-              message: 'call',
+              message: 'jsRuleKey call',
             });
           },
         };
@@ -20,15 +20,17 @@ exports.rules = [
     ruleConfig: [],
   },
   {
-    ruleId: 'tsrule',
+    ruleId: 'tsRuleKey',
     ruleModule: {
       create(context) {
+        console.log('Rule context options: ', context.options);
+        console.log('Work dir received: ', context.settings.workDir);
         return {
           CallExpression(node) {
             console.log('ts rule detected call expression');
             context.report({
               node: node.callee,
-              message: 'tsrule call',
+              message: 'tsRuleKey call',
             });
           },
         };

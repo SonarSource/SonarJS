@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@ public class CustomRulesDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repository = context
-      .createRepository(RuleRepository.REPOSITORY_KEY, "js")
+      .createRepository(JsRepository.REPOSITORY_KEY, "js")
       .setName("ESLint Custom Rules");
     repository
-      .createRule(CustomRule.RULE_KEY)
+      .createRule(JsRule.RULE_KEY)
       .setName("ESLint Custom Rule")
       .setHtmlDescription("Description");
     repository.done();

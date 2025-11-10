@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -130,7 +130,8 @@ const ruleExtension: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      TSEmptyBodyFunctionExpression: (functionLike: TSESTree.TSEmptyBodyFunctionExpression) => {
+      TSEmptyBodyFunctionExpression(node: Rule.Node) {
+        const functionLike = node as unknown as TSESTree.TSEmptyBodyFunctionExpression;
         const parent = functionLike.parent;
         let name = 'Empty function';
         if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {

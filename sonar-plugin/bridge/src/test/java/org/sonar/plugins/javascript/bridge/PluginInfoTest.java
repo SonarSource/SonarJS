@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,5 @@ class PluginInfoTest {
     assertNull(PluginInfo.getVersion());
     PluginInfo.setVersion("1.0.0");
     assertEquals("1.0.0", PluginInfo.getVersion());
-    PluginInfo.setUcfgPluginVersion("1.0.0");
-    assertEquals("1.0.0", PluginInfo.getUcfgPluginVersion().get());
   }
 }

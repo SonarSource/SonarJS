@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,8 @@ const twiceDecoratedNoUnknownProp = interceptReport(
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    hasSuggestions: true,
+    ...decoratedAriaPropsRule.meta,
+    ...twiceDecoratedNoUnknownProp.meta,
     messages: {
       ...decoratedAriaPropsRule.meta!.messages,
       ...twiceDecoratedNoUnknownProp.meta!.messages,

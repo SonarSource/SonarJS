@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@ const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    hasSuggestions: true,
     messages: {
       ...mouseEventsHaveKeyEvents.meta!.messages,
       ...clickEventsHaveKeyEvents.meta!.messages,

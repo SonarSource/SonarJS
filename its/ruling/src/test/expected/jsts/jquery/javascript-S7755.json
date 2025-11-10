@@ -1,8 +1,5 @@
 {
 "jquery:src/core/init.js": [
 32
-],
-"jquery:src/manipulation.js": [
-148
 ]
 }

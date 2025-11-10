@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -103,7 +103,7 @@ function reportWithQuickFix(
   const name = reportDescriptor.data!.name;
   const openingBrace = context.sourceCode.getFirstToken(func.body)!;
   const closingBrace = context.sourceCode.getLastToken(func.body)!;
-  suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
+  suggestEmptyBlockQuickFix(context, reportDescriptor, name as string, openingBrace, closingBrace);
 }
 
 function suggestEmptyBlockQuickFix(

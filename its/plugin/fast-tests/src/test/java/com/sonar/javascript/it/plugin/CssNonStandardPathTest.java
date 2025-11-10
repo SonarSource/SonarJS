@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
+import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,11 @@ class CssNonStandardPathTest {
       CssLanguage.DEFAULT_FILE_SUFFIXES
     )
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
-    .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+    .withProjectContext(
+      SonarProjectContext.builder()
+        .withActiveRules(SonarScannerIntegrationHelper.getAllCSSRules())
+        .build()
+    )
     .build();
 
   @Test

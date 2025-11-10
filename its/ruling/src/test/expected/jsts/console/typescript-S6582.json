@@ -44,7 +44,13 @@
 "console:src/views/RelationsPopup/ModelSelectionBox.tsx": [
 37
 ],
+"console:src/views/RelationsPopup/RelationFooter.tsx": [
+87,
+89
+],
 "console:src/views/RelationsPopup/RelationPopup.tsx": [
+142,
+143,
 284,
 285,
 286

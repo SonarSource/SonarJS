@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-promise-reject-errors';
 export const externalPlugin = 'typescript-eslint';
+export * from './config.js';

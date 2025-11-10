@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -78,7 +78,9 @@ public class TestUtils {
 
   public static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
     return checkFactory(
-      Arrays.stream(ruleKeys).map(k -> RuleKey.of(repositoryKey, k)).collect(Collectors.toList())
+      Arrays.stream(ruleKeys)
+        .map(k -> RuleKey.of(repositoryKey, k))
+        .collect(Collectors.toList())
     );
   }
 

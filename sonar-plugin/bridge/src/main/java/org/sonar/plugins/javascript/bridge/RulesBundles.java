@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
@@ -89,9 +88,5 @@ public class RulesBundles {
       }
     });
     return unpackedBundles;
-  }
-
-  public Optional<RulesBundle> getUcfgRulesBundle() {
-    return bundles.stream().filter(bundle -> "ucfg".equals(bundle.bundleKey())).findAny();
   }
 }

@@ -4,30 +4,9 @@
   <language>js</language>
   <rules>
     <rule>
-      <repositoryKey>deprecated-custom-rules</repositoryKey>
-      <key>base</key>
-      <priority>MAJOR</priority>
-    </rule>
-    <rule>
-      <repositoryKey>deprecated-custom-rules</repositoryKey>
-      <key>subscription</key>
-      <priority>MAJOR</priority>
-    </rule>
-    <rule>
-      <repositoryKey>javascript-custom-rules</repositoryKey>
-      <key>base</key>
-      <priority>MAJOR</priority>
-    </rule>
-    <rule>
-      <repositoryKey>javascript-custom-rules</repositoryKey>
-      <key>subscription</key>
-      <priority>MAJOR</priority>
-    </rule>
-    <rule>
-      <repositoryKey>eslint-custom-rules</repositoryKey>
-      <key>sqKey</key>
+      <repositoryKey>js-custom-rules</repositoryKey>
+      <key>jsRuleKey</key>
       <priority>MAJOR</priority>
     </rule>
   </rules>
 </profile>
-

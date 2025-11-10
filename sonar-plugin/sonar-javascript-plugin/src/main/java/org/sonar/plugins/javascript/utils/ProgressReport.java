@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -72,14 +72,14 @@ public class ProgressReport implements Runnable {
         Thread.sleep(period);
         log(
           currentFileNumber +
-          "/" +
-          count +
-          " " +
-          pluralizeFile(currentFileNumber) +
-          " " +
-          adjective +
-          ", current file: " +
-          currentFilename
+            "/" +
+            count +
+            " " +
+            pluralizeFile(currentFileNumber) +
+            " " +
+            adjective +
+            ", current file: " +
+            currentFilename
         );
       } catch (InterruptedException e) {
         interrupted.set(true);
@@ -90,14 +90,14 @@ public class ProgressReport implements Runnable {
     if (success.get()) {
       log(
         count +
-        "/" +
-        count +
-        " source " +
-        pluralizeFile(count) +
-        " " +
-        pluralizeHas(count) +
-        " been " +
-        adjective
+          "/" +
+          count +
+          " source " +
+          pluralizeFile(count) +
+          " " +
+          pluralizeHas(count) +
+          " been " +
+          adjective
       );
     }
   }

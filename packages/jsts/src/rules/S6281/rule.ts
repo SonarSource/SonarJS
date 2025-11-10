@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6281/javascript
 
 import type { Rule } from 'eslint';
-import { NewExpression, ObjectExpression, Property } from 'estree';
+import type { NewExpression, ObjectExpression, Property } from 'estree';
 import {
   findPropagatedSetting,
   generateMeta,

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,17 +17,17 @@
 package org.sonar.samples.javascript;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = TsRule.RULE_KEY)
-public class TsRule implements EslintBasedCheck {
+public class TsRule implements EslintHook {
 
   public static final String RULE_KEY = "tsRuleKey";
 
   @Override
   public String eslintKey() {
-    return "tsrule";
+    return RULE_KEY;
   }
 }

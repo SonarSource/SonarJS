@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6661/javascript
 
 import type { Rule } from 'eslint';
-import { CallExpression } from 'estree';
+import type { CallExpression } from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

@@ -4,5 +4,8 @@
 ],
 "vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
 59
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+112
 ]
 }

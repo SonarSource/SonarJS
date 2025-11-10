@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ import {
   isNullOrUndefinedType,
   isObjectType,
 } from '../helpers/index.js';
-import { type LogicalExpression } from 'estree';
+import type { LogicalExpression } from 'estree';
 import * as meta from './generated-meta.js';
 import { isTypeUnknownType, isTypeAnyType } from '@typescript-eslint/type-utils';
 

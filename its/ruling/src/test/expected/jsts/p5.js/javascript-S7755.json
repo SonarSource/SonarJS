@@ -1,37 +1,17 @@
 {
 "p5.js:lib/addons/p5.sound.js": [
 402,
-447,
 1372,
-3152,
-4541,
-10079,
-10846
+10079
 ],
 "p5.js:src/core/p5.Renderer2D.js": [
 239
-],
-"p5.js:src/dom/dom.js": [
-426
 ],
 "p5.js:src/typography/p5.Font.js": [
 793,
 794,
 797,
 798
-],
-"p5.js:src/webgl/light.js": [
-242,
-244,
-245,
-246,
-351,
-353,
-354,
-355
-],
-"p5.js:src/webgl/material.js": [
-786
 ],
 "p5.js:src/webgl/p5.Matrix.js": [
 36,

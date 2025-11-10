@@ -1,2 +1,0 @@
-registry=${ARTIFACTORY_URL}/api/npm/npm
-//repox.jfrog.io/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}

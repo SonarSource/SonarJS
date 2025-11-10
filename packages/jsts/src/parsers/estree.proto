@@ -100,6 +100,22 @@ enum NodeType {
   TSEnumDeclarationType = 81;
   TSDeclareFunctionType = 82;
   TSAbstractMethodDefinitionType = 83;
+  TSTypeParameterInstantiationType = 84;
+  JSXFragmentType = 85;
+  JSXOpeningElementType = 86;
+  JSXClosingElementType = 87;
+  JSXOpeningFragmentType = 88;
+  JSXClosingFragmentType = 89;
+  JSXAttributeType = 90;
+  JSXIdentifierType = 91;
+  JSXMemberExpressionType = 92;
+  JSXNamespacedNameType = 93;
+  JSXSpreadAttributeType = 94;
+  JSXExpressionContainerType = 95;
+  JSXSpreadChildType = 96;
+  JSXTextType = 97;
+  JSXEmptyExpressionType = 98;
+  JSXElementType = 99;
   UnknownNodeType = 1000;
 }
 message Node {
@@ -184,6 +200,21 @@ message Node {
     TSModuleBlock tSModuleBlock = 78;
     TSModuleDeclaration tSModuleDeclaration = 79;
     TSParameterProperty tSParameterProperty = 80;
+    JSXElement jSXElement = 81;
+    JSXFragment jSXFragment = 82;
+    JSXOpeningElement jSXOpeningElement = 83;
+    JSXClosingElement jSXClosingElement = 84;
+    JSXOpeningFragment jSXOpeningFragment = 85;
+    JSXClosingFragment jSXClosingFragment = 86;
+    JSXAttribute jSXAttribute = 87;
+    JSXIdentifier jSXIdentifier = 88;
+    JSXMemberExpression jSXMemberExpression = 89;
+    JSXNamespacedName jSXNamespacedName = 90;
+    JSXSpreadAttribute jSXSpreadAttribute = 91;
+    JSXExpressionContainer jSXExpressionContainer = 92;
+    JSXSpreadChild jSXSpreadChild = 93;
+    JSXText jSXText = 94;
+    JSXEmptyExpression jSXEmptyExpression = 95;
     UnknownNode unknownNode = 1000;
   }
 }
@@ -517,6 +548,59 @@ message TSParameterProperty {
   optional string accessibility = 1;
   bool readonly = 2;
   Node parameter = 3;
+}
+message JSXElement {
+  Node openingElement = 1;
+  optional Node closingElement = 2;
+  repeated Node children = 3;
+}
+message JSXFragment {
+  Node openingFragment = 1;
+  Node closingFragment = 2;
+  repeated Node children = 3;
+}
+message JSXOpeningElement {
+  Node name = 1;
+  repeated Node attributes = 2;
+  bool selfClosing = 3;
+  optional Node typeArguments = 4;
+}
+message JSXClosingElement {
+  Node name = 1;
+}
+message JSXOpeningFragment {
+}
+message JSXClosingFragment {
+}
+message JSXAttribute {
+  Node name = 1;
+  optional Node value = 2;
+}
+message JSXIdentifier {
+  string name = 1;
+}
+message JSXMemberExpression {
+  Node object = 1;
+  Node property = 2;
+}
+message JSXNamespacedName {
+  Node name = 1;
+  Node namespace = 2;
+}
+message JSXSpreadAttribute {
+  Node argument = 1;
+}
+message JSXExpressionContainer {
+  Node expression = 1;
+}
+message JSXSpreadChild {
+  Node expression = 1;
+}
+message JSXText {
+  string raw = 1;
+  string value = 2;
+}
+message JSXEmptyExpression {
 }
 message UnknownNode {
 }

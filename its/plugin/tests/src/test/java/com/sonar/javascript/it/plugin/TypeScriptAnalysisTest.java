@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -159,10 +159,10 @@ class TypeScriptAnalysisTest {
       result.getLogsLines(l ->
         l.contains(
           "Found 2 tsconfig.json file(s): " +
-          tsconfigs
-            .stream()
-            .map(tsconfig -> tsconfig.toString().replace("\\", "/"))
-            .toList()
+            tsconfigs
+              .stream()
+              .map(tsconfig -> tsconfig.toString().replace("\\", "/"))
+              .toList()
         )
       )
     ).hasSize(1);

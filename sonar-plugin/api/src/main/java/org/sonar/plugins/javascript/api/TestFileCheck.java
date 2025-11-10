@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 
+/**
+ * @deprecated since 11.6, use {@link EslintHook} instead
+ */
+@Deprecated(since = "11.6", forRemoval = true)
 public abstract class TestFileCheck extends Check {
 
   @Override

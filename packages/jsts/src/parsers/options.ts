@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,10 @@ import babelPluginDecorators from '@babel/plugin-proposal-decorators';
  * @param usingBabel a flag to indicate if we intend to parse with Babel
  * @returns the parser options for the input
  */
-export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBabel = false) {
+export function buildParserOptions(
+  initialOptions: Linter.ParserOptions,
+  usingBabel = false,
+): Linter.ParserOptions {
   const options: Linter.ParserOptions = {
     tokens: true,
     comment: true,

@@ -1,4 +1,7 @@
 {
+"angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
+58
+],
 "angular.js:docs/app/src/directives.js": [
 29
 ],
@@ -53,11 +56,14 @@
 2454,
 2505,
 2509,
+2598,
 2670,
 2796,
 3002,
+3175,
 3402,
 3403,
+3409,
 3906
 ],
 "angular.js:src/ng/directive/form.js": [
@@ -94,11 +100,20 @@
 "angular.js:src/ng/document.js": [
 44
 ],
+"angular.js:src/ng/location.js": [
+154,
+303
+],
 "angular.js:src/ng/log.js": [
 85
 ],
 "angular.js:src/ng/q.js": [
+368,
 469
+],
+"angular.js:src/ng/rootScope.js": [
+1040,
+1041
 ],
 "angular.js:src/ng/sanitizeUri.js": [
 75
@@ -124,6 +139,9 @@
 "angular.js:src/ngAnimate/animateCss.js": [
 429,
 733
+],
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+13
 ],
 "angular.js:src/ngAnimate/animateQueue.js": [
 334

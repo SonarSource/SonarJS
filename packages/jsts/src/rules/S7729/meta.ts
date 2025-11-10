@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-array-method-this-argument';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Remove usage of argument "this" in array method';

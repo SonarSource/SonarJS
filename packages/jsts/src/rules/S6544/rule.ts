@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -93,7 +93,6 @@ export const rule: Rule.RuleModule = {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
     },
-    hasSuggestions: true,
     schema: [
       {
         type: 'object',

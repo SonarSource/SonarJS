@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,5 +18,7 @@ package org.sonar.plugins.javascript.api;
 
 /**
  * Marker interface for all JavaScript checks.
+ * @deprecated since 11.6, use {@link EslintHook} instead
  */
+@Deprecated(since = "11.6", forRemoval = true)
 public interface JavaScriptCheck {}
