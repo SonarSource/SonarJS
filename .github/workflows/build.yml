@@ -356,6 +356,7 @@ jobs:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
       - name: Run JS tests on Windows
+        shell: bash
         run: |
           npm run generate-meta
           npm run bridge:compile
