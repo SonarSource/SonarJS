@@ -50,7 +50,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Populate Maven cache for Linux
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
+    permissions: &read_permissions
       id-token: write
       contents: read
     steps: &populate_maven_cache_steps
@@ -87,17 +87,13 @@ jobs:
     runs-on: github-windows-latest-s
     name: Populate Maven cache for Windows
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     steps: *populate_maven_cache_steps
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
     name: Populate NPM cache for Linux
-    permissions:
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     steps: &populate_npm_cache_steps
       - *checkout
       - &mise_node_only
@@ -133,9 +129,7 @@ jobs:
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
-    permissions:
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
   build:
@@ -221,9 +215,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: build_eslint_plugin
-    permissions: &read_permissions
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     strategy:
       matrix:
         include:
