@@ -65,7 +65,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - if: steps.maven-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
         with:
@@ -74,13 +74,13 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
-      - if: steps.maven-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader
-      - if: steps.maven-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Populate Maven dependencies
         run: |
           # Download all external dependencies and plugins (excludes reactor/internal modules)
@@ -104,7 +104,7 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-          lookup-only: 'true'
+          lookup-only: true
       - *cache_checkout
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Node
