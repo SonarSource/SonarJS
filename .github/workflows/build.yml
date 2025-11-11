@@ -23,7 +23,8 @@ jobs:
       node-matrix: ${{ steps.generate-matrix.outputs.matrix }}
       js-files-hash: ${{ steps.compute-js-hash.outputs.hash }}
     steps:
-      - name: Checkout source code
+      - &checkout
+        name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
@@ -61,10 +62,8 @@ jobs:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
           lookup-only: true
-      - &cache_checkout
+      - <<: *checkout
         if: steps.cache.outputs.cache-hit != 'true'
-        name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
@@ -83,7 +82,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Populate Maven dependencies
         run: |
-          # Download all external dependencies and plugins (excludes reactor/internal modules)
+          # Download all external dependencies (excludes reactor/internal modules)
           mvn dependency:go-offline -B
 
   populate_maven_cache_win:
@@ -105,7 +104,8 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
           lookup-only: true
-      - *cache_checkout
+      - <<: *checkout
+        if: steps.cache.outputs.cache-hit != 'true'
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Node
         uses: jdx/mise-action@v3.4.0
@@ -114,14 +114,15 @@ jobs:
           mise_toml: |
             [tools]
             node = "24.11.0"
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &secrets_with_cache_check
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
-        id: secrets
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &configure_npm_with_cache_check
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
@@ -142,9 +143,7 @@ jobs:
     needs: [populate_maven_cache, populate_npm_cache]
     permissions: *read_permissions
     steps:
-      - &checkout
-        name: Checkout source code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - *checkout
       - &mise
         uses: jdx/mise-action@v3.4.0
         with:
@@ -156,7 +155,6 @@ jobs:
             node = "24.11.0"
       - &npm_cache
         name: Cache NPM dependencies
-        id: npm-cache-lookup
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
@@ -215,15 +213,10 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - uses: SonarSource/vault-action-wrapper@v3
-        id: secrets
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - <<: *secrets_with_cache_check
+        if: success()
+      - <<: *configure_npm_with_cache_check
+        if: success()
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -288,82 +281,54 @@ jobs:
           npm run bbf
           npx knip
 
-  check_js_test_cache:
-    runs-on: github-ubuntu-latest-s
-    name: Check JS test cache
-    needs: setup
-    outputs:
-      cache-hit: ${{ steps.check-cache.outputs.cache-hit }}
-    permissions:
-      id-token: write
-      contents: read
+  test_js:
+    runs-on: github-ubuntu-latest-l
+    name: Unit tests JavaScript/TypeScript
+    needs: [setup, populate_npm_cache]
+    permissions: *read_permissions
     steps:
       - name: Check JS coverage cache
-        id: check-cache
+        id: cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
-
-  check_js_test_cache_win:
-    runs-on: github-windows-latest-s
-    name: Check JS test cache (Windows)
-    needs: setup
-    outputs:
-      cache-hit: ${{ steps.check-cache.outputs.cache-hit }}
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Check JS test cache (Windows)
-        id: check-cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: .js-test-marker-win
-          key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
-          lookup-only: true
-
-  test_js:
-    runs-on: github-ubuntu-latest-l
-    name: Unit tests JavaScript/TypeScript
-    needs: [setup, check_js_test_cache, populate_npm_cache]
-    if: needs.check_js_test_cache.outputs.cache-hit != 'true'
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - *npm_cache
-      - name: Run JS tests with coverage
+      - <<: *checkout
+        if: steps.cache.outputs.cache-hit != 'true
+      - <<: *mise
+        if: steps.cache.outputs.cache-hit != 'true
+      - <<: *npm_cache
+        if: steps.cache.outputs.cache-hit != 'true
+      - if: steps.cache.outputs.cache-hit != 'true
+        name: Run JS tests with coverage
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
-      - &js_coverage_cache
-        name: Cache JS coverage
-        id: js-coverage-cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: coverage/js
-          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
 
   test_js_win:
     runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
-    needs: [setup, check_js_test_cache_win, populate_npm_cache_win]
+    needs: [setup, populate_npm_cache_win]
     if: needs.check_js_test_cache_win.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
-      - *checkout
-      - *mise
-      - *npm_cache
       - name: Cache JS test results marker (Windows)
-        id: js-test-cache-win
+        id: cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
-      - name: Run JS tests on Windows
+          lookup-only: true
+      - <<: *checkout
+        if: steps.cache.outputs.cache-hit != 'true
+      - <<: *mise
+        if: steps.cache.outputs.cache-hit != 'true
+      - <<: *npm_cache
+        if: steps.cache.outputs.cache-hit != 'true
+      - if: steps.cache.outputs.cache-hit != 'true
+        name: Run JS tests on Windows
         shell: bash
         run: |
           npm run generate-meta
@@ -431,7 +396,7 @@ jobs:
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [setup, check_js_test_cache, test_js, test_java]
+    needs: [setup, test_js, test_java]
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&
@@ -443,7 +408,13 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - *js_coverage_cache
+      - &js_coverage_cache
+        name: Cache JS coverage
+        id: js-coverage-cache
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
       - *download_maven_targets
       - *prevent_recompilation
@@ -480,7 +451,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, check_js_test_cache, test_js, test_java]
+    needs: [setup, test_js, test_java]
     if: |
       always() &&
       github.event_name == 'schedule' &&
@@ -569,13 +540,6 @@ jobs:
           MONTHLY_CACHE_DATE=$(date +'%Y-%m')
           echo "MONTHLY_CACHE_DATE=$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
           echo "ORCHESTRATOR_HOME_MONTHLY=${{ github.workspace }}/orchestrator/$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
-      - &set_daily_cache_date
-        name: Set daily cache date
-        shell: bash
-        run: |
-          DAILY_CACHE_DATE=$(date +'%Y-%m-%d')
-          echo "DAILY_CACHE_DATE=$DAILY_CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME_DAILY=${{ github.workspace }}/orchestrator/$DAILY_CACHE_DATE" >> $GITHUB_ENV
       - &orchestrator_cache_monthly
         name: Cache Orchestrator (monthly)
         uses: SonarSource/ci-github-actions/cache@v1
@@ -619,7 +583,6 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
-  # Plugin QA jobs without Node.js
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-m
     name: QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
@@ -633,6 +596,10 @@ jobs:
             sq-version: LATEST_RELEASE
             artifact: multi
             cache-type: monthly
+#          - os: Alpine
+#            sq-version: LATEST_RELEASE
+#            artifact: linux-x64-musl
+#            cache-type: monthly
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
@@ -652,7 +619,12 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *set_monthly_cache_date
-      - *set_daily_cache_date
+      - name: Set daily cache date
+        shell: bash
+        run: |
+          DAILY_CACHE_DATE=$(date +'%Y-%m-%d')
+          echo "DAILY_CACHE_DATE=$DAILY_CACHE_DATE" >> $GITHUB_ENV
+          echo "ORCHESTRATOR_HOME_DAILY=${{ github.workspace }}/orchestrator/$DAILY_CACHE_DATE" >> $GITHUB_ENV
       - &remove_node_from_path
         name: Disable existing node
         shell: bash
@@ -660,6 +632,14 @@ jobs:
           node --version
           NODE_PATH=$(which node)
           sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
+          
+          # Verify node is no longer accessible
+          if which node 2>/dev/null; then
+            echo "ERROR: node is still accessible!"
+            exit 1
+          else
+            echo "SUCCESS: node is no longer accessible"
+          fi
       - name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -697,6 +677,9 @@ jobs:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
             artifact: multi
+#          - os: Alpine
+#            sq-version: LATEST_RELEASE
+#            artifact: linux-x64-musl
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
