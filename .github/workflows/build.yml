@@ -131,6 +131,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Populate NPM cache for Linux
     needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
@@ -171,6 +172,7 @@ jobs:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
     needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
@@ -178,6 +180,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
     needs: [setup, populate_maven_cache, populate_npm_cache]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -252,6 +255,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs: [setup, populate_npm_cache]
     name: Build ESLint Plugin
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -466,6 +470,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, test_java]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -517,6 +522,7 @@ jobs:
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, test_java]
     permissions: *read_permissions
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         include:
