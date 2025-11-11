@@ -202,12 +202,6 @@ jobs:
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.maven-hash }}
-      - &config_maven
-        name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
@@ -216,6 +210,12 @@ jobs:
           artifactory-deployer-role: qa-deployer
           sonar-platform: none
           maven-args: '-DskipTests -T1C'
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
       - &upload_maven_targets
         name: Upload Maven target artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
