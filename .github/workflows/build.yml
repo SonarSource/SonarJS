@@ -31,20 +31,6 @@ jobs:
       - &checkout
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - name: Setup Java and Maven
-        uses: jdx/mise-action@v3.4.0
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "17.0"
-            maven = "3.9"
-      - &config_maven
-        name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -105,11 +91,28 @@ jobs:
             java = "17.0"
             maven = "3.9"
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+        name: Access Artifactory credentials
+        uses: SonarSource/vault-action-wrapper@v3
+        id: secrets
         with:
-          artifactory-reader-role: private-reader
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader username | ARTIFACTORY_USERNAME;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>sonarsource</id>
+                <username>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_USERNAME }}</username>
+                <password>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Populate Maven dependencies
         run: |
@@ -199,6 +202,12 @@ jobs:
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.maven-hash }}
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
