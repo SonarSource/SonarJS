@@ -639,7 +639,15 @@ jobs:
             cache-type: daily
     steps:
       - *checkout
-      - *mise_with_java
+      - &mise_with_java
+        name: Setup Java and Maven
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
       - *maven_cache
       - *config_maven
       - *get_licenses_token
