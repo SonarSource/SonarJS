@@ -172,6 +172,11 @@ await esbuild.build({
           from: ['./packages/jsts/src/parsers/estree.proto'],
           to: ['./bin/'],
         },
+        // We copy the openrpc-server.json as it needs to be accessible for the bundle
+        {
+          from: ['./packages/bridge/src/openrpc-server.json'],
+          to: ['./bin/'],
+        },
       ],
     }),
   ],
