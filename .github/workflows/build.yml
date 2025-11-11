@@ -66,19 +66,22 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
-      - &maven_cache
-        name: Cache Maven repository
+      - name: Check Maven cache
+        id: maven-cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          lookup-only: true
       - &config_maven
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader
+        if: steps.maven-cache.outputs.cache-hit != 'true'
       - name: Populate Maven dependencies
+        if: steps.maven-cache.outputs.cache-hit != 'true'
         run: |
           # Download all external dependencies and plugins (excludes reactor/internal modules)
           mvn dependency:go-offline -B
@@ -104,17 +107,6 @@ jobs:
           mise_toml: |
             [tools]
             node = "24.11.0"
-      - &secret_npm
-        uses: SonarSource/vault-action-wrapper@v3
-        id: secrets
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - &config_npm
-        name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - &npm_cache
         name: Cache NPM dependencies
         id: npm-cache
@@ -122,6 +114,20 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+          lookup-only: 'true'
+      - &secret_npm
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        uses: SonarSource/vault-action-wrapper@v3
+        id: secrets
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - &config_npm
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - name: Install NPM dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
@@ -149,7 +155,12 @@ jobs:
             maven = "3.9"
             node = "24.11.0"
       - *npm_cache
-      - *maven_cache
+      - &maven_cache
+        name: Cache Maven repository
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
