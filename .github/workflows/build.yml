@@ -104,6 +104,7 @@ jobs:
   populate_maven_cache_win:
     runs-on: github-windows-latest-s
     name: Populate Maven cache for Windows
+    needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps: *populate_maven_cache_steps
@@ -132,16 +133,14 @@ jobs:
           mise_toml: |
             [tools]
             node = "24.11.0"
-      - &secrets_with_cache_check
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - &configure_npm_with_cache_check
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
@@ -153,6 +152,7 @@ jobs:
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
+    needs: setup
     permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
