@@ -19,6 +19,9 @@ jobs:
   setup:
     runs-on: github-ubuntu-latest-s
     name: Setup - Prepare Node.js versions and test hashes
+    permissions: &read_permissions
+      id-token: write
+      contents: read
     outputs:
       node-matrix: ${{ steps.generate-matrix.outputs.matrix }}
       js-files-hash: ${{ steps.compute-js-hash.outputs.hash }}
@@ -28,6 +31,20 @@ jobs:
       - &checkout
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup Java and Maven
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -66,9 +83,7 @@ jobs:
     name: Populate Maven cache for Linux
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: &read_permissions
-      id-token: write
-      contents: read
+    permissions: *read_permissions
     steps: &populate_maven_cache_steps
       - name: Check Maven cache
         id: cache
@@ -90,28 +105,11 @@ jobs:
             java = "17.0"
             maven = "3.9"
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Access Artifactory credentials
-        uses: SonarSource/vault-action-wrapper@v3
-        id: secrets
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
         with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader username | ARTIFACTORY_USERNAME;
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure Maven settings
-        run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
-          <settings>
-            <servers>
-              <server>
-                <id>sonarsource</id>
-                <username>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_USERNAME }}</username>
-                <password>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
+          artifactory-reader-role: private-reader
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Populate Maven dependencies
         run: |
@@ -464,11 +462,6 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, test_java]
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
     permissions: *read_permissions
     steps:
       - *checkout
@@ -519,12 +512,6 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, test_java]
-    if: |
-      always() &&
-      github.event_name == 'schedule' &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
     permissions: *read_permissions
     strategy:
       matrix:
@@ -959,13 +946,7 @@ jobs:
       - css_ruling
       - ruling
       - js_ts_ruling
-    if: |
-      always() &&
-      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      (needs.test_js.result == 'success' || needs.test_js.result == 'skipped') &&
-      (needs.test_js_win.result == 'success' || needs.test_js_win.result == 'skipped')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     steps:
       - *checkout
