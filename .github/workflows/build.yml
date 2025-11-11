@@ -73,13 +73,12 @@ jobs:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
           lookup-only: true
-      - &config_maven
+      - if: steps.maven-cache.outputs.cache-hit != 'true'
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader
-        if: steps.maven-cache.outputs.cache-hit != 'true'
       - name: Populate Maven dependencies
         if: steps.maven-cache.outputs.cache-hit != 'true'
         run: |
@@ -108,7 +107,7 @@ jobs:
             [tools]
             node = "24.11.0"
       - name: Cache NPM dependencies
-        id: npm-cache-lookup
+        id: npm-cache
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
@@ -389,7 +388,12 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - *config_maven
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
       - name: Run Java tests with coverage
         run: mvn test -T1C -Pcoverage,coverage-report
 
