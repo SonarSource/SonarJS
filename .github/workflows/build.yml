@@ -107,9 +107,8 @@ jobs:
           mise_toml: |
             [tools]
             node = "24.11.0"
-      - &npm_cache
-        name: Cache NPM dependencies
-        id: npm-cache
+      - name: Cache NPM dependencies
+        id: npm-cache-lookup
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
@@ -154,7 +153,13 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "24.11.0"
-      - *npm_cache
+      - &npm_cache
+        name: Cache NPM dependencies
+        id: npm-cache-lookup
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
       - &maven_cache
         name: Cache Maven repository
         uses: SonarSource/ci-github-actions/cache@v1
