@@ -90,11 +90,28 @@ jobs:
             java = "17.0"
             maven = "3.9"
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+        name: Access Artifactory credentials
+        uses: SonarSource/vault-action-wrapper@v3
+        id: secrets
         with:
-          artifactory-reader-role: private-reader
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader username | ARTIFACTORY_USERNAME;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>sonarsource</id>
+                <username>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_USERNAME }}</username>
+                <password>${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Populate Maven dependencies
         run: |
