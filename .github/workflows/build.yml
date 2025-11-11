@@ -432,12 +432,7 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - &config_maven
-        name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
+      - *config_maven
       - name: Run Java tests with coverage
         run: mvn test -T1C -Pcoverage,coverage-report
 
