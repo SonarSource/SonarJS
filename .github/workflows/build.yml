@@ -253,8 +253,7 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - &mise_with_matrix_node
-        uses: jdx/mise-action@v3.4.0
+      - uses: jdx/mise-action@v3.4.0
         with:
           version: 2025.11.2
           mise_toml: |
@@ -275,7 +274,14 @@ jobs:
     permissions: *read_permissions
     steps:
       - *checkout
-      - *mise_node_only
+      - &mise_node_only
+        name: Setup Node
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
       - *npm_cache
       - name: Run knip
         run: |
