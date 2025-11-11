@@ -15,35 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as express from 'express';
-import { Worker } from 'node:worker_threads';
 import { createDelegator, createWsDelegator } from './delegate.js';
-import { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
-import { WebSocketServer } from 'ws';
-
-export type WorkerMessageListeners = {
-  permanent: ((message: any) => void)[];
-  oneTimers: ((message: any) => void)[];
-};
+import type { WebSocketServer } from 'ws';
+import type { Worker } from 'node:worker_threads';
+import type { WorkerData } from '../../shared/src/helpers/worker.js';
+import type { WorkerMessageListeners } from './server.js';
 
 export default function router(
   worker: Worker | undefined,
   workerData: WorkerData,
   wss: WebSocketServer,
+  workerMessageListeners: WorkerMessageListeners,
 ): express.Router {
-  const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
-  if (worker) {
-    worker.on('message', message => {
-      for (const listener of workerMessageListeners.permanent) {
-        listener(message);
-      }
-      for (const listener of workerMessageListeners.oneTimers) {
-        listener(message);
-      }
-      workerMessageListeners.oneTimers = [];
-    });
-  }
-
   const router = express.Router();
   const delegate = createDelegator(worker, workerData, workerMessageListeners);
   const wsDelegate = createWsDelegator(worker, workerData, workerMessageListeners);

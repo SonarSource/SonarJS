@@ -15,7 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles } from '../projectAnalysis.js';
-import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
+import {
+  canAccessFileSystem,
+  isAnalyzableFile,
+  isSonarLint,
+} from '../../../../../shared/src/helpers/configuration.js';
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
@@ -50,7 +54,7 @@ export class SourceFileStore implements FileStore {
 
   async isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
-    if (isSonarLint()) {
+    if (isSonarLint() || !canAccessFileSystem()) {
       await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
     } else if (inputFiles) {
       //if we are in SQS, the files in the request will already contain all found files

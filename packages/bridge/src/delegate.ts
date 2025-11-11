@@ -21,7 +21,7 @@ import type { Worker } from 'node:worker_threads';
 import type { BridgeRequest, RequestResult, RequestType, WsIncrementalResult } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import type { RawData, WebSocket } from 'ws';
-import type { WorkerMessageListeners } from './router.js';
+import type { WorkerMessageListeners } from './server.js';
 
 /**
  * Returns a delegate function to handle an HTTP request
