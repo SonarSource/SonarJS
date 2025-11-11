@@ -1,5 +1,5 @@
 # SonarJS Docker Image
-FROM node:20.12-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -7,9 +7,6 @@ WORKDIR /app
 COPY ./bin/ ./bin/
 COPY package.json ./
 COPY packages/bridge/src/openrpc-server.json ./
-
-# Set environment variables
-ENV NODE_ENV=production
 
 # Expose default port (adjust if needed)
 EXPOSE 3000
