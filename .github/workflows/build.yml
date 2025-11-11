@@ -116,6 +116,7 @@ jobs:
             node = "24.11.0"
       - &secrets_with_cache_check
         if: steps.cache.outputs.cache-hit != 'true'
+        id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -295,12 +296,12 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
       - <<: *checkout
-        if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
       - <<: *mise
-        if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
       - <<: *npm_cache
-        if: steps.cache.outputs.cache-hit != 'true
-      - if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
@@ -311,7 +312,6 @@ jobs:
     runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win]
-    if: needs.check_js_test_cache_win.outputs.cache-hit != 'true'
     permissions: *read_permissions
     steps:
       - name: Cache JS test results marker (Windows)
