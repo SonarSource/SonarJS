@@ -501,7 +501,6 @@ jobs:
 
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
-  # Plugin QA jobs with Node.js
   plugin_qa_with_node:
     runs-on: github-ubuntu-latest-m
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
@@ -600,17 +599,13 @@ jobs:
             sq-version: LATEST_RELEASE
             artifact: multi
             cache-type: monthly
-          - os: Alpine
-            sq-version: LATEST_RELEASE
-            artifact: linux-x64-musl
-            cache-type: monthly
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
             cache-type: daily
     steps:
       - *checkout
-      - *mise
+      - *mise_with_java
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -660,23 +655,20 @@ jobs:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
             artifact: multi
-          - os: Alpine
-            sq-version: LATEST_RELEASE
-            artifact: linux-x64-musl
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
     steps:
       - *checkout
-      - *mise
+      - *mise_with_java
       - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
       - name: Run Fast Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
