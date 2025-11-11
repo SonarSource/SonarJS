@@ -338,12 +338,12 @@ jobs:
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
       - <<: *checkout
-        if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
       - <<: *mise
-        if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
       - <<: *npm_cache
-        if: steps.cache.outputs.cache-hit != 'true
-      - if: steps.cache.outputs.cache-hit != 'true
+        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
         run: |
