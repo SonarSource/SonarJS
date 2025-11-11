@@ -54,10 +54,18 @@ jobs:
       id-token: write
       contents: read
     steps: &populate_maven_cache_steps
-      - &checkout
+      - name: Check Maven cache
+        id: cache
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          lookup-only: true
+      - &cache_checkout
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - &mise_with_java
+      - if: steps.maven-cache.outputs.cache-hit != 'true'
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
         with:
@@ -66,21 +74,14 @@ jobs:
             [tools]
             java = "17.0"
             maven = "3.9"
-      - name: Check Maven cache
-        id: maven-cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          lookup-only: true
       - if: steps.maven-cache.outputs.cache-hit != 'true'
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@master
         with:
           artifactory-reader-role: private-reader
-      - name: Populate Maven dependencies
-        if: steps.maven-cache.outputs.cache-hit != 'true'
+      - if: steps.maven-cache.outputs.cache-hit != 'true'
+        name: Populate Maven dependencies
         run: |
           # Download all external dependencies and plugins (excludes reactor/internal modules)
           mvn dependency:go-offline -B
@@ -97,8 +98,15 @@ jobs:
     name: Populate NPM cache for Linux
     permissions: *read_permissions
     steps: &populate_npm_cache_steps
-      - *checkout
-      - &mise_node_only
+      - name: Cache NPM dependencies
+        id: cache
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+          lookup-only: 'true'
+      - *cache_checkout
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Node
         uses: jdx/mise-action@v3.4.0
         with:
@@ -106,28 +114,20 @@ jobs:
           mise_toml: |
             [tools]
             node = "24.11.0"
-      - name: Cache NPM dependencies
-        id: npm-cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-          lookup-only: 'true'
-      - &secret_npm
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         id: secrets
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - &config_npm
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
-      - name: Install NPM dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Install NPM dependencies
         run: npm ci
 
   populate_npm_cache_win:
@@ -142,7 +142,9 @@ jobs:
     needs: [populate_maven_cache, populate_npm_cache]
     permissions: *read_permissions
     steps:
-      - *checkout
+      - &checkout
+        name: Checkout source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - &mise
         uses: jdx/mise-action@v3.4.0
         with:
@@ -213,8 +215,15 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *secret_npm
-      - *config_npm
+      - uses: SonarSource/vault-action-wrapper@v3
+        id: secrets
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -225,7 +234,6 @@ jobs:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
 
-  # ESLint plugin testing
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
