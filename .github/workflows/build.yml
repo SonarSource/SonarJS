@@ -22,6 +22,8 @@ jobs:
     outputs:
       node-matrix: ${{ steps.generate-matrix.outputs.matrix }}
       js-files-hash: ${{ steps.compute-js-hash.outputs.hash }}
+      maven-hash: ${{ steps.compute-maven-hash.outputs.hash }}
+      npm-hash: ${{ steps.compute-npm-hash.outputs.hash }}
     steps:
       - &checkout
         name: Checkout source code
@@ -46,10 +48,23 @@ jobs:
           HASH=$(find packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed JS files hash: $HASH"
+      - name: Compute Maven hash for cache key
+        id: compute-maven-hash
+        run: |
+          HASH=$(find . -name 'pom.xml' -type f | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed Maven hash: $HASH"
+      - name: Compute NPM hash for cache key
+        id: compute-npm-hash
+        run: |
+          HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed NPM hash: $HASH"
 
   populate_maven_cache:
     runs-on: github-ubuntu-latest-m
     name: Populate Maven cache for Linux
+    needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: &read_permissions
       id-token: write
@@ -60,7 +75,7 @@ jobs:
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.maven-hash }}
           lookup-only: true
       - <<: *checkout
         if: steps.cache.outputs.cache-hit != 'true'
@@ -95,6 +110,7 @@ jobs:
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
     name: Populate NPM cache for Linux
+    needs: setup
     permissions: *read_permissions
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
@@ -102,7 +118,7 @@ jobs:
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           lookup-only: true
       - <<: *checkout
         if: steps.cache.outputs.cache-hit != 'true'
@@ -141,7 +157,7 @@ jobs:
   build:
     runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
-    needs: [populate_maven_cache, populate_npm_cache]
+    needs: [setup, populate_maven_cache, populate_npm_cache]
     permissions: *read_permissions
     steps:
       - *checkout
@@ -159,13 +175,13 @@ jobs:
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - &maven_cache
         name: Cache Maven repository
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.maven-hash }}
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
           deploy: true
@@ -188,7 +204,7 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
-    needs: [populate_maven_cache_win, populate_npm_cache_win]
+    needs: [setup, populate_maven_cache_win, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -208,7 +224,7 @@ jobs:
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
-    needs: populate_npm_cache
+    needs: [setup, populate_npm_cache]
     name: Build ESLint Plugin
     permissions: *read_permissions
     steps:
@@ -264,7 +280,7 @@ jobs:
   knip:
     runs-on: github-ubuntu-latest-s
     name: Knip
-    needs: populate_npm_cache
+    needs: [setup, populate_npm_cache]
     permissions: *read_permissions
     steps:
       - *checkout
@@ -339,7 +355,7 @@ jobs:
   test_java:
     runs-on: github-ubuntu-latest-m
     name: Unit tests Java
-    needs: build
+    needs: [setup, build]
     permissions: *read_permissions
     steps:
       - *checkout
@@ -379,7 +395,7 @@ jobs:
   test_java_win:
     runs-on: github-windows-latest-m
     name: Unit tests Java on Windows
-    needs: build_win
+    needs: [setup, build_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -586,7 +602,7 @@ jobs:
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-m
     name: QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
-    needs: build
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
@@ -668,7 +684,7 @@ jobs:
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-m
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
-    needs: build
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
@@ -702,7 +718,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows
-    needs: [populate_maven_cache_win, build]
+    needs: [setup, populate_maven_cache_win, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -726,7 +742,7 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
     name: QA SonarLint on Windows
-    needs: [populate_maven_cache_win, build]
+    needs: [setup, populate_maven_cache_win, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -747,7 +763,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
-    needs: [populate_maven_cache_win, build]
+    needs: [setup, populate_maven_cache_win, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -768,7 +784,7 @@ jobs:
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
-    needs: populate_npm_cache
+    needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -793,7 +809,7 @@ jobs:
   ruling:
     runs-on: github-ubuntu-latest-l
     name: Ruling Test
-    needs: build
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -822,7 +838,7 @@ jobs:
   css_ruling:
     runs-on: github-ubuntu-latest-m
     name: CSS Ruling
-    needs: build
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
