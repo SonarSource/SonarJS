@@ -77,8 +77,9 @@ jobs:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.maven-hash }}
           lookup-only: true
-      - <<: *checkout
+      - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
@@ -120,8 +121,9 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           lookup-only: true
-      - <<: *checkout
+      - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Node
         uses: jdx/mise-action@v3.4.0
@@ -230,10 +232,16 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - <<: *secrets_with_cache_check
-        if: success()
-      - <<: *configure_npm_with_cache_check
-        if: success()
+      - id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -311,12 +319,25 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
-      - <<: *checkout
+      - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-      - <<: *mise
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup tools
         if: steps.cache.outputs.cache-hit != 'true'
-      - <<: *npm_cache
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
@@ -337,12 +358,25 @@ jobs:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
-      - <<: *checkout
+      - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-      - <<: *mise
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup tools
         if: steps.cache.outputs.cache-hit != 'true'
-      - <<: *npm_cache
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
