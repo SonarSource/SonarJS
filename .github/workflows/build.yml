@@ -610,7 +610,7 @@ jobs:
             cache-type: daily
     steps:
       - *checkout
-      - *mise_with_java
+      - *mise
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -668,7 +668,7 @@ jobs:
             artifact: multi
     steps:
       - *checkout
-      - *mise_with_java
+      - *mise
       - *maven_cache
       - *config_maven
       - *get_licenses_token
