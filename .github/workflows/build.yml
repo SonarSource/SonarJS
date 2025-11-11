@@ -57,7 +57,8 @@ jobs:
       - &checkout
         name: Checkout source code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - name: Setup Java and Maven
+      - &mise_with_java
+        name: Setup Java and Maven
         uses: jdx/mise-action@v3.4.0
         with:
           version: 2025.11.2
@@ -125,15 +126,13 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-      - &npm_install
-        name: Install NPM dependencies
+      - name: Install NPM dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
       id-token: write
       contents: read
@@ -143,9 +142,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
     needs: [populate_maven_cache, populate_npm_cache]
-    permissions: &write_permissions
-      id-token: write
-      contents: write
+    permissions: *read_permissions
     steps:
       - *checkout
       - &mise
@@ -157,14 +154,7 @@ jobs:
             java = "17.0"
             maven = "3.9"
             node = "24.11.0"
-            jq = "1.8.1"
-      - &npm_cache
-        name: Cache NPM dependencies
-        id: npm-cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+      - *npm_cache
       - *maven_cache
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
@@ -190,7 +180,7 @@ jobs:
     name: Build SonarJS on Windows
     needs: [populate_maven_cache_win, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *write_permissions
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -210,7 +200,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs: populate_npm_cache
     name: Build ESLint Plugin
-    permissions: *write_permissions
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -254,9 +244,6 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
-            maven = "3.9"
-            jq = "1.8.1"
             node = "${{ matrix.node-version }}"
       - *eslint_tarball_cache
       - name: Test ESLint Plugin
@@ -273,7 +260,7 @@ jobs:
     permissions: *read_permissions
     steps:
       - *checkout
-      - *mise
+      - *mise_node_only
       - *npm_cache
       - name: Run knip
         run: |
@@ -349,7 +336,7 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - name: Cache JS test results (Windows)
+      - name: Cache JS test results marker (Windows)
         id: js-test-cache-win
         uses: SonarSource/ci-github-actions/cache@v1
         with:
@@ -424,7 +411,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
-    permissions: *write_permissions
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -474,7 +461,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       (needs.test_js.result == 'success' || needs.test_js.result == 'skipped')
-    permissions: *write_permissions
+    permissions: *read_permissions
     strategy:
       matrix:
         include:
@@ -533,7 +520,15 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - *mise_with_matrix_node
+      - &mise_with_java_and_matrix_node
+        uses: jdx/mise-action@v3.4.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "17.0"
+            maven = "3.9"
+            node = "${{ matrix.node-version }}"
       - *maven_cache
       - *config_maven
       - &get_licenses_token
@@ -587,7 +582,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - *mise_with_matrix_node
+      - *mise_with_java_and_matrix_node
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -623,7 +618,7 @@ jobs:
             cache-type: daily
     steps:
       - *checkout
-      - *mise
+      - *mise_with_java
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -681,7 +676,7 @@ jobs:
             artifact: multi
     steps:
       - *checkout
-      - *mise
+      - *mise_with_java
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -714,11 +709,31 @@ jobs:
         shell: bash
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_sonarlint_win:
+    runs-on: github-windows-latest-m
+    name: QA SonarLint on Windows
+    needs: [populate_maven_cache_win, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *maven_cache
+      - *config_maven
+      - *set_monthly_cache_date
+      - *orchestrator_cache_monthly
+      - *setup_orchestrator_home_monthly
+      - name: Run Plugin QA on Windows
+        shell: bash
+        run: |
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
@@ -741,7 +756,6 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
-  # Ruling tasks
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
@@ -754,7 +768,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: true
-      - *mise
+      - *mise_node_only
       - *npm_cache
       - name: Run JS/TS Ruling
         run: |
@@ -864,6 +878,7 @@ jobs:
       - plugin_qa_fast_with_node
       - plugin_qa_fast_without_node
       - plugin_qa_win
+      - plugin_qa_sonarlint_win
       - plugin_qa_win_fast_with_node
       - css_ruling
       - ruling
@@ -875,7 +890,7 @@ jobs:
       !contains(needs.*.result, 'cancelled') &&
       (needs.test_js.result == 'success' || needs.test_js.result == 'skipped') &&
       (needs.test_js_win.result == 'success' || needs.test_js_win.result == 'skipped')
-    permissions: *write_permissions
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
