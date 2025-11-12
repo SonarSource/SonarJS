@@ -88,7 +88,6 @@ describe('S2068', () => {
           options,
           errors: 1,
         },
-
         {
           code: `let passwords = { user: "foo", passwd: "bar" };`,
           options,
