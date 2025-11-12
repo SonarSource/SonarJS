@@ -20,65 +20,67 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
 
-const blockChainModules = [ "ethers", "viem/accounts", "tronweb" ];
-const mnemonicTakingFunctions = [ "fromPhrase", "mnemonicToAccount", "fromMnemonic" ];
+const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
+
+const MNEMONIC_FUNCTIONS = ['fromPhrase', 'mnemonicToAccount', 'fromMnemonic'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, {
+  meta: generateMeta(meta,, {
     messages: {
       reviewBlockchainSeedPhrase: `Revoke and change this seed phrase, as it is compromised.`,
     },
   }),
   create(context: Rule.RuleContext) {
-    let isBcModuleImported = false;
+    let isBlockchainModuleImported = false;
+
+    function isHardcodedString(expr: estree.Expression): boolean {
+      switch (expr.type) {
+        case 'Literal':
+          return typeof expr.value === 'string';
+        case 'TemplateLiteral':
+          return expr.expressions.length === 0;
+        case 'BinaryExpression':
+          return expr.operator === '+' && 
+                 isHardcodedString(expr.left) && 
+                 isHardcodedString(expr.right);
+        default:
+          return false;
+      }
+    }
+
+    function isMnemonicFunction(callee: estree.Expression | estree.Super): boolean {
+      return MNEMONIC_FUNCTIONS.some(func => isMemberWithProperty(callee, func));
+    }
 
     return {
       Program() {
-        isBcModuleImported = false;
+        isBlockchainModuleImported = false;
       },
 
-      ImportDeclaration(node: estree.Node) {
-        const { source } = node as estree.ImportDeclaration;
-        if (blockChainModules.includes(String(source.value))) {
-          isBcModuleImported = true;
+      ImportDeclaration(node: estree.ImportDeclaration) {
+        if (BLOCKCHAIN_MODULES.includes(node.source.value as any)) {
+          isBlockchainModuleImported = true;
         }
       },
 
-      CallExpression(node: estree.Node) {
-        const call = node as estree.CallExpression;
-        const { callee, arguments: args } = call;
-
-        if (isRequireModule(call, ...dbModules)) {
-          isBcModuleImported = true;
+      CallExpression(node: estree.CallExpression) {
+        // Check for require() calls
+        if (isRequireModule(node, ...BLOCKCHAIN_MODULES)) {
+          isBlockchainModuleImported = true;
           return;
         }
 
-        const isUnsafeFunction = mnemonicTakingFunctions.some(func =>
-          isMemberWithProperty(callee, func)
-        );
-
-        const isHardcodedString = (arg: estree.Expression) => {
-          if (arg.type === 'Literal' && typeof arg.value === 'string') {
-            return true;
-          }
-          if (arg.type === 'TemplateLiteral') {
-            return arg.expressions.length === 0;
-          }
-          if (arg.type === 'BinaryExpression' && arg.operator === '+') {
-            return isHardcodedString(arg.left) && isHardcodedString(arg.right);
-          }
-          return false;
-        }
-
+        // Report hardcoded seed phrases in mnemonic functions
         if (
-          isBcModuleImported &&
-          isUnsafeFunction &&
-          args.length > 0 &&
-          isHardcodedString(args[0])
+          isBlockchainModuleImported &&
+          isMnemonicFunction(node.callee) &&
+          node.arguments.length > 0 &&
+          node.arguments[0].type !== 'SpreadElement' &&
+          isHardcodedString(node.arguments[0])
         ) {
           context.report({
             messageId: 'reviewBlockchainSeedPhrase',
-            node: callee,
+            node: node.arguments[0],
           });
         }
       },
