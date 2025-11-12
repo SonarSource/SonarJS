@@ -665,10 +665,6 @@ jobs:
             sq-version: LATEST_RELEASE
             artifact: multi
             cache-type: monthly
-#          - os: Alpine
-#            sq-version: LATEST_RELEASE
-#            artifact: linux-x64-musl
-#            cache-type: monthly
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
@@ -734,6 +730,40 @@ jobs:
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
+  plugin_qa_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_with_java
+      - *maven_cache
+      - *config_maven
+      - *get_licenses_token
+      - *set_monthly_cache_date
+      - *remove_node_from_path
+      - name: Cache Orchestrator
+        uses: SonarSource/ci-github-actions/cache@v1
+        with:
+          path: ${{ env.ORCHESTRATOR_HOME_MONTHLY }}
+          key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}
+      - name: Setup Orchestrator home directory
+        shell: bash
+        run: |
+          mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
+          echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
+      - name: Run Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-m
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
@@ -746,9 +776,6 @@ jobs:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
             artifact: multi
-#          - os: Alpine
-#            sq-version: LATEST_RELEASE
-#            artifact: linux-x64-musl
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
@@ -766,6 +793,30 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_fast_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    container:
+      image: alpine:latest
+    steps:
+      - *checkout
+      - *mise_with_java
+      - *maven_cache
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      - name: Run Fast Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
