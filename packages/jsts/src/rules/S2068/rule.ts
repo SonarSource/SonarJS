@@ -71,8 +71,8 @@ export const rule: Rule.RuleModule = {
 function checkAssignment(
   context: Rule.RuleContext,
   patterns: string[],
-  variable: estree.Node,
-  initializer?: estree.Node | null,
+  variable: estree.Node | TSESTree.Node,
+  initializer?: estree.Node | TSESTree.Node | null,
 ) {
   if (
     initializer &&
