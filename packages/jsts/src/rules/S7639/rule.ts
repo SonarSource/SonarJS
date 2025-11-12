@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
+import * as meta from './generated-meta.js';
 
 const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
 
