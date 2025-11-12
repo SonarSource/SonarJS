@@ -70,7 +70,7 @@
     "@types/express": "5.0.5",
     "@types/functional-red-black-tree": "1.0.6",
     "@types/lodash.merge": "4.6.9",
-    "@types/node": "22.19.0",
+    "@types/node": "22.19.1",
     "@types/semver": "7.7.1",
     "@types/tmp": "0.2.6",
     "@types/ws": "8.18.1",
