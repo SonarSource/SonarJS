@@ -56,13 +56,13 @@ export const rule: Rule.RuleModule = {
         const property = node as estree.Property;
         checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
       },
-      PropertyDefinition: (node: estree.Node) => {
-        const property = node as TSESTree.PropertyDefinition;
-        checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
-      },
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
         checkLiteral(context, literalRegExp, literal);
+      },
+      PropertyDefinition: (node: estree.Node) => {
+        const property = node as TSESTree.PropertyDefinition;
+        checkAssignment(context, lowerCaseVariableNames, property.key as estree.Node, property.value as estree.Node);
       },
     };
   },
@@ -71,8 +71,8 @@ export const rule: Rule.RuleModule = {
 function checkAssignment(
   context: Rule.RuleContext,
   patterns: string[],
-  variable: estree.Node | TSESTree.Node,
-  initializer?: estree.Node | TSESTree.Node | null,
+  variable: estree.Node,
+  initializer?: estree.Node | null,
 ) {
   if (
     initializer &&
