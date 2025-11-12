@@ -25,7 +25,7 @@ const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
 const MNEMONIC_FUNCTIONS = ['fromPhrase', 'mnemonicToAccount', 'fromMnemonic'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta,, {
+  meta: generateMeta(meta, {
     messages: {
       reviewBlockchainSeedPhrase: `Revoke and change this seed phrase, as it is compromised.`,
     },
