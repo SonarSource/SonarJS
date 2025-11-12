@@ -25,10 +25,16 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
 import { handleFileResult } from './handleFileResult.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
+import { mergeCompilerOptions, createOrGetCachedProgramForFile } from '../../program/program.js';
+import { info } from '../../../../shared/src/helpers/logging.js';
+import { fillFileContent } from '../../../../shared/src/types/analysis.js';
+import { getProgramCacheManager } from '../../program/programCacheManager.js';
+import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
 
 /**
- * Analyzes JavaScript / TypeScript files using typescript-eslint programCreation instead
- * of creating the program manually.
+ * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
+ * Creates programs directly (not via typescript-eslint) with merged compiler options from all tsconfigs.
+ * Programs are cached and reused across requests, with incremental updates when files change.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
@@ -44,23 +50,62 @@ export async function analyzeWithWatchProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  // Step 1: Merge compiler options from all discovered tsconfigs
+  const tsconfigs = tsConfigStore.getTsConfigs();
+  const mergedOptions = mergeCompilerOptions(tsconfigs);
+  results.compilerOptions.push(mergedOptions);
+
+  info(
+    `Analyzing with cached programs: ${tsconfigs.length} tsconfig(s) merged, ${pendingFiles.size} file(s) to analyze`,
+  );
+
+  // Step 2: Analyze each file individually using cached programs
+  let analyzedCount = 0;
   for (const [filename, file] of Object.entries(files)) {
     if (isAnalysisCancelled()) {
       return;
     }
-    if (isJsTsFile(filename)) {
-      const tsconfig = await tsConfigStore.getTsConfigForInputFile(filename);
-      progressReport.nextFile(filename);
-      const result = await analyzeFile({
-        ...file,
-        tsConfigs: tsconfig ? [tsconfig] : undefined,
-        ...fieldsForJsTsAnalysisInput(),
-      });
-      pendingFiles.delete(filename);
-      handleFileResult(result, filename, results, incrementalResultsChannel);
-      if (!pendingFiles.size) {
-        break;
-      }
+
+    if (!isJsTsFile(filename) || !pendingFiles.has(filename)) {
+      continue;
+    }
+
+    // Get file content
+    const filled = await fillFileContent(file);
+
+    // Get or create cached program for this file
+    const { program: builderProgram } = createOrGetCachedProgramForFile(
+      getBaseDir(),
+      filename,
+      filled.fileContent,
+      mergedOptions,
+    );
+
+    // Extract underlying TypeScript program
+    const tsProgram = builderProgram.getProgram();
+
+    // Analyze the file
+    progressReport.nextFile(filename);
+    const result = await analyzeFile({
+      ...file,
+      program: tsProgram, // Pass the actual program, not tsConfigs
+      ...fieldsForJsTsAnalysisInput(),
+    });
+
+    pendingFiles.delete(filename);
+    handleFileResult(result, filename, results, incrementalResultsChannel);
+    analyzedCount++;
+
+    if (!pendingFiles.size) {
+      break;
     }
   }
+
+  // Step 3: Log cache statistics
+  const cacheStats = getProgramCacheManager().getCacheStats();
+  info(
+    `Analysis complete: ${analyzedCount} file(s) analyzed, ` +
+      `program cache: ${cacheStats.size}/${cacheStats.maxSize} entries, ` +
+      `${cacheStats.totalFilesAcrossPrograms} total files cached`,
+  );
 }

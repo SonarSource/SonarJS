@@ -252,3 +252,160 @@ export function isRootNodeModules(file: string) {
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
 }
+
+/**
+ * Extract compiler options from a tsconfig file without creating a program
+ * Handles 'extends' field and path resolution properly
+ */
+export function extractCompilerOptions(tsConfig: string): ts.CompilerOptions | null {
+  try {
+    const parseConfigHost: ts.ParseConfigHost = {
+      useCaseSensitiveFileNames: true,
+      readDirectory: ts.sys.readDirectory,
+      fileExists: ts.sys.fileExists,
+      readFile: ts.sys.readFile,
+    };
+
+    const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
+    if (config.error) {
+      warn(`Failed to parse tsconfig: ${tsConfig}`);
+      return null;
+    }
+
+    const parsedConfigFile = ts.parseJsonConfigFileContent(
+      config.config,
+      parseConfigHost,
+      path.resolve(path.dirname(tsConfig)),
+      { noEmit: true },
+      path.resolve(tsConfig),
+    );
+
+    return parsedConfigFile.options;
+  } catch (e) {
+    warn(`Failed to extract compiler options from ${tsConfig}: ${e}`);
+    return null;
+  }
+}
+
+/**
+ * Merge compiler options from all discovered tsconfig files
+ * Ignores files/include/exclude fields - only extracts and merges compilerOptions
+ */
+export function mergeCompilerOptions(tsconfigs: string[]): ts.CompilerOptions {
+  const allOptions: ts.CompilerOptions[] = [];
+
+  for (const tsconfig of tsconfigs) {
+    const options = extractCompilerOptions(tsconfig);
+    if (options) {
+      allOptions.push(options);
+    }
+  }
+
+  // Merge all options - later configs override earlier ones
+  const merged = allOptions.reduce((acc, options) => ({ ...acc, ...options }), {
+    ...defaultCompilerOptions,
+  });
+
+  return merged;
+}
+
+/**
+ * Create or get a cached SemanticDiagnosticsBuilderProgram for a single source file
+ * Uses program cache to reuse existing programs that already contain the file
+ */
+export function createOrGetCachedProgramForFile(
+  baseDir: string,
+  sourceFile: string,
+  fileContent: string,
+  compilerOptions: ts.CompilerOptions,
+): {
+  program: ts.SemanticDiagnosticsBuilderProgram;
+  host: import('./incrementalCompilerHost.js').IncrementalCompilerHost;
+  fromCache: boolean;
+  wasUpdated: boolean;
+} {
+  const { getProgramCacheManager } = require('./programCacheManager.js');
+  const { IncrementalCompilerHost } = require('./incrementalCompilerHost.js');
+  const { info } = require('../../../shared/src/helpers/logging.js');
+
+  const cacheManager = getProgramCacheManager();
+  const compilerOptionsHash = cacheManager.hashCompilerOptions(compilerOptions);
+
+  // Try to find existing program containing this file
+  const cached = cacheManager.findProgramForFile(sourceFile, fileContent, compilerOptionsHash);
+
+  if (cached.program && cached.host) {
+    const tsProgram = cached.program.getProgram();
+    const totalFiles = tsProgram.getSourceFiles().length;
+
+    if (cached.wasUpdated) {
+      // File content changed, need to recreate program for incremental update
+      info(
+        `♻️  Cache HIT (updated): Recreating program incrementally for ${sourceFile} (${totalFiles} files)`,
+      );
+
+      const host = cached.host;
+
+      const updatedProgram = ts.createSemanticDiagnosticsBuilderProgram(
+        [sourceFile],
+        compilerOptions,
+        host,
+        cached.program, // Old program for incremental reuse
+        undefined,
+        undefined,
+      );
+
+      // Update cache with new program
+      if (cached.cacheKey) {
+        cacheManager.updateProgramInCache(cached.cacheKey, updatedProgram);
+      }
+
+      return {
+        program: updatedProgram,
+        host,
+        fromCache: true,
+        wasUpdated: true,
+      };
+    } else {
+      info(`♻️  Cache HIT: Reusing program for ${sourceFile} (${totalFiles} files, no changes)`);
+
+      return {
+        program: cached.program,
+        host: cached.host,
+        fromCache: true,
+        wasUpdated: false,
+      };
+    }
+  }
+
+  // Cache miss - create new program
+  info(`⚙️  Cache MISS: Creating new program for ${sourceFile}`);
+
+  const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+  const fileContents = new Map([[sourceFile, fileContent]]);
+  host.setFileContents(fileContents);
+
+  const program = ts.createSemanticDiagnosticsBuilderProgram(
+    [sourceFile], // TypeScript will discover dependencies
+    compilerOptions,
+    host,
+    undefined,
+    undefined,
+    undefined,
+  );
+
+  // Store in cache
+  cacheManager.storeProgram([sourceFile], fileContents, program, host, compilerOptions);
+
+  const tsProgram = program.getProgram();
+  const totalFiles = tsProgram.getSourceFiles().length;
+
+  info(`✅ Program created: 1 root file → ${totalFiles} total files (dependencies discovered)`);
+
+  return {
+    program,
+    host,
+    fromCache: false,
+    wasUpdated: false,
+  };
+}
