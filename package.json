@@ -90,7 +90,7 @@
     "json-schema-to-ts": "3.1.1",
     "knip": "5.69.0",
     "license-checker": "25.0.1",
-    "memfs": "4.50.0",
+    "memfs": "4.51.0",
     "nyc": "17.1.0",
     "prettier": "3.6.2",
     "prettier-plugin-java": "2.7.7",
