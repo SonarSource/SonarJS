@@ -134,7 +134,6 @@ describe('S7639', () => {
             const account = mnemonicToAccount("seed phrase two");
           `,
           errors: 2,
-          ],
         },
         // Nested function calls
         {
@@ -143,6 +142,15 @@ describe('S7639', () => {
             function createWallet() {
               return TronWeb.fromMnemonic("test mnemonic phrase here");
             }
+          `,
+          errors: 1,
+        },
+        // HDNodeWallet with named import and variable assignment
+        {
+          code: `
+            import { HDNodeWallet } from 'ethers'
+            const mnemonic = 'Pigeons Petted Bushes Effectively Once Krusty Defeated Grapes'
+            const mnemonicWallet = HDNodeWallet.fromPhrase(mnemonic)
           `,
           errors: 1,
         },

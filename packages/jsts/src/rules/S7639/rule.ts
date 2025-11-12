@@ -33,6 +33,7 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     let isBlockchainModuleImported = false;
+    const hardcodedVariables = new Map<string, estree.Node>();
 
     function isHardcodedString(expr: estree.Expression): boolean {
       switch (expr.type) {
@@ -40,13 +41,19 @@ export const rule: Rule.RuleModule = {
           return typeof expr.value === 'string';
         case 'TemplateLiteral':
           return expr.expressions.length === 0;
-        case 'BinaryExpression':
-          return expr.operator === '+' && 
-                 isHardcodedString(expr.left) && 
-                 isHardcodedString(expr.right);
+        case 'Identifier':
+          return hardcodedVariables.has(expr.name);
         default:
           return false;
       }
+    }
+
+    function getReportNode(expr: estree.Expression): estree.Node {
+      // If it's an identifier that references a hardcoded string, report the original declaration
+      if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
+        return hardcodedVariables.get(expr.name)!;
+      }
+      return expr;
     }
 
     function isMnemonicFunction(callee: estree.Expression | estree.Super): boolean {
@@ -56,6 +63,7 @@ export const rule: Rule.RuleModule = {
     return {
       Program() {
         isBlockchainModuleImported = false;
+        hardcodedVariables.clear();
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
@@ -64,14 +72,23 @@ export const rule: Rule.RuleModule = {
         }
       },
 
+      VariableDeclarator(node: estree.VariableDeclarator) {
+        if (
+          node.id.type === 'Identifier' &&
+          node.init &&
+          (node.init.type === 'Literal' && typeof node.init.value === 'string' ||
+           node.init.type === 'TemplateLiteral' && node.init.expressions.length === 0)
+        ) {
+          hardcodedVariables.set(node.id.name, node.init);
+        }
+      },
+
       CallExpression(node: estree.CallExpression) {
-        // Check for require() calls
         if (isRequireModule(node, ...BLOCKCHAIN_MODULES)) {
           isBlockchainModuleImported = true;
           return;
         }
 
-        // Report hardcoded seed phrases in mnemonic functions
         if (
           isBlockchainModuleImported &&
           isMnemonicFunction(node.callee) &&
@@ -81,7 +98,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             messageId: 'reviewBlockchainSeedPhrase',
-            node: node.arguments[0],
+            node: getReportNode(node.arguments[0]),
           });
         }
       },
