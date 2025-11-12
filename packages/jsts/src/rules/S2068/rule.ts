@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isStringLiteral } from '../helpers/index.js';
 import path from 'node:path';
 import { FromSchema } from 'json-schema-to-ts';
@@ -53,6 +54,10 @@ export const rule: Rule.RuleModule = {
       },
       Property: (node: estree.Node) => {
         const property = node as estree.Property;
+        checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
+      },
+      PropertyDefinition: (node: estree.Node) => {
+        const property = node as TSESTree.PropertyDefinition;
         checkAssignment(context, lowerCaseVariableNames, property.key, property.value);
       },
       Literal: (node: estree.Node) => {

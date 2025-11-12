@@ -80,6 +80,16 @@ describe('S2068', () => {
           errors: 1,
         },
         {
+          code: `
+      export class Example {
+        public testingPassword = 'foo';
+      }
+      `,
+          options,
+          errors: 1,
+        },
+
+        {
           code: `let passwords = { user: "foo", passwd: "bar" };`,
           options,
           errors: 1,
