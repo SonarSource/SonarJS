@@ -25,9 +25,7 @@ import {
   isSonarLint,
   maxFilesForTypeChecking,
   canAccessFileSystem,
-  setClearFileToTsConfigCache,
   setClearTsConfigCache,
-  shouldClearFileToTsConfigCache,
   shouldClearTsConfigCache,
 } from '../../../../../shared/src/helpers/configuration.js';
 import { basename, normalize } from 'node:path/posix';
@@ -89,13 +87,6 @@ export class TsConfigStore implements FileStore {
     return this.cacheMap[this.origin].originalTsConfigFiles;
   }
 
-  async getTsConfigForInputFile(inputFile: string) {
-    if (!this.origin) {
-      throw new Error(UNINITIALIZED_ERROR);
-    }
-    return await this.cacheMap[this.origin].getTsConfigForInputFile(inputFile);
-  }
-
   async initializeTsConfigs(baseDir: string) {
     debug(`Resetting the TsConfigCache`);
     const cacheKeys = this.getCacheKeys(baseDir);
@@ -149,16 +140,6 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  clearFileToTsConfigCache() {
-    // When a new sourcecode file is created, the file to tsconfig cache is cleared, as potentially the
-    // tsconfig file that would cover this new file has already been processed, and we would not be aware of it.
-    // By clearing the cache, we guarantee correctness.
-    debug('Clearing input file to tsconfig cache');
-    for (const cache of Object.values(this.cacheMap)) {
-      cache.clearFileToTsConfigCache();
-    }
-  }
-
   dirtyCachesIfNeeded(baseDir: string) {
     const newCacheKeys = this.getCacheKeys(baseDir);
     for (const [cacheOrigin, cache] of Object.entries(this.cacheMap)) {
@@ -172,20 +153,15 @@ export class TsConfigStore implements FileStore {
     }
     const changedTsConfigs: string[] = [];
     for (const fileEvent of Object.entries(getFsEvents())) {
-      const [filename, event] = fileEvent;
+      const [filename] = fileEvent;
       const filenameLower = basename(filename).toLowerCase();
       if (filenameLower.endsWith('.json') && filenameLower.includes('tsconfig')) {
         changedTsConfigs.push(filename);
         setClearTsConfigCache(true);
-      } else if (isJsTsFile(filename) && event === 'CREATED') {
-        setClearFileToTsConfigCache(true);
       }
     }
     if (shouldClearTsConfigCache()) {
       this.clearTsConfigCache(changedTsConfigs);
-    }
-    if (shouldClearFileToTsConfigCache()) {
-      this.clearFileToTsConfigCache();
     }
   }
 
