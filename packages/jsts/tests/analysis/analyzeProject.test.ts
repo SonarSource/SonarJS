@@ -60,11 +60,7 @@ describe('analyzeProject', () => {
     });
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const result = await analyzeProject(prepareInput(fixtures, files));
-    assert(
-      consoleLogMock.calls.some(call =>
-        /Creating TypeScript\(\d\.\d\.\d\) program/.test(call.arguments[0]),
-      ),
-    );
+    assert(consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -135,7 +131,6 @@ describe('analyzeProject', () => {
     const baseDir = join(fixtures, 'empty-folder');
     const result = await analyzeProject(prepareInput(baseDir, {}));
     expect(result).toEqual({
-      compilerOptions: [],
       files: {},
       meta: {
         warnings: [],

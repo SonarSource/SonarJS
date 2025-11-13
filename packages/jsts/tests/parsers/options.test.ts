@@ -17,7 +17,7 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { createProgram } from '../../src/program/program.js';
+import { createAndSaveProgram, getProgramById } from '../../src/program/program.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 
 describe('buildParserOptions', () => {
@@ -75,7 +75,8 @@ describe('buildParserOptions', () => {
   it('should build parser options with TypeScript program', () => {
     const tsConfig = path.join(import.meta.dirname, 'fixtures', 'options', 'tsconfig.json');
 
-    const program = createProgram(tsConfig);
+    const { programId } = createAndSaveProgram(tsConfig);
+    const program = getProgramById(programId);
 
     const filePath = '/tmp/dir';
     expect(buildParserOptions({ filePath, programs: [program] })).toEqual(

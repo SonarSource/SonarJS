@@ -19,6 +19,7 @@ import { CompleteJsTsAnalysisInput, JsTsAnalysisInput } from '../analysis/analys
 import { buildParserOptions } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { Parser, parsersMap } from '../parsers/eslint.js';
+import { getProgramById } from '../program/program.js';
 import { Linter } from 'eslint';
 
 /**
@@ -42,7 +43,7 @@ export function build(input: CompleteJsTsAnalysisInput) {
       parser: vueFile ? parsersMap.typescript : undefined,
     };
     if (!vueFile) {
-      options.programs = input.program ? [input.program] : undefined;
+      options.programs = input.programId && [getProgramById(input.programId)];
       options.project = input.tsConfigs;
     }
     try {
