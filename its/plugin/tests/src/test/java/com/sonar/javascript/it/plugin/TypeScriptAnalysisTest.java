@@ -247,7 +247,14 @@ class TypeScriptAnalysisTest {
 
     assertThat(
       result.getLogsLines(l ->
-        l.matches(".*Creating TypeScript(\\(\\d\\.\\d\\.\\d\\))? program from entry point.*")
+        l.contains(
+          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
+        )
+      )
+    ).hasSize(1);
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
       )
     ).hasSize(1);
   }

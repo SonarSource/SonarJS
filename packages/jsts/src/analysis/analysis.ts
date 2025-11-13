@@ -22,7 +22,6 @@ import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
 import { CpdToken } from '../linter/visitors/cpd.js';
 import { Issue } from '../linter/issues/issue.js';
-import type { Program } from 'typescript';
 
 /**
  *
@@ -50,7 +49,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   ignoreHeaderComments?: boolean;
   allowTsParserJsFiles?: boolean;
   tsConfigs?: string[];
-  program?: Program;
+  programId?: string;
   skipAst?: boolean;
   clearDependenciesCache?: boolean;
 }

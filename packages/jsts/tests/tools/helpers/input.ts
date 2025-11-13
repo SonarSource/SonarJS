@@ -25,7 +25,7 @@ export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysi
     filePath: input.filePath!,
     fileContent: input.fileContent ?? (await readFile(input.filePath!)),
     fileType: input.fileType ?? 'MAIN',
-    program: input.program,
+    programId: input.programId,
     tsConfigs: input.tsConfigs ?? [],
     skipAst: input.skipAst ?? false,
     language: input.language ?? 'js',
