@@ -91,66 +91,51 @@ When using this for the ruling tests, make sure that you run them in series (and
 1. Create a PR with a rule description in RSPEC repo like described [here](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
 
 - Tag the RSPEC with `type-dependent` if the rule relies partially or fully on type information
+- Add a field `dependencies` if your rule should only be executed if it relies on a specific import (example: 'react' or 'jest')
+- Add a field `compatibleLanguages` with an array including, which languages you support (`js` and/or `ts`).
 
 2. Link this RSPEC PR to the implementation issue in this repo
 3. Make sure the implementation issue title contains the RSPEC number and name
 
 ### Implementing a rule
 
-1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule), by running this command from the project's root:
-
-- to obtain the 'rule-api-[RELEASE].jar', see here [sonar-rule-api repo](https://github.com/SonarSource/sonar-rule-api)
-
-```sh
-java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
-```
-
-2. Generate other files required for a new rule. Just choose your options in the prompt of the `new-rule` script
+1. Generate other files required for a new rule. Just choose your options in the prompt of the `new-rule` script
 
 ```sh
 npm run new-rule
 ```
 
-This script:
+This script will ask a few questions and:
 
-- generates a Java check class for the rule `S1234.java`
-- generates a Java check test class for the rule `S1234Test.java`
-- generates a `rules/S1234` folder
-- generates a `rules/S1234/index.ts` rule index file
-- generates a `rules/S1234/rule.ts` file for the rule implementation
-- generates a `rules/S1234/cb.fixture.js` comment-based test file (empty)
-- generates a `rules/S1234/cb.test.js` test launcher
+- generates a `rules/SXXXX` folder
+- generates a `rules/SXXXX/index.ts` rule index file
+- generates a `rules/SXXXX/rule.ts` file for the rule implementation
+- generates a `rules/SXXXX/cb.fixture.js` comment-based test file (empty)
+- generates a `rules/SXXXX/cb.test.js` test launcher
 
 It will also update some files which are not tracked by Git as they are automatically generated:
 
+- generates a Java check class for the rule `SXXXX.java`
 - updates the `rules/rules.ts` file to include the new rule
 - updates the `rules/plugin-rules.ts` file to include the new rule
 - updates the `AllRules.java` to include the new rule
 
-3. Update generated files
+2. Update generated files
    - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
    - If your rule has configurations, or you are using some from an ESLint rule, override the `configurations()` method of the Java check class
      - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be serialized to JSON as shown [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
    - If writing a rule for the test files, replace `extends Check` with `extends TestFileCheck` in the Java class. This will be done by the `new-rule` script, but make sure you are extending the right base class.
-   - In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
-     ```json
-      "compatibleLanguages": [
-        "JAVASCRIPT",
-        "TYPESCRIPT"
-      ]
-     ```
-4. Implement the rule logic in `S1234/rule.ts`
+3. Implement the rule logic in `S1234/rule.ts`
    - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
    - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
 
-5. If possible, implement quick fixes for the rule:
-   - Add its rule key in `src/linter/quickfixes/rules.ts`
-   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `src/linter/quickfixes/messages.ts`.
+4. If possible, implement quick fixes for the rule:
+   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `rules/SXXXX/meta.ts`.
    - Add a code fixture that should provide a quickfix in `tests/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
 
 ## Testing a rule
 
-We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests. Prefer comment-based tests as they are more readable!
+We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests.
 
 ### Comment-based testing
 
