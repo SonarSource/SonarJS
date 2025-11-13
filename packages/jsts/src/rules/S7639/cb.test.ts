@@ -15,5 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7639/javascript
-export const implementation = 'original';
-export const eslintId = 'review-blockchain-mnemonic';
+import { check } from '../../../tests/tools/testers/comment-based/index.js';
+import { rule } from './index.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
+
+describe(`Rule S7639`, () => {
+  check(meta, rule, import.meta.dirname);
+});
