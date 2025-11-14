@@ -50,7 +50,9 @@ export const rule: Rule.RuleModule = {
     function getReportNode(expr: estree.Expression): estree.Node {
       // If it's an identifier that references a hardcoded string, report the original declaration
       if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
-        return hardcodedVariables.get(expr.name)!;
+        const nodeName = hardcodedVariables.get(expr.name);
+        if (nodeName) {
+          return nodeName;
       }
       return expr;
     }
@@ -66,7 +68,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (BLOCKCHAIN_MODULES.includes(node.source.value as any)) {
+        if (BLOCKCHAIN_MODULES.includes(node.source.value as estree.Literal)) {
           isBlockchainModuleImported = true;
         }
       },
