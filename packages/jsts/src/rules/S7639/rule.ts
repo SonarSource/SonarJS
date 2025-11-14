@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (BLOCKCHAIN_MODULES.includes(node.source.value as estree.Literal)) {
+        if (BLOCKCHAIN_MODULES.includes(node.source.value as string)) {
           isBlockchainModuleImported = true;
         }
       },
