@@ -1,9 +1,9 @@
 ___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
-import { check } from '../../../tests/tools/testers/comment-based/index.js';
+import { test } from '../../../tests/tools/testers/comment-based/checker.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';
 
 describe(`Rule ___RULE_KEY___`, () => {
-  check(meta, rule, import.meta.dirname);
+  test(meta, rule, import.meta.dirname);
 });
