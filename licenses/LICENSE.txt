@@ -68,7 +68,7 @@ including Contributors.
 "SonarQube" means an open-source or commercial edition of software offered by
 SonarSource that is branded "SonarQube".
 
-"SonarSource" means SonarSource SA, a Swiss company registered in Switzerland
+"SonarSource" means SonarSource Sàrl, a Swiss company registered in Switzerland
 under UID No. CHE-114.587.664.
 
 "Source Code" means the form of a Program preferred for making modifications,

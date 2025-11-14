@@ -1,5 +1,5 @@
 JavaScript
-Copyright (C) 2011-2024 SonarSource SA
+Copyright (C) 2011-2024 SonarSource Sàrl
 mailto:info AT sonarsource DOT com
 
 This product includes software developed at
