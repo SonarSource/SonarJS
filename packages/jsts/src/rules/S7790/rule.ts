@@ -21,15 +21,15 @@ import { generateMeta } from '../helpers/index.js';
 import estree from 'estree';
 import * as meta from './generated-meta.js';
 
-const messages = {
-  safeCode: `Make sure executing a dynamically formatted template is safe here.`,
-};
-
 const TEMPLATING_MODULES = new Set(['pug']);
 const COMPILATION_FUNCTIONS = new Set(['compile']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, {
+    messages: {
+      safeCode: `Make sure executing a dynamically formatted template is safe here.`,
+    },
+  }),
   create(context: Rule.RuleContext) {
     const importedPugIdentifiers = new Set<string>();
 
