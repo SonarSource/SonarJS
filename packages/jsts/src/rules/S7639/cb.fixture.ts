@@ -29,7 +29,7 @@ const wallet = Wallet.fromPhrase(`abandon abandon abandon abandon abandon abando
 
 // CommonJS require
 const ethers = require('ethers');
-const wallet = ethers.HDNodeWallet.fromPhrase("test test test test test test test test test test test junk"); // Noncompliant {{Revoke and change this seed phrase, as it is compromised.}}
+const wallet = ethers.HDNodeWallet.fromPhrase("fake test test test test test test test test test test junk"); // Noncompliant {{Revoke and change this seed phrase, as it is compromised.}}
 
 // HDNodeWallet with named import and variable assignment
 const mnemonic = 'Pigeons Petted Bushes Effectively Once Krusty Defeated Grapes'; // Noncompliant {{Revoke and change this seed phrase, as it is compromised.}}
