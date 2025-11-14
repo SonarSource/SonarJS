@@ -22,7 +22,7 @@ import estree from 'estree';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  safeCode: 'Make sure executing a dynamically formatted template is safe here.',
+  safeCode: `Make sure executing a dynamically formatted template is safe here.`,
 };
 
 const TEMPLATING_MODULES = new Set(['pug']);
