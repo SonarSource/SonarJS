@@ -17,12 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
 
 import { Rule } from 'eslint';
-import {
-  isRequiredParserServices,
-  generateMeta,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/index.js';
 import estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -30,46 +25,89 @@ const messages = {
   safeCode: 'Make sure executing a dynamically formatted template is safe here.',
 };
 
-const TEMPLATING_RULES = ['pug'];
+const TEMPLATING_MODULES = ['pug'];
 const COMPILATION_FUNCTIONS = ['compile'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    let isTemplatingModuleImported = false;
+    const importedPugIdentifiers = new Set<string>();
+
     return {
       Program() {
-        isTemplatingModuleImported = false;
+        importedPugIdentifiers.clear();
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (TEMPLATING_RULES.includes(node.source.value as any)) {
-          isTemplatingModuleImported = true;
+        if (
+          typeof node.source.value === 'string' &&
+          TEMPLATING_MODULES.includes(node.source.value)
+        ) {
+          // Track imported identifiers from pug module
+          for (const specifier of node.specifiers) {
+            if (
+              specifier.type === 'ImportDefaultSpecifier' ||
+              specifier.type === 'ImportNamespaceSpecifier'
+            ) {
+              importedPugIdentifiers.add(specifier.local.name);
+            } else if (
+              specifier.type === 'ImportSpecifier' &&
+              specifier.imported.type === 'Identifier' &&
+              COMPILATION_FUNCTIONS.includes(specifier.imported.name)
+            ) {
+              importedPugIdentifiers.add(specifier.local.name);
+            }
+          }
         }
       },
 
       CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
+        checkCallExpression(node as estree.CallExpression, context, importedPugIdentifiers),
 
       NewExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
-      ...noScriptUrlRule.create(context),
+        checkNewExpression(node as estree.NewExpression, context),
     };
   },
 };
 
-function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
-  if (node.callee.type === 'Identifier') {
-    const { name } = node.callee;
-    if (
-      (COMPILATION_FUNCTIONS.includes(name) || name === 'Function') &&
-      hasAtLeastOneVariableArgument(node.arguments)
-    ) {
-      context.report({
-        messageId: 'safeCode',
-        node: node.callee,
-      });
-    }
+function checkCallExpression(
+  node: estree.CallExpression,
+  context: Rule.RuleContext,
+  importedPugIdentifiers: Set<string>,
+) {
+  // Check for direct pug.compile() calls
+  if (
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object.type === 'Identifier' &&
+    importedPugIdentifiers.has(node.callee.object.name) &&
+    node.callee.property.type === 'Identifier' &&
+    COMPILATION_FUNCTIONS.includes(node.callee.property.name)
+  ) {
+    checkArguments(node, context);
+  }
+
+  // Check for imported compile functions called directly
+  if (node.callee.type === 'Identifier' && importedPugIdentifiers.has(node.callee.name)) {
+    checkArguments(node, context);
+  }
+}
+
+function checkNewExpression(node: estree.NewExpression, context: Rule.RuleContext) {
+  // Check for new Function() constructor
+  if (node.callee.type === 'Identifier' && node.callee.name === 'Function') {
+    checkArguments(node, context);
+  }
+}
+
+function checkArguments(
+  node: estree.CallExpression | estree.NewExpression,
+  context: Rule.RuleContext,
+) {
+  if (hasAtLeastOneVariableArgument(node.arguments)) {
+    context.report({
+      messageId: 'safeCode',
+      node: node.callee,
+    });
   }
 }
 
@@ -77,7 +115,7 @@ function hasAtLeastOneVariableArgument(args: Array<estree.Node>) {
   return args.some(arg => !isLiteral(arg));
 }
 
-function isLiteral(node: estree.Node) {
+function isLiteral(node: estree.Node): boolean {
   if (node.type === 'Literal') {
     return true;
   }
