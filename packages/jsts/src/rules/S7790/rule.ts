@@ -25,8 +25,8 @@ const messages = {
   safeCode: 'Make sure executing a dynamically formatted template is safe here.',
 };
 
-const TEMPLATING_MODULES = Set(['pug']);
-const COMPILATION_FUNCTIONS = Set(['compile']);
+const TEMPLATING_MODULES = new Set(['pug']);
+const COMPILATION_FUNCTIONS = new Set(['compile']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
@@ -44,13 +44,10 @@ export const rule: Rule.RuleModule = {
           for (const specifier of node.specifiers) {
             if (
               specifier.type === 'ImportDefaultSpecifier' ||
-              specifier.type === 'ImportNamespaceSpecifier'
-            ) {
-              importedPugIdentifiers.add(specifier.local.name);
-            } else if (
-              specifier.type === 'ImportSpecifier' &&
-              specifier.imported.type === 'Identifier' &&
-              COMPILATION_FUNCTIONS.has(specifier.imported.name)
+              specifier.type === 'ImportNamespaceSpecifier' ||
+              (specifier.type === 'ImportSpecifier' &&
+                specifier.imported.type === 'Identifier' &&
+                COMPILATION_FUNCTIONS.has(specifier.imported.name))
             ) {
               importedPugIdentifiers.add(specifier.local.name);
             }

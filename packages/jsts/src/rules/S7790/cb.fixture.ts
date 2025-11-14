@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'node:fs/promises';
 import pug from 'pug';
 import { compile } from 'pug';
