@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
-import { check } from '../../../tests/tools/testers/comment-based/index.js';
+import { test } from '../../../tests/tools/testers/comment-based/checker.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';
 
 describe(`Rule S7790`, () => {
-  check(meta, rule, import.meta.dirname);
+  test(meta, rule, import.meta.dirname);
 });
