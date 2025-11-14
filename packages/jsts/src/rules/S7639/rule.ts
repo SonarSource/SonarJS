@@ -22,7 +22,6 @@ import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/
 import * as meta from './generated-meta.js';
 
 const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
-
 const MNEMONIC_FUNCTIONS = ['fromPhrase', 'mnemonicToAccount', 'fromMnemonic'];
 
 export const rule: Rule.RuleModule = {
@@ -76,8 +75,8 @@ export const rule: Rule.RuleModule = {
         if (
           node.id.type === 'Identifier' &&
           node.init &&
-          (node.init.type === 'Literal' && typeof node.init.value === 'string' ||
-           node.init.type === 'TemplateLiteral' && node.init.expressions.length === 0)
+          ((node.init.type === 'Literal' && typeof node.init.value === 'string') ||
+            (node.init.type === 'TemplateLiteral' && node.init.expressions.length === 0))
         ) {
           hardcodedVariables.set(node.id.name, node.init);
         }
