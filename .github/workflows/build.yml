@@ -735,6 +735,8 @@ jobs:
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    container:
+      image: public.ecr.aws/docker/library/bash@sha256:8b59a400afbf7db0c04c0664f91ef3db8e19dbd0a56e46b9d52342505c61628c
     permissions: *read_permissions
     steps:
       - *checkout
@@ -802,7 +804,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     container:
-      image: alpine:latest
+      image: public.ecr.aws/docker/library/bash@sha256:8b59a400afbf7db0c04c0664f91ef3db8e19dbd0a56e46b9d52342505c61628c
     steps:
       - *checkout
       - *mise_with_java
