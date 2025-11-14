@@ -30,12 +30,27 @@ const messages = {
   safeCode: 'Make sure executing a dynamically formatted template is safe here.',
 };
 
+const TEMPLATING_RULES = ['pug'];
+const COMPILATION_FUNCTIONS = ['compile'];
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
+    let isTemplatingModuleImported = false;
     return {
+      Program() {
+        isTemplatingModuleImported = false;
+      },
+
+      ImportDeclaration(node: estree.ImportDeclaration) {
+        if (TEMPLATING_RULES.includes(node.source.value as any)) {
+          isTemplatingModuleImported = true;
+        }
+      },
+
       CallExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
+
       NewExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
       ...noScriptUrlRule.create(context),
@@ -46,7 +61,10 @@ export const rule: Rule.RuleModule = {
 function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
   if (node.callee.type === 'Identifier') {
     const { name } = node.callee;
-    if ((name === 'eval' || name === 'Function') && hasAtLeastOneVariableArgument(node.arguments)) {
+    if (
+      (COMPILATION_FUNCTIONS.includes(name) || name === 'Function') &&
+      hasAtLeastOneVariableArgument(node.arguments)
+    ) {
       context.report({
         messageId: 'safeCode',
         node: node.callee,
