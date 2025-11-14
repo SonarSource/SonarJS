@@ -94,15 +94,20 @@ jobs:
     permissions: *read_permissions
     steps:
       - name: Fetch Docker Hub credentials from Vault
-        id: docker_secrets
+        id: vault
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/kv/data/docker/sonardocker login | DOCKERHUB_USERNAME;
             development/kv/data/docker/sonardocker access_token_ro | DOCKERHUB_ACCESS_TOKEN;
+      - name: Set credentials as outputs
+        id: creds
+        run: |
+          echo "username=${{ fromJSON(steps.vault.outputs.vault).DOCKERHUB_USERNAME }}" >> $GITHUB_OUTPUT
+          echo "token=${{ fromJSON(steps.vault.outputs.vault).DOCKERHUB_ACCESS_TOKEN }}" >> $GITHUB_OUTPUT
     outputs:
-      username: ${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_USERNAME }}
-      token: ${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_ACCESS_TOKEN }}
+      username: ${{ steps.creds.outputs.username }}
+      token: ${{ steps.creds.outputs.token }}
 
   populate_maven_cache:
     runs-on: github-ubuntu-latest-m
