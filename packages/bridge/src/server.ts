@@ -28,11 +28,17 @@ import {
   logMemoryError,
 } from './memory.js';
 import { WebSocketServer } from 'ws';
+import { setupOpenRPC } from './openrpc.js';
 
 /**
  * The maximum request body size
  */
 const MAX_REQUEST_SIZE = '50mb';
+
+export type WorkerMessageListeners = {
+  permanent: ((message: any) => void)[];
+  oneTimers: ((message: any) => void)[];
+};
 
 /**
  * Starts the bridge
@@ -72,115 +78,128 @@ export async function start(
   if (debugMemory) {
     unregisterGarbageCollectionObserver = registerGarbageCollectionObserver();
   }
-  return new Promise(resolve => {
-    debug('Starting the bridge server');
 
-    if (worker) {
-      worker.on('exit', () => {
-        closeServer();
-      });
-
-      worker.on('error', err => {
-        logMemoryError(err);
-      });
-    }
-
-    const app = express();
-    const server = http.createServer(app);
-    const wss = new WebSocketServer({ noServer: true, maxPayload: 0 });
-
-    server.on('upgrade', (request, socket, head) => {
-      // Only handle upgrade requests for /ws
-      if (request.headers.upgrade?.toLowerCase() === 'websocket' && request.url === '/ws') {
-        wss.handleUpgrade(request, socket, head, ws => {
-          wss.emit('connection', ws, request);
-        });
-      } else {
-        socket.destroy();
+  // Create shared worker message listeners for both router and OpenRPC server
+  const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
+  if (worker) {
+    worker.on('message', message => {
+      for (const listener of workerMessageListeners.permanent) {
+        listener(message);
       }
-    });
-
-    /**
-     * The order of the middlewares registration is important, as the
-     * error handling one should be last.
-     */
-    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
-
-    /**
-     * Builds a timeout middleware to shut down the server
-     * in case the process becomes orphan.
-     */
-    const orphanTimeout = timeout === 0 ? null : timeoutMiddleware(close, timeout);
-    if (orphanTimeout) {
-      app.use(orphanTimeout.middleware);
-    }
-
-    app.use(router(worker, { debugMemory }, wss));
-    app.use(errorMiddleware);
-
-    app.post('/close', (_: express.Request, response: express.Response) => {
-      pendingCloseRequests.push(response);
-      close();
-    });
-
-    server.on('close', () => {
-      debug('The bridge server shut down');
-      orphanTimeout?.cancel();
-      resolveClosed();
-    });
-
-    server.on('error', err => {
-      debug(`The bridge server failed: ${err}`);
-    });
-
-    server.on('listening', () => {
-      /**
-       * Since we use 0 as the default port, Node.js assigns a random port to the server,
-       * which we get using server.address().
-       */
-      debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
-      resolve({ server, serverClosed });
-    });
-
-    server.listen(port, host);
-
-    /**
-     * Shutdown the server and the worker thread
-     */
-    function close() {
-      if (worker) {
-        debug('Shutting down the worker');
-        worker.postMessage({ type: 'close' });
-      } else {
-        closeServer();
+      for (const listener of workerMessageListeners.oneTimers) {
+        listener(message);
       }
-    }
+      workerMessageListeners.oneTimers = [];
+    });
 
-    /**
-     * Shutdown the server and the worker thread
-     */
-    function closeServer() {
-      debug('Closing server');
-      for (const client of wss.clients) {
-        client.terminate(); // Immediately destroys the connection
-      }
-      wss.close(() => {
-        debug('Closed WebSocket connection');
-        unregisterGarbageCollectionObserver();
-        if (server.listening) {
-          while (pendingCloseRequests.length) {
-            pendingCloseRequests.pop()?.end();
-          }
-          /**
-           * At this point, the worker thread can no longer respond to any request from the plugin.
-           * If we reached this due to worker failure, existing requests are stalled until they time out.
-           * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
-           * close all connections and avoid waiting unnecessarily for them to eventually close.
-           */
-          server.closeAllConnections();
-          server.close();
-        }
+    worker.on('exit', () => {
+      closeServer();
+    });
+
+    worker.on('error', err => {
+      logMemoryError(err);
+    });
+  }
+
+  const app = express();
+  const server = http.createServer(app);
+  const wss = new WebSocketServer({ noServer: true, maxPayload: 0 });
+
+  server.on('upgrade', (request, socket, head) => {
+    // Only handle upgrade requests for /ws
+    if (request.headers.upgrade?.toLowerCase() === 'websocket' && request.url === '/ws') {
+      wss.handleUpgrade(request, socket, head, ws => {
+        wss.emit('connection', ws, request);
       });
+    } else {
+      socket.destroy();
     }
   });
+
+  /**
+   * The order of the middlewares registration is important, as the
+   * error handling one should be last.
+   */
+  app.use(express.json({ limit: MAX_REQUEST_SIZE }));
+
+  /**
+   * Builds a timeout middleware to shut down the server
+   * in case the process becomes orphan.
+   */
+  const orphanTimeout = timeout === 0 ? null : timeoutMiddleware(close, timeout);
+  if (orphanTimeout) {
+    app.use(orphanTimeout.middleware);
+  }
+
+  app.use(router(worker, { debugMemory }, wss, workerMessageListeners));
+  await setupOpenRPC(app, worker, { debugMemory }, workerMessageListeners);
+
+  app.use(errorMiddleware);
+
+  app.post('/close', (_: express.Request, response: express.Response) => {
+    pendingCloseRequests.push(response);
+    close();
+  });
+
+  server.on('close', () => {
+    debug('The bridge server shut down');
+    orphanTimeout?.cancel();
+    resolveClosed();
+  });
+
+  server.on('error', err => {
+    debug(`The bridge server failed: ${err}`);
+  });
+
+  /**
+   * Shutdown the server and the worker thread
+   */
+  function close() {
+    if (worker) {
+      debug('Shutting down the worker');
+      worker.postMessage({ type: 'close' });
+    } else {
+      closeServer();
+    }
+  }
+
+  /**
+   * Shutdown the server and the worker thread
+   */
+  function closeServer() {
+    debug('Closing server');
+    for (const client of wss.clients) {
+      client.terminate(); // Immediately destroys the connection
+    }
+    wss.close(() => {
+      debug('Closed WebSocket connection');
+      unregisterGarbageCollectionObserver();
+      if (server.listening) {
+        while (pendingCloseRequests.length) {
+          pendingCloseRequests.pop()?.end();
+        }
+        /**
+         * At this point, the worker thread can no longer respond to any request from the plugin.
+         * If we reached this due to worker failure, existing requests are stalled until they time out.
+         * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
+         * close all connections and avoid waiting unnecessarily for them to eventually close.
+         */
+        server.closeAllConnections();
+        server.close();
+      }
+    });
+  }
+
+  const serverListeningPromise = new Promise<{ server: http.Server; serverClosed: Promise<void> }>(
+    resolve => {
+      server.on('listening', () => {
+        // If port is 0, Node.js will assign a random port to the server, which we get using server.address().
+        debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
+        resolve({ server, serverClosed });
+      });
+    },
+  );
+  debug('Starting the bridge server');
+  server.listen(port, host);
+  return serverListeningPromise;
 }
