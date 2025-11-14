@@ -25,8 +25,8 @@ const messages = {
   safeCode: 'Make sure executing a dynamically formatted template is safe here.',
 };
 
-const TEMPLATING_MODULES = ['pug'];
-const COMPILATION_FUNCTIONS = ['compile'];
+const TEMPLATING_MODULES = Set(['pug']);
+const COMPILATION_FUNCTIONS = Set(['compile']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
@@ -39,10 +39,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (
-          typeof node.source.value === 'string' &&
-          TEMPLATING_MODULES.includes(node.source.value)
-        ) {
+        if (typeof node.source.value === 'string' && TEMPLATING_MODULES.has(node.source.value)) {
           // Track imported identifiers from pug module
           for (const specifier of node.specifiers) {
             if (
@@ -53,7 +50,7 @@ export const rule: Rule.RuleModule = {
             } else if (
               specifier.type === 'ImportSpecifier' &&
               specifier.imported.type === 'Identifier' &&
-              COMPILATION_FUNCTIONS.includes(specifier.imported.name)
+              COMPILATION_FUNCTIONS.has(specifier.imported.name)
             ) {
               importedPugIdentifiers.add(specifier.local.name);
             }
@@ -81,7 +78,7 @@ function checkCallExpression(
     node.callee.object.type === 'Identifier' &&
     importedPugIdentifiers.has(node.callee.object.name) &&
     node.callee.property.type === 'Identifier' &&
-    COMPILATION_FUNCTIONS.includes(node.callee.property.name)
+    COMPILATION_FUNCTIONS.has(node.callee.property.name)
   ) {
     checkArguments(node, context);
   }
