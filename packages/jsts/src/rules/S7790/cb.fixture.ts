@@ -7,7 +7,6 @@ import * as pugModule from 'pug';
 const template = await fs.readFile('views/userProfile.pug', { encoding: 'utf-8' })
 const fn = pug.compile(template) // Noncompliant {{Make sure executing a dynamically formatted template is safe here.}}
 //             ^^^^^^^
-fn("data")
 
 // Test case 2: Static string templates (compliant)
 const staticFn = pug.compile('h1 Hello World') // Compliant - static string
