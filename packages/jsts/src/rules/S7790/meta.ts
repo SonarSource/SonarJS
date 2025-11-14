@@ -17,4 +17,3 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
 export const implementation = 'original';
 export const eslintId = 'dynamically-constructed-templates';
-export const hasSecondaries = true;
