@@ -53,6 +53,7 @@ export const rule: Rule.RuleModule = {
         const nodeName = hardcodedVariables.get(expr.name);
         if (nodeName) {
           return nodeName;
+        }
       }
       return expr;
     }
