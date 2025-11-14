@@ -92,9 +92,6 @@ jobs:
     name: Fetch Docker Hub credentials
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    outputs:
-      username: ${{ steps.set_outputs.outputs.username }}
-      token: ${{ steps.set_outputs.outputs.token }}
     steps:
       - name: Fetch Docker Hub credentials from Vault
         id: docker_secrets
@@ -103,11 +100,9 @@ jobs:
           secrets: |
             development/kv/data/docker/sonardocker login | DOCKERHUB_USERNAME;
             development/kv/data/docker/sonardocker access_token_ro | DOCKERHUB_ACCESS_TOKEN;
-      - name: Set outputs
-        id: set_outputs
-        run: |
-          echo "username=${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_USERNAME }}" >> $GITHUB_OUTPUT
-          echo "token=${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_ACCESS_TOKEN }}" >> $GITHUB_OUTPUT
+    outputs:
+      username: ${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_USERNAME }}
+      token: ${{ fromJSON(steps.docker_secrets.outputs.vault).DOCKERHUB_ACCESS_TOKEN }}
 
   populate_maven_cache:
     runs-on: github-ubuntu-latest-m
