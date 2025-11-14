@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
+import { createProgram, createProgramFromSingleFile } from '../../program/program.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
@@ -25,6 +25,8 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
 import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
+import merge from 'lodash.merge';
+import { fillFileContent } from '../../../../shared/src/types/analysis.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -49,7 +51,7 @@ export async function analyzeWithProgram(
     if (isAnalysisCancelled()) {
       return;
     }
-    await analyzeProgram(
+    await analyzeFilesFromTsConfig(
       files,
       tsConfig,
       results,
@@ -62,9 +64,56 @@ export async function analyzeWithProgram(
       break;
     }
   }
+
+  await analyzeFilesFromEntryPoint(
+    files,
+    results,
+    pendingFiles,
+    progressReport,
+    incrementalResultsChannel,
+  );
 }
 
-async function analyzeProgram(
+async function analyzeFilesFromEntryPoint(
+  files: JsTsFiles,
+  results: ProjectAnalysisOutput,
+  pendingFiles: Set<string>,
+  progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+) {
+  const compilerOptions: ts.CompilerOptions = merge({}, ...results.compilerOptions);
+
+  for (const pendingFile of pendingFiles) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
+    let program: ts.Program;
+    info(`Creating TypeScript(${ts.version}) program from entry point ${pendingFile}`);
+    try {
+      program = createProgramFromSingleFile(
+        pendingFile,
+        (await fillFileContent(files[pendingFile])).fileContent,
+        compilerOptions,
+      );
+    } catch (e) {
+      error('Failed to create program: ' + e);
+      results.meta.warnings.push(
+        `Failed to create TypeScript program program from entry point ${pendingFile}.`,
+      );
+      return;
+    }
+    await analyzeProgram(
+      program,
+      files,
+      results,
+      pendingFiles,
+      progressReport,
+      incrementalResultsChannel,
+    );
+  }
+}
+
+async function analyzeFilesFromTsConfig(
   files: JsTsFiles,
   tsConfig: string,
   results: ProjectAnalysisOutput,
@@ -77,16 +126,10 @@ async function analyzeProgram(
     return;
   }
   processedTSConfigs.add(tsConfig);
-  info('Creating TypeScript program');
-  info(`TypeScript(${ts.version}) configuration file ${tsConfig}`);
-  let filenames, programId, projectReferences, missingTsConfig;
+  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsConfig}`);
+  let program, projectReferences, missingTsConfig;
   try {
-    ({
-      files: filenames,
-      programId,
-      projectReferences,
-      missingTsConfig,
-    } = createAndSaveProgram(tsConfig));
+    ({ program, projectReferences, missingTsConfig } = createProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
     results.meta.warnings.push(
@@ -94,35 +137,28 @@ async function analyzeProgram(
     );
     return;
   }
+  results.compilerOptions.push(program.getCompilerOptions());
   if (missingTsConfig) {
     const msg =
       "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
     warn(msg);
     results.meta.warnings.push(msg);
   }
-  for (const filename of filenames) {
-    if (isAnalysisCancelled()) {
-      return;
-    }
-    // only analyze files which are requested
-    if (files[filename] && pendingFiles.has(filename)) {
-      progressReport.nextFile(filename);
-      const result = await analyzeFile({
-        ...files[filename],
-        programId,
-        ...fieldsForJsTsAnalysisInput(),
-      });
-      pendingFiles.delete(filename);
-      handleFileResult(result, filename, results, incrementalResultsChannel);
-    }
-  }
-  deleteProgram(programId);
+
+  await analyzeProgram(
+    program,
+    files,
+    results,
+    pendingFiles,
+    progressReport,
+    incrementalResultsChannel,
+  );
 
   for (const reference of projectReferences) {
     if (isAnalysisCancelled()) {
       return;
     }
-    await analyzeProgram(
+    await analyzeFilesFromTsConfig(
       files,
       reference,
       results,
@@ -131,5 +167,32 @@ async function analyzeProgram(
       progressReport,
       incrementalResultsChannel,
     );
+  }
+}
+
+async function analyzeProgram(
+  program: ts.Program,
+  files: JsTsFiles,
+  results: ProjectAnalysisOutput,
+  pendingFiles: Set<string>,
+  progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+) {
+  for (const { fileName } of program.getSourceFiles()) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
+
+    // only analyze files which are requested
+    if (files[fileName] && pendingFiles.has(fileName)) {
+      progressReport.nextFile(fileName);
+      const result = await analyzeFile({
+        ...files[fileName],
+        program,
+        ...fieldsForJsTsAnalysisInput(),
+      });
+      pendingFiles.delete(fileName);
+      handleFileResult(result, fileName, results, incrementalResultsChannel);
+    }
   }
 }

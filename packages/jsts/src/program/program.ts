@@ -18,7 +18,7 @@
  * This file provides an API to take control over TypeScript's Program instances
  * in the context of program-based analysis for JavaScript / TypeScript.
  *
- * A TypeScript's Program instance is used by TypeScript ESLint parser in order
+ * A TypeScript's Program instance is used by TypeScript ESLint parser
  * to make available TypeScript's type checker for rules willing to use type
  * information for the sake of precision. It works similarly as using TSConfigs
  * except it gives the control over the lifecycle of this internal data structure
@@ -27,7 +27,7 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { debug, error, warn } from '../../../shared/src/helpers/logging.js';
+import { error, warn } from '../../../shared/src/helpers/logging.js';
 import {
   readFileSync,
   toUnixPath,
@@ -35,18 +35,29 @@ import {
 } from '../../../shared/src/helpers/files.js';
 
 type ProgramResult = {
-  files: string[];
   projectReferences: string[];
   missingTsConfig: boolean;
   program: ts.Program;
-  programId?: string;
+};
+
+const defaultCompilerOptions: ts.CompilerOptions = {
+  target: ts.ScriptTarget.ESNext,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.NodeNext,
+  lib: ['esnext', 'DOM'],
+  strict: true,
+  esModuleInterop: true,
+  skipLibCheck: true,
+  allowSyntheticDefaultImports: true,
+  allowJs: true,
+  checkJs: true,
 };
 
 /**
  * Gets the files resolved by a TSConfig
  *
  * The resolving of the files for a given TSConfig file is done
- * by invoking TypeScript compiler.
+ * by invoking the TypeScript compiler.
  *
  * @param tsConfig TSConfig to parse
  * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
@@ -157,74 +168,41 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
       warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
     }
   }
-  const files = program
-    .getSourceFiles()
-    .map(sourceFile => sourceFile.fileName)
-    .filter(exceptions);
 
   return {
-    files,
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
     program,
   };
 }
 
-/**
- * A cache of created TypeScript's Program instances
- *
- * It associates a program identifier to an instance of a TypeScript's Program.
- */
-const programs = new Map<string, ts.Program>();
+export function createProgramFromSingleFile(
+  fileName: string,
+  contents: string,
+  compilerOptions: ts.CompilerOptions = defaultCompilerOptions,
+) {
+  const compilerHost = ts.createCompilerHost(compilerOptions);
+  const target = compilerOptions.target ?? ts.ScriptTarget.ESNext;
 
-/**
- * A counter of created TypeScript's Program instances
- */
-let programCount = 0;
+  // Create a virtual file system with our source code
+  const sourceFile = ts.createSourceFile(fileName, contents, target, true);
 
-/**
- * Computes the next identifier available for a TypeScript's Program.
- * @returns
- */
-function nextId() {
-  programCount++;
-  return programCount.toString();
-}
-
-/**
- * Creates a TypeScript's Program instance and saves it in memory
- *
- * To be removed once Java part does not handle program creation
- */
-export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
-  const program = createProgram(tsConfig);
-
-  const programId = nextId();
-  programs.set(programId, program.program);
-  debug(`program from ${tsConfig} with id ${programId} is created`);
-  return { ...program, programId };
-}
-
-/**
- * Gets an existing TypeScript's Program by its identifier
- * @param programId the identifier of the TypeScript's Program to retrieve
- * @throws a runtime error if there is no such program
- * @returns the retrieved TypeScript's Program
- */
-export function getProgramById(programId: string): ts.Program {
-  const program = programs.get(programId);
-  if (!program) {
-    throw new Error(`Failed to find program ${programId}`);
-  }
-  return program;
-}
-
-/**
- * Deletes an existing TypeScript's Program by its identifier
- * @param programId the identifier of the TypeScript's Program to delete
- */
-export function deleteProgram(programId: string): void {
-  programs.delete(programId);
+  // Create program
+  return ts.createProgram({
+    rootNames: [fileName],
+    options: compilerOptions,
+    host: {
+      ...compilerHost,
+      getSourceFile: (name: string) => {
+        if (name === fileName) {
+          return sourceFile;
+        }
+        return compilerHost.getSourceFile(name, target);
+      },
+      fileExists: (name: string) => name === fileName || ts.sys.fileExists(name),
+      readFile: (name: string) => (name === fileName ? contents : ts.sys.readFile(name)),
+    },
+  });
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
@@ -273,16 +251,4 @@ export function isRootNodeModules(file: string) {
   const normalizedFile = toUnixPath(file);
   const topNodeModules = toUnixPath(path.resolve(path.join(root, 'node_modules')));
   return normalizedFile.startsWith(topNodeModules);
-}
-
-function exceptions(filename: string) {
-  const { dir, ext } = path.parse(filename);
-
-  /* JSON files */
-  if (ext === '.json') {
-    return false;
-  }
-
-  /* Node modules */
-  return !toUnixPath(dir).split('/').includes('node_modules');
 }
