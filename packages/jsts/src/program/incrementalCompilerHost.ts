@@ -16,6 +16,7 @@
  */
 import ts from 'typescript';
 import path from 'node:path/posix';
+import { getSourceFileContentCache, getCurrentFilesContext } from './program.js';
 
 interface FsCall {
   op: string;
@@ -25,12 +26,11 @@ interface FsCall {
 
 /**
  * Custom CompilerHost that allows:
- * - Injecting file contents without disk writes
+ * - Reading file contents from global cache (lazy loading)
  * - Tracking filesystem calls from TypeScript
  * - Incremental file updates for builder programs
  */
 export class IncrementalCompilerHost implements ts.CompilerHost {
-  private readonly fileContentsMap = new Map<string, string>();
   private readonly fileVersions = new Map<string, number>();
   private readonly sourceFileCache = new Map<
     string,
@@ -48,29 +48,19 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   /**
-   * Set file contents for multiple files (typically on initial program creation)
-   */
-  setFileContents(files: Map<string, string>): void {
-    for (const [filePath, content] of files.entries()) {
-      const normalizedPath = path.normalize(filePath);
-      this.fileContentsMap.set(normalizedPath, content);
-      this.fileVersions.set(normalizedPath, (this.fileVersions.get(normalizedPath) || 0) + 1);
-    }
-  }
-
-  /**
    * Update a single file (for incremental updates on cache hit)
    * Returns true if the file content actually changed
    */
   updateFile(filePath: string, content: string): boolean {
     const normalized = path.normalize(filePath);
-    const oldContent = this.fileContentsMap.get(normalized);
+    const cache = getSourceFileContentCache();
+    const oldContent = cache.get(normalized);
 
     if (oldContent === content) {
       return false; // No change
     }
 
-    this.fileContentsMap.set(normalized, content);
+    cache.set(normalized, content);
     this.fileVersions.set(normalized, (this.fileVersions.get(normalized) || 0) + 1);
     this.modifiedFiles.add(normalized);
 
@@ -106,26 +96,55 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   readFile(fileName: string): string | undefined {
     const normalized = path.normalize(fileName);
+    const cache = getSourceFileContentCache();
 
-    // Check in-memory overlay first
-    if (this.fileContentsMap.has(normalized)) {
-      this.trackFsCall('readFile', fileName);
-      return this.fileContentsMap.get(normalized);
+    // 1. Check global cache
+    if (cache.has(normalized)) {
+      this.trackFsCall('readFile-cache', fileName);
+      return cache.get(normalized);
     }
 
-    // Fallback to real filesystem
+    // 2. Try to get from current files context (if content is already available)
+    const filesContext = getCurrentFilesContext();
+    if (filesContext?.[fileName]?.fileContent) {
+      this.trackFsCall('readFile-context', fileName);
+      const content = filesContext[fileName].fileContent!;
+      cache.set(normalized, content);
+      return content;
+    }
+
+    // 3. Fallback to real filesystem (and cache it)
     this.trackFsCall('readFile-disk', fileName);
-    return this.baseHost.readFile(fileName);
+    const content = this.baseHost.readFile(fileName);
+    if (content) {
+      cache.set(normalized, content);
+
+      // Update files object if entry exists (keep cache and files in sync)
+      if (filesContext?.[fileName]) {
+        filesContext[fileName].fileContent = content;
+      }
+    }
+    return content;
   }
 
   fileExists(fileName: string): boolean {
     const normalized = path.normalize(fileName);
+    const cache = getSourceFileContentCache();
 
-    if (this.fileContentsMap.has(normalized)) {
-      this.trackFsCall('fileExists', fileName);
+    // 1. Check global cache
+    if (cache.has(normalized)) {
+      this.trackFsCall('fileExists-cache', fileName);
       return true;
     }
 
+    // 2. Check files context
+    const filesContext = getCurrentFilesContext();
+    if (filesContext?.[fileName]) {
+      this.trackFsCall('fileExists-context', fileName);
+      return true;
+    }
+
+    // 3. Fallback to filesystem
     this.trackFsCall('fileExists-disk', fileName);
     return this.baseHost.fileExists(fileName);
   }
@@ -147,10 +166,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       }
     }
 
-    // If we have this file in memory, create source file from our content
-    if (this.fileContentsMap.has(normalized)) {
+    // Try to read content (will use global cache or lazy load)
+    const content = this.readFile(fileName);
+    if (content) {
       this.trackFsCall('getSourceFile', fileName);
-      const content = this.fileContentsMap.get(normalized)!;
       const scriptTarget =
         typeof languageVersionOrOptions === 'number'
           ? languageVersionOrOptions
@@ -164,8 +183,8 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return sourceFile;
     }
 
-    // Fallback to base host
-    this.trackFsCall('getSourceFile-disk', fileName);
+    // Fallback to base host for files we don't have
+    this.trackFsCall('getSourceFile-disk-fallback', fileName);
     const sourceFile = this.baseHost.getSourceFile(fileName, languageVersionOrOptions, onError);
 
     if (sourceFile && !shouldCreateNewSourceFile) {

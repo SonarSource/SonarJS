@@ -15,14 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { isJsTsFile, getBaseDir } from '../../../../shared/src/helpers/configuration.js';
+import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { mergeCompilerOptions, createOrGetCachedProgramForFile } from '../../program/program.js';
+import {
+  mergeCompilerOptions,
+  createOrGetCachedProgramForFile,
+  setSourceFilesContext,
+} from '../../program/program.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
-import { fillFileContent } from '../../../../shared/src/types/analysis.js';
 import { getProgramCacheManager } from '../../program/programCacheManager.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 
@@ -45,48 +48,53 @@ export async function analyzeWithIncrementalProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  // Set up lazy loading context for CompilerHost
+  setSourceFilesContext(files);
+
   // Step 1: Merge compiler options from all discovered tsconfigs
   const tsconfigs = tsConfigStore.getTsConfigs();
-  const mergedOptions = mergeCompilerOptions(tsconfigs);
+  const { options: mergedOptions, missingTsConfig } = mergeCompilerOptions(tsconfigs);
   results.compilerOptions.push(mergedOptions);
+
+  if (missingTsConfig) {
+    const msg =
+      "At least one tsconfig.json extends a configuration that was not found. Please run 'npm install' for a more complete analysis.";
+    info(msg);
+    results.meta.warnings.push(msg);
+  }
 
   info(
     `Analyzing with cached programs: ${tsconfigs.length} tsconfig(s) merged, ${pendingFiles.size} file(s) to analyze`,
   );
 
-  // Step 2: Collect file contents for all pending files upfront
-  const fileContents = new Map<string, string>();
-  for (const filename of pendingFiles) {
-    if (files[filename]) {
-      const filled = await fillFileContent(files[filename]);
-      fileContents.set(filename, filled.fileContent);
-    }
-  }
+  const rootFiles = Array.from(pendingFiles);
 
-  // Step 3: Analyze each file individually using cached programs
+  // Step 2: Analyze each file individually using cached programs (files loaded lazily)
   let analyzedCount = 0;
-  for (const [filename, file] of Object.entries(files)) {
+  for (const filename of pendingFiles) {
     if (isAnalysisCancelled()) {
       return;
     }
 
-    if (!isJsTsFile(filename) || !pendingFiles.has(filename)) {
+    if (!files[filename]) {
       continue;
     }
 
     // Get or create cached program for this file
+    // First file: Creates program with all root files
+    // Subsequent files: Cache hit!
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       filename,
       mergedOptions,
-      fileContents,
+      rootFiles,
     );
 
     // Extract underlying TypeScript program and analyze
     const tsProgram = builderProgram.getProgram();
     await analyzeSingleFile(
       filename,
-      file,
+      files[filename],
       tsProgram,
       results,
       pendingFiles,
@@ -100,7 +108,7 @@ export async function analyzeWithIncrementalProgram(
     }
   }
 
-  // Step 4: Log cache statistics
+  // Step 3: Log cache statistics
   const cacheStats = getProgramCacheManager().getCacheStats();
   info(
     `Analysis complete: ${analyzedCount} file(s) analyzed, ` +

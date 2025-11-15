@@ -27,20 +27,18 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { error, info, warn } from '../../../shared/src/helpers/logging.js';
-import {
-  readFileSync,
-  toUnixPath,
-  addTsConfigIfDirectory,
-} from '../../../shared/src/helpers/files.js';
+import { error, info, warn, debug } from '../../../shared/src/helpers/logging.js';
+import { toUnixPath, addTsConfigIfDirectory } from '../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './incrementalCompilerHost.js';
 import { getProgramCacheManager } from './programCacheManager.js';
 
 type ProgramResult = {
   projectReferences: string[];
   missingTsConfig: boolean;
-  program: ts.Program;
+  program: ts.SemanticDiagnosticsBuilderProgram;
 };
+
+export type ProgramOptions = ts.CreateProgramOptions & { missingTsConfig: boolean };
 
 export const defaultCompilerOptions: ts.CompilerOptions = {
   target: ts.ScriptTarget.ESNext,
@@ -56,19 +54,92 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
 };
 
 /**
- * Gets the files resolved by a TSConfig
- *
- * The resolving of the files for a given TSConfig file is done
- * by invoking the TypeScript compiler.
- *
- * @param tsConfig TSConfig to parse
- * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
- * @returns the resolved TSConfig files
+ * Global cache for tsconfig file contents to avoid repeated disk reads
+ * Persists across analysis runs (especially useful for SonarLint)
  */
-export function createProgramOptions(
-  tsConfig: string,
+const tsconfigContentCache = new Map<string, string>();
+
+/**
+ * Clear the tsconfig content cache (called when tsconfig files change)
+ */
+export function clearTsConfigContentCache(): void {
+  tsconfigContentCache.clear();
+  debug('Cleared tsconfig content cache');
+}
+
+/**
+ * Global cache for source file contents
+ * Lazily populated when CompilerHost needs files
+ */
+const sourceFileContentCache = new Map<string, string>();
+
+/**
+ * Current files context for lazy loading
+ */
+let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
+
+/**
+ * Set the current files context for lazy loading
+ */
+export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
+  currentFilesContext = files;
+}
+
+/**
+ * Get the source file content cache (for CompilerHost access)
+ */
+export function getSourceFileContentCache(): Map<string, string> {
+  return sourceFileContentCache;
+}
+
+/**
+ * Get the current files context (for CompilerHost access)
+ */
+export function getCurrentFilesContext(): Record<string, { fileContent?: string }> | null {
+  return currentFilesContext;
+}
+
+/**
+ * Clear the source file content cache
+ */
+export function clearSourceFileContentCache(): void {
+  sourceFileContentCache.clear();
+  currentFilesContext = null;
+  debug('Cleared source file content cache');
+}
+
+/**
+ * Sanitize project references by resolving directories to tsconfig.json paths
+ * Warns about and filters out missing references
+ */
+export function sanitizeProjectReferences(references: readonly ts.ProjectReference[]): string[] {
+  const sanitized: string[] = [];
+
+  for (const reference of references) {
+    const sanitizedPath = addTsConfigIfDirectory(reference.path);
+    if (sanitizedPath) {
+      sanitized.push(sanitizedPath);
+    } else {
+      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
+    }
+  }
+
+  return sanitized;
+}
+
+/**
+ * Create a safe ParseConfigHost that handles missing extended tsconfig files gracefully.
+ * When TypeScript looks for extended configs in root node_modules and doesn't find them,
+ * returns an empty configuration instead of crashing.
+ *
+ * @param tsConfig Optional specific tsconfig file path
+ * @param tsconfigContents Optional content to use for the specific tsconfig
+ * @returns ParseConfigHost and a flag indicating if any tsconfig was missing
+ */
+function createSafeParseConfigHost(
+  tsConfig?: string,
   tsconfigContents?: string,
-): ts.CreateProgramOptions & { missingTsConfig: boolean } {
+): { parseConfigHost: ts.ParseConfigHost; getMissingTsConfig: () => boolean } {
   let missingTsConfig = false;
 
   const parseConfigHost: ts.ParseConfigHost = {
@@ -83,22 +154,60 @@ export function createProgramOptions(
       return ts.sys.fileExists(file);
     },
     readFile: file => {
-      if (file === tsConfig && tsconfigContents) {
+      // 1. Check if we have specific content provided for this file
+      if (tsConfig && file === tsConfig && tsconfigContents) {
         return tsconfigContents;
       }
+
+      // 2. Check cache first
+      if (tsconfigContentCache.has(file)) {
+        return tsconfigContentCache.get(file);
+      }
+
+      // 3. Read from disk
       const fileContents = ts.sys.readFile(file);
-      // When Typescript search for tsconfig, which does not exist, return empty configuration
-      // only when the check is for the last location at the root node_modules
+
+      // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
         console.log(
           `WARN Could not find tsconfig.json: ${file}; falling back to an empty configuration.`,
         );
-        return '{}';
+        const emptyConfig = '{}';
+        tsconfigContentCache.set(file, emptyConfig);
+        return emptyConfig;
       }
+
+      // 5. Cache the content if found
+      if (fileContents) {
+        tsconfigContentCache.set(file, fileContents);
+      }
+
       return fileContents;
     },
   };
+
+  return {
+    parseConfigHost,
+    getMissingTsConfig: () => missingTsConfig,
+  };
+}
+
+/**
+ * Gets the files resolved by a TSConfig
+ *
+ * The resolving of the files for a given TSConfig file is done
+ * by invoking the TypeScript compiler.
+ *
+ * @param tsConfig TSConfig to parse
+ * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
+ * @returns the resolved TSConfig files
+ */
+export function createProgramOptions(tsConfig: string, tsconfigContents?: string): ProgramOptions {
+  const { parseConfigHost, getMissingTsConfig } = createSafeParseConfigHost(
+    tsConfig,
+    tsconfigContents,
+  );
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
@@ -133,48 +242,39 @@ export function createProgramOptions(
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
-    missingTsConfig,
+    missingTsConfig: getMissingTsConfig(),
   };
 }
 
 /**
- * Creates a TypeScript's Program instance
+ * Creates a TypeScript's SemanticDiagnosticsBuilderProgram instance
  *
- * TypeScript creates a Program instance per TSConfig file. This means that one
- * needs a TSConfig to create such a program. Therefore, the function expects a
- * TSConfig as an input, parses it and uses it to create a TypeScript's Program
- * instance. The program creation delegates to TypeScript the resolving of input
- * files considered by the TSConfig as well as any project references.
+ * TypeScript creates a Program instance per TSConfig file. This function creates
+ * a builder program using the provided program options and an IncrementalCompilerHost
+ * for lazy file loading from cache.
  *
- * @param tsConfig the TSConfig input to create a program for
- * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
- * @returns the identifier of the created TypeScript's Program along with the
- *          program itself, the resolved files, project references and a boolean
- *          'missingTsConfig' which is true when an extended tsconfig.json path
- *          was not found, which defaulted to default Typescript configuration
+ * @param programOptions the parsed program options from createProgramOptions
+ * @param baseDir the base directory for the compiler host
+ * @returns the created TypeScript's SemanticDiagnosticsBuilderProgram along with
+ *          the resolved project references and a boolean 'missingTsConfig' which is
+ *          true when an extended tsconfig.json path was not found
  */
-export function createProgram(tsConfig: string, tsconfigContents?: string): ProgramResult {
-  if (!tsconfigContents) {
-    tsconfigContents = readFileSync(tsConfig);
-  }
-  const programOptions = createProgramOptions(tsConfig, tsconfigContents);
-  const program = ts.createProgram(programOptions);
-  const inputProjectReferences = program.getProjectReferences() ?? [];
-  const projectReferences: string[] = [];
+export function createProgram(programOptions: ProgramOptions, baseDir: string): ProgramResult {
+  const host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  const builderProgram = ts.createSemanticDiagnosticsBuilderProgram(
+    programOptions.rootNames,
+    programOptions.options,
+    host,
+  );
 
-  for (const reference of inputProjectReferences) {
-    const sanitizedReference = addTsConfigIfDirectory(reference.path);
-    if (sanitizedReference) {
-      projectReferences.push(sanitizedReference);
-    } else {
-      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
-    }
-  }
+  const tsProgram = builderProgram.getProgram();
+  const inputProjectReferences = tsProgram.getProjectReferences() ?? [];
+  const projectReferences = sanitizeProjectReferences(inputProjectReferences);
 
   return {
     projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
-    program,
+    program: builderProgram,
   };
 }
 
@@ -258,20 +358,19 @@ export function isRootNodeModules(file: string) {
 /**
  * Extract compiler options from a tsconfig file without creating a program
  * Handles 'extends' field and path resolution properly
+ * Uses safe parsing that handles missing extended tsconfig files gracefully
  */
-export function extractCompilerOptions(tsConfig: string): ts.CompilerOptions | null {
+export function extractCompilerOptions(tsConfig: string): {
+  options: ts.CompilerOptions | null;
+  missingTsConfig: boolean;
+} {
   try {
-    const parseConfigHost: ts.ParseConfigHost = {
-      useCaseSensitiveFileNames: true,
-      readDirectory: ts.sys.readDirectory,
-      fileExists: ts.sys.fileExists,
-      readFile: ts.sys.readFile,
-    };
+    const { parseConfigHost, getMissingTsConfig } = createSafeParseConfigHost();
 
     const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
     if (config.error) {
       warn(`Failed to parse tsconfig: ${tsConfig}`);
-      return null;
+      return { options: null, missingTsConfig: getMissingTsConfig() };
     }
 
     const parsedConfigFile = ts.parseJsonConfigFileContent(
@@ -282,10 +381,10 @@ export function extractCompilerOptions(tsConfig: string): ts.CompilerOptions | n
       path.resolve(tsConfig),
     );
 
-    return parsedConfigFile.options;
+    return { options: parsedConfigFile.options, missingTsConfig: getMissingTsConfig() };
   } catch (e) {
     warn(`Failed to extract compiler options from ${tsConfig}: ${e}`);
-    return null;
+    return { options: null, missingTsConfig: false };
   }
 }
 
@@ -293,13 +392,20 @@ export function extractCompilerOptions(tsConfig: string): ts.CompilerOptions | n
  * Merge compiler options from all discovered tsconfig files
  * Ignores files/include/exclude fields - only extracts and merges compilerOptions
  */
-export function mergeCompilerOptions(tsconfigs: string[]): ts.CompilerOptions {
+export function mergeCompilerOptions(tsconfigs: string[]): {
+  options: ts.CompilerOptions;
+  missingTsConfig: boolean;
+} {
   const allOptions: ts.CompilerOptions[] = [];
+  let anyMissing = false;
 
   for (const tsconfig of tsconfigs) {
-    const options = extractCompilerOptions(tsconfig);
+    const { options, missingTsConfig } = extractCompilerOptions(tsconfig);
     if (options) {
       allOptions.push(options);
+    }
+    if (missingTsConfig) {
+      anyMissing = true;
     }
   }
 
@@ -308,23 +414,27 @@ export function mergeCompilerOptions(tsconfigs: string[]): ts.CompilerOptions {
     ...defaultCompilerOptions,
   });
 
-  return merged;
+  return {
+    options: merged,
+    missingTsConfig: anyMissing,
+  };
 }
 
 /**
  * Create or get a cached SemanticDiagnosticsBuilderProgram for a source file
  * Uses program cache to reuse existing programs that already contain the file
+ * Files are read lazily from the global cache via IncrementalCompilerHost
  *
  * @param baseDir The base directory for resolving module paths
  * @param sourceFile The source file to create or find a program for
  * @param compilerOptions TypeScript compiler options to use
- * @param rootFileContents Contents for all root files (keys are file paths, to avoid FS access)
+ * @param rootFiles All root files to include in the program (defaults to just sourceFile)
  */
 export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
   compilerOptions: ts.CompilerOptions,
-  rootFileContents: Map<string, string>,
+  rootFiles: string[] = [sourceFile],
 ): {
   program: ts.SemanticDiagnosticsBuilderProgram;
   host: IncrementalCompilerHost;
@@ -332,8 +442,8 @@ export function createOrGetCachedProgramForFile(
   wasUpdated: boolean;
 } {
   const cacheManager = getProgramCacheManager();
-  const rootFiles = Array.from(rootFileContents.keys());
-  const fileContent = rootFileContents.get(sourceFile)!;
+  const cache = getSourceFileContentCache();
+  const fileContent = cache.get(sourceFile)!;
 
   // Try to find existing program containing this file
   const cached = cacheManager.findProgramForFile(sourceFile, fileContent);
@@ -385,11 +495,11 @@ export function createOrGetCachedProgramForFile(
       (rootFiles.length > 1 ? ` (+ ${rootFiles.length - 1} additional root files)` : ''),
   );
 
+  // Host will read files lazily from global cache
   const host = new IncrementalCompilerHost(compilerOptions, baseDir);
-  host.setFileContents(rootFileContents);
 
   const program = ts.createSemanticDiagnosticsBuilderProgram(
-    rootFiles, // TypeScript will discover dependencies
+    rootFiles, // TypeScript will discover dependencies lazily
     compilerOptions,
     host,
   );

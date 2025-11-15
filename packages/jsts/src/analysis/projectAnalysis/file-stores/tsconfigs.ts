@@ -25,6 +25,7 @@ import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { clearTsConfigContentCache } from '../../../program/program.js';
 
 export const UNINITIALIZED_ERROR =
   'TSConfig cache has not been initialized. Call loadFiles() first.';
@@ -110,6 +111,7 @@ export class TsConfigStore implements FileStore {
     this.foundLookupTsConfigs = [];
     this.foundPropertyTsConfigs = [];
     this.providedPropertyTsConfigs = undefined;
+    clearTsConfigContentCache();
   }
 
   setup(baseDir: string) {

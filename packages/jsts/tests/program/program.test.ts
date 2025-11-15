@@ -31,7 +31,9 @@ describe('program', () => {
     const reference = path.join(fixtures, 'reference');
     const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-    const { program, projectReferences } = createProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const { program: builderProgram, projectReferences } = createProgram(programOptions, fixtures);
+    const program = builderProgram.getProgram();
     const files = program.getSourceFiles().map(f => f.fileName);
 
     expect(program).toBeDefined();
@@ -46,7 +48,13 @@ describe('program', () => {
     const fixtures = path.join(import.meta.dirname, 'fixtures');
     const tsConfig = path.join(fixtures, `tsconfig_missing_reference.json`);
 
-    const { program, projectReferences, missingTsConfig } = createProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const {
+      program: builderProgram,
+      projectReferences,
+      missingTsConfig,
+    } = createProgram(programOptions, fixtures);
+    const program = builderProgram.getProgram();
 
     expect(program).toBeDefined();
     expect(program.getSourceFiles().map(f => f.fileName)).toEqual(
@@ -58,19 +66,27 @@ describe('program', () => {
 
   it('should fail creating a program with a syntactically incorrect tsconfig', () => {
     const tsConfig = path.join(import.meta.dirname, 'fixtures', 'tsconfig.syntax.json');
-    expect(() => createProgram(tsConfig)).toThrow();
+    expect(() => createProgramOptions(tsConfig)).toThrow();
   });
 
   it('should fail creating a program with a semantically incorrect tsconfig', () => {
     const tsConfig = path.join(import.meta.dirname, 'fixtures', 'tsconfig.semantic.json');
-    expect(() => createProgram(tsConfig)).toThrow(/^Unknown compiler option 'targetSomething'./);
+    expect(() => createProgramOptions(tsConfig)).toThrow(
+      /^Unknown compiler option 'targetSomething'./,
+    );
   });
 
   it('should still create a program when extended tsconfig does not exist', () => {
     const fixtures = path.join(import.meta.dirname, 'fixtures');
     const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-    const { program, projectReferences, missingTsConfig } = createProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const {
+      program: builderProgram,
+      projectReferences,
+      missingTsConfig,
+    } = createProgram(programOptions, fixtures);
+    const program = builderProgram.getProgram();
 
     expect(program).toBeDefined();
     expect(program.getSourceFiles().map(f => f.fileName)).toEqual(
@@ -194,6 +210,7 @@ describe('program', () => {
 
   it('jsonParse does not resolve imports, createProgram does', () => {
     const fixtures = toUnixPath(path.join(import.meta.dirname, 'fixtures'));
+    const pathsFixtures = path.join(import.meta.dirname, 'fixtures', 'paths');
     const tsConfig = toUnixPath(path.join(fixtures, 'paths', 'tsconfig.json'));
     const mainFile = toUnixPath(path.join(fixtures, 'paths', 'file.ts'));
     const dependencyPath = toUnixPath(path.join(fixtures, 'paths', 'subfolder', 'index.ts'));
@@ -201,8 +218,11 @@ describe('program', () => {
     expect(files).toContain(mainFile);
     expect(files).not.toContain(dependencyPath);
 
-    files = createProgram(tsConfig)
-      .program.getSourceFiles()
+    const programOptions = createProgramOptions(tsConfig);
+    const { program: builderProgram } = createProgram(programOptions, pathsFixtures);
+    files = builderProgram
+      .getProgram()
+      .getSourceFiles()
       .map(f => f.fileName);
     expect(files).toContain(mainFile);
     expect(files).toContain(dependencyPath);
