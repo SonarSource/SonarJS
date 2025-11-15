@@ -15,21 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { analyzeFile } from './analyzeFile.js';
-import {
-  fieldsForJsTsAnalysisInput,
-  isJsTsFile,
-} from '../../../../shared/src/helpers/configuration.js';
+import { isJsTsFile, getBaseDir } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { handleFileResult } from './handleFileResult.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { mergeCompilerOptions, createOrGetCachedProgramForFile } from '../../program/program.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { fillFileContent } from '../../../../shared/src/types/analysis.js';
 import { getProgramCacheManager } from '../../program/programCacheManager.js';
-import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
+import { analyzeSingleFile } from './analyzeFile.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
@@ -43,7 +38,7 @@ import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
  * @param progressReport progress report to log analyzed files
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
-export async function analyzeWithWatchProgram(
+export async function analyzeWithIncrementalProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
@@ -59,7 +54,16 @@ export async function analyzeWithWatchProgram(
     `Analyzing with cached programs: ${tsconfigs.length} tsconfig(s) merged, ${pendingFiles.size} file(s) to analyze`,
   );
 
-  // Step 2: Analyze each file individually using cached programs
+  // Step 2: Collect file contents for all pending files upfront
+  const fileContents = new Map<string, string>();
+  for (const filename of pendingFiles) {
+    if (files[filename]) {
+      const filled = await fillFileContent(files[filename]);
+      fileContents.set(filename, filled.fileContent);
+    }
+  }
+
+  // Step 3: Analyze each file individually using cached programs
   let analyzedCount = 0;
   for (const [filename, file] of Object.entries(files)) {
     if (isAnalysisCancelled()) {
@@ -70,30 +74,25 @@ export async function analyzeWithWatchProgram(
       continue;
     }
 
-    // Get file content
-    const filled = await fillFileContent(file);
-
     // Get or create cached program for this file
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       filename,
-      filled.fileContent,
       mergedOptions,
+      fileContents,
     );
 
-    // Extract underlying TypeScript program
+    // Extract underlying TypeScript program and analyze
     const tsProgram = builderProgram.getProgram();
-
-    // Analyze the file
-    progressReport.nextFile(filename);
-    const result = await analyzeFile({
-      ...file,
-      program: tsProgram, // Pass the actual program, not tsConfigs
-      ...fieldsForJsTsAnalysisInput(),
-    });
-
-    pendingFiles.delete(filename);
-    handleFileResult(result, filename, results, incrementalResultsChannel);
+    await analyzeSingleFile(
+      filename,
+      file,
+      tsProgram,
+      results,
+      pendingFiles,
+      progressReport,
+      incrementalResultsChannel,
+    );
     analyzedCount++;
 
     if (!pendingFiles.size) {
@@ -101,7 +100,7 @@ export async function analyzeWithWatchProgram(
     }
   }
 
-  // Step 3: Log cache statistics
+  // Step 4: Log cache statistics
   const cacheStats = getProgramCacheManager().getCacheStats();
   info(
     `Analysis complete: ${analyzedCount} file(s) analyzed, ` +

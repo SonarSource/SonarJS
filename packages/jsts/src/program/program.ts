@@ -27,12 +27,14 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { error, warn } from '../../../shared/src/helpers/logging.js';
+import { error, info, warn } from '../../../shared/src/helpers/logging.js';
 import {
   readFileSync,
   toUnixPath,
   addTsConfigIfDirectory,
 } from '../../../shared/src/helpers/files.js';
+import { IncrementalCompilerHost } from './incrementalCompilerHost.js';
+import { getProgramCacheManager } from './programCacheManager.js';
 
 type ProgramResult = {
   projectReferences: string[];
@@ -40,7 +42,7 @@ type ProgramResult = {
   program: ts.Program;
 };
 
-const defaultCompilerOptions: ts.CompilerOptions = {
+export const defaultCompilerOptions: ts.CompilerOptions = {
   target: ts.ScriptTarget.ESNext,
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.NodeNext,
@@ -73,7 +75,7 @@ export function createProgramOptions(
     useCaseSensitiveFileNames: true,
     readDirectory: ts.sys.readDirectory,
     fileExists: file => {
-      // When Typescript checks for the very last tsconfig.json, we will always return true,
+      // When TypeScript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
       if (isLastTsConfigCheck(file)) {
         return true;
@@ -85,7 +87,7 @@ export function createProgramOptions(
         return tsconfigContents;
       }
       const fileContents = ts.sys.readFile(file);
-      // When Typescript search for tsconfig which does not exist, return empty configuration
+      // When Typescript search for tsconfig, which does not exist, return empty configuration
       // only when the check is for the last location at the root node_modules
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
@@ -310,29 +312,31 @@ export function mergeCompilerOptions(tsconfigs: string[]): ts.CompilerOptions {
 }
 
 /**
- * Create or get a cached SemanticDiagnosticsBuilderProgram for a single source file
+ * Create or get a cached SemanticDiagnosticsBuilderProgram for a source file
  * Uses program cache to reuse existing programs that already contain the file
+ *
+ * @param baseDir The base directory for resolving module paths
+ * @param sourceFile The source file to create or find a program for
+ * @param compilerOptions TypeScript compiler options to use
+ * @param rootFileContents Contents for all root files (keys are file paths, to avoid FS access)
  */
 export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
-  fileContent: string,
   compilerOptions: ts.CompilerOptions,
+  rootFileContents: Map<string, string>,
 ): {
   program: ts.SemanticDiagnosticsBuilderProgram;
-  host: import('./incrementalCompilerHost.js').IncrementalCompilerHost;
+  host: IncrementalCompilerHost;
   fromCache: boolean;
   wasUpdated: boolean;
 } {
-  const { getProgramCacheManager } = require('./programCacheManager.js');
-  const { IncrementalCompilerHost } = require('./incrementalCompilerHost.js');
-  const { info } = require('../../../shared/src/helpers/logging.js');
-
   const cacheManager = getProgramCacheManager();
-  const compilerOptionsHash = cacheManager.hashCompilerOptions(compilerOptions);
+  const rootFiles = Array.from(rootFileContents.keys());
+  const fileContent = rootFileContents.get(sourceFile)!;
 
   // Try to find existing program containing this file
-  const cached = cacheManager.findProgramForFile(sourceFile, fileContent, compilerOptionsHash);
+  const cached = cacheManager.findProgramForFile(sourceFile, fileContent);
 
   if (cached.program && cached.host) {
     const tsProgram = cached.program.getProgram();
@@ -351,8 +355,6 @@ export function createOrGetCachedProgramForFile(
         compilerOptions,
         host,
         cached.program, // Old program for incremental reuse
-        undefined,
-        undefined,
       );
 
       // Update cache with new program
@@ -378,24 +380,22 @@ export function createOrGetCachedProgramForFile(
     }
   }
 
-  // Cache miss - create new program
-  info(`⚙️  Cache MISS: Creating new program for ${sourceFile}`);
+  info(
+    `⚙️  Cache MISS: Creating new program for ${sourceFile}` +
+      (rootFiles.length > 1 ? ` (+ ${rootFiles.length - 1} additional root files)` : ''),
+  );
 
   const host = new IncrementalCompilerHost(compilerOptions, baseDir);
-  const fileContents = new Map([[sourceFile, fileContent]]);
-  host.setFileContents(fileContents);
+  host.setFileContents(rootFileContents);
 
   const program = ts.createSemanticDiagnosticsBuilderProgram(
-    [sourceFile], // TypeScript will discover dependencies
+    rootFiles, // TypeScript will discover dependencies
     compilerOptions,
     host,
-    undefined,
-    undefined,
-    undefined,
   );
 
   // Store in cache
-  cacheManager.storeProgram([sourceFile], fileContents, program, host, compilerOptions);
+  cacheManager.storeProgram(rootFiles, program, host, compilerOptions);
 
   const tsProgram = program.getProgram();
   const totalFiles = tsProgram.getSourceFiles().length;

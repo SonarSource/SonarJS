@@ -41,7 +41,7 @@ const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    tsConfigStore.clearTsConfigCache();
+    tsConfigStore.clearCache();
     sourceFileStore.clearCache();
   });
 

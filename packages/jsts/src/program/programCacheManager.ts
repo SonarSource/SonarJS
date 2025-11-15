@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { createHash } from 'crypto';
-import path from 'path';
+import path from 'node:path/posix';
 import { IncrementalCompilerHost } from './incrementalCompilerHost.js';
 import { info, debug } from '../../../shared/src/helpers/logging.js';
+import { toUnixPath } from '../../../shared/src/helpers/files.js';
 
 interface CacheEntry {
   keyObj: object; // Unique object for WeakMap key
@@ -26,8 +26,6 @@ interface CacheEntry {
     // Store ALL files in the program (discovered by TypeScript)
     filesInProgram: Set<string>;
     rootFiles: string[]; // Original files used to create the program
-    fileContentHashes: Map<string, string>; // Track content hashes for change detection
-    compilerOptionsHash: string;
     createdAt: number;
     lastUsedAt: number;
     hitCount: number;
@@ -35,23 +33,28 @@ interface CacheEntry {
   compilerOptions: ts.CompilerOptions;
 }
 
+interface ProgramWithHost {
+  program: ts.SemanticDiagnosticsBuilderProgram;
+  host: IncrementalCompilerHost;
+}
+
 /**
  * Program cache manager using LRU + WeakMap hybrid approach:
  * - LRU Map: Keeps strong references to metadata (small, always in memory)
- * - WeakMap: Keeps weak references to programs (large, can be GC'd under memory pressure)
+ * - WeakMap: Keeps weak references to program+host (large, can be GC'd under memory pressure)
  *
  * Key feature: Find a cached program that contains a single source file.
  * This allows smaller, more focused programs to coexist in the cache.
  */
 export class ProgramCacheManager {
   // Strong references: LRU keeps track of cache entries
-  private lruCache: Map<string, CacheEntry> = new Map();
+  private readonly lruCache: Map<string, CacheEntry> = new Map();
 
-  // Weak references: Programs can be GC'd when memory is needed
-  private programCache: WeakMap<object, ts.SemanticDiagnosticsBuilderProgram> = new WeakMap();
-  private compilerHostCache: WeakMap<object, IncrementalCompilerHost> = new WeakMap();
+  // Weak references: Program + host can be GC'd together when memory is needed
+  private readonly cache: WeakMap<object, ProgramWithHost> = new WeakMap();
 
-  private maxSize = 10; // Max entries in LRU (configurable)
+  private readonly maxSize = 10; // Max entries in LRU (configurable)
+  private cacheKeyCounter = 0; // Simple counter for unique cache keys
 
   /**
    * Find a cached program that contains the requested source file, and update it if content changed
@@ -59,48 +62,38 @@ export class ProgramCacheManager {
   findProgramForFile(
     sourceFile: string,
     fileContent: string,
-    compilerOptionsHash: string,
   ): {
     program: ts.SemanticDiagnosticsBuilderProgram | null;
     host: IncrementalCompilerHost | null;
     cacheKey: string | null;
     wasUpdated: boolean;
   } {
-    const normalizedFile = path.normalize(sourceFile);
-    const currentHash = this.hashFileContent(fileContent);
+    const normalizedFile = path.normalize(toUnixPath(sourceFile));
 
     // Check each cached entry to find one containing this file
     for (const [cacheKey, entry] of this.lruCache.entries()) {
-      // Must have same compiler options
-      if (entry.metadata.compilerOptionsHash !== compilerOptionsHash) {
-        continue;
-      }
-
       // Check if this program contains the file
       if (!entry.metadata.filesInProgram.has(normalizedFile)) {
         continue;
       }
 
-      // Try to get program from WeakMap
-      const program = this.programCache.get(entry.keyObj);
-      const host = this.compilerHostCache.get(entry.keyObj);
+      // Try to get program + host from WeakMap
+      const cached = this.cache.get(entry.keyObj);
 
-      if (!program || !host) {
-        // Program was GC'd, remove stale entry
+      if (!cached) {
+        // Program + host were GC'd, remove stale entry
         this.lruCache.delete(cacheKey);
         continue;
       }
 
-      // Found a match! Check if file content changed
-      const cachedHash = entry.metadata.fileContentHashes.get(normalizedFile);
-      let wasUpdated = false;
+      const { program, host } = cached;
 
-      if (currentHash !== cachedHash) {
-        // File content changed - update host
+      // Found a match! Update host if file content changed
+      // The host's updateFile() method compares content and returns whether it changed
+      const wasUpdated = host.updateFile(normalizedFile, fileContent);
+
+      if (wasUpdated) {
         debug(`File ${sourceFile} changed, updating in cached program`);
-        host.updateFile(normalizedFile, fileContent);
-        entry.metadata.fileContentHashes.set(normalizedFile, currentHash);
-        wasUpdated = true;
       }
 
       // Update LRU
@@ -123,32 +116,25 @@ export class ProgramCacheManager {
   }
 
   /**
-   * Store a newly created program with content hashes
+   * Store a newly created program
    * Discovers ALL files in the program (not just root files)
    */
   storeProgram(
     rootFiles: string[],
-    fileContents: Map<string, string>,
     program: ts.SemanticDiagnosticsBuilderProgram,
     host: IncrementalCompilerHost,
     compilerOptions: ts.CompilerOptions,
   ): void {
     const tsProgram = program.getProgram();
     const filesInProgram = new Set<string>();
-    const fileContentHashes = new Map<string, string>();
 
     // Discover all files in program
     for (const sourceFile of tsProgram.getSourceFiles()) {
       const normalized = path.normalize(sourceFile.fileName);
       filesInProgram.add(normalized);
-
-      // Hash the content (either from our map or from the source file text)
-      const content = fileContents.get(sourceFile.fileName) || sourceFile.text;
-      fileContentHashes.set(normalized, this.hashFileContent(content));
     }
 
-    const compilerOptionsHash = this.hashCompilerOptions(compilerOptions);
-    const cacheKey = this.generateCacheKey(rootFiles, compilerOptionsHash);
+    const cacheKey = `program-${this.cacheKeyCounter++}`;
 
     // Evict LRU if at capacity
     if (this.lruCache.size >= this.maxSize) {
@@ -167,8 +153,6 @@ export class ProgramCacheManager {
       metadata: {
         filesInProgram,
         rootFiles: rootFiles.map(f => path.normalize(f)),
-        fileContentHashes,
-        compilerOptionsHash,
         createdAt: Date.now(),
         lastUsedAt: Date.now(),
         hitCount: 0,
@@ -178,8 +162,7 @@ export class ProgramCacheManager {
 
     // Store in both caches
     this.lruCache.set(cacheKey, entry);
-    this.programCache.set(keyObj, program);
-    this.compilerHostCache.set(keyObj, host);
+    this.cache.set(keyObj, { program, host });
 
     info(
       `Cached program: ${rootFiles.length} root file(s) → ${filesInProgram.size} total files in program`,
@@ -195,8 +178,11 @@ export class ProgramCacheManager {
       return;
     }
 
-    // Replace program in WeakMap (using same keyObj)
-    this.programCache.set(entry.keyObj, newProgram);
+    // Get existing host and update with new program (using same keyObj)
+    const cached = this.cache.get(entry.keyObj);
+    if (cached) {
+      this.cache.set(entry.keyObj, { program: newProgram, host: cached.host });
+    }
   }
 
   private touchEntry(cacheKey: string, entry: CacheEntry): void {
@@ -206,42 +192,6 @@ export class ProgramCacheManager {
 
     entry.metadata.lastUsedAt = Date.now();
     entry.metadata.hitCount++;
-  }
-
-  private generateCacheKey(rootFiles: string[], optionsHash: string): string {
-    const filesHash = this.hashFiles(rootFiles);
-    return `${filesHash}:${optionsHash}`;
-  }
-
-  private hashFiles(files: string[]): string {
-    const sorted = [...files].sort();
-    const content = sorted.join('|');
-    return createHash('sha256').update(content).digest('hex').substring(0, 16);
-  }
-
-  hashCompilerOptions(options: ts.CompilerOptions): string {
-    // Hash relevant compiler options that affect type checking
-    const relevant = {
-      target: options.target,
-      module: options.module,
-      jsx: options.jsx,
-      moduleResolution: options.moduleResolution,
-      strict: options.strict,
-      esModuleInterop: options.esModuleInterop,
-      allowSyntheticDefaultImports: options.allowSyntheticDefaultImports,
-      skipLibCheck: options.skipLibCheck,
-      lib: options.lib,
-      types: options.types,
-      paths: options.paths,
-      baseUrl: options.baseUrl,
-      allowJs: options.allowJs,
-      checkJs: options.checkJs,
-    };
-    return createHash('sha256').update(JSON.stringify(relevant)).digest('hex').substring(0, 16);
-  }
-
-  private hashFileContent(content: string): string {
-    return createHash('sha256').update(content).digest('hex').substring(0, 16);
   }
 
   getCacheStats() {
@@ -270,8 +220,6 @@ export class ProgramCacheManager {
 let instance: ProgramCacheManager | null = null;
 
 export function getProgramCacheManager(): ProgramCacheManager {
-  if (!instance) {
-    instance = new ProgramCacheManager();
-  }
+  instance ??= new ProgramCacheManager();
   return instance;
 }

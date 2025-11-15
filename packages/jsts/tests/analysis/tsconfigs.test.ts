@@ -23,30 +23,23 @@ import {
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
 import { toUnixPath } from '../../src/rules/helpers/index.js';
-import { readFile } from 'node:fs/promises';
 import {
   setGlobalConfiguration,
   setTsConfigPaths,
 } from '../../../shared/src/helpers/configuration.js';
-import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/tsconfigs.js';
 
 const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures');
 
 describe('tsconfigs', () => {
   beforeEach(() => {
-    tsConfigStore.clearTsConfigCache();
+    tsConfigStore.clearCache();
     sourceFileStore.clearCache();
   });
-  it('should crash getting or querying tsconfig cache before initializing', async () => {
-    expect(() => tsConfigStore.getTsConfigs()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => tsConfigStore.getCurrentCache()).toThrow(new Error(UNINITIALIZED_ERROR));
-  });
 
-  it('should return the TSconfig files', async () => {
+  it('should return the TSconfig files via lookup', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
   });
 
   it('should validate the provided TSconfig files', async () => {
@@ -58,42 +51,30 @@ describe('tsconfigs', () => {
         .map(tsconfig => relative(fixtures, tsconfig))
         .concat('fake_dir/tsconfig.json'),
     );
-    tsConfigStore.clearTsConfigCache();
+    tsConfigStore.clearCache();
     await initFileStores(fixtures);
+    // Should find at least the provided tsconfigs (excluding the fake one)
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
 
   it('should work with absolute paths', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
-    setTsConfigPaths(tsConfigStore.getTsConfigs());
-    tsConfigStore.clearTsConfigCache();
+    const foundTsconfigs = tsConfigStore.getTsConfigs();
+    setTsConfigPaths(foundTsconfigs);
+    tsConfigStore.clearCache();
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
 
-  it('should write tsconfig file', async () => {
-    const { filename } = await tsConfigStore.writeTSConfigFile({
-      compilerOptions: { allowJs: true, noImplicitAny: true },
-      include: ['/path/to/project/**/*'],
-    });
-    const content = await readFile(filename, { encoding: 'utf-8' });
-    expect(content).toBe(
-      '{"compilerOptions":{"allowJs":true,"noImplicitAny":true},"include":["/path/to/project/**/*"]}',
-    );
-  });
-
-  it('should change to property of TsConfig files when provided', async () => {
+  it('should prioritize provided paths over lookup', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
     setTsConfigPaths([relative(fixtures, tsConfigStore.getTsConfigs()[0])]);
+    tsConfigStore.clearCache();
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toEqual(1);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('property');
   });
 
   it('should log when no tsconfigs are found with the provided property', async ({ mock }) => {
@@ -101,8 +82,8 @@ describe('tsconfigs', () => {
 
     setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: ['tsconfig.fake.json'] });
     await initFileStores(fixtures);
+    // Should fall back to lookup when provided paths don't exist
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
 
     expect(
       (console.error as Mock<typeof console.error>).mock.calls.map(call => call.arguments[0]),

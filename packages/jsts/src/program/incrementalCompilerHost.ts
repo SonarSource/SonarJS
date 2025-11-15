@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import path from 'path';
+import path from 'node:path/posix';
 
 interface FsCall {
   op: string;
@@ -30,16 +30,19 @@ interface FsCall {
  * - Incremental file updates for builder programs
  */
 export class IncrementalCompilerHost implements ts.CompilerHost {
-  private fileContentsMap = new Map<string, string>();
-  private fileVersions = new Map<string, number>();
-  private sourceFileCache = new Map<string, { version: number; sourceFile: ts.SourceFile }>();
-  private modifiedFiles = new Set<string>();
+  private readonly fileContentsMap = new Map<string, string>();
+  private readonly fileVersions = new Map<string, number>();
+  private readonly sourceFileCache = new Map<
+    string,
+    { version: number; sourceFile: ts.SourceFile }
+  >();
+  private readonly modifiedFiles = new Set<string>();
   private fsCallTracker: FsCall[] = [];
-  private baseHost: ts.CompilerHost;
+  private readonly baseHost: ts.CompilerHost;
 
   constructor(
     compilerOptions: ts.CompilerOptions,
-    private baseDir: string,
+    private readonly baseDir: string,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions);
   }
@@ -78,7 +81,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   /**
-   * Get list of files that were modified since last check
+   * Get a list of files that were modified since the last check
    */
   getModifiedFiles(): string[] {
     return Array.from(this.modifiedFiles);
@@ -112,7 +115,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     // Fallback to real filesystem
     this.trackFsCall('readFile-disk', fileName);
-    return this.baseHost.readFile!(fileName);
+    return this.baseHost.readFile(fileName);
   }
 
   fileExists(fileName: string): boolean {
@@ -124,7 +127,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
 
     this.trackFsCall('fileExists-disk', fileName);
-    return this.baseHost.fileExists!(fileName);
+    return this.baseHost.fileExists(fileName);
   }
 
   getSourceFile(
@@ -139,7 +142,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // Check cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
       const cached = this.sourceFileCache.get(normalized);
-      if (cached && cached.version === currentVersion) {
+      if (cached?.version === currentVersion) {
         return cached.sourceFile;
       }
     }
