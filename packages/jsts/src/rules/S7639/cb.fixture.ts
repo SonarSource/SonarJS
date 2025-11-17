@@ -1,4 +1,4 @@
-import { Wallet } from 'ethers';
+import { Wallet, HDNodeWallet } from 'ethers';
 import { mnemonicToAccount } from 'viem/accounts';
 import TronWeb from 'tronweb';
 
