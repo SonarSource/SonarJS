@@ -76,6 +76,7 @@ export const rule: Rule.RuleModule = {
 
       VariableDeclarator(node: estree.VariableDeclarator) {
         if (
+          isBlockchainModuleImported &&
           node.id.type === 'Identifier' &&
           node.init &&
           ((node.init.type === 'Literal' && typeof node.init.value === 'string') ||
