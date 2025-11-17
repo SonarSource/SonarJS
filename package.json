@@ -85,7 +85,7 @@
     "eslint-doc-generator": "2.3.0",
     "esprima": "4.0.1",
     "expect": "30.2.0",
-    "glob": "11.0.3",
+    "glob": "11.1.0",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
     "knip": "5.69.1",
