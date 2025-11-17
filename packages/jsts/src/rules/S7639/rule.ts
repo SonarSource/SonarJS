@@ -18,7 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
+import {
+  generateMeta,
+  isIdentifier,
+  isMemberWithProperty,
+  isRequireModule,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
@@ -59,7 +64,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function isMnemonicFunction(callee: estree.Expression | estree.Super): boolean {
-      return MNEMONIC_FUNCTIONS.some(func => isMemberWithProperty(callee, func));
+      return MNEMONIC_FUNCTIONS.some(
+        func => isMemberWithProperty(callee, func) || isIdentifier(callee, func),
+      );
     }
 
     return {
