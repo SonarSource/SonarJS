@@ -17,19 +17,19 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
 import estree from 'estree';
+import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-
-const messages = {
-  safeCode: `Make sure executing a dynamically formatted template is safe here.`,
-};
 
 const TEMPLATING_MODULES = new Set(['pug']);
 const COMPILATION_FUNCTIONS = new Set(['compile']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, {
+    messages: {
+      safeCode: `Make sure executing a dynamically formatted template is safe here.`,
+    },
+  }),
   create(context: Rule.RuleContext) {
     const importedPugIdentifiers = new Set<string>();
 
