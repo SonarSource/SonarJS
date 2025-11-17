@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
 import estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -33,6 +33,37 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const importedPugIdentifiers = new Set<string>();
 
+    function isCompilationFunction(callee: estree.Expression | estree.Super): boolean {
+      return COMPILATION_FUNCTIONS.some(
+        func => isMemberWithProperty(callee, func) || isIdentifier(callee, func),
+      );
+    }
+
+    function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
+      if (
+        isCompilationFunction(node.callee) &&
+        importedPugIdentifiers.has(node.callee.object.name)
+      ) {
+        checkArguments(node, context);
+      }
+    }
+
+    function checkNewExpression(node: estree.NewExpression) {
+      // Check for new Function() constructor
+      if (node.callee.type === 'Identifier' && node.callee.name === 'Function') {
+        checkArguments(node, context);
+      }
+    }
+
+    function checkArguments(node: estree.CallExpression | estree.NewExpression) {
+      if (hasAtLeastOneVariableArgument(node.arguments)) {
+        context.report({
+          messageId: 'safeCode',
+          node: node.callee,
+        });
+      }
+    }
+
     return {
       Program() {
         importedPugIdentifiers.clear();
@@ -40,7 +71,6 @@ export const rule: Rule.RuleModule = {
 
       ImportDeclaration(node: estree.ImportDeclaration) {
         if (typeof node.source.value === 'string' && TEMPLATING_MODULES.has(node.source.value)) {
-          // Track imported identifiers from pug module
           for (const specifier of node.specifiers) {
             if (
               specifier.type === 'ImportDefaultSpecifier' ||
@@ -56,54 +86,13 @@ export const rule: Rule.RuleModule = {
       },
 
       CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context, importedPugIdentifiers),
+        checkCallExpression(node as estree.CallExpression, context),
 
       NewExpression: (node: estree.Node) =>
         checkNewExpression(node as estree.NewExpression, context),
     };
   },
 };
-
-function checkCallExpression(
-  node: estree.CallExpression,
-  context: Rule.RuleContext,
-  importedPugIdentifiers: Set<string>,
-) {
-  // Check for direct pug.compile() calls
-  if (
-    node.callee.type === 'MemberExpression' &&
-    node.callee.object.type === 'Identifier' &&
-    importedPugIdentifiers.has(node.callee.object.name) &&
-    node.callee.property.type === 'Identifier' &&
-    COMPILATION_FUNCTIONS.has(node.callee.property.name)
-  ) {
-    checkArguments(node, context);
-  }
-
-  // Check for imported compile functions called directly
-  if (node.callee.type === 'Identifier' && importedPugIdentifiers.has(node.callee.name)) {
-    checkArguments(node, context);
-  }
-}
-
-function checkNewExpression(node: estree.NewExpression, context: Rule.RuleContext) {
-  // Check for new Function() constructor
-  if (node.callee.type === 'Identifier' && node.callee.name === 'Function') {
-    checkArguments(node, context);
-  }
-}
-
-function checkArguments(
-  node: estree.CallExpression | estree.NewExpression,
-  context: Rule.RuleContext,
-) {
-  if (hasAtLeastOneVariableArgument(node.arguments)) {
-    context.report({
-      messageId: 'safeCode',
-      node: node.callee,
-    });
-  }
-}
 
 function hasAtLeastOneVariableArgument(args: Array<estree.Node>) {
   return args.some(arg => !isLiteral(arg));
