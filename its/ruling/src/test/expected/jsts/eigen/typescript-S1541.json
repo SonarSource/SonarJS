@@ -5,6 +5,9 @@
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 211
 ],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
+496
+],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
 178
 ],
@@ -141,6 +144,9 @@
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkList/MyCollectionArtworkGridItem.tsx": [
 22
+],
+"eigen:src/app/Scenes/MyCollection/utils/initializeSubmissionArtworkForm.ts": [
+5
 ],
 "eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
 64
