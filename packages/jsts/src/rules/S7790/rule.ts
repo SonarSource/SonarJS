@@ -14,98 +14,116 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7790/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S2077/javascript
 
-import { Rule } from 'eslint';
-import estree from 'estree';
-import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
+import type { Rule } from 'eslint';
+import type estree from 'estree';
+import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const TEMPLATING_MODULES = new Set(['pug']);
-const COMPILATION_FUNCTIONS = new Set(['compile']);
+const templatingModules = {
+  pug: ['compile', 'render'],
+  ejs: ['compile', 'render'],
+};
+
+type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      safeCode: `Make sure executing a dynamically formatted template is safe here.`,
+      safeQuery: `Make sure this dynamically formatted template is safe here.`,
     },
   }),
   create(context: Rule.RuleContext) {
-    const importedPugIdentifiers = new Set<string>();
+    let isTemplateModuleImported = false;
+    const importedModules = new Set<string>();
 
-    function isCompilationFunction(callee: estree.Expression | estree.Super): boolean {
-      return COMPILATION_FUNCTIONS.some(
-        func => isMemberWithProperty(callee, func) || isIdentifier(callee, func),
-      );
-    }
-
-    function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
-      if (
-        isCompilationFunction(node.callee) &&
-        importedPugIdentifiers.has(node.callee.object.name)
-      ) {
-        checkArguments(node, context);
+    function isSensitiveIdentifier(callee: estree.Expression | estree.Super) {
+      for (const moduleName of importedModules) {
+        const functions = templatingModules[moduleName];
+        for (const func of functions) {
+          if (isMemberWithProperty(callee, func) || isIdentifier(callee, func)) {
+            return true;
+          }
+        }
       }
-    }
-
-    function checkNewExpression(node: estree.NewExpression) {
-      // Check for new Function() constructor
-      if (node.callee.type === 'Identifier' && node.callee.name === 'Function') {
-        checkArguments(node, context);
-      }
-    }
-
-    function checkArguments(node: estree.CallExpression | estree.NewExpression) {
-      if (hasAtLeastOneVariableArgument(node.arguments)) {
-        context.report({
-          messageId: 'safeCode',
-          node: node.callee,
-        });
-      }
+      return false;
     }
 
     return {
       Program() {
-        importedPugIdentifiers.clear();
+        isTemplateModuleImported = false;
       },
 
-      ImportDeclaration(node: estree.ImportDeclaration) {
-        if (typeof node.source.value === 'string' && TEMPLATING_MODULES.has(node.source.value)) {
-          for (const specifier of node.specifiers) {
-            if (
-              specifier.type === 'ImportDefaultSpecifier' ||
-              specifier.type === 'ImportNamespaceSpecifier' ||
-              (specifier.type === 'ImportSpecifier' &&
-                specifier.imported.type === 'Identifier' &&
-                COMPILATION_FUNCTIONS.has(specifier.imported.name))
-            ) {
-              importedPugIdentifiers.add(specifier.local.name);
-            }
-          }
+      ImportDeclaration(node: estree.Node) {
+        const { source } = node as estree.ImportDeclaration;
+        if (Object.keys(templatingModules).includes(String(source.value))) {
+          isTemplateModuleImported = true;
+          importedModules.add(String(source.value));
         }
       },
 
-      CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
+      CallExpression(node: estree.Node) {
+        const call = node as estree.CallExpression;
+        const { callee, arguments: args } = call;
 
-      NewExpression: (node: estree.Node) =>
-        checkNewExpression(node as estree.NewExpression, context),
+        if (isRequireModule(call, ...Object.keys(templatingModules))) {
+          isTemplateModuleImported = true;
+          const moduleName = (args[0] as estree.Literal).value as string;
+          importedModules.add(moduleName);
+          return;
+        }
+
+        if (isTemplateModuleImported && isSensitiveIdentifier(callee) && isQuestionable(args[0])) {
+          context.report({
+            messageId: 'safeQuery',
+            node: callee,
+          });
+        }
+      },
     };
   },
 };
 
-function hasAtLeastOneVariableArgument(args: Array<estree.Node>) {
-  return args.some(arg => !isLiteral(arg));
-}
-
-function isLiteral(node: estree.Node): boolean {
-  if (node.type === 'Literal') {
+function isQuestionable(templateString: Argument | undefined) {
+  if (!templateString) {
+    return false;
+  }
+  if (isTemplateWithVar(templateString)) {
     return true;
   }
-
-  if (node.type === 'TemplateLiteral') {
-    return node.expressions.length === 0;
+  if (isConcatenation(templateString)) {
+    return isVariableConcat(templateString);
   }
+  return (
+    templateString.type === 'CallExpression' &&
+    isMemberWithProperty(templateString.callee, 'concat', 'replace')
+  );
+}
 
-  return false;
+function isVariableConcat(node: estree.BinaryExpression): boolean {
+  const { left, right } = node;
+  if (!isHardcodedLiteral(right)) {
+    return true;
+  }
+  if (isConcatenation(left)) {
+    return isVariableConcat(left);
+  }
+  return !isHardcodedLiteral(left);
+}
+
+function isTemplateWithVar(node: estree.Node) {
+  return node.type === 'TemplateLiteral' && node.expressions.length !== 0;
+}
+
+function isTemplateWithoutVar(node: estree.Node) {
+  return node.type === 'TemplateLiteral' && node.expressions.length === 0;
+}
+
+function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
+  return node.type === 'BinaryExpression' && node.operator === '+';
+}
+
+function isHardcodedLiteral(node: estree.Node) {
+  return node.type === 'Literal' || isTemplateWithoutVar(node);
 }
