@@ -60,7 +60,6 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
-        writeToFile(` FQN -> {fqn} `);
 
         if (
           fqn &&
@@ -86,9 +85,4 @@ function containsHardcodedCredentials(node: estree.CallExpression, index = 0): b
   }
 
   return arg.type === 'Literal' || (arg.type === 'TemplateLiteral' && arg.expressions.length === 0);
-}
-
-function writeToFile(data: string) {
-  const fs = require('fs');
-  fs.writeFileSync('LOLO-output.txt', data);
 }
