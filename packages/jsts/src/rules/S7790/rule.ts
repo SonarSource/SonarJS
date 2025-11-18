@@ -18,15 +18,18 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
+import {
+  generateMeta,
+  isMemberWithProperty,
+  isRequireModule,
+  isIdentifier,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const templatingModules = {
   pug: ['compile', 'render'],
   ejs: ['compile', 'render'],
 };
-
-type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -84,6 +87,8 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+type Argument = estree.Expression | estree.SpreadElement;
 
 function isQuestionable(templateString: Argument | undefined) {
   if (!templateString) {
