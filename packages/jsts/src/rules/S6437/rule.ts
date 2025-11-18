@@ -14,58 +14,56 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6437/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S2077/javascript
 
-import { Rule } from 'eslint';
-import {
-  isRequiredParserServices,
-  generateMeta,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
-import estree from 'estree';
-// If a rule has a schema, use this to extract it.
-// import { FromSchema } from 'json-schema-to-ts';
+import type { Rule } from 'eslint';
+import type estree from 'estree';
+import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const messages = {
-  //TODO: add needed messages
-  messageId: 'message body',
+// Dictionary with fully qualified names of functions and indices of their
+// parameters to analyze for hardcoded credentials.
+const secretSignatures: Record<string, [number]> = {
+  'cookie-parser': [0],
 };
 
-const DEFAULT_PARAM = 10;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, {
+    messages: {
+      secretSignature: `Revoke and change this password, as it is compromised.`,
+    },
+  }),
+
   create(context: Rule.RuleContext) {
-    // remove this condition if the rule does not depend on TS type-checker
-    const services = context.sourceCode.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    // get typed rule options with FromSchema helper
-    // const param = (context.options as FromSchema<typeof meta.schema>)[0]?.param ?? DEFAULT_PARAM;
-
     return {
-      //example
-      Identifier(node: estree.Identifier) {
-        const secondaries: estree.Node[] = [];
-        const message = 'message body';
-        const messageId = 'messageId'; // must exist in messages object of rule metadata
-        if (DEFAULT_PARAM) {
-          // Use context.report if rule does not use secondary locations
-          report(
-            context,
-            {
-              node,
-              message,
-              messageId,
-            },
-            secondaries.map(n => toSecondaryLocation(n, 'Optional secondary location message')),
-          );
+      CallExpression: (node: estree.Node) => {
+        const callExpression = node as estree.CallExpression;
+        const fqn = getFullyQualifiedName(context, callExpression);
+
+        if (
+          fqn &&
+          secretSignatures.has(fqn) &&
+          secretSignatures[fqn].every(index => containsHardcodedCredentials(callExpression, index))
+        ) {
+          context.report({
+            messageId: 'reviewDynamicTemplate',
+            node: callExpression.callee,
+          });
         }
       },
     };
   },
 };
+
+function containsHardcodedCredentials(node: estree.CallExpression, index = 0): boolean {
+  const args = node.arguments;
+  const templateString = args[index] as estree.Expression | estree.SpreadElement | undefined;
+
+  if (!templateString) {
+    return false;
+  }
+
+  return (
+    node.type === 'Literal' || (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+  );
+}
