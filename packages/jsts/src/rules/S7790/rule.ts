@@ -34,7 +34,7 @@ const templatingModules: Record<string, string[]> = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      safeQuery: `Make sure this dynamically formatted template is safe here.`,
+      reviewDynamicTemplate: `Make sure this dynamically formatted template is safe here.`,
     },
   }),
   create(context: Rule.RuleContext) {
@@ -79,7 +79,7 @@ export const rule: Rule.RuleModule = {
 
         if (isTemplateModuleImported && isSensitiveIdentifier(callee) && isQuestionable(args[0])) {
           context.report({
-            messageId: 'safeQuery',
+            messageId: 'reviewDynamicTemplate',
             node: callee,
           });
         }
