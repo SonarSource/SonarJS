@@ -24,30 +24,29 @@ import * as meta from './generated-meta.js';
 // Dictionary with fully qualified names of functions and indices of their
 // parameters to analyze for hardcoded credentials.
 const secretSignatures: Record<string, [number]> = {
+  // Node.js crypto module functions
   'crypto.createHmac': [1],
   'crypto.createSecretKey': [0],
-  'crypto.encapsulate': [0],
+  'crypto.createVerify': [0],
   'crypto.sign': [0],
-  'crypto.X509Certificate': [0],
-  'crypto.sign.sign': [0],
-  'crypto.ecdh.setPrivateKey': [0],
-  'crypto.diffieHellman.setPrivateKey': [0],
-  'crypto.verify': [2],
   'crypto.privateEncrypt': [0],
   'crypto.privateDecrypt': [0],
   'crypto.scrypt': [0],
   'crypto.scryptSync': [0],
   'crypto.pbkdf2': [0],
   'crypto.pbkdf2Sync': [0],
+  // Sequelize ORM
   'sequelize.Sequelize': [1],
-  superagent: [0],
+  // HTTP client library
+  'superagent.auth': [0],
+  // Express middleware
   'cookie-parser': [0],
+  'cookie-parser.JSONCookie': [1],
   'cookie-parser.signedCookie': [1],
   'cookie-parser.signedCookies': [1],
+  // JWT libraries
   'jsonwebtoken.sign': [1],
   'jsonwebtoken.verify': [1],
-  'jwt.sign': [1],
-  'jwt.verify': [1],
   'jose.SignJWT': [0],
   'jose.jwtVerify': [1],
   'node-jose.JWK.asKey': [0],
@@ -65,6 +64,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
+        writeToFile(` FQN -> {fqn} `);
 
         if (
           fqn &&
@@ -90,4 +90,9 @@ function containsHardcodedCredentials(node: estree.CallExpression, index = 0): b
   }
 
   return arg.type === 'Literal' || (arg.type === 'TemplateLiteral' && arg.expressions.length === 0);
+}
+
+function writeToFile(data: string) {
+  const fs = require('fs');
+  fs.writeFileSync('LOLO-output.txt', data);
 }
