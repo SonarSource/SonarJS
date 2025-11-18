@@ -18,18 +18,15 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  isMemberWithProperty,
-  isRequireModule,
-  isIdentifier,
-} from '../helpers/index.js';
+import { generateMeta, isMemberWithProperty, getFullyQualifiedName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const templatingModules: Record<string, string[]> = {
-  pug: ['compile', 'render'],
-  ejs: ['compile', 'render'],
-};
+const templatingFqns: Set<string> = new Set([
+  'pug.compile',
+  'pug.render',
+  'ejs.compile',
+  'ejs.render',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -37,73 +34,46 @@ export const rule: Rule.RuleModule = {
       reviewDynamicTemplate: `Make sure this dynamically formatted template is safe here.`,
     },
   }),
+
   create(context: Rule.RuleContext) {
-    let isTemplateModuleImported = false;
-    const importedModules = new Set<string>();
-
-    function isSensitiveIdentifier(callee: estree.Expression | estree.Super) {
-      for (const moduleName of importedModules) {
-        const functions = templatingModules[moduleName];
-        for (const func of functions) {
-          if (isMemberWithProperty(callee, func) || isIdentifier(callee, func)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-
     return {
-      Program() {
-        isTemplateModuleImported = false;
-      },
+      CallExpression: (node: estree.Node) => {
+        const callExpression = node as estree.CallExpression;
+        const fqn = getFullyQualifiedName(context, callExpression);
 
-      ImportDeclaration(node: estree.Node) {
-        const { source } = node as estree.ImportDeclaration;
-        if (Object.keys(templatingModules).includes(String(source.value))) {
-          isTemplateModuleImported = true;
-          importedModules.add(String(source.value));
-        }
-      },
-
-      CallExpression(node: estree.Node) {
-        const call = node as estree.CallExpression;
-        const { callee, arguments: args } = call;
-
-        if (isRequireModule(call, ...Object.keys(templatingModules))) {
-          isTemplateModuleImported = true;
-          const moduleName = (args[0] as estree.Literal).value as string;
-          importedModules.add(moduleName);
-          return;
-        }
-
-        if (isTemplateModuleImported && isSensitiveIdentifier(callee) && isQuestionable(args[0])) {
-          context.report({
-            messageId: 'reviewDynamicTemplate',
-            node: callee,
-          });
+        if (fqn && templatingFqns.has(fqn)) {
+          if (isQuestionable(node)) {
+            context.report({
+              messageId: 'reviewDynamicTemplate',
+              node: callExpression.callee,
+            });
+          }
         }
       },
     };
   },
 };
 
-type Argument = estree.Expression | estree.SpreadElement;
+function isQuestionable(node: estree.CallExpression, index: number = 0): boolean {
+  const args = node.arguments;
+  const templateString = args[index] as estree.Expression | estree.SpreadElement | undefined;
 
-function isQuestionable(templateString: Argument | undefined) {
   if (!templateString) {
     return false;
   }
-  if (isTemplateWithVar(templateString)) {
+
+  // Is a template literal with expressions
+  if (templateString.type === 'TemplateLiteral' && templateString.expressions.length !== 0) {
     return true;
   }
+
+  // Is a concatenation involving one or more variables
   if (isConcatenation(templateString)) {
     return isVariableConcat(templateString);
   }
-  return (
-    templateString.type === 'CallExpression' &&
-    isMemberWithProperty(templateString.callee, 'concat', 'replace')
-  );
+
+  // Is a variable which value cannot be determined statically
+  return !isHardcodedLiteral(templateString);
 }
 
 function isVariableConcat(node: estree.BinaryExpression): boolean {
@@ -117,18 +87,13 @@ function isVariableConcat(node: estree.BinaryExpression): boolean {
   return !isHardcodedLiteral(left);
 }
 
-function isTemplateWithVar(node: estree.Node) {
-  return node.type === 'TemplateLiteral' && node.expressions.length !== 0;
-}
-
-function isTemplateWithoutVar(node: estree.Node) {
-  return node.type === 'TemplateLiteral' && node.expressions.length === 0;
-}
-
 function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
   return node.type === 'BinaryExpression' && node.operator === '+';
 }
 
 function isHardcodedLiteral(node: estree.Node) {
-  return node.type === 'Literal' || isTemplateWithoutVar(node);
+  // A hardcoded string literal or a template literal without expressions
+  return (
+    node.type === 'Literal' || (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+  );
 }
