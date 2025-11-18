@@ -26,7 +26,7 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const templatingModules = {
+const templatingModules: Record<string, string[]> = {
   pug: ['compile', 'render'],
   ejs: ['compile', 'render'],
 };
