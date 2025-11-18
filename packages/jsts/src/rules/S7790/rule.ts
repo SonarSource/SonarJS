@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isMemberWithProperty, getFullyQualifiedName } from '../helpers/index.js';
+import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const templatingFqns: Set<string> = new Set([
@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
         const fqn = getFullyQualifiedName(context, callExpression);
 
         if (fqn && templatingFqns.has(fqn)) {
-          if (isQuestionable(node)) {
+          if (isQuestionable(callExpression)) {
             context.report({
               messageId: 'reviewDynamicTemplate',
               node: callExpression.callee,
