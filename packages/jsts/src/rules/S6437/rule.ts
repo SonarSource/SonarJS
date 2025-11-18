@@ -24,7 +24,33 @@ import * as meta from './generated-meta.js';
 // Dictionary with fully qualified names of functions and indices of their
 // parameters to analyze for hardcoded credentials.
 const secretSignatures: Record<string, [number]> = {
+  'crypto.createHmac': [1],
+  'crypto.createSecretKey': [0],
+  'crypto.encapsulate': [0],
+  'crypto.sign': [0],
+  'crypto.X509Certificate': [0],
+  'crypto.sign.sign': [0],
+  'crypto.ecdh.setPrivateKey': [0],
+  'crypto.diffieHellman.setPrivateKey': [0],
+  'crypto.verify': [2],
+  'crypto.privateEncrypt': [0],
+  'crypto.privateDecrypt': [0],
+  'crypto.scrypt': [0],
+  'crypto.scryptSync': [0],
+  'crypto.pbkdf2': [0],
+  'crypto.pbkdf2Sync': [0],
+  'sequelize.Sequelize': [1],
+  superagent: [0],
   'cookie-parser': [0],
+  'cookie-parser.signedCookie': [1],
+  'cookie-parser.signedCookies': [1],
+  'jsonwebtoken.sign': [1],
+  'jsonwebtoken.verify': [1],
+  'jwt.sign': [1],
+  'jwt.verify': [1],
+  'jose.SignJWT': [0],
+  'jose.jwtVerify': [1],
+  'node-jose.JWK.asKey': [0],
 };
 
 export const rule: Rule.RuleModule = {
@@ -42,11 +68,11 @@ export const rule: Rule.RuleModule = {
 
         if (
           fqn &&
-          secretSignatures.has(fqn) &&
+          secretSignatures.hasOwnProperty(fqn) &&
           secretSignatures[fqn].every(index => containsHardcodedCredentials(callExpression, index))
         ) {
           context.report({
-            messageId: 'reviewDynamicTemplate',
+            messageId: 'secretSignature',
             node: callExpression.callee,
           });
         }
@@ -57,13 +83,11 @@ export const rule: Rule.RuleModule = {
 
 function containsHardcodedCredentials(node: estree.CallExpression, index = 0): boolean {
   const args = node.arguments;
-  const templateString = args[index] as estree.Expression | estree.SpreadElement | undefined;
+  const arg = args[index] as estree.Expression | estree.SpreadElement | undefined;
 
-  if (!templateString) {
+  if (!arg || arg.type === 'SpreadElement') {
     return false;
   }
 
-  return (
-    node.type === 'Literal' || (node.type === 'TemplateLiteral' && node.expressions.length === 0)
-  );
+  return arg.type === 'Literal' || (arg.type === 'TemplateLiteral' && arg.expressions.length === 0);
 }
