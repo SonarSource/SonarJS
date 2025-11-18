@@ -31,10 +31,6 @@ const secretSignatures: Record<string, [number]> = {
   'crypto.sign': [0],
   'crypto.privateEncrypt': [0],
   'crypto.privateDecrypt': [0],
-  'crypto.scrypt': [0],
-  'crypto.scryptSync': [0],
-  'crypto.pbkdf2': [0],
-  'crypto.pbkdf2Sync': [0],
   // Sequelize ORM
   'sequelize.Sequelize': [1],
   // HTTP client library
