@@ -41,20 +41,18 @@ export const rule: Rule.RuleModule = {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
 
-        if (fqn && templatingFqns.has(fqn)) {
-          if (isQuestionable(callExpression)) {
-            context.report({
-              messageId: 'reviewDynamicTemplate',
-              node: callExpression.callee,
-            });
-          }
+        if (fqn && templatingFqns.has(fqn) && isQuestionable(callExpression)) {
+          context.report({
+            messageId: 'reviewDynamicTemplate',
+            node: callExpression.callee,
+          });
         }
       },
     };
   },
 };
 
-function isQuestionable(node: estree.CallExpression, index: number = 0): boolean {
+function isQuestionable(node: estree.CallExpression, index = 0): boolean {
   const args = node.arguments;
   const templateString = args[index] as estree.Expression | estree.SpreadElement | undefined;
 
