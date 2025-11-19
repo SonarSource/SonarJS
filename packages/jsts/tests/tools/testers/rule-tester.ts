@@ -27,7 +27,7 @@ type Tests = {
 };
 
 const baseLanguageOptions: Linter.LanguageOptions = {
-  ecmaVersion: 2018,
+  ecmaVersion: 2022,
   sourceType: 'module',
   globals: {
     ...globals.es2025,

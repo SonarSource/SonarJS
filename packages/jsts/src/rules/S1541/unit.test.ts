@@ -246,7 +246,9 @@ describe('S1541', () => {
           //P^^
       a = true && false;
              //^^
-      c = true || false;
+      b = true || false;
+             //^^
+      c = true ?? false;
              //^^
     }
     `),
