@@ -1,9 +1,12 @@
 {
 "TypeScript:src/harness/fourslash.ts": [
 588,
-2886
+2886,
+2887
 ],
 "TypeScript:src/harness/harness.ts": [
-87
+87,
+92,
+95
 ]
 }
