@@ -20,10 +20,20 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getESLintCoreRule } from '../external/core.js';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const noScriptUrlRule = getESLintCoreRule('no-script-url');
+
+const EVAL_LIKE_FUNCTIONS: Set<string> = new Set([
+  'eval',
+  'Function',
+  'vm.Script',
+  'vm.SourceTextModule',
+  'vm.runInContext',
+  'vm.runInNewContext',
+  'vm.runInThisContext',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -44,9 +54,9 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
-  if (node.callee.type === 'Identifier') {
-    const { name } = node.callee;
-    if ((name === 'eval' || name === 'Function') && hasAtLeastOneVariableArgument(node.arguments)) {
+  if (['Identifier', 'MemberExpression'].includes(node.callee.type)) {
+    const name = getFullyQualifiedName(context, node);
+    if (EVAL_LIKE_FUNCTIONS.has(name) && hasAtLeastOneVariableArgument(node.arguments)) {
       context.report({
         messageId: 'safeCode',
         node: node.callee,

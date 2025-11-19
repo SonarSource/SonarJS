@@ -28,15 +28,19 @@ import {
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const XML_LIBRARY = 'libxmljs';
-const XML_PARSERS = ['parseXml', 'parseXmlString'];
+const TARGET_XML_FQNS: Set<string> = new Set([
+  'libxmljs.parseXml',
+  'libxmljs.parseXmlString',
+  'libxmljs2.parseXml',
+  'libxmljs2.parseXmlString',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
       const fqn = getFullyQualifiedName(context, call);
-      return XML_PARSERS.some(parser => fqn === `${XML_LIBRARY}.${parser}`);
+      return TARGET_XML_FQNS.has(fqn);
     }
 
     return {
