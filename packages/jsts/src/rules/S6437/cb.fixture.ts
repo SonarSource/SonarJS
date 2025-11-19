@@ -24,15 +24,15 @@ const dataBuffer = Buffer.from('data');
 const signatureBuffer = Buffer.from('signature');
 crypto.sign('sha256', dataBuffer, 'privateKeyPEM'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 const privateKeyVar = 'key';
-crypto.sign('sha256', dataBuffer, privateKeyVar);
+crypto.sign('sha256', dataBuffer, privateKeyVar); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 
 crypto.privateEncrypt('privateKeyPEM', Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 const privKey = 'key';
-crypto.privateEncrypt(privKey, Buffer.from('data'));
+crypto.privateEncrypt(privKey, Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 
 const encData = Buffer.from('encrypted');
 crypto.privateDecrypt('privateKeyPEM', encData); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-crypto.privateDecrypt(privKey, encData);
+crypto.privateDecrypt(privKey, encData); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 
 // Databases
 

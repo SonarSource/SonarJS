@@ -28,7 +28,7 @@ const secretSignatures: Record<string, [number]> = {
   'crypto.createHmac': [1],
   'crypto.createSecretKey': [0],
   'crypto.createVerify': [0],
-  'crypto.sign': [0],
+  'crypto.sign': [2],
   'crypto.privateEncrypt': [0],
   'crypto.privateDecrypt': [0],
   // Sequelize ORM
@@ -56,19 +56,58 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
+    const hardcodedVariables = new Map<string, estree.Node>();
+
+    function isHardcodedString(expr: estree.Expression): boolean {
+      switch (expr.type) {
+        case 'Literal':
+          return typeof expr.value === 'string';
+        case 'TemplateLiteral':
+          return expr.expressions.length === 0;
+        case 'Identifier':
+          return hardcodedVariables.has(expr.name);
+        default:
+          return false;
+      }
+    }
+
+    function getReportNode(expr: estree.Expression): estree.Node {
+      // If it's an identifier that references a hardcoded string,
+      // report the original declaration
+      if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
+        const nodeName = hardcodedVariables.get(expr.name);
+        if (nodeName) {
+          return nodeName;
+        }
+      }
+      return expr;
+    }
+
     return {
+      Program() {
+        hardcodedVariables.clear();
+      },
+
+      VariableDeclarator(node: estree.VariableDeclarator) {
+        if (node.id.type === 'Identifier' && node.init && isHardcodedString(node.init)) {
+          hardcodedVariables.set(node.id.name, node.init);
+        }
+      },
+
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
+        writeToFile(`FQN: ${fqn}\n`);
 
-        if (
-          fqn &&
-          secretSignatures.hasOwnProperty(fqn) &&
-          secretSignatures[fqn].every(index => containsHardcodedCredentials(callExpression, index))
-        ) {
-          context.report({
-            messageId: 'secretSignature',
-            node: callExpression.callee,
+        if (fqn && secretSignatures.hasOwnProperty(fqn) && callExpression.arguments.length > 0) {
+          secretSignatures[fqn].forEach(index => {
+            const arg = callExpression.arguments[index];
+            if (arg && isHardcodedString(arg)) {
+              context.report({
+                messageId: 'secretSignature',
+                node: getReportNode(arg),
+              });
+            }
           });
         }
       },
@@ -76,13 +115,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function containsHardcodedCredentials(node: estree.CallExpression, index = 0): boolean {
-  const args = node.arguments;
-  const arg = args[index] as estree.Expression | estree.SpreadElement | undefined;
-
-  if (!arg || arg.type === 'SpreadElement') {
-    return false;
-  }
-
-  return arg.type === 'Literal' || (arg.type === 'TemplateLiteral' && arg.expressions.length === 0);
+function writeToFile(data: string) {
+  import fs from 'fs';
+  fs.writeFileSync('output.txt', data);
 }
