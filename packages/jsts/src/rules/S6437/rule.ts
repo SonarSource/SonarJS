@@ -25,7 +25,6 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-import fs from 'fs';
 
 // Dictionary with fully qualified names of functions and indices of their
 // parameters to analyze for hardcoded credentials.
@@ -73,7 +72,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function getSecondaryNode(expr: estree.Expression): estree.Node {
+    function getSecondaryNode(expr: estree.Expression): IssueLocation[] {
       // If it's an identifier that references a hardcoded string,
       // report the original declaration
       if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
@@ -110,7 +109,7 @@ export const rule: Rule.RuleModule = {
                 context,
                 {
                   message: 'Revoke and change this password, as it is compromised.',
-                  loc: callExpression.callee.loc,
+                  loc: callExpression.callee.loc as estree.SourceLocation,
                 },
                 secondaryLocations,
               );
