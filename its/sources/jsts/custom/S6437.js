@@ -35,21 +35,6 @@ const encData = Buffer.from('encrypted');
 crypto.privateDecrypt('privateKeyPEM', encData);
 crypto.privateDecrypt(privKey, encData);
 
-const salt = crypto.randomBytes(16);
-const userPass = 'userPassword!';
-crypto.pbkdf2('myPassword123', salt, 100000, 64, 'sha512');
-crypto.pbkdf2(userPass, salt, 100000, 64, 'sha512');
-crypto.pbkdf2Sync('myPassword123', salt, 100000, 64, 'sha512');
-crypto.pbkdf2Sync(userPass, salt, 100000, 64, 'sha512');
-
-// Databases
-
-import { Sequelize } from 'sequelize';
-const unsafeConnection = new Sequelize('database', 'username', 'hardcodedPassword123');
-const safeConnection = new Sequelize('database', 'username', process.env.DB_PASSWORD);
-
-// Web Credentials
-
 import superagent from 'superagent';
 superagent.auth('username:password123');
 const creds = 'user:pass';

@@ -17,3 +17,4 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6437/javascript
 export const implementation = 'original';
 export const eslintId = 'hardcoded-secret-signatures';
+export const hasSecondaries = true;

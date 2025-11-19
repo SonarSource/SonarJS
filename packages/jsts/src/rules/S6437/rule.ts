@@ -18,41 +18,43 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  report,
+  toSecondaryLocation,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+import fs from 'fs';
 
 // Dictionary with fully qualified names of functions and indices of their
 // parameters to analyze for hardcoded credentials.
 const secretSignatures: Record<string, [number]> = {
-  // Node.js crypto module functions
-  'crypto.createHmac': [1],
-  'crypto.createSecretKey': [0],
-  'crypto.createVerify': [0],
-  'crypto.sign': [2],
-  'crypto.privateEncrypt': [0],
-  'crypto.privateDecrypt': [0],
-  // Sequelize ORM
-  'sequelize.Sequelize': [1],
-  // HTTP client library
-  'superagent.auth': [0],
-  // Express middleware
   'cookie-parser': [0],
   'cookie-parser.JSONCookie': [1],
-  'cookie-parser.signedCookie': [1],
   'cookie-parser.signedCookies': [1],
-  // JWT libraries
-  'jsonwebtoken.sign': [1],
-  'jsonwebtoken.verify': [1],
+  'cookie-parser.signedCookie': [1],
+  'crypto.X509Certificate.checkPrivateKey': [0],
+  'crypto.createDiffieHellman.setPrivateKey': [0],
+  'crypto.createECDH.setPrivateKey': [0],
+  'crypto.createHmac': [1],
+  'crypto.createSecretKey': [0],
+  'crypto.createSign.sign': [0],
+  'crypto.createVerify': [0],
+  'crypto.privateDecrypt': [0],
+  'crypto.privateEncrypt': [0],
+  'crypto.sign': [2],
   'jose.SignJWT': [0],
   'jose.jwtVerify': [1],
+  'jsonwebtoken.sign': [1],
+  'jsonwebtoken.verify': [1],
   'node-jose.JWK.asKey': [0],
+  'superagent.auth': [0],
 };
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: {
-      secretSignature: `Revoke and change this password, as it is compromised.`,
-    },
+    messages: {},
   }),
 
   create(context: Rule.RuleContext) {
@@ -71,16 +73,16 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function getReportNode(expr: estree.Expression): estree.Node {
+    function getSecondaryNode(expr: estree.Expression): estree.Node {
       // If it's an identifier that references a hardcoded string,
       // report the original declaration
       if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
         const nodeName = hardcodedVariables.get(expr.name);
         if (nodeName) {
-          return nodeName;
+          return [toSecondaryLocation(nodeName, 'Hardcoded value assigned here')];
         }
       }
-      return expr;
+      return [];
     }
 
     return {
@@ -97,16 +99,21 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
-        writeToFile(`FQN: ${fqn}\n`);
 
         if (fqn && secretSignatures.hasOwnProperty(fqn) && callExpression.arguments.length > 0) {
           secretSignatures[fqn].forEach(index => {
             const arg = callExpression.arguments[index];
             if (arg && isHardcodedString(arg)) {
-              context.report({
-                messageId: 'secretSignature',
-                node: getReportNode(arg),
-              });
+              const secondaryLocations: IssueLocation[] = getSecondaryNode(arg);
+
+              report(
+                context,
+                {
+                  message: 'Revoke and change this password, as it is compromised.',
+                  loc: callExpression.callee.loc,
+                },
+                secondaryLocations,
+              );
             }
           });
         }
@@ -114,8 +121,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function writeToFile(data: string) {
-  import fs from 'fs';
-  fs.writeFileSync('output.txt', data);
-}

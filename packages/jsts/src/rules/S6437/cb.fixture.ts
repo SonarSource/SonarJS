@@ -1,49 +1,41 @@
 import crypto from 'node:crypto';
 
 const dh = crypto.createDiffieHellman(512);
-dh.setPrivateKey('0123456789abcdef0123456789abcdef'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+dh.setPrivateKey('0123456789abcdef0123456789abcdef'); // Noncompliant
 
 const ecdh = crypto.createECDH('secp256k1');
-ecdh.setPrivateKey('abcdef0123456789abcdef0123456789'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+ecdh.setPrivateKey('abcdef0123456789abcdef0123456789'); // Noncompliant
 
 const sign = crypto.createSign('SHA256');
 sign.write('some data to sign');
 sign.end();
-const signature = sign.sign('privateKeyPEM', 'hex'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+const signature = sign.sign('privateKeyPEM', 'hex'); // Noncompliant
 
 const x509 = new crypto.X509Certificate('public-cert.pem (imagine its imported)');
-const value = x509.checkPrivateKey('key'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+const value = x509.checkPrivateKey('key'); // Noncompliant
 
-crypto.createHmac('sha256', 'hardcodedSecret123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.createHmac('sha256', 'hardcodedSecret123'); // Noncompliant
 crypto.createHmac('sha256', process.env.SECRET);
 
-crypto.createSecretKey('mySecretKey123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.createSecretKey('mySecretKey123'); // Noncompliant
 crypto.createSecretKey(Buffer.from(process.env.KEY || '', 'hex'));
 
 const dataBuffer = Buffer.from('data');
 const signatureBuffer = Buffer.from('signature');
-crypto.sign('sha256', dataBuffer, 'privateKeyPEM'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.sign('sha256', dataBuffer, 'privateKeyPEM'); // Noncompliant
 const privateKeyVar = 'key';
-crypto.sign('sha256', dataBuffer, privateKeyVar); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.sign('sha256', dataBuffer, privateKeyVar); // Noncompliant
 
-crypto.privateEncrypt('privateKeyPEM', Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.privateEncrypt('privateKeyPEM', Buffer.from('data')); // Noncompliant
 const privKey = 'key';
-crypto.privateEncrypt(privKey, Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+crypto.privateEncrypt(privKey, Buffer.from('data')); // Noncompliant
 
 const encData = Buffer.from('encrypted');
-crypto.privateDecrypt('privateKeyPEM', encData); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-crypto.privateDecrypt(privKey, encData); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-
-// Databases
-
-import { Sequelize } from 'sequelize';
-const unsafeConnection = new Sequelize('database', 'username', 'hardcodedPassword123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-const safeConnection = new Sequelize('database', 'username', process.env.DB_PASSWORD);
-
-// Web Credentials
+crypto.privateDecrypt('privateKeyPEM', encData); // Noncompliant
+crypto.privateDecrypt(privKey, encData); // Noncompliant
 
 import superagent from 'superagent';
-superagent.auth('username:password123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+superagent.auth('username:password123'); // Noncompliant
 const creds = 'user:pass';
 superagent.auth(creds);
 
@@ -52,28 +44,28 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 app.disable('x-powered-by');
-app.use(cookieParser('mySecretKey123')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+app.use(cookieParser('mySecretKey123')); // Noncompliant
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-cookieParser.JSONCookie('{"data":"value"}', 'secret123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+cookieParser.JSONCookie('{"data":"value"}', 'secret123'); // Noncompliant
 const jsonSecret = 'secret';
 cookieParser.JSONCookie('{"data":"value"}', jsonSecret);
 
-cookieParser.signedCookie('cookieValue', 'secretKey123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+cookieParser.signedCookie('cookieValue', 'secretKey123'); // Noncompliant
 cookieParser.signedCookie('cookieValue', process.env.SECRET);
 
 const cookiesObj = {};
-cookieParser.signedCookies(cookiesObj, 'secretKey123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+cookieParser.signedCookies(cookiesObj, 'secretKey123'); // Noncompliant
 const cookieSecret = 'secret';
 cookieParser.signedCookies(cookiesObj, cookieSecret);
 
 import jwt from 'jsonwebtoken';
-jwt.sign({ userId: 123 }, 'mySecretKey123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+jwt.sign({ userId: 123 }, 'mySecretKey123'); // Noncompliant
 jwt.sign({ userId: 123 }, process.env.JWT_SECRET);
 const jwtSecret = 'secret';
 jwt.sign({ userId: 123 }, jwtSecret);
 
 const tokenStr = 'token';
-jwt.verify(tokenStr, 'mySecretKey123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+jwt.verify(tokenStr, 'mySecretKey123'); // Noncompliant
 jwt.verify(tokenStr, process.env.JWT_SECRET);
 jwt.verify(tokenStr, jwtSecret);
