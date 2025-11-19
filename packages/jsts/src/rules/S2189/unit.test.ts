@@ -170,6 +170,37 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: function parameter might be modified by processItem
+      function processItems(items) {
+        while (items.length > 0) {
+          processItem(items[0]);
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: global variable might be modified elsewhere
+      let globalFlag = true;
+      function doSomething() {
+        while (globalFlag) {
+          doWork();
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: outer scope variable
+      function outer() {
+        let condition = true;
+        function inner() {
+          while (condition) {
+            doWork();
+          }
+        }
+      }`,
+        },
       ],
       invalid: [
         {

@@ -53,6 +53,24 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring non-local variables (globals, outer scope, function parameters from outer functions) */
+        if (symbol) {
+          const variableScope = symbol.scope;
+          const nodeScope = context.sourceCode.getScope(node);
+
+          // Find the function scope containing the loop
+          let functionScope = nodeScope;
+          while (functionScope && functionScope.type !== 'function') {
+            functionScope = functionScope.upper;
+          }
+
+          // If variable is not defined in the current function scope, don't report
+          // This avoids FPs for globals, outer scope variables, and parameters from outer functions
+          if (functionScope && variableScope !== functionScope) {
+            return;
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
