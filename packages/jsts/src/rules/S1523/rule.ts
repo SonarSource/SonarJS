@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
 
 function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
   if (['Identifier', 'MemberExpression'].includes(node.callee.type)) {
-    const name = getFullyQualifiedName(context, node);
+    const name = getFullyQualifiedName(context, node) || '';
     if (EVAL_LIKE_FUNCTIONS.has(name) && hasAtLeastOneVariableArgument(node.arguments)) {
       context.report({
         messageId: 'safeCode',

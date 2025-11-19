@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
-      const fqn = getFullyQualifiedName(context, call);
+      const fqn = getFullyQualifiedName(context, call) || '';
       return TARGET_XML_FQNS.has(fqn);
     }
 
