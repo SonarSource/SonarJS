@@ -79,7 +79,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
       - name: Configure Maven
         id: config-maven
@@ -111,7 +111,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure Maven
@@ -195,7 +195,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
             node = "24.11.0"
       - &npm_cache
@@ -362,7 +362,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
             node = "24.11.0"
       - name: Cache NPM dependencies
@@ -401,7 +401,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
             node = "24.11.0"
       - name: Cache NPM dependencies
@@ -591,7 +591,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
             node = "${{ matrix.node-version }}"
       - *maven_cache
@@ -682,7 +682,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            java = "17.0"
+            java = "21.0"
             maven = "3.9"
       - *maven_cache
       - *config_maven

@@ -177,9 +177,10 @@ class FunctionComplexityVisitor {
             token = sourceCode.getFirstToken(node);
             break;
           case 'LogicalExpression':
-            token = sourceCode.getTokenAfter(
+            token = sourceCode.getFirstTokenBetween(
               node.left,
-              token => ['||', '&&'].includes(token.value) && token.type === 'Punctuator',
+              node.right,
+              token => token.value === node.operator,
             );
             break;
         }

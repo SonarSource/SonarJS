@@ -17,6 +17,9 @@
 "desktop:app/src/lib/create-branch.ts": [
 10
 ],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+216
+],
 "desktop:app/src/lib/git/core.ts": [
 157,
 309
@@ -45,8 +48,14 @@
 "desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
 105
 ],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+178
+],
 "desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
 127
+],
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+90
 ],
 "desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 75

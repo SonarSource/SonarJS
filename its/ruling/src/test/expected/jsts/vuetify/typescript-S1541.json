@@ -42,6 +42,9 @@
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 194
 ],
+"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
+37
+],
 "vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
 171
 ],
@@ -93,7 +96,8 @@
 283
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
-208
+208,
+408
 ],
 "vuetify:packages/vuetify/src/directives/touch/index.ts": [
 47
