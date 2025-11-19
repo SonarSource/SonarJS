@@ -1,0 +1,1209 @@
+Found 5467 files in expected directory
+Comparing expected vs actual...
+
+================================================================================
+OVERALL STATISTICS
+================================================================================
+Total issues in EXPECTED:  625478
+Total issues in ACTUAL:    621860
+Net difference:            -3618
+
+NEW issues in actual:      4551 ❌
+Removed issues in actual:  8169 ⚠️
+
+⚠️  FILES DO NOT MATCH!
+    Expected and actual folders have different issue counts.
+    Total mismatched files: 398
+
+================================================================================
+TOP 20 MISMATCHES (by absolute difference)
+================================================================================
+❌ eigen/typescript-S4328.json: expected 792, actual 5128 (+4336)
+⚠️ eigen/typescript-S1874.json: expected 1072, actual 0 (-1072)
+⚠️ desktop/typescript-S2933.json: expected 1041, actual 0 (-1041)
+⚠️ ag-grid/typescript-S2933.json: expected 585, actual 0 (-585)
+⚠️ console/typescript-S2933.json: expected 522, actual 0 (-522)
+⚠️ ace/javascript-S6582.json: expected 406, actual 0 (-406)
+⚠️ rxjs/typescript-S2933.json: expected 381, actual 0 (-381)
+⚠️ TypeScript/typescript-S4325.json: expected 341, actual 0 (-341)
+⚠️ TypeScript/typescript-S6582.json: expected 285, actual 0 (-285)
+⚠️ eigen/typescript-S4325.json: expected 189, actual 0 (-189)
+⚠️ Ghost/javascript-S6582.json: expected 129, actual 0 (-129)
+⚠️ eigen/typescript-S6582.json: expected 123, actual 0 (-123)
+⚠️ ant-design/typescript-S4325.json: expected 113, actual 0 (-113)
+⚠️ angular.js/javascript-S6582.json: expected 100, actual 0 (-100)
+⚠️ rxjs/typescript-S3525.json: expected 100, actual 0 (-100)
+❌ it-tools/typescript-S4328.json: expected 170, actual 263 (+93)
+⚠️ TypeScript/typescript-S2933.json: expected 90, actual 0 (-90)
+⚠️ ace/javascript-S1874.json: expected 83, actual 0 (-83)
+⚠️ TypeScript/typescript-S1874.json: expected 80, actual 0 (-80)
+⚠️ desktop/typescript-S6582.json: expected 80, actual 0 (-80)
+
+================================================================================
+BREAKDOWN BY RULE
+================================================================================
+
+❌ S4328:
+  Expected: 2342
+  Actual:   6827
+  Diff:     +4485
+  New issues: 4485
+  Affected projects:
+    eigen: 792 → 5128 (+4336)
+    it-tools: 170 → 263 (+93)
+    moose: 9 → 65 (+56)
+
+⚠️ S2933:
+  Expected: 2742
+  Actual:   0
+  Diff:     -2742
+  Removed issues: 2742
+  Affected projects:
+    desktop: 1041 → 0 (-1041)
+    ag-grid: 585 → 0 (-585)
+    console: 522 → 0 (-522)
+    rxjs: 381 → 0 (-381)
+    TypeScript: 90 → 0 (-90)
+
+⚠️ S6582:
+  Expected: 1786
+  Actual:   0
+  Diff:     -1786
+  Removed issues: 1786
+  Affected projects:
+    ace: 406 → 0 (-406)
+    TypeScript: 285 → 0 (-285)
+    Ghost: 129 → 0 (-129)
+    eigen: 123 → 0 (-123)
+    angular.js: 100 → 0 (-100)
+
+⚠️ S1874:
+  Expected: 1396
+  Actual:   0
+  Diff:     -1396
+  Removed issues: 1396
+  Affected projects:
+    eigen: 1072 → 0 (-1072)
+    ace: 85 → 0 (-85)
+    TypeScript: 80 → 0 (-80)
+    ag-grid: 23 → 0 (-23)
+    p5.js: 21 → 0 (-21)
+
+⚠️ S4325:
+  Expected: 794
+  Actual:   0
+  Diff:     -794
+  Removed issues: 794
+  Affected projects:
+    TypeScript: 341 → 0 (-341)
+    eigen: 189 → 0 (-189)
+    ant-design: 113 → 0 (-113)
+    ag-grid: 73 → 0 (-73)
+    vuetify: 29 → 0 (-29)
+
+⚠️ S3525:
+  Expected: 1025
+  Actual:   867
+  Diff:     -158
+  Removed issues: 158
+  Affected projects:
+    rxjs: 102 → 2 (-100)
+    ace: 290 → 245 (-45)
+    p5.js: 376 → 371 (-5)
+    es5-shim: 4 → 2 (-2)
+    prototype: 3 → 1 (-2)
+
+⚠️ S6557:
+  Expected: 157
+  Actual:   0
+  Diff:     -157
+  Removed issues: 157
+  Affected projects:
+    ace: 35 → 0 (-35)
+    TypeScript: 27 → 0 (-27)
+    angular.js: 18 → 0 (-18)
+    p5.js: 11 → 0 (-11)
+    jquery: 10 → 0 (-10)
+
+⚠️ S6594:
+  Expected: 110
+  Actual:   0
+  Diff:     -110
+  Removed issues: 110
+  Affected projects:
+    ace: 30 → 0 (-30)
+    desktop: 21 → 0 (-21)
+    TypeScript: 11 → 0 (-11)
+    eigen: 8 → 0 (-8)
+    it-tools: 5 → 0 (-5)
+
+⚠️ S6606:
+  Expected: 98
+  Actual:   0
+  Diff:     -98
+  Removed issues: 98
+  Affected projects:
+    TypeScript: 50 → 0 (-50)
+    desktop: 17 → 0 (-17)
+    postgraphql: 10 → 0 (-10)
+    ant-design: 9 → 0 (-9)
+    ag-grid: 4 → 0 (-4)
+
+⚠️ S6551:
+  Expected: 94
+  Actual:   0
+  Diff:     -94
+  Removed issues: 94
+  Affected projects:
+    ace: 62 → 0 (-62)
+    TypeScript: 10 → 0 (-10)
+    ag-grid: 3 → 0 (-3)
+    it-tools: 3 → 0 (-3)
+    postgraphql: 3 → 0 (-3)
+
+⚠️ S6759:
+  Expected: 67
+  Actual:   0
+  Diff:     -67
+  Removed issues: 67
+  Affected projects:
+    ant-design: 22 → 0 (-22)
+    console: 19 → 0 (-19)
+    eigen: 10 → 0 (-10)
+    courselit: 6 → 0 (-6)
+    it-tools: 5 → 0 (-5)
+
+⚠️ S3760:
+  Expected: 57
+  Actual:   0
+  Diff:     -57
+  Removed issues: 57
+  Affected projects:
+    ace: 23 → 0 (-23)
+    jquery: 12 → 0 (-12)
+    sizzle: 11 → 0 (-11)
+    p5.js: 10 → 0 (-10)
+    router: 1 → 0 (-1)
+
+⚠️ S7755:
+  Expected: 53
+  Actual:   0
+  Diff:     -53
+  Removed issues: 53
+  Affected projects:
+    ace: 15 → 0 (-15)
+    p5.js: 10 → 0 (-10)
+    jshint: 5 → 0 (-5)
+    angular.js: 4 → 0 (-4)
+    qunit: 4 → 0 (-4)
+
+⚠️ S3800:
+  Expected: 52
+  Actual:   0
+  Diff:     -52
+  Removed issues: 52
+  Affected projects:
+    ace: 23 → 0 (-23)
+    angular.js: 14 → 0 (-14)
+    Ghost: 6 → 0 (-6)
+    p5.js: 5 → 0 (-5)
+    jquery: 1 → 0 (-1)
+
+❌ S131:
+  Expected: 631
+  Actual:   682
+  Diff:     +51
+  New issues: 54
+  Removed issues: 3
+  Affected projects:
+    TypeScript: 414 → 452 (+38)
+    eigen: 27 → 34 (+7)
+    ag-grid: 9 → 13 (+4)
+    desktop: 27 → 30 (+3)
+    console: 7 → 9 (+2)
+
+⚠️ S6571:
+  Expected: 48
+  Actual:   0
+  Diff:     -48
+  Removed issues: 48
+  Affected projects:
+    eigen: 21 → 0 (-21)
+    searchkit: 13 → 0 (-13)
+    vuetify: 4 → 0 (-4)
+    ant-design: 3 → 0 (-3)
+    rxjs: 3 → 0 (-3)
+
+⚠️ S2871:
+  Expected: 45
+  Actual:   0
+  Diff:     -45
+  Removed issues: 45
+  Affected projects:
+    TypeScript: 8 → 0 (-8)
+    ace: 8 → 0 (-8)
+    desktop: 5 → 0 (-5)
+    p5.js: 4 → 0 (-4)
+    qunit: 4 → 0 (-4)
+
+⚠️ S6671:
+  Expected: 43
+  Actual:   0
+  Diff:     -43
+  Removed issues: 43
+  Affected projects:
+    eigen: 16 → 0 (-16)
+    console: 8 → 0 (-8)
+    fireact: 6 → 0 (-6)
+    desktop: 5 → 0 (-5)
+    http: 2 → 0 (-2)
+
+⚠️ S3402:
+  Expected: 42
+  Actual:   0
+  Diff:     -42
+  Removed issues: 42
+  Affected projects:
+    ace: 11 → 0 (-11)
+    Ghost: 7 → 0 (-7)
+    TypeScript: 5 → 0 (-5)
+    p5.js: 4 → 0 (-4)
+    jquery: 3 → 0 (-3)
+
+⚠️ S7059:
+  Expected: 38
+  Actual:   0
+  Diff:     -38
+  Removed issues: 38
+  Affected projects:
+    desktop: 37 → 0 (-37)
+    console: 1 → 0 (-1)
+
+⚠️ S6565:
+  Expected: 36
+  Actual:   0
+  Diff:     -36
+  Removed issues: 36
+  Affected projects:
+    Joust: 23 → 0 (-23)
+    ag-grid: 7 → 0 (-7)
+    searchkit: 4 → 0 (-4)
+    rxjs: 2 → 0 (-2)
+
+⚠️ S2301:
+  Expected: 33
+  Actual:   0
+  Diff:     -33
+  Removed issues: 33
+  Affected projects:
+    TypeScript: 10 → 0 (-10)
+    eigen: 6 → 0 (-6)
+    ag-grid: 4 → 0 (-4)
+    ace: 3 → 0 (-3)
+    angular.js: 3 → 0 (-3)
+
+⚠️ S4043:
+  Expected: 32
+  Actual:   0
+  Diff:     -32
+  Removed issues: 32
+  Affected projects:
+    TypeScript: 7 → 0 (-7)
+    desktop: 7 → 0 (-7)
+    ant-design: 3 → 0 (-3)
+    eigen: 3 → 0 (-3)
+    p5.js: 3 → 0 (-3)
+
+⚠️ S7729:
+  Expected: 29
+  Actual:   0
+  Diff:     -29
+  Removed issues: 29
+  Affected projects:
+    ace: 24 → 0 (-24)
+    router: 2 → 0 (-2)
+    console: 1 → 0 (-1)
+    jshint: 1 → 0 (-1)
+    sonar-web: 1 → 0 (-1)
+
+⚠️ S4123:
+  Expected: 26
+  Actual:   0
+  Diff:     -26
+  Removed issues: 26
+  Affected projects:
+    eigen: 10 → 0 (-10)
+    postgraphql: 10 → 0 (-10)
+    desktop: 4 → 0 (-4)
+    courselit: 1 → 0 (-1)
+    file-for-rules: 1 → 0 (-1)
+
+⚠️ S2201:
+  Expected: 24
+  Actual:   0
+  Diff:     -24
+  Removed issues: 24
+  Affected projects:
+    file-for-rules: 7 → 0 (-7)
+    eigen: 5 → 0 (-5)
+    desktop: 4 → 0 (-4)
+    courselit: 3 → 0 (-3)
+    TypeScript: 2 → 0 (-2)
+
+⚠️ S4623:
+  Expected: 24
+  Actual:   0
+  Diff:     -24
+  Removed issues: 24
+  Affected projects:
+    TypeScript: 22 → 0 (-22)
+    console: 2 → 0 (-2)
+
+⚠️ S6544:
+  Expected: 33
+  Actual:   9
+  Diff:     -24
+  Removed issues: 24
+  Affected projects:
+    desktop: 15 → 2 (-13)
+    eigen: 11 → 6 (-5)
+    angular.js: 2 → 0 (-2)
+    courselit: 2 → 0 (-2)
+    ant-design: 1 → 0 (-1)
+
+⚠️ S3403:
+  Expected: 18
+  Actual:   0
+  Diff:     -18
+  Removed issues: 18
+  Affected projects:
+    ocanvas: 6 → 0 (-6)
+    p5.js: 5 → 0 (-5)
+    jquery: 2 → 0 (-2)
+    sizzle: 2 → 0 (-2)
+    Ghost: 1 → 0 (-1)
+
+⚠️ S4782:
+  Expected: 16
+  Actual:   0
+  Diff:     -16
+  Removed issues: 16
+  Affected projects:
+    postgraphql: 9 → 0 (-9)
+    vuetify: 4 → 0 (-4)
+    eigen: 2 → 0 (-2)
+    ant-design: 1 → 0 (-1)
+
+⚠️ S4139:
+  Expected: 15
+  Actual:   0
+  Diff:     -15
+  Removed issues: 15
+  Affected projects:
+    ace: 6 → 0 (-6)
+    jshint: 4 → 0 (-4)
+    TypeScript: 2 → 0 (-2)
+    ecmascript6-today: 1 → 0 (-1)
+    p5.js: 1 → 0 (-1)
+
+⚠️ S3003:
+  Expected: 10
+  Actual:   0
+  Diff:     -10
+  Removed issues: 10
+  Affected projects:
+    TypeScript: 4 → 0 (-4)
+    desktop: 3 → 0 (-3)
+    router: 2 → 0 (-2)
+    console: 1 → 0 (-1)
+
+⚠️ S3533:
+  Expected: 5518
+  Actual:   5509
+  Diff:     -9
+  Removed issues: 9
+  Affected projects:
+    ace: 2361 → 2358 (-3)
+    ecmascript6-today: 3 → 0 (-3)
+    angular.js: 103 → 102 (-1)
+    sizzle: 8 → 7 (-1)
+    sonar-web: 44 → 43 (-1)
+
+⚠️ S1154:
+  Expected: 9
+  Actual:   0
+  Diff:     -9
+  Removed issues: 9
+  Affected projects:
+    file-for-rules: 4 → 0 (-4)
+    es5-shim: 2 → 0 (-2)
+    ace: 1 → 0 (-1)
+    desktop: 1 → 0 (-1)
+    p5.js: 1 → 0 (-1)
+
+⚠️ S3579:
+  Expected: 8
+  Actual:   0
+  Diff:     -8
+  Removed issues: 8
+  Affected projects:
+    ace: 4 → 0 (-4)
+    TypeScript: 1 → 0 (-1)
+    jquery: 1 → 0 (-1)
+    p5.js: 1 → 0 (-1)
+    sizzle: 1 → 0 (-1)
+
+❌ S1488:
+  Expected: 259
+  Actual:   266
+  Diff:     +7
+  New issues: 7
+  Affected projects:
+    ant-design: 9 → 12 (+3)
+    ace: 10 → 12 (+2)
+    p5.js: 18 → 20 (+2)
+
+⚠️ S2870:
+  Expected: 6
+  Actual:   0
+  Diff:     -6
+  Removed issues: 6
+  Affected projects:
+    TypeScript: 4 → 0 (-4)
+    eigen: 1 → 0 (-1)
+    ocanvas: 1 → 0 (-1)
+
+⚠️ S3735:
+  Expected: 14
+  Actual:   8
+  Diff:     -6
+  Removed issues: 6
+  Affected projects:
+    ace: 5 → 3 (-2)
+    eigen: 2 → 0 (-2)
+    jshint: 3 → 1 (-2)
+
+⚠️ S3757:
+  Expected: 6
+  Actual:   0
+  Diff:     -6
+  Removed issues: 6
+  Affected projects:
+    ace: 3 → 0 (-3)
+    jquery: 3 → 0 (-3)
+
+⚠️ S4157:
+  Expected: 6
+  Actual:   0
+  Diff:     -6
+  Removed issues: 6
+  Affected projects:
+    ant-design: 3 → 0 (-3)
+    eigen: 3 → 0 (-3)
+
+⚠️ S2259:
+  Expected: 5
+  Actual:   0
+  Diff:     -5
+  Removed issues: 5
+  Affected projects:
+    ace: 3 → 0 (-3)
+    file-for-rules: 1 → 0 (-1)
+    p5.js: 1 → 0 (-1)
+
+⚠️ S2819:
+  Expected: 5
+  Actual:   0
+  Diff:     -5
+  Removed issues: 5
+  Affected projects:
+    ace: 2 → 0 (-2)
+    router: 2 → 0 (-2)
+    vuetify: 1 → 0 (-1)
+
+⚠️ S3785:
+  Expected: 5
+  Actual:   0
+  Diff:     -5
+  Removed issues: 5
+  Affected projects:
+    file-for-rules: 5 → 0 (-5)
+
+❌ S1529:
+  Expected: 1
+  Actual:   5
+  Diff:     +4
+  New issues: 4
+  Affected projects:
+    TypeScript: 1 → 5 (+4)
+
+⚠️ S5860:
+  Expected: 4
+  Actual:   0
+  Diff:     -4
+  Removed issues: 4
+  Affected projects:
+    file-for-rules: 4 → 0 (-4)
+
+⚠️ S3798:
+  Expected: 5925
+  Actual:   5922
+  Diff:     -3
+  New issues: 1
+  Removed issues: 4
+  Affected projects:
+    file-for-rules: 36 → 32 (-4)
+    ace: 2657 → 2658 (+1)
+
+⚠️ S3758:
+  Expected: 3
+  Actual:   0
+  Diff:     -3
+  Removed issues: 3
+  Affected projects:
+    ace: 2 → 0 (-2)
+    p5.js: 1 → 0 (-1)
+
+⚠️ S3796:
+  Expected: 3
+  Actual:   0
+  Diff:     -3
+  Removed issues: 3
+  Affected projects:
+    eigen: 1 → 0 (-1)
+    router: 1 → 0 (-1)
+    snoode: 1 → 0 (-1)
+
+⚠️ S3782:
+  Expected: 3
+  Actual:   0
+  Diff:     -3
+  Removed issues: 3
+  Affected projects:
+    p5.js: 3 → 0 (-3)
+
+⚠️ S2234:
+  Expected: 23
+  Actual:   21
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    ace: 11 → 9 (-2)
+
+⚠️ S4335:
+  Expected: 2
+  Actual:   0
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    ant-design: 2 → 0 (-2)
+
+⚠️ S6959:
+  Expected: 5
+  Actual:   3
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    desktop: 3 → 1 (-2)
+
+⚠️ S4822:
+  Expected: 2
+  Actual:   0
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    desktop: 1 → 0 (-1)
+    eigen: 1 → 0 (-1)
+
+⚠️ S6328:
+  Expected: 2
+  Actual:   0
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    file-for-rules: 2 → 0 (-2)
+
+⚠️ S6439:
+  Expected: 2
+  Actual:   0
+  Diff:     -2
+  Removed issues: 2
+  Affected projects:
+    file-for-rules: 2 → 0 (-2)
+
+⚠️ S5725:
+  Expected: 1
+  Actual:   0
+  Diff:     -1
+  Removed issues: 1
+  Affected projects:
+    file-for-rules: 1 → 0 (-1)
+
+⚠️ S5856:
+  Expected: 2
+  Actual:   1
+  Diff:     -1
+  Removed issues: 1
+  Affected projects:
+    file-for-rules: 2 → 1 (-1)
+
+⚠️ S6583:
+  Expected: 1
+  Actual:   0
+  Diff:     -1
+  Removed issues: 1
+  Affected projects:
+    file-for-rules: 1 → 0 (-1)
+
+⚠️ S4324:
+  Expected: 1
+  Actual:   0
+  Diff:     -1
+  Removed issues: 1
+  Affected projects:
+    rxjs: 1 → 0 (-1)
+
+⚠️ S2999:
+  Expected: 1
+  Actual:   0
+  Diff:     -1
+  Removed issues: 1
+  Affected projects:
+    watchtower.js: 1 → 0 (-1)
+
+================================================================================
+BREAKDOWN BY PROJECT
+================================================================================
+
+❌ eigen:
+  Expected: 116214
+  Actual:   119059
+  Diff:     +2845
+  New issues: 4343
+  Removed issues: 1498
+  Affected rules:
+    S4328: 792 → 5128 (+4336)
+    S1874: 1072 → 0 (-1072)
+    S4325: 189 → 0 (-189)
+    S6582: 123 → 0 (-123)
+    S6571: 21 → 0 (-21)
+
+⚠️ desktop:
+  Expected: 39099
+  Actual:   37819
+  Diff:     -1280
+  New issues: 3
+  Removed issues: 1283
+  Affected rules:
+    S2933: 1041 → 0 (-1041)
+    S6582: 81 → 0 (-81)
+    S7059: 37 → 0 (-37)
+    S6594: 21 → 0 (-21)
+    S6606: 17 → 0 (-17)
+
+⚠️ TypeScript:
+  Expected: 64059
+  Actual:   63142
+  Diff:     -917
+  New issues: 42
+  Removed issues: 959
+  Affected rules:
+    S4325: 341 → 0 (-341)
+    S6582: 285 → 0 (-285)
+    S2933: 90 → 0 (-90)
+    S1874: 80 → 0 (-80)
+    S6606: 50 → 0 (-50)
+
+⚠️ ace:
+  Expected: 203826
+  Actual:   203027
+  Diff:     -799
+  New issues: 3
+  Removed issues: 802
+  Affected rules:
+    S6582: 406 → 0 (-406)
+    S1874: 85 → 0 (-85)
+    S6551: 62 → 0 (-62)
+    S3525: 290 → 245 (-45)
+    S6557: 35 → 0 (-35)
+
+⚠️ ag-grid:
+  Expected: 8082
+  Actual:   7317
+  Diff:     -765
+  New issues: 4
+  Removed issues: 769
+  Affected rules:
+    S2933: 585 → 0 (-585)
+    S4325: 73 → 0 (-73)
+    S6582: 62 → 0 (-62)
+    S1874: 23 → 0 (-23)
+    S6565: 7 → 0 (-7)
+
+⚠️ console:
+  Expected: 17301
+  Actual:   16694
+  Diff:     -607
+  New issues: 2
+  Removed issues: 609
+  Affected rules:
+    S2933: 522 → 0 (-522)
+    S6582: 42 → 0 (-42)
+    S6759: 19 → 0 (-19)
+    S6671: 8 → 0 (-8)
+    S131: 7 → 9 (+2)
+
+⚠️ rxjs:
+  Expected: 8813
+  Actual:   8284
+  Diff:     -529
+  Removed issues: 529
+  Affected rules:
+    S2933: 381 → 0 (-381)
+    S3525: 102 → 2 (-100)
+    S4325: 24 → 0 (-24)
+    S6582: 17 → 0 (-17)
+    S6571: 3 → 0 (-3)
+
+⚠️ ant-design:
+  Expected: 11633
+  Actual:   11400
+  Diff:     -233
+  New issues: 3
+  Removed issues: 236
+  Affected rules:
+    S4325: 113 → 0 (-113)
+    S6582: 55 → 0 (-55)
+    S6759: 22 → 0 (-22)
+    S1874: 13 → 0 (-13)
+    S6606: 9 → 0 (-9)
+
+⚠️ Ghost:
+  Expected: 15826
+  Actual:   15659
+  Diff:     -167
+  Removed issues: 167
+  Affected rules:
+    S6582: 129 → 0 (-129)
+    S1874: 9 → 0 (-9)
+    S6557: 8 → 0 (-8)
+    S3402: 7 → 0 (-7)
+    S3800: 6 → 0 (-6)
+
+⚠️ angular.js:
+  Expected: 13372
+  Actual:   13207
+  Diff:     -165
+  Removed issues: 165
+  Affected rules:
+    S6582: 100 → 0 (-100)
+    S6557: 18 → 0 (-18)
+    S1874: 16 → 0 (-16)
+    S3800: 14 → 0 (-14)
+    S7755: 4 → 0 (-4)
+
+⚠️ p5.js:
+  Expected: 9266
+  Actual:   9120
+  Diff:     -146
+  New issues: 2
+  Removed issues: 148
+  Affected rules:
+    S6582: 57 → 0 (-57)
+    S1874: 21 → 0 (-21)
+    S6557: 11 → 0 (-11)
+    S3760: 10 → 0 (-10)
+    S7755: 10 → 0 (-10)
+
+⚠️ Joust:
+  Expected: 3204
+  Actual:   3104
+  Diff:     -100
+  Removed issues: 100
+  Affected rules:
+    S6582: 38 → 0 (-38)
+    S2933: 24 → 0 (-24)
+    S6565: 23 → 0 (-23)
+    S4325: 4 → 0 (-4)
+    S6594: 4 → 0 (-4)
+
+⚠️ jquery:
+  Expected: 4521
+  Actual:   4439
+  Diff:     -82
+  Removed issues: 82
+  Affected rules:
+    S6582: 46 → 0 (-46)
+    S3760: 12 → 0 (-12)
+    S6557: 10 → 0 (-10)
+    S3402: 3 → 0 (-3)
+    S3757: 3 → 0 (-3)
+
+⚠️ courselit:
+  Expected: 5717
+  Actual:   5638
+  Diff:     -79
+  Removed issues: 79
+  Affected rules:
+    S6582: 51 → 0 (-51)
+    S2933: 11 → 0 (-11)
+    S6759: 6 → 0 (-6)
+    S2201: 3 → 0 (-3)
+    S4325: 3 → 0 (-3)
+
+❌ it-tools:
+  Expected: 2281
+  Actual:   2360
+  Diff:     +79
+  New issues: 93
+  Removed issues: 14
+  Affected rules:
+    S4328: 170 → 263 (+93)
+    S6594: 5 → 0 (-5)
+    S6759: 5 → 0 (-5)
+    S6551: 3 → 0 (-3)
+    S2301: 1 → 0 (-1)
+
+⚠️ jshint:
+  Expected: 5275
+  Actual:   5200
+  Diff:     -75
+  Removed issues: 75
+  Affected rules:
+    S6582: 55 → 0 (-55)
+    S7755: 5 → 0 (-5)
+    S1874: 4 → 0 (-4)
+    S4139: 4 → 0 (-4)
+    S131: 12 → 10 (-2)
+
+⚠️ postgraphql:
+  Expected: 5578
+  Actual:   5503
+  Diff:     -75
+  Removed issues: 75
+  Affected rules:
+    S2933: 23 → 0 (-23)
+    S6582: 13 → 0 (-13)
+    S4123: 10 → 0 (-10)
+    S6606: 10 → 0 (-10)
+    S4782: 9 → 0 (-9)
+
+⚠️ vuetify:
+  Expected: 30234
+  Actual:   30162
+  Diff:     -72
+  Removed issues: 72
+  Affected rules:
+    S4325: 29 → 0 (-29)
+    S1874: 15 → 0 (-15)
+    S4782: 4 → 0 (-4)
+    S6571: 4 → 0 (-4)
+    S6606: 4 → 0 (-4)
+
+⚠️ sonar-web:
+  Expected: 9487
+  Actual:   9418
+  Diff:     -69
+  Removed issues: 69
+  Affected rules:
+    S6582: 56 → 0 (-56)
+    S1874: 5 → 0 (-5)
+    S6557: 5 → 0 (-5)
+    S3533: 44 → 43 (-1)
+    S6594: 1 → 0 (-1)
+
+⚠️ searchkit:
+  Expected: 5354
+  Actual:   5303
+  Diff:     -51
+  Removed issues: 51
+  Affected rules:
+    S2933: 20 → 0 (-20)
+    S6571: 13 → 0 (-13)
+    S6582: 7 → 0 (-7)
+    S6565: 4 → 0 (-4)
+    S3402: 2 → 0 (-2)
+
+⚠️ qunit:
+  Expected: 2282
+  Actual:   2232
+  Diff:     -50
+  Removed issues: 50
+  Affected rules:
+    S6582: 31 → 0 (-31)
+    S6557: 5 → 0 (-5)
+    S2871: 4 → 0 (-4)
+    S7755: 4 → 0 (-4)
+    S4043: 2 → 0 (-2)
+
+⚠️ router:
+  Expected: 2977
+  Actual:   2929
+  Diff:     -48
+  Removed issues: 48
+  Affected rules:
+    S6582: 25 → 0 (-25)
+    S1874: 7 → 0 (-7)
+    S6557: 3 → 0 (-3)
+    S2819: 2 → 0 (-2)
+    S3003: 2 → 0 (-2)
+
+❌ moose:
+  Expected: 1345
+  Actual:   1391
+  Diff:     +46
+  New issues: 56
+  Removed issues: 10
+  Affected rules:
+    S4328: 9 → 65 (+56)
+    S1874: 9 → 0 (-9)
+    S6571: 1 → 0 (-1)
+
+⚠️ file-for-rules:
+  Expected: 1202
+  Actual:   1164
+  Diff:     -38
+  Removed issues: 38
+  Affected rules:
+    S2201: 7 → 0 (-7)
+    S3785: 5 → 0 (-5)
+    S1154: 4 → 0 (-4)
+    S3798: 36 → 32 (-4)
+    S5860: 4 → 0 (-4)
+
+⚠️ mootools-core:
+  Expected: 2197
+  Actual:   2165
+  Diff:     -32
+  Removed issues: 32
+  Affected rules:
+    S6582: 20 → 0 (-20)
+    S6557: 5 → 0 (-5)
+    S1874: 2 → 0 (-2)
+    S6594: 2 → 0 (-2)
+    S3525: 2 → 1 (-1)
+
+⚠️ sizzle:
+  Expected: 1563
+  Actual:   1532
+  Diff:     -31
+  Removed issues: 31
+  Affected rules:
+    S6582: 12 → 0 (-12)
+    S3760: 11 → 0 (-11)
+    S3403: 2 → 0 (-2)
+    S6557: 2 → 0 (-2)
+    S3402: 1 → 0 (-1)
+
+⚠️ fireface:
+  Expected: 507
+  Actual:   484
+  Diff:     -23
+  Removed issues: 23
+  Affected rules:
+    S2933: 22 → 0 (-22)
+    S6582: 1 → 0 (-1)
+
+⚠️ snoode:
+  Expected: 652
+  Actual:   629
+  Diff:     -23
+  Removed issues: 23
+  Affected rules:
+    S6582: 18 → 0 (-18)
+    S6671: 2 → 0 (-2)
+    S2201: 1 → 0 (-1)
+    S3796: 1 → 0 (-1)
+    S3800: 1 → 0 (-1)
+
+⚠️ ocanvas:
+  Expected: 3178
+  Actual:   3157
+  Diff:     -21
+  Removed issues: 21
+  Affected rules:
+    S6582: 8 → 0 (-8)
+    S3403: 6 → 0 (-6)
+    S1874: 4 → 0 (-4)
+    S2870: 1 → 0 (-1)
+    S3800: 1 → 0 (-1)
+
+⚠️ prototype:
+  Expected: 2412
+  Actual:   2391
+  Diff:     -21
+  Removed issues: 21
+  Affected rules:
+    S6582: 13 → 0 (-13)
+    S1874: 4 → 0 (-4)
+    S3525: 3 → 1 (-2)
+    S4043: 1 → 0 (-1)
+    S6594: 1 → 0 (-1)
+
+⚠️ fireact:
+  Expected: 2136
+  Actual:   2117
+  Diff:     -19
+  Removed issues: 19
+  Affected rules:
+    S6582: 6 → 0 (-6)
+    S6671: 6 → 0 (-6)
+    S7755: 3 → 0 (-3)
+    S6557: 2 → 0 (-2)
+    S4043: 1 → 0 (-1)
+
+⚠️ reddit-mobile:
+  Expected: 1091
+  Actual:   1078
+  Diff:     -13
+  Removed issues: 13
+  Affected rules:
+    S6582: 9 → 0 (-9)
+    S6671: 2 → 0 (-2)
+    S6557: 1 → 0 (-1)
+    S6594: 1 → 0 (-1)
+
+⚠️ es5-shim:
+  Expected: 945
+  Actual:   933
+  Diff:     -12
+  Removed issues: 12
+  Affected rules:
+    S1874: 4 → 0 (-4)
+    S1154: 2 → 0 (-2)
+    S3525: 4 → 2 (-2)
+    S3402: 1 → 0 (-1)
+    S3403: 1 → 0 (-1)
+
+⚠️ ecmascript6-today:
+  Expected: 335
+  Actual:   329
+  Diff:     -6
+  Removed issues: 6
+  Affected rules:
+    S3533: 3 → 0 (-3)
+    S1874: 2 → 0 (-2)
+    S4139: 1 → 0 (-1)
+
+⚠️ underscore:
+  Expected: 553
+  Actual:   547
+  Diff:     -6
+  Removed issues: 6
+  Affected rules:
+    S6582: 3 → 0 (-3)
+    S1874: 2 → 0 (-2)
+    S2871: 1 → 0 (-1)
+
+⚠️ backbone:
+  Expected: 866
+  Actual:   861
+  Diff:     -5
+  Removed issues: 5
+  Affected rules:
+    S1874: 2 → 0 (-2)
+    S3525: 5 → 4 (-1)
+    S6582: 1 → 0 (-1)
+    S6594: 1 → 0 (-1)
+
+⚠️ ionic2-auth:
+  Expected: 141
+  Actual:   136
+  Diff:     -5
+  Removed issues: 5
+  Affected rules:
+    S2933: 5 → 0 (-5)
+
+⚠️ react-cloud-music:
+  Expected: 3603
+  Actual:   3599
+  Diff:     -4
+  Removed issues: 4
+  Affected rules:
+    S6582: 2 → 0 (-2)
+    S6594: 1 → 0 (-1)
+    S4325: 1 → 0 (-1)
+
+⚠️ http:
+  Expected: 437
+  Actual:   434
+  Diff:     -3
+  Removed issues: 3
+  Affected rules:
+    S6671: 2 → 0 (-2)
+    S6557: 1 → 0 (-1)
+
+⚠️ redux:
+  Expected: 3204
+  Actual:   3201
+  Diff:     -3
+  Removed issues: 3
+  Affected rules:
+    S6582: 3 → 0 (-3)
+
+⚠️ templating:
+  Expected: 475
+  Actual:   472
+  Diff:     -3
+  Removed issues: 3
+  Affected rules:
+    S6582: 2 → 0 (-2)
+    S6557: 1 → 0 (-1)
+
+⚠️ watchtower.js:
+  Expected: 924
+  Actual:   921
+  Diff:     -3
+  Removed issues: 3
+  Affected rules:
+    S2999: 1 → 0 (-1)
+    S6557: 1 → 0 (-1)
+    S6582: 1 → 0 (-1)
+
+⚠️ amplify:
+  Expected: 319
+  Actual:   317
+  Diff:     -2
+  Removed issues: 2
+  Affected rules:
+    S6557: 1 → 0 (-1)
+    S6582: 1 → 0 (-1)
+
+⚠️ expressionist.js:
+  Expected: 777
+  Actual:   775
+  Diff:     -2
+  Removed issues: 2
+  Affected rules:
+    S2871: 1 → 0 (-1)
+    S6557: 1 → 0 (-1)
+
+⚠️ paper.js:
+  Expected: 8471
+  Actual:   8469
+  Diff:     -2
+  Removed issues: 2
+  Affected rules:
+    S1874: 1 → 0 (-1)
+    S6582: 1 → 0 (-1)
+
+⚠️ prettier-vscode:
+  Expected: 54
+  Actual:   52
+  Diff:     -2
+  Removed issues: 2
+  Affected rules:
+    S6582: 2 → 0 (-2)
+
+================================================================================
+SUMMARY
+================================================================================
+Total rules analyzed: 466
+Rules with differences: 60
+Total projects analyzed: 50
+Projects with differences: 46
+Total mismatched files: 398
+
+❌ FAILURE: Actual has MORE issues than expected (regression detected)
+   4551 new issues need to be investigated
+

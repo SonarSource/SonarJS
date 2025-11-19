@@ -75,23 +75,23 @@ export async function analyzeProject(
   });
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (isSonarLint()) {
-      await analyzeWithWatchProgram(
-        filesToAnalyze,
-        results,
-        pendingFiles,
-        progressReport,
-        incrementalResultsChannel,
-      );
-    } else {
-      await analyzeWithProgram(
-        filesToAnalyze,
-        results,
-        pendingFiles,
-        progressReport,
-        incrementalResultsChannel,
-      );
-    }
+    // if (isSonarLint()) {
+    //   await analyzeWithWatchProgram(
+    //     filesToAnalyze,
+    //     results,
+    //     pendingFiles,
+    //     progressReport,
+    //     incrementalResultsChannel,
+    //   );
+    // } else {
+    //   await analyzeWithProgram(
+    //     filesToAnalyze,
+    //     results,
+    //     pendingFiles,
+    //     progressReport,
+    //     incrementalResultsChannel,
+    //   );
+    // }
     if (pendingFiles.size) {
       info(
         `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
