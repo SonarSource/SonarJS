@@ -23,6 +23,7 @@ import {
   getFullyQualifiedName,
   report,
   toSecondaryLocation,
+  IssueLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -102,7 +103,7 @@ export const rule: Rule.RuleModule = {
         if (fqn && secretSignatures.hasOwnProperty(fqn) && callExpression.arguments.length > 0) {
           secretSignatures[fqn].forEach(index => {
             const arg = callExpression.arguments[index];
-            if (arg && isHardcodedString(arg)) {
+            if (arg && arg.type !== 'SpreadElement' && isHardcodedString(arg)) {
               const secondaryLocations: IssueLocation[] = getSecondaryNode(arg);
 
               report(
