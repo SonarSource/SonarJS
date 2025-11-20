@@ -80,24 +80,24 @@ function getTemplate() {
 const funcResultFn = pug.compile(getTemplate()); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
 //                   ^^^^^^^^^^^
 
-// Test case 15: pug.render with static string (compliant) and renderFile (not checked)
+// Test case 14: pug.render with static string (compliant) and renderFile (not checked)
 const rendered = pug.render('h1 Hello'); // Compliant - static string
 const renderFile = pug.renderFile('template.pug'); // Compliant - renderFile not in the checked functions
 
-// Test case 16: EJS compile with dynamic input (should trigger)
+// Test case 15: EJS compile with dynamic input (should trigger)
 const ejsTemplate = getUserInput();
 const ejsCompileFn = ejs.compile(ejsTemplate); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
 //                   ^^^^^^^^^^^
 
-// Test case 17: EJS render with dynamic input (should trigger)
+// Test case 16: EJS render with dynamic input (should trigger)
 const ejsRenderResult = ejs.render(ejsTemplate); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
 //                      ^^^^^^^^^^
 
-// Test case 18: EJS with require (should trigger)
+// Test case 17: EJS with require (should trigger)
 const ejsRequireCompile = ejsRequire.compile(getUserInput()); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
 //                        ^^^^^^^^^^^^^^^^^^
 
-// Test case 19: EJS with static string (compliant)
+// Test case 20: EJS with static string (compliant)
 const ejsStaticCompile = ejs.compile('<h1>Hello <%= name %></h1>'); // Compliant - static string
 const ejsStaticRender = ejs.render('<h1>Hello</h1>'); // Compliant - static string
 
