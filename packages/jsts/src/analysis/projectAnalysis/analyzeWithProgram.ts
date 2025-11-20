@@ -16,14 +16,15 @@
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import {
-  createBuilderProgram,
+  createBuilderProgramAndHost,
   createProgramOptions,
-  defaultCompilerOptions,
   createOrGetCachedProgramForFile,
   setSourceFilesContext,
   clearSourceFileContentCache,
   getProgramCacheManager,
   sanitizeProjectReferences,
+  createProgramOptionsFromParsedConfig,
+  defaultCompilerOptions,
 } from '../../program/index.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
@@ -32,8 +33,8 @@ import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import merge from 'lodash.merge';
 import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import merge from 'lodash.merge';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -112,11 +113,6 @@ async function analyzeFilesFromEntryPoint(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const compilerOptions: ts.CompilerOptions =
-    results.compilerOptions.length > 0
-      ? merge({}, ...results.compilerOptions)
-      : defaultCompilerOptions;
-
   if (pendingFiles.size === 0) {
     return;
   }
@@ -125,21 +121,23 @@ async function analyzeFilesFromEntryPoint(
     `Analyzing ${pendingFiles.size} file(s) not in any tsconfig using cached programs with merged compiler options`,
   );
 
-  const rootFiles = Array.from(pendingFiles).filter(file => isJsTsFile(file));
-
+  const programOptions = results.programOptions.length
+    ? merge({}, ...results.programOptions)
+    : createProgramOptionsFromParsedConfig(
+        { compilerOptions: defaultCompilerOptions },
+        getBaseDir(),
+      );
+  programOptions.rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
   // Analyze each file using cached programs (files loaded lazily from global cache)
-  for (const fileName of rootFiles) {
+  for (const fileName of programOptions.rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
 
-    // First file: Creates program with all root files
-    // Subsequent files: Cache hit!
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       fileName,
-      compilerOptions,
-      rootFiles,
+      programOptions,
     );
 
     const tsProgram = builderProgram.getProgram();
@@ -179,7 +177,7 @@ async function analyzeFilesFromTsConfig(
     return;
   }
 
-  results.compilerOptions.push(programOptions.options);
+  results.programOptions.push(programOptions);
 
   if (programOptions.missingTsConfig) {
     const msg =
@@ -189,7 +187,7 @@ async function analyzeFilesFromTsConfig(
   }
 
   // Create program - TypeScript will resolve globs and discover all files
-  const { builderProgram } = createBuilderProgram(programOptions, getBaseDir());
+  const { builderProgram } = createBuilderProgramAndHost(programOptions, getBaseDir());
 
   const tsProgram = builderProgram.getProgram();
 

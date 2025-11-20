@@ -25,6 +25,18 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getSourceFileContentCache } from './cache/sourceFileCache.js';
 
+export function createBuilderProgramWithHost(
+  programOptions: ProgramOptions,
+  host: ts.CompilerHost,
+  oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
+) {
+  return ts.createSemanticDiagnosticsBuilderProgram(
+    programOptions.rootNames,
+    programOptions.options,
+    host,
+    oldProgram,
+  );
+}
 /**
  * Creates a TypeScript's SemanticDiagnosticsBuilderProgram instance
  *
@@ -39,19 +51,14 @@ import { getSourceFileContentCache } from './cache/sourceFileCache.js';
  *          the resolved project references and a boolean 'missingTsConfig' which is
  *          true when an extended tsconfig.json path was not found
  */
-export function createBuilderProgram(
+export function createBuilderProgramAndHost(
   programOptions: ProgramOptions,
   baseDir: string,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
 ) {
   const host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
-  const builderProgram = ts.createSemanticDiagnosticsBuilderProgram(
-    programOptions.rootNames,
-    programOptions.options,
-    host,
-    oldProgram,
-  );
+  const builderProgram = createBuilderProgramWithHost(programOptions, host, oldProgram);
 
   const program = builderProgram.getProgram();
   return {
@@ -109,7 +116,7 @@ export function createProgramFromSingleFile(
     compilerOptions, // Use provided compiler options as base
   );
 
-  // Override with custom host for the single file
+  // Override with a custom host for the single file
   const compilerHost = ts.createCompilerHost(programOptions.options);
   const programOptionsWithCustomHost: ProgramOptions = {
     ...programOptions,
@@ -137,14 +144,12 @@ export function createProgramFromSingleFile(
  *
  * @param baseDir The base directory for resolving module paths
  * @param sourceFile The source file to create or find a program for
- * @param compilerOptions TypeScript compiler options to use
- * @param rootFiles All root files to include in the program (defaults to just sourceFile)
+ * @param programOptions program options to use for the program
  */
 export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
-  compilerOptions: ts.CompilerOptions,
-  rootFiles: string[] = [sourceFile],
+  programOptions: ProgramOptions,
 ): {
   program: ts.SemanticDiagnosticsBuilderProgram;
   host: IncrementalCompilerHost;
@@ -155,7 +160,7 @@ export function createOrGetCachedProgramForFile(
   const cache = getSourceFileContentCache();
   const fileContent = cache.get(sourceFile);
 
-  // Try to find existing program containing this file
+  // Try to find an existing program containing this file
   const cached = cacheManager.findProgramForFile(sourceFile, fileContent);
 
   if (cached.program && cached.host) {
@@ -171,12 +176,7 @@ export function createOrGetCachedProgramForFile(
       const host = cached.host;
 
       // Recreate program with proper options to ensure lib files are included
-      const updatedProgram = ts.createSemanticDiagnosticsBuilderProgram(
-        rootFiles,
-        compilerOptions,
-        host,
-        cached.program, // Old program for incremental reuse
-      );
+      const updatedProgram = createBuilderProgramWithHost(programOptions, host, cached.program);
 
       // Update cache with new program
       if (cached.cacheKey) {
@@ -203,15 +203,15 @@ export function createOrGetCachedProgramForFile(
 
   info(
     `⚙️  Cache MISS: Creating new program for ${sourceFile}` +
-      (rootFiles.length > 1 ? ` (+ ${rootFiles.length - 1} additional root files)` : ''),
+      (programOptions.rootNames.length > 1
+        ? ` (+ ${programOptions.rootNames.length - 1} additional root files)`
+        : ''),
   );
 
-  const programOptions = createProgramOptionsFromParsedConfig({ compilerOptions }, baseDir);
-
-  const { builderProgram, host } = createBuilderProgram(programOptions, baseDir);
+  const { builderProgram, host } = createBuilderProgramAndHost(programOptions, baseDir);
 
   // Store in cache
-  cacheManager.storeProgram(rootFiles, builderProgram, host, compilerOptions);
+  cacheManager.storeProgram(programOptions, builderProgram, host);
 
   const tsProgram = builderProgram.getProgram();
   const totalFiles = tsProgram.getSourceFiles().length;

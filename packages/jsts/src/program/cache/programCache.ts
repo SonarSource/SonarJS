@@ -19,18 +19,18 @@ import path from 'node:path/posix';
 import { IncrementalCompilerHost } from '../compilerHost.js';
 import { info, debug } from '../../../../shared/src/helpers/logging.js';
 import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { ProgramOptions } from '../tsconfig/options.js';
 
 interface CacheEntry {
   keyObj: object; // Unique object for WeakMap key
   metadata: {
     // Store ALL files in the program (discovered by TypeScript)
     filesInProgram: Set<string>;
-    rootFiles: string[]; // Original files used to create the program
+    rootNames: string[]; // Original files used to create the program
     createdAt: number;
     lastUsedAt: number;
     hitCount: number;
   };
-  compilerOptions: ts.CompilerOptions;
 }
 
 interface ProgramWithHost {
@@ -120,10 +120,9 @@ export class ProgramCacheManager {
    * Discovers ALL files in the program (not just root files)
    */
   storeProgram(
-    rootFiles: string[],
+    programOptions: ProgramOptions,
     program: ts.SemanticDiagnosticsBuilderProgram,
     host: IncrementalCompilerHost,
-    compilerOptions: ts.CompilerOptions,
   ): void {
     const tsProgram = program.getProgram();
     const filesInProgram = new Set<string>();
@@ -152,12 +151,11 @@ export class ProgramCacheManager {
       keyObj,
       metadata: {
         filesInProgram,
-        rootFiles: rootFiles.map(f => path.normalize(f)),
+        rootNames: programOptions.rootNames.map(f => path.normalize(f)),
         createdAt: Date.now(),
         lastUsedAt: Date.now(),
         hitCount: 0,
       },
-      compilerOptions,
     };
 
     // Store in both caches
@@ -165,7 +163,7 @@ export class ProgramCacheManager {
     this.cache.set(keyObj, { program, host });
 
     info(
-      `Cached program: ${rootFiles.length} root file(s) → ${filesInProgram.size} total files in program`,
+      `Cached program: ${programOptions.rootNames.length} root file(s) → ${filesInProgram.size} total files in program`,
     );
   }
 
@@ -201,7 +199,7 @@ export class ProgramCacheManager {
       size: this.lruCache.size,
       maxSize: this.maxSize,
       entries: entries.map(e => ({
-        rootFileCount: e.metadata.rootFiles.length,
+        rootFileCount: e.metadata.rootNames.length,
         totalFileCount: e.metadata.filesInProgram.size,
         hitCount: e.metadata.hitCount,
         ageMs: Date.now() - e.metadata.createdAt,
