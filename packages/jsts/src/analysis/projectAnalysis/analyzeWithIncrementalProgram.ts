@@ -15,16 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
+import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import {
-  mergeCompilerOptions,
   createOrGetCachedProgramForFile,
   setSourceFilesContext,
   getProgramCacheManager,
+  mergeProgramOptions,
 } from '../../program/index.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { analyzeSingleFile } from './analyzeFile.js';
@@ -53,8 +53,9 @@ export async function analyzeWithIncrementalProgram(
 
   // Step 1: Merge compiler options from all discovered tsconfigs
   const tsconfigs = tsConfigStore.getTsConfigs();
-  const { options: mergedOptions, missingTsConfig } = mergeCompilerOptions(tsconfigs);
-  results.compilerOptions.push(mergedOptions);
+  const { programOptions, missingTsConfig } = mergeProgramOptions(tsconfigs);
+  programOptions.rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  results.programOptions.push(programOptions);
 
   if (missingTsConfig) {
     const msg =
@@ -67,30 +68,19 @@ export async function analyzeWithIncrementalProgram(
     `Analyzing with cached programs: ${tsconfigs.length} tsconfig(s) merged, ${pendingFiles.size} file(s) to analyze`,
   );
 
-  const rootFiles = Array.from(pendingFiles);
-
   // Step 2: Analyze each file individually using cached programs (files loaded lazily)
   let analyzedCount = 0;
-  for (const filename of pendingFiles) {
+  for (const filename of programOptions.rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
 
-    if (!files[filename]) {
-      continue;
-    }
-
-    // Get or create cached program for this file
-    // First file: Creates program with all root files
-    // Subsequent files: Cache hit!
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       filename,
-      mergedOptions,
-      rootFiles,
+      programOptions,
     );
 
-    // Extract underlying TypeScript program and analyze
     const tsProgram = builderProgram.getProgram();
     await analyzeSingleFile(
       filename,
