@@ -44,6 +44,10 @@ await esbuild.build({
       include: /lib[\/\\]jsts[\/\\]src[\/\\]parsers[\/\\]ast\.js$/,
       pattern: [['path.dirname(fileURLToPath(import.meta.url))', '__dirname']],
     }),
+    textReplace({
+      include: /lib[\/\\]bridge[\/\\]src[\/\\]openrpc\.js$/,
+      pattern: [['import.meta.dirname', '__dirname']],
+    }),
     // Simplify the loader function in babel. At the end it's just importing Babel parser
     // This matches the result of the TS compilation of the following lines
     // https://github.com/babel/babel/blob/v7.25.1/eslint/babel-eslint-parser/src/parse.cts#L8-L12
