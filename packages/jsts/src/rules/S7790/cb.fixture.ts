@@ -97,7 +97,7 @@ const ejsRenderResult = ejs.render(ejsTemplate); // Noncompliant {{Make sure thi
 const ejsRequireCompile = ejsRequire.compile(getUserInput()); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
 //                        ^^^^^^^^^^^^^^^^^^
 
-// Test case 20: EJS with static string (compliant)
+// Test case 18: EJS with static string (compliant)
 const ejsStaticCompile = ejs.compile('<h1>Hello <%= name %></h1>'); // Compliant - static string
 const ejsStaticRender = ejs.render('<h1>Hello</h1>'); // Compliant - static string
 
