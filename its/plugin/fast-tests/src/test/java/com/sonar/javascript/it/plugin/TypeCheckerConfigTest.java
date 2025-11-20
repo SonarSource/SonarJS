@@ -72,14 +72,16 @@ class TypeCheckerConfigTest {
       .extracting(Log::message)
       .filteredOn(m -> m.startsWith("Found 1 tsconfig.json file(s)"))
       .hasSize(1);
-    assertThat(result.logOutput())
-      .extracting(Log::message)
-      .filteredOn(m ->
-        m.equals(
-          "Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
+    assertThat(
+      result
+        .logOutput()
+        .stream()
+        .filter(l ->
+          l
+            .message()
+            .matches("Creating TypeScript(\\(\\d\\.\\d\\.\\d\\))? program from entry point.*")
         )
-      )
-      .hasSize(1);
+    ).hasSize(1);
 
     var issues = result
       .scannerOutputReader()
