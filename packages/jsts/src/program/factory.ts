@@ -25,12 +25,6 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getSourceFileContentCache } from './cache/sourceFileCache.js';
 
-type ProgramResult = {
-  program: ts.Program;
-  builderProgram?: ts.SemanticDiagnosticsBuilderProgram;
-  host?: ts.CompilerHost;
-};
-
 /**
  * Creates a TypeScript's SemanticDiagnosticsBuilderProgram instance
  *
@@ -49,9 +43,7 @@ export function createBuilderProgram(
   programOptions: ProgramOptions,
   baseDir: string,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
-): Omit<ProgramResult, 'builderProgram'> & {
-  builderProgram: ts.SemanticDiagnosticsBuilderProgram;
-} {
+) {
   const host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const builderProgram = ts.createSemanticDiagnosticsBuilderProgram(
@@ -214,23 +206,20 @@ export function createOrGetCachedProgramForFile(
       (rootFiles.length > 1 ? ` (+ ${rootFiles.length - 1} additional root files)` : ''),
   );
 
-  // Host will read files lazily from global cache
-  const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+  const programOptions = createProgramOptionsFromParsedConfig({ compilerOptions }, baseDir);
 
-  // Step 2: Wrap in builder program for incremental compilation support
-  // This doesn't re-parse files, just wraps the existing program with builder infrastructure
-  const program = ts.createSemanticDiagnosticsBuilderProgram(rootFiles, compilerOptions, host);
+  const { builderProgram, host } = createBuilderProgram(programOptions, baseDir);
 
   // Store in cache
-  cacheManager.storeProgram(rootFiles, program, host, compilerOptions);
+  cacheManager.storeProgram(rootFiles, builderProgram, host, compilerOptions);
 
-  const tsProgram = program.getProgram();
+  const tsProgram = builderProgram.getProgram();
   const totalFiles = tsProgram.getSourceFiles().length;
 
   info(`✅ Program created: 1 root file → ${totalFiles} total files (dependencies discovered)`);
 
   return {
-    program,
+    program: builderProgram,
     host,
     fromCache: false,
     wasUpdated: false,

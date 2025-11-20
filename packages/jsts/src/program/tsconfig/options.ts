@@ -49,9 +49,7 @@ type CustomParseConfigHost = {
 export const defaultCompilerOptions: ts.CompilerOptions = {
   allowJs: true,
   noImplicitAny: true,
-  target: ts.ScriptTarget.ES2020,
-  module: ts.ModuleKind.CommonJS,
-  moduleResolution: ts.ModuleResolutionKind.NodeJs,
+  lib: ['esnext', 'dom'],
 };
 
 /**
@@ -82,7 +80,7 @@ const defaultParseConfigHost: CustomParseConfigHost = {
 export function createProgramOptionsFromParsedConfig(
   config: any,
   basePath: string,
-  existingOptions: ts.CompilerOptions,
+  existingOptions: ts.CompilerOptions = {},
   configFileName?: string,
   extraFileExtensions?: readonly ts.FileExtensionInfo[],
   parseConfigHost: CustomParseConfigHost = defaultParseConfigHost,
