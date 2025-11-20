@@ -1,0 +1,28 @@
+{
+"ant-design:components/typography/__tests__/index.test.js": [
+139
+],
+"ant-design:index-style-only.js": [
+10,
+14
+],
+"ant-design:site/antd.js": [
+12,
+16
+],
+"ant-design:site/bisheng.config.js": [
+180
+],
+"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
+36
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+194
+],
+"ant-design:site/theme/template/Content/MainContent.jsx": [
+57,
+187,
+307,
+313
+]
+}
