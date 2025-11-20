@@ -23,7 +23,7 @@ import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
-import { createAndSaveProgram } from '../../src/program/program.js';
+import { createProgramOptions, createStandardProgram } from '../../src/program/index.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
@@ -308,12 +308,13 @@ describe('await analyzeJSTS', () => {
     await Linter.initialize({ baseDir: path.dirname(filePath), rules });
 
     const tsConfig = path.join(currentPath, 'fixtures', 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const program = createStandardProgram(programOptions);
     const language = 'ts';
 
     const {
       issues: [issue],
-    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, program, language }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S2870',
@@ -335,12 +336,13 @@ describe('await analyzeJSTS', () => {
     await Linter.initialize({ baseDir: path.dirname(filePath), rules });
 
     const tsConfig = path.join(currentPath, 'fixtures', 'paths', 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const program = createStandardProgram(programOptions);
     const language = 'ts';
 
     const {
       issues: [issue],
-    } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    } = await analyzeJSTS(await jsTsInput({ filePath, program, language }));
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -362,10 +364,11 @@ describe('await analyzeJSTS', () => {
     await Linter.initialize({ baseDir: path.dirname(filePath), rules });
 
     const tsConfig = path.join(currentPath, 'fixtures', 'paths', 'tsconfig_no_paths.json');
-    const { programId } = createAndSaveProgram(tsConfig);
+    const programOptions = createProgramOptions(tsConfig);
+    const program = createStandardProgram(programOptions);
     const language = 'ts';
 
-    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, programId, language }));
+    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, program, language }));
     expect(issues).toHaveLength(0);
   });
 
@@ -403,15 +406,15 @@ describe('await analyzeJSTS', () => {
     const classicDependencyPath = path.join(currentPath, 'fixtures', 'module', 'string42.ts');
 
     const nodeTsConfig = path.join(currentPath, 'fixtures', 'module', 'tsconfig_commonjs.json');
-    const nodeProgram = createAndSaveProgram(nodeTsConfig);
-    expect(nodeProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(nodeProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
-    expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
+    const nodeProgramOptions = createProgramOptions(nodeTsConfig);
+    const nodeProgram = createStandardProgram(nodeProgramOptions);
+    const nodeFiles = nodeProgram.getSourceFiles().map(file => file.fileName);
+    expect(nodeFiles).toContain(toUnixPath(nodeDependencyPath));
+    expect(nodeFiles).not.toContain(toUnixPath(nodenextDependencyPath));
+    expect(nodeFiles).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodeIssue],
-    } = await analyzeJSTS(
-      await jsTsInput({ filePath, programId: nodeProgram.programId, language }),
-    );
+    } = await analyzeJSTS(await jsTsInput({ filePath, program: nodeProgram, language }));
     expect(nodeIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -419,15 +422,15 @@ describe('await analyzeJSTS', () => {
     );
 
     const nodenextTsConfig = path.join(currentPath, 'fixtures', 'module', 'tsconfig_nodenext.json');
-    const nodenextProgram = createAndSaveProgram(nodenextTsConfig);
-    expect(nodenextProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(nodenextProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
-    expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
+    const nodenextProgramOptions = createProgramOptions(nodenextTsConfig);
+    const nodenextProgram = createStandardProgram(nodenextProgramOptions);
+    const nodenextFiles = nodenextProgram.getSourceFiles().map(file => file.fileName);
+    expect(nodenextFiles).not.toContain(toUnixPath(nodeDependencyPath));
+    expect(nodenextFiles).toContain(toUnixPath(nodenextDependencyPath));
+    expect(nodenextFiles).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodenextIssue],
-    } = await analyzeJSTS(
-      await jsTsInput({ filePath, programId: nodenextProgram.programId, language }),
-    );
+    } = await analyzeJSTS(await jsTsInput({ filePath, program: nodenextProgram, language }));
     expect(nodenextIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',
@@ -435,15 +438,15 @@ describe('await analyzeJSTS', () => {
     );
 
     const classicTsConfig = path.join(currentPath, 'fixtures', 'module', 'tsconfig_esnext.json');
-    const classicProgram = createAndSaveProgram(classicTsConfig);
-    expect(classicProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(classicProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
-    expect(classicProgram.files).toContain(toUnixPath(classicDependencyPath));
+    const classicProgramOptions = createProgramOptions(classicTsConfig);
+    const classicProgram = createStandardProgram(classicProgramOptions);
+    const classicFiles = classicProgram.getSourceFiles().map(file => file.fileName);
+    expect(classicFiles).not.toContain(toUnixPath(nodeDependencyPath));
+    expect(classicFiles).not.toContain(toUnixPath(nodenextDependencyPath));
+    expect(classicFiles).toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [classicIssue],
-    } = await analyzeJSTS(
-      await jsTsInput({ filePath, programId: classicProgram.programId, language }),
-    );
+    } = await analyzeJSTS(await jsTsInput({ filePath, program: classicProgram, language }));
     expect(classicIssue).toEqual(
       expect.objectContaining({
         ruleId: 'S3003',

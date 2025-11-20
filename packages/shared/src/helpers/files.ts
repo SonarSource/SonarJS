@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import path from 'node:path';
+import path from 'node:path/posix';
 
 /**
  * Byte Order Marker

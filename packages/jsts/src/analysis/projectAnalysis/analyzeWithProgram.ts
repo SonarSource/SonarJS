@@ -15,16 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
-import { analyzeFile } from './analyzeFile.js';
+import {
+  createBuilderProgram,
+  createProgramOptions,
+  defaultCompilerOptions,
+  createOrGetCachedProgramForFile,
+  setSourceFilesContext,
+  clearSourceFileContentCache,
+  getProgramCacheManager,
+  sanitizeProjectReferences,
+} from '../../program/index.js';
+import { analyzeSingleFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
-import { fieldsForJsTsAnalysisInput } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
+import merge from 'lodash.merge';
+import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -44,12 +53,28 @@ export async function analyzeWithProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  // Set up lazy loading context for CompilerHost
+  setSourceFilesContext(files);
+
   const processedTSConfigs: Set<string> = new Set();
-  for (const tsConfig of tsConfigStore.getTsConfigs()) {
+  const tsconfigs = tsConfigStore.getTsConfigs();
+
+  // Process tsconfigs, discovering references as we go
+  // Iterator calls next() on each iteration, so newly added references are automatically processed
+  for (const tsConfig of tsconfigs) {
     if (isAnalysisCancelled()) {
       return;
     }
-    await analyzeProgram(
+    if (!pendingFiles.size) {
+      break;
+    }
+
+    // Skip if already processed
+    if (processedTSConfigs.has(tsConfig)) {
+      continue;
+    }
+
+    await analyzeFilesFromTsConfig(
       files,
       tsConfig,
       results,
@@ -58,13 +83,79 @@ export async function analyzeWithProgram(
       progressReport,
       incrementalResultsChannel,
     );
-    if (!pendingFiles.size) {
-      break;
-    }
+  }
+
+  await analyzeFilesFromEntryPoint(
+    files,
+    results,
+    pendingFiles,
+    progressReport,
+    incrementalResultsChannel,
+  );
+
+  // Clear caches after SonarQube analysis (single-run, don't persist)
+  const cacheManager = getProgramCacheManager();
+  const stats = cacheManager.getCacheStats();
+  if (stats.size > 0) {
+    info(
+      `SonarQube analysis complete. Clearing caches (${stats.size} program entries, ${stats.totalFilesAcrossPrograms} total files)`,
+    );
+    cacheManager.clear();
+    clearSourceFileContentCache();
   }
 }
 
-async function analyzeProgram(
+async function analyzeFilesFromEntryPoint(
+  files: JsTsFiles,
+  results: ProjectAnalysisOutput,
+  pendingFiles: Set<string>,
+  progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+) {
+  const compilerOptions: ts.CompilerOptions =
+    results.compilerOptions.length > 0
+      ? merge({}, ...results.compilerOptions)
+      : defaultCompilerOptions;
+
+  if (pendingFiles.size === 0) {
+    return;
+  }
+
+  info(
+    `Analyzing ${pendingFiles.size} file(s) not in any tsconfig using cached programs with merged compiler options`,
+  );
+
+  const rootFiles = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+
+  // Analyze each file using cached programs (files loaded lazily from global cache)
+  for (const fileName of rootFiles) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
+
+    // First file: Creates program with all root files
+    // Subsequent files: Cache hit!
+    const { program: builderProgram } = createOrGetCachedProgramForFile(
+      getBaseDir(),
+      fileName,
+      compilerOptions,
+      rootFiles,
+    );
+
+    const tsProgram = builderProgram.getProgram();
+    await analyzeSingleFile(
+      fileName,
+      files[fileName],
+      tsProgram,
+      results,
+      pendingFiles,
+      progressReport,
+      incrementalResultsChannel,
+    );
+  }
+}
+
+async function analyzeFilesFromTsConfig(
   files: JsTsFiles,
   tsConfig: string,
   results: ProjectAnalysisOutput,
@@ -73,61 +164,69 @@ async function analyzeProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  if (processedTSConfigs.has(tsConfig)) {
-    return;
-  }
   processedTSConfigs.add(tsConfig);
-  info('Creating TypeScript program');
-  info(`TypeScript(${ts.version}) configuration file ${tsConfig}`);
-  let filenames, programId, projectReferences, missingTsConfig;
+  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsConfig}`);
+
+  // Parse tsconfig to get compiler options
+  let programOptions;
   try {
-    ({
-      files: filenames,
-      programId,
-      projectReferences,
-      missingTsConfig,
-    } = createAndSaveProgram(tsConfig));
+    programOptions = createProgramOptions(tsConfig);
   } catch (e) {
-    error('Failed to create program: ' + e);
+    error('Failed to parse tsconfig: ' + e);
     results.meta.warnings.push(
-      `Failed to create TypeScript program with TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}`,
+      `Failed to parse TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}`,
     );
     return;
   }
-  if (missingTsConfig) {
+
+  results.compilerOptions.push(programOptions.options);
+
+  if (programOptions.missingTsConfig) {
     const msg =
       "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
     warn(msg);
     results.meta.warnings.push(msg);
   }
-  for (const filename of filenames) {
-    if (isAnalysisCancelled()) {
-      return;
-    }
-    // only analyze files which are requested
-    if (files[filename] && pendingFiles.has(filename)) {
-      progressReport.nextFile(filename);
-      const result = await analyzeFile({
-        ...files[filename],
-        programId,
-        ...fieldsForJsTsAnalysisInput(),
-      });
-      pendingFiles.delete(filename);
-      handleFileResult(result, filename, results, incrementalResultsChannel);
+
+  // Create program - TypeScript will resolve globs and discover all files
+  const { builderProgram } = createBuilderProgram(programOptions, getBaseDir());
+
+  const tsProgram = builderProgram.getProgram();
+
+  // Get actual files from program (not from parsed tsconfig)
+  const filesToAnalyze = tsProgram
+    .getSourceFiles()
+    .map(sf => sf.fileName)
+    .filter(fileName => files[fileName] && pendingFiles.has(fileName));
+
+  for (const reference of sanitizeProjectReferences(tsProgram)) {
+    if (!processedTSConfigs.has(reference)) {
+      tsConfigStore.addDiscoveredTsConfig(reference);
     }
   }
-  deleteProgram(programId);
 
-  for (const reference of projectReferences) {
+  if (filesToAnalyze.length === 0) {
+    info(`No files to analyze from tsconfig ${tsConfig}`);
+    // Still add project references
+    return;
+  }
+
+  info(
+    `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsConfig} (${tsProgram.getSourceFiles().length} total files in program)`,
+  );
+
+  // Analyze each file using the same program
+  for (const fileName of filesToAnalyze) {
     if (isAnalysisCancelled()) {
       return;
     }
-    await analyzeProgram(
-      files,
-      reference,
+
+    await analyzeSingleFile(
+      fileName,
+      files[fileName],
+      tsProgram,
       results,
       pendingFiles,
-      processedTSConfigs,
       progressReport,
       incrementalResultsChannel,
     );

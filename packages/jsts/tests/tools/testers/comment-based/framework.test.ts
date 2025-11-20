@@ -14,14 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'node:path';
+import path from 'node:path/posix';
 import { extractExpectations } from './framework.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../../../shared/src/helpers/files.js';
+import { readFile, toUnixPath } from '../../../../../shared/src/helpers/files.js';
 
 describe('Comment-based Testing Framework', () => {
-  const baseDir = path.resolve(`${import.meta.dirname}/fixtures`);
+  const baseDir = `${toUnixPath(import.meta.dirname)}/fixtures`;
 
   async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);

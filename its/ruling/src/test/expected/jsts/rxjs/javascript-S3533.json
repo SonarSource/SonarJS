@@ -43,6 +43,9 @@
 "rxjs:perf/macro/mergeMap/mergemap.spec.js": [
 1
 ],
+"rxjs:perf/macro/perf-helpers.js": [
+1
+],
 "rxjs:perf/macro/specbuilder.js": [
 1
 ],
