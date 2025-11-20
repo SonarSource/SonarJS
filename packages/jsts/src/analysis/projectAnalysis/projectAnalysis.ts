@@ -23,7 +23,7 @@ import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { Configuration } from '../../../../shared/src/helpers/configuration.js';
-import type { CompilerOptions } from 'typescript';
+import type { ProgramOptions } from '../../program/index.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -32,7 +32,7 @@ export type ProjectAnalysisMeta = {
 export type ProjectAnalysisOutput = {
   files: { [key: string]: FileResult };
   meta: ProjectAnalysisMeta;
-  compilerOptions: CompilerOptions[];
+  programOptions: ProgramOptions[];
 };
 
 export type FileResult =

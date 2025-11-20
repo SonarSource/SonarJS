@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
+import merge from 'lodash.merge';
 import ts from 'typescript';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import { dirname } from 'node:path/posix';
@@ -209,8 +211,8 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
  * Merge compiler options from all discovered tsconfig files
  * Ignores files/include/exclude fields - only extracts and merges compilerOptions
  */
-export function mergeCompilerOptions(tsconfigs: string[]): {
-  options: ts.CompilerOptions;
+export function mergeProgramOptions(tsconfigs: string[]): {
+  programOptions: ProgramOptions;
   missingTsConfig: boolean;
 } {
   const allOptions: ts.CompilerOptions[] = [];
@@ -227,12 +229,10 @@ export function mergeCompilerOptions(tsconfigs: string[]): {
   }
 
   // Merge all options - later configs override earlier ones
-  const merged = allOptions.reduce((acc, options) => ({ ...acc, ...options }), {
-    ...defaultCompilerOptions,
-  });
+  const merged: ProgramOptions = merge({}, ...allOptions);
 
   return {
-    options: merged,
+    programOptions: merged,
     missingTsConfig: anyMissing,
   };
 }

@@ -38,7 +38,7 @@ export { getProgramCacheManager } from './cache/programCache.js';
 // TSConfig options (compiler options + parsing)
 export {
   defaultCompilerOptions,
-  mergeCompilerOptions,
+  mergeProgramOptions,
   createProgramOptions,
   createProgramOptionsFromParsedConfig,
   type ProgramOptions,
@@ -46,7 +46,8 @@ export {
 
 // Program factory
 export {
-  createBuilderProgram,
+  createBuilderProgramAndHost,
+  createBuilderProgramWithHost,
   createStandardProgram,
   createProgramFromSingleFile,
   createOrGetCachedProgramForFile,
