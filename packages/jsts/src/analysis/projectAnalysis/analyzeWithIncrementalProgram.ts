@@ -48,13 +48,17 @@ export async function analyzeWithIncrementalProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  if (!rootNames.length) {
+    return;
+  }
   // Set up lazy loading context for CompilerHost
   setSourceFilesContext(files);
 
   // Step 1: Merge compiler options from all discovered tsconfigs
   const tsconfigs = tsConfigStore.getTsConfigs();
   const { programOptions, missingTsConfig } = mergeProgramOptions(tsconfigs);
-  programOptions.rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  programOptions.rootNames = rootNames;
   results.programOptions.push(programOptions);
 
   if (missingTsConfig) {
@@ -70,7 +74,7 @@ export async function analyzeWithIncrementalProgram(
 
   // Step 2: Analyze each file individually using cached programs (files loaded lazily)
   let analyzedCount = 0;
-  for (const filename of programOptions.rootNames) {
+  for (const filename of rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
