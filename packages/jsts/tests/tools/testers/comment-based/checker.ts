@@ -20,6 +20,7 @@ import { Rule, RuleTester } from 'eslint';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
 import { SonarMeta } from '../../../../src/rules/helpers/index.js';
+import { it } from 'node:test';
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
@@ -44,20 +45,22 @@ export function test(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir:
   }
 
   for (const fixture of fixtures) {
-    const options = extractRuleOptions(ruleDir);
-    const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replaceAll(/\r?\n|\r/g, '\n');
-    const { errors, output } = extractExpectations(
-      code,
-      fixture,
-      sonarMeta.hasSecondaries ?? false,
-    );
+    it(path.basename(fixture), () => {
+      const options = extractRuleOptions(ruleDir);
+      const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replaceAll(/\r?\n|\r/g, '\n');
+      const { errors, output } = extractExpectations(
+        code,
+        fixture,
+        sonarMeta.hasSecondaries ?? false,
+      );
 
-    const tests = {
-      valid: [],
-      invalid: [{ code, filename: fixture, errors, options, output }],
-    };
+      const tests = {
+        valid: [],
+        invalid: [{ code, filename: fixture, errors, options, output }],
+      };
 
-    ruleTester.run(`Fixture ${fixture}`, ruleModule, tests);
+      ruleTester.run(`Fixture ${fixture}`, ruleModule, tests);
+    });
   }
 }
 
