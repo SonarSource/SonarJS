@@ -16,15 +16,14 @@
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import {
-  createBuilderProgramAndHost,
   createProgramOptions,
-  createOrGetCachedProgramForFile,
   setSourceFilesContext,
   clearSourceFileContentCache,
   getProgramCacheManager,
   sanitizeProjectReferences,
   createProgramOptionsFromParsedConfig,
   defaultCompilerOptions,
+  createStandardProgram,
 } from '../../program/index.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
@@ -130,19 +129,14 @@ async function analyzeFilesFromEntryPoint(
       );
   programOptions.rootNames = rootNames;
 
+  const tsProgram = createStandardProgram(programOptions);
+
   // Analyze each file using cached programs (files loaded lazily from global cache)
   for (const fileName of rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
 
-    const { program: builderProgram } = createOrGetCachedProgramForFile(
-      getBaseDir(),
-      fileName,
-      programOptions,
-    );
-
-    const tsProgram = builderProgram.getProgram();
     await analyzeSingleFile(
       fileName,
       files[fileName],
@@ -189,9 +183,7 @@ async function analyzeFilesFromTsConfig(
   }
 
   // Create program - TypeScript will resolve globs and discover all files
-  const { builderProgram } = createBuilderProgramAndHost(programOptions, getBaseDir());
-
-  const tsProgram = builderProgram.getProgram();
+  const tsProgram = createStandardProgram(programOptions);
 
   // Get actual files from program (not from parsed tsconfig)
   const filesToAnalyze = tsProgram
