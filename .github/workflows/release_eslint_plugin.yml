@@ -33,7 +33,7 @@ jobs:
         uses: SonarSource/jfrog-setup-wrapper@e0f353c7f1bcc7b2f663063d72b5fec7948f6815 # 3.6.0
         with:
           jfrogAccessToken: ${{ fromJSON(steps.secrets.outputs.vault).qa_deployer_access_token }}
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24
