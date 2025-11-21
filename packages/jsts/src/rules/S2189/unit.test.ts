@@ -170,6 +170,34 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      function checkCondition(flag) {
+        while (flag) {  // OK: flag is a parameter, might be modified cross-procedurally
+          doSomething();
+        }
+      }`,
+        },
+        {
+          code: `
+      let globalFlag = true;
+      function checkGlobal() {
+        while (globalFlag) {  // OK: globalFlag from outer scope, might be modified elsewhere
+          doSomething();
+        }
+      }`,
+        },
+        {
+          code: `
+      function outer() {
+        let outerVar = true;
+        function inner() {
+          while (outerVar) {  // OK: outerVar from parent scope, might be modified elsewhere
+            doSomething();
+          }
+        }
+      }`,
+        },
       ],
       invalid: [
         {
