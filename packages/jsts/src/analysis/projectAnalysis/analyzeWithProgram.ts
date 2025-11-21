@@ -113,7 +113,8 @@ async function analyzeFilesFromEntryPoint(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  if (pendingFiles.size === 0) {
+  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  if (rootNames.length === 0) {
     return;
   }
 
@@ -127,9 +128,10 @@ async function analyzeFilesFromEntryPoint(
         { compilerOptions: defaultCompilerOptions },
         getBaseDir(),
       );
-  programOptions.rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  programOptions.rootNames = rootNames;
+
   // Analyze each file using cached programs (files loaded lazily from global cache)
-  for (const fileName of programOptions.rootNames) {
+  for (const fileName of rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
