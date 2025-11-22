@@ -156,6 +156,9 @@ export function createOrGetCachedProgramForFile(
   fromCache: boolean;
   wasUpdated: boolean;
 } {
+  if (!programOptions.rootNames.includes(sourceFile)) {
+    throw new Error(`Source file ${sourceFile} not found in program options rootNames`);
+  }
   const cacheManager = getProgramCacheManager();
   const cache = getSourceFileContentCache();
   const fileContent = cache.get(sourceFile);

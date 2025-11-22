@@ -47,7 +47,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     compilerOptions: ts.CompilerOptions,
     private readonly baseDir: string,
   ) {
-    this.baseHost = ts.createCompilerHost(compilerOptions);
+    this.baseHost = ts.createCompilerHost(compilerOptions, true);
   }
 
   /**
