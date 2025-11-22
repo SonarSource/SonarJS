@@ -59,7 +59,6 @@ export async function analyzeWithIncrementalProgram(
   const tsconfigs = tsConfigStore.getTsConfigs();
   const { programOptions, missingTsConfig } = mergeProgramOptions(tsconfigs);
   programOptions.rootNames = rootNames;
-  results.programOptions.push(programOptions);
 
   if (missingTsConfig) {
     const msg =
@@ -74,7 +73,10 @@ export async function analyzeWithIncrementalProgram(
 
   // Step 2: Analyze each file individually using cached programs (files loaded lazily)
   let analyzedCount = 0;
-  for (const filename of rootNames) {
+  while (rootNames.length) {
+    // Get the last file in the rootNames array, as it's the one we'll analyze next
+    // using pop instead of shift for performance reasons
+    const filename = rootNames.at(-1)!;
     if (isAnalysisCancelled()) {
       return;
     }
@@ -84,7 +86,8 @@ export async function analyzeWithIncrementalProgram(
       filename,
       programOptions,
     );
-
+    // Remove the file from the rootNames array, no need for the next created program to include it
+    rootNames.pop();
     const tsProgram = builderProgram.getProgram();
     await analyzeSingleFile(
       filename,
