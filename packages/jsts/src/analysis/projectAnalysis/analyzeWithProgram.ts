@@ -24,6 +24,7 @@ import {
   createProgramOptionsFromParsedConfig,
   defaultCompilerOptions,
   createStandardProgram,
+  ProgramOptions,
 } from '../../program/index.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
@@ -34,6 +35,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
+import { IncrementalCompilerHost } from '../../program/compilerHost.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -56,6 +58,7 @@ export async function analyzeWithProgram(
   // Set up lazy loading context for CompilerHost
   setSourceFilesContext(files);
 
+  const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<string> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
 
@@ -79,6 +82,7 @@ export async function analyzeWithProgram(
       tsConfig,
       results,
       pendingFiles,
+      foundProgramOptions,
       processedTSConfigs,
       progressReport,
       incrementalResultsChannel,
@@ -89,6 +93,7 @@ export async function analyzeWithProgram(
     files,
     results,
     pendingFiles,
+    foundProgramOptions,
     progressReport,
     incrementalResultsChannel,
   );
@@ -109,6 +114,7 @@ async function analyzeFilesFromEntryPoint(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  foundProgramOptions: ProgramOptions[],
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
@@ -121,17 +127,17 @@ async function analyzeFilesFromEntryPoint(
     `Analyzing ${pendingFiles.size} file(s) not in any tsconfig using cached programs with merged compiler options`,
   );
 
-  const programOptions = results.programOptions.length
-    ? merge({}, ...results.programOptions)
+  const programOptions = foundProgramOptions.length
+    ? merge({}, ...foundProgramOptions)
     : createProgramOptionsFromParsedConfig(
         { compilerOptions: defaultCompilerOptions },
         getBaseDir(),
       );
   programOptions.rootNames = rootNames;
+  programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
 
   const tsProgram = createStandardProgram(programOptions);
 
-  // Analyze each file using cached programs (files loaded lazily from global cache)
   for (const fileName of rootNames) {
     if (isAnalysisCancelled()) {
       return;
@@ -154,6 +160,7 @@ async function analyzeFilesFromTsConfig(
   tsConfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  foundProgramOptions: ProgramOptions[],
   processedTSConfigs: Set<string>,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
@@ -173,7 +180,7 @@ async function analyzeFilesFromTsConfig(
     return;
   }
 
-  results.programOptions.push(programOptions);
+  foundProgramOptions.push(programOptions);
 
   if (programOptions.missingTsConfig) {
     const msg =
@@ -182,6 +189,7 @@ async function analyzeFilesFromTsConfig(
     results.meta.warnings.push(msg);
   }
 
+  programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
   // Create program - TypeScript will resolve globs and discover all files
   const tsProgram = createStandardProgram(programOptions);
 
