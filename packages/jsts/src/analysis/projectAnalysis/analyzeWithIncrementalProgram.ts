@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -23,15 +23,19 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import {
   createOrGetCachedProgramForFile,
   setSourceFilesContext,
-  getProgramCacheManager,
-  mergeProgramOptions,
+  createProgramOptions,
+  createProgramOptionsFromParsedConfig,
+  defaultCompilerOptions,
+  ProgramOptions,
 } from '../../program/index.js';
-import { info } from '../../../../shared/src/helpers/logging.js';
+import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { analyzeSingleFile } from './analyzeFile.js';
+import { dirname } from 'node:path/posix';
+import { sanitizeReferences } from '../../program/tsconfig/utils.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
- * Creates programs directly (not via typescript-eslint) with merged compiler options from all tsconfigs.
+ * Finds the closest tsconfig for the first file and uses it for all files in the request.
  * Programs are cached and reused across requests, with incremental updates when files change.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
@@ -48,35 +52,11 @@ export async function analyzeWithIncrementalProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
-  if (!rootNames.length) {
-    return;
-  }
-  // Set up lazy loading context for CompilerHost
   setSourceFilesContext(files);
 
-  // Step 1: Merge compiler options from all discovered tsconfigs
   const tsconfigs = tsConfigStore.getTsConfigs();
-  const { programOptions, missingTsConfig } = mergeProgramOptions(tsconfigs);
-  programOptions.rootNames = rootNames;
 
-  if (missingTsConfig) {
-    const msg =
-      "At least one tsconfig.json extends a configuration that was not found. Please run 'npm install' for a more complete analysis.";
-    info(msg);
-    results.meta.warnings.push(msg);
-  }
-
-  info(
-    `Analyzing with cached programs: ${tsconfigs.length} tsconfig(s) merged, ${pendingFiles.size} file(s) to analyze`,
-  );
-
-  // Step 2: Analyze each file individually using cached programs (files loaded lazily)
-  let analyzedCount = 0;
-  while (rootNames.length) {
-    // Get the last file in the rootNames array, as it's the one we'll analyze next
-    // using pop instead of shift for performance reasons
-    const filename = rootNames.at(-1)!;
+  for (const filename of pendingFiles) {
     if (isAnalysisCancelled()) {
       return;
     }
@@ -84,11 +64,10 @@ export async function analyzeWithIncrementalProgram(
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       filename,
-      programOptions,
+      () => programOptionsFromClosestTsconfig(filename, tsconfigs, results),
     );
-    // Remove the file from the rootNames array, no need for the next created program to include it
-    rootNames.pop();
     const tsProgram = builderProgram.getProgram();
+
     await analyzeSingleFile(
       filename,
       files[filename],
@@ -98,18 +77,65 @@ export async function analyzeWithIncrementalProgram(
       progressReport,
       incrementalResultsChannel,
     );
-    analyzedCount++;
 
     if (!pendingFiles.size) {
       break;
     }
   }
+}
 
-  // Step 3: Log cache statistics
-  const cacheStats = getProgramCacheManager().getCacheStats();
-  info(
-    `Analysis complete: ${analyzedCount} file(s) analyzed, ` +
-      `program cache: ${cacheStats.size}/${cacheStats.maxSize} entries, ` +
-      `${cacheStats.totalFilesAcrossPrograms} total files cached`,
-  );
+/**
+ * Find the closest tsconfig that contains the given file.
+ * "Closest" means longest common path prefix (most specific).
+ * Returns null if no tsconfig contains the file.
+ */
+function programOptionsFromClosestTsconfig(
+  file: string,
+  sortedTsconfigs: string[],
+  results: ProjectAnalysisOutput,
+): ProgramOptions {
+  let missingTsConfig = false;
+  let programOptions: ProgramOptions | undefined = undefined;
+  // sortedTsconfigs is already sorted by path length descending (longest first)
+  for (const tsconfig of sortedTsconfigs) {
+    const tsconfigDir = dirname(tsconfig);
+
+    // Check if file is under this tsconfig's directory
+    if (file.startsWith(tsconfigDir + '/')) {
+      // Parse tsconfig to check if it actually includes this file
+      try {
+        programOptions = createProgramOptions(tsconfig);
+        for (const reference of sanitizeReferences(programOptions.projectReferences || [])) {
+          tsConfigStore.addDiscoveredTsConfig(reference);
+        }
+        missingTsConfig ||= programOptions.missingTsConfig;
+        if (programOptions.rootNames.includes(file)) {
+          break;
+        }
+      } catch (e) {
+        error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
+        results.meta.warnings.push(
+          `Failed to parse TSConfig file ${tsconfig}. Analysis may be incomplete.`,
+        );
+      }
+    }
+  }
+
+  if (!programOptions) {
+    info('No tsconfig found for files, using default options');
+    // Fallback: use default options if no tsconfig found
+    programOptions = createProgramOptionsFromParsedConfig(
+      { compilerOptions: defaultCompilerOptions },
+      getBaseDir(),
+    );
+  }
+
+  if (missingTsConfig) {
+    const msg =
+      "At least one tsconfig.json extends a configuration that was not found. Please run 'npm install' for a more complete analysis.";
+    info(msg);
+    results.meta.warnings.push(msg);
+  }
+
+  return programOptions;
 }
