@@ -33,6 +33,10 @@ export {
   clearSourceFileContentCache,
 } from './cache/sourceFileCache.js';
 export { clearTsConfigContentCache } from './cache/tsconfigCache.js';
+export {
+  clearProgramOptionsCache,
+  getProgramOptionsCacheStats,
+} from './cache/programOptionsCache.js';
 export { getProgramCacheManager } from './cache/programCache.js';
 
 // TSConfig options (compiler options + parsing)
@@ -54,4 +58,4 @@ export {
 } from './factory.js';
 
 // TSConfig utilities
-export { sanitizeProjectReferences } from './tsconfig/utils.js';
+export { sanitizeProgramReferences } from './tsconfig/utils.js';

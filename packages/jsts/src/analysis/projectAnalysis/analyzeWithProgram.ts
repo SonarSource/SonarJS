@@ -20,7 +20,7 @@ import {
   setSourceFilesContext,
   clearSourceFileContentCache,
   getProgramCacheManager,
-  sanitizeProjectReferences,
+  sanitizeProgramReferences,
   createProgramOptionsFromParsedConfig,
   defaultCompilerOptions,
   createStandardProgram,
@@ -190,16 +190,14 @@ async function analyzeFilesFromTsConfig(
   }
 
   programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
-  // Create program - TypeScript will resolve globs and discover all files
   const tsProgram = createStandardProgram(programOptions);
 
-  // Get actual files from program (not from parsed tsconfig)
   const filesToAnalyze = tsProgram
     .getSourceFiles()
     .map(sf => sf.fileName)
     .filter(fileName => files[fileName] && pendingFiles.has(fileName));
 
-  for (const reference of sanitizeProjectReferences(tsProgram)) {
+  for (const reference of sanitizeProgramReferences(tsProgram)) {
     if (!processedTSConfigs.has(reference)) {
       tsConfigStore.addDiscoveredTsConfig(reference);
     }
@@ -207,7 +205,6 @@ async function analyzeFilesFromTsConfig(
 
   if (filesToAnalyze.length === 0) {
     info(`No files to analyze from tsconfig ${tsConfig}`);
-    // Still add project references
     return;
   }
 

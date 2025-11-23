@@ -144,21 +144,18 @@ export function createProgramFromSingleFile(
  *
  * @param baseDir The base directory for resolving module paths
  * @param sourceFile The source file to create or find a program for
- * @param programOptions program options to use for the program
+ * @param getProgramOptions Getter for program options to use for the program
  */
 export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
-  programOptions: ProgramOptions,
+  getProgramOptions: () => ProgramOptions,
 ): {
   program: ts.SemanticDiagnosticsBuilderProgram;
   host: IncrementalCompilerHost;
   fromCache: boolean;
   wasUpdated: boolean;
 } {
-  if (!programOptions.rootNames.includes(sourceFile)) {
-    throw new Error(`Source file ${sourceFile} not found in program options rootNames`);
-  }
   const cacheManager = getProgramCacheManager();
   const cache = getSourceFileContentCache();
   const fileContent = cache.get(sourceFile);
@@ -179,7 +176,11 @@ export function createOrGetCachedProgramForFile(
       const host = cached.host;
 
       // Recreate program with proper options to ensure lib files are included
-      const updatedProgram = createBuilderProgramWithHost(programOptions, host, cached.program);
+      const updatedProgram = createBuilderProgramWithHost(
+        getProgramOptions(),
+        host,
+        cached.program,
+      );
 
       // Update cache with new program
       if (cached.cacheKey) {
@@ -204,6 +205,7 @@ export function createOrGetCachedProgramForFile(
     }
   }
 
+  const programOptions = getProgramOptions();
   info(
     `⚙️  Cache MISS: Creating new program for ${sourceFile}` +
       (programOptions.rootNames.length > 1
