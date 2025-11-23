@@ -17,10 +17,18 @@
 
 import merge from 'lodash.merge';
 import ts from 'typescript';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, debug } from '../../../../shared/src/helpers/logging.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
+import {
+  createProgramOptionsCacheKey,
+  createParsedConfigCacheKey,
+  getCachedProgramOptions,
+  setCachedProgramOptions,
+  getCachedParsedConfig,
+  setCachedParsedConfig,
+} from '../cache/programOptionsCache.js';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created
@@ -87,6 +95,22 @@ export function createProgramOptionsFromParsedConfig(
   extraFileExtensions?: readonly ts.FileExtensionInfo[],
   parseConfigHost: CustomParseConfigHost = defaultParseConfigHost,
 ): ProgramOptions {
+  // Check cache first (only when using default parseConfigHost, since custom hosts may have state)
+  if (parseConfigHost === defaultParseConfigHost) {
+    const cacheKey = createParsedConfigCacheKey(
+      config,
+      basePath,
+      existingOptions,
+      configFileName,
+      extraFileExtensions,
+    );
+    const cached = getCachedParsedConfig(cacheKey);
+    if (cached) {
+      debug('createProgramOptionsFromParsedConfig: cache hit');
+      return cached;
+    }
+  }
+
   // Call TypeScript's parser to sanitize all options
   const parsedConfigFile = ts.parseJsonConfigFileContent(
     config,
@@ -107,7 +131,7 @@ export function createProgramOptionsFromParsedConfig(
     throw new Error(message);
   }
 
-  return {
+  const result: ProgramOptions = {
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
@@ -115,6 +139,21 @@ export function createProgramOptionsFromParsedConfig(
     missingTsConfig: parseConfigHost.missingTsConfig(),
     [PROGRAM_OPTIONS_BRAND]: true,
   };
+
+  // Store in cache (only when using default parseConfigHost)
+  if (parseConfigHost === defaultParseConfigHost) {
+    const cacheKey = createParsedConfigCacheKey(
+      config,
+      basePath,
+      existingOptions,
+      configFileName,
+      extraFileExtensions,
+    );
+    setCachedParsedConfig(cacheKey, result);
+    debug('createProgramOptionsFromParsedConfig: cached result');
+  }
+
+  return result;
 }
 
 /**
@@ -128,6 +167,14 @@ export function createProgramOptionsFromParsedConfig(
  * @returns the resolved TSConfig files
  */
 export function createProgramOptions(tsConfig: string, tsconfigContents?: string): ProgramOptions {
+  // Check cache first
+  const cacheKey = createProgramOptionsCacheKey(tsConfig, tsconfigContents);
+  const cached = getCachedProgramOptions(cacheKey);
+  if (cached) {
+    debug('createProgramOptions: cache hit');
+    return cached;
+  }
+
   let missingTsConfig = false;
   const tsconfigContentCache = getTsConfigContentCache();
 
@@ -189,7 +236,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
   }
 
   // Parse and brand through the centralized function
-  return createProgramOptionsFromParsedConfig(
+  const result = createProgramOptionsFromParsedConfig(
     config.config,
     dirname(tsConfig),
     {
@@ -205,6 +252,12 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     ],
     parseConfigHost, // Custom host with caching and missing file handling
   );
+
+  // Store in cache
+  setCachedProgramOptions(cacheKey, result);
+  debug('createProgramOptions: cached result');
+
+  return result;
 }
 
 /**

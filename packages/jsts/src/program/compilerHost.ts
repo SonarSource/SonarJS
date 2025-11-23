@@ -265,6 +265,16 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return this.baseDir;
   }
 
+  readDirectory(
+    rootDir: string,
+    extensions: readonly string[],
+    excludes: readonly string[] | undefined,
+    includes: readonly string[],
+    depth?: number,
+  ): string[] {
+    return this.baseHost.readDirectory!(rootDir, extensions, excludes, includes, depth);
+  }
+
   getCanonicalFileName(fileName: string): string {
     return this.baseHost.getCanonicalFileName(fileName);
   }

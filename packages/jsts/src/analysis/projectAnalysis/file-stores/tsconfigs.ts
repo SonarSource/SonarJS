@@ -25,7 +25,7 @@ import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import { clearTsConfigContentCache } from '../../../program/index.js';
+import { clearTsConfigContentCache, clearProgramOptionsCache } from '../../../program/index.js';
 
 export const UNINITIALIZED_ERROR =
   'TSConfig cache has not been initialized. Call loadFiles() first.';
@@ -82,6 +82,7 @@ export class TsConfigStore implements FileStore {
         this.foundLookupTsConfigs.push(tsconfig);
       }
     }
+    this.sortTsConfigs();
   }
 
   dirtyCachesIfNeeded(baseDir: string) {
@@ -112,6 +113,7 @@ export class TsConfigStore implements FileStore {
     this.foundPropertyTsConfigs = [];
     this.providedPropertyTsConfigs = undefined;
     clearTsConfigContentCache();
+    clearProgramOptionsCache();
   }
 
   setup(baseDir: string) {
@@ -160,5 +162,13 @@ export class TsConfigStore implements FileStore {
         `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
       );
     }
+    this.sortTsConfigs();
+  }
+
+  sortTsConfigs() {
+    // Sort tsconfigs by path length descending (longest/most specific first)
+    // This ensures we check the closest tsconfig to a file first
+    this.foundPropertyTsConfigs.sort((a, b) => b.length - a.length);
+    this.foundLookupTsConfigs.sort((a, b) => b.length - a.length);
   }
 }
