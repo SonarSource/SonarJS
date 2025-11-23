@@ -41,9 +41,17 @@ export function isLastTsConfigCheck(file: string) {
  * Sanitize project references by resolving directories to tsconfig.json paths
  * Warns about and filters out missing references
  */
-export function sanitizeProjectReferences(program: ts.Program): string[] {
+export function sanitizeProgramReferences(program: ts.Program): string[] {
+  return sanitizeReferences(program.getProjectReferences() ?? []);
+}
+
+/**
+ * Sanitize project references by resolving directories to tsconfig.json paths
+ * Warns about and filters out missing references
+ */
+export function sanitizeReferences(references: readonly ts.ProjectReference[]): string[] {
   const sanitized: string[] = [];
-  for (const reference of program.getProjectReferences() ?? []) {
+  for (const reference of references) {
     const sanitizedPath = addTsConfigIfDirectory(reference.path);
     if (sanitizedPath) {
       sanitized.push(sanitizedPath);

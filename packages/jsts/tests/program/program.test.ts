@@ -22,7 +22,7 @@ import { expect } from 'expect';
 import {
   createProgramOptions,
   createStandardProgram,
-  sanitizeProjectReferences,
+  sanitizeProgramReferences,
 } from '../../src/program/index.js';
 import { isRootNodeModules } from '../../src/program/tsconfig/utils.js';
 
@@ -41,7 +41,7 @@ describe('program', () => {
     // behavior changed in TS 5.5, program will no longer include files from referenced projects
     expect(files).not.toContain(toUnixPath(path.join(reference, 'file.ts')));
 
-    expect(sanitizeProjectReferences(program)).toEqual([path.join(reference, 'tsconfig.json')]);
+    expect(sanitizeProgramReferences(program)).toEqual([path.join(reference, 'tsconfig.json')]);
   });
 
   it('should skip missing reference of a program', () => {
@@ -55,7 +55,7 @@ describe('program', () => {
     expect(program.getSourceFiles().map(f => f.fileName)).toEqual(
       expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]),
     );
-    expect(sanitizeProjectReferences(program)).toEqual([]);
+    expect(sanitizeProgramReferences(program)).toEqual([]);
     expect(programOptions.missingTsConfig).toBe(false);
   });
 
@@ -86,7 +86,7 @@ describe('program', () => {
     expect(program.getSourceFiles().map(f => f.fileName)).toEqual(
       expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.ts'))]),
     );
-    expect(sanitizeProjectReferences(program)).toEqual([]);
+    expect(sanitizeProgramReferences(program)).toEqual([]);
     expect(programOptions.missingTsConfig).toBe(true);
   });
 
