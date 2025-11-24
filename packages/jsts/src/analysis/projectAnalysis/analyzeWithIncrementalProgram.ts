@@ -54,8 +54,6 @@ export async function analyzeWithIncrementalProgram(
 ) {
   setSourceFilesContext(files);
 
-  const tsconfigs = tsConfigStore.getTsConfigs();
-
   for (const filename of pendingFiles) {
     if (isAnalysisCancelled()) {
       return;
@@ -64,7 +62,7 @@ export async function analyzeWithIncrementalProgram(
     const { program: builderProgram } = createOrGetCachedProgramForFile(
       getBaseDir(),
       filename,
-      () => programOptionsFromClosestTsconfig(filename, tsconfigs, results),
+      () => programOptionsFromClosestTsconfig(filename, results),
     );
     const tsProgram = builderProgram.getProgram();
 
@@ -91,33 +89,36 @@ export async function analyzeWithIncrementalProgram(
  */
 function programOptionsFromClosestTsconfig(
   file: string,
-  sortedTsconfigs: string[],
   results: ProjectAnalysisOutput,
 ): ProgramOptions {
   let missingTsConfig = false;
   let programOptions: ProgramOptions | undefined = undefined;
-  // sortedTsconfigs is already sorted by path length descending (longest first)
-  for (const tsconfig of sortedTsconfigs) {
-    const tsconfigDir = dirname(tsconfig);
+  const processedTsConfigs = new Set<string>();
 
-    // Check if file is under this tsconfig's directory
-    if (file.startsWith(tsconfigDir + '/')) {
-      // Parse tsconfig to check if it actually includes this file
-      try {
-        programOptions = createProgramOptions(tsconfig);
-        for (const reference of sanitizeReferences(programOptions.projectReferences || [])) {
+  let tsconfig: string | undefined;
+  while (
+    (tsconfig = pickBestMatchTsConfig(
+      tsConfigStore.getTsConfigs().filter(tsconfig => !processedTsConfigs.has(tsconfig)),
+      file,
+    ))
+  ) {
+    processedTsConfigs.add(tsconfig);
+    try {
+      programOptions = createProgramOptions(tsconfig);
+      if (programOptions.projectReferences?.length) {
+        for (const reference of sanitizeReferences(programOptions.projectReferences)) {
           tsConfigStore.addDiscoveredTsConfig(reference);
         }
-        missingTsConfig ||= programOptions.missingTsConfig;
-        if (programOptions.rootNames.includes(file)) {
-          break;
-        }
-      } catch (e) {
-        error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
-        results.meta.warnings.push(
-          `Failed to parse TSConfig file ${tsconfig}. Analysis may be incomplete.`,
-        );
       }
+      missingTsConfig ||= programOptions.missingTsConfig;
+      if (programOptions.rootNames.includes(file)) {
+        break;
+      }
+    } catch (e) {
+      error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
+      results.meta.warnings.push(
+        `Failed to parse TSConfig file ${tsconfig}. Analysis may be incomplete.`,
+      );
     }
   }
 
@@ -138,4 +139,17 @@ function programOptionsFromClosestTsconfig(
   }
 
   return programOptions;
+}
+
+function pickBestMatchTsConfig(tsconfigs: string[], file: string) {
+  let bestTsConfig: string | undefined = undefined;
+  for (const tsconfig of tsconfigs) {
+    const tsconfigDir = dirname(tsconfig);
+    if (file.startsWith(tsconfig)) {
+      if (bestTsConfig === undefined || dirname(bestTsConfig) < tsconfigDir) {
+        bestTsConfig = tsconfig;
+      }
+    }
+  }
+  return bestTsConfig ?? tsconfigs.at(0);
 }
