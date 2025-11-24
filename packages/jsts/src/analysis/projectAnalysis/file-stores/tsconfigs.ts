@@ -82,7 +82,6 @@ export class TsConfigStore implements FileStore {
         this.foundLookupTsConfigs.push(tsconfig);
       }
     }
-    this.sortTsConfigs();
   }
 
   dirtyCachesIfNeeded(baseDir: string) {
@@ -162,13 +161,5 @@ export class TsConfigStore implements FileStore {
         `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
       );
     }
-    this.sortTsConfigs();
-  }
-
-  sortTsConfigs() {
-    // Sort tsconfigs by path length descending (longest/most specific first)
-    // This ensures we check the closest tsconfig to a file first
-    this.foundPropertyTsConfigs.sort((a, b) => b.length - a.length);
-    this.foundLookupTsConfigs.sort((a, b) => b.length - a.length);
   }
 }

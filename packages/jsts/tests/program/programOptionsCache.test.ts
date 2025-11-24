@@ -22,7 +22,6 @@ import {
   createProgramOptionsCacheKey,
   createParsedConfigCacheKey,
 } from '../../src/program/cache/programOptionsCache.js';
-import ts from 'typescript';
 
 describe('Program Options Cache', () => {
   beforeEach(() => {
