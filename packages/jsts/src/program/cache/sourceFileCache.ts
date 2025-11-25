@@ -95,7 +95,7 @@ export function getCachedSourceFile(
   }
 
   const cached = targetCache.get(scriptTarget);
-  if (cached && cached.contentHash === contentHash) {
+  if (cached?.contentHash === contentHash) {
     return cached.sourceFile;
   }
 

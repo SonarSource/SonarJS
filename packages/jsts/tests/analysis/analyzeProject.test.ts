@@ -28,6 +28,7 @@ import {
 } from '../../src/analysis/projectAnalysis/analyzeProject.js';
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
+import { resolve } from 'node:path';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import {
   sourceFileStore,
@@ -113,8 +114,8 @@ describe('analyzeProject', () => {
   });
 
   it('should not touch FS during analysis', async () => {
-    const baseDir = '/path/does/not/exist';
-    const filePath = join(baseDir, 'whatever_file.ts');
+    const baseDir = resolve('/path/does/not/exist');
+    const filePath = join(toUnixPath(baseDir), 'whatever_file.ts');
     const result = await analyzeProject({
       rules: defaultRules,
       files: {
