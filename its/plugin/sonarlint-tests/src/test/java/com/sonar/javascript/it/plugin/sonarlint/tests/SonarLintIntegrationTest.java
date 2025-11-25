@@ -153,8 +153,7 @@ class SonarLintIntegrationTest {
         "Using tsConfig " +
           tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
           " for file source file " +
-          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " (0/1 tsconfigs not yet checked)"
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
       );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
       assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
@@ -173,8 +172,7 @@ class SonarLintIntegrationTest {
         "Using tsConfig " +
           tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
           "  for file source file " +
-          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " (0/1 tsconfigs not yet checked)"
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
       );
     });
     backend

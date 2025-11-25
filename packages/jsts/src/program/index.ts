@@ -33,10 +33,7 @@ export {
   clearSourceFileContentCache,
 } from './cache/sourceFileCache.js';
 export { clearTsConfigContentCache } from './cache/tsconfigCache.js';
-export {
-  clearProgramOptionsCache,
-  getProgramOptionsCacheStats,
-} from './cache/programOptionsCache.js';
+export { clearProgramOptionsCache } from './cache/programOptionsCache.js';
 export { getProgramCacheManager } from './cache/programCache.js';
 
 // TSConfig options (compiler options + parsing)
@@ -44,7 +41,7 @@ export {
   defaultCompilerOptions,
   mergeProgramOptions,
   createProgramOptions,
-  createProgramOptionsFromParsedConfig,
+  createProgramOptionsFromJson,
   type ProgramOptions,
 } from './tsconfig/options.js';
 

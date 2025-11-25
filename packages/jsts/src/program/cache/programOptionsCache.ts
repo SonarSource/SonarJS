@@ -24,12 +24,6 @@ import type { ProgramOptions } from '../tsconfig/options.js';
 const programOptionsCache = new Map<string, ProgramOptions>();
 
 /**
- * Cache for createProgramOptionsFromParsedConfig() results
- * Key: hash of all parameters (config, basePath, existingOptions, configFileName)
- */
-const parsedConfigCache = new Map<string, ProgramOptions>();
-
-/**
  * Get cached ProgramOptions from createProgramOptions()
  */
 export function getCachedProgramOptions(cacheKey: string): ProgramOptions | undefined {
@@ -44,38 +38,9 @@ export function setCachedProgramOptions(cacheKey: string, options: ProgramOption
 }
 
 /**
- * Get cached ProgramOptions from createProgramOptionsFromParsedConfig()
- */
-export function getCachedParsedConfig(cacheKey: string): ProgramOptions | undefined {
-  return parsedConfigCache.get(cacheKey);
-}
-
-/**
- * Store ProgramOptions in cache for createProgramOptionsFromParsedConfig()
- */
-export function setCachedParsedConfig(cacheKey: string, options: ProgramOptions): void {
-  parsedConfigCache.set(cacheKey, options);
-}
-
-/**
  * Clear both program options caches
  */
 export function clearProgramOptionsCache(): void {
   programOptionsCache.clear();
-  parsedConfigCache.clear();
   debug('Cleared program options caches');
-}
-
-/**
- * Get cache statistics
- */
-export function getProgramOptionsCacheStats() {
-  return {
-    programOptionsCache: {
-      size: programOptionsCache.size,
-    },
-    parsedConfigCache: {
-      size: parsedConfigCache.size,
-    },
-  };
 }
