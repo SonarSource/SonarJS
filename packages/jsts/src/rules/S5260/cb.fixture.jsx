@@ -387,6 +387,18 @@
   </>
 </table>
 
+<table>
+  <>
+    <tr>
+      <th id="bar" colspan={colspanVariable}></th>
+    </tr>
+    <tr>
+      <td headers="foo"></td> {}
+      <td headers="bar"></td> {/*Compliant, as we don't know the dynamic value, so we skip the check*/}
+    </tr>
+  </>
+</table>
+
 <tr></tr>
 
 <td></td>

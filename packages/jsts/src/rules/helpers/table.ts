@@ -43,10 +43,6 @@ function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   const spanAttr = getProp((tree.openingElement as JSXOpeningElement).attributes, spanKey);
   if (spanAttr) {
     span = Number.parseInt(String(getLiteralPropValue(spanAttr)));
-    // Handle NaN - default to 1
-    if (Number.isNaN(span)) {
-      span = 1;
-    }
   }
   return span;
 }
@@ -127,10 +123,14 @@ function extractRows(
         ['td', 'th'].includes(child.openingElement.name.name);
       if (!isTdOrTh) {
         unknownRowStructure = true;
-        continue;
+        break;
       }
       const colSpanValue = colSpan(child);
       const rowSpanValue = rowSpan(child);
+      if (Number.isNaN(colSpanValue) || Number.isNaN(rowSpanValue)) {
+        unknownRowStructure = true;
+        break;
+      }
       const headers = getHeaders(child);
       const id = getID(child);
       for (let i = 0; i < colSpanValue; i++) {

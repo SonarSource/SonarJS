@@ -65,7 +65,7 @@ describe('S4275', () => {
           private x: string;
           private y = "hello";
 
-          constructor(private z: number, private _v: number, private [a, b], w: number) {
+          constructor(private z: number, private _v: number, w: number) {
 
           }
 
