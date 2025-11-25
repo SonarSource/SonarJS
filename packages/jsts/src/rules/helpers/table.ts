@@ -35,7 +35,7 @@ type TableCellInternal = TableCell & {
 };
 
 const MAX_ROW_SPAN = 65534;
-const MAX_INVALID_COL_SPAN = 10000;
+const MAX_COL_SPAN = 1000;
 const KNOWN_TABLE_STRUCTURE_ELEMENTS = new Set(['thead', 'tbody', 'tfoot']);
 
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
@@ -43,12 +43,23 @@ function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   const spanAttr = getProp((tree.openingElement as JSXOpeningElement).attributes, spanKey);
   if (spanAttr) {
     span = Number.parseInt(String(getLiteralPropValue(spanAttr)));
+    // Handle NaN - default to 1
+    if (Number.isNaN(span)) {
+      span = 1;
+    }
   }
   return span;
 }
 
 function rowSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'rowspan');
+  // Special case: 0 is valid for rowspan (means span all remaining rows)
+  if (value === 0) {
+    return 0;
+  }
+  if (value < 1) {
+    value = 1;
+  }
   if (value > MAX_ROW_SPAN) {
     value = MAX_ROW_SPAN;
   }
@@ -57,8 +68,10 @@ function rowSpan(tree: TSESTree.JSXElement): number {
 
 function colSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'colspan');
-  if (value > MAX_INVALID_COL_SPAN) {
+  if (value < 1) {
     value = 1;
+  } else if (value > MAX_COL_SPAN) {
+    value = MAX_COL_SPAN;
   }
   return value;
 }
