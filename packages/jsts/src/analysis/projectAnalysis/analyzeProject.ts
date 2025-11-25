@@ -30,6 +30,7 @@ import { getFilesToAnalyze } from './file-stores/index.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import { setSourceFilesContext } from '../../program/index.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -64,6 +65,7 @@ export async function analyzeProject(
   };
   setGlobalConfiguration(configuration);
   const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(getBaseDir(), files);
+  setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
     rules,
     environments: getEnvironments(),

@@ -17,8 +17,7 @@
 import ts from 'typescript';
 import path from 'node:path/posix';
 import { IncrementalCompilerHost } from '../compilerHost.js';
-import { info, debug } from '../../../../shared/src/helpers/logging.js';
-import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { info } from '../../../../shared/src/helpers/logging.js';
 import { ProgramOptions } from '../tsconfig/options.js';
 
 interface CacheEntry {
@@ -41,7 +40,7 @@ interface ProgramWithHost {
 /**
  * Program cache manager using LRU + WeakMap hybrid approach:
  * - LRU Map: Keeps strong references to metadata (small, always in memory)
- * - WeakMap: Keeps weak references to program+host (large, can be GC'd under memory pressure)
+ * - WeakMap: Keeps weak references to program+host (large, can be garbage collected under memory pressure)
  *
  * Key feature: Find a cached program that contains a single source file.
  * This allows smaller, more focused programs to coexist in the cache.
@@ -50,30 +49,20 @@ export class ProgramCacheManager {
   // Strong references: LRU keeps track of cache entries
   private readonly lruCache: Map<string, CacheEntry> = new Map();
 
-  // Weak references: Program + host can be GC'd together when memory is needed
+  // Weak references: Program and host can garbage collected together when memory is needed
   private readonly cache: WeakMap<object, ProgramWithHost> = new WeakMap();
 
   private readonly maxSize = 10; // Max entries in LRU (configurable)
   private cacheKeyCounter = 0; // Simple counter for unique cache keys
 
   /**
-   * Find a cached program that contains the requested source file, and update it if content changed
+   * Find a cached program that contains the requested source file and update it if content changed
    */
-  findProgramForFile(
-    sourceFile: string,
-    fileContent: string | undefined,
-  ): {
-    program: ts.SemanticDiagnosticsBuilderProgram | null;
-    host: IncrementalCompilerHost | null;
-    cacheKey: string | null;
-    wasUpdated: boolean;
-  } {
-    const normalizedFile = path.normalize(toUnixPath(sourceFile));
-
+  findProgramForFile(sourceFile: string) {
     // Check each cached entry to find one containing this file
     for (const [cacheKey, entry] of this.lruCache.entries()) {
       // Check if this program contains the file
-      if (!entry.metadata.filesInProgram.has(normalizedFile)) {
+      if (!entry.metadata.filesInProgram.has(sourceFile)) {
         continue;
       }
 
@@ -81,20 +70,12 @@ export class ProgramCacheManager {
       const cached = this.cache.get(entry.keyObj);
 
       if (!cached) {
-        // Program + host were GC'd, remove stale entry
+        // Program and host were garbage collected, remove stale entry
         this.lruCache.delete(cacheKey);
         continue;
       }
 
       const { program, host } = cached;
-
-      // Found a match! Update host if file content changed
-      // The host's updateFile() method compares content and returns whether it changed
-      const wasUpdated = host.updateFile(normalizedFile, fileContent);
-
-      if (wasUpdated) {
-        debug(`File ${sourceFile} changed, updating in cached program`);
-      }
 
       // Update LRU
       this.touchEntry(cacheKey, entry);
@@ -103,16 +84,8 @@ export class ProgramCacheManager {
         program,
         host,
         cacheKey,
-        wasUpdated,
       };
     }
-
-    return {
-      program: null,
-      host: null,
-      cacheKey: null,
-      wasUpdated: false,
-    };
   }
 
   /**

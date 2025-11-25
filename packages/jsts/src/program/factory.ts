@@ -23,7 +23,7 @@ import {
 } from './tsconfig/options.js';
 import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
-import { getSourceFileContentCache } from './cache/sourceFileCache.js';
+import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 
 export function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -150,64 +150,42 @@ export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
   getProgramOptions: () => ProgramOptions,
-): {
-  program: ts.SemanticDiagnosticsBuilderProgram;
-  host: IncrementalCompilerHost;
-  fromCache: boolean;
-  wasUpdated: boolean;
-} {
+) {
   const cacheManager = getProgramCacheManager();
-  const cache = getSourceFileContentCache();
-  const fileContent = cache.get(sourceFile);
+  const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
 
   // Try to find an existing program containing this file
-  const cached = cacheManager.findProgramForFile(sourceFile, fileContent);
+  const cachedProgram = cacheManager.findProgramForFile(sourceFile);
 
-  if (cached.program && cached.host) {
-    const tsProgram = cached.program.getProgram();
+  if (cachedProgram) {
+    const { program, host, cacheKey } = cachedProgram;
+    const tsProgram = program.getProgram();
     const totalFiles = tsProgram.getSourceFiles().length;
 
-    if (cached.wasUpdated) {
-      // File content changed, need to recreate program for incremental update
+    // Found a match! Update host if file content changed
+    // The host's updateFile() method compares content and returns whether it changed
+    const wasUpdated = host.updateFile(sourceFile, fileContent);
+
+    if (wasUpdated) {
       info(
-        `♻️  Cache HIT (updated): Recreating program incrementally for ${sourceFile} (${totalFiles} files)`,
+        `Cache HIT: Recreating program with changes from ${sourceFile} (${totalFiles} files, no changes)`,
       );
-
-      const host = cached.host;
-
       // Recreate program with proper options to ensure lib files are included
-      const updatedProgram = createBuilderProgramWithHost(
-        getProgramOptions(),
-        host,
-        cached.program,
-      );
+      const updatedProgram = createBuilderProgramWithHost(getProgramOptions(), host, program);
 
       // Update cache with new program
-      if (cached.cacheKey) {
-        cacheManager.updateProgramInCache(cached.cacheKey, updatedProgram);
-      }
+      cacheManager.updateProgramInCache(cacheKey, updatedProgram);
 
-      return {
-        program: updatedProgram,
-        host,
-        fromCache: true,
-        wasUpdated: true,
-      };
+      return updatedProgram.getProgram();
     } else {
-      info(`♻️  Cache HIT: Reusing program for ${sourceFile} (${totalFiles} files, no changes)`);
-
-      return {
-        program: cached.program,
-        host: cached.host,
-        fromCache: true,
-        wasUpdated: false,
-      };
+      info(`Cache HIT: Reusing program for ${sourceFile} (${totalFiles} files, no changes)`);
+      return program.getProgram();
     }
   }
 
   const programOptions = getProgramOptions();
   info(
-    `⚙️  Cache MISS: Creating new program for ${sourceFile}` +
+    `Cache MISS: Creating new program for ${sourceFile}` +
       (programOptions.rootNames.length > 1
         ? ` (+ ${programOptions.rootNames.length - 1} additional root files)`
         : ''),
@@ -223,10 +201,5 @@ export function createOrGetCachedProgramForFile(
 
   info(`✅ Program created: 1 root file → ${totalFiles} total files (dependencies discovered)`);
 
-  return {
-    program: builderProgram,
-    host,
-    fromCache: false,
-    wasUpdated: false,
-  };
+  return builderProgram.getProgram();
 }
