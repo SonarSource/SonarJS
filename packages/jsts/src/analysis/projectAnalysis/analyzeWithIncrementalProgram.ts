@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
+import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -23,7 +23,7 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import {
   createOrGetCachedProgramForFile,
   createProgramOptions,
-  createProgramOptionsFromParsedConfig,
+  createProgramOptionsFromJson,
   defaultCompilerOptions,
   ProgramOptions,
 } from '../../program/index.js';
@@ -51,13 +51,18 @@ export async function analyzeWithIncrementalProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  for (const filename of pendingFiles) {
+  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  if (rootNames.length === 0) {
+    return;
+  }
+
+  for (const filename of rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
 
     const program = createOrGetCachedProgramForFile(getBaseDir(), filename, () =>
-      programOptionsFromClosestTsconfig(filename, results),
+      programOptionsFromClosestTsconfig(filename, results, pendingFiles),
     );
 
     await analyzeSingleFile(
@@ -78,13 +83,14 @@ export async function analyzeWithIncrementalProgram(
 
 /**
  * Find the closest tsconfig that contains the given file.
- * "Closest" means longest common path prefix (most specific).
+ * "Closest" means the longest common path prefix (most specific).
  * Returns null if no tsconfig contains the file.
  */
 function programOptionsFromClosestTsconfig(
   file: string,
   results: ProjectAnalysisOutput,
-): ProgramOptions {
+  pendingFiles: Set<string>,
+): ProgramOptions | undefined {
   let missingTsConfig = false;
   let programOptions: ProgramOptions | undefined = undefined;
   const processedTsConfigs = new Set<string>();
@@ -117,12 +123,17 @@ function programOptionsFromClosestTsconfig(
   }
 
   if (!programOptions) {
-    info('No tsconfig found for files, using default options');
-    // Fallback: use default options if no tsconfig found
-    programOptions = createProgramOptionsFromParsedConfig(
-      { compilerOptions: defaultCompilerOptions },
-      getBaseDir(),
-    );
+    try {
+      info('No tsconfig found for files, using default options');
+      // Fallback: use default options if no tsconfig found
+      programOptions = createProgramOptionsFromJson(
+        defaultCompilerOptions,
+        [...pendingFiles],
+        getBaseDir(),
+      );
+    } catch (e) {
+      error(`Failed to generate program from merged config: ${e}`);
+    }
   }
 
   if (missingTsConfig) {

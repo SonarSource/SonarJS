@@ -20,7 +20,7 @@ import {
   clearSourceFileContentCache,
   getProgramCacheManager,
   sanitizeProgramReferences,
-  createProgramOptionsFromParsedConfig,
+  createProgramOptionsFromJson,
   defaultCompilerOptions,
   createStandardProgram,
   ProgramOptions,
@@ -125,10 +125,7 @@ async function analyzeFilesFromEntryPoint(
 
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromParsedConfig(
-        { compilerOptions: defaultCompilerOptions },
-        getBaseDir(),
-      );
+    : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, getBaseDir());
   programOptions.rootNames = rootNames;
   programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
 

@@ -18,7 +18,7 @@ import ts from 'typescript';
 import { IncrementalCompilerHost } from './compilerHost.js';
 import {
   defaultCompilerOptions,
-  createProgramOptionsFromParsedConfig,
+  createProgramOptionsFromJson,
   type ProgramOptions,
 } from './tsconfig/options.js';
 import { info } from '../../../shared/src/helpers/logging.js';
@@ -110,11 +110,7 @@ export function createProgramFromSingleFile(
   const sourceFile = ts.createSourceFile(fileName, contents, target, true);
 
   // Parse and brand through the centralized function (uses default parseConfigHost)
-  const programOptions = createProgramOptionsFromParsedConfig(
-    {}, // Empty config object (no tsconfig.json)
-    process.cwd(),
-    compilerOptions, // Use provided compiler options as base
-  );
+  const programOptions = createProgramOptionsFromJson(compilerOptions, [fileName], process.cwd());
 
   // Override with a custom host for the single file
   const compilerHost = ts.createCompilerHost(programOptions.options);
@@ -149,7 +145,7 @@ export function createProgramFromSingleFile(
 export function createOrGetCachedProgramForFile(
   baseDir: string,
   sourceFile: string,
-  getProgramOptions: () => ProgramOptions,
+  getProgramOptions: () => ProgramOptions | undefined,
 ) {
   const cacheManager = getProgramCacheManager();
   const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
@@ -170,8 +166,12 @@ export function createOrGetCachedProgramForFile(
       info(
         `Cache HIT: Recreating program with changes from ${sourceFile} (${totalFiles} files, no changes)`,
       );
+      const programOptions = getProgramOptions();
+      if (!programOptions) {
+        return undefined;
+      }
       // Recreate program with proper options to ensure lib files are included
-      const updatedProgram = createBuilderProgramWithHost(getProgramOptions(), host, program);
+      const updatedProgram = createBuilderProgramWithHost(programOptions, host, program);
 
       // Update cache with new program
       cacheManager.updateProgramInCache(cacheKey, updatedProgram);
@@ -184,6 +184,9 @@ export function createOrGetCachedProgramForFile(
   }
 
   const programOptions = getProgramOptions();
+  if (!programOptions) {
+    return undefined;
+  }
   info(
     `Cache MISS: Creating new program for ${sourceFile}` +
       (programOptions.rootNames.length > 1

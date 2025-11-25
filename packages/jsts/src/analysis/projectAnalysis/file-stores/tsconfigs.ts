@@ -25,7 +25,11 @@ import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import { clearTsConfigContentCache, clearProgramOptionsCache } from '../../../program/index.js';
+import {
+  clearTsConfigContentCache,
+  clearProgramOptionsCache,
+  getProgramCacheManager,
+} from '../../../program/index.js';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -109,6 +113,7 @@ export class TsConfigStore implements FileStore {
     this.providedPropertyTsConfigs = undefined;
     clearTsConfigContentCache();
     clearProgramOptionsCache();
+    getProgramCacheManager().clear();
   }
 
   setup(baseDir: string) {
