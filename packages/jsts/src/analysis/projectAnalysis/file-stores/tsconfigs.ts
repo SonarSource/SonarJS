@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { error, info } from '../../../../../shared/src/helpers/logging.js';
+import { debug, error, info } from '../../../../../shared/src/helpers/logging.js';
 import {
   getFsEvents,
   getTsConfigPaths,
@@ -27,8 +27,6 @@ import { FileStore } from './store-type.js';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
 import { clearTsConfigContentCache, clearProgramOptionsCache } from '../../../program/index.js';
 
-export const UNINITIALIZED_ERROR =
-  'TSConfig cache has not been initialized. Call loadFiles() first.';
 const TSCONFIG_JSON = 'tsconfig.json';
 
 type ProvidedTsConfig = {
@@ -69,23 +67,20 @@ export class TsConfigStore implements FileStore {
 
   addDiscoveredTsConfig(tsconfig: string) {
     // Add to the appropriate list based on the current mode
-    if (this.usingPropertyTsConfigs()) {
-      // In property mode, add to the property list if not already there
-      if (!this.foundPropertyTsConfigs.includes(tsconfig)) {
-        info(`Discovered referenced tsconfig: ${tsconfig}`);
-        this.foundPropertyTsConfigs.push(tsconfig);
-      }
-    } else if (this.usingLookupTsConfigs()) {
-      // In lookup mode, add to the lookup list if not already there
-      if (!this.foundLookupTsConfigs.includes(tsconfig)) {
-        info(`Discovered referenced tsconfig: ${tsconfig}`);
-        this.foundLookupTsConfigs.push(tsconfig);
-      }
+    if (this.usingPropertyTsConfigs() && !this.foundPropertyTsConfigs.includes(tsconfig)) {
+      info(`Discovered referenced tsconfig: ${tsconfig}`);
+      this.foundPropertyTsConfigs.push(tsconfig);
+    } else if (this.usingLookupTsConfigs() && !this.foundLookupTsConfigs.includes(tsconfig)) {
+      info(`Discovered referenced tsconfig: ${tsconfig}`);
+      this.foundLookupTsConfigs.push(tsconfig);
     }
   }
 
   dirtyCachesIfNeeded(baseDir: string) {
-    if (this.baseDir != baseDir || this.propertyTsConfigsHash != this.getPropertyTsConfigsHash()) {
+    if (
+      this.baseDir !== baseDir ||
+      this.propertyTsConfigsHash !== this.getPropertyTsConfigsHash()
+    ) {
       this.clearCache();
       return;
     }
@@ -107,6 +102,7 @@ export class TsConfigStore implements FileStore {
   }
 
   clearCache() {
+    debug(`Resetting the TsConfigCache`);
     this.baseDir = undefined;
     this.foundLookupTsConfigs = [];
     this.foundPropertyTsConfigs = [];
