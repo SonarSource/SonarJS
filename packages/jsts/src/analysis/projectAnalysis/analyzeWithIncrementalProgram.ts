@@ -139,10 +139,11 @@ function pickBestMatchTsConfig(tsconfigs: string[], file: string) {
   let bestTsConfig: string | undefined = undefined;
   for (const tsconfig of tsconfigs) {
     const tsconfigDir = dirname(tsconfig);
-    if (file.startsWith(tsconfig)) {
-      if (bestTsConfig === undefined || dirname(bestTsConfig) < tsconfigDir) {
-        bestTsConfig = tsconfig;
-      }
+    if (
+      file.startsWith(tsconfig) &&
+      (bestTsConfig === undefined || dirname(bestTsConfig).length < tsconfigDir.length)
+    ) {
+      bestTsConfig = tsconfig;
     }
   }
   return bestTsConfig ?? tsconfigs.at(0);
