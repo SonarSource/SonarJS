@@ -74,7 +74,7 @@ jobs:
       - *checkout
       - &mise_java_maven
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -106,7 +106,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -151,7 +151,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Setup Node
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -190,7 +190,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -304,7 +304,7 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.5.0
+      - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -327,7 +327,7 @@ jobs:
       - *checkout
       - &mise_node_only
         name: Setup Node
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -357,7 +357,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - name: Setup tools
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -396,7 +396,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - name: Setup tools
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -586,7 +586,7 @@ jobs:
     steps:
       - *checkout
       - &mise_with_java_and_matrix_node
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
@@ -677,7 +677,7 @@ jobs:
       - *checkout
       - &mise_with_java
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.0
+        uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
