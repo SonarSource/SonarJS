@@ -53,6 +53,20 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring symbols not defined locally in the function (JS-131)
+         * Variables defined outside the function could be modified cross-procedurally,
+         * so we prefer not reporting to avoid false positives.
+         */
+        if (symbol) {
+          const functionScope = context.sourceCode.getScope(node).variableScope;
+          const variableScope = symbol.scope.variableScope;
+
+          // Only report if variable is defined in the same function scope
+          if (functionScope !== variableScope) {
+            return;
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;

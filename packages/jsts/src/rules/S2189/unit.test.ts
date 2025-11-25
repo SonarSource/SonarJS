@@ -170,6 +170,28 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // False positive scenario: variable defined outside function (global/module scope)
+      // This should NOT raise an issue because globalVar could be modified cross-procedurally
+      let globalVar = true;
+      function checkLoop() {
+        while (globalVar) {
+          doSomething();
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: variable from outer scope
+      // This should NOT raise an issue because outerVar could be modified by other functions
+      var outerVar = true;
+      function processData() {
+        while (outerVar) {
+          process();
+        }
+      }`,
+        },
       ],
       invalid: [
         {
