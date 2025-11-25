@@ -170,6 +170,34 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          // Test for non-local variable (parameter)
+          code: `
+      function foo(condition) {
+        while (condition) {
+          doSomething();
+        }
+      }`,
+        },
+        {
+          // Test for non-local variable (closure variable)
+          code: `
+      let shouldContinue = true;
+      function bar() {
+        while (shouldContinue) {
+          doSomething();
+        }
+      }`,
+        },
+        {
+          // Test for non-local variable (property access)
+          code: `
+      function baz(obj) {
+        while (obj.flag) {
+          doSomething();
+        }
+      }`,
+        },
       ],
       invalid: [
         {

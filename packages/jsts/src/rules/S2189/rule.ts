@@ -53,6 +53,53 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Only report on locally defined variables to avoid false positives
+         * from cross-procedural modifications. Skip parameters and closure variables.
+         */
+        if (symbol) {
+          // Skip if the variable is a function parameter
+          if (symbol.defs.some(def => def.type === 'Parameter')) {
+            return;
+          }
+
+          // Find the function scope that contains the loop
+          let loopFunctionScope = context.sourceCode.getScope(node);
+          while (
+            loopFunctionScope &&
+            loopFunctionScope.type !== 'function' &&
+            loopFunctionScope.upper
+          ) {
+            loopFunctionScope = loopFunctionScope.upper;
+          }
+
+          // Skip if the variable is defined outside the loop's function scope
+          if (loopFunctionScope && loopFunctionScope.type === 'function') {
+            const variableScope = symbol.scope;
+
+            // Check if the variable scope is outside the function containing the loop
+            // by walking up from variable scope to see if we reach the loop's function
+            let scope = variableScope;
+            let isInsideFunctionScope = false;
+
+            while (scope) {
+              if (scope === loopFunctionScope) {
+                isInsideFunctionScope = true;
+                break;
+              }
+              if (scope.upper) {
+                scope = scope.upper;
+              } else {
+                break;
+              }
+            }
+
+            if (!isInsideFunctionScope) {
+              // Variable is defined outside the loop's function, skip to avoid FP
+              return;
+            }
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
