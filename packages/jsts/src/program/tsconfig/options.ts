@@ -21,12 +21,7 @@ import { error } from '../../../../shared/src/helpers/logging.js';
 import { basename, dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
-import {
-  getCachedProgramOptions,
-  setCachedProgramOptions,
-  getCachedParsedConfig,
-  setCachedParsedConfig,
-} from '../cache/programOptionsCache.js';
+import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { canAccessFileSystem } from '../../../../shared/src/helpers/configuration.js';
 import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
 
@@ -103,73 +98,18 @@ const defaultParseConfigHost: CustomParseConfigHost = {
   missingTsConfig: () => false,
 };
 
-/**
- * Parses and sanitizes compiler options using TypeScript's parseJsonConfigFileContent.
- * This is the ONLY function that should brand ProgramOptions, as it ensures all
- * compiler options are properly processed (lib resolution, enum conversion, etc.).
- *
- * @param config Raw config object (from tsconfig.json or empty object for single-file analysis)
- * @param basePath Base path for resolving relative paths
- * @param existingOptions Existing compiler options to use as base/override
- * @param configFileName Optional config file name (for error messages)
- * @param extraFileExtensions Optional extra file extensions (e.g., .vue)
- * @param parseConfigHost Optional custom ParseConfigHost (uses default if not provided)
- * @returns Branded ProgramOptions ready for program creation
- */
-export function createProgramOptionsFromParsedConfig(
-  config: any,
-  basePath: string,
-  existingOptions: ts.CompilerOptions = {},
-  configFileName?: string,
-  extraFileExtensions?: readonly ts.FileExtensionInfo[],
-  parseConfigHost: CustomParseConfigHost = defaultParseConfigHost,
+export function createProgramOptionsFromJson(
+  json: any,
+  rootNames: string[],
+  baseDir: string,
 ): ProgramOptions {
-  const cacheKey = JSON.stringify({
-    config,
-    basePath,
-    existingOptions,
-    configFileName,
-    extraFileExtensions,
-  });
-  const cached = getCachedParsedConfig(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  // Call TypeScript's parser to sanitize all options
-  const parsedConfigFile = ts.parseJsonConfigFileContent(
-    config,
-    parseConfigHost,
-    basePath,
-    existingOptions,
-    configFileName,
-    undefined,
-    extraFileExtensions,
-  );
-
-  // Filter diagnostics by severity
-  const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);
-
-  // Throw on fatal errors but preserve warnings/messages for the program to report
-  if (errors.length > 0) {
-    const message = errors.map(diagnosticToString).join('; ');
-    throw new Error(message);
-  }
-
-  const result: ProgramOptions = {
-    rootNames: parsedConfigFile.fileNames,
-    options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
-    projectReferences: parsedConfigFile.projectReferences,
-    configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors and warnings)
-    missingTsConfig: parseConfigHost.missingTsConfig(),
+  return {
+    options: ts.convertCompilerOptionsFromJson(json, baseDir).options,
+    rootNames,
+    missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,
   };
-
-  setCachedParsedConfig(cacheKey, result);
-
-  return result;
 }
-
 /**
  * Gets the files resolved by a TSConfig
  *
@@ -247,14 +187,15 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     throw new Error(diagnosticToString(config.error));
   }
 
-  // Parse and brand through the centralized function
-  const result = createProgramOptionsFromParsedConfig(
+  const parsedConfigFile = ts.parseJsonConfigFileContent(
     config.config,
+    parseConfigHost,
     dirname(tsConfig),
     {
       noEmit: true, // Override: we're analyzing, not emitting
     },
     tsConfig,
+    undefined,
     [
       {
         extension: 'vue',
@@ -262,8 +203,25 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
         scriptKind: ts.ScriptKind.Deferred,
       },
     ],
-    parseConfigHost, // Custom host with caching and missing file handling
   );
+
+  // Filter diagnostics by severity
+  const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);
+
+  // Throw on fatal errors but preserve warnings/messages for the program to report
+  if (errors.length > 0) {
+    const message = errors.map(diagnosticToString).join('; ');
+    throw new Error(message);
+  }
+
+  const result = {
+    rootNames: parsedConfigFile.fileNames,
+    options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
+    projectReferences: parsedConfigFile.projectReferences,
+    configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors and warnings)
+    missingTsConfig: parseConfigHost.missingTsConfig(),
+    [PROGRAM_OPTIONS_BRAND]: true,
+  } as const;
 
   setCachedProgramOptions(`${tsConfig}:${tsconfigContents}`, result);
 
