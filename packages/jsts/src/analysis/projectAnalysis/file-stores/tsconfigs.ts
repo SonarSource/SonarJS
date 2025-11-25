@@ -157,5 +157,8 @@ export class TsConfigStore implements FileStore {
         `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
       );
     }
+    info(
+      `Found ${this.getTsConfigs().length} tsconfig.json file(s): [${this.getTsConfigs().join(', ')}]`,
+    );
   }
 }
