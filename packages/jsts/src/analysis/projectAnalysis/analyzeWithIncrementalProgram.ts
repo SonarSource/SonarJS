@@ -22,7 +22,6 @@ import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import {
   createOrGetCachedProgramForFile,
-  setSourceFilesContext,
   createProgramOptions,
   createProgramOptionsFromParsedConfig,
   defaultCompilerOptions,
@@ -52,24 +51,19 @@ export async function analyzeWithIncrementalProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  setSourceFilesContext(files);
-
   for (const filename of pendingFiles) {
     if (isAnalysisCancelled()) {
       return;
     }
 
-    const { program: builderProgram } = createOrGetCachedProgramForFile(
-      getBaseDir(),
-      filename,
-      () => programOptionsFromClosestTsconfig(filename, results),
+    const program = createOrGetCachedProgramForFile(getBaseDir(), filename, () =>
+      programOptionsFromClosestTsconfig(filename, results),
     );
-    const tsProgram = builderProgram.getProgram();
 
     await analyzeSingleFile(
       filename,
       files[filename],
-      tsProgram,
+      program,
       results,
       pendingFiles,
       progressReport,

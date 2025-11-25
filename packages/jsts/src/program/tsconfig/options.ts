@@ -17,18 +17,18 @@
 
 import merge from 'lodash.merge';
 import ts from 'typescript';
-import { error, debug } from '../../../../shared/src/helpers/logging.js';
-import { dirname } from 'node:path/posix';
+import { error } from '../../../../shared/src/helpers/logging.js';
+import { basename, dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import {
-  createProgramOptionsCacheKey,
-  createParsedConfigCacheKey,
   getCachedProgramOptions,
   setCachedProgramOptions,
   getCachedParsedConfig,
   setCachedParsedConfig,
 } from '../cache/programOptionsCache.js';
+import { canAccessFileSystem } from '../../../../shared/src/helpers/configuration.js';
+import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created
@@ -68,9 +68,38 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
  */
 const defaultParseConfigHost: CustomParseConfigHost = {
   useCaseSensitiveFileNames: true,
-  readDirectory: ts.sys.readDirectory,
-  fileExists: ts.sys.fileExists,
-  readFile: ts.sys.readFile,
+  readDirectory(
+    rootDir: string,
+    extensions: readonly string[],
+    excludes: readonly string[] | undefined,
+    includes: readonly string[],
+    depth?: number,
+  ): readonly string[] {
+    if (canAccessFileSystem()) {
+      return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
+    } else {
+      return sourceFileStore
+        .getFoundFilenames()
+        .filter(f => {
+          return dirname(f) === rootDir && extensions.some(ext => f.endsWith(ext));
+        })
+        .map(f => basename(f));
+    }
+  },
+  fileExists(path: string): boolean {
+    if (canAccessFileSystem()) {
+      return ts.sys.fileExists(path);
+    } else {
+      return sourceFileStore.getFoundFilenames().includes(path);
+    }
+  },
+  readFile(path: string): string | undefined {
+    if (canAccessFileSystem()) {
+      return ts.sys.readFile(path);
+    } else {
+      return sourceFileStore.getFoundFiles()[path]?.fileContent;
+    }
+  },
   missingTsConfig: () => false,
 };
 
@@ -95,20 +124,16 @@ export function createProgramOptionsFromParsedConfig(
   extraFileExtensions?: readonly ts.FileExtensionInfo[],
   parseConfigHost: CustomParseConfigHost = defaultParseConfigHost,
 ): ProgramOptions {
-  // Check cache first (only when using default parseConfigHost, since custom hosts may have state)
-  if (parseConfigHost === defaultParseConfigHost) {
-    const cacheKey = createParsedConfigCacheKey(
-      config,
-      basePath,
-      existingOptions,
-      configFileName,
-      extraFileExtensions,
-    );
-    const cached = getCachedParsedConfig(cacheKey);
-    if (cached) {
-      debug('createProgramOptionsFromParsedConfig: cache hit');
-      return cached;
-    }
+  const cacheKey = JSON.stringify({
+    config,
+    basePath,
+    existingOptions,
+    configFileName,
+    extraFileExtensions,
+  });
+  const cached = getCachedParsedConfig(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   // Call TypeScript's parser to sanitize all options
@@ -125,7 +150,7 @@ export function createProgramOptionsFromParsedConfig(
   // Filter diagnostics by severity
   const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);
 
-  // Throw on fatal errors, but preserve warnings/messages for the program to report
+  // Throw on fatal errors but preserve warnings/messages for the program to report
   if (errors.length > 0) {
     const message = errors.map(diagnosticToString).join('; ');
     throw new Error(message);
@@ -135,23 +160,12 @@ export function createProgramOptionsFromParsedConfig(
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
     projectReferences: parsedConfigFile.projectReferences,
-    configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors + warnings)
+    configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors and warnings)
     missingTsConfig: parseConfigHost.missingTsConfig(),
     [PROGRAM_OPTIONS_BRAND]: true,
   };
 
-  // Store in cache (only when using default parseConfigHost)
-  if (parseConfigHost === defaultParseConfigHost) {
-    const cacheKey = createParsedConfigCacheKey(
-      config,
-      basePath,
-      existingOptions,
-      configFileName,
-      extraFileExtensions,
-    );
-    setCachedParsedConfig(cacheKey, result);
-    debug('createProgramOptionsFromParsedConfig: cached result');
-  }
+  setCachedParsedConfig(cacheKey, result);
 
   return result;
 }
@@ -168,10 +182,8 @@ export function createProgramOptionsFromParsedConfig(
  */
 export function createProgramOptions(tsConfig: string, tsconfigContents?: string): ProgramOptions {
   // Check cache first
-  const cacheKey = createProgramOptionsCacheKey(tsConfig, tsconfigContents);
-  const cached = getCachedProgramOptions(cacheKey);
+  const cached = getCachedProgramOptions(`${tsConfig}:${tsconfigContents}`);
   if (cached) {
-    debug('createProgramOptions: cache hit');
     return cached;
   }
 
@@ -181,14 +193,14 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
     useCaseSensitiveFileNames: true,
-    readDirectory: ts.sys.readDirectory,
+    readDirectory: defaultParseConfigHost.readDirectory,
     fileExists: file => {
       // When TypeScript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
       if (tsconfigContentCache.has(file) || isLastTsConfigCheck(file)) {
         return true;
       }
-      return ts.sys.fileExists(file);
+      return defaultParseConfigHost.fileExists(file);
     },
     readFile: file => {
       // 1. Check if we have specific content provided for this file
@@ -204,7 +216,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
       }
 
       // 3. Read from disk
-      const fileContents = ts.sys.readFile(file);
+      const fileContents = defaultParseConfigHost.readFile(file);
 
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
@@ -253,9 +265,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     parseConfigHost, // Custom host with caching and missing file handling
   );
 
-  // Store in cache
-  setCachedProgramOptions(cacheKey, result);
-  debug('createProgramOptions: cached result');
+  setCachedProgramOptions(`${tsConfig}:${tsconfigContents}`, result);
 
   return result;
 }

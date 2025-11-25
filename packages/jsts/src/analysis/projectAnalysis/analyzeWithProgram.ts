@@ -17,7 +17,6 @@
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import {
   createProgramOptions,
-  setSourceFilesContext,
   clearSourceFileContentCache,
   getProgramCacheManager,
   sanitizeProgramReferences,
@@ -55,9 +54,6 @@ export async function analyzeWithProgram(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  // Set up lazy loading context for CompilerHost
-  setSourceFilesContext(files);
-
   const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<string> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
