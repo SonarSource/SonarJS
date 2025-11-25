@@ -5,6 +5,16 @@
 "rxjs:src/observable/combineLatest.ts": [
 139
 ],
+"rxjs:src/operator/first.ts": [
+10
+],
+"rxjs:src/operator/last.ts": [
+10
+],
+"rxjs:src/operator/windowTime.ts": [
+111,
+170
+],
 "rxjs:src/util/isPromise.ts": [
 1
 ]

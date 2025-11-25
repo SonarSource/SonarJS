@@ -1,5 +1,14 @@
 {
 "desktop:app/src/lib/queue-work.ts": [
 27
+],
+"desktop:app/src/models/status.ts": [
+200
+],
+"desktop:app/src/ui/app-error.tsx": [
+29
+],
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
+24
 ]
 }

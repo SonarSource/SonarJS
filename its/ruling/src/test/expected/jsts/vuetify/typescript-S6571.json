@@ -5,8 +5,21 @@
 "vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 29
 ],
+"vuetify:packages/vuetify/src/composables/defaults.ts": [
+31
+],
+"vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
+13
+],
 "vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+107,
+111,
+113,
 210,
-214
+214,
+215
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+310
 ]
 }

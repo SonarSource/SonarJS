@@ -1,6 +1,11 @@
 {
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
-183
+183,
+207,
+361
+],
+"eigen:src/app/Components/Markdown.tsx": [
+22
 ],
 "eigen:src/app/Components/PrefetchFlatList.tsx": [
 8,
@@ -11,6 +16,9 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx": [
 20
+],
+"eigen:src/app/Scenes/Artwork/Components/CreateArtworkAlertButtonsSection.tsx": [
+28
 ],
 "eigen:src/app/Scenes/Collection/Collection.tsx": [
 67
@@ -24,6 +32,9 @@
 "eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts": [
 7,
 7
+],
+"eigen:src/app/Scenes/Search/types.ts": [
+18
 ],
 "eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
 8,
@@ -47,5 +58,8 @@
 ],
 "eigen:src/palette/elements/Select/SelectV2.tsx": [
 169
+],
+"eigen:src/palette/elements/Text/Typography-v1.tsx": [
+52
 ]
 }

@@ -1,0 +1,52 @@
+{
+"it-tools:src/composable/computed/catchedComputed.ts": [
+5,
+7,
+8,
+8
+],
+"it-tools:src/composable/downloadBase64.ts": [
+35
+],
+"it-tools:src/composable/validation.ts": [
+29,
+43
+],
+"it-tools:src/tools/emoji-picker/emoji.types.ts": [
+6
+],
+"it-tools:src/tools/list-converter/list-converter.types.ts": [
+1,
+1
+],
+"it-tools:src/tools/pdf-signature-checker/pdf-signature-checker.types.ts": [
+34,
+36
+],
+"it-tools:src/tools/phone-parser-and-formatter/phone-parser-and-formatter.models.ts": [
+20,
+28
+],
+"it-tools:src/tools/user-agent-parser/user-agent-parser.types.ts": [
+9
+],
+"it-tools:src/tools/wifi-qr-code-generator/useQRCode.ts": [
+65
+],
+"it-tools:src/ui/c-key-value-list/c-key-value-list.types.ts": [
+3,
+3,
+3,
+3,
+3,
+3,
+3,
+3
+],
+"it-tools:src/utils/array.ts": [
+3,
+3,
+3,
+3
+]
+}
