@@ -107,7 +107,6 @@ function extractRows(
 
   const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] | null => {
     const row: TableCellInternal[] = [];
-    let unknownRowStructure = false;
     for (const child of tree.children) {
       if (
         (child.type === 'JSXExpressionContainer' &&
@@ -122,14 +121,12 @@ function extractRows(
         child.openingElement.name.type === 'JSXIdentifier' &&
         ['td', 'th'].includes(child.openingElement.name.name);
       if (!isTdOrTh) {
-        unknownRowStructure = true;
-        break;
+        return null;
       }
       const colSpanValue = colSpan(child);
       const rowSpanValue = rowSpan(child);
       if (Number.isNaN(colSpanValue) || Number.isNaN(rowSpanValue)) {
-        unknownRowStructure = true;
-        break;
+        return null;
       }
       const headers = getHeaders(child);
       const id = getID(child);
@@ -146,9 +143,6 @@ function extractRows(
         });
       }
       internalNodeCount += 1;
-    }
-    if (unknownRowStructure) {
-      return null;
     }
     return row;
   };
