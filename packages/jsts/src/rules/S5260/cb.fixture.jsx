@@ -297,6 +297,48 @@
 </table>
 
 <table>
+  <tr>
+    <th id="foo" colspan="0"></th>
+    <td headers="foo"></td> {/* Compliant - colspan="0" is treated as 1 */}
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th id="foo" colspan="-1"></th>
+    <td headers="foo"></td> {/* Compliant - negative colspan is treated as 1 */}
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th id="foo" colspan="10000"></th>
+  </tr>
+  <tr>
+    <td headers="foo"></td> {/* Compliant - colspan is clamped to 1000 */}
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th id="foo" rowspan="-1"></th>
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
+  </tr>
+  <tr>
+    <td headers="foo"></td> {/* Compliant - negative rowspan is treated as 1 */}
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th id="foo" rowspan="100000"></th>
+  </tr>
+  <tr>
+    <td headers="foo"></td> {/* Compliant - rowspan is clamped to 65534 */}
+  </tr>
+</table>
+
+<table>
   <td></td>
 </table>
 
@@ -341,6 +383,18 @@
     </tr>
     <tr>
       <td headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" does not reference any <th> header.}} */}
+    </tr>
+  </>
+</table>
+
+<table>
+  <>
+    <tr>
+      <th id="bar" colspan={colspanVariable}></th>
+    </tr>
+    <tr>
+      <td headers="foo"></td> {}
+      <td headers="bar"></td> {/*Compliant, as we don't know the dynamic value, so we skip the check*/}
     </tr>
   </>
 </table>

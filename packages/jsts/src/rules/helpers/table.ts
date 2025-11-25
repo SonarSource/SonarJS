@@ -35,7 +35,7 @@ type TableCellInternal = TableCell & {
 };
 
 const MAX_ROW_SPAN = 65534;
-const MAX_INVALID_COL_SPAN = 10000;
+const MAX_COL_SPAN = 1000;
 const KNOWN_TABLE_STRUCTURE_ELEMENTS = new Set(['thead', 'tbody', 'tfoot']);
 
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
@@ -49,6 +49,13 @@ function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
 
 function rowSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'rowspan');
+  // Special case: 0 is valid for rowspan (means span all remaining rows)
+  if (value === 0) {
+    return 0;
+  }
+  if (value < 1) {
+    value = 1;
+  }
   if (value > MAX_ROW_SPAN) {
     value = MAX_ROW_SPAN;
   }
@@ -57,8 +64,10 @@ function rowSpan(tree: TSESTree.JSXElement): number {
 
 function colSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'colspan');
-  if (value > MAX_INVALID_COL_SPAN) {
+  if (value < 1) {
     value = 1;
+  } else if (value > MAX_COL_SPAN) {
+    value = MAX_COL_SPAN;
   }
   return value;
 }
@@ -98,7 +107,6 @@ function extractRows(
 
   const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] | null => {
     const row: TableCellInternal[] = [];
-    let unknownRowStructure = false;
     for (const child of tree.children) {
       if (
         (child.type === 'JSXExpressionContainer' &&
@@ -113,11 +121,13 @@ function extractRows(
         child.openingElement.name.type === 'JSXIdentifier' &&
         ['td', 'th'].includes(child.openingElement.name.name);
       if (!isTdOrTh) {
-        unknownRowStructure = true;
-        continue;
+        return null;
       }
       const colSpanValue = colSpan(child);
       const rowSpanValue = rowSpan(child);
+      if (Number.isNaN(colSpanValue) || Number.isNaN(rowSpanValue)) {
+        return null;
+      }
       const headers = getHeaders(child);
       const id = getID(child);
       for (let i = 0; i < colSpanValue; i++) {
@@ -133,9 +143,6 @@ function extractRows(
         });
       }
       internalNodeCount += 1;
-    }
-    if (unknownRowStructure) {
-      return null;
     }
     return row;
   };

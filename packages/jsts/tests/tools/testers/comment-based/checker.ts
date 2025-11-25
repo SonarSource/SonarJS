@@ -45,7 +45,7 @@ export function test(sonarMeta: SonarMeta, ruleModule: Rule.RuleModule, ruleDir:
   }
 
   for (const fixture of fixtures) {
-    it(path.basename(fixture), () => {
+    it(fixture, () => {
       const options = extractRuleOptions(ruleDir);
       const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replaceAll(/\r?\n|\r/g, '\n');
       const { errors, output } = extractExpectations(
