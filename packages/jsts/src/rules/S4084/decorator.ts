@@ -27,7 +27,7 @@ import * as meta from './generated-meta.js';
  * Ignores text, expressions, and other non-JSX children
  */
 function hasJSXElementChildren(jsxElement: TSESTree.JSXElement): boolean {
-  return jsxElement.children?.some(child => child.type === 'JSXElement') ?? false;
+  return Boolean(jsxElement.children?.some(child => child.type === 'JSXElement'));
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
