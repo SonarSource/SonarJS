@@ -49,7 +49,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
 
-      if (jsxElement && jsxElement.type === 'JSXElement' && hasJSXElementChildren(jsxElement)) {
+      if (!jsxElement || jsxElement.type !== 'JSXElement') {
+        context.report({ ...descriptor, node: name });
+        return;
+      }
+
+      if (hasJSXElementChildren(jsxElement)) {
         // Prefer not raising an issue when child components are present
         // Better to miss some true positives than to raise false positives
         return;
