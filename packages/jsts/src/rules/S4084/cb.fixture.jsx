@@ -104,3 +104,39 @@ function VideoWithOnlyLowercaseElements() {
     </video>
   );
 }
+
+// Compliant: video with member expression component for track
+function VideoWithMemberExpressionTrack() {
+  return (
+    <video>
+      <Components.TrackProvider />
+    </video>
+  );
+}
+
+// Compliant: video with nested member expression component for captions
+function VideoWithNestedMemberExpressionCaption() {
+  return (
+    <video>
+      <UI.Components.CaptionProvider />
+    </video>
+  );
+}
+
+// Compliant: audio with member expression subtitle component
+function AudioWithMemberExpressionSubtitle() {
+  return (
+    <audio>
+      <Media.SubtitleProvider />
+    </audio>
+  );
+}
+
+// Still a violation: video with member expression but no track-related name
+function VideoWithUnrelatedMemberExpression() {
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      <Components.VideoPlayer />
+    </video>
+  );
+}
