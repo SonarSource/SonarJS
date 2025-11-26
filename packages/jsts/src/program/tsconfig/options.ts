@@ -104,7 +104,7 @@ export function createProgramOptionsFromJson(
   baseDir: string,
 ): ProgramOptions {
   return {
-    options: ts.convertCompilerOptionsFromJson(json, baseDir).options,
+    ...ts.convertCompilerOptionsFromJson(json, baseDir),
     rootNames,
     missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,

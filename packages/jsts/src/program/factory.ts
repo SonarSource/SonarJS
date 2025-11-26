@@ -199,10 +199,5 @@ export function createOrGetCachedProgramForFile(
   // Store in cache
   cacheManager.storeProgram(programOptions, builderProgram, host);
 
-  const tsProgram = builderProgram.getProgram();
-  const totalFiles = tsProgram.getSourceFiles().length;
-
-  info(`✅ Program created: 1 root file → ${totalFiles} total files (dependencies discovered)`);
-
   return builderProgram.getProgram();
 }
