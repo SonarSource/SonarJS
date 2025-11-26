@@ -54,8 +54,12 @@ function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
     return true;
   }
 
-  // Recursively check children
-  return element.children?.some(checkNodeForTrackComponent) ?? false;
+  // Recursively check children - filter for JSXElement nodes first
+  return (
+    element.children?.some(
+      child => child.type === 'JSXElement' && checkNodeForTrackComponent(child),
+    ) ?? false
+  );
 }
 
 /**
