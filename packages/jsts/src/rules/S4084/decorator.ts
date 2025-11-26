@@ -40,35 +40,49 @@ function isReactComponent(elementName: string): boolean {
 }
 
 /**
- * Recursively checks if a node contains track-related components
+ * Recursively checks if a node contains track-related components or actual track elements
  */
 function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
-  if (node.type !== 'JSXElement') {
+  if (node.type === 'JSXElement') {
+    const elementName = getJSXElementName(node);
+
+    // Check for actual <track> elements - only if they appear as direct JSXElement children
+    // NOT inside expressions like .map() which would be in JSXExpressionContainer
+    if (elementName === 'track') {
+      return true;
+    }
+
+    // Check for React components with track-related names
+    if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
+      return true;
+    }
+
+    // Recursively check children
+    return node.children?.some(child => checkNodeForTrackComponent(child)) ?? false;
+  }
+
+  // For JSXExpressionContainer, check the expression but don't look for <track> elements
+  // This ensures we don't suppress issues for conditional tracks like {arr.map(() => <track />)}
+  if (node.type === 'JSXExpressionContainer') {
+    // Skip checking inside expressions - we only want to detect track components, not conditional tracks
     return false;
   }
 
-  // After the type guard, TypeScript knows node is TSESTree.JSXElement
-  const elementName = getJSXElementName(node);
-
-  if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
-    return true;
-  }
-
-  // Recursively check children - filter for JSXElement nodes first
-  return (
-    node.children?.some(
-      child => child.type === 'JSXElement' && checkNodeForTrackComponent(child),
-    ) ?? false
-  );
+  return false;
 }
 
 /**
- * Checks if a JSX element contains components that might provide track-related content
+ * Checks if a JSX element contains components or elements that might provide track-related content
  * This handles React component composition patterns where track elements are provided
- * through custom components like <CAVVideoSubtitles /> or <Subtitles />
+ * through custom components like <CAVVideoSubtitles /> or <Subtitles />, or through
+ * direct <track> elements (not conditional ones in expressions).
  *
- * Note: We intentionally do NOT check for actual <track> elements here, as those
- * should be handled by the underlying rule from eslint-plugin-jsx-a11y
+ * We check for:
+ * 1. React components with track/subtitle/caption in the name
+ * 2. Direct <track> elements (not conditional ones like {arr.map(() => <track />)})
+ *
+ * We intentionally do NOT suppress issues for conditional tracks in expressions,
+ * as those may not render and represent true accessibility issues.
  */
 function hasTrackRelatedComponent(jsxElement: TSESTree.JSXElement): boolean {
   return jsxElement.children?.some(checkNodeForTrackComponent) ?? false;
