@@ -81,7 +81,7 @@ export const rule: Rule.RuleModule = {
       const scope = context.sourceCode.getScope(node);
       const functionScope = findFunctionScope(scope);
 
-      if (!functionScope || functionScope.type !== 'function') {
+      if (functionScope?.type !== 'function') {
         return false;
       }
 
