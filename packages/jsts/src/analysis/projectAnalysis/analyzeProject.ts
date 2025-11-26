@@ -30,7 +30,7 @@ import { getFilesToAnalyze } from './file-stores/index.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { setSourceFilesContext } from '../../program/index.js';
+import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 
 const analysisStatus = {
   cancelled: false,

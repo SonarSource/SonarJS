@@ -15,16 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import {
-  createProgramOptions,
-  clearSourceFileContentCache,
-  getProgramCacheManager,
-  sanitizeProgramReferences,
-  createProgramOptionsFromJson,
-  defaultCompilerOptions,
-  createStandardProgram,
-  ProgramOptions,
-} from '../../program/index.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
@@ -35,6 +25,16 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
+import {
+  createProgramOptions,
+  createProgramOptionsFromJson,
+  defaultCompilerOptions,
+  type ProgramOptions,
+} from '../../program/tsconfig/options.js';
+import { getProgramCacheManager } from '../../program/cache/programCache.js';
+import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
+import { createStandardProgram } from '../../program/factory.js';
+import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
