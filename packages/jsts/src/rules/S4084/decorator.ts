@@ -47,8 +47,7 @@ function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
     return false;
   }
 
-  const element = node as TSESTree.JSXElement;
-  const elementName = getJSXElementName(element);
+  const elementName = getJSXElementName(node);
 
   if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
     return true;
@@ -56,7 +55,7 @@ function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
 
   // Recursively check children - filter for JSXElement nodes first
   return (
-    element.children?.some(
+    node.children?.some(
       child => child.type === 'JSXElement' && checkNodeForTrackComponent(child),
     ) ?? false
   );
