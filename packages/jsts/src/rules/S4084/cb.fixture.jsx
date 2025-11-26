@@ -73,3 +73,34 @@ function VideoWithTrackComponent() {
     </video>
   );
 }
+
+// Still a violation: video with component that doesn't provide tracks
+function VideoWithUnrelatedComponent() {
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      <source src="video.mp4" />
+      <MyCustomComponent />
+    </video>
+  );
+}
+
+// Compliant: video with nested component containing track in name
+function VideoWithNestedTrackComponent() {
+  return (
+    <video>
+      <div>
+        <CaptionProvider />
+      </div>
+    </video>
+  );
+}
+
+// Still a violation: video with only lowercase elements (not components)
+function VideoWithOnlyLowercaseElements() {
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      <source src="video.mp4" />
+      <div>Some content</div>
+    </video>
+  );
+}
