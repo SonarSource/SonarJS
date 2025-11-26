@@ -20,7 +20,7 @@ import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { error, info } from '../../../../shared/src/helpers/logging.js';
+import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from '../../program/tsconfig/utils.js';
@@ -30,6 +30,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
 
@@ -57,13 +58,14 @@ export async function analyzeWithIncrementalProgram(
     return;
   }
 
+  const foundProgramOptions: ProgramOptions[] = [];
   for (const filename of rootNames) {
     if (isAnalysisCancelled()) {
       return;
     }
 
     const program = createOrGetCachedProgramForFile(getBaseDir(), filename, () =>
-      programOptionsFromClosestTsconfig(filename, results, pendingFiles),
+      programOptionsFromClosestTsconfig(filename, results, foundProgramOptions, pendingFiles),
     );
 
     await analyzeSingleFile(
@@ -80,6 +82,9 @@ export async function analyzeWithIncrementalProgram(
       break;
     }
   }
+  if (foundProgramOptions.some(options => options.missingTsConfig)) {
+    results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);
+  }
 }
 
 /**
@@ -90,6 +95,7 @@ export async function analyzeWithIncrementalProgram(
 function programOptionsFromClosestTsconfig(
   file: string,
   results: ProjectAnalysisOutput,
+  foundProgramOptions: ProgramOptions[],
   pendingFiles: Set<string>,
 ): ProgramOptions | undefined {
   let missingTsConfig = false;
@@ -110,12 +116,12 @@ function programOptionsFromClosestTsconfig(
           tsConfigStore.addDiscoveredTsConfig(reference);
         }
       }
+      foundProgramOptions.push(programOptions);
+      if (missingTsConfig) {
+        const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
+        warn(msg);
+      }
       if (programOptions.rootNames.includes(file)) {
-        if (missingTsConfig) {
-          const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
-          info(msg);
-          results.meta.warnings.push(msg);
-        }
         info(`Using tsconfig ${tsconfig} for ${file}`);
         return programOptions;
       }
