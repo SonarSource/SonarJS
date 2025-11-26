@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/a11y.js';
-export const rule = rules['prefer-tag-over-role'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['prefer-tag-over-role']);
