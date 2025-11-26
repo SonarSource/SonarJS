@@ -90,7 +90,7 @@ export async function analyzeWithIncrementalProgram(
 /**
  * Find the closest tsconfig that contains the given file.
  * "Closest" means the longest common path prefix (most specific).
- * Returns null if no tsconfig contains the file.
+ * Returns program options from default compiler options if no tsconfig contains the file.
  */
 function programOptionsFromClosestTsconfig(
   file: string,
@@ -98,7 +98,6 @@ function programOptionsFromClosestTsconfig(
   foundProgramOptions: ProgramOptions[],
   pendingFiles: Set<string>,
 ): ProgramOptions | undefined {
-  let missingTsConfig = false;
   const processedTsConfigs = new Set<string>();
 
   let tsconfig: string | undefined;
@@ -117,7 +116,7 @@ function programOptionsFromClosestTsconfig(
         }
       }
       foundProgramOptions.push(programOptions);
-      if (missingTsConfig) {
+      if (programOptions.missingTsConfig) {
         const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
         warn(msg);
       }
