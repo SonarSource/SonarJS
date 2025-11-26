@@ -18,7 +18,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseForESLint } from '@typescript-eslint/parser';
 import { RequiredParserServices, typeHasMethod } from '../../../src/rules/helpers/index.js';
-import { createProgramFromSingleFile } from '../../../src/program/index.js';
+import { createProgramFromSingleFile } from '../../../src/program/factory.js';
 
 // Helper function to create a TypeScript program and services from source code
 function createProgramFromSource(sourceCode: string): {

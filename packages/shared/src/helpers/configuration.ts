@@ -46,7 +46,6 @@ export type Configuration = {
   canAccessFileSystem?: boolean;
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
-  clearFileToTsConfigCache?: boolean;
   clearTsConfigCache?: boolean;
   fsEvents?: FsEvents;
   allowTsParserJsFiles?: boolean;
@@ -54,7 +53,6 @@ export type Configuration = {
   skipAst?: boolean;
   ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
   maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
-  maxFilesForTypeChecking?: number /* sonar.javascript.sonarlint.typechecking.maxfiles Max project size to turn off type-checking of JavaScript */;
   environments?: string[] /* sonar.javascript.environments */;
   globals?: string[] /* sonar.javascript.globals */;
   tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
@@ -190,10 +188,6 @@ export function getGlobals() {
   return configuration.globals ?? DEFAULT_GLOBALS;
 }
 
-export function maxFilesForTypeChecking() {
-  return configuration.maxFilesForTypeChecking ?? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-}
-
 function setTestPaths(testPaths: string[] | undefined) {
   configuration.tests = normalizePaths(testPaths);
 }
@@ -263,14 +257,6 @@ export function getMaxFileSize() {
   return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
 }
 
-export function setClearFileToTsConfigCache(value: boolean) {
-  configuration.clearFileToTsConfigCache = value;
-}
-
-export function shouldClearFileToTsConfigCache() {
-  return configuration.clearFileToTsConfigCache;
-}
-
 export function setClearTsConfigCache(value: boolean) {
   configuration.clearTsConfigCache = value;
 }
@@ -304,8 +290,6 @@ const DEFAULT_EXCLUSIONS = [
   '**/external/**',
   '**/contrib/**',
 ];
-
-const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
 const DEFAULT_ENVIRONMENTS = [
   'amd',

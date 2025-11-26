@@ -19,12 +19,9 @@ import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import { isRoot, toUnixPath } from '../../src/rules/helpers/index.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import {
-  createProgramOptions,
-  createStandardProgram,
-  sanitizeProgramReferences,
-} from '../../src/program/index.js';
-import { isRootNodeModules } from '../../src/program/tsconfig/utils.js';
+import { isRootNodeModules, sanitizeProgramReferences } from '../../src/program/tsconfig/utils.js';
+import { createProgramOptions } from '../../src/program/tsconfig/options.js';
+import { createStandardProgram } from '../../src/program/factory.js';
 
 describe('program', () => {
   it('should create a program', () => {

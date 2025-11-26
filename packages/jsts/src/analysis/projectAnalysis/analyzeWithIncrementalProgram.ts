@@ -20,18 +20,18 @@ import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import {
-  createOrGetCachedProgramForFile,
-  createProgramOptions,
-  createProgramOptionsFromJson,
-  defaultCompilerOptions,
-  ProgramOptions,
-} from '../../program/index.js';
 import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from '../../program/tsconfig/utils.js';
 import ts from 'typescript';
+import { createOrGetCachedProgramForFile } from '../../program/factory.js';
+import {
+  createProgramOptions,
+  createProgramOptionsFromJson,
+  defaultCompilerOptions,
+  type ProgramOptions,
+} from '../../program/tsconfig/options.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
