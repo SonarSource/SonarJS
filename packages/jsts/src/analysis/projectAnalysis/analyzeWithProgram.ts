@@ -120,7 +120,7 @@ async function analyzeFilesFromEntryPoint(
   }
 
   info(
-    `Analyzing ${pendingFiles.size} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
+    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
   );
 
   const programOptions = foundProgramOptions.length
