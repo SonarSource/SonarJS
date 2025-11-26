@@ -23,6 +23,42 @@ import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
+ * Checks if a component name suggests it provides track-related content
+ */
+function isTrackRelatedComponentName(componentName: string): boolean {
+  const lowerName = componentName.toLowerCase();
+  return (
+    lowerName.includes('track') || lowerName.includes('subtitle') || lowerName.includes('caption')
+  );
+}
+
+/**
+ * Checks if a JSX element is a React component (starts with uppercase)
+ */
+function isReactComponent(elementName: string): boolean {
+  return elementName.length > 0 && /^[A-Z]/.test(elementName);
+}
+
+/**
+ * Recursively checks if a node contains track-related components
+ */
+function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
+  if (node.type !== 'JSXElement') {
+    return false;
+  }
+
+  const element = node as TSESTree.JSXElement;
+  const elementName = getJSXElementName(element);
+
+  if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
+    return true;
+  }
+
+  // Recursively check children
+  return element.children?.some(checkNodeForTrackComponent) ?? false;
+}
+
+/**
  * Checks if a JSX element contains components that might provide track-related content
  * This handles React component composition patterns where track elements are provided
  * through custom components like <CAVVideoSubtitles /> or <Subtitles />
@@ -31,34 +67,7 @@ import * as meta from './generated-meta.js';
  * should be handled by the underlying rule from eslint-plugin-jsx-a11y
  */
 function hasTrackRelatedComponent(jsxElement: TSESTree.JSXElement): boolean {
-  function checkNode(node: TSESTree.Node): boolean {
-    if (node.type === 'JSXElement') {
-      const element = node as TSESTree.JSXElement;
-      const elementName = getJSXElementName(element);
-
-      // Check if this is a component (not a native HTML element)
-      // Components start with uppercase letter
-      const isComponent = elementName.length > 0 && /^[A-Z]/.test(elementName);
-
-      if (isComponent) {
-        // Check if this component might provide track-related content
-        const lowerName = elementName.toLowerCase();
-        if (
-          lowerName.includes('track') ||
-          lowerName.includes('subtitle') ||
-          lowerName.includes('caption')
-        ) {
-          return true;
-        }
-      }
-
-      // Recursively check children
-      return element.children?.some(checkNode) ?? false;
-    }
-    return false;
-  }
-
-  return jsxElement.children?.some(checkNode) ?? false;
+  return jsxElement.children?.some(checkNodeForTrackComponent) ?? false;
 }
 
 /**
