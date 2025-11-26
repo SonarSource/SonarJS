@@ -51,3 +51,25 @@ function VideoWithTrack() {
     </video>
   );
 }
+
+// Still a violation: video with conditional track elements via map
+// The underlying rule should catch this since tracks are not guaranteed
+function VideoWithConditionalTracks() {
+  const subtitles = [];
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      <source src="video.mp4" />
+      {subtitles?.map((sub, i) => <track key={i} kind="captions" />)}
+    </video>
+  );
+}
+
+// Compliant: video with track-related component that handles captions
+function VideoWithTrackComponent() {
+  return (
+    <video>
+      <source src="video.mp4" />
+      <TrackComponent />
+    </video>
+  );
+}

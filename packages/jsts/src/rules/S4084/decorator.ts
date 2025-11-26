@@ -23,28 +23,33 @@ import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
- * Checks if a JSX element or its descendants contain track-related elements or components
- * Looks for <track> elements or components with names containing 'track', 'subtitle', 'caption'
+ * Checks if a JSX element contains components that might provide track-related content
+ * This handles React component composition patterns where track elements are provided
+ * through custom components like <CAVVideoSubtitles /> or <Subtitles />
+ *
+ * Note: We intentionally do NOT check for actual <track> elements here, as those
+ * should be handled by the underlying rule from eslint-plugin-jsx-a11y
  */
-function hasTrackRelatedContent(jsxElement: TSESTree.JSXElement): boolean {
+function hasTrackRelatedComponent(jsxElement: TSESTree.JSXElement): boolean {
   function checkNode(node: TSESTree.Node): boolean {
     if (node.type === 'JSXElement') {
       const element = node as TSESTree.JSXElement;
       const elementName = getJSXElementName(element);
 
-      // Check if this is a <track> element
-      if (elementName === 'track') {
-        return true;
-      }
+      // Check if this is a component (not a native HTML element)
+      // Components start with uppercase letter
+      const isComponent = elementName.length > 0 && /^[A-Z]/.test(elementName);
 
-      // Check if this is a component with track/subtitle/caption in the name
-      const lowerName = elementName.toLowerCase();
-      if (
-        lowerName.includes('track') ||
-        lowerName.includes('subtitle') ||
-        lowerName.includes('caption')
-      ) {
-        return true;
+      if (isComponent) {
+        // Check if this component might provide track-related content
+        const lowerName = elementName.toLowerCase();
+        if (
+          lowerName.includes('track') ||
+          lowerName.includes('subtitle') ||
+          lowerName.includes('caption')
+        ) {
+          return true;
+        }
       }
 
       // Recursively check children
@@ -96,20 +101,22 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const name = node.name as unknown as Node;
 
       // Get the parent JSXElement to check for children (JS-631)
-      // Don't report if the media element has track-related content (track elements or components)
-      // This handles React component composition patterns
+      // Don't report if the media element has track-related components
+      // This handles React component composition patterns where track elements
+      // are provided through components like <CAVVideoSubtitles />
       const sourceCode = context.sourceCode;
       const ancestors = sourceCode.getAncestors?.(node as unknown as Node) ?? [];
 
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
 
-      // Only report if we have a valid JSXElement and it doesn't contain track-related content
-      const shouldReport = jsxElement?.type === 'JSXElement' && !hasTrackRelatedContent(jsxElement);
-
-      if (shouldReport) {
-        context.report({ ...descriptor, node: name });
+      // Skip reporting if the media element has track-related components
+      // (but still report for actual <track> elements or conditional tracks)
+      if (jsxElement?.type === 'JSXElement' && hasTrackRelatedComponent(jsxElement)) {
+        return;
       }
+
+      context.report({ ...descriptor, node: name });
     },
   );
 }
