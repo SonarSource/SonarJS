@@ -23,11 +23,66 @@ import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
- * Checks if a JSXElement has any child JSX elements (components or HTML elements)
- * Ignores text, expressions, and other non-JSX children
+ * Checks if a JSX element or its descendants contain track-related elements or components
+ * Looks for <track> elements or components with names containing 'track', 'subtitle', 'caption'
  */
-function hasJSXElementChildren(jsxElement: TSESTree.JSXElement): boolean {
-  return Boolean(jsxElement.children?.some(child => child.type === 'JSXElement'));
+function hasTrackRelatedContent(jsxElement: TSESTree.JSXElement): boolean {
+  function checkNode(node: TSESTree.Node): boolean {
+    if (node.type === 'JSXElement') {
+      const element = node as TSESTree.JSXElement;
+      const elementName = getJSXElementName(element);
+
+      // Check if this is a <track> element
+      if (elementName === 'track') {
+        return true;
+      }
+
+      // Check if this is a component with track/subtitle/caption in the name
+      const lowerName = elementName.toLowerCase();
+      if (
+        lowerName.includes('track') ||
+        lowerName.includes('subtitle') ||
+        lowerName.includes('caption')
+      ) {
+        return true;
+      }
+
+      // Recursively check children
+      return element.children?.some(checkNode) ?? false;
+    }
+    return false;
+  }
+
+  return jsxElement.children?.some(checkNode) ?? false;
+}
+
+/**
+ * Gets the name of a JSX element as a string
+ */
+function getJSXElementName(element: TSESTree.JSXElement): string {
+  const name = element.openingElement.name;
+  if (name.type === 'JSXIdentifier') {
+    return name.name;
+  }
+  if (name.type === 'JSXMemberExpression') {
+    // Handle cases like <Foo.Bar>
+    return getJSXMemberExpressionName(name);
+  }
+  return '';
+}
+
+/**
+ * Gets the full name of a JSX member expression (e.g., "Foo.Bar.Baz")
+ */
+function getJSXMemberExpressionName(expr: TSESTree.JSXMemberExpression): string {
+  const property = expr.property.name;
+  if (expr.object.type === 'JSXIdentifier') {
+    return `${expr.object.name}.${property}`;
+  }
+  if (expr.object.type === 'JSXMemberExpression') {
+    return `${getJSXMemberExpressionName(expr.object)}.${property}`;
+  }
+  return property;
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -41,7 +96,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const name = node.name as unknown as Node;
 
       // Get the parent JSXElement to check for children (JS-631)
-      // Don't report if the media element has child JSX elements, as they may contain track elements
+      // Don't report if the media element has track-related content (track elements or components)
       // This handles React component composition patterns
       const sourceCode = context.sourceCode;
       const ancestors = sourceCode.getAncestors?.(node as unknown as Node) ?? [];
@@ -49,18 +104,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
 
-      if (jsxElement?.type !== 'JSXElement') {
+      // Only report if we have a valid JSXElement and it doesn't contain track-related content
+      const shouldReport = jsxElement?.type === 'JSXElement' && !hasTrackRelatedContent(jsxElement);
+
+      if (shouldReport) {
         context.report({ ...descriptor, node: name });
-        return;
       }
-
-      if (hasJSXElementChildren(jsxElement)) {
-        // Prefer not raising an issue when child components are present
-        // Better to miss some true positives than to raise false positives
-        return;
-      }
-
-      context.report({ ...descriptor, node: name });
     },
   );
 }
