@@ -31,6 +31,7 @@ import { error, info } from '../../../../shared/src/helpers/logging.js';
 import { analyzeSingleFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from '../../program/tsconfig/utils.js';
+import ts from 'typescript';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
@@ -92,7 +93,6 @@ function programOptionsFromClosestTsconfig(
   pendingFiles: Set<string>,
 ): ProgramOptions | undefined {
   let missingTsConfig = false;
-  let programOptions: ProgramOptions | undefined = undefined;
   const processedTsConfigs = new Set<string>();
 
   let tsconfig: string | undefined;
@@ -104,46 +104,36 @@ function programOptionsFromClosestTsconfig(
   ) {
     processedTsConfigs.add(tsconfig);
     try {
-      programOptions = createProgramOptions(tsconfig);
+      const programOptions = createProgramOptions(tsconfig);
       if (programOptions.projectReferences?.length) {
         for (const reference of sanitizeReferences(programOptions.projectReferences)) {
           tsConfigStore.addDiscoveredTsConfig(reference);
         }
       }
-      missingTsConfig ||= programOptions.missingTsConfig;
       if (programOptions.rootNames.includes(file)) {
-        break;
+        if (missingTsConfig) {
+          const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
+          info(msg);
+          results.meta.warnings.push(msg);
+        }
+        info(`Using tsconfig ${tsconfig} for ${file}`);
+        return programOptions;
       }
     } catch (e) {
       error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
       results.meta.warnings.push(
-        `Failed to parse TSConfig file ${tsconfig}. Analysis may be incomplete.`,
+        `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
       );
     }
   }
 
-  if (!programOptions) {
-    try {
-      info('No tsconfig found for files, using default options');
-      // Fallback: use default options if no tsconfig found
-      programOptions = createProgramOptionsFromJson(
-        defaultCompilerOptions,
-        [...pendingFiles],
-        getBaseDir(),
-      );
-    } catch (e) {
-      error(`Failed to generate program from merged config: ${e}`);
-    }
+  try {
+    info('No tsconfig found for files, using default options');
+    // Fallback: use default options if no tsconfig found
+    return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], getBaseDir());
+  } catch (e) {
+    error(`Failed to generate program from merged config: ${e}`);
   }
-
-  if (missingTsConfig) {
-    const msg =
-      "At least one tsconfig.json extends a configuration that was not found. Please run 'npm install' for a more complete analysis.";
-    info(msg);
-    results.meta.warnings.push(msg);
-  }
-
-  return programOptions;
 }
 
 function pickBestMatchTsConfig(tsconfigs: string[], file: string) {
