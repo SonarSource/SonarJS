@@ -23,12 +23,13 @@ import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
-import { createProgramOptions, createStandardProgram } from '../../src/program/index.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'node:assert';
 import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
+import { createProgramOptions } from '../../src/program/tsconfig/options.js';
+import { createStandardProgram } from '../../src/program/factory.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 

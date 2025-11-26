@@ -25,7 +25,7 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 
-export function createBuilderProgramWithHost(
+function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
   host: ts.CompilerHost,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
@@ -51,7 +51,7 @@ export function createBuilderProgramWithHost(
  *          the resolved project references and a boolean 'missingTsConfig' which is
  *          true when an extended tsconfig.json path was not found
  */
-export function createBuilderProgramAndHost(
+function createBuilderProgramAndHost(
   programOptions: ProgramOptions,
   baseDir: string,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,

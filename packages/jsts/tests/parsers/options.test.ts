@@ -17,8 +17,9 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { createProgramOptions, createStandardProgram } from '../../src/program/index.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
+import { createStandardProgram } from '../../src/program/factory.js';
+import { createProgramOptions } from '../../src/program/tsconfig/options.js';
 
 describe('buildParserOptions', () => {
   it('should build parser options', () => {

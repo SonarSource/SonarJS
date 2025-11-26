@@ -25,11 +25,9 @@ import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
 import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
-import {
-  clearTsConfigContentCache,
-  clearProgramOptionsCache,
-  getProgramCacheManager,
-} from '../../../program/index.js';
+import { clearTsConfigContentCache } from '../../../program/cache/tsconfigCache.js';
+import { clearProgramOptionsCache } from '../../../program/cache/programOptionsCache.js';
+import { getProgramCacheManager } from '../../../program/cache/programCache.js';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
