@@ -40,32 +40,59 @@ function isReactComponent(elementName: string): boolean {
 }
 
 /**
- * Recursively checks if a node contains track-related components or actual track elements
+ * Recursively checks if a node contains track-related components or actual track elements.
+ * Returns true only for:
+ * 1. Direct <track> elements (not inside expressions/conditionals)
+ * 2. React components with track-related names
+ *
+ * @param node - The node to check
+ * @param insideExpression - Whether we're currently inside a JSXExpressionContainer
  */
-function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
+function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = false): boolean {
   if (node.type === 'JSXElement') {
     const elementName = getJSXElementName(node);
 
-    // Check for actual <track> elements - only if they appear as direct JSXElement children
-    // NOT inside expressions like .map() which would be in JSXExpressionContainer
-    if (elementName === 'track') {
+    // Only suppress for direct <track> elements (not inside expressions)
+    // Conditional tracks like {arr.map(() => <track />)} should still be reported
+    if (elementName === 'track' && !insideExpression) {
       return true;
     }
 
     // Check for React components with track-related names
+    // These are acceptable even if conditional, as they encapsulate track logic
     if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
       return true;
     }
 
-    // Recursively check children
-    return node.children?.some(child => checkNodeForTrackComponent(child)) ?? false;
+    // Recursively check children, maintaining expression context
+    return (
+      node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false
+    );
   }
 
-  // For JSXExpressionContainer, check the expression but don't look for <track> elements
-  // This ensures we don't suppress issues for conditional tracks like {arr.map(() => <track />)}
+  // For JSXExpressionContainer, check inside but mark that we're in an expression
+  // This way we can still detect track-related components but not conditional <track> elements
   if (node.type === 'JSXExpressionContainer') {
-    // Skip checking inside expressions - we only want to detect track components, not conditional tracks
-    return false;
+    return checkNodeForTrackComponent(node.expression, true);
+  }
+
+  // For other expression types, recursively check their children if they have any
+  if ('body' in node && node.body) {
+    return checkNodeForTrackComponent(node.body as TSESTree.Node, insideExpression);
+  }
+
+  if ('callee' in node && node.callee && 'arguments' in node && Array.isArray(node.arguments)) {
+    // Check if this is a map/filter/etc call - look inside the callback
+    const args = node.arguments as TSESTree.Node[];
+    return args.some(arg => checkNodeForTrackComponent(arg, insideExpression));
+  }
+
+  if ('params' in node || 'body' in node) {
+    // For arrow functions and function expressions, check the body
+    const funcBody = (node as any).body;
+    if (funcBody) {
+      return checkNodeForTrackComponent(funcBody, insideExpression);
+    }
   }
 
   return false;
@@ -78,14 +105,17 @@ function checkNodeForTrackComponent(node: TSESTree.Node): boolean {
  * direct <track> elements (not conditional ones in expressions).
  *
  * We check for:
- * 1. React components with track/subtitle/caption in the name
- * 2. Direct <track> elements (not conditional ones like {arr.map(() => <track />)})
+ * 1. React components with track/subtitle/caption in the name (even if conditional)
+ * 2. Direct <track> elements that are not inside expressions/conditionals
  *
  * We intentionally do NOT suppress issues for conditional tracks in expressions,
- * as those may not render and represent true accessibility issues.
+ * as those may not render and represent true accessibility issues. For example:
+ * - {arr.map(() => <track />)} - Still reported (array might be empty)
+ * - <track kind="captions" /> - Not reported (direct track element)
+ * - <TrackComponent /> - Not reported (component encapsulates track logic)
  */
 function hasTrackRelatedComponent(jsxElement: TSESTree.JSXElement): boolean {
-  return jsxElement.children?.some(checkNodeForTrackComponent) ?? false;
+  return jsxElement.children?.some(child => checkNodeForTrackComponent(child, false)) ?? false;
 }
 
 /**
