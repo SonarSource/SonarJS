@@ -170,6 +170,29 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: variable not defined locally - may be modified cross-procedurally
+      // This should NOT raise an issue because 'globalVar' is not a local variable
+      var globalVar = true;
+      function checkGlobal() {
+        while (globalVar) {
+          doSomething();
+        }
+      }
+            `,
+        },
+        {
+          code: `
+      // FP: parameter not defined locally - may be modified by caller
+      // This should NOT raise an issue because 'param' is a parameter, not local var
+      function checkParam(param) {
+        while (param) {
+          doSomething();
+        }
+      }
+            `,
+        },
       ],
       invalid: [
         {

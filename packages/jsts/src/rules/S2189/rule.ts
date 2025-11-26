@@ -53,6 +53,41 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring variables not defined locally in the function (JS-131) */
+        if (symbol) {
+          const scope = context.sourceCode.getScope(node);
+          // Find the function scope that contains this loop
+          let functionScope: Scope.Scope | null = scope;
+          while (
+            functionScope &&
+            functionScope.type !== 'function' &&
+            functionScope.type !== 'global'
+          ) {
+            functionScope = functionScope.upper;
+          }
+
+          // If we're inside a function, only report on variables defined locally within the function
+          if (functionScope && functionScope.type === 'function') {
+            const variableScope = symbol.scope;
+
+            // Don't report if variable is defined outside the function (may be modified cross-procedurally)
+            if (
+              variableScope !== functionScope &&
+              !isDescendantScope(functionScope, variableScope)
+            ) {
+              return;
+            }
+
+            // Don't report on function parameters (may be modified by caller)
+            if (variableScope === functionScope && symbol.defs.length > 0) {
+              const def = symbol.defs[0];
+              if (def.type === 'Parameter') {
+                return;
+              }
+            }
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
@@ -80,6 +115,18 @@ export const rule: Rule.RuleModule = {
         context.report(descriptor);
       },
     );
+
+    /** Helper to check if childScope is a descendant of parentScope */
+    function isDescendantScope(parentScope: Scope.Scope, childScope: Scope.Scope): boolean {
+      let current: Scope.Scope | null = childScope;
+      while (current) {
+        if (current === parentScope) {
+          return true;
+        }
+        current = current.upper;
+      }
+      return false;
+    }
 
     /**
      * Extends ESLint `no-unmodified-loop-condition` to consider more corner cases.
