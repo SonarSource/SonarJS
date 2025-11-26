@@ -29,6 +29,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
 import { getProgramCacheManager } from '../../program/cache/programCache.js';
@@ -94,6 +95,9 @@ export async function analyzeWithProgram(
     incrementalResultsChannel,
   );
 
+  if (foundProgramOptions.some(options => options.missingTsConfig)) {
+    results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);
+  }
   // Clear caches after SonarQube analysis (single-run, don't persist)
   const cacheManager = getProgramCacheManager();
   const stats = cacheManager.getCacheStats();
@@ -176,10 +180,8 @@ async function analyzeFilesFromTsConfig(
   foundProgramOptions.push(programOptions);
 
   if (programOptions.missingTsConfig) {
-    const msg =
-      "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+    const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
     warn(msg);
-    results.meta.warnings.push(msg);
   }
 
   programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
