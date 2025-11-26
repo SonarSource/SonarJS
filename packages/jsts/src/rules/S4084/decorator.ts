@@ -22,6 +22,18 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
+/**
+ * Checks if a JSXElement has any child JSX elements (components or HTML elements)
+ * Ignores text, expressions, and other non-JSX children
+ */
+function hasJSXElementChildren(jsxElement: TSESTree.JSXElement): boolean {
+  if (!jsxElement.children || jsxElement.children.length === 0) {
+    return false;
+  }
+
+  return jsxElement.children.some(child => child.type === 'JSXElement');
+}
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -31,6 +43,22 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, descriptor) => {
       const { node } = descriptor as unknown as { node: TSESTree.JSXOpeningElement };
       const name = node.name as unknown as Node;
+
+      // Get the parent JSXElement to check for children (JS-631)
+      // Don't report if the media element has child JSX elements, as they may contain track elements
+      // This handles React component composition patterns
+      const sourceCode = context.sourceCode ?? context.getSourceCode();
+      const ancestors = sourceCode.getAncestors(node as unknown as Node);
+
+      // The parent of JSXOpeningElement should be JSXElement
+      const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
+
+      if (jsxElement && jsxElement.type === 'JSXElement' && hasJSXElementChildren(jsxElement)) {
+        // Prefer not raising an issue when child components are present
+        // Better to miss some true positives than to raise false positives
+        return;
+      }
+
       context.report({ ...descriptor, node: name });
     },
   );
