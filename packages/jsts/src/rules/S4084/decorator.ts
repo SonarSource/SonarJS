@@ -44,7 +44,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // Don't report if the media element has child JSX elements, as they may contain track elements
       // This handles React component composition patterns
       const sourceCode = context.sourceCode;
-      const ancestors = sourceCode.getAncestors(node as unknown as Node);
+      const ancestors = sourceCode.getAncestors?.(node as unknown as Node) ?? [];
 
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
