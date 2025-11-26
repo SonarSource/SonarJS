@@ -170,7 +170,7 @@ async function analyzeFilesFromTsConfig(
   try {
     programOptions = createProgramOptions(tsconfig);
   } catch (e) {
-    error('Failed to parse tsconfig: ' + e);
+    error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(
       `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
     );
