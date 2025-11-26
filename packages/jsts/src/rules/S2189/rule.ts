@@ -48,64 +48,20 @@ export const rule: Rule.RuleModule = {
         const symbol = context.sourceCode
           .getScope(node)
           .references.find(v => v.identifier === node)?.resolved;
+
         /** Ignoring symbols that have already been reported */
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
         }
 
         /** Ignoring variables not defined locally in the function (JS-131) */
-        if (symbol) {
-          const scope = context.sourceCode.getScope(node);
-          // Find the function scope that contains this loop
-          let functionScope: Scope.Scope | null = scope;
-          while (
-            functionScope &&
-            functionScope.type !== 'function' &&
-            functionScope.type !== 'global'
-          ) {
-            functionScope = functionScope.upper;
-          }
-
-          // If we're inside a function, only report on variables defined locally within the function
-          if (functionScope && functionScope.type === 'function') {
-            const variableScope = symbol.scope;
-
-            // Don't report if variable is defined outside the function (may be modified cross-procedurally)
-            if (
-              variableScope !== functionScope &&
-              !isDescendantScope(functionScope, variableScope)
-            ) {
-              return;
-            }
-
-            // Don't report on function parameters (may be modified by caller)
-            if (variableScope === functionScope && symbol.defs.length > 0) {
-              const def = symbol.defs[0];
-              if (def.type === 'Parameter') {
-                return;
-              }
-            }
-          }
+        if (symbol && shouldIgnoreNonLocalVariable(symbol, node, context)) {
+          return;
         }
 
         /** Ignoring symbols called on or passed as arguments */
-        for (const reference of symbol?.references ?? []) {
-          const id = reference.identifier as TSESTree.Node;
-
-          if (
-            id.parent?.type === 'CallExpression' &&
-            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
-          ) {
-            return;
-          }
-
-          if (
-            id.parent?.type === 'MemberExpression' &&
-            id.parent.parent?.type === 'CallExpression' &&
-            id.parent.object === id
-          ) {
-            return;
-          }
+        if (symbol && isSymbolUsedAsArgumentOrReceiver(symbol)) {
+          return;
         }
 
         if (symbol) {
@@ -115,6 +71,78 @@ export const rule: Rule.RuleModule = {
         context.report(descriptor);
       },
     );
+
+    /** Helper to check if variable should be ignored due to non-local definition */
+    function shouldIgnoreNonLocalVariable(
+      symbol: Scope.Variable,
+      node: estree.Node,
+      context: Rule.RuleContext,
+    ): boolean {
+      const scope = context.sourceCode.getScope(node);
+      const functionScope = findFunctionScope(scope);
+
+      if (!functionScope || functionScope.type !== 'function') {
+        return false;
+      }
+
+      const variableScope = symbol.scope;
+
+      // Don't report if variable is defined outside the function (may be modified cross-procedurally)
+      if (variableScope !== functionScope && !isDescendantScope(functionScope, variableScope)) {
+        return true;
+      }
+
+      // Don't report on function parameters (may be modified by caller)
+      return isParameterDefinition(symbol, variableScope, functionScope);
+    }
+
+    /** Helper to find the function scope containing the given scope */
+    function findFunctionScope(scope: Scope.Scope): Scope.Scope | null {
+      let functionScope: Scope.Scope | null = scope;
+      while (
+        functionScope &&
+        functionScope.type !== 'function' &&
+        functionScope.type !== 'global'
+      ) {
+        functionScope = functionScope.upper;
+      }
+      return functionScope;
+    }
+
+    /** Helper to check if symbol is a parameter definition */
+    function isParameterDefinition(
+      symbol: Scope.Variable,
+      variableScope: Scope.Scope,
+      functionScope: Scope.Scope,
+    ): boolean {
+      if (variableScope !== functionScope || symbol.defs.length === 0) {
+        return false;
+      }
+      return symbol.defs[0].type === 'Parameter';
+    }
+
+    /** Helper to check if symbol is used as argument or method receiver */
+    function isSymbolUsedAsArgumentOrReceiver(symbol: Scope.Variable): boolean {
+      for (const reference of symbol.references) {
+        const id = reference.identifier as TSESTree.Node;
+
+        if (
+          id.parent?.type === 'CallExpression' &&
+          id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+        ) {
+          return true;
+        }
+
+        if (
+          id.parent?.type === 'MemberExpression' &&
+          id.parent.parent?.type === 'CallExpression' &&
+          id.parent.object === id
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
 
     /** Helper to check if childScope is a descendant of parentScope */
     function isDescendantScope(parentScope: Scope.Scope, childScope: Scope.Scope): boolean {
