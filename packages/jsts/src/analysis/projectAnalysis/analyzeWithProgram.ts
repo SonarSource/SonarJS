@@ -120,7 +120,7 @@ async function analyzeFilesFromEntryPoint(
   }
 
   info(
-    `Analyzing ${pendingFiles.size} file(s) not in any tsconfig using cached programs with merged compiler options`,
+    `Analyzing ${pendingFiles.size} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
   );
 
   const programOptions = foundProgramOptions.length
@@ -150,7 +150,7 @@ async function analyzeFilesFromEntryPoint(
 
 async function analyzeFilesFromTsConfig(
   files: JsTsFiles,
-  tsConfig: string,
+  tsconfig: string,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
   foundProgramOptions: ProgramOptions[],
@@ -158,17 +158,17 @@ async function analyzeFilesFromTsConfig(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  processedTSConfigs.add(tsConfig);
-  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsConfig}`);
+  processedTSConfigs.add(tsconfig);
+  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsconfig}`);
 
   // Parse tsconfig to get compiler options
   let programOptions;
   try {
-    programOptions = createProgramOptions(tsConfig);
+    programOptions = createProgramOptions(tsconfig);
   } catch (e) {
     error('Failed to parse tsconfig: ' + e);
     results.meta.warnings.push(
-      `Failed to parse TSConfig file ${tsConfig}. Highest TypeScript supported version is ${ts.version}`,
+      `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
     );
     return;
   }
@@ -197,12 +197,12 @@ async function analyzeFilesFromTsConfig(
   }
 
   if (filesToAnalyze.length === 0) {
-    info(`No files to analyze from tsconfig ${tsConfig}`);
+    info(`No files to analyze from tsconfig ${tsconfig}`);
     return;
   }
 
   info(
-    `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsConfig} (${tsProgram.getSourceFiles().length} total files in program)`,
+    `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsconfig} (${tsProgram.getSourceFiles().length} total files in program)`,
   );
 
   // Analyze each file using the same program
