@@ -43,13 +43,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // Get the parent JSXElement to check for children (JS-631)
       // Don't report if the media element has child JSX elements, as they may contain track elements
       // This handles React component composition patterns
-      const sourceCode = context.sourceCode ?? context.getSourceCode();
+      const sourceCode = context.sourceCode;
       const ancestors = sourceCode.getAncestors(node as unknown as Node);
 
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
 
-      if (!jsxElement || jsxElement.type !== 'JSXElement') {
+      if (jsxElement?.type !== 'JSXElement') {
         context.report({ ...descriptor, node: name });
         return;
       }
