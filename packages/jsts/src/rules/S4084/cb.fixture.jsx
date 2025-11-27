@@ -52,12 +52,13 @@ function VideoWithTrack() {
   );
 }
 
-// Still a violation: video with conditional track elements via map
-// The underlying rule should catch this since tracks are not guaranteed
+// Compliant: video with conditional track elements via map with subtitle-related variable
+// Even though subtitles array might be empty, the presence of subtitle-related data
+// indicates the component supports captions through React composition patterns (JS-631)
 function VideoWithConditionalTracks() {
   const subtitles = [];
   return (
-    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+    <video>
       <source src="video.mp4" />
       {subtitles?.map((sub, i) => <track key={i} kind="captions" />)}
     </video>
@@ -161,11 +162,12 @@ function VideoWithArrowFunctionTrack() {
   );
 }
 
-// Still a violation: video with filter returning tracks
+// Compliant: video with filter returning tracks from track-related variable
+// The presence of a track-related variable indicates subtitle support (JS-631)
 function VideoWithFilteredTracks() {
   const tracks = [1, 2, 3];
   return (
-    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+    <video>
       {tracks.filter(Boolean).map(() => <track />)}
     </video>
   );

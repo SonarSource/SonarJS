@@ -33,6 +33,20 @@ function isTrackRelatedComponentName(componentName: string): boolean {
 }
 
 /**
+ * Checks if an identifier name suggests track-related data
+ */
+function isTrackRelatedIdentifier(name: string): boolean {
+  const lowerName = name.toLowerCase();
+  return (
+    lowerName.includes('track') ||
+    lowerName.includes('subtitle') ||
+    lowerName.includes('caption') ||
+    lowerName.includes('cc') ||
+    lowerName.includes('vtt')
+  );
+}
+
+/**
  * Checks if a JSX element is a React component (starts with uppercase)
  */
 function isReactComponent(elementName: string): boolean {
@@ -47,14 +61,80 @@ function isValidTypeNode(value: unknown): value is TSESTree.Node {
 }
 
 /**
+ * Recursively checks if a node contains track-related identifiers or member expressions
+ * (e.g., subtitles, file?.subtitles, tracks, captions, etc.)
+ */
+function hasTrackRelatedIdentifier(node: TSESTree.Node): boolean {
+  // Check identifiers
+  if (node.type === 'Identifier' && isTrackRelatedIdentifier(node.name)) {
+    return true;
+  }
+
+  // Check member expressions (e.g., file.subtitles, obj.tracks)
+  if (node.type === 'MemberExpression') {
+    if (node.property.type === 'Identifier' && isTrackRelatedIdentifier(node.property.name)) {
+      return true;
+    }
+    if (isValidTypeNode(node.object)) {
+      return hasTrackRelatedIdentifier(node.object);
+    }
+  }
+
+  // Check optional chaining (e.g., file?.subtitles)
+  if (node.type === 'ChainExpression' && isValidTypeNode(node.expression)) {
+    return hasTrackRelatedIdentifier(node.expression);
+  }
+
+  // Recursively check call expressions
+  if (node.type === 'CallExpression') {
+    if (isValidTypeNode(node.callee) && hasTrackRelatedIdentifier(node.callee)) {
+      return true;
+    }
+    if (node.arguments.some(arg => isValidTypeNode(arg) && hasTrackRelatedIdentifier(arg))) {
+      return true;
+    }
+  }
+
+  // Check array expressions
+  if (node.type === 'ArrayExpression') {
+    return node.elements.some(
+      element => element !== null && isValidTypeNode(element) && hasTrackRelatedIdentifier(element),
+    );
+  }
+
+  // Check logical expressions
+  if (node.type === 'LogicalExpression') {
+    return (
+      (isValidTypeNode(node.left) && hasTrackRelatedIdentifier(node.left)) ||
+      (isValidTypeNode(node.right) && hasTrackRelatedIdentifier(node.right))
+    );
+  }
+
+  // Check conditional expressions
+  if (node.type === 'ConditionalExpression') {
+    return (
+      (isValidTypeNode(node.test) && hasTrackRelatedIdentifier(node.test)) ||
+      (isValidTypeNode(node.consequent) && hasTrackRelatedIdentifier(node.consequent)) ||
+      (isValidTypeNode(node.alternate) && hasTrackRelatedIdentifier(node.alternate))
+    );
+  }
+
+  return false;
+}
+
+/**
  * Checks a JSX element for track-related components
  */
-function checkJSXElement(node: TSESTree.JSXElement, insideExpression: boolean): boolean {
+function checkJSXElement(
+  node: TSESTree.JSXElement,
+  insideExpression: boolean,
+  expressionContainsTrackData: boolean,
+): boolean {
   const elementName = getJSXElementName(node);
 
-  // Direct <track> elements are only acceptable when not inside expressions
+  // Direct <track> elements: acceptable if not inside expressions OR if the expression contains track-related data
   if (elementName === 'track') {
-    return !insideExpression;
+    return !insideExpression || expressionContainsTrackData;
   }
 
   // React components with track-related names are always acceptable
@@ -63,68 +143,88 @@ function checkJSXElement(node: TSESTree.JSXElement, insideExpression: boolean): 
   }
 
   // Check children
-  return node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false;
+  return (
+    node.children?.some(child =>
+      checkNodeForTrackComponent(child, insideExpression, expressionContainsTrackData),
+    ) ?? false
+  );
 }
 
 /**
  * Checks either side of a binary expression (conditional or logical)
  */
-function checkBinaryExpressionSide(value: unknown, insideExpression: boolean): boolean {
-  return isValidTypeNode(value) && checkNodeForTrackComponent(value, insideExpression);
+function checkBinaryExpressionSide(
+  value: unknown,
+  insideExpression: boolean,
+  expressionContainsTrackData: boolean,
+): boolean {
+  return (
+    isValidTypeNode(value) &&
+    checkNodeForTrackComponent(value, insideExpression, expressionContainsTrackData)
+  );
 }
 
 /**
  * Recursively checks if a node contains track-related components or actual track elements.
  * Returns true only for:
  * 1. Direct <track> elements (not inside expressions/conditionals)
- * 2. React components with track-related names
+ * 2. <track> elements inside expressions that reference track-related data (e.g., file?.subtitles?.map())
+ * 3. React components with track-related names
  *
  * @param node - The node to check
  * @param insideExpression - Whether we're currently inside a JSXExpressionContainer
+ * @param expressionContainsTrackData - Whether the current expression contains track-related identifiers
  */
-function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = false): boolean {
+function checkNodeForTrackComponent(
+  node: TSESTree.Node,
+  insideExpression = false,
+  expressionContainsTrackData = false,
+): boolean {
   // Handle JSX elements
   if (node.type === 'JSXElement') {
-    return checkJSXElement(node, insideExpression);
+    return checkJSXElement(node, insideExpression, expressionContainsTrackData);
   }
 
   // Handle JSX fragments
   if (node.type === 'JSXFragment') {
     return (
-      node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false
+      node.children?.some(child =>
+        checkNodeForTrackComponent(child, insideExpression, expressionContainsTrackData),
+      ) ?? false
     );
   }
 
-  // Handle JSX expressions
+  // Handle JSX expressions - check if the expression contains track-related data
   if (node.type === 'JSXExpressionContainer' && isValidTypeNode(node.expression)) {
-    return checkNodeForTrackComponent(node.expression, true);
+    const hasTrackData = hasTrackRelatedIdentifier(node.expression);
+    return checkNodeForTrackComponent(node.expression, true, hasTrackData);
   }
 
   // Handle conditional expressions
   if (node.type === 'ConditionalExpression') {
     return (
-      checkBinaryExpressionSide(node.consequent, insideExpression) ||
-      checkBinaryExpressionSide(node.alternate, insideExpression)
+      checkBinaryExpressionSide(node.consequent, insideExpression, expressionContainsTrackData) ||
+      checkBinaryExpressionSide(node.alternate, insideExpression, expressionContainsTrackData)
     );
   }
 
   // Handle logical expressions
   if (node.type === 'LogicalExpression') {
     return (
-      checkBinaryExpressionSide(node.left, insideExpression) ||
-      checkBinaryExpressionSide(node.right, insideExpression)
+      checkBinaryExpressionSide(node.left, insideExpression, expressionContainsTrackData) ||
+      checkBinaryExpressionSide(node.right, insideExpression, expressionContainsTrackData)
     );
   }
 
   // Handle function bodies
   if ('body' in node && isValidTypeNode(node.body)) {
-    return checkNodeForTrackComponent(node.body, insideExpression);
+    return checkNodeForTrackComponent(node.body, insideExpression, expressionContainsTrackData);
   }
 
   // Handle call expression arguments
   if ('arguments' in node && Array.isArray(node.arguments)) {
     return (node.arguments as TSESTree.Node[]).some(arg =>
-      checkNodeForTrackComponent(arg, insideExpression),
+      checkNodeForTrackComponent(arg, insideExpression, expressionContainsTrackData),
     );
   }
 
@@ -140,15 +240,20 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
  * We check for:
  * 1. React components with track/subtitle/caption in the name (even if conditional)
  * 2. Direct <track> elements that are not inside expressions/conditionals
+ * 3. Conditional <track> elements inside expressions that reference track-related data
+ *    (e.g., file?.subtitles?.map(() => <track />))
  *
- * We intentionally do NOT suppress issues for conditional tracks in expressions,
- * as those may not render and represent true accessibility issues. For example:
- * - {arr.map(() => <track />)} - Still reported (array might be empty)
+ * We intentionally do NOT suppress issues for conditional tracks in expressions
+ * that don't reference track-related data. For example:
+ * - {file?.subtitles?.map(() => <track />)} - Not reported (has subtitle data reference)
+ * - {arr.map(() => <track />)} - Still reported (no track data reference, array might be empty)
  * - <track kind="captions" /> - Not reported (direct track element)
  * - <TrackComponent /> - Not reported (component encapsulates track logic)
  */
 function hasTrackRelatedComponent(jsxElement: TSESTree.JSXElement): boolean {
-  return jsxElement.children?.some(child => checkNodeForTrackComponent(child, false)) ?? false;
+  return (
+    jsxElement.children?.some(child => checkNodeForTrackComponent(child, false, false)) ?? false
+  );
 }
 
 /**
