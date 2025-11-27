@@ -89,7 +89,7 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
 
   if ('params' in node || 'body' in node) {
     // For arrow functions and function expressions, check the body
-    const funcBody = (node as any).body;
+    const funcBody = 'body' in node ? (node.body as TSESTree.Node) : null;
     if (funcBody) {
       return checkNodeForTrackComponent(funcBody, insideExpression);
     }

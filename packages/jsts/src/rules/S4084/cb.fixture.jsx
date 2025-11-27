@@ -140,3 +140,33 @@ function VideoWithUnrelatedMemberExpression() {
     </video>
   );
 }
+
+// Compliant: video with direct track element not in expression
+function VideoWithDirectTrack() {
+  return (
+    <video>
+      <source src="video.mp4" />
+      <track kind="captions" src="captions.vtt" />
+    </video>
+  );
+}
+
+// Still a violation: video with arrow function returning track
+function VideoWithArrowFunctionTrack() {
+  const getTrack = () => <track kind="captions" />;
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {getTrack()}
+    </video>
+  );
+}
+
+// Still a violation: video with filter returning tracks
+function VideoWithFilteredTracks() {
+  const tracks = [1, 2, 3];
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {tracks.filter(Boolean).map(() => <track />)}
+    </video>
+  );
+}
