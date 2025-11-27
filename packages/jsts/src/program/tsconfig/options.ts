@@ -194,7 +194,8 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     parseConfigHost,
     dirname(tsConfig),
     {
-      noEmit: true, // Override: we're analyzing, not emitting
+      noEmit: true,
+      allowNonTsExtensions: true,
     },
     tsConfig,
     undefined,
@@ -218,7 +219,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
 
   const result = {
     rootNames: parsedConfigFile.fileNames,
-    options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
+    options: parsedConfigFile.options,
     projectReferences: parsedConfigFile.projectReferences,
     configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors and warnings)
     missingTsConfig: parseConfigHost.missingTsConfig(),
