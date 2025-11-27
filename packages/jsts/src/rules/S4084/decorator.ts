@@ -111,9 +111,10 @@ function hasTrackRelatedIdentifier(node: TSESTree.Node): boolean {
   }
 
   // Check conditional expressions
+  // Note: We only check consequent and alternate, not the test.
+  // The test is typically a boolean condition, not track-related data.
   if (node.type === 'ConditionalExpression') {
     return (
-      (isValidTypeNode(node.test) && hasTrackRelatedIdentifier(node.test)) ||
       (isValidTypeNode(node.consequent) && hasTrackRelatedIdentifier(node.consequent)) ||
       (isValidTypeNode(node.alternate) && hasTrackRelatedIdentifier(node.alternate))
     );
@@ -213,6 +214,15 @@ function checkNodeForTrackComponent(
     return (
       checkBinaryExpressionSide(node.left, insideExpression, expressionContainsTrackData) ||
       checkBinaryExpressionSide(node.right, insideExpression, expressionContainsTrackData)
+    );
+  }
+
+  // Handle chain expressions (optional chaining)
+  if (node.type === 'ChainExpression' && isValidTypeNode(node.expression)) {
+    return checkNodeForTrackComponent(
+      node.expression,
+      insideExpression,
+      expressionContainsTrackData,
     );
   }
 
