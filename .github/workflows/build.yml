@@ -441,9 +441,12 @@ jobs:
 #          # Make all class files and jars newer than source files to prevent Maven from recompiling
 #          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
 #
-      - # Restore executable permissions (lost during artifact upload/download)
+      # Restore executable permissions (lost during artifact upload/download)
         # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-        find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
+      - name: Fix timestamps and restore executable permissions
+        shell: bash
+        run: |
+          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
