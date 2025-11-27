@@ -54,14 +54,16 @@ function checkJSXElementNode(node: TSESTree.JSXElement, insideExpression: boolea
 
   // Only suppress for direct <track> elements (not inside expressions)
   // Conditional tracks like {arr.map(() => <track />)} should still be reported
-  if (elementName === 'track' && !insideExpression) {
-    return true;
+  if (elementName === 'track') {
+    return !insideExpression;
   }
 
   // Check for React components with track-related names
   // These are acceptable even if conditional, as they encapsulate track logic
-  if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
-    return true;
+  if (isReactComponent(elementName)) {
+    if (isTrackRelatedComponentName(elementName)) {
+      return true;
+    }
   }
 
   // Recursively check children, maintaining expression context
@@ -79,59 +81,41 @@ function checkJSXFragment(node: TSESTree.JSXFragment, insideExpression: boolean)
  * Checks JSXExpressionContainer nodes for track components
  */
 function checkJSXExpressionContainer(node: TSESTree.Node): boolean {
-  if (node.type !== 'JSXExpressionContainer') {
-    return false;
-  }
-  if (!('expression' in node)) {
+  if (node.type !== 'JSXExpressionContainer' || !('expression' in node)) {
     return false;
   }
   const expr = node.expression;
-  if (!isValidNode(expr)) {
-    return false;
-  }
-  return checkNodeForTrackComponent(expr, true);
+  return isValidNode(expr) && checkNodeForTrackComponent(expr, true);
 }
 
 /**
  * Checks ConditionalExpression nodes for track components
  */
 function checkConditionalExpression(node: TSESTree.Node, insideExpression: boolean): boolean {
-  if (node.type !== 'ConditionalExpression') {
-    return false;
-  }
-  if (!('consequent' in node) || !('alternate' in node)) {
+  if (node.type !== 'ConditionalExpression' || !('consequent' in node) || !('alternate' in node)) {
     return false;
   }
   const consequent = node.consequent;
   const alternate = node.alternate;
-  const hasConsequent =
-    isValidNode(consequent) && checkNodeForTrackComponent(consequent, insideExpression);
-  if (hasConsequent) {
-    return true;
-  }
-  const hasAlternate =
-    isValidNode(alternate) && checkNodeForTrackComponent(alternate, insideExpression);
-  return hasAlternate;
+  return (
+    (isValidNode(consequent) && checkNodeForTrackComponent(consequent, insideExpression)) ||
+    (isValidNode(alternate) && checkNodeForTrackComponent(alternate, insideExpression))
+  );
 }
 
 /**
  * Checks LogicalExpression nodes for track components
  */
 function checkLogicalExpression(node: TSESTree.Node, insideExpression: boolean): boolean {
-  if (node.type !== 'LogicalExpression') {
-    return false;
-  }
-  if (!('left' in node) || !('right' in node)) {
+  if (node.type !== 'LogicalExpression' || !('left' in node) || !('right' in node)) {
     return false;
   }
   const left = node.left;
   const right = node.right;
-  const hasLeft = isValidNode(left) && checkNodeForTrackComponent(left, insideExpression);
-  if (hasLeft) {
-    return true;
-  }
-  const hasRight = isValidNode(right) && checkNodeForTrackComponent(right, insideExpression);
-  return hasRight;
+  return (
+    (isValidNode(left) && checkNodeForTrackComponent(left, insideExpression)) ||
+    (isValidNode(right) && checkNodeForTrackComponent(right, insideExpression))
+  );
 }
 
 /**
