@@ -100,22 +100,38 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
   }
 
   // For other expression types, recursively check their children if they have any
-  if ('body' in node && node.body && typeof node.body === 'object' && node.body !== null) {
+  if (
+    'body' in node &&
+    node.body &&
+    typeof node.body === 'object' &&
+    node.body !== null &&
+    'type' in node.body
+  ) {
     return checkNodeForTrackComponent(node.body as TSESTree.Node, insideExpression);
   }
 
-  if ('callee' in node && node.callee && 'arguments' in node && Array.isArray(node.arguments)) {
+  if (
+    'callee' in node &&
+    node.callee &&
+    'arguments' in node &&
+    Array.isArray(node.arguments) &&
+    node.arguments.length > 0
+  ) {
     // Check if this is a map/filter/etc call - look inside the callback
     const args = node.arguments as TSESTree.Node[];
     return args.some(arg => checkNodeForTrackComponent(arg, insideExpression));
   }
 
-  if ('params' in node || 'body' in node) {
+  if (
+    ('params' in node || 'body' in node) &&
+    'body' in node &&
+    node.body &&
+    typeof node.body === 'object' &&
+    node.body !== null &&
+    'type' in node.body
+  ) {
     // For arrow functions and function expressions, check the body
-    const funcBody = 'body' in node ? (node.body as TSESTree.Node) : null;
-    if (funcBody) {
-      return checkNodeForTrackComponent(funcBody, insideExpression);
-    }
+    return checkNodeForTrackComponent(node.body as TSESTree.Node, insideExpression);
   }
 
   return false;

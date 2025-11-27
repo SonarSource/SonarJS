@@ -275,3 +275,37 @@ function VideoWithExpressionNoTrack() {
     </video>
   );
 }
+
+// Compliant: audio with JSX fragment containing subtitle component
+function AudioWithFragmentSubtitle() {
+  return (
+    <audio>
+      <>
+        <div>
+          <SubtitleComponent />
+        </div>
+      </>
+    </audio>
+  );
+}
+
+// Compliant: video with logical OR containing track components
+function VideoWithLogicalOrTrackComponent() {
+  const variantA = true;
+  return (
+    <video>
+      {variantA || <TrackComponentB />}
+    </video>
+  );
+}
+
+// Compliant: video with nested conditional containing track component
+function VideoWithNestedConditionalTrack() {
+  const outer = true;
+  const inner = false;
+  return (
+    <video>
+      {outer ? (inner ? <TrackComponentA /> : <TrackComponentB />) : <TrackComponentC />}
+    </video>
+  );
+}
