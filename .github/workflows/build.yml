@@ -423,17 +423,19 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Unit tests Java
     needs: [setup, build]
-    permissions: *read_permissions
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - *checkout
       - *mise
       - *maven_cache
       - *npm_cache
-      - &download_maven_targets
-        name: Download Maven target artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-        with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+#      - &download_maven_targets
+#        name: Download Maven target artifacts
+#        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+#        with:
+#          name: maven-targets-${{ runner.os }}-${{ github.sha }}
 #      - &prevent_recompilation
 #        name: Fix timestamps and restore executable permissions
 #        shell: bash
@@ -443,10 +445,10 @@ jobs:
 #
       # Restore executable permissions (lost during artifact upload/download)
         # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-      - name: Fix timestamps and restore executable permissions
-        shell: bash
-        run: |
-          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
+#      - name: Fix timestamps and restore executable permissions
+#        shell: bash
+#        run: |
+#          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
