@@ -7,8 +7,7 @@
     "constantCost": "5 min"
   },
   "tags": [
-    "angular",
-    "architecture"
+    "angular"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-7648",

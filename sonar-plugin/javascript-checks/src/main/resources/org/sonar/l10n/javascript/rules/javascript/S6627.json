@@ -13,7 +13,6 @@
     "constantCost": "5min"
   },
   "tags": [
-    "architecture",
     "gradle"
   ],
   "defaultSeverity": "Major",

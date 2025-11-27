@@ -452,7 +452,7 @@ jobs:
           key: java-coverage-${{ github.sha }}
       - *config_maven
       - name: Run Java tests with coverage
-        run: mvn test -T1C -Pcoverage,coverage-report
+        run: mvn verify -T1C -Pcoverage,coverage-report
 
   test_java_win:
     runs-on: github-windows-latest-m

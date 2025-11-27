@@ -6,9 +6,7 @@
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
-  "tags": [
-    "architecture"
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6861",
   "sqKey": "S6861",

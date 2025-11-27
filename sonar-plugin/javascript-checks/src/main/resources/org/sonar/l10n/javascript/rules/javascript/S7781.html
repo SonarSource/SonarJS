@@ -9,8 +9,7 @@ escape special regex characters if the search pattern contains them. This can le
 <code>.</code> matches any character in regex), not just literal dots. You would need <code>string.replace(/\./g, '')</code> instead.</p>
 <p>With <code>String#replaceAll()</code>, you can simply use <code>string.replaceAll('.', '')</code> which is both safer and more readable. The method
 name clearly indicates that all occurrences will be replaced.</p>
-<p>Additionally, when <code>String#replaceAll()</code> is used with a regex, the global flag is redundant since the method inherently replaces all
-occurrences.</p>
+<p>When <code>String#replaceAll()</code> is used with a regex, the global flag is required, or a <code>TypeError</code> will be thrown.</p>
 <h3>What is the potential impact?</h3>
 <p>Using the wrong replacement method can lead to unexpected behavior:</p>
 <ul>
