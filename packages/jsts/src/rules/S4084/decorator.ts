@@ -79,41 +79,59 @@ function checkJSXFragment(node: TSESTree.JSXFragment, insideExpression: boolean)
  * Checks JSXExpressionContainer nodes for track components
  */
 function checkJSXExpressionContainer(node: TSESTree.Node): boolean {
-  if (node.type !== 'JSXExpressionContainer' || !('expression' in node)) {
+  if (node.type !== 'JSXExpressionContainer') {
+    return false;
+  }
+  if (!('expression' in node)) {
     return false;
   }
   const expr = node.expression;
-  return isValidNode(expr) && checkNodeForTrackComponent(expr, true);
+  if (!isValidNode(expr)) {
+    return false;
+  }
+  return checkNodeForTrackComponent(expr, true);
 }
 
 /**
  * Checks ConditionalExpression nodes for track components
  */
 function checkConditionalExpression(node: TSESTree.Node, insideExpression: boolean): boolean {
-  if (node.type !== 'ConditionalExpression' || !('consequent' in node) || !('alternate' in node)) {
+  if (node.type !== 'ConditionalExpression') {
+    return false;
+  }
+  if (!('consequent' in node) || !('alternate' in node)) {
     return false;
   }
   const consequent = node.consequent;
   const alternate = node.alternate;
-  return (
-    (isValidNode(consequent) && checkNodeForTrackComponent(consequent, insideExpression)) ||
-    (isValidNode(alternate) && checkNodeForTrackComponent(alternate, insideExpression))
-  );
+  const hasConsequent =
+    isValidNode(consequent) && checkNodeForTrackComponent(consequent, insideExpression);
+  if (hasConsequent) {
+    return true;
+  }
+  const hasAlternate =
+    isValidNode(alternate) && checkNodeForTrackComponent(alternate, insideExpression);
+  return hasAlternate;
 }
 
 /**
  * Checks LogicalExpression nodes for track components
  */
 function checkLogicalExpression(node: TSESTree.Node, insideExpression: boolean): boolean {
-  if (node.type !== 'LogicalExpression' || !('left' in node) || !('right' in node)) {
+  if (node.type !== 'LogicalExpression') {
+    return false;
+  }
+  if (!('left' in node) || !('right' in node)) {
     return false;
   }
   const left = node.left;
   const right = node.right;
-  return (
-    (isValidNode(left) && checkNodeForTrackComponent(left, insideExpression)) ||
-    (isValidNode(right) && checkNodeForTrackComponent(right, insideExpression))
-  );
+  const hasLeft = isValidNode(left) && checkNodeForTrackComponent(left, insideExpression);
+  if (hasLeft) {
+    return true;
+  }
+  const hasRight = isValidNode(right) && checkNodeForTrackComponent(right, insideExpression);
+  return hasRight;
 }
 
 /**
