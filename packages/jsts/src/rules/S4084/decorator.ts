@@ -214,7 +214,9 @@ function checkNodeForTrackComponent(
         ? checkNodeChildren(node.children, insideExpression, expressionContainsTrackData)
         : false;
     case 'JSXExpressionContainer':
-      if (!isValidTypeNode(node.expression)) return false;
+      if (!isValidTypeNode(node.expression)) {
+        return false;
+      }
       return checkNodeForTrackComponent(
         node.expression,
         true,
@@ -294,12 +296,14 @@ function getJSXElementName(element: TSESTree.JSXElement): string {
  */
 function getJSXMemberExpressionName(expr: TSESTree.JSXMemberExpression): string {
   const property = expr.property.name;
-  const objectName =
-    expr.object.type === 'JSXIdentifier'
-      ? expr.object.name
-      : expr.object.type === 'JSXMemberExpression'
-        ? getJSXMemberExpressionName(expr.object)
-        : null;
+
+  let objectName: string | null = null;
+  if (expr.object.type === 'JSXIdentifier') {
+    objectName = expr.object.name;
+  } else if (expr.object.type === 'JSXMemberExpression') {
+    objectName = getJSXMemberExpressionName(expr.object);
+  }
+
   return objectName ? `${objectName}.${property}` : property;
 }
 
