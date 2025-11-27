@@ -115,44 +115,24 @@ function checkConditionalExpression(node: TSESTree.ConditionalExpression): boole
  * (e.g., subtitles, file?.subtitles, tracks, captions, etc.)
  */
 function hasTrackRelatedIdentifier(node: TSESTree.Node): boolean {
-  // Check identifiers
-  if (node.type === 'Identifier') {
-    return isTrackRelatedIdentifier(node.name);
+  switch (node.type) {
+    case 'Identifier':
+      return isTrackRelatedIdentifier(node.name);
+    case 'MemberExpression':
+      return checkMemberExpression(node);
+    case 'ChainExpression':
+      return isValidTypeNode(node.expression) && hasTrackRelatedIdentifier(node.expression);
+    case 'CallExpression':
+      return checkCallExpression(node);
+    case 'ArrayExpression':
+      return checkArrayExpression(node);
+    case 'LogicalExpression':
+      return checkLogicalExpression(node);
+    case 'ConditionalExpression':
+      return checkConditionalExpression(node);
+    default:
+      return false;
   }
-
-  // Check member expressions (e.g., file.subtitles, obj.tracks)
-  if (node.type === 'MemberExpression') {
-    return checkMemberExpression(node);
-  }
-
-  // Check optional chaining (e.g., file?.subtitles)
-  if (node.type === 'ChainExpression' && isValidTypeNode(node.expression)) {
-    return hasTrackRelatedIdentifier(node.expression);
-  }
-
-  // Recursively check call expressions
-  if (node.type === 'CallExpression') {
-    return checkCallExpression(node);
-  }
-
-  // Check array expressions
-  if (node.type === 'ArrayExpression') {
-    return checkArrayExpression(node);
-  }
-
-  // Check logical expressions
-  if (node.type === 'LogicalExpression') {
-    return checkLogicalExpression(node);
-  }
-
-  // Check conditional expressions
-  // Note: We only check consequent and alternate, not the test.
-  // The test is typically a boolean condition, not track-related data.
-  if (node.type === 'ConditionalExpression') {
-    return checkConditionalExpression(node);
-  }
-
-  return false;
 }
 
 /**
@@ -198,6 +178,19 @@ function checkBinaryExpressionSide(
 }
 
 /**
+ * Checks if a node contains children with track components
+ */
+function checkNodeChildren(
+  children: TSESTree.Node[],
+  insideExpression: boolean,
+  expressionContainsTrackData: boolean,
+): boolean {
+  return children.some(child =>
+    checkNodeForTrackComponent(child, insideExpression, expressionContainsTrackData),
+  );
+}
+
+/**
  * Recursively checks if a node contains track-related components or actual track elements.
  * Returns true only for:
  * 1. Direct <track> elements (not inside expressions/conditionals)
@@ -213,64 +206,47 @@ function checkNodeForTrackComponent(
   insideExpression = false,
   expressionContainsTrackData = false,
 ): boolean {
-  // Handle JSX elements
-  if (node.type === 'JSXElement') {
-    return checkJSXElement(node, insideExpression, expressionContainsTrackData);
+  switch (node.type) {
+    case 'JSXElement':
+      return checkJSXElement(node, insideExpression, expressionContainsTrackData);
+    case 'JSXFragment':
+      return node.children
+        ? checkNodeChildren(node.children, insideExpression, expressionContainsTrackData)
+        : false;
+    case 'JSXExpressionContainer':
+      if (!isValidTypeNode(node.expression)) return false;
+      return checkNodeForTrackComponent(
+        node.expression,
+        true,
+        hasTrackRelatedIdentifier(node.expression),
+      );
+    case 'ConditionalExpression':
+      return (
+        checkBinaryExpressionSide(node.consequent, insideExpression, expressionContainsTrackData) ||
+        checkBinaryExpressionSide(node.alternate, insideExpression, expressionContainsTrackData)
+      );
+    case 'LogicalExpression':
+      return (
+        checkBinaryExpressionSide(node.left, insideExpression, expressionContainsTrackData) ||
+        checkBinaryExpressionSide(node.right, insideExpression, expressionContainsTrackData)
+      );
+    case 'ChainExpression':
+      return isValidTypeNode(node.expression)
+        ? checkNodeForTrackComponent(node.expression, insideExpression, expressionContainsTrackData)
+        : false;
+    default:
+      // Handle function bodies
+      if ('body' in node && isValidTypeNode(node.body)) {
+        return checkNodeForTrackComponent(node.body, insideExpression, expressionContainsTrackData);
+      }
+      // Handle call expression arguments
+      if ('arguments' in node && Array.isArray(node.arguments)) {
+        return (node.arguments as TSESTree.Node[]).some(arg =>
+          checkNodeForTrackComponent(arg, insideExpression, expressionContainsTrackData),
+        );
+      }
+      return false;
   }
-
-  // Handle JSX fragments
-  if (node.type === 'JSXFragment') {
-    return (
-      node.children?.some(child =>
-        checkNodeForTrackComponent(child, insideExpression, expressionContainsTrackData),
-      ) ?? false
-    );
-  }
-
-  // Handle JSX expressions - check if the expression contains track-related data
-  if (node.type === 'JSXExpressionContainer' && isValidTypeNode(node.expression)) {
-    const hasTrackData = hasTrackRelatedIdentifier(node.expression);
-    return checkNodeForTrackComponent(node.expression, true, hasTrackData);
-  }
-
-  // Handle conditional expressions
-  if (node.type === 'ConditionalExpression') {
-    return (
-      checkBinaryExpressionSide(node.consequent, insideExpression, expressionContainsTrackData) ||
-      checkBinaryExpressionSide(node.alternate, insideExpression, expressionContainsTrackData)
-    );
-  }
-
-  // Handle logical expressions
-  if (node.type === 'LogicalExpression') {
-    return (
-      checkBinaryExpressionSide(node.left, insideExpression, expressionContainsTrackData) ||
-      checkBinaryExpressionSide(node.right, insideExpression, expressionContainsTrackData)
-    );
-  }
-
-  // Handle chain expressions (optional chaining)
-  if (node.type === 'ChainExpression' && isValidTypeNode(node.expression)) {
-    return checkNodeForTrackComponent(
-      node.expression,
-      insideExpression,
-      expressionContainsTrackData,
-    );
-  }
-
-  // Handle function bodies
-  if ('body' in node && isValidTypeNode(node.body)) {
-    return checkNodeForTrackComponent(node.body, insideExpression, expressionContainsTrackData);
-  }
-
-  // Handle call expression arguments
-  if ('arguments' in node && Array.isArray(node.arguments)) {
-    return (node.arguments as TSESTree.Node[]).some(arg =>
-      checkNodeForTrackComponent(arg, insideExpression, expressionContainsTrackData),
-    );
-  }
-
-  return false;
 }
 
 /**
@@ -318,12 +294,13 @@ function getJSXElementName(element: TSESTree.JSXElement): string {
  */
 function getJSXMemberExpressionName(expr: TSESTree.JSXMemberExpression): string {
   const property = expr.property.name;
-  if (expr.object.type === 'JSXIdentifier') {
-    return `${expr.object.name}.${property}`;
-  }
-  return expr.object.type === 'JSXMemberExpression'
-    ? `${getJSXMemberExpressionName(expr.object)}.${property}`
-    : property;
+  const objectName =
+    expr.object.type === 'JSXIdentifier'
+      ? expr.object.name
+      : expr.object.type === 'JSXMemberExpression'
+        ? getJSXMemberExpressionName(expr.object)
+        : null;
+  return objectName ? `${objectName}.${property}` : property;
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
