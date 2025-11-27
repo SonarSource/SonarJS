@@ -505,7 +505,12 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - *checkout
+      - &checkout_with_tags
+        name: Checkout source code
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          fetch-depth: '0'
+          fetch-tags: 'true'
       - *mise
       - *npm_cache
       - *maven_cache
@@ -517,6 +522,7 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
+      - *download_maven_targets
       - &debug_java_coverage
         name: Debug Java coverage cache
         run: |
@@ -528,7 +534,6 @@ jobs:
           grep -o '<line ' coverage/java/jacoco.xml | wc -l || echo "no line elements"
           echo "=== Class elements count ==="
           grep -o '<class ' coverage/java/jacoco.xml | wc -l || echo "no class elements"
-      - *download_maven_targets
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -573,14 +578,14 @@ jobs:
           - platform: SonarQube US
             sonar-platform: sonarqube-us
     steps:
-      - *checkout
+      - *checkout_with_tags
       - *mise
       - *npm_cache
       - *maven_cache
       - *js_coverage_cache
       - *java_coverage_cache
-      - *debug_java_coverage
       - *download_maven_targets
+      - *debug_java_coverage
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
