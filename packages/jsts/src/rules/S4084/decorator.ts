@@ -64,23 +64,21 @@ function isValidTypeNode(value: unknown): value is TSESTree.Node {
  * Checks if a member expression has a track-related identifier
  */
 function checkMemberExpression(node: TSESTree.MemberExpression): boolean {
-  if (node.property.type === 'Identifier' && isTrackRelatedIdentifier(node.property.name)) {
-    return true;
-  }
-  if (isValidTypeNode(node.object)) {
-    return hasTrackRelatedIdentifier(node.object);
-  }
-  return false;
+  const hasTrackProperty =
+    node.property.type === 'Identifier' && isTrackRelatedIdentifier(node.property.name);
+  const hasTrackObject = isValidTypeNode(node.object) && hasTrackRelatedIdentifier(node.object);
+  return hasTrackProperty || hasTrackObject;
 }
 
 /**
  * Checks if a call expression has track-related identifiers
  */
 function checkCallExpression(node: TSESTree.CallExpression): boolean {
-  if (isValidTypeNode(node.callee) && hasTrackRelatedIdentifier(node.callee)) {
-    return true;
-  }
-  return node.arguments.some(arg => isValidTypeNode(arg) && hasTrackRelatedIdentifier(arg));
+  const hasTrackCallee = isValidTypeNode(node.callee) && hasTrackRelatedIdentifier(node.callee);
+  const hasTrackArgs = node.arguments.some(
+    arg => isValidTypeNode(arg) && hasTrackRelatedIdentifier(arg),
+  );
+  return hasTrackCallee || hasTrackArgs;
 }
 
 /**
@@ -323,10 +321,9 @@ function getJSXMemberExpressionName(expr: TSESTree.JSXMemberExpression): string 
   if (expr.object.type === 'JSXIdentifier') {
     return `${expr.object.name}.${property}`;
   }
-  if (expr.object.type === 'JSXMemberExpression') {
-    return `${getJSXMemberExpressionName(expr.object)}.${property}`;
-  }
-  return property;
+  return expr.object.type === 'JSXMemberExpression'
+    ? `${getJSXMemberExpressionName(expr.object)}.${property}`
+    : property;
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
