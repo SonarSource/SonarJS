@@ -60,10 +60,10 @@ function checkJSXElementNode(node: TSESTree.JSXElement, insideExpression: boolea
 
   // Check for React components with track-related names
   // These are acceptable even if conditional, as they encapsulate track logic
-  if (isReactComponent(elementName)) {
-    if (isTrackRelatedComponentName(elementName)) {
-      return true;
-    }
+  const isTrackComponent =
+    isReactComponent(elementName) && isTrackRelatedComponentName(elementName);
+  if (isTrackComponent) {
+    return true;
   }
 
   // Recursively check children, maintaining expression context
