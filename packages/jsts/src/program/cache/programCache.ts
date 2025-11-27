@@ -52,8 +52,12 @@ export class ProgramCacheManager {
   // Weak references: Program and host can garbage collected together when memory is needed
   private readonly cache: WeakMap<object, ProgramWithHost> = new WeakMap();
 
-  private readonly maxSize = 10; // Max entries in LRU (configurable)
+  private readonly maxSize: number;
   private cacheKeyCounter = 0; // Simple counter for unique cache keys
+
+  constructor(maxSize = 10) {
+    this.maxSize = maxSize;
+  }
 
   /**
    * Find a cached program that contains the requested source file and update it if content changed
