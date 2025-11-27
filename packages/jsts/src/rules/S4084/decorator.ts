@@ -90,6 +90,49 @@ function checkLogicalExpression(node: TSESTree.Node, insideExpression: boolean):
 }
 
 /**
+ * Checks if a JSXElement node contains track-related content
+ */
+function checkJSXElementNode(node: TSESTree.JSXElement, insideExpression: boolean): boolean {
+  const elementName = getJSXElementName(node);
+
+  // Only suppress for direct <track> elements (not inside expressions)
+  // Conditional tracks like {arr.map(() => <track />)} should still be reported
+  if (elementName === 'track' && !insideExpression) {
+    return true;
+  }
+
+  // Check for React components with track-related names
+  // These are acceptable even if conditional, as they encapsulate track logic
+  if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
+    return true;
+  }
+
+  // Recursively check children, maintaining expression context
+  return node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false;
+}
+
+/**
+ * Checks if a node with body property contains track-related content
+ */
+function checkNodeBody(node: TSESTree.Node, insideExpression: boolean): boolean {
+  if ('body' in node && isValidNode(node.body)) {
+    return checkNodeForTrackComponent(node.body, insideExpression);
+  }
+  return false;
+}
+
+/**
+ * Checks if call expression arguments contain track-related content
+ */
+function checkCallArguments(node: TSESTree.Node, insideExpression: boolean): boolean {
+  if ('arguments' in node && Array.isArray(node.arguments) && node.arguments.length > 0) {
+    const args = node.arguments as TSESTree.Node[];
+    return args.some(arg => checkNodeForTrackComponent(arg, insideExpression));
+  }
+  return false;
+}
+
+/**
  * Recursively checks if a node contains track-related components or actual track elements.
  * Returns true only for:
  * 1. Direct <track> elements (not inside expressions/conditionals)
@@ -100,24 +143,7 @@ function checkLogicalExpression(node: TSESTree.Node, insideExpression: boolean):
  */
 function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = false): boolean {
   if (node.type === 'JSXElement') {
-    const elementName = getJSXElementName(node);
-
-    // Only suppress for direct <track> elements (not inside expressions)
-    // Conditional tracks like {arr.map(() => <track />)} should still be reported
-    if (elementName === 'track' && !insideExpression) {
-      return true;
-    }
-
-    // Check for React components with track-related names
-    // These are acceptable even if conditional, as they encapsulate track logic
-    if (isReactComponent(elementName) && isTrackRelatedComponentName(elementName)) {
-      return true;
-    }
-
-    // Recursively check children, maintaining expression context
-    return (
-      node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false
-    );
+    return checkJSXElementNode(node, insideExpression);
   }
 
   // Handle JSX fragments (<>...</>)
@@ -128,30 +154,13 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
   }
 
   // Check specialized node types using helper functions
-  if (checkJSXExpressionContainer(node)) {
-    return true;
-  }
-
-  if (checkConditionalExpression(node, insideExpression)) {
-    return true;
-  }
-
-  if (checkLogicalExpression(node, insideExpression)) {
-    return true;
-  }
-
-  // For nodes with a body property, check recursively
-  if ('body' in node && isValidNode(node.body)) {
-    return checkNodeForTrackComponent(node.body, insideExpression);
-  }
-
-  // For call expressions, check the arguments
-  if ('arguments' in node && Array.isArray(node.arguments) && node.arguments.length > 0) {
-    const args = node.arguments as TSESTree.Node[];
-    return args.some(arg => checkNodeForTrackComponent(arg, insideExpression));
-  }
-
-  return false;
+  return (
+    checkJSXExpressionContainer(node) ||
+    checkConditionalExpression(node, insideExpression) ||
+    checkLogicalExpression(node, insideExpression) ||
+    checkNodeBody(node, insideExpression) ||
+    checkCallArguments(node, insideExpression)
+  );
 }
 
 /**
