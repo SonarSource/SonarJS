@@ -70,6 +70,13 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
     );
   }
 
+  // Handle JSX fragments (<>...</>)
+  if (node.type === 'JSXFragment') {
+    return (
+      node.children?.some(child => checkNodeForTrackComponent(child, insideExpression)) ?? false
+    );
+  }
+
   // For JSXExpressionContainer, check inside but mark that we're in an expression
   // This way we can still detect track-related components but not conditional <track> elements
   if (node.type === 'JSXExpressionContainer') {
@@ -77,7 +84,7 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
   }
 
   // For other expression types, recursively check their children if they have any
-  if ('body' in node && node.body) {
+  if ('body' in node && node.body && typeof node.body === 'object' && node.body !== null) {
     return checkNodeForTrackComponent(node.body as TSESTree.Node, insideExpression);
   }
 

@@ -170,3 +170,36 @@ function VideoWithFilteredTracks() {
     </video>
   );
 }
+
+// Compliant: video with caption component deeply nested
+function VideoWithDeeplyNestedCaptionComponent() {
+  return (
+    <video>
+      <div>
+        <section>
+          <CaptionComponent />
+        </section>
+      </div>
+    </video>
+  );
+}
+
+// Compliant: video with subtitle component in fragment
+function VideoWithSubtitleInFragment() {
+  return (
+    <video>
+      <>
+        <SubtitleProvider />
+      </>
+    </video>
+  );
+}
+
+// Compliant: audio with track-related component
+function AudioWithTrackProvider() {
+  return (
+    <audio>
+      <TrackProvider />
+    </audio>
+  );
+}
