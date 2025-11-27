@@ -499,15 +499,6 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
       - *download_maven_targets
-      - name: Fix timestamps and restore executable permissions
-        shell: bash
-        run: |
-          # Make all class files and jars newer than source files to prevent Maven from recompiling
-          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
-
-          # Restore executable permissions (lost during artifact upload/download)
-          # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -559,7 +550,6 @@ jobs:
       - *js_coverage_cache
       - *java_coverage_cache
       - *download_maven_targets
-      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
