@@ -200,13 +200,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // The parent of JSXOpeningElement should be JSXElement
       const jsxElement = ancestors.at(-1) as TSESTree.JSXElement | undefined;
 
-      // Skip reporting if the media element has track-related components
-      // (but still report for actual <track> elements or conditional tracks)
-      if (jsxElement?.type === 'JSXElement' && hasTrackRelatedComponent(jsxElement)) {
-        return;
-      }
+      // Only report if the media element does NOT have track-related components
+      // (still report for conditional tracks in expressions, but not for track-related React components)
+      const shouldReport =
+        !jsxElement || jsxElement.type !== 'JSXElement' || !hasTrackRelatedComponent(jsxElement);
 
-      context.report({ ...descriptor, node: name });
+      if (shouldReport) {
+        context.report({ ...descriptor, node: name });
+      }
     },
   );
 }
