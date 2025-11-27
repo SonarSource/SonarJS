@@ -79,23 +79,49 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
 
   // For JSXExpressionContainer, check inside but mark that we're in an expression
   // This way we can still detect track-related components but not conditional <track> elements
-  if (node.type === 'JSXExpressionContainer') {
-    return checkNodeForTrackComponent(node.expression, true);
+  if (
+    node.type === 'JSXExpressionContainer' &&
+    'expression' in node &&
+    typeof node.expression === 'object' &&
+    node.expression !== null &&
+    'type' in node.expression
+  ) {
+    return checkNodeForTrackComponent(node.expression as TSESTree.Node, true);
   }
 
   // Handle conditional expressions (ternary operator)
-  if (node.type === 'ConditionalExpression') {
+  if (
+    node.type === 'ConditionalExpression' &&
+    'consequent' in node &&
+    'alternate' in node &&
+    typeof node.consequent === 'object' &&
+    node.consequent !== null &&
+    'type' in node.consequent &&
+    typeof node.alternate === 'object' &&
+    node.alternate !== null &&
+    'type' in node.alternate
+  ) {
     return (
-      checkNodeForTrackComponent(node.consequent, insideExpression) ||
-      checkNodeForTrackComponent(node.alternate, insideExpression)
+      checkNodeForTrackComponent(node.consequent as TSESTree.Node, insideExpression) ||
+      checkNodeForTrackComponent(node.alternate as TSESTree.Node, insideExpression)
     );
   }
 
   // Handle logical expressions (&&, ||)
-  if (node.type === 'LogicalExpression') {
+  if (
+    node.type === 'LogicalExpression' &&
+    'left' in node &&
+    'right' in node &&
+    typeof node.left === 'object' &&
+    node.left !== null &&
+    'type' in node.left &&
+    typeof node.right === 'object' &&
+    node.right !== null &&
+    'type' in node.right
+  ) {
     return (
-      checkNodeForTrackComponent(node.left, insideExpression) ||
-      checkNodeForTrackComponent(node.right, insideExpression)
+      checkNodeForTrackComponent(node.left as TSESTree.Node, insideExpression) ||
+      checkNodeForTrackComponent(node.right as TSESTree.Node, insideExpression)
     );
   }
 
