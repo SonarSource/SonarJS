@@ -517,6 +517,17 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
+      - &debug_java_coverage
+        name: Debug Java coverage cache
+        run: |
+          echo "=== Java Coverage folder contents ==="
+          ls -la coverage/java/ || echo "coverage/java not found"
+          echo "=== File size ==="
+          wc -c coverage/java/jacoco.xml || echo "jacoco.xml not found"
+          echo "=== Line elements count (line-level coverage) ==="
+          grep -o '<line ' coverage/java/jacoco.xml | wc -l || echo "no line elements"
+          echo "=== Class elements count ==="
+          grep -o '<class ' coverage/java/jacoco.xml | wc -l || echo "no class elements"
       - *download_maven_targets
       - *config_maven
       - id: secrets
@@ -546,7 +557,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS -X
 
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
@@ -568,6 +579,7 @@ jobs:
       - *maven_cache
       - *js_coverage_cache
       - *java_coverage_cache
+      - *debug_java_coverage
       - *download_maven_targets
       - *config_maven
       - id: secrets
