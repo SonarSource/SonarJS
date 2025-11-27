@@ -61,23 +61,70 @@ function isValidTypeNode(value: unknown): value is TSESTree.Node {
 }
 
 /**
+ * Checks if a member expression has a track-related identifier
+ */
+function checkMemberExpression(node: TSESTree.MemberExpression): boolean {
+  if (node.property.type === 'Identifier' && isTrackRelatedIdentifier(node.property.name)) {
+    return true;
+  }
+  if (isValidTypeNode(node.object)) {
+    return hasTrackRelatedIdentifier(node.object);
+  }
+  return false;
+}
+
+/**
+ * Checks if a call expression has track-related identifiers
+ */
+function checkCallExpression(node: TSESTree.CallExpression): boolean {
+  if (isValidTypeNode(node.callee) && hasTrackRelatedIdentifier(node.callee)) {
+    return true;
+  }
+  return node.arguments.some(arg => isValidTypeNode(arg) && hasTrackRelatedIdentifier(arg));
+}
+
+/**
+ * Checks if an array expression has track-related identifiers
+ */
+function checkArrayExpression(node: TSESTree.ArrayExpression): boolean {
+  return node.elements.some(
+    element => element !== null && isValidTypeNode(element) && hasTrackRelatedIdentifier(element),
+  );
+}
+
+/**
+ * Checks if a logical expression has track-related identifiers
+ */
+function checkLogicalExpression(node: TSESTree.LogicalExpression): boolean {
+  return (
+    (isValidTypeNode(node.left) && hasTrackRelatedIdentifier(node.left)) ||
+    (isValidTypeNode(node.right) && hasTrackRelatedIdentifier(node.right))
+  );
+}
+
+/**
+ * Checks if a conditional expression has track-related identifiers
+ */
+function checkConditionalExpression(node: TSESTree.ConditionalExpression): boolean {
+  return (
+    (isValidTypeNode(node.consequent) && hasTrackRelatedIdentifier(node.consequent)) ||
+    (isValidTypeNode(node.alternate) && hasTrackRelatedIdentifier(node.alternate))
+  );
+}
+
+/**
  * Recursively checks if a node contains track-related identifiers or member expressions
  * (e.g., subtitles, file?.subtitles, tracks, captions, etc.)
  */
 function hasTrackRelatedIdentifier(node: TSESTree.Node): boolean {
   // Check identifiers
-  if (node.type === 'Identifier' && isTrackRelatedIdentifier(node.name)) {
-    return true;
+  if (node.type === 'Identifier') {
+    return isTrackRelatedIdentifier(node.name);
   }
 
   // Check member expressions (e.g., file.subtitles, obj.tracks)
   if (node.type === 'MemberExpression') {
-    if (node.property.type === 'Identifier' && isTrackRelatedIdentifier(node.property.name)) {
-      return true;
-    }
-    if (isValidTypeNode(node.object)) {
-      return hasTrackRelatedIdentifier(node.object);
-    }
+    return checkMemberExpression(node);
   }
 
   // Check optional chaining (e.g., file?.subtitles)
@@ -87,37 +134,24 @@ function hasTrackRelatedIdentifier(node: TSESTree.Node): boolean {
 
   // Recursively check call expressions
   if (node.type === 'CallExpression') {
-    if (isValidTypeNode(node.callee) && hasTrackRelatedIdentifier(node.callee)) {
-      return true;
-    }
-    if (node.arguments.some(arg => isValidTypeNode(arg) && hasTrackRelatedIdentifier(arg))) {
-      return true;
-    }
+    return checkCallExpression(node);
   }
 
   // Check array expressions
   if (node.type === 'ArrayExpression') {
-    return node.elements.some(
-      element => element !== null && isValidTypeNode(element) && hasTrackRelatedIdentifier(element),
-    );
+    return checkArrayExpression(node);
   }
 
   // Check logical expressions
   if (node.type === 'LogicalExpression') {
-    return (
-      (isValidTypeNode(node.left) && hasTrackRelatedIdentifier(node.left)) ||
-      (isValidTypeNode(node.right) && hasTrackRelatedIdentifier(node.right))
-    );
+    return checkLogicalExpression(node);
   }
 
   // Check conditional expressions
   // Note: We only check consequent and alternate, not the test.
   // The test is typically a boolean condition, not track-related data.
   if (node.type === 'ConditionalExpression') {
-    return (
-      (isValidTypeNode(node.consequent) && hasTrackRelatedIdentifier(node.consequent)) ||
-      (isValidTypeNode(node.alternate) && hasTrackRelatedIdentifier(node.alternate))
-    );
+    return checkConditionalExpression(node);
   }
 
   return false;
@@ -318,7 +352,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // Only report if the media element does NOT have track-related components
       // (still report for conditional tracks in expressions, but not for track-related React components)
       const shouldReport =
-        !jsxElement || jsxElement.type !== 'JSXElement' || !hasTrackRelatedComponent(jsxElement);
+        jsxElement?.type !== 'JSXElement' || !hasTrackRelatedComponent(jsxElement);
 
       if (shouldReport) {
         context.report({ ...descriptor, node: name });
