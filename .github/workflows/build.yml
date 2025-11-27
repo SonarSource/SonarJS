@@ -470,7 +470,11 @@ jobs:
       - *mise
       - *maven_cache
       - *npm_cache
-      - *download_maven_targets
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: maven-targets-${{ runner.os }}-${{ github.sha }}
       - name: Fix timestamps and restore executable permissions
         shell: bash
         run: |
