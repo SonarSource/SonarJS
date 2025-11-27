@@ -458,6 +458,16 @@ jobs:
       - *config_maven
       - name: Run Java tests with coverage
         run: mvn install -Pcoverage,coverage-report
+      - name: Debug coverage output
+        run: |
+          echo "=== Coverage folder contents ==="
+          ls -la coverage/java/ || echo "coverage/java not found"
+          echo "=== File size ==="
+          wc -c coverage/java/jacoco.xml || echo "jacoco.xml not found"
+          echo "=== Line elements count (line-level coverage) ==="
+          grep -o '<line ' coverage/java/jacoco.xml | wc -l || echo "no line elements"
+          echo "=== Class elements count ==="
+          grep -o '<class ' coverage/java/jacoco.xml | wc -l || echo "no class elements"
 
   test_java_win:
     runs-on: github-windows-latest-m
