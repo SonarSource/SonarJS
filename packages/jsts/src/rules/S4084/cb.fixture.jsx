@@ -203,3 +203,75 @@ function AudioWithTrackProvider() {
     </audio>
   );
 }
+
+// Still a violation: video with conditional rendering via ternary
+function VideoWithTernaryTrack() {
+  const hasTrack = false;
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {hasTrack ? <track kind="captions" /> : null}
+    </video>
+  );
+}
+
+// Still a violation: video with logical AND conditional track
+function VideoWithLogicalAndTrack() {
+  const enabled = false;
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {enabled && <track kind="captions" />}
+    </video>
+  );
+}
+
+// Compliant: video with track component in ternary (React component, not track element)
+function VideoWithTernaryTrackComponent() {
+  const variant = 'a';
+  return (
+    <video>
+      {variant === 'a' ? <TrackComponentA /> : <TrackComponentB />}
+    </video>
+  );
+}
+
+// Compliant: video with deeply nested member expression track
+function VideoWithDeeplyNestedMemberExpressionTrack() {
+  return (
+    <video>
+      <UI.Media.Components.TrackProvider />
+    </video>
+  );
+}
+
+// Still a violation: video with map but no track-related component
+function VideoWithMapNoTrack() {
+  const items = [];
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {items.map((item) => <div key={item}>{item}</div>)}
+    </video>
+  );
+}
+
+// Compliant: video with nested fragment containing track component
+function VideoWithNestedFragmentTrack() {
+  return (
+    <video>
+      <>
+        <>
+          <TrackProvider />
+        </>
+      </>
+    </video>
+  );
+}
+
+// Still a violation: video with expression container but no track
+function VideoWithExpressionNoTrack() {
+  const renderContent = () => <div>Content</div>;
+  return (
+    <video> {/* Noncompliant {{Media elements such as <audio> and <video> must have a <track> for captions.}} */}
+      {renderContent()}
+    </video>
+  );
+}

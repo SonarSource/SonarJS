@@ -83,6 +83,22 @@ function checkNodeForTrackComponent(node: TSESTree.Node, insideExpression = fals
     return checkNodeForTrackComponent(node.expression, true);
   }
 
+  // Handle conditional expressions (ternary operator)
+  if (node.type === 'ConditionalExpression') {
+    return (
+      checkNodeForTrackComponent(node.consequent, insideExpression) ||
+      checkNodeForTrackComponent(node.alternate, insideExpression)
+    );
+  }
+
+  // Handle logical expressions (&&, ||)
+  if (node.type === 'LogicalExpression') {
+    return (
+      checkNodeForTrackComponent(node.left, insideExpression) ||
+      checkNodeForTrackComponent(node.right, insideExpression)
+    );
+  }
+
   // For other expression types, recursively check their children if they have any
   if ('body' in node && node.body && typeof node.body === 'object' && node.body !== null) {
     return checkNodeForTrackComponent(node.body as TSESTree.Node, insideExpression);
