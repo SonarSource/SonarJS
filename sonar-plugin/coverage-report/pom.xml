@@ -55,7 +55,6 @@
         <configuration>
           <formats>XML</formats>
           <outputDirectory>${maven.multiModuleProjectDirectory}/coverage/java</outputDirectory>
-          <includeCurrentProject>true</includeCurrentProject>
         </configuration>
         <executions>
           <execution>
