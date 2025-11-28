@@ -14,19 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'node:path';
+import path from 'node:path/posix';
 import { Worker } from 'node:worker_threads';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 import { ErrorCode } from '../../shared/src/errors/error.js';
+import { toUnixPath } from '../../shared/src/helpers/files.js';
 
 describe('worker', () => {
   let worker: Worker;
 
   before(() => {
-    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
-      workerData: { context: {} },
-    });
+    worker = new Worker(
+      path.join(toUnixPath(import.meta.dirname), '../../../lib/bridge/src/worker.js'),
+      {
+        workerData: { context: {} },
+      },
+    );
   });
 
   after(async () => {

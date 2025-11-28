@@ -28,6 +28,7 @@ import {
 } from '../../src/analysis/projectAnalysis/analyzeProject.js';
 import { findFiles } from '../../../shared/src/helpers/find-files.js';
 import { join, extname } from 'node:path/posix';
+import { resolve } from 'node:path';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import {
   sourceFileStore,
@@ -35,13 +36,12 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import ts from 'typescript';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
-import assert from 'node:assert';
 
 const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures'));
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    tsConfigStore.clearTsConfigCache();
+    tsConfigStore.clearCache();
     sourceFileStore.clearCache();
   });
 
@@ -60,7 +60,11 @@ describe('analyzeProject', () => {
     });
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const result = await analyzeProject(prepareInput(fixtures, files));
-    assert(consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'));
+    expect(
+      consoleLogMock.calls.some(call =>
+        /Creating TypeScript\(\d\.\d\.\d\) program/.test(call.arguments[0]),
+      ),
+    ).toBeTruthy();
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -77,7 +81,9 @@ describe('analyzeProject', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const result = await analyzeProject(prepareInput(baseDir, undefined, true));
-    assert(!consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'));
+    expect(
+      !consoleLogMock.calls.some(call => call.arguments[0] === 'Creating TypeScript program'),
+    ).toBeTruthy();
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(join(baseDir, 'parsing-error.js'))]).toMatchObject({
@@ -108,8 +114,8 @@ describe('analyzeProject', () => {
   });
 
   it('should not touch FS during analysis', async () => {
-    const baseDir = '/path/does/not/exist';
-    const filePath = join(baseDir, 'whatever_file.ts');
+    const baseDir = resolve('/path/does/not/exist');
+    const filePath = join(toUnixPath(baseDir), 'whatever_file.ts');
     const result = await analyzeProject({
       rules: defaultRules,
       files: {
@@ -161,7 +167,7 @@ describe('analyzeProject', () => {
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
     expect(resultWarning).toEqual(
-      `Failed to create TypeScript program with TSConfig file ${join(baseDir, 'tsconfig.json')}. Highest TypeScript supported version is ${ts.version}`,
+      `Failed to parse TSConfig file ${join(baseDir, 'tsconfig.json')}. Highest TypeScript supported version is ${ts.version}`,
     );
   });
 
@@ -178,7 +184,7 @@ describe('analyzeProject', () => {
     );
   });
 
-  it('should handle error from tsconfig in sonarlint context', async () => {
+  it('should ignore tsconfig with no files in sonarlint context', async () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
     const baseDir = join(fixtures, 'tsconfig-no-files');
@@ -186,13 +192,13 @@ describe('analyzeProject', () => {
       configuration: { baseDir, sonarlint: true },
       rules: defaultRules,
     });
-    assert(
+    expect(
       consoleLogMock.calls.some(call =>
         (call.arguments[0] as string).startsWith(
-          `Failed to analyze TSConfig ${join(baseDir, 'tsconfig.json')}`,
+          `No tsconfig found for files, using default options`,
         ),
       ),
-    );
+    ).toBeTruthy();
   });
 });
 
