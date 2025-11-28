@@ -423,32 +423,27 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Unit tests Java
     needs: [setup, build]
-    permissions:
-      id-token: write
-      contents: write
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *maven_cache
       - *npm_cache
-#      - &download_maven_targets
-#        name: Download Maven target artifacts
-#        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-#        with:
-#          name: maven-targets-${{ runner.os }}-${{ github.sha }}
-#      - &prevent_recompilation
-#        name: Fix timestamps and restore executable permissions
-#        shell: bash
-#        run: |
-#          # Make all class files and jars newer than source files to prevent Maven from recompiling
-#          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
-#
-      # Restore executable permissions (lost during artifact upload/download)
-        # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-#      - name: Fix timestamps and restore executable permissions
-#        shell: bash
-#        run: |
-#          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+      - &prevent_recompilation
+        name: Fix timestamps and restore executable permissions
+        shell: bash
+        run: |
+          # Make all class files and jars newer than source files to prevent Maven from recompiling
+          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
+
+          # Restore executable permissions (lost during artifact upload/download)
+          # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
+          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/ci-github-actions/cache@v1
@@ -457,17 +452,7 @@ jobs:
           key: java-coverage-${{ github.sha }}
       - *config_maven
       - name: Run Java tests with coverage
-        run: mvn install -Pcoverage,coverage-report
-      - name: Debug coverage output
-        run: |
-          echo "=== Coverage folder contents ==="
-          ls -la coverage/java/ || echo "coverage/java not found"
-          echo "=== File size ==="
-          wc -c coverage/java/jacoco.xml || echo "jacoco.xml not found"
-          echo "=== Line elements count (line-level coverage) ==="
-          grep -o '<line ' coverage/java/jacoco.xml | wc -l || echo "no line elements"
-          echo "=== Class elements count ==="
-          grep -o '<class ' coverage/java/jacoco.xml | wc -l || echo "no class elements"
+        run: mvn verify -T1C -Pcoverage,coverage-report
 
   test_java_win:
     runs-on: github-windows-latest-m
@@ -480,20 +465,8 @@ jobs:
       - *mise
       - *maven_cache
       - *npm_cache
-      - &download_maven_targets
-        name: Download Maven target artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-        with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
-      - name: Fix timestamps and restore executable permissions
-        shell: bash
-        run: |
-          # Make all class files and jars newer than source files to prevent Maven from recompiling
-          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
-
-          # Restore executable permissions (lost during artifact upload/download)
-          # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
+      - *download_maven_targets
+      - *prevent_recompilation
       - *config_maven
       - name: Run Java tests on Windows
         run: mvn test -T1C
@@ -506,8 +479,8 @@ jobs:
     permissions: *read_permissions
     steps:
       - &checkout_with_tags
-        name: Checkout source code
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        name: Checkout source code with tags
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -523,17 +496,7 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
       - *download_maven_targets
-      - &debug_java_coverage
-        name: Debug Java coverage cache
-        run: |
-          echo "=== Java Coverage folder contents ==="
-          ls -la coverage/java/ || echo "coverage/java not found"
-          echo "=== File size ==="
-          wc -c coverage/java/jacoco.xml || echo "jacoco.xml not found"
-          echo "=== Line elements count (line-level coverage) ==="
-          grep -o '<line ' coverage/java/jacoco.xml | wc -l || echo "no line elements"
-          echo "=== Class elements count ==="
-          grep -o '<class ' coverage/java/jacoco.xml | wc -l || echo "no class elements"
+      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -562,7 +525,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS -X
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
@@ -585,7 +548,7 @@ jobs:
       - *js_coverage_cache
       - *java_coverage_cache
       - *download_maven_targets
-      - *debug_java_coverage
+      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
