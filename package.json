@@ -92,7 +92,7 @@
     "license-checker": "25.0.1",
     "memfs": "4.51.0",
     "nyc": "17.1.0",
-    "prettier": "3.7.1",
+    "prettier": "3.7.2",
     "prettier-plugin-java": "2.7.7",
     "pretty-quick": "4.2.2",
     "rimraf": "6.1.2",
