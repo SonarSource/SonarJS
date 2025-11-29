@@ -158,6 +158,19 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            code: `
+      // JS-619: False positive with generic type constraints
+      // This should NOT raise an issue because the actual type could be string at runtime
+      class Foo<T extends Record<string, unknown>> {
+        constructor(private readonly foo: T) {}
+
+        reproduction<Key extends keyof T>(key: Key) {
+          return this.foo[key] === 'foo';
+        }
+      }
+      `,
+          },
         ],
         invalid: [
           {

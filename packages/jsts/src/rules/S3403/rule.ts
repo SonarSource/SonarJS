@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -39,6 +40,20 @@ export const rule: Rule.RuleModule = {
       const checker = services.program.getTypeChecker();
       const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
       const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+
+      // JS-619: When type information is unknown, prefer not reporting
+      // Generic type constraints like T[keyof T] are IndexedAccess types that could be any type at runtime
+      if (
+        lhsType.flags & ts.TypeFlags.Unknown ||
+        lhsType.flags & ts.TypeFlags.Any ||
+        rhsType.flags & ts.TypeFlags.Unknown ||
+        rhsType.flags & ts.TypeFlags.Any ||
+        lhsType.flags & ts.TypeFlags.IndexedAccess ||
+        rhsType.flags & ts.TypeFlags.IndexedAccess
+      ) {
+        return true; // Assume types are comparable when uncertain
+      }
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)
