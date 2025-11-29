@@ -53,6 +53,51 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring variables not defined locally (JS-131)
+         * Only report on variables defined locally within the function body
+         * to avoid FPs when variables could be modified cross-procedurally
+         */
+        if (symbol) {
+          const loopScope = context.sourceCode.getScope(node);
+
+          // Find the function scope containing the loop
+          let functionScope: Scope.Scope | null = loopScope;
+          while (functionScope && functionScope.type !== 'function') {
+            functionScope = functionScope.upper;
+          }
+
+          if (functionScope) {
+            // Don't report on function parameters - they could be modified by the caller
+            if (symbol.defs.length > 0 && symbol.defs[0].type === 'Parameter') {
+              return;
+            }
+
+            const varScope = symbol.scope;
+
+            // Don't report on global or module-level variables
+            if (varScope.type === 'global' || varScope.type === 'module') {
+              return;
+            }
+
+            // Check if variable is defined outside the current function scope
+            let scope: Scope.Scope | null = varScope;
+            let isWithinFunction = false;
+
+            while (scope) {
+              if (scope === functionScope) {
+                isWithinFunction = true;
+                break;
+              }
+              scope = scope.upper;
+            }
+
+            // If variable is from outside the current function, don't report
+            if (!isWithinFunction) {
+              return;
+            }
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;

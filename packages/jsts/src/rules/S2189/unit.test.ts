@@ -170,6 +170,34 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: Variable not defined locally - could be modified cross-procedurally
+      // This should NOT raise an issue because isActive is not a local variable
+      function checkStatus(isActive) {
+        while (isActive) {
+          performTask();
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: Variable not defined locally - global variable
+      // This should NOT raise an issue because globalFlag is not a local variable
+      while (globalFlag) {
+        doWork();
+      }`,
+        },
+        {
+          code: `
+      // FP: Variable not defined locally - outer scope variable
+      let outerVar = true;
+      function innerFunction() {
+        while (outerVar) {
+          process();
+        }
+      }`,
+        },
       ],
       invalid: [
         {
