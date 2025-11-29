@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import * as ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -35,10 +36,49 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    function hasUnknownOrIndexedAccessType(type: ts.Type, checker: ts.TypeChecker): boolean {
+      // Check if this type is 'unknown' (JS-619)
+      if (type.flags & ts.TypeFlags.Unknown) {
+        return true;
+      }
+
+      // Check for IndexedAccess type flag (JS-619)
+      // T[K] where T extends Record<string, unknown> should be allowed to compare with any type
+      // since the actual value type is unknown at compile time
+      if (type.flags & ts.TypeFlags.IndexedAccess) {
+        return true;
+      }
+
+      // Check union types - any constituent type with unknown or indexed access should allow comparison
+      if (type.isUnion()) {
+        return type.types.some(t => hasUnknownOrIndexedAccessType(t, checker));
+      }
+
+      // Check intersection types
+      if (type.isIntersection()) {
+        return type.types.some(t => hasUnknownOrIndexedAccessType(t, checker));
+      }
+
+      return false;
+    }
+
     function isComparableTo(lhs: estree.Node, rhs: estree.Node) {
       const checker = services.program.getTypeChecker();
-      const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+      const lhsOriginalType = getTypeFromTreeNode(lhs, services);
+      const rhsOriginalType = getTypeFromTreeNode(rhs, services);
+      const lhsType = checker.getBaseTypeOfLiteralType(lhsOriginalType);
+      const rhsType = checker.getBaseTypeOfLiteralType(rhsOriginalType);
+
+      // Allow comparison when type information is unknown (JS-619)
+      // Comparing 'unknown' type with any other type is valid in TypeScript
+      // Check if either type is or contains 'unknown' or is an indexed access type
+      if (
+        hasUnknownOrIndexedAccessType(lhsOriginalType, checker) ||
+        hasUnknownOrIndexedAccessType(rhsOriginalType, checker)
+      ) {
+        return true;
+      }
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)
