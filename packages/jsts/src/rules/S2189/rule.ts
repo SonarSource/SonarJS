@@ -53,6 +53,28 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring symbols that are not defined locally (JS-131) */
+        if (symbol) {
+          const currentScope = context.sourceCode.getScope(node);
+          let functionScope: Scope.Scope | null = currentScope;
+
+          // Find the nearest function scope
+          while (functionScope && functionScope.type !== 'function') {
+            functionScope = functionScope.upper;
+          }
+
+          // Skip if variable is from parent scope
+          if (functionScope && symbol.scope !== functionScope) {
+            return;
+          }
+
+          // Skip if variable is a function parameter
+          const isParameter = symbol.defs.some(def => def.type === 'Parameter');
+          if (isParameter) {
+            return;
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;

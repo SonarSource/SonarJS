@@ -170,6 +170,44 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: Variable from parent scope - could be modified cross-procedurally
+      // This should NOT raise an issue because 'condition' is not locally defined
+      let condition = true;
+      function checkLoop() {
+        while (condition) {
+          doSomething();
+        }
+      }
+            `,
+        },
+        {
+          code: `
+      // FP: Function parameter - could be modified by caller
+      // This should NOT raise an issue because 'flag' is a parameter
+      function processWhile(flag) {
+        while (flag) {
+          doSomething();
+        }
+      }
+            `,
+        },
+        {
+          code: `
+      // FP: Variable from outer function scope
+      // This should NOT raise an issue because 'keepRunning' is not locally defined
+      function outer() {
+        let keepRunning = true;
+        function inner() {
+          while (keepRunning) {
+            doSomething();
+          }
+        }
+        inner();
+      }
+            `,
+        },
       ],
       invalid: [
         {
