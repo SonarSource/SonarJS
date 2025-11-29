@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import * as ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -35,10 +36,45 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    function hasUnknownOrAnyType(type: ts.Type): boolean {
+      const checker = services.program.getTypeChecker();
+
+      // Check direct flags
+      if (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) {
+        return true;
+      }
+
+      // Check if it's a union type containing unknown or any
+      if (type.isUnion()) {
+        return type.types.some(t => t.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown));
+      }
+
+      // JS-619: Check if it's an indexed access type (e.g., T[Key]) with unknown constraint
+      // This handles cases like Record<string, unknown>[key] where the value type is unknown
+      if (type.flags & ts.TypeFlags.IndexedAccess) {
+        const constraint = checker.getBaseConstraintOfType(type);
+        if (constraint && constraint.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     function isComparableTo(lhs: estree.Node, rhs: estree.Node) {
       const checker = services.program.getTypeChecker();
-      const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+      const lhsTypeRaw = getTypeFromTreeNode(lhs, services);
+      const rhsTypeRaw = getTypeFromTreeNode(rhs, services);
+
+      // JS-619: When type is unknown or any, we cannot determine if comparison will always fail
+      // Prefer not raising an issue over a false positive
+      if (hasUnknownOrAnyType(lhsTypeRaw) || hasUnknownOrAnyType(rhsTypeRaw)) {
+        return true; // Treat as comparable when type information is uncertain
+      }
+
+      const lhsType = checker.getBaseTypeOfLiteralType(lhsTypeRaw);
+      const rhsType = checker.getBaseTypeOfLiteralType(rhsTypeRaw);
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)

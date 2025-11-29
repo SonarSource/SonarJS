@@ -158,6 +158,19 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            code: `
+      // False positive: Generic type with unknown value
+      // This should NOT raise an issue because the value type is unknown
+      class Foo<T extends Record<string, unknown>> {
+        constructor(private readonly foo: T) {}
+
+        reproduction<Key extends keyof T>(key: Key) {
+          return this.foo[key] === 'foo';
+        }
+      }
+      `,
+          },
         ],
         invalid: [
           {
