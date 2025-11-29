@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import * as ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -37,8 +38,53 @@ export const rule: Rule.RuleModule = {
 
     function isComparableTo(lhs: estree.Node, rhs: estree.Node) {
       const checker = services.program.getTypeChecker();
-      const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+      const lhsTypeRaw = getTypeFromTreeNode(lhs, services);
+      const rhsTypeRaw = getTypeFromTreeNode(rhs, services);
+
+      // Allow comparison when type is unknown or any (JS-619)
+      // Prefer avoiding false positives over missing true positives
+      const lhsTypeStr = checker.typeToString(lhsTypeRaw);
+      const rhsTypeStr = checker.typeToString(rhsTypeRaw);
+
+      // Check if either type is unknown or any
+      if (
+        lhsTypeStr === 'unknown' ||
+        rhsTypeStr === 'unknown' ||
+        lhsTypeRaw.flags & ts.TypeFlags.Unknown ||
+        rhsTypeRaw.flags & ts.TypeFlags.Unknown ||
+        lhsTypeRaw.flags & ts.TypeFlags.Any ||
+        rhsTypeRaw.flags & ts.TypeFlags.Any
+      ) {
+        return true;
+      }
+
+      // IndexedAccess types (like T[K]) may resolve to unknown
+      // To avoid false positives, we allow comparison for IndexedAccess types
+      if (
+        lhsTypeRaw.flags & ts.TypeFlags.IndexedAccess ||
+        rhsTypeRaw.flags & ts.TypeFlags.IndexedAccess
+      ) {
+        return true;
+      }
+
+      const lhsType = checker.getBaseTypeOfLiteralType(lhsTypeRaw);
+      const rhsType = checker.getBaseTypeOfLiteralType(rhsTypeRaw);
+
+      const lhsTypeBaseStr = checker.typeToString(lhsType);
+      const rhsTypeBaseStr = checker.typeToString(rhsType);
+
+      // Check after getting base type (handles types that weren't caught above)
+      if (
+        lhsTypeBaseStr === 'unknown' ||
+        rhsTypeBaseStr === 'unknown' ||
+        lhsType.flags & ts.TypeFlags.Unknown ||
+        rhsType.flags & ts.TypeFlags.Unknown ||
+        lhsType.flags & ts.TypeFlags.Any ||
+        rhsType.flags & ts.TypeFlags.Any
+      ) {
+        return true;
+      }
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)

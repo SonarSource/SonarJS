@@ -158,6 +158,26 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            code: `
+      // FP: comparing unknown type with string
+      let x: unknown;
+      x === 'foo';
+      `,
+          },
+          {
+            code: `
+      // False positive scenario: comparing unknown type with string literal
+      // This should NOT raise an issue because unknown can be compared with any type
+      class Foo<T extends Record<string, unknown>> {
+        constructor(private readonly foo: T) {}
+
+        reproduction<Key extends keyof T>(key: Key) {
+          return this.foo[key] === 'foo';
+        }
+      }
+      `,
+          },
         ],
         invalid: [
           {
