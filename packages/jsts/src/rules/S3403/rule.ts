@@ -18,9 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
+import ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
+  isGenericType,
   isRequiredParserServices,
   report,
   toSecondaryLocation,
@@ -37,8 +40,29 @@ export const rule: Rule.RuleModule = {
 
     function isComparableTo(lhs: estree.Node, rhs: estree.Node) {
       const checker = services.program.getTypeChecker();
-      const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+      const lhsTypeOriginal = getTypeFromTreeNode(lhs, services);
+      const rhsTypeOriginal = getTypeFromTreeNode(rhs, services);
+      const lhsType = checker.getBaseTypeOfLiteralType(lhsTypeOriginal);
+      const rhsType = checker.getBaseTypeOfLiteralType(rhsTypeOriginal);
+
+      // When type information is uncertain, prefer not raising an issue (JS-619)
+      // This follows the principle: avoid false positives over missing true positives
+      if (
+        (lhsType.flags & ts.TypeFlags.Unknown) !== 0 ||
+        (rhsType.flags & ts.TypeFlags.Unknown) !== 0 ||
+        (lhsTypeOriginal.flags & ts.TypeFlags.Unknown) !== 0 ||
+        (rhsTypeOriginal.flags & ts.TypeFlags.Unknown) !== 0 ||
+        (lhsType.flags & ts.TypeFlags.Any) !== 0 ||
+        (rhsType.flags & ts.TypeFlags.Any) !== 0 ||
+        // IndexedAccess types (e.g., T[Key]) have uncertain runtime values
+        (lhsTypeOriginal.flags & ts.TypeFlags.IndexedAccess) !== 0 ||
+        (rhsTypeOriginal.flags & ts.TypeFlags.IndexedAccess) !== 0 ||
+        isGenericType(lhs as TSESTree.Node, services) ||
+        isGenericType(rhs as TSESTree.Node, services)
+      ) {
+        return true;
+      }
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)

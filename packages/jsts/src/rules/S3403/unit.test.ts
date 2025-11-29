@@ -158,6 +158,18 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            code: `
+      // FP: Generic type constrained to Record<string, unknown>
+      // Comparing unknown type with string literal is valid
+      class Foo<T extends Record<string, unknown>> {
+        foo: T;
+        reproduction<Key extends keyof T>(key: Key) {
+          return this.foo[key] === 'foo';
+        }
+      }
+      `,
+          },
         ],
         invalid: [
           {
