@@ -170,6 +170,34 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: Function parameter - could be modified cross-procedurally
+      function processItems(items) {
+        while (items) {
+          doSomething(items);
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: Outer scope variable - could be modified cross-procedurally
+      let outerVar = true;
+      function checkCondition() {
+        while (outerVar) {
+          performTask();
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: Parameter used in loop condition
+      function waitForCondition(isReady) {
+        while (!isReady) {
+          checkStatus();
+        }
+      }`,
+        },
       ],
       invalid: [
         {

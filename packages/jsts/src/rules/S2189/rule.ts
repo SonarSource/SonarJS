@@ -53,6 +53,36 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring non-local variables (JS-131) */
+        // Only report on variables defined locally in the function to avoid FPs
+        // when variables could be modified cross-procedurally
+        if (symbol) {
+          // Ignore function parameters - they could be modified by the caller
+          const isParameter = symbol.defs.some(def => def.type === 'Parameter');
+          if (isParameter) {
+            return;
+          }
+
+          // Find the current function scope
+          let currentScope = context.sourceCode.getScope(node);
+          while (currentScope && currentScope.type !== 'function') {
+            currentScope = currentScope.upper!;
+          }
+
+          // Ignore variables defined outside the current function
+          // by checking if the variable's scope is an ancestor of the current function scope
+          if (currentScope) {
+            let scopeToCheck = currentScope.upper;
+            while (scopeToCheck) {
+              if (symbol.scope === scopeToCheck) {
+                // Variable is defined in an outer scope
+                return;
+              }
+              scopeToCheck = scopeToCheck.upper;
+            }
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
