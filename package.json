@@ -150,7 +150,7 @@
     "typescript": "5.9.3",
     "vue-eslint-parser": "10.2.0",
     "ws": "8.18.3",
-    "yaml": "2.8.1"
+    "yaml": "2.8.2"
   },
   "prettier": {
     "printWidth": 100,
