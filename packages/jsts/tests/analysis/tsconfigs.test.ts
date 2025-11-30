@@ -28,7 +28,7 @@ import {
   setTsConfigPaths,
 } from '../../../shared/src/helpers/configuration.js';
 
-const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures-tsconfigs');
 
 describe('tsconfigs', () => {
   beforeEach(() => {

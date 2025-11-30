@@ -21,7 +21,11 @@ import { join } from 'node:path/posix';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { toUnixPath } from '../../src/rules/helpers/index.js';
-import { analyzeProject } from '../../src/analysis/projectAnalysis/analyzeProject.js';
+import {
+  analyzeProject,
+  cancelAnalysis,
+} from '../../src/analysis/projectAnalysis/analyzeProject.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
 import {
   sourceFileStore,
   tsConfigStore,
@@ -401,5 +405,219 @@ describe('SonarLint tsconfig change detection', () => {
         (call.arguments[0] as string)?.includes('Cache HIT: Recreating program with changes'),
       ),
     ).toBe(true);
+  });
+
+  it('should handle parsing errors with watch program', async () => {
+    // Create a file with a parsing error (incomplete function)
+    await writeFile(filePath, 'function f() {\n  return;\n');
+
+    const files: JsTsFiles = {
+      [filePath]: {
+        filePath,
+        fileType: 'MAIN',
+        fileContent: 'function f() {\n  return;\n',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+
+    const result = await analyzeProject({
+      rules,
+      files,
+      configuration: {
+        baseDir: tempDir,
+        sonarlint: true,
+      },
+    });
+
+    // Should have a parsing error (exact message may vary between parsers)
+    expect(result.files[filePath].parsingError).toBeDefined();
+    expect(result.files[filePath].parsingError?.code).toBe(ErrorCode.Parsing);
+    expect(result.files[filePath].parsingError?.line).toBe(3);
+  });
+
+  it('should cancel analysis', async () => {
+    await writeFile(filePath, 'const x: number = 1;');
+
+    const files: JsTsFiles = {
+      [filePath]: {
+        filePath,
+        fileType: 'MAIN',
+        fileContent: 'const x: number = 1;',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+
+    const analysisPromise = analyzeProject(
+      {
+        rules,
+        files,
+        configuration: {
+          baseDir: tempDir,
+          sonarlint: true,
+        },
+      },
+      message => {
+        expect(message).toEqual({ messageType: 'cancelled' });
+      },
+    );
+    cancelAnalysis();
+    await analysisPromise;
+  });
+
+  it('should use default options when tsconfig has no matching files', async () => {
+    // Create tsconfig.json that only includes .js files
+    const tsconfig = {
+      include: ['*.js'],
+    };
+    await writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2));
+    await writeFile(filePath, 'const x: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const files: JsTsFiles = {
+      [filePath]: {
+        filePath,
+        fileType: 'MAIN',
+        fileContent: 'const x: number = 1;',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+
+    await analyzeProject({
+      rules,
+      files,
+      configuration: {
+        baseDir: tempDir,
+        sonarlint: true,
+      },
+    });
+
+    // Should fall back to default options since tsconfig doesn't include .ts files
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.startsWith(
+          'No tsconfig found for files, using default options',
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should try multiple tsconfigs before finding the matching one', async () => {
+    // Create multiple nested directories with tsconfigs
+    const subDir1 = join(tempDir, 'packages/app');
+    const subDir2 = join(tempDir, 'packages/lib');
+    await mkdir(subDir1, { recursive: true });
+    await mkdir(subDir2, { recursive: true });
+
+    // Root tsconfig that doesn't include our file
+    const rootTsconfig = join(tempDir, 'tsconfig.json');
+    await writeFile(
+      rootTsconfig,
+      JSON.stringify({
+        compilerOptions: { target: 'ES2020' },
+        files: ['non-existing.ts'],
+      }),
+    );
+
+    // Packages/app tsconfig that doesn't include our file
+    const appTsconfig = join(subDir1, 'tsconfig.json');
+    await writeFile(
+      appTsconfig,
+      JSON.stringify({
+        compilerOptions: { target: 'ES2020' },
+        files: ['app.ts'],
+      }),
+    );
+    await writeFile(join(subDir1, 'app.ts'), 'const app = 1;');
+
+    // Packages/lib tsconfig that DOES include our file
+    const libTsconfig = join(subDir2, 'tsconfig.json');
+    await writeFile(
+      libTsconfig,
+      JSON.stringify({
+        compilerOptions: { target: 'ES2020', strict: true },
+        files: ['lib.ts'],
+      }),
+    );
+    const libFile = join(subDir2, 'lib.ts');
+    await writeFile(libFile, 'const lib: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const files: JsTsFiles = {
+      [libFile]: {
+        filePath: libFile,
+        fileType: 'MAIN',
+        fileContent: 'const lib: number = 1;',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+
+    const result = await analyzeProject({
+      rules,
+      files,
+      configuration: {
+        baseDir: tempDir,
+        sonarlint: true,
+      },
+    });
+
+    // File should be analyzed
+    expect(result.files[libFile]).toBeDefined();
+
+    // Should have found the correct tsconfig (the lib one)
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(`Using tsconfig ${libTsconfig}`),
+      ),
+    ).toBe(true);
+  });
+
+  it('should stream results via incrementalResults callback', async () => {
+    await writeFile(filePath, 'const x: number = 1;;');
+
+    const files: JsTsFiles = {
+      [filePath]: {
+        filePath,
+        fileType: 'MAIN',
+        fileContent: 'const x: number = 1;;',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+
+    const receivedMessages: unknown[] = [];
+    const result = await analyzeProject(
+      {
+        rules,
+        files,
+        configuration: {
+          baseDir: tempDir,
+          sonarlint: true,
+        },
+      },
+      message => {
+        receivedMessages.push(message);
+      },
+    );
+
+    // Should receive incremental results (messageType: 'fileResult')
+    expect(receivedMessages.length).toBeGreaterThan(0);
+    expect(
+      receivedMessages.some(m => (m as { messageType: string }).messageType === 'fileResult'),
+    ).toBe(true);
+
+    // When using incrementalResultsChannel, results go to callback not to final result
+    // Verify file result was sent via channel
+    const fileResult = receivedMessages.find(
+      m => (m as { messageType: string; filename?: string }).filename === filePath,
+    );
+    expect(fileResult).toBeDefined();
   });
 });
