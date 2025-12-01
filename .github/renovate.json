@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>SonarSource/renovate-config:languages-team"],
+  "npmrc": "registry=https://repox.jfrog.io/artifactory/api/npm/npm/",
+  "npmrcMerge": true,
   "configMigration": true,
   "enabledManagers": ["github-actions", "maven", "npm"],
   "dockerfile": {
