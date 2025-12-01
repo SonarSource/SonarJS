@@ -170,6 +170,37 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: Non-local variable (parameter) - could be modified cross-procedurally
+      // This should NOT raise an issue because the variable is not defined locally
+      function checkParameter(condition) {
+        while (condition) {
+          doSomething();
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: Non-local variable (closure variable) - could be modified cross-procedurally
+      // This should NOT raise an issue because the variable is not defined locally
+      let outerVar = true;
+      function checkClosure() {
+        while (outerVar) {
+          doSomething();
+        }
+      }`,
+        },
+        {
+          code: `
+      // FP: Non-local variable (global) - could be modified cross-procedurally
+      // This should NOT raise an issue because the variable is not defined locally
+      function checkGlobal() {
+        while (globalVar) {
+          doSomething();
+        }
+      }`,
+        },
       ],
       invalid: [
         {
