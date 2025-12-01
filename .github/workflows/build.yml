@@ -167,6 +167,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
