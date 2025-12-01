@@ -314,7 +314,7 @@ jobs:
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install
+          npm install --ignore-scripts
           npx tsc --noEmit
           npm run test
 
