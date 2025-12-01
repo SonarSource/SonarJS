@@ -35,7 +35,7 @@
     "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm run bridge:bundle && npm pack --ignore-scripts && npm run _:plugin:copy-bridge",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
-    "eslint-plugin:build": "npm ci && npm install --no-save builtin-modules@^3 && npm run eslint-plugin:compile && cd lib && npm pack",
+    "eslint-plugin:build": "npm ci && npm install --no-save builtin-modules@3.3.0 && npm run eslint-plugin:compile && cd lib && npm pack",
     "eslint-plugin:compile": "npm run generate-meta && npm run _:bridge:clear && npm run eslint-plugin:check && npm run eslint-plugin:emit && npm run eslint-plugin:types && npm run eslint-plugin:package-json && npm run eslint-plugin:copy-assets && npm run eslint-docs",
     "eslint-plugin:check": "tsc -p tsconfig-plugin.json --noEmit",
     "eslint-plugin:emit": "tsc -p tsconfig-plugin.json --noCheck --module commonjs --moduleResolution node --outDir lib/cjs",
