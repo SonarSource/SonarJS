@@ -152,6 +152,30 @@ describe('SonarQube project analysis', () => {
     expect(Object.keys(result.files)).toEqual(expect.arrayContaining([rootFile, subFile]));
   });
 
+  it('should skip nonexistent tsconfig references with warning', async ({ mock }) => {
+    mock.method(console, 'log');
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const baseDir = join(fixtures, 'nonexistent-reference');
+    const filePath = join(baseDir, 'file.ts');
+
+    setGlobalConfiguration({ baseDir });
+
+    const result = await analyzeProject({
+      rules,
+      configuration: { baseDir },
+    });
+
+    // File should still be analyzed despite invalid reference
+    expect(Object.keys(result.files)).toContain(filePath);
+
+    // Should log warning about skipping missing reference
+    const warningLogs = consoleLogMock.calls.filter(call =>
+      (call.arguments[0] as string)?.includes('Skipping missing referenced tsconfig.json'),
+    );
+    expect(warningLogs.length).toBeGreaterThanOrEqual(1);
+  });
+
   it('should analyze files from multiple independent tsconfigs', async () => {
     const baseDir = join(fixtures, 'multiple-tsconfigs');
     const frontendFile = join(baseDir, 'frontend/app.ts');
