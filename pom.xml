@@ -74,7 +74,7 @@
     <sonar-orchestrator.version>6.0.1.3892</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.13.2</gson.version>
-    <analyzer-commons.version>2.20.0.4607</analyzer-commons.version>
+    <analyzer-commons.version>2.21.0.4626</analyzer-commons.version>
     <sslr.version>1.24.0.633</sslr.version>
     <sonarlint.plugin.api.version>10.37.1.83894</sonarlint.plugin.api.version>
 
