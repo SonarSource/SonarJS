@@ -1,2 +1,2 @@
-import { helper } from './lib/helper';
+import { helper } from './libs/helper';
 const result = helper(1);;

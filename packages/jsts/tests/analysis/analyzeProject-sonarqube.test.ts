@@ -28,6 +28,7 @@ import {
   tsConfigStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
 import ts from 'typescript';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
@@ -79,9 +80,10 @@ describe('SonarQube project analysis', () => {
       },
     });
 
-    expect(result.files[filePath]).toBeDefined();
+    const fileResult = result.files[filePath];
+    expect(fileResult).toBeDefined();
     // Should find an issue from S1116 (empty statement - the extra semicolon)
-    expect(result.files[filePath].issues?.length).toBeGreaterThan(0);
+    expect('issues' in fileResult && fileResult.issues.length).toBeGreaterThan(0);
 
     // Verify it created a TypeScript program
     expect(
@@ -94,7 +96,7 @@ describe('SonarQube project analysis', () => {
   it('should analyze files from referenced tsconfigs', async () => {
     const baseDir = join(fixtures, 'referenced');
     const mainFile = join(baseDir, 'main.ts');
-    const helperFile = join(baseDir, 'lib/helper.ts');
+    const helperFile = join(baseDir, 'libs/helper.ts');
 
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
@@ -131,13 +133,29 @@ describe('SonarQube project analysis', () => {
     expect(tsconfigLogs.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('should handle tsconfig references with backslashes', async () => {
+    const baseDir = join(fixtures, 'backslash-reference');
+    const rootFile = join(baseDir, 'file.ts');
+    const subFile = join(baseDir, 'subdir/file.ts');
+
+    setGlobalConfiguration({ baseDir });
+
+    // Don't pass explicit files - let the system discover them from tsconfigs
+    const result = await analyzeProject({
+      rules,
+      configuration: {
+        baseDir,
+      },
+    });
+
+    // Both files should be analyzed despite backslash in tsconfig reference
+    expect(Object.keys(result.files)).toEqual(expect.arrayContaining([rootFile, subFile]));
+  });
+
   it('should analyze files from multiple independent tsconfigs', async () => {
     const baseDir = join(fixtures, 'multiple-tsconfigs');
     const frontendFile = join(baseDir, 'frontend/app.ts');
     const backendFile = join(baseDir, 'backend/server.ts');
-
-    console.log = mock.fn(console.log);
-    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
     const files: JsTsFiles = {
       [frontendFile]: {
@@ -161,12 +179,14 @@ describe('SonarQube project analysis', () => {
     });
 
     // Both files should be analyzed
-    expect(result.files[frontendFile]).toBeDefined();
-    expect(result.files[backendFile]).toBeDefined();
+    const frontendResult = result.files[frontendFile];
+    const backendResult = result.files[backendFile];
+    expect(frontendResult).toBeDefined();
+    expect(backendResult).toBeDefined();
 
     // Both files should have issues (empty statements)
-    expect(result.files[frontendFile].issues?.length).toBeGreaterThan(0);
-    expect(result.files[backendFile].issues?.length).toBeGreaterThan(0);
+    expect('issues' in frontendResult && frontendResult.issues.length).toBeGreaterThan(0);
+    expect('issues' in backendResult && backendResult.issues.length).toBeGreaterThan(0);
   });
 
   it('should analyze files not in any tsconfig with default options', async () => {
@@ -391,7 +411,7 @@ describe('SonarQube project analysis', () => {
     setGlobalConfiguration({ baseDir });
 
     const receivedMessages: unknown[] = [];
-    const result = await analyzeProject(
+    await analyzeProject(
       {
         rules,
         files,
@@ -421,7 +441,7 @@ describe('SonarQube project analysis', () => {
   it('should discover and use tsconfigs from project references', async () => {
     const baseDir = join(fixtures, 'with-references');
     const mainFile = join(baseDir, 'main.ts');
-    const helperFile = join(baseDir, 'lib/helper.ts');
+    const helperFile = join(baseDir, 'libs/helper.ts');
 
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
@@ -452,7 +472,7 @@ describe('SonarQube project analysis', () => {
     expect(result.files[helperFile]).toBeDefined();
 
     // Should have discovered the referenced lib tsconfig
-    const libTsconfigPath = join(baseDir, 'lib/tsconfig.json');
+    const libTsconfigPath = join(baseDir, 'libs/tsconfig.json');
     expect(
       consoleLogMock.calls.some(
         call =>
@@ -489,16 +509,18 @@ describe('SonarQube project analysis', () => {
     });
 
     // Both files should be analyzed successfully
-    expect(result.files[includedFile]).toBeDefined();
-    expect(result.files[excludedFile]).toBeDefined();
+    const includedResult = result.files[includedFile];
+    const excludedResult = result.files[excludedFile];
+    expect(includedResult).toBeDefined();
+    expect(excludedResult).toBeDefined();
 
     // Both should have S1116 issues (extra semicolons) - proving analysis worked
-    expect(result.files[includedFile].issues?.length).toBeGreaterThan(0);
-    expect(result.files[excludedFile].issues?.length).toBeGreaterThan(0);
+    expect('issues' in includedResult && includedResult.issues.length).toBeGreaterThan(0);
+    expect('issues' in excludedResult && excludedResult.issues.length).toBeGreaterThan(0);
 
     // Verify the issues are the expected rule
-    expect(result.files[includedFile].issues?.[0].ruleId).toBe('S1116');
-    expect(result.files[excludedFile].issues?.[0].ruleId).toBe('S1116');
+    expect('issues' in includedResult && includedResult.issues[0].ruleId).toBe('S1116');
+    expect('issues' in excludedResult && excludedResult.issues[0].ruleId).toBe('S1116');
   });
 
   it('should route HTML files to HTML analyzer', async () => {
@@ -597,8 +619,42 @@ describe('SonarQube project analysis', () => {
     });
 
     // File entry should exist - file was analyzed from content
-    expect(result.files[nonExistentFile]).toBeDefined();
+    const fileResult = result.files[nonExistentFile];
+    expect(fileResult).toBeDefined();
     // Should have an issue since the code has an extra semicolon
-    expect(result.files[nonExistentFile].issues?.length).toBeGreaterThan(0);
+    expect('issues' in fileResult && fileResult.issues.length).toBeGreaterThan(0);
+  });
+
+  it('should report parsing errors', async () => {
+    const baseDir = join(fixtures, 'parsing-error');
+    const filePath = join(baseDir, 'file.js');
+
+    const files: JsTsFiles = {
+      [filePath]: {
+        filePath,
+        fileType: 'MAIN',
+      },
+    };
+
+    setGlobalConfiguration({ baseDir });
+
+    const result = await analyzeProject({
+      rules,
+      files,
+      configuration: {
+        baseDir,
+      },
+    });
+
+    const fileResult = result.files[filePath];
+    expect(fileResult).toBeDefined();
+    expect('parsingError' in fileResult).toBe(true);
+    if ('parsingError' in fileResult) {
+      expect(fileResult.parsingError).toMatchObject({
+        code: ErrorCode.Parsing,
+        message: 'Unexpected token (3:0)',
+        line: 3,
+      });
+    }
   });
 });

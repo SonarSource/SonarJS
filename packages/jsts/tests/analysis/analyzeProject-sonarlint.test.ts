@@ -36,6 +36,8 @@ import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalys
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 
+const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures-sonarlint'));
+
 const rules: RuleConfig[] = [
   {
     key: 'S1116',
@@ -431,9 +433,12 @@ describe('SonarLint tsconfig change detection', () => {
     });
 
     // Should have a parsing error (exact message may vary between parsers)
-    expect(result.files[filePath].parsingError).toBeDefined();
-    expect(result.files[filePath].parsingError?.code).toBe(ErrorCode.Parsing);
-    expect(result.files[filePath].parsingError?.line).toBe(3);
+    const fileResult = result.files[filePath];
+    expect('parsingError' in fileResult).toBe(true);
+    if ('parsingError' in fileResult) {
+      expect(fileResult.parsingError.code).toBe(ErrorCode.Parsing);
+      expect(fileResult.parsingError.line).toBe(3);
+    }
   });
 
   it('should cancel analysis', async () => {
@@ -593,7 +598,7 @@ describe('SonarLint tsconfig change detection', () => {
     setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
 
     const receivedMessages: unknown[] = [];
-    const result = await analyzeProject(
+    await analyzeProject(
       {
         rules,
         files,
@@ -619,5 +624,39 @@ describe('SonarLint tsconfig change detection', () => {
       m => (m as { messageType: string; filename?: string }).filename === filePath,
     );
     expect(fileResult).toBeDefined();
+  });
+
+  it('should handle error from tsconfig in sonarlint context', async () => {
+    // Clear caches to ensure fresh state
+    tsConfigStore.clearCache();
+    sourceFileStore.clearCache();
+    getProgramCacheManager().clear();
+    clearProgramOptionsCache();
+
+    // The error message is logged via console.error, not console.log
+    console.error = mock.fn(console.error);
+    const consoleErrorMock = (console.error as Mock<typeof console.error>).mock;
+    const baseDir = join(fixtures, 'tsconfig-no-files');
+    const tsFile = join(baseDir, 'file.ts');
+
+    setGlobalConfiguration({ baseDir, sonarlint: true });
+
+    // Pass a file to analyze - this triggers tsconfig lookup which will fail
+    const files: JsTsFiles = {
+      [tsFile]: {
+        filePath: tsFile,
+        fileType: 'MAIN',
+      },
+    };
+
+    await analyzeProject({
+      configuration: { baseDir, sonarlint: true },
+      rules,
+      files,
+    });
+
+    const expectedPrefix = `Failed to parse tsconfig ${join(baseDir, 'tsconfig.json')}`;
+    const errorMessages = consoleErrorMock.calls.map(call => call.arguments[0] as string);
+    expect(errorMessages.some(msg => msg?.startsWith(expectedPrefix))).toBe(true);
   });
 });
