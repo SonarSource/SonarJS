@@ -53,6 +53,61 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        /** Ignoring non-local variables (JS-131)
+         * Only report on variables defined locally to avoid cross-procedural modification FPs
+         */
+        if (symbol) {
+          const currentScope = context.sourceCode.getScope(node);
+
+          let functionScope: Scope.Scope | null = currentScope;
+          while (
+            functionScope &&
+            functionScope.type !== 'function' &&
+            functionScope.type !== 'module'
+          ) {
+            functionScope = functionScope.upper;
+          }
+
+          // Only check locality if inside a function (module-level code reports normally)
+          if (functionScope && functionScope.type === 'function') {
+            const variableScope = symbol.scope;
+            const functionNode = functionScope.block;
+
+            if (
+              functionNode.type === 'FunctionDeclaration' ||
+              functionNode.type === 'FunctionExpression' ||
+              functionNode.type === 'ArrowFunctionExpression'
+            ) {
+              const params = functionNode.params || [];
+              const isParameter = params.some((param: any) => {
+                if (param.type === 'Identifier') {
+                  return param.name === symbol.name;
+                }
+                return false;
+              });
+
+              if (isParameter) {
+                return;
+              }
+            }
+
+            // Check if variable is defined inside the current function
+            let scope: Scope.Scope | null = variableScope;
+            let isInsideFunction = false;
+            while (scope) {
+              if (scope === functionScope) {
+                isInsideFunction = true;
+                break;
+              }
+              scope = scope.upper;
+            }
+
+            if (!isInsideFunction) {
+              return;
+            }
+          }
+        }
+
         /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
