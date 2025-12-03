@@ -37,20 +37,24 @@ const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition')
  */
 function isUsedInFunctionCall(reference: Scope.Reference): boolean {
   const id = reference.identifier as TSESTree.Node;
+  const parent = id.parent;
+
+  if (!parent) {
+    return false;
+  }
 
   if (
-    id.parent?.type === 'CallExpression' &&
-    id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+    parent.type === 'CallExpression' &&
+    parent.arguments.includes(id as TSESTree.CallExpressionArgument)
   ) {
     return true;
   }
 
-  if (
-    id.parent?.type === 'MemberExpression' &&
-    id.parent?.parent?.type === 'CallExpression' &&
-    id.parent.object === id
-  ) {
-    return true;
+  if (parent.type === 'MemberExpression' && parent.object === id) {
+    const grandParent = parent.parent;
+    if (grandParent && grandParent.type === 'CallExpression') {
+      return true;
+    }
   }
 
   return false;
@@ -76,10 +80,15 @@ function shouldExcludeFileScopeVariable(
       return false;
     }
     const writeNode = ref.identifier as estree.Node;
-    if (!loopBody || !loopBody.range || !writeNode.range) {
+    const writeRange = writeNode.range;
+    const bodyRange = loopBody?.range;
+
+    if (!bodyRange || !writeRange) {
       return true;
     }
-    return !(loopBody.range[0] <= writeNode.range[0] && loopBody.range[1] >= writeNode.range[1]);
+
+    const isInsideLoop = bodyRange[0] <= writeRange[0] && bodyRange[1] >= writeRange[1];
+    return !isInsideLoop;
   });
 
   if (hasWriteElsewhere) {
@@ -203,32 +212,46 @@ class LoopVisitor {
 
   private visit(root: estree.Node, context: Rule.RuleContext) {
     const visitNode = (node: estree.Node, isNestedLoop = false) => {
-      switch (node.type) {
-        case 'WhileStatement':
-        case 'DoWhileStatement':
-        case 'ForStatement':
-          isNestedLoop = true;
-          break;
-        case 'FunctionExpression':
-        case 'FunctionDeclaration':
-          // Don't consider nested functions
-          return;
-        case 'BreakStatement':
-          if (!isNestedLoop || !!node.label) {
-            this.hasEndCondition = true;
-          }
-          break;
-        case 'YieldExpression':
-        case 'ReturnStatement':
-        case 'ThrowStatement':
-          this.hasEndCondition = true;
-          return;
+      if (this.shouldStopVisiting(node, isNestedLoop)) {
+        return;
       }
+
+      const updatedNestedLoop = this.isLoopStatement(node) ? true : isNestedLoop;
+
       for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
-        visitNode(child, isNestedLoop);
+        visitNode(child, updatedNestedLoop);
       }
     };
     visitNode(root);
+  }
+
+  private isLoopStatement(node: estree.Node): boolean {
+    return ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(node.type);
+  }
+
+  private shouldStopVisiting(node: estree.Node, isNestedLoop: boolean): boolean {
+    if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+      return true;
+    }
+
+    if (node.type === 'BreakStatement') {
+      const breakStatement = node as estree.BreakStatement;
+      if (!isNestedLoop || breakStatement.label) {
+        this.hasEndCondition = true;
+      }
+      return false;
+    }
+
+    if (
+      node.type === 'YieldExpression' ||
+      node.type === 'ReturnStatement' ||
+      node.type === 'ThrowStatement'
+    ) {
+      this.hasEndCondition = true;
+      return true;
+    }
+
+    return false;
   }
 }
 
