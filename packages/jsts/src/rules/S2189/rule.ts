@@ -21,6 +21,7 @@ import { getESLintCoreRule } from '../external/core.js';
 import type estree from 'estree';
 import {
   childrenOf,
+  findFirstMatchingAncestor,
   generateMeta,
   interceptReport,
   isUndefined,
@@ -78,7 +79,7 @@ export const rule: Rule.RuleModule = {
           // Check if variable is imported/required
           const def = symbol.defs[0];
           if (def?.type === 'ImportBinding') {
-            return; // Don't raise on imported variables
+            return;
           }
 
           // Check if variable is at file/module scope (not local to a function)
@@ -87,30 +88,39 @@ export const rule: Rule.RuleModule = {
 
           if (isFileScope) {
             // For file-scope variables, apply additional checks to avoid FPs
-            const loopBody = getLoopBody(node, context);
+            const loopStatement = findFirstMatchingAncestor(node as TSESTree.Node, n =>
+              ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(n.type),
+            );
+            const loopBody = loopStatement
+              ? (
+                  loopStatement as
+                    | estree.WhileStatement
+                    | estree.DoWhileStatement
+                    | estree.ForStatement
+                ).body
+              : null;
 
             // Check if variable is written to elsewhere in the file (outside the current loop)
-            // Exclude the initial declaration - we only care about modifications
             const hasWriteElsewhere = symbol.references.some(ref => {
-              if (!ref.isWrite()) return false;
-              // Skip if this is the initial declaration/definition
-              if (ref.init) return false;
-              // Check if this write is outside the current loop
+              if (!ref.isWrite() || ref.init) return false;
               const writeNode = ref.identifier as estree.Node;
-              return loopBody ? !contains(loopBody, writeNode) : true;
+              // Check if this write is outside the current loop
+              if (!loopBody) return true;
+              return !(
+                loopBody.range![0] <= writeNode.range![0] &&
+                loopBody.range![1] >= writeNode.range![1]
+              );
             });
             if (hasWriteElsewhere) {
               return; // Don't raise - variable is modified elsewhere
             }
 
-            // Check if there's any function call in the loop (conservative check for file-scope)
+            // Check if there's any function call in the loop
             // Any function call could potentially modify file-scope variables
-            const hasCall = loopBody && hasFunctionCall(loopBody, context);
-            if (hasCall) {
-              return; // Don't raise - function might modify file-scope variable
+            if (loopBody && hasFunctionCall(loopBody, context)) {
+              return;
             }
           }
-          // For local variables (not file-scope), always report
 
           alreadyRaisedSymbols.add(symbol);
         }
@@ -204,25 +214,7 @@ class LoopVisitor {
 }
 
 /**
- * Get the loop body that contains the condition node (JS-131)
- */
-function getLoopBody(conditionNode: estree.Node, context: Rule.RuleContext): estree.Node | null {
-  // Find the loop statement that contains this condition
-  const ancestors = context.sourceCode.getAncestors(conditionNode);
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-    if (ancestor.type === 'WhileStatement' || ancestor.type === 'DoWhileStatement') {
-      return (ancestor as estree.WhileStatement | estree.DoWhileStatement).body;
-    }
-    if (ancestor.type === 'ForStatement') {
-      return (ancestor as estree.ForStatement).body;
-    }
-  }
-  return null;
-}
-
-/**
- * Check if there are any function calls in the given AST subtree (JS-131)
+ * Check if there are any function calls in the given AST subtree
  */
 function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean {
   let found = false;
@@ -232,7 +224,7 @@ function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean 
       found = true;
       return;
     }
-    // Don't look inside nested function declarations/expressions
+    // Don't look inside nested functions
     if (
       n.type === 'FunctionExpression' ||
       n.type === 'FunctionDeclaration' ||
@@ -246,11 +238,4 @@ function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean 
   };
   visit(node);
   return found;
-}
-
-/**
- * Check if node is contained within container (JS-131)
- */
-function contains(container: estree.Node, node: estree.Node): boolean {
-  return container.range![0] <= node.range![0] && container.range![1] >= node.range![1];
 }
