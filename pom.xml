@@ -75,7 +75,7 @@
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.13.2</gson.version>
     <analyzer-commons.version>2.21.0.4626</analyzer-commons.version>
-    <sslr.version>1.25.0.3875</sslr.version>
+    <sslr.version>1.25.0.3878</sslr.version>
     <sonarlint.plugin.api.version>10.37.1.83894</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
