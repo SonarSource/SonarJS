@@ -32,9 +32,70 @@ import * as meta from './generated-meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
+/**
+ * Check if a reference represents a symbol being used in a function call context
+ */
+function isUsedInFunctionCall(reference: Scope.Reference): boolean {
+  const id = reference.identifier as TSESTree.Node;
+
+  if (
+    id.parent?.type === 'CallExpression' &&
+    id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+  ) {
+    return true;
+  }
+
+  if (
+    id.parent?.type === 'MemberExpression' &&
+    id.parent?.parent?.type === 'CallExpression' &&
+    id.parent.object === id
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if a file-scope variable should be excluded from reporting
+ */
+function shouldExcludeFileScopeVariable(
+  symbol: Scope.Variable,
+  node: TSESTree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const loopStatement = findFirstMatchingAncestor(node, n =>
+    ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(n.type),
+  );
+  const loopBody = loopStatement
+    ? (loopStatement as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).body
+    : null;
+
+  const hasWriteElsewhere = symbol.references.some(ref => {
+    if (!ref.isWrite() || ref.init) {
+      return false;
+    }
+    const writeNode = ref.identifier as estree.Node;
+    if (!loopBody || !loopBody.range || !writeNode.range) {
+      return true;
+    }
+    return !(loopBody.range[0] <= writeNode.range[0] && loopBody.range[1] >= writeNode.range[1]);
+  });
+
+  if (hasWriteElsewhere) {
+    return true;
+  }
+
+  if (loopBody && hasFunctionCall(loopBody, context)) {
+    return true;
+  }
+
+  return false;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...noUnmodifiedLoopEslint.meta!.messages },
+    messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
   }),
   create(context: Rule.RuleContext) {
     /**
@@ -49,77 +110,31 @@ export const rule: Rule.RuleModule = {
         const symbol = context.sourceCode
           .getScope(node)
           .references.find(v => v.identifier === node)?.resolved;
-        /** Ignoring symbols that have already been reported */
+
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
         }
 
-        /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
-          const id = reference.identifier as TSESTree.Node;
-
-          if (
-            id.parent?.type === 'CallExpression' &&
-            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
-          ) {
-            return;
-          }
-
-          if (
-            id.parent?.type === 'MemberExpression' &&
-            id.parent.parent?.type === 'CallExpression' &&
-            id.parent.object === id
-          ) {
+          if (isUsedInFunctionCall(reference)) {
             return;
           }
         }
 
-        /** JS-131: Only report on local variables to avoid FPs */
         if (symbol) {
-          // Check if variable is imported/required
           const def = symbol.defs[0];
           if (def?.type === 'ImportBinding') {
             return;
           }
 
-          // Check if variable is at file/module scope (not local to a function)
           const scope = symbol.scope;
           const isFileScope = scope.type === 'module' || scope.type === 'global';
 
-          if (isFileScope) {
-            // For file-scope variables, apply additional checks to avoid FPs
-            const loopStatement = findFirstMatchingAncestor(node as TSESTree.Node, n =>
-              ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(n.type),
-            );
-            const loopBody = loopStatement
-              ? (
-                  loopStatement as
-                    | estree.WhileStatement
-                    | estree.DoWhileStatement
-                    | estree.ForStatement
-                ).body
-              : null;
-
-            // Check if variable is written to elsewhere in the file (outside the current loop)
-            const hasWriteElsewhere = symbol.references.some(ref => {
-              if (!ref.isWrite() || ref.init) return false;
-              const writeNode = ref.identifier as estree.Node;
-              // Check if this write is outside the current loop
-              if (!loopBody) return true;
-              return !(
-                loopBody.range![0] <= writeNode.range![0] &&
-                loopBody.range![1] >= writeNode.range![1]
-              );
-            });
-            if (hasWriteElsewhere) {
-              return; // Don't raise - variable is modified elsewhere
-            }
-
-            // Check if there's any function call in the loop
-            // Any function call could potentially modify file-scope variables
-            if (loopBody && hasFunctionCall(loopBody, context)) {
-              return;
-            }
+          if (
+            isFileScope &&
+            shouldExcludeFileScopeVariable(symbol, node as TSESTree.Node, context)
+          ) {
+            return;
           }
 
           alreadyRaisedSymbols.add(symbol);
@@ -144,10 +159,12 @@ export const rule: Rule.RuleModule = {
               const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
               if (!hasEndCondition) {
                 const firstToken = context.sourceCode.getFirstToken(node);
-                context.report({
-                  loc: firstToken!.loc,
-                  message: MESSAGE,
-                });
+                if (firstToken) {
+                  context.report({
+                    loc: firstToken.loc,
+                    message: MESSAGE,
+                  });
+                }
               }
             }
           },
@@ -159,7 +176,9 @@ export const rule: Rule.RuleModule = {
             const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
             if (!hasEndCondition) {
               const firstToken = context.sourceCode.getFirstToken(node);
-              context.report({ loc: firstToken!.loc, message: MESSAGE });
+              if (firstToken) {
+                context.report({ loc: firstToken.loc, message: MESSAGE });
+              }
             }
           }
         }
@@ -219,7 +238,9 @@ class LoopVisitor {
 function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean {
   let found = false;
   const visit = (n: estree.Node) => {
-    if (found) return;
+    if (found) {
+      return;
+    }
     if (n.type === 'CallExpression') {
       found = true;
       return;
