@@ -61,6 +61,25 @@ function isUsedInFunctionCall(reference: Scope.Reference): boolean {
 }
 
 /**
+ * Check if a reference is a write outside the loop
+ */
+function isWriteOutsideLoop(ref: Scope.Reference, loopBody: estree.Node | null): boolean {
+  if (!ref.isWrite() || ref.init) {
+    return false;
+  }
+  const writeNode = ref.identifier as estree.Node;
+  const writeRange = writeNode.range;
+  const bodyRange = loopBody?.range;
+
+  if (!bodyRange || !writeRange) {
+    return true;
+  }
+
+  const isInsideLoop = bodyRange[0] <= writeRange[0] && bodyRange[1] >= writeRange[1];
+  return !isInsideLoop;
+}
+
+/**
  * Check if a file-scope variable should be excluded from reporting
  */
 function shouldExcludeFileScopeVariable(
@@ -75,21 +94,7 @@ function shouldExcludeFileScopeVariable(
     ? (loopStatement as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).body
     : null;
 
-  const hasWriteElsewhere = symbol.references.some(ref => {
-    if (!ref.isWrite() || ref.init) {
-      return false;
-    }
-    const writeNode = ref.identifier as estree.Node;
-    const writeRange = writeNode.range;
-    const bodyRange = loopBody?.range;
-
-    if (!bodyRange || !writeRange) {
-      return true;
-    }
-
-    const isInsideLoop = bodyRange[0] <= writeRange[0] && bodyRange[1] >= writeRange[1];
-    return !isInsideLoop;
-  });
+  const hasWriteElsewhere = symbol.references.some(ref => isWriteOutsideLoop(ref, loopBody));
 
   if (hasWriteElsewhere) {
     return true;
@@ -259,27 +264,19 @@ class LoopVisitor {
  * Check if there are any function calls in the given AST subtree
  */
 function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean {
-  let found = false;
-  const visit = (n: estree.Node) => {
-    if (found) {
-      return;
-    }
-    if (n.type === 'CallExpression') {
-      found = true;
-      return;
-    }
-    // Don't look inside nested functions
-    if (
-      n.type === 'FunctionExpression' ||
-      n.type === 'FunctionDeclaration' ||
-      n.type === 'ArrowFunctionExpression'
-    ) {
-      return;
-    }
-    for (const child of childrenOf(n, context.sourceCode.visitorKeys)) {
-      visit(child);
-    }
-  };
-  visit(node);
-  return found;
+  if (node.type === 'CallExpression') {
+    return true;
+  }
+
+  if (
+    node.type === 'FunctionExpression' ||
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'ArrowFunctionExpression'
+  ) {
+    return false;
+  }
+
+  return childrenOf(node, context.sourceCode.visitorKeys).some(child =>
+    hasFunctionCall(child, context),
+  );
 }
