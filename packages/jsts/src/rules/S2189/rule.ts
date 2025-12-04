@@ -24,6 +24,7 @@ import {
   findFirstMatchingAncestor,
   generateMeta,
   interceptReport,
+  isFunctionNode,
   isUndefined,
   mergeRules,
 } from '../helpers/index.js';
@@ -237,7 +238,7 @@ class LoopVisitor {
   }
 
   private shouldStopVisiting(node: estree.Node, isNestedLoop: boolean): boolean {
-    if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+    if (isFunctionNode(node)) {
       return true;
     }
 
@@ -269,11 +270,7 @@ function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean 
     return true;
   }
 
-  if (
-    node.type === 'FunctionExpression' ||
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'ArrowFunctionExpression'
-  ) {
+  if (isFunctionNode(node)) {
     return false;
   }
 
