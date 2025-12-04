@@ -274,9 +274,15 @@ class PRAnalysisTest {
       )
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(
-        MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
+        MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "[11.6,11.7)")
+      )
+      .addPlugin(
+        MavenLocation.of(
+          "com.sonarsource.security",
+          "sonar-security-js-frontend-plugin",
+          "[11.6,11.7)"
+        )
       )
       .addPlugin(
         MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
