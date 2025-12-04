@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-it-plugin-plugins</artifactId>
-    <version>10.21.1-SNAPSHOT</version>
+    <version>10.21.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>consumer-plugin</artifactId>
