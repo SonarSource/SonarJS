@@ -1,8 +1,8 @@
 <p>This rule is deprecated; use {rule:javascript:S5852}, {rule:javascript:S2631} instead.</p>
 <p>Using regular expressions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16021">CVE-2017-16021</a> </li>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-13863">CVE-2018-13863</a> </li>
+  <li> <a href="https://www.cve.org/CVERecord?id=CVE-2017-16021">CVE-2017-16021</a> </li>
+  <li> <a href="https://www.cve.org/CVERecord?id=CVE-2018-13863">CVE-2018-13863</a> </li>
 </ul>
 <p>Evaluating regular expressions against input strings is potentially an extremely CPU-intensive task. Specially crafted regular expressions such as
 <code>(a+)+s</code> will take several seconds to evaluate the input string <code>aaaaaaaaaaaaaaaaaaaaaaaaaaaaabs</code>. The problem is that with

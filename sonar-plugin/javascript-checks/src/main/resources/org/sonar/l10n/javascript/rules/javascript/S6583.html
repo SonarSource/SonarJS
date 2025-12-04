@@ -1,6 +1,6 @@
 <h2>Why is this an issue?</h2>
 <p>TypeScript provides both numeric and string-based enums. Members of enums can be assigned strings, numbers, both, or none, which default to numbers
-starting from zero. Although it is possble to mix the types of enum member values, it is generally considered confusing and a bad practice.</p>
+starting from zero. Although it is possible to mix the types of enum member values, it is generally considered confusing and a bad practice.</p>
 <p>Enum members should be consistently assigned values of the same type, that is, strings or numbers.</p>
 <h2>How to fix it</h2>
 <p>Either assign all enum members with values of the same type or none of them.</p>
@@ -40,5 +40,8 @@ enum Direction {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
+  <li> <a href="https://typescript-eslint.io/">typescript-eslint</a> - Rule <a
+  href="https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-mixed-enums.mdx">no-mixed-enums</a>
+  </li>
   <li> TypeScript Documentation - <a href="https://www.typescriptlang.org/docs/handbook/enums.html">Enums</a> </li>
 </ul>

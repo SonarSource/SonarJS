@@ -1,5 +1,5 @@
 {
-  "title": "Using unencrypted Elasticsearch domains is security-sensitive",
+  "title": "Using unencrypted Opensearch domains is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {

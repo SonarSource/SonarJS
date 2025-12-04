@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2025 SonarSource SA
+ * Copyright (C) 2012-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -274,9 +274,15 @@ class PRAnalysisTest {
       )
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(
-        MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
+        MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "11.6.0.39346")
+      )
+      .addPlugin(
+        MavenLocation.of(
+          "com.sonarsource.security",
+          "sonar-security-js-frontend-plugin",
+          "11.6.0.39346"
+        )
       )
       .addPlugin(
         MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")

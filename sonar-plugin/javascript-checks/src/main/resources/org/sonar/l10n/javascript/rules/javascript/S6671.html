@@ -14,7 +14,7 @@ new Promise(function(resolve, reject) {
   reject('Something went wrong'); // Noncompliant: use Error object instead of literal
 });
 </pre>
-<p>To fix your code provide an instanse of the Error class to the promise reject function.</p>
+<p>To fix your code provide an instance of the Error class to the promise reject function.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 new Promise(function(resolve, reject) {
   reject(new Error('Network timeout'));
@@ -27,6 +27,8 @@ new Promise(function(resolve, reject) {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
+  <li> <a href="https://typescript-eslint.io/">typescript-eslint</a> - Rule <a
+  href="https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-promise-reject-errors.mdx">prefer-promise-reject-errors</a> </li>
   <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> </li>
   <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a> </li>
 </ul>

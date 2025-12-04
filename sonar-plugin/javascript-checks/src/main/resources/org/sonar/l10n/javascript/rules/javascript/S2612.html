@@ -12,18 +12,18 @@ information, disrupt services or elevate privileges.</p>
 <p>The most restrictive possible permissions should be assigned to files and directories.</p>
 <h2>Sensitive Code Example</h2>
 <p>Node.js <a href="https://nodejs.org/api/fs.html"><code>fs</code></a></p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 const fs = require('fs');
 
 fs.chmodSync("/tmp/fs", 0o777); // Sensitive
 </pre>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 const fs = require('fs');
 const fsPromises = fs.promises;
 
 fsPromises.chmod("/tmp/fsPromises", 0o777); // Sensitive
 </pre>
-<pre>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 const fs = require('fs');
 const fsPromises = fs.promises
 
@@ -39,25 +39,25 @@ async function fileHandler() {
 }
 </pre>
 <p>Node.js <a href="https://nodejs.org/api/process.html#process_process_umask_mask"><code>process.umask</code></a></p>
-<pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
 const process = require('process');
 
 process.umask(0o000); // Sensitive
 </pre>
 <h2>Compliant Solution</h2>
 <p>Node.js <a href="https://nodejs.org/api/fs.html"><code>fs</code></a></p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 const fs = require('fs');
 
-fs.chmodSync("/tmp/fs", 0o770); // Compliant
+fs.chmodSync("/tmp/fs", 0o770);
 </pre>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 const fs = require('fs');
 const fsPromises = fs.promises;
 
-fsPromises.chmod("/tmp/fsPromises", 0o770); // Compliant
+fsPromises.chmod("/tmp/fsPromises", 0o770);
 </pre>
-<pre>
+<pre data-diff-id="3" data-diff-type="compliant">
 const fs = require('fs');
 const fsPromises = fs.promises
 
@@ -65,7 +65,7 @@ async function fileHandler() {
   let filehandle;
   try {
     filehandle = fsPromises.open('/tmp/fsPromises', 'r');
-    filehandle.chmod(0o770); // Compliant
+    filehandle.chmod(0o770);
   } finally {
     if (filehandle !== undefined)
       filehandle.close();
@@ -73,10 +73,10 @@ async function fileHandler() {
 }
 </pre>
 <p>Node.js <a href="https://nodejs.org/api/process.html#process_process_umask_mask"><code>process.umask</code></a></p>
-<pre>
+<pre data-diff-id="4" data-diff-type="compliant">
 const process = require('process');
 
-process.umask(0o007); // Compliant
+process.umask(0o007);
 </pre>
 <h2>See</h2>
 <ul>

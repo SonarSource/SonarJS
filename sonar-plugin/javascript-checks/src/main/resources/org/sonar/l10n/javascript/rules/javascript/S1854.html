@@ -21,7 +21,7 @@ let [x1, x2, x3] = arr;     // 'x1' is noncompliant, as omitting syntax can be u
 doSomething(x2, x3);
 </pre>
 <h2>How to fix it</h2>
-<p>Remove the unnecesarry assignment, then test the code to make sure that the right-hand side of a given assignment had no side effects (e.g. a
+<p>Remove the unnecessary assignment, then test the code to make sure that the right-hand side of a given assignment had no side effects (e.g. a
 method that writes certain data to a file and returns the number of written bytes).</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
