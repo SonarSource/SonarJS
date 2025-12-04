@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -95,8 +95,10 @@ public class StylelintReportSensor implements Sensor {
         charsetName = StandardCharsets.UTF_8.name();
       }
 
-      IssuesPerFile[] issues = new Gson()
-        .fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
+      IssuesPerFile[] issues = new Gson().fromJson(
+        new InputStreamReader(bomInputStream, charsetName),
+        IssuesPerFile[].class
+      );
       for (IssuesPerFile issuesPerFile : issues) {
         InputFile inputFile = getInputFile(context, issuesPerFile.source);
         if (inputFile != null) {

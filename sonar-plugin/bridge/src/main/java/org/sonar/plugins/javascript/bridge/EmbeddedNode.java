@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -258,8 +258,8 @@ public class EmbeddedNode {
         try {
           LOG.debug(
             "Lock taken, waiting " +
-            EXTRACTION_LOCK_WAIT_TIME_MILLIS +
-            "ms for other process to extract node runtime."
+              EXTRACTION_LOCK_WAIT_TIME_MILLIS +
+              "ms for other process to extract node runtime."
           );
           Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
         } catch (InterruptedException e) {

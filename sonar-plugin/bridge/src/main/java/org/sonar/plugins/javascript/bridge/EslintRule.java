@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -64,7 +64,10 @@ public class EslintRule {
   }
 
   static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
-    return rules.stream().filter(rule -> !blackListRuleKeys.contains(rule.key)).toList();
+    return rules
+      .stream()
+      .filter(rule -> !blackListRuleKeys.contains(rule.key))
+      .toList();
   }
 
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {

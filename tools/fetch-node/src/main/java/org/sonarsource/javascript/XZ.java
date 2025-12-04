@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,9 @@ public class XZ {
     }
     List<String> filenames = Collections.emptyList();
     try {
-      filenames = Stream.of(args).map(filename -> filename.replaceAll("[\\\\/]+", "/")).toList();
+      filenames = Stream.of(args)
+        .map(filename -> filename.replaceAll("[\\\\/]+", "/"))
+        .toList();
 
       compress(filenames);
     } catch (IOException e) {

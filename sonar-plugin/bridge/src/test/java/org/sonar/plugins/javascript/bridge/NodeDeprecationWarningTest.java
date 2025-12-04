@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(16);
     assertWarnings(
       "Using Node.js version 16 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
+        "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
     );
   }
 
@@ -60,7 +60,7 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(22);
     assertWarnings(
       "Using Node.js version 18 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
+        "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
     );
   }
 

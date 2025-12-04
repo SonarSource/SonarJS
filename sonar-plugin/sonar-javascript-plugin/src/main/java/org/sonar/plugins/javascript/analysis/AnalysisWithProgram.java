@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -73,12 +73,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         if (program.error() != null) {
           LOG.error("Failed to create program: {}", program.error());
           this.analysisWarnings.addUnique(
-              String.format(
-                "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-                tsConfig,
-                JavaScriptPlugin.TYPESCRIPT_VERSION
-              )
-            );
+            String.format(
+              "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
+              tsConfig,
+              JavaScriptPlugin.TYPESCRIPT_VERSION
+            )
+          );
           continue;
         }
         if (program.missingTsConfig()) {
@@ -108,11 +108,11 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       success = true;
       if (analysisProcessor.parsingErrorFilesCount() > 0) {
         this.analysisWarnings.addUnique(
-            String.format(
-              "There were parsing errors in %d files while analyzing the project. Check the logs for further details.",
-              analysisProcessor.parsingErrorFilesCount()
-            )
-          );
+          String.format(
+            "There were parsing errors in %d files while analyzing the project. Check the logs for further details.",
+            analysisProcessor.parsingErrorFilesCount()
+          )
+        );
       }
       new PluginTelemetry(context, bridgeServer).reportTelemetry();
     } finally {

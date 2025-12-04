@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -184,10 +184,10 @@ class JavaScriptEslintBasedSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
-      "]}"
+        "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+        "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
+        "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+        "]}"
     );
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
 
@@ -234,10 +234,10 @@ class JavaScriptEslintBasedSensorTest {
   void should_set_quickfixavailable() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
-      "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
-      "}" +
-      "]}"
+        "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+        "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
+        "}" +
+        "]}"
     );
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
 
@@ -271,11 +271,11 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
       response(
         "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-        "\"cost\": 14," +
-        "\"secondaryLocations\": [" +
-        "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
-        "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-        "]}]}"
+          "\"cost\": 14," +
+          "\"secondaryLocations\": [" +
+          "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
+          "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
+          "]}]}"
       )
     );
 
@@ -313,9 +313,9 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
       response(
         "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-        "\"secondaryLocations\": [" +
-        "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-        "]}]}"
+          "\"secondaryLocations\": [" +
+          "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
+          "]}]}"
       )
     );
 
@@ -336,8 +336,8 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
       response(
         "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-        "\"cost\": 42," +
-        "\"secondaryLocations\": []}]}"
+          "\"cost\": 42," +
+          "\"secondaryLocations\": []}]}"
       )
     );
 
@@ -596,11 +596,10 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_raise_a_parsing_error() throws IOException {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     createSensor().execute(context);
@@ -618,11 +617,10 @@ class JavaScriptEslintBasedSensorTest {
   @Test
   void should_not_create_parsing_issue_when_no_rule() throws IOException {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     new JsTsSensor(

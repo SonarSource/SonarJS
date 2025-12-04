@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -148,7 +148,9 @@ class AnalysisModeTest {
   }
 
   private static Stream<InputFile> files(int count, Function<String, InputFile> factory) {
-    return IntStream.range(0, count).mapToObj(i -> String.format("file-%d.js", i + 1)).map(factory);
+    return IntStream.range(0, count)
+      .mapToObj(i -> String.format("file-%d.js", i + 1))
+      .map(factory);
   }
 
   private static InputFile changedFile(String filename) {

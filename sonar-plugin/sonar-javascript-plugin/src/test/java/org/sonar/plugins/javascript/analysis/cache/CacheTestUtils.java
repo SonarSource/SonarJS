@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -101,7 +101,7 @@ public class CacheTestUtils {
     when(cache.read("js:filemetadata:1.0:moduleKey:" + filePath)).thenReturn(
       inputStream(
         "{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +
-        "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"
+          "-97,53,64,108,112,-2,104,-75,-23,-111,119,77]}"
       )
     );
 

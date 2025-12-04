@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -100,91 +100,90 @@ public class ESTreeFactory {
   }
 
   public static <T> T from(Node node, Class<T> clazz) {
-    ESTree.Node estreeNode =
-      switch (node.getType()) {
-        case ProgramType -> fromProgramType(node);
-        case ExportAllDeclarationType -> fromExportAllDeclarationType(node);
-        case IdentifierType -> fromIdentifierType(node);
-        case ExportDefaultDeclarationType -> fromExportDefaultDeclarationType(node);
-        case YieldExpressionType -> fromYieldExpressionType(node);
-        case UpdateExpressionType -> fromUpdateExpressionType(node);
-        case UnaryExpressionType -> fromUnaryExpressionType(node);
-        case ThisExpressionType -> fromThisExpressionType(node);
-        case TemplateLiteralType -> fromTemplateLiteralType(node);
-        case TaggedTemplateExpressionType -> fromTaggedTemplateExpressionType(node);
-        case SequenceExpressionType -> fromSequenceExpressionType(node);
-        case ObjectExpressionType -> fromObjectExpressionType(node);
-        case SpreadElementType -> fromSpreadElementType(node);
-        case PropertyType -> fromPropertyType(node);
-        case AssignmentPatternType -> fromAssignmentPatternType(node);
-        case RestElementType -> fromRestElementType(node);
-        case ArrayPatternType -> fromArrayPatternType(node);
-        case ObjectPatternType -> fromObjectPatternType(node);
-        case PrivateIdentifierType -> fromPrivateIdentifierType(node);
-        case NewExpressionType -> fromNewExpressionType(node);
-        case SuperType -> fromSuperType(node);
-        case MetaPropertyType -> fromMetaPropertyType(node);
-        case MemberExpressionType -> fromMemberExpressionType(node);
-        case LogicalExpressionType -> fromLogicalExpressionType(node);
-        case ImportExpressionType -> fromImportExpressionType(node);
-        case BlockStatementType -> fromBlockStatementType(node);
-        case ConditionalExpressionType -> fromConditionalExpressionType(node);
-        case ClassExpressionType -> fromClassExpressionType(node);
-        case ClassBodyType -> fromClassBodyType(node);
-        case StaticBlockType -> fromStaticBlockType(node);
-        case PropertyDefinitionType -> fromPropertyDefinitionType(node);
-        case MethodDefinitionType -> fromMethodDefinitionType(node);
-        case ChainExpressionType -> fromChainExpressionType(node);
-        case CallExpressionType -> fromCallExpressionType(node);
-        case BinaryExpressionType -> fromBinaryExpressionType(node);
-        case AwaitExpressionType -> fromAwaitExpressionType(node);
-        case AssignmentExpressionType -> fromAssignmentExpressionType(node);
-        case ArrowFunctionExpressionType -> fromArrowFunctionExpressionType(node);
-        case ArrayExpressionType -> fromArrayExpressionType(node);
-        case ClassDeclarationType -> fromClassDeclarationType(node);
-        case FunctionDeclarationType -> fromFunctionDeclarationType(node);
-        case ExportNamedDeclarationType -> fromExportNamedDeclarationType(node);
-        case ExportSpecifierType -> fromExportSpecifierType(node);
-        case VariableDeclarationType -> fromVariableDeclarationType(node);
-        case VariableDeclaratorType -> fromVariableDeclaratorType(node);
-        case ImportDeclarationType -> fromImportDeclarationType(node);
-        case ImportNamespaceSpecifierType -> fromImportNamespaceSpecifierType(node);
-        case ImportDefaultSpecifierType -> fromImportDefaultSpecifierType(node);
-        case ImportSpecifierType -> fromImportSpecifierType(node);
-        case ForOfStatementType -> fromForOfStatementType(node);
-        case ForInStatementType -> fromForInStatementType(node);
-        case ForStatementType -> fromForStatementType(node);
-        case DoWhileStatementType -> fromDoWhileStatementType(node);
-        case WhileStatementType -> fromWhileStatementType(node);
-        case TryStatementType -> fromTryStatementType(node);
-        case CatchClauseType -> fromCatchClauseType(node);
-        case ThrowStatementType -> fromThrowStatementType(node);
-        case SwitchStatementType -> fromSwitchStatementType(node);
-        case SwitchCaseType -> fromSwitchCaseType(node);
-        case IfStatementType -> fromIfStatementType(node);
-        case ContinueStatementType -> fromContinueStatementType(node);
-        case BreakStatementType -> fromBreakStatementType(node);
-        case LabeledStatementType -> fromLabeledStatementType(node);
-        case ReturnStatementType -> fromReturnStatementType(node);
-        case WithStatementType -> fromWithStatementType(node);
-        case DebuggerStatementType -> fromDebuggerStatementType(node);
-        case EmptyStatementType -> fromEmptyStatementType(node);
-        case ExpressionStatementType -> {
-          if (node.getExpressionStatement().hasDirective()) {
-            yield fromDirective(node);
-          } else {
-            yield fromExpressionStatementType(node);
-          }
+    ESTree.Node estreeNode = switch (node.getType()) {
+      case ProgramType -> fromProgramType(node);
+      case ExportAllDeclarationType -> fromExportAllDeclarationType(node);
+      case IdentifierType -> fromIdentifierType(node);
+      case ExportDefaultDeclarationType -> fromExportDefaultDeclarationType(node);
+      case YieldExpressionType -> fromYieldExpressionType(node);
+      case UpdateExpressionType -> fromUpdateExpressionType(node);
+      case UnaryExpressionType -> fromUnaryExpressionType(node);
+      case ThisExpressionType -> fromThisExpressionType(node);
+      case TemplateLiteralType -> fromTemplateLiteralType(node);
+      case TaggedTemplateExpressionType -> fromTaggedTemplateExpressionType(node);
+      case SequenceExpressionType -> fromSequenceExpressionType(node);
+      case ObjectExpressionType -> fromObjectExpressionType(node);
+      case SpreadElementType -> fromSpreadElementType(node);
+      case PropertyType -> fromPropertyType(node);
+      case AssignmentPatternType -> fromAssignmentPatternType(node);
+      case RestElementType -> fromRestElementType(node);
+      case ArrayPatternType -> fromArrayPatternType(node);
+      case ObjectPatternType -> fromObjectPatternType(node);
+      case PrivateIdentifierType -> fromPrivateIdentifierType(node);
+      case NewExpressionType -> fromNewExpressionType(node);
+      case SuperType -> fromSuperType(node);
+      case MetaPropertyType -> fromMetaPropertyType(node);
+      case MemberExpressionType -> fromMemberExpressionType(node);
+      case LogicalExpressionType -> fromLogicalExpressionType(node);
+      case ImportExpressionType -> fromImportExpressionType(node);
+      case BlockStatementType -> fromBlockStatementType(node);
+      case ConditionalExpressionType -> fromConditionalExpressionType(node);
+      case ClassExpressionType -> fromClassExpressionType(node);
+      case ClassBodyType -> fromClassBodyType(node);
+      case StaticBlockType -> fromStaticBlockType(node);
+      case PropertyDefinitionType -> fromPropertyDefinitionType(node);
+      case MethodDefinitionType -> fromMethodDefinitionType(node);
+      case ChainExpressionType -> fromChainExpressionType(node);
+      case CallExpressionType -> fromCallExpressionType(node);
+      case BinaryExpressionType -> fromBinaryExpressionType(node);
+      case AwaitExpressionType -> fromAwaitExpressionType(node);
+      case AssignmentExpressionType -> fromAssignmentExpressionType(node);
+      case ArrowFunctionExpressionType -> fromArrowFunctionExpressionType(node);
+      case ArrayExpressionType -> fromArrayExpressionType(node);
+      case ClassDeclarationType -> fromClassDeclarationType(node);
+      case FunctionDeclarationType -> fromFunctionDeclarationType(node);
+      case ExportNamedDeclarationType -> fromExportNamedDeclarationType(node);
+      case ExportSpecifierType -> fromExportSpecifierType(node);
+      case VariableDeclarationType -> fromVariableDeclarationType(node);
+      case VariableDeclaratorType -> fromVariableDeclaratorType(node);
+      case ImportDeclarationType -> fromImportDeclarationType(node);
+      case ImportNamespaceSpecifierType -> fromImportNamespaceSpecifierType(node);
+      case ImportDefaultSpecifierType -> fromImportDefaultSpecifierType(node);
+      case ImportSpecifierType -> fromImportSpecifierType(node);
+      case ForOfStatementType -> fromForOfStatementType(node);
+      case ForInStatementType -> fromForInStatementType(node);
+      case ForStatementType -> fromForStatementType(node);
+      case DoWhileStatementType -> fromDoWhileStatementType(node);
+      case WhileStatementType -> fromWhileStatementType(node);
+      case TryStatementType -> fromTryStatementType(node);
+      case CatchClauseType -> fromCatchClauseType(node);
+      case ThrowStatementType -> fromThrowStatementType(node);
+      case SwitchStatementType -> fromSwitchStatementType(node);
+      case SwitchCaseType -> fromSwitchCaseType(node);
+      case IfStatementType -> fromIfStatementType(node);
+      case ContinueStatementType -> fromContinueStatementType(node);
+      case BreakStatementType -> fromBreakStatementType(node);
+      case LabeledStatementType -> fromLabeledStatementType(node);
+      case ReturnStatementType -> fromReturnStatementType(node);
+      case WithStatementType -> fromWithStatementType(node);
+      case DebuggerStatementType -> fromDebuggerStatementType(node);
+      case EmptyStatementType -> fromEmptyStatementType(node);
+      case ExpressionStatementType -> {
+        if (node.getExpressionStatement().hasDirective()) {
+          yield fromDirective(node);
+        } else {
+          yield fromExpressionStatementType(node);
         }
-        case LiteralType -> fromLiteralType(node);
-        case TemplateElementType -> fromTemplateElementType(node);
-        case FunctionExpressionType -> fromFunctionExpressionType(node);
-        case ExportAssignmentType -> fromExportAssignment(node);
-        case UnknownNodeType -> fromUnknownNodeType(node);
-        case UNRECOGNIZED -> throw new IllegalArgumentException(
-          "Unknown node type: " + node.getType() + " at " + node.getLoc()
-        );
-      };
+      }
+      case LiteralType -> fromLiteralType(node);
+      case TemplateElementType -> fromTemplateElementType(node);
+      case FunctionExpressionType -> fromFunctionExpressionType(node);
+      case ExportAssignmentType -> fromExportAssignment(node);
+      case UnknownNodeType -> fromUnknownNodeType(node);
+      case UNRECOGNIZED -> throw new IllegalArgumentException(
+        "Unknown node type: " + node.getType() + " at " + node.getLoc()
+      );
+    };
     if (!clazz.isInstance(estreeNode)) {
       throw new IllegalStateException("Expected " + clazz + " but got " + estreeNode.getClass());
     }
@@ -192,7 +191,10 @@ public class ESTreeFactory {
   }
 
   private static <T> List<T> from(List<Node> bodyList, Class<T> clazz) {
-    return bodyList.stream().map(n -> from(n, clazz)).toList();
+    return bodyList
+      .stream()
+      .map(n -> from(n, clazz))
+      .toList();
   }
 
   private static ESTree.Location fromLocation(SourceLocation location) {

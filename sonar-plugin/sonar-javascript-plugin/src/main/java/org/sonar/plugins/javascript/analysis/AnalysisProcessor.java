@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -369,8 +369,9 @@ public class AnalysisProcessor {
   private boolean isQuickFixCompatible() {
     return (
       contextUtils.isSonarLint() &&
-      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion()
-        .isGreaterThanOrEqual(SONARLINT_6_3)
+      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(
+        SONARLINT_6_3
+      )
     );
   }
 

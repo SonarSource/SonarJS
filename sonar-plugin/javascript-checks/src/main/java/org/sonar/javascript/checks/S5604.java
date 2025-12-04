@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class S5604 extends Check {
   @RuleProperty(
     key = "permissions",
     description = "Comma-separated list of intrusive permissions to report " +
-    "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
+      "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
     defaultValue = "" + DEFAULT
   )
   public String permissions = DEFAULT;

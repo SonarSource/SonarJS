@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -138,11 +138,10 @@ class TsConfigProviderTest {
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(
-      new MapSettings()
-        .setProperty(
-          TSCONFIG_PATHS,
-          "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"
-        )
+      new MapSettings().setProperty(
+        TSCONFIG_PATHS,
+        "base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json"
+      )
     );
 
     List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
@@ -153,7 +152,7 @@ class TsConfigProviderTest {
     );
     assertThat(logger.logs(LoggerLevel.INFO)).contains(
       "Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " +
-      TSCONFIG_PATHS
+        TSCONFIG_PATHS
     );
   }
 
@@ -169,8 +168,10 @@ class TsConfigProviderTest {
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(
-      new MapSettings()
-        .setProperty(TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json")
+      new MapSettings().setProperty(
+        TSCONFIG_PATHS,
+        "**/tsconfig.settings.json,**/tsconfig.custom.json"
+      )
     );
 
     List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
@@ -312,8 +313,8 @@ class TsConfigProviderTest {
       "This may cause rules dependent on type information to not behave as expected",
       "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
       "To turn type-checking back on, increase the \"" +
-      WildcardTsConfigProvider.MAX_FILES_PROPERTY +
-      "\" property value",
+        WildcardTsConfigProvider.MAX_FILES_PROPERTY +
+        "\" property value",
       "Please be aware that this could potentially impact the performance of the analysis"
     );
   }

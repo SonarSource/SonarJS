@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -125,9 +125,9 @@ class HtmlSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse expectedResponse = response(
       "{ issues: [" +
-      "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
-      "]}"
+        "{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+        "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}" +
+        "]}"
     );
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
 
@@ -196,11 +196,10 @@ class HtmlSensorTest {
   @Test
   void should_raise_a_parsing_error() throws IOException {
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
 
     createInputFile(context);

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -381,11 +381,10 @@ class JsTsSensorTest {
     setSonarLintRuntime(context);
     createTsConfigFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
-      new Gson()
-        .fromJson(
-          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-          AnalysisResponse.class
-        )
+      new Gson().fromJson(
+        "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     createSonarLintSensor().execute(context);
@@ -404,8 +403,10 @@ class JsTsSensorTest {
   void should_raise_a_parsing_error_without_line() throws IOException {
     createVueInputFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
-      new Gson()
-        .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
+      new Gson().fromJson(
+        "{ parsingError: { message: \"Parse error message\"} }",
+        AnalysisResponse.class
+      )
     );
     createInputFile(context);
     var tsProgram = new TsProgram("1", List.of(), List.of());
@@ -569,7 +570,9 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
-    assertThat(captor.getAllValues()).extracting(c -> c.fileContent()).contains(content);
+    assertThat(captor.getAllValues())
+      .extracting(c -> c.fileContent())
+      .contains(content);
   }
 
   @Test
@@ -725,8 +728,8 @@ class JsTsSensorTest {
 
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "File already analyzed: '" +
-      file2.absolutePath() +
-      "'. Check your project configuration to avoid files being part of multiple projects."
+        file2.absolutePath() +
+        "'. Check your project configuration to avoid files being part of multiple projects."
     );
     assertThat(logTester.logs(Level.ERROR)).contains(
       "Failed to create program: something went wrong"
@@ -874,8 +877,10 @@ class JsTsSensorTest {
   void should_fail_fast_with_parsing_error_without_line() throws IOException {
     createVueInputFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
-      new Gson()
-        .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
+      new Gson().fromJson(
+        "{ parsingError: { message: \"Parse error message\"} }",
+        AnalysisResponse.class
+      )
     );
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -1155,9 +1160,8 @@ class JsTsSensorTest {
   }
 
   private AnalysisResponse createResponse() {
-    return new Gson()
-      .fromJson(
-        "{" +
+    return new Gson().fromJson(
+      "{" +
         createIssues() +
         "," +
         createHighlights() +
@@ -1168,8 +1172,8 @@ class JsTsSensorTest {
         "," +
         createHighlightedSymbols() +
         "}",
-        AnalysisResponse.class
-      );
+      AnalysisResponse.class
+    );
   }
 
   private String createIssues() {

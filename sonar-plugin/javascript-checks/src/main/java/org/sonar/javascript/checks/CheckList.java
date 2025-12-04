@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,10 @@ public final class CheckList {
     Class<? extends Annotation> annotation
   ) {
     List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
-    return allChecks.stream().filter(c -> c.isAnnotationPresent(annotation)).toList();
+    return allChecks
+      .stream()
+      .filter(c -> c.isAnnotationPresent(annotation))
+      .toList();
   }
 
   public static List<Class<? extends JavaScriptCheck>> getAllChecks() {

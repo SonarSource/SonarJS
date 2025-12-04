@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource SA
+ * Copyright (C) 2011-2025 SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -137,7 +137,10 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
-    return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
+    return checks
+      .stream()
+      .map(c -> c.getAnnotation(Rule.class).key())
+      .collect(Collectors.toSet());
   }
 
   private static String securityRuleMessage(Exception e) {
