@@ -127,9 +127,8 @@ class CssRuleTest {
 
   @Test
   void selector_pseudo_element_no_unknown_default() {
-    String optionsAsJson = new Gson().toJson(
-      new SelectorPseudoElementNoUnknown().stylelintOptions()
-    );
+    String optionsAsJson = new Gson()
+      .toJson(new SelectorPseudoElementNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignorePseudoElements\":[\"ng-deep\",\"v-deep\",\"deep\"]}]"
     );
@@ -164,9 +163,8 @@ class CssRuleTest {
 
   @Test
   void declaration_block_no_duplicate_properties_default() {
-    String optionsAsJson = new Gson().toJson(
-      new DeclarationBlockNoDuplicateProperties().stylelintOptions()
-    );
+    String optionsAsJson = new Gson()
+      .toJson(new DeclarationBlockNoDuplicateProperties().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]"
     );
@@ -181,9 +179,8 @@ class CssRuleTest {
 
   @Test
   void font_family_no_missing_generic_family_keyword_default() {
-    String optionsAsJson = new Gson().toJson(
-      new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions()
-    );
+    String optionsAsJson = new Gson()
+      .toJson(new FontFamilyNoMissingGenericFamilyKeyword().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFontFamilies\":[]}]");
   }
 

@@ -95,10 +95,8 @@ public class StylelintReportSensor implements Sensor {
         charsetName = StandardCharsets.UTF_8.name();
       }
 
-      IssuesPerFile[] issues = new Gson().fromJson(
-        new InputStreamReader(bomInputStream, charsetName),
-        IssuesPerFile[].class
-      );
+      IssuesPerFile[] issues = new Gson()
+        .fromJson(new InputStreamReader(bomInputStream, charsetName), IssuesPerFile[].class);
       for (IssuesPerFile issuesPerFile : issues) {
         InputFile inputFile = getInputFile(context, issuesPerFile.source);
         if (inputFile != null) {

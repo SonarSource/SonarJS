@@ -103,7 +103,7 @@ public class FormDataUtilsTest {
     assertThat(parseFormData(contentTypeHeader, body).ast()).isNull();
     assertThat(logTester.logs(Level.ERROR)).containsExactly(
       "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
-        "This could mean either that the input has been truncated or that an embedded message misreported its own length."
+      "This could mean either that the input has been truncated or that an embedded message misreported its own length."
     );
   }
 
@@ -122,8 +122,7 @@ public class FormDataUtilsTest {
       "-----------------------------9051914041544843365972754266--" +
       "\r\n";
 
-    assertThatThrownBy(() ->
-      parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
+    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
     )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
@@ -143,8 +142,7 @@ public class FormDataUtilsTest {
       "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
       "\r\n";
-    assertThatThrownBy(() ->
-      parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
+    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
     )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");

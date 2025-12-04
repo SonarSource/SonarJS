@@ -78,9 +78,7 @@ public class TestUtils {
 
   public static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
     return checkFactory(
-      Arrays.stream(ruleKeys)
-        .map(k -> RuleKey.of(repositoryKey, k))
-        .collect(Collectors.toList())
+      Arrays.stream(ruleKeys).map(k -> RuleKey.of(repositoryKey, k)).collect(Collectors.toList())
     );
   }
 

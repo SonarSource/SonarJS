@@ -97,7 +97,7 @@ class CacheReporterTest {
       "Cache strategy set to 'READ_AND_WRITE' for file 'file-07.js'",
       "Hit the cache for 1 out of 7",
       "Miss the cache for 6 out of 7: ANALYSIS_MODE_INELIGIBLE [1/7], CACHE_CORRUPTED [1/7], CACHE_DISABLED [1/7], FILE_CHANGED [1/7], " +
-        "FILE_NOT_IN_CACHE [1/7], RUNTIME_API_INCOMPATIBLE [1/7]"
+      "FILE_NOT_IN_CACHE [1/7], RUNTIME_API_INCOMPATIBLE [1/7]"
     );
   }
 

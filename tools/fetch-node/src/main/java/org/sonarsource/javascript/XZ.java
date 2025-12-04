@@ -37,9 +37,7 @@ public class XZ {
     }
     List<String> filenames = Collections.emptyList();
     try {
-      filenames = Stream.of(args)
-        .map(filename -> filename.replaceAll("[\\\\/]+", "/"))
-        .toList();
+      filenames = Stream.of(args).map(filename -> filename.replaceAll("[\\\\/]+", "/")).toList();
 
       compress(filenames);
     } catch (IOException e) {

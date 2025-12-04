@@ -43,7 +43,7 @@ class SizeAssessor implements Assessor {
           if (maxFileSizeKb <= 0) {
             fallbackToDefaultMaxFileSize(
               "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " +
-                maxFileSizeKb
+              maxFileSizeKb
             );
           }
         } catch (NumberFormatException nfe) {

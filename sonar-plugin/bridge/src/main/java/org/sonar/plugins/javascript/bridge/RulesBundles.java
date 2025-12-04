@@ -92,9 +92,6 @@ public class RulesBundles {
   }
 
   public Optional<RulesBundle> getUcfgRulesBundle() {
-    return bundles
-      .stream()
-      .filter(bundle -> "ucfg".equals(bundle.bundleKey()))
-      .findAny();
+    return bundles.stream().filter(bundle -> "ucfg".equals(bundle.bundleKey())).findAny();
   }
 }

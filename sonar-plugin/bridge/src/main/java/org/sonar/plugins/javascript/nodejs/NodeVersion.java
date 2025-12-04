@@ -56,10 +56,10 @@ public class NodeVersion {
     if (exitValue != 0) {
       throw new NodeCommandException(
         "Failed to determine the version of Node.js, exit value " +
-          exitValue +
-          ". Executed: '" +
-          nodeCommand +
-          "'"
+        exitValue +
+        ". Executed: '" +
+        nodeCommand +
+        "'"
       );
     }
     return output.toString();

@@ -258,8 +258,8 @@ public class EmbeddedNode {
         try {
           LOG.debug(
             "Lock taken, waiting " +
-              EXTRACTION_LOCK_WAIT_TIME_MILLIS +
-              "ms for other process to extract node runtime."
+            EXTRACTION_LOCK_WAIT_TIME_MILLIS +
+            "ms for other process to extract node runtime."
           );
           Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
         } catch (InterruptedException e) {

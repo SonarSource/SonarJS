@@ -121,9 +121,7 @@ class NodeCommandTest {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
     assertThatThrownBy(() ->
-      builder(mockProcessWrapper)
-        .pathResolver(p -> "/file/does/not/exist")
-        .build()
+      builder(mockProcessWrapper).pathResolver(p -> "/file/does/not/exist").build()
     )
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Default Node.js executable for MacOS does not exist.");
@@ -192,17 +190,18 @@ class NodeCommandTest {
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).contains(nodeExecutable.toString());
     assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo(NODE_EXECUTABLE_PROPERTY);
-    await().until(() ->
-      logTester
-        .logs(LoggerLevel.INFO)
-        .contains(
-          "Using Node.js executable " +
+    await()
+      .until(() ->
+        logTester
+          .logs(LoggerLevel.INFO)
+          .contains(
+            "Using Node.js executable " +
             nodeExecutable +
             " from property " +
             NODE_EXECUTABLE_PROPERTY +
             "."
-        )
-    );
+          )
+      );
   }
 
   @Test
@@ -235,13 +234,14 @@ class NodeCommandTest {
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Provided Node.js executable file does not exist.");
 
-    await().until(() ->
-      logTester
-        .logs(LoggerLevel.ERROR)
-        .contains(
-          "Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"
-        )
-    );
+    await()
+      .until(() ->
+        logTester
+          .logs(LoggerLevel.ERROR)
+          .contains(
+            "Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"
+          )
+      );
   }
 
   @Test
@@ -484,7 +484,7 @@ class NodeCommandTest {
 
     assertThat(logTester.logs(Level.WARN)).contains(
       "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
-        "Please use 'sonar.scanner.skipNodeProvisioning' instead."
+      "Please use 'sonar.scanner.skipNodeProvisioning' instead."
     );
   }
 

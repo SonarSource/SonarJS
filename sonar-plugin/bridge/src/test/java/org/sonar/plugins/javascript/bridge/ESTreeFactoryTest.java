@@ -772,7 +772,7 @@ class ESTreeFactoryTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "Expected class org.sonar.plugins.javascript.api.estree.ESTree$Super " +
-          "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
+        "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement"
       );
   }
 }

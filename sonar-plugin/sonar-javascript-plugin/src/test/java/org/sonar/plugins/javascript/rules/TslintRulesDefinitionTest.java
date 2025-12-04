@@ -48,8 +48,8 @@ class TslintRulesDefinitionTest {
       "https://palantir.github.io/tslint/rules/adjacent-overload-signatures";
     assertThat(tsLintRule.htmlDescription()).isEqualTo(
       "See description of TSLint rule <code>adjacent-overload-signatures</code> at the <a href=\"" +
-        adjacentOverloadSignaturesDoc +
-        "\">TSLint website</a>."
+      adjacentOverloadSignaturesDoc +
+      "\">TSLint website</a>."
     );
     assertThat(tsLintRule.tags()).isEmpty();
     assertThat(tsLintRule.debtRemediationFunction().baseEffort()).isEqualTo("5min");
@@ -65,8 +65,8 @@ class TslintRulesDefinitionTest {
       "https://github.com/SonarSource/SonarTS/tree/1.9.0.3766/sonarts-core/docs/rules/cognitive-complexity.md";
     assertThat(sonartsRule.htmlDescription()).isEqualTo(
       "See description of tslint-sonarts rule <code>cognitive-complexity</code> at the <a href=\"" +
-        cognitiveComplexityDoc +
-        "\">tslint-sonarts website</a>."
+      cognitiveComplexityDoc +
+      "\">tslint-sonarts website</a>."
     );
     assertThat(sonartsRule.tags()).isEmpty();
     assertThat(sonartsRule.debtRemediationFunction().baseEffort()).isEqualTo("5min");

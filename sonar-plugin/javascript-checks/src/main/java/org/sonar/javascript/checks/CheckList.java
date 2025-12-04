@@ -43,10 +43,7 @@ public final class CheckList {
     Class<? extends Annotation> annotation
   ) {
     List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
-    return allChecks
-      .stream()
-      .filter(c -> c.isAnnotationPresent(annotation))
-      .toList();
+    return allChecks.stream().filter(c -> c.isAnnotationPresent(annotation)).toList();
   }
 
   public static List<Class<? extends JavaScriptCheck>> getAllChecks() {

@@ -46,14 +46,14 @@ public class JavaScriptFilePredicate {
   private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
   private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile(
     "(" +
-      String.join(
-        "|",
-        DIRECTIVE_IN_COMMENT,
-        DIRECTIVE_IN_SINGLE_QUOTE,
-        DIRECTIVE_IN_DOUBLE_QUOTE,
-        CODEFRESH_VARIABLES
-      ) +
-      ")"
+    String.join(
+      "|",
+      DIRECTIVE_IN_COMMENT,
+      DIRECTIVE_IN_SINGLE_QUOTE,
+      DIRECTIVE_IN_DOUBLE_QUOTE,
+      CODEFRESH_VARIABLES
+    ) +
+    ")"
   );
 
   private JavaScriptFilePredicate() {}

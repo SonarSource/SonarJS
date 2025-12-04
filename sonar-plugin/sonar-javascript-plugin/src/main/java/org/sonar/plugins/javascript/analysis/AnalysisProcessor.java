@@ -369,9 +369,8 @@ public class AnalysisProcessor {
   private boolean isQuickFixCompatible() {
     return (
       contextUtils.isSonarLint() &&
-      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(
-        SONARLINT_6_3
-      )
+      ((SonarLintRuntime) context.runtime()).getSonarLintPluginApiVersion()
+        .isGreaterThanOrEqual(SONARLINT_6_3)
     );
   }
 

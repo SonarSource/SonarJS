@@ -48,7 +48,7 @@ public class NodeDeprecationWarning {
     if (actualNodeVersion < MIN_RECOMMENDED_NODE_VERSION) {
       String msg = String.format(
         "Using Node.js version %d to execute analysis is not supported. " +
-          "Please upgrade to a newer LTS version of Node.js: %s.",
+        "Please upgrade to a newer LTS version of Node.js: %s.",
         actualNodeVersion,
         RECOMMENDED_NODE_VERSIONS
       );

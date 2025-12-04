@@ -50,5 +50,4 @@ class MinifiedFilesTest {
     assertThat(getMeasureAsInt(PROJECT_KEY, "statements")).isEqualTo(1);
   }
   /* Helper methods */
-
 }

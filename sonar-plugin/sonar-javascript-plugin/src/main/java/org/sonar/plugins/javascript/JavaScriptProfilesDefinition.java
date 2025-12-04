@@ -137,10 +137,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
-    return checks
-      .stream()
-      .map(c -> c.getAnnotation(Rule.class).key())
-      .collect(Collectors.toSet());
+    return checks.stream().map(c -> c.getAnnotation(Rule.class).key()).collect(Collectors.toSet());
   }
 
   private static String securityRuleMessage(Exception e) {

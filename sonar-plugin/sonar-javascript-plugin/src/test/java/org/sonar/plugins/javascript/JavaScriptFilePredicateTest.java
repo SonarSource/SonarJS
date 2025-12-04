@@ -210,12 +210,13 @@ class JavaScriptFilePredicateTest {
 
   @Test
   void testYamlPredicate() {
-    var baseYamlFile = "".concat("apiVersion: apps/v1")
-      .concat(newLine)
-      .concat("kind: Deployment")
-      .concat(newLine)
-      .concat("metadata:")
-      .concat(" name: ");
+    var baseYamlFile =
+      "".concat("apiVersion: apps/v1")
+        .concat(newLine)
+        .concat("kind: Deployment")
+        .concat(newLine)
+        .concat("metadata:")
+        .concat(" name: ");
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "plain.yaml", baseYamlFile.concat("{{ .Values.count }}")));

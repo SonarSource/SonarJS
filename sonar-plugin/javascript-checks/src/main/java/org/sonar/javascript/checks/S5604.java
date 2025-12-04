@@ -35,7 +35,7 @@ public class S5604 extends Check {
   @RuleProperty(
     key = "permissions",
     description = "Comma-separated list of intrusive permissions to report " +
-      "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
+    "(supported values: geolocation, camera, microphone, notifications, persistent-storage)",
     defaultValue = "" + DEFAULT
   )
   public String permissions = DEFAULT;

@@ -72,14 +72,14 @@ public class ProgressReport implements Runnable {
         Thread.sleep(period);
         log(
           currentFileNumber +
-            "/" +
-            count +
-            " " +
-            pluralizeFile(currentFileNumber) +
-            " " +
-            adjective +
-            ", current file: " +
-            currentFilename
+          "/" +
+          count +
+          " " +
+          pluralizeFile(currentFileNumber) +
+          " " +
+          adjective +
+          ", current file: " +
+          currentFilename
         );
       } catch (InterruptedException e) {
         interrupted.set(true);
@@ -90,14 +90,14 @@ public class ProgressReport implements Runnable {
     if (success.get()) {
       log(
         count +
-          "/" +
-          count +
-          " source " +
-          pluralizeFile(count) +
-          " " +
-          pluralizeHas(count) +
-          " been " +
-          adjective
+        "/" +
+        count +
+        " source " +
+        pluralizeFile(count) +
+        " " +
+        pluralizeHas(count) +
+        " been " +
+        adjective
       );
     }
   }

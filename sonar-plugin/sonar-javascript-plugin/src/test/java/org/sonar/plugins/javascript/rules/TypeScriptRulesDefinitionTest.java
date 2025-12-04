@@ -73,34 +73,36 @@ class TypeScriptRulesDefinitionTest {
   void compatibleLanguagesInJson() {
     List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
-    CheckList.getAllChecks().forEach(c -> {
-      boolean isTypeScriptCheck = typeScriptChecks.contains(c);
-      boolean isJavaScriptCheck = javaScriptChecks.contains(c);
-      Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
-      String key = ((org.sonar.check.Rule) ruleAnnotation).key();
+    CheckList.getAllChecks()
+      .forEach(c -> {
+        boolean isTypeScriptCheck = typeScriptChecks.contains(c);
+        boolean isJavaScriptCheck = javaScriptChecks.contains(c);
+        Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
+        String key = ((org.sonar.check.Rule) ruleAnnotation).key();
 
-      RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
-      List<String> expected = new ArrayList<>();
-      if (isTypeScriptCheck) {
-        expected.add("TYPESCRIPT");
-      }
-      if (isJavaScriptCheck) {
-        expected.add("JAVASCRIPT");
-      }
+        RuleJson ruleJson = getRuleJson(key);
+        assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
+        List<String> expected = new ArrayList<>();
+        if (isTypeScriptCheck) {
+          expected.add("TYPESCRIPT");
+        }
+        if (isJavaScriptCheck) {
+          expected.add("JAVASCRIPT");
+        }
 
-      assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
-    });
+        assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
+      });
   }
 
   @Test
   void sqKeyInJson() {
-    CheckList.getAllChecks().forEach(c -> {
-      Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
-      String key = ((org.sonar.check.Rule) ruleAnnotation).key();
-      RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.sqKey).isEqualTo(key);
-    });
+    CheckList.getAllChecks()
+      .forEach(c -> {
+        Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
+        String key = ((org.sonar.check.Rule) ruleAnnotation).key();
+        RuleJson ruleJson = getRuleJson(key);
+        assertThat(ruleJson.sqKey).isEqualTo(key);
+      });
   }
 
   private static RuleJson getRuleJson(String key) {

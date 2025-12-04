@@ -231,10 +231,8 @@ class CacheStrategyTest {
 
     var jsonCaptor = ArgumentCaptor.forClass(byte[].class);
     verify(nextCache).write(eq(jsonCacheKey), jsonCaptor.capture());
-    var manifest = new Gson().fromJson(
-      new String(jsonCaptor.getValue(), StandardCharsets.UTF_8),
-      FilesManifest.class
-    );
+    var manifest = new Gson()
+      .fromJson(new String(jsonCaptor.getValue(), StandardCharsets.UTF_8), FilesManifest.class);
     var totalSize = manifest
       .getFileSizes()
       .stream()

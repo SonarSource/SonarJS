@@ -48,16 +48,16 @@ public class BundleAssessor implements Assessor {
       if (matcher.find()) {
         LOG.debug(
           "File {} was excluded because it looks like a bundle. (Disable detection with " +
-            PROPERTY +
-            "=false)",
+          PROPERTY +
+          "=false)",
           inputFile
         );
         if (!isInfoLogged) {
           LOG.info(
             "Some of the project files were automatically excluded because they looked like generated code. " +
-              "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
-              BundleAssessor.PROPERTY +
-              "=false"
+            "Enable debug logging to see which files were excluded. You can disable bundle detection by setting " +
+            BundleAssessor.PROPERTY +
+            "=false"
           );
           isInfoLogged = true;
         }

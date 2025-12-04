@@ -64,10 +64,7 @@ public class EslintRule {
   }
 
   static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
-    return rules
-      .stream()
-      .filter(rule -> !blackListRuleKeys.contains(rule.key))
-      .toList();
+    return rules.stream().filter(rule -> !blackListRuleKeys.contains(rule.key)).toList();
   }
 
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {

@@ -103,10 +103,7 @@ public class JsTsChecks {
   }
 
   private Stream<JavaScriptCheck> all() {
-    return checks
-      .values()
-      .stream()
-      .flatMap(c -> c.all().stream());
+    return checks.values().stream().flatMap(c -> c.all().stream());
   }
 
   Stream<EslintBasedCheck> eslintBasedChecks() {
