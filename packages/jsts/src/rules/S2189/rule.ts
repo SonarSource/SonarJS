@@ -52,7 +52,7 @@ function isUsedInFunctionCall(reference: Scope.Reference): boolean {
 
   if (parent.type === 'MemberExpression' && parent.object === id) {
     const grandParent = parent.parent;
-    if (grandParent && grandParent.type === 'CallExpression') {
+    if (grandParent?.type === 'CallExpression') {
       return true;
     }
   }
@@ -109,7 +109,7 @@ function shouldExcludeFileScopeVariable(
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
+    messages: noUnmodifiedLoopEslint.meta?.messages,
   }),
   create(context: Rule.RuleContext) {
     /**
@@ -119,7 +119,7 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const node = (descriptor as any).node as estree.Node;
+        const node = (descriptor as Rule.ReportDescriptor & { node: estree.Node }).node;
 
         const symbol = context.sourceCode
           .getScope(node)
@@ -167,22 +167,24 @@ export const rule: Rule.RuleModule = {
         return {
           WhileStatement: checkWhileStatement,
           DoWhileStatement: checkWhileStatement,
-          ForStatement: (node: estree.Node) => {
-            const { test, body } = node as estree.ForStatement;
-            if (!test || (test.type === 'Literal' && test.value === true)) {
-              const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
-              if (!hasEndCondition) {
-                const firstToken = context.sourceCode.getFirstToken(node);
-                if (firstToken) {
-                  context.report({
-                    loc: firstToken.loc,
-                    message: MESSAGE,
-                  });
-                }
+          ForStatement: checkForStatement,
+        };
+
+        function checkForStatement(node: estree.Node) {
+          const { test, body } = node as estree.ForStatement;
+          if (!test || (test.type === 'Literal' && test.value === true)) {
+            const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
+            if (!hasEndCondition) {
+              const firstToken = context.sourceCode.getFirstToken(node);
+              if (firstToken) {
+                context.report({
+                  loc: firstToken.loc,
+                  message: MESSAGE,
+                });
               }
             }
-          },
-        };
+          }
+        }
 
         function checkWhileStatement(node: estree.Node) {
           const whileStatement = node as estree.WhileStatement | estree.DoWhileStatement;
@@ -240,8 +242,7 @@ class LoopVisitor {
     }
 
     if (node.type === 'BreakStatement') {
-      const breakStatement = node as estree.BreakStatement;
-      if (!isNestedLoop || breakStatement.label) {
+      if (!isNestedLoop || node.label) {
         this.hasEndCondition = true;
       }
       return false;
