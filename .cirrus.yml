@@ -335,32 +335,6 @@ eslint_plugin_test_task:
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
-eslint8_node16_plugin_test_task:
-  depends_on:
-    - build
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs16.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-  env:
-    CIRRUS_CLONE_DEPTH: 1
-    SONARSOURCE_QA: true
-  <<: *MAVEN_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
-  # needed because we need to build the plugin
-  <<: *RUNTIME_CACHE
-  eslint_its_script:
-    - node --version
-    - . ~/.profile
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - npm run eslint-plugin:build
-    - cd its/eslint8-plugin-sonarjs
-    - npm install
-    - npx tsc --noEmit # check typings for tseslint.config.ts
-    - npm run test
-
 css_ruling_task:
   depends_on:
     - build
