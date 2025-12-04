@@ -17,6 +17,13 @@
   ],
   "packageRules": [
     {
+      "description": "Ignore project revision property - managed by CI during release",
+      "matchManagers": ["maven"],
+      "matchDepPatterns": ["^org\\.sonarsource\\.javascript:"],
+      "matchCurrentVersion": "/-SNAPSHOT$/",
+      "enabled": false
+    },
+    {
       "matchManagers": ["github-actions"],
       "pinDigests": false,
       "groupName": "all github actions",
