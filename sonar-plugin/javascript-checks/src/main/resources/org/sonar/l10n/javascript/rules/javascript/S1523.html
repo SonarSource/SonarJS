@@ -1,11 +1,11 @@
 <p>Executing code dynamically is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9807">CVE-2017-9807</a> </li>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9802">CVE-2017-9802</a> </li>
+  <li> <a href="https://www.cve.org/CVERecord?id=CVE-2017-9807">CVE-2017-9807</a> </li>
+  <li> <a href="https://www.cve.org/CVERecord?id=CVE-2017-9802">CVE-2017-9802</a> </li>
 </ul>
 <p>Some APIs enable the execution of dynamic code by providing it as strings at runtime. These APIs might be useful in some very specific
 meta-programming use-cases. However most of the time their use is frowned upon as they also increase the risk of <a
-href="https://owasp.org/www-community/attacks/Code_Injection">Injected Code</a>. Such attacks can either run on the server or in the client (exemple:
+href="https://owasp.org/www-community/attacks/Code_Injection">Injected Code</a>. Such attacks can either run on the server or in the client (example:
 XSS attack) and have a huge impact on an application’s security.</p>
 <p>This rule raises issues on calls to <code>eval</code> and <code>Function</code> constructor. This rule does not detect code injections. It only
 highlights the use of APIs which should be used sparingly and very carefully. The goal is to guide security code reviews.</p>

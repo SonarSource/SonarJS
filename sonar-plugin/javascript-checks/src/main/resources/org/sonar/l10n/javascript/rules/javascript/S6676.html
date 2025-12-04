@@ -1,7 +1,7 @@
 <h2>Why is this an issue?</h2>
 <p>If the function call can be written in a normal way, then calling that function with <code>.call()</code> or <code>.apply()</code> methods is
 redundant and can be removed without affecting the behavior of the code.</p>
-<p>The <code>.call()</code> and <code>.apply()</code> methods are traditionally used to explicitely set the value of <code>this</code> keyword when
+<p>The <code>.call()</code> and <code>.apply()</code> methods are traditionally used to explicitly set the value of <code>this</code> keyword when
 executing a function or an object method. When calling a method of an object the value of <code>this</code> by default will be the reference to that
 object. But if you call a function or a method using <code>.call()</code> and <code>.apply()</code> you can set the value of <code>this</code> to any
 object, whatever you put into the first argument.</p>
@@ -38,6 +38,7 @@ bar(x, y, z);
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
+  <li> <a href="https://eslint.org">eslint</a> - Rule <a href="https://eslint.org/docs/latest/rules/no-useless-call">no-useless-call</a> </li>
   <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions">Functions</a> </li>
   <li> MDN web docs - <a
   href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call">Function.prototype.call()</a> </li>

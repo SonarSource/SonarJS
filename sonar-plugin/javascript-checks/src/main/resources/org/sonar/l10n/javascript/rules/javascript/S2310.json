@@ -1,18 +1,12 @@
 {
   "title": "Loop counters should not be assigned within the loop body",
   "type": "CODE_SMELL",
-  "status": "deprecated",
+  "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [],
-  "extra": {
-    "replacementRules": [
-      "RSPEC-127"
-    ],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2310",
   "sqKey": "S2310",

@@ -16,7 +16,7 @@
   "ruleSpecification": "RSPEC-6582",
   "sqKey": "S6582",
   "scope": "Main",
-  "quickfix": "infeasible",
+  "quickfix": "covered",
   "title": "Optional chaining should be preferred",
   "compatibleLanguages": [
     "js",
