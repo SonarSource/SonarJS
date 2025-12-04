@@ -111,6 +111,7 @@
     <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
     <sonar.coverage.exclusions>packages/ruling/**,packages/jsts/tests/tools/testers/**</sonar.coverage.exclusions>
+    <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
   </properties>
 
   <dependencyManagement>
