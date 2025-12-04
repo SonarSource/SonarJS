@@ -72,13 +72,13 @@ class YamlSecurityTest {
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
       .addPlugin(
-        MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "[11.6,11.7)")
+        MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "11.6.0.39346")
       )
       .addPlugin(
         MavenLocation.of(
           "com.sonarsource.security",
           "sonar-security-js-frontend-plugin",
-          "[11.6,11.7)"
+          "11.6.0.39346"
         )
       )
       .addPlugin(
