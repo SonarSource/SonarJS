@@ -97,6 +97,7 @@
     </sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
     <sonar.coverage.exclusions>packages/ruling/**/*,packages/*/tests/**/*,resources/org/sonar/l10n/javascript/rules/javascript/**</sonar.coverage.exclusions>
+    <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
   </properties>
 
   <dependencyManagement>
