@@ -1,0 +1,1 @@
+const server: string = 'backend';;

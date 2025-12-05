@@ -26,7 +26,7 @@ import { toUnixPath } from '../../../rules/helpers/index.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
-export const tsConfigStore = new TsConfigStore(sourceFileStore);
+export const tsConfigStore = new TsConfigStore();
 
 export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
   const pendingStores: FileStore[] = [];
