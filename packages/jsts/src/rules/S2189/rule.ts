@@ -21,8 +21,10 @@ import { getESLintCoreRule } from '../external/core.js';
 import type estree from 'estree';
 import {
   childrenOf,
+  findFirstMatchingAncestor,
   generateMeta,
   interceptReport,
+  isFunctionNode,
   isUndefined,
   mergeRules,
 } from '../helpers/index.js';
@@ -31,9 +33,84 @@ import * as meta from './generated-meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
+/**
+ * Check if a reference represents a symbol being used in a function call context
+ */
+function isUsedInFunctionCall(reference: Scope.Reference): boolean {
+  const id = reference.identifier as TSESTree.Node;
+  const parent = id.parent;
+
+  if (!parent) {
+    return false;
+  }
+
+  if (
+    parent.type === 'CallExpression' &&
+    parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+  ) {
+    return true;
+  }
+
+  if (parent.type === 'MemberExpression' && parent.object === id) {
+    const grandParent = parent.parent;
+    if (grandParent?.type === 'CallExpression') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Check if a reference is a write outside the loop
+ */
+function isWriteOutsideLoop(ref: Scope.Reference, loopBody: estree.Node | null): boolean {
+  if (!ref.isWrite() || ref.init) {
+    return false;
+  }
+  const writeNode = ref.identifier as estree.Node;
+  const writeRange = writeNode.range;
+  const bodyRange = loopBody?.range;
+
+  if (!bodyRange || !writeRange) {
+    return true;
+  }
+
+  const isInsideLoop = bodyRange[0] <= writeRange[0] && bodyRange[1] >= writeRange[1];
+  return !isInsideLoop;
+}
+
+/**
+ * Check if a file-scope variable should be excluded from reporting
+ */
+function shouldExcludeFileScopeVariable(
+  symbol: Scope.Variable,
+  node: TSESTree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const loopStatement = findFirstMatchingAncestor(node, n =>
+    ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(n.type),
+  );
+  const loopBody = loopStatement
+    ? (loopStatement as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).body
+    : null;
+
+  const hasWriteElsewhere = symbol.references.some(ref => isWriteOutsideLoop(ref, loopBody));
+
+  if (hasWriteElsewhere) {
+    return true;
+  }
+
+  if (loopBody && hasFunctionCall(loopBody, context)) {
+    return true;
+  }
+
+  return false;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...noUnmodifiedLoopEslint.meta!.messages },
+    messages: noUnmodifiedLoopEslint.meta?.messages,
   }),
   create(context: Rule.RuleContext) {
     /**
@@ -43,37 +120,38 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const node = (descriptor as any).node as estree.Node;
+        const node = (descriptor as Rule.ReportDescriptor & { node: estree.Node }).node;
 
         const symbol = context.sourceCode
           .getScope(node)
           .references.find(v => v.identifier === node)?.resolved;
-        /** Ignoring symbols that have already been reported */
+
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
         }
 
-        /** Ignoring symbols called on or passed as arguments */
         for (const reference of symbol?.references ?? []) {
-          const id = reference.identifier as TSESTree.Node;
-
-          if (
-            id.parent?.type === 'CallExpression' &&
-            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
-          ) {
-            return;
-          }
-
-          if (
-            id.parent?.type === 'MemberExpression' &&
-            id.parent.parent?.type === 'CallExpression' &&
-            id.parent.object === id
-          ) {
+          if (isUsedInFunctionCall(reference)) {
             return;
           }
         }
 
         if (symbol) {
+          const def = symbol.defs[0];
+          if (def?.type === 'ImportBinding') {
+            return;
+          }
+
+          const scope = symbol.scope;
+          const isFileScope = scope.type === 'module' || scope.type === 'global';
+
+          if (
+            isFileScope &&
+            shouldExcludeFileScopeVariable(symbol, node as TSESTree.Node, context)
+          ) {
+            return;
+          }
+
           alreadyRaisedSymbols.add(symbol);
         }
 
@@ -90,20 +168,24 @@ export const rule: Rule.RuleModule = {
         return {
           WhileStatement: checkWhileStatement,
           DoWhileStatement: checkWhileStatement,
-          ForStatement: (node: estree.Node) => {
-            const { test, body } = node as estree.ForStatement;
-            if (!test || (test.type === 'Literal' && test.value === true)) {
-              const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
-              if (!hasEndCondition) {
-                const firstToken = context.sourceCode.getFirstToken(node);
+          ForStatement: checkForStatement,
+        };
+
+        function checkForStatement(node: estree.Node) {
+          const { test, body } = node as estree.ForStatement;
+          if (!test || (test.type === 'Literal' && test.value === true)) {
+            const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
+            if (!hasEndCondition) {
+              const firstToken = context.sourceCode.getFirstToken(node);
+              if (firstToken) {
                 context.report({
-                  loc: firstToken!.loc,
+                  loc: firstToken.loc,
                   message: MESSAGE,
                 });
               }
             }
-          },
-        };
+          }
+        }
 
         function checkWhileStatement(node: estree.Node) {
           const whileStatement = node as estree.WhileStatement | estree.DoWhileStatement;
@@ -111,7 +193,9 @@ export const rule: Rule.RuleModule = {
             const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
             if (!hasEndCondition) {
               const firstToken = context.sourceCode.getFirstToken(node);
-              context.report({ loc: firstToken!.loc, message: MESSAGE });
+              if (firstToken) {
+                context.report({ loc: firstToken.loc, message: MESSAGE });
+              }
             }
           }
         }
@@ -136,31 +220,61 @@ class LoopVisitor {
 
   private visit(root: estree.Node, context: Rule.RuleContext) {
     const visitNode = (node: estree.Node, isNestedLoop = false) => {
-      switch (node.type) {
-        case 'WhileStatement':
-        case 'DoWhileStatement':
-        case 'ForStatement':
-          isNestedLoop = true;
-          break;
-        case 'FunctionExpression':
-        case 'FunctionDeclaration':
-          // Don't consider nested functions
-          return;
-        case 'BreakStatement':
-          if (!isNestedLoop || !!node.label) {
-            this.hasEndCondition = true;
-          }
-          break;
-        case 'YieldExpression':
-        case 'ReturnStatement':
-        case 'ThrowStatement':
-          this.hasEndCondition = true;
-          return;
+      if (this.shouldStopVisiting(node, isNestedLoop)) {
+        return;
       }
+
+      const updatedNestedLoop = this.isLoopStatement(node) ? true : isNestedLoop;
+
       for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
-        visitNode(child, isNestedLoop);
+        visitNode(child, updatedNestedLoop);
       }
     };
     visitNode(root);
   }
+
+  private isLoopStatement(node: estree.Node): boolean {
+    return ['WhileStatement', 'DoWhileStatement', 'ForStatement'].includes(node.type);
+  }
+
+  private shouldStopVisiting(node: estree.Node, isNestedLoop: boolean): boolean {
+    if (isFunctionNode(node)) {
+      return true;
+    }
+
+    if (node.type === 'BreakStatement') {
+      if (!isNestedLoop || node.label) {
+        this.hasEndCondition = true;
+      }
+      return false;
+    }
+
+    if (
+      node.type === 'YieldExpression' ||
+      node.type === 'ReturnStatement' ||
+      node.type === 'ThrowStatement'
+    ) {
+      this.hasEndCondition = true;
+      return true;
+    }
+
+    return false;
+  }
+}
+
+/**
+ * Check if there are any function calls in the given AST subtree
+ */
+function hasFunctionCall(node: estree.Node, context: Rule.RuleContext): boolean {
+  if (node.type === 'CallExpression') {
+    return true;
+  }
+
+  if (isFunctionNode(node)) {
+    return false;
+  }
+
+  return childrenOf(node, context.sourceCode.visitorKeys).some(child =>
+    hasFunctionCall(child, context),
+  );
 }

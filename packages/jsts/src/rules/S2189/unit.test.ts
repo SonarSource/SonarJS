@@ -170,6 +170,45 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // FP: imported variable should not raise issue (JS-131)
+      // This should NOT raise an issue because 'imported' could be modified elsewhere
+      import { imported } from 'module';
+      while (imported) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      // FP: required variable should not raise issue (JS-131)
+      // This should NOT raise an issue because 'required' could be modified elsewhere
+      const required = require('module');
+      while (required) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      // FP: file-scope variable with function call in loop (JS-131)
+      // This should NOT raise an issue because someFunction() might modify globalVar
+      let globalVar = true;
+      while (globalVar) {
+        someFunction();
+      }`,
+        },
+        {
+          code: `
+      // FP: file-scope variable written elsewhere (JS-131)
+      // This should NOT raise an issue because globalVar is written elsewhere
+      let globalVar = true;
+      function modify() {
+        globalVar = false;
+      }
+      while (globalVar) {
+        doSomething();
+      }`,
+        },
       ],
       invalid: [
         {
@@ -217,7 +256,7 @@ describe('S2189', () => {
         {
           code: `
       for (var str = '';str >= '0' && '9' >= str;) {
-        console.log("hello");
+        str.length;
       }
             `,
           errors: 1,
