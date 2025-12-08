@@ -17,72 +17,87 @@
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import {
-  getTsConfigContentCache,
+  getCachedTsConfigContent,
+  hasCachedTsConfig,
+  setCachedTsConfigContent,
   clearTsConfigContentCache,
 } from '../../src/program/cache/tsconfigCache.js';
+import { clearFsCache } from '../../../shared/src/helpers/fs-cache.js';
 
 describe('tsconfigCache', () => {
   beforeEach(() => {
     clearTsConfigContentCache();
+    clearFsCache();
   });
 
-  describe('getTsConfigContentCache', () => {
-    it('should return the same cache instance', () => {
-      const cache1 = getTsConfigContentCache();
-      const cache2 = getTsConfigContentCache();
-      expect(cache1).toBe(cache2);
-    });
-
+  describe('getCachedTsConfigContent', () => {
     it('should allow storing and retrieving tsconfig contents', () => {
-      const cache = getTsConfigContentCache();
       const tsconfigPath = '/project/tsconfig.json';
       const contents = '{ "compilerOptions": { "target": "ES2020" } }';
 
-      cache.set(tsconfigPath, { contents, missing: false });
+      setCachedTsConfigContent(tsconfigPath, contents, false);
 
-      const cached = cache.get(tsconfigPath);
+      const cached = getCachedTsConfigContent(tsconfigPath);
       expect(cached).toBeDefined();
       expect(cached?.contents).toBe(contents);
       expect(cached?.missing).toBe(false);
     });
 
     it('should track missing tsconfig files', () => {
-      const cache = getTsConfigContentCache();
       const tsconfigPath = '/project/node_modules/missing/tsconfig.json';
 
-      cache.set(tsconfigPath, { contents: '{}', missing: true });
+      setCachedTsConfigContent(tsconfigPath, '{}', true);
 
-      const cached = cache.get(tsconfigPath);
+      const cached = getCachedTsConfigContent(tsconfigPath);
+      expect(cached?.contents).toBe('{}');
       expect(cached?.missing).toBe(true);
     });
 
     it('should return undefined for uncached tsconfig', () => {
-      const cache = getTsConfigContentCache();
-      expect(cache.get('/project/uncached/tsconfig.json')).toBeUndefined();
+      expect(getCachedTsConfigContent('/project/uncached/tsconfig.json')).toBeUndefined();
+    });
+  });
+
+  describe('hasCachedTsConfig', () => {
+    it('should return true for cached tsconfig', () => {
+      const tsconfigPath = '/project/tsconfig.json';
+      setCachedTsConfigContent(tsconfigPath, '{}', false);
+
+      expect(hasCachedTsConfig(tsconfigPath)).toBe(true);
+    });
+
+    it('should return true for missing-but-tracked tsconfig', () => {
+      const tsconfigPath = '/project/missing/tsconfig.json';
+      setCachedTsConfigContent(tsconfigPath, '{}', true);
+
+      expect(hasCachedTsConfig(tsconfigPath)).toBe(true);
+    });
+
+    it('should return false for unknown tsconfig', () => {
+      expect(hasCachedTsConfig('/project/unknown/tsconfig.json')).toBe(false);
     });
   });
 
   describe('clearTsConfigContentCache', () => {
     it('should clear all cached tsconfig contents', () => {
-      const cache = getTsConfigContentCache();
+      setCachedTsConfigContent('/project/tsconfig.json', '{}', false);
+      setCachedTsConfigContent('/project/packages/a/tsconfig.json', '{}', true);
 
-      cache.set('/project/tsconfig.json', { contents: '{}', missing: false });
-      cache.set('/project/packages/a/tsconfig.json', { contents: '{}', missing: false });
-
-      expect(cache.size).toBe(2);
+      expect(getCachedTsConfigContent('/project/tsconfig.json')).toBeDefined();
+      expect(getCachedTsConfigContent('/project/packages/a/tsconfig.json')).toBeDefined();
 
       clearTsConfigContentCache();
+      clearFsCache(); // Also clear FsCache since content is stored there
 
-      expect(cache.size).toBe(0);
-      expect(cache.get('/project/tsconfig.json')).toBeUndefined();
+      expect(getCachedTsConfigContent('/project/tsconfig.json')).toBeUndefined();
+      expect(getCachedTsConfigContent('/project/packages/a/tsconfig.json')).toBeUndefined();
     });
 
     it('should handle clearing empty cache', () => {
       // Should not throw
       clearTsConfigContentCache();
 
-      const cache = getTsConfigContentCache();
-      expect(cache.size).toBe(0);
+      expect(getCachedTsConfigContent('/project/tsconfig.json')).toBeUndefined();
     });
   });
 });
