@@ -26,6 +26,7 @@
 
   <properties>
     <artifactoryToken/>
+    <nodejs.runtime.version>24.11.0.70</nodejs.runtime.version>
   </properties>
 
   <dependencies>
@@ -125,6 +126,12 @@
       <artifactId>annotations</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.nodejs</groupId>
+      <artifactId>nodejs-runtime</artifactId>
+      <version>${nodejs.runtime.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -214,7 +221,7 @@
                 <artifactItem>
                   <groupId>org.sonarsource.nodejs</groupId>
                   <artifactId>nodejs-runtime</artifactId>
-                  <version>24.11.0.70</version>
+                  <version>${nodejs.runtime.version}</version>
                   <type>jar</type>
                   <outputDirectory>${project.build.directory}/downloads</outputDirectory>
                   <includes>**/*.xz,**/version.txt</includes>
