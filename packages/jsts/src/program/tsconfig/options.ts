@@ -18,7 +18,11 @@
 import ts from 'typescript';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import { basename, dirname } from 'node:path/posix';
-import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
+import {
+  getCachedTsConfigContent,
+  hasCachedTsConfig,
+  setCachedTsConfigContent,
+} from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { canAccessFileSystem } from '../../../../shared/src/helpers/configuration.js';
@@ -130,7 +134,6 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
   }
 
   let missingTsConfig = false;
-  const tsconfigContentCache = getTsConfigContentCache();
 
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
@@ -139,7 +142,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     fileExists: file => {
       // When TypeScript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
-      if (tsconfigContentCache.has(file) || isLastTsConfigCheck(file)) {
+      if (hasCachedTsConfig(file) || isLastTsConfigCheck(file)) {
         return true;
       }
       return defaultParseConfigHost.fileExists(file);
@@ -151,10 +154,10 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
       }
 
       // 2. Check cache first
-      if (tsconfigContentCache.has(file)) {
-        const cachedTsConfig = tsconfigContentCache.get(file)!;
-        missingTsConfig = cachedTsConfig.missing;
-        return cachedTsConfig.contents;
+      const cachedContent = getCachedTsConfigContent(file);
+      if (cachedContent) {
+        missingTsConfig = cachedContent.missing;
+        return cachedContent.contents;
       }
 
       // 3. Read from disk
@@ -167,13 +170,13 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
           `WARN Could not find tsconfig.json: ${file}; falling back to an empty configuration.`,
         );
         const emptyConfig = '{}';
-        tsconfigContentCache.set(file, { contents: emptyConfig, missing: true });
+        setCachedTsConfigContent(file, emptyConfig, true);
         return emptyConfig;
       }
 
       // 5. Cache the content if found
       if (fileContents) {
-        tsconfigContentCache.set(file, { contents: fileContents, missing: false });
+        setCachedTsConfigContent(file, fileContents, false);
       }
 
       return fileContents;

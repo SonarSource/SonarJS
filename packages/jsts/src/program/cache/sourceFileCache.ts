@@ -15,13 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../../shared/src/helpers/logging.js';
+import { getFsCache } from '../../../../shared/src/helpers/fs-cache.js';
 import ts from 'typescript';
-
-/**
- * Global cache for source file contents
- * Lazily populated when CompilerHost needs files
- */
-const sourceFileContentCache = new Map<string, string>();
 
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
@@ -53,25 +48,23 @@ const parsedSourceFileCache = new Map<
 
 /**
  * Current files context for lazy loading
+ * @deprecated Use getFsCache().preloadFiles() instead for new code
  */
 let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
 
 /**
  * Set the current files context for lazy loading
+ * @deprecated Use getFsCache().preloadFiles() instead for new code
  */
 export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
   currentFilesContext = files;
-}
-
-/**
- * Get the source file content cache (for CompilerHost access)
- */
-export function getSourceFileContentCache(): Map<string, string> {
-  return sourceFileContentCache;
+  // Also preload into FsCache for unified access
+  getFsCache().preloadFiles(files);
 }
 
 /**
  * Get the current files context (for CompilerHost access)
+ * @deprecated Access file contents through getFsCache() instead
  */
 export function getCurrentFilesContext(): Record<string, { fileContent?: string }> | null {
   return currentFilesContext;
@@ -125,8 +118,8 @@ export function setCachedSourceFile(
 }
 
 /**
- * Invalidate cached SourceFile for a specific file (all targets)
- * Used when file content changes
+ * Invalidate cached parsed SourceFile AST for a specific file (all targets)
+ * Used when file content changes - only invalidates the parsed AST, not the file content
  * @param fileName Normalized file path
  */
 export function invalidateCachedSourceFile(fileName: string): void {
@@ -134,11 +127,48 @@ export function invalidateCachedSourceFile(fileName: string): void {
 }
 
 /**
- * Clear the source file content cache and parsed SourceFile cache
+ * Clear the parsed SourceFile cache
  */
-export function clearSourceFileContentCache(): void {
-  sourceFileContentCache.clear();
+export function clearParsedSourceFileCache(): void {
   parsedSourceFileCache.clear();
   currentFilesContext = null;
-  debug('Cleared source file content cache and parsed SourceFile cache');
+  debug('Cleared parsed SourceFile cache');
+}
+
+/**
+ * Clear all source file caches (both content from FsCache and parsed ASTs)
+ * @deprecated Use clearFsCache() + clearParsedSourceFileCache() for more control
+ */
+export function clearSourceFileContentCache(): void {
+  getFsCache().clear();
+  clearParsedSourceFileCache();
+}
+
+/**
+ * Compatibility wrapper providing Map-like interface to FsCache
+ * @deprecated Access FsCache directly via getFsCache() for new code
+ */
+class SourceFileContentCacheWrapper {
+  private readonly fsCache = getFsCache();
+
+  get(filePath: string): string | undefined {
+    return this.fsCache.readFileSync(filePath);
+  }
+
+  set(filePath: string, content: string): void {
+    // For backwards compatibility, preload files directly
+    this.fsCache.preloadFiles({ [filePath]: { fileContent: content } });
+  }
+
+  has(filePath: string): boolean {
+    return this.fsCache.fileExists(filePath);
+  }
+}
+
+/**
+ * Get a Map-like wrapper around the FsCache for source file contents
+ * @deprecated Use getFsCache() directly for new code
+ */
+export function getSourceFileContentCache(): SourceFileContentCacheWrapper {
+  return new SourceFileContentCacheWrapper();
 }

@@ -15,24 +15,69 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../../shared/src/helpers/logging.js';
+import { getFsCache } from '../../../../shared/src/helpers/fs-cache.js';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
 
 /**
- * Global cache for tsconfig file contents to avoid repeated disk reads
- * Persists across analysis runs (especially useful for SonarLint)
+ * Tracks tsconfig files that were not found on disk but have been given a fallback empty config.
+ * This is separate from FsCache because we need to return '{}' for missing tsconfigs.
  */
-const tsconfigContentCache = new Map<string, { contents: string; missing: boolean }>();
+const missingTsConfigFiles = new Set<string>();
 
 /**
- * Get the tsconfig content cache (for parser access)
+ * Get the tsconfig file content, using FsCache
+ * @param file Path to the tsconfig file
+ * @returns Object with contents and missing flag, or undefined if not cached
  */
-export function getTsConfigContentCache(): typeof tsconfigContentCache {
-  return tsconfigContentCache;
+export function getCachedTsConfigContent(
+  file: string,
+): { contents: string; missing: boolean } | undefined {
+  const normalized = toUnixPath(file);
+  const fsCache = getFsCache();
+
+  // Check if we've marked this file as missing
+  if (missingTsConfigFiles.has(normalized)) {
+    return { contents: '{}', missing: true };
+  }
+
+  // Check FsCache for content
+  const content = fsCache.readFileSync(file);
+  if (content !== undefined) {
+    return { contents: content, missing: false };
+  }
+
+  return undefined;
+}
+
+/**
+ * Check if a tsconfig file exists (in FsCache or marked as missing-with-fallback)
+ */
+export function hasCachedTsConfig(file: string): boolean {
+  const normalized = toUnixPath(file);
+  return missingTsConfigFiles.has(normalized) || getFsCache().fileExists(file);
+}
+
+/**
+ * Cache a tsconfig file content
+ * @param file Path to the tsconfig file
+ * @param contents File contents
+ * @param missing Whether the file was missing and this is a fallback
+ */
+export function setCachedTsConfigContent(file: string, contents: string, missing: boolean): void {
+  const normalized = toUnixPath(file);
+  if (missing) {
+    missingTsConfigFiles.add(normalized);
+  } else {
+    // Store in FsCache
+    getFsCache().preloadFiles({ [normalized]: { fileContent: contents } });
+  }
 }
 
 /**
  * Clear the tsconfig content cache (called when tsconfig files change)
  */
 export function clearTsConfigContentCache(): void {
-  tsconfigContentCache.clear();
+  missingTsConfigFiles.clear();
+  // Note: FsCache itself is cleared separately via TsConfigStore.clearCache()
   debug('Cleared tsconfig content cache');
 }

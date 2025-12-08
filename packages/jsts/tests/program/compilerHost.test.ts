@@ -24,6 +24,7 @@ import {
   clearSourceFileContentCache,
   getCachedSourceFile,
 } from '../../src/program/cache/sourceFileCache.js';
+import { getFsCache } from '../../../../shared/src/helpers/fs-cache.js';
 
 describe('IncrementalCompilerHost', () => {
   const baseDir = '/project';
@@ -137,10 +138,11 @@ describe('IncrementalCompilerHost', () => {
       expect(calls.some(c => c.op === 'readFile-cache')).toBe(true);
     });
 
-    it('should read from files context when not in cache', () => {
+    it('should read from files context when preloaded', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const content = 'context content';
 
+      // setSourceFilesContext now preloads files into FsCache
       setSourceFilesContext({
         '/project/src/index.ts': { fileContent: content },
       });
@@ -149,8 +151,9 @@ describe('IncrementalCompilerHost', () => {
 
       expect(result).toBe(content);
 
+      // Files preloaded via setSourceFilesContext are in FsCache, so read from cache
       const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readFile-context')).toBe(true);
+      expect(calls.some(c => c.op === 'readFile-cache')).toBe(true);
     });
 
     it('should cache content read from context', () => {
@@ -181,17 +184,19 @@ describe('IncrementalCompilerHost', () => {
       expect(calls.some(c => c.op === 'fileExists-cache')).toBe(true);
     });
 
-    it('should return true for files in context', () => {
+    it('should return true for files preloaded via context', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
+      // setSourceFilesContext now preloads files into FsCache
       setSourceFilesContext({
         '/project/src/index.ts': { fileContent: 'content' },
       });
 
       expect(host.fileExists('/project/src/index.ts')).toBe(true);
 
+      // Files preloaded via setSourceFilesContext are in FsCache
       const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'fileExists-context')).toBe(true);
+      expect(calls.some(c => c.op === 'fileExists-cache')).toBe(true);
     });
   });
 
