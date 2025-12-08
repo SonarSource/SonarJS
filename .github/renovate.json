@@ -19,9 +19,9 @@
     {
       "description": "Ignore project revision property - managed by CI during release",
       "matchManagers": ["maven"],
-      "matchDepPatterns": ["^org\\.sonarsource\\.javascript:"],
       "matchCurrentVersion": "/-SNAPSHOT$/",
-      "enabled": false
+      "enabled": false,
+      "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
     },
     {
       "matchManagers": ["github-actions"],
