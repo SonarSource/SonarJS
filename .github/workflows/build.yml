@@ -808,9 +808,6 @@ jobs:
       - *mise
       - *maven_cache
       - *config_maven
-      - *set_monthly_cache_date
-      - *orchestrator_cache_monthly
-      - *setup_orchestrator_home_monthly
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
