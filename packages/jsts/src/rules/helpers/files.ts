@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'node:path';
+import path, { resolve } from 'node:path';
 
 /**
  * Byte Order Marker
@@ -46,7 +46,7 @@ export function stripBOM(str: string) {
  * @returns the converted path
  */
 export function toUnixPath(path: string) {
-  return path.replaceAll(/[\\/]+/g, '/');
+  return resolve(path).replaceAll(/[\\/]+/g, '/');
 }
 
 export function isRoot(file: string) {

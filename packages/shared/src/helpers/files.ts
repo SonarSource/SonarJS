@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import path from 'node:path/posix';
+import { join } from 'node:path/posix';
+import { resolve } from 'node:path';
 
 /**
  * Byte Order Marker
@@ -69,7 +70,7 @@ function stripBOM(str: string) {
  * @returns the converted path
  */
 export function toUnixPath(filePath: string) {
-  return filePath.replaceAll(/[\\/]+/g, '/');
+  return resolve(filePath).replaceAll(/[\\/]+/g, '/');
 }
 
 /**
@@ -80,7 +81,7 @@ export function toUnixPath(filePath: string) {
 export function addTsConfigIfDirectory(tsConfig: string) {
   try {
     if (fs.lstatSync(tsConfig).isDirectory()) {
-      return path.join(tsConfig, 'tsconfig.json');
+      return join(tsConfig, 'tsconfig.json');
     }
 
     return tsConfig;
