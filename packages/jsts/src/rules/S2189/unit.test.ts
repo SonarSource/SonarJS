@@ -170,6 +170,14 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // Imported variable - should NOT raise (not a local var)
+      import { condition } from './module';
+      while (condition) {
+        doSomething();
+      }`,
+        },
       ],
       invalid: [
         {

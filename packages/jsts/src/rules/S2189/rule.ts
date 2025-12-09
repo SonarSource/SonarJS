@@ -31,6 +31,34 @@ import * as meta from './generated-meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
+function isImportedOrRequired(symbol: Scope.Variable): boolean {
+  // Check if variable is from an import statement or require call
+  const defs = symbol.defs;
+  if (defs.length === 0) {
+    return false;
+  }
+
+  for (const def of defs) {
+    // ImportBinding type indicates import statement
+    if (def.type === 'ImportBinding') {
+      return true;
+    }
+
+    // Check for require() calls
+    if (def.type === 'Variable' && def.node.type === 'VariableDeclarator') {
+      const init = def.node.init;
+      if (init?.type === 'CallExpression') {
+        const callee = init.callee;
+        if (callee.type === 'Identifier' && callee.name === 'require') {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: { ...noUnmodifiedLoopEslint.meta!.messages },
@@ -50,6 +78,11 @@ export const rule: Rule.RuleModule = {
           .references.find(v => v.identifier === node)?.resolved;
         /** Ignoring symbols that have already been reported */
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
+          return;
+        }
+
+        /** Don't raise for imported/required variables */
+        if (symbol && isImportedOrRequired(symbol)) {
           return;
         }
 
