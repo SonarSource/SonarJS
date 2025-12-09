@@ -178,6 +178,30 @@ describe('S2189', () => {
         doSomething();
       }`,
         },
+        {
+          code: `
+      // Required variable - should NOT raise (not a local var)
+      const module = require('./module');
+      while (module.condition) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      // Variable passed as argument - should NOT raise (may be modified)
+      let config = { enabled: true };
+      while (config.enabled) {
+        processConfig(config);
+      }`,
+        },
+        {
+          code: `
+      // Variable used as method receiver - should NOT raise (may be modified)
+      let array = [1, 2, 3];
+      while (array.length > 0) {
+        array.forEach(item => process(item));
+      }`,
+        },
       ],
       invalid: [
         {
