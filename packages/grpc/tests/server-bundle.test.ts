@@ -17,8 +17,6 @@
 import { describe, it, before, after } from 'node:test';
 import { expect } from 'expect';
 import * as grpc from '@grpc/grpc-js';
-import { spawn, type ChildProcess } from 'node:child_process';
-import path from 'node:path';
 import { analyzer } from '../src/proto/language_analyzer.js';
 
 // Use a random high port to avoid conflicts
@@ -41,12 +39,10 @@ function createClient(port: number): {
     responseStream: false,
     requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
       Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-    requestDeserialize: (buffer: Buffer) =>
-      analyzer.AnalyzeFileRequest.decode(buffer) as unknown as analyzer.IAnalyzeFileRequest,
+    requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
     responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
       Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-    responseDeserialize: (buffer: Buffer) =>
-      analyzer.AnalyzeFileResponse.decode(buffer) as unknown as analyzer.IAnalyzeFileResponse,
+    responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
   };
 
   const serviceDefinition = {

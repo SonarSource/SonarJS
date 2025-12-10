@@ -40,12 +40,10 @@ function createClient(port: number): {
     responseStream: false,
     requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
       Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-    requestDeserialize: (buffer: Buffer) =>
-      analyzer.AnalyzeFileRequest.decode(buffer) as unknown as analyzer.IAnalyzeFileRequest,
+    requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
     responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
       Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-    responseDeserialize: (buffer: Buffer) =>
-      analyzer.AnalyzeFileResponse.decode(buffer) as unknown as analyzer.IAnalyzeFileResponse,
+    responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
   };
 
   const serviceDefinition = {

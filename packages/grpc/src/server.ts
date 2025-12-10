@@ -19,7 +19,7 @@ import { analyzer } from './proto/language_analyzer.js';
 import { analyzeFileHandler } from './service.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
-const DEFAULT_PORT = 50051;
+const DEFAULT_PORT = 3000;
 const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
 
 /**
@@ -33,12 +33,10 @@ function createServiceDefinition(): grpc.ServiceDefinition<grpc.UntypedServiceIm
       responseStream: false,
       requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
         Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-      requestDeserialize: (buffer: Buffer) =>
-        analyzer.AnalyzeFileRequest.decode(buffer) as unknown as analyzer.IAnalyzeFileRequest,
+      requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
       responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
         Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-      responseDeserialize: (buffer: Buffer) =>
-        analyzer.AnalyzeFileResponse.decode(buffer) as unknown as analyzer.IAnalyzeFileResponse,
+      responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
     },
   };
 }
