@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.sonarsource.scanner.integrationtester</groupId>
       <artifactId>sonar-scanner-integration-tester</artifactId>
-      <version>0.4.1.230</version>
+      <version>0.5.0.1256</version>
       <scope>test</scope>
     </dependency>
     <dependency>
