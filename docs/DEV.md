@@ -309,17 +309,31 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 
 ## Rule Options Architecture
 
-This section explains how rule options (configurations) work across the SonarJS stack, from ESLint runtime to SonarQube UI.
+This section explains how rule options (configurations) work across the SonarJS stack.
 
 ### Overview
 
-Rule options flow through multiple layers:
+There are two parallel workflows for requesting JS/TS analysis from Node.js:
+
+**1. SonarQube workflow (HTTP bridge via WebSocket):**
 
 ```
-SonarQube UI → Java Check Class → gRPC/JSON → transformers.ts → ESLint Linter
-                                                                      ↓
-                                                               merge(defaults, configurations)
+SonarQube UI → Java Check Class → HTTP/WebSocket → analyzeProject() → ESLint Linter
+                     ↓
+              configurations() returns
+              typed objects (int, boolean, etc.)
 ```
+
+**2. External workflow (gRPC - without SonarQube):**
+
+```
+External Client → gRPC → transformers.ts → analyzeProject() → ESLint Linter
+                              ↓
+                   parseParamValue() converts
+                   string params to typed values
+```
+
+The key difference is that SonarQube's Java side sends already-typed values via `configurations()`, while the gRPC endpoint receives string key-value pairs that need type parsing.
 
 Each rule can have configurable options defined in several places that serve different purposes.
 
@@ -500,10 +514,11 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 
 ### How Options Flow at Runtime
 
-1. **Java Side**: `@RuleProperty` fields serialized to `configurations()` method
-2. **Transport**: Options sent as string key-value pairs via gRPC/JSON
-3. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys, parses types
-4. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
+#### SonarQube workflow (HTTP/WebSocket)
+
+1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>` (e.g., `Map.of("max", 7)`)
+2. **Transport**: Gson serializes to JSON with proper types preserved
+3. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
    ```typescript
    rules[`sonarjs/${rule.key}`] = [
      'error',
@@ -511,9 +526,15 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
    ];
    ```
 
-### Type Parsing from Strings
+#### gRPC workflow (external clients)
 
-Java/SonarQube sends all values as strings. The transformer parses them based on the `default` value type:
+1. **Client**: Sends rule params as string key-value pairs via proto3
+2. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys and parses string values to proper types
+3. **Linter**: Same merging as above
+
+### Type Parsing from Strings (gRPC only)
+
+The gRPC workflow receives all param values as strings. The transformer parses them based on the `default` value type in `fields`:
 
 | Default Type | Input String | Parsed Result     |
 | ------------ | ------------ | ----------------- |
