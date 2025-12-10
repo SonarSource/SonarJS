@@ -43,7 +43,7 @@ function createServiceDefinition(): grpc.ServiceDefinition<grpc.UntypedServiceIm
 /**
  * Create and start the gRPC server
  */
-export function createGrpcServer(): grpc.Server {
+function createGrpcServer(): grpc.Server {
   const server = new grpc.Server();
   const serviceDefinition = createServiceDefinition();
 
