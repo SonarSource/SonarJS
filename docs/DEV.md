@@ -370,15 +370,24 @@ export const schema = {
 
 #### `decorated`
 
-Rules that wrap/extend an existing ESLint rule. They re-export the external rule's schema:
+Rules that wrap/extend an existing ESLint rule, adding SonarJS-specific behavior. They may optionally define a `schema` if needed:
 
 ```typescript
-// S107/meta.ts
+// S109/meta.ts - no schema, uses external rule's schema at runtime
+export const implementation = 'decorated';
+export const eslintId = 'no-magic-numbers';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
+];
+export * from './config.js';
+```
+
+```typescript
+// S107/meta.ts - explicit schema (when customization is needed)
 export const implementation = 'decorated';
 export const eslintId = 'max-params';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
 export * from './config.js';
-// Schema copied from the external rule
 export const schema = {
   /* ... */
 } as const satisfies JSONSchema4;
@@ -487,14 +496,14 @@ The transformation layer (`packages/grpc/src/transformers.ts`) handles this mapp
 
 ### JSON Schema vs `fields`
 
-| Aspect           | JSON Schema (`meta.ts`)      | `fields` (`config.ts`)                |
-| ---------------- | ---------------------------- | ------------------------------------- |
-| **Purpose**      | ESLint validation            | SQ UI + defaults + key mapping        |
-| **Used by**      | ESLint at runtime            | Java codegen, meta generation, linter |
-| **Required for** | `original`/`decorated` rules | All rules with options                |
-| **Defines**      | Structure & constraints      | Defaults, descriptions, SQ keys       |
+| Aspect           | JSON Schema (`meta.ts`)                     | `fields` (`config.ts`)                |
+| ---------------- | ------------------------------------------- | ------------------------------------- |
+| **Purpose**      | ESLint validation                           | SQ UI + defaults + key mapping        |
+| **Used by**      | ESLint at runtime                           | Java codegen, meta generation, linter |
+| **Required for** | `original` rules (optional for `decorated`) | All rules with options                |
+| **Defines**      | Structure & constraints                     | Defaults, descriptions, SQ keys       |
 
-**Important:** The schema is for ESLint validation. The `fields` array provides default values and metadata for SonarQube integration. They must be kept in sync manually.
+**Important:** The schema is for ESLint validation. The `fields` array provides default values and metadata for SonarQube integration. For `original` rules, they must be kept in sync manually. For `decorated`/`external` rules, the schema is inherited from the external rule at runtime.
 
 ### `defaultOptions` in `generated-meta.ts`
 
