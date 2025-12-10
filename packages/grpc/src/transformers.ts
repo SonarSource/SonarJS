@@ -23,7 +23,6 @@ import type {
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import type { Issue } from '../../jsts/src/linter/issues/issue.js';
-import type { JsTsAnalysisOutput } from '../../jsts/src/analysis/analysis.js';
 
 /**
  * Find common base directory from a list of file paths
@@ -73,7 +72,7 @@ export function transformRequestToProjectInput(
     files[relativePath] = {
       filePath: relativePath,
       fileContent: sourceFile.content ?? '',
-      fileType: 'MAIN', // Default to MAIN, could be extended to support TEST
+      fileType: 'MAIN', // Default to MAIN, we will need metadata from context to know for sure
     };
     filePaths.push(relativePath);
   }
@@ -122,6 +121,8 @@ export function transformRequestToProjectInput(
   };
 }
 
+const PARSING_ERROR_RULE_KEY = 'S2260';
+
 /**
  * Transform analyzeProject output into a gRPC AnalyzeFileResponse
  */
@@ -139,15 +140,27 @@ export function transformProjectOutputToResponse(
     }
 
     if ('parsingError' in fileResult) {
-      analysisProblems.push(`Parsing error in ${filePath}: ${fileResult.parsingError.message}`);
+      // Report parsing errors as issues with rule S2260
+      const { message, line } = fileResult.parsingError;
+      issues.push(
+        transformIssue({
+          ruleId: PARSING_ERROR_RULE_KEY,
+          message,
+          line: line ?? 1,
+          column: 0,
+          language: 'js',
+          secondaryLocations: [],
+          ruleESLintKeys: [],
+          filePath,
+        }),
+      );
       continue;
     }
 
     // Extract issues from successful analysis
     if ('issues' in fileResult) {
-      const analysisOutput = fileResult as JsTsAnalysisOutput;
-      for (const issue of analysisOutput.issues) {
-        issues.push(transformIssue(issue, filePath));
+      for (const issue of fileResult.issues) {
+        issues.push(transformIssue(issue));
       }
     }
   }
@@ -161,7 +174,7 @@ export function transformProjectOutputToResponse(
 /**
  * Transform a single Issue to analyzer.IIssue format
  */
-function transformIssue(issue: Issue, filePath: string): analyzer.IIssue {
+function transformIssue(issue: Issue): analyzer.IIssue {
   const textRange: analyzer.ITextRange = {
     startLine: issue.line,
     endLine: issue.endLine ?? issue.line,
@@ -181,15 +194,15 @@ function transformIssue(issue: Issue, filePath: string): analyzer.IIssue {
         endOffset: loc.endColumn,
       },
       message: loc.message ?? '',
-      file: filePath, // Secondary locations are in the same file by default
+      file: issue.filePath,
     }));
 
     flows.push({ locations });
   }
 
   return {
-    id: `${issue.ruleId}:${filePath}:${issue.line}:${issue.column}`,
-    filePath: issue.filePath || filePath,
+    id: `${issue.ruleId}:${issue.filePath}:${issue.line}:${issue.column}`,
+    filePath: issue.filePath,
     message: issue.message,
     rule: issue.ruleId,
     textRange,

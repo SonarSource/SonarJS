@@ -19,7 +19,6 @@ import { analyzer } from './proto/language_analyzer.js';
 import { analyzeFileHandler } from './service.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
-const DEFAULT_PORT = 3000;
 const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
 
 /**
@@ -67,7 +66,7 @@ export function createGrpcServer(): grpc.Server {
 /**
  * Start the gRPC server on the specified port
  */
-export function startServer(port: number = DEFAULT_PORT): Promise<grpc.Server> {
+export function startServer(port: number): Promise<grpc.Server> {
   return new Promise((resolve, reject) => {
     const server = createGrpcServer();
 
@@ -86,19 +85,4 @@ export function startServer(port: number = DEFAULT_PORT): Promise<grpc.Server> {
       },
     );
   });
-}
-
-/**
- * Main entry point for the gRPC server
- */
-export async function main(): Promise<void> {
-  const port = Number.parseInt(process.argv[2], 10) || DEFAULT_PORT;
-
-  try {
-    await startServer(port);
-    info('SonarJS gRPC LanguageAnalyzerService started');
-  } catch (error) {
-    logError(`Failed to start gRPC server: ${error}`);
-    process.exit(1);
-  }
 }

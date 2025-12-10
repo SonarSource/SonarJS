@@ -35,13 +35,10 @@ export async function analyzeFileHandler(
   try {
     info(`Received AnalyzeFile request with ${request.sourceFiles?.length ?? 0} files`);
 
-    // Transform gRPC request to analyzeProject input
     const projectInput = transformRequestToProjectInput(request);
 
-    // Call the existing analyzeProject function
     const projectOutput = await analyzeProject(projectInput);
 
-    // Transform the output back to gRPC response format
     const response = transformProjectOutputToResponse(projectOutput);
 
     info(`Analysis complete: ${response.issues?.length ?? 0} issues found`);
