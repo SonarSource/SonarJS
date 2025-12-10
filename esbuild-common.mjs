@@ -29,7 +29,7 @@ const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'ut
  * @param {Array} options.additionalAssets - Additional assets to copy (optional)
  */
 export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }) {
-  const entryPointName = entryPoint.replace('./', '').replace(/\./g, '\\.');
+  const entryPointName = entryPoint.replace('./', '').replaceAll('.', String.raw`\.`);
   const entryPointRegex = new RegExp(`${entryPointName}$`);
 
   await esbuild.build({
@@ -49,21 +49,21 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
         pattern: [['new URL(import.meta.url)', '__filename']],
       }),
       textReplace({
-        include: /lib[\/\\]jsts[\/\\]src[\/\\]parsers[\/\\]ast\.js$/,
+        include: /lib[/\\]jsts[/\\]src[/\\]parsers[/\\]ast\.js$/,
         pattern: [['path.dirname(fileURLToPath(import.meta.url))', '__dirname']],
       }),
       // Simplify the loader function in babel. At the end it's just importing Babel parser
       // This matches the result of the TS compilation of the following lines
       // https://github.com/babel/babel/blob/v7.25.1/eslint/babel-eslint-parser/src/parse.cts#L8-L12
       textReplace({
-        include: /node_modules[\/\\]@babel[\/\\]eslint-parser[\/\\]lib[\/\\]parse\.cjs$/,
+        include: /node_modules[/\\]@babel[/\\]eslint-parser[/\\]lib[/\\]parse\.cjs$/,
         pattern: [
           [/const babelParser = require.*}\)\)/gms, 'const babelParser = require("@babel/parser")'],
         ],
       }),
       // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
       textReplace({
-        include: /node_modules[\/\\]eslint[\/\\]lib[\/\\]rule-tester[\/\\]rule-tester\.js$/,
+        include: /node_modules[/\\]eslint[/\\]lib[/\\]rule-tester[/\\]rule-tester\.js$/,
         pattern: [
           // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L56
           ['const espreePath = require.resolve("espree");', ''],
@@ -73,8 +73,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       }),
       // Remove dynamic import of unused stylelint extensions
       textReplace({
-        include:
-          /node_modules[\/\\]postcss-html[\/\\]lib[\/\\]syntax[\/\\]build-syntax-resolver\.js$/,
+        include: /node_modules[/\\]postcss-html[/\\]lib[/\\]syntax[/\\]build-syntax-resolver\.js$/,
         pattern: [
           ['sugarss: () => require("sugarss"),', ''],
           ['"postcss-styl": () => require("postcss-styl"),', ''],
@@ -82,7 +81,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       }),
       // Remove createRequire from rolldown, used by tsdown, used by @stylistic
       textReplace({
-        include: /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]vendor\.js$/,
+        include: /node_modules[/\\]@stylistic[/\\]eslint-plugin[/\\]dist[/\\]vendor\.js$/,
         pattern: [
           [
             '__importStar$4(__require("@eslint-community/eslint-utils"))',
@@ -109,29 +108,28 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       }),
       // Remove createRequires
       textReplace({
-        include:
-          /node_modules[\/\\]@stylistic[\/\\]eslint-plugin[\/\\]dist[\/\\]rolldown-runtime\.js$/,
+        include: /node_modules[/\\]@stylistic[/\\]eslint-plugin[/\\]dist[/\\]rolldown-runtime\.js$/,
         pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
       }),
       textReplace({
-        include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data-patch\.js$/,
+        include: /node_modules[/\\]css-tree[/\\]lib[/\\]data-patch\.js$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
       }),
       textReplace({
-        include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]data\.js$/,
+        include: /node_modules[/\\]css-tree[/\\]lib[/\\]data\.js$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
       }),
       textReplace({
-        include: /node_modules[\/\\]css-tree[\/\\]lib[\/\\]version\.js$/,
+        include: /node_modules[/\\]css-tree[/\\]lib[/\\]version\.js$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
       }),
       textReplace({
-        include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]mathMLTags\.mjs$/,
+        include: /node_modules[/\\]stylelint[/\\]lib[/\\]utils[/\\]mathMLTags\.mjs$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
       }),
       // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
       textReplace({
-        include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
+        include: /node_modules[/\\]eslint-module-utils[/\\]resolve\.js$/,
         pattern: [
           [
             // https://github.com/import-js/eslint-plugin-import/blob/v2.11.0/utils/resolve.js#L157
@@ -143,7 +141,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       // The comparison by constructor name made by stylelint is not valid in the bundle because
       // the Document object is named differently. We need to compare constructor object directly
       textReplace({
-        include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.mjs$/,
+        include: /node_modules[/\\]stylelint[/\\]lib[/\\]lintPostcssResult\.mjs$/,
         pattern: [
           [
             "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
@@ -153,7 +151,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       }),
       // do not let stylelint fs read its package.json
       textReplace({
-        include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]FileCache.mjs$/,
+        include: /node_modules[/\\]stylelint[/\\]lib[/\\]utils[/\\]FileCache.mjs$/,
         pattern: [
           [
             "JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));",
