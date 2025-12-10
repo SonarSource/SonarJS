@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { dirname } from 'node:path/posix';
 import type { analyzer } from './proto/language_analyzer.js';
 import type {
   ProjectAnalysisInput,
@@ -22,35 +21,79 @@ import type {
   JsTsFiles,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
+import type { FileType } from '../../shared/src/helpers/files.js';
 import type { Issue } from '../../jsts/src/linter/issues/issue.js';
+import type { ESLintConfiguration } from '../../jsts/src/rules/helpers/configs.js';
+import * as metas from '../../jsts/src/rules/metas.js';
+
+type RuleMeta = {
+  sonarKey: string;
+  scope: 'Main' | 'Tests';
+  languages: ('js' | 'ts')[];
+  fields?: ESLintConfiguration;
+};
+
+// A field definition from config.ts
+type FieldDef = {
+  field: string;
+  displayName?: string;
+  default: unknown;
+};
+
+// Build a lookup map from sonarKey to rule metadata
+const ruleMetaMap: Map<string, RuleMeta> = new Map();
+for (const [, ruleMeta] of Object.entries(metas)) {
+  const meta = ruleMeta as RuleMeta;
+  if (meta.sonarKey) {
+    ruleMetaMap.set(meta.sonarKey, meta);
+  }
+}
 
 /**
- * Find common base directory from a list of file paths
+ * Parse a param value based on the expected type from field default
  */
-function findCommonBaseDir(filePaths: string[]): string {
-  if (filePaths.length === 0) {
-    return '/';
+function parseParamValue(value: string, defaultValue: unknown): unknown {
+  if (typeof defaultValue === 'number') {
+    const num = Number(value);
+    return isNaN(num) ? defaultValue : num;
   }
-  if (filePaths.length === 1) {
-    return dirname(filePaths[0]);
+  if (typeof defaultValue === 'boolean') {
+    return value === 'true';
   }
-
-  const parts = filePaths.map(p => p.split('/'));
-  const minLength = Math.min(...parts.map(p => p.length));
-
-  let commonParts: string[] = [];
-  for (let i = 0; i < minLength; i++) {
-    const part = parts[0][i];
-    if (parts.every(p => p[i] === part)) {
-      commonParts.push(part);
-    } else {
-      break;
+  if (Array.isArray(defaultValue)) {
+    // Split comma-separated values, preserving element type from default
+    const parts = value.split(',').map(v => v.trim());
+    // Check first element of default to determine array element type
+    if (defaultValue.length > 0 && typeof defaultValue[0] === 'number') {
+      return parts.map(p => Number(p)).filter(n => !isNaN(n));
     }
+    return parts;
+  }
+  // Default to string
+  return value;
+}
+
+/**
+ * Build a lookup from SonarQube param key to field definition
+ * SQ key is either displayName (if set) or field name
+ */
+function buildParamKeyMap(fields: ESLintConfiguration): Map<string, FieldDef> {
+  const map = new Map<string, FieldDef>();
+
+  for (const element of fields) {
+    if (Array.isArray(element)) {
+      // Array of named properties (object configuration)
+      for (const prop of element) {
+        const fieldDef = prop as FieldDef;
+        // SQ key is displayName if present, otherwise field name
+        const sqKey = fieldDef.displayName ?? fieldDef.field;
+        map.set(sqKey, fieldDef);
+      }
+    }
+    // Non-array elements (primitive configs) don't have named keys
   }
 
-  // If the last common part is a file, remove it
-  const result = commonParts.join('/');
-  return result || '/';
+  return map;
 }
 
 /**
@@ -65,7 +108,6 @@ export function transformRequestToProjectInput(
 
   // Transform source files to JsTsFiles format
   const files: JsTsFiles = {};
-  const filePaths: string[] = [];
 
   for (const sourceFile of sourceFiles) {
     const relativePath = sourceFile.relativePath ?? '';
@@ -74,36 +116,62 @@ export function transformRequestToProjectInput(
       fileContent: sourceFile.content ?? '',
       fileType: 'MAIN', // Default to MAIN, we will need metadata from context to know for sure
     };
-    filePaths.push(relativePath);
   }
 
-  // Determine baseDir from file paths
-  const baseDir = findCommonBaseDir(filePaths);
-
-  // Transform active rules to RuleConfig format
-  // For each rule, we create two entries: one for JS and one for TS
-  // This ensures rules work for both languages
+  // Transform active rules to RuleConfig format using rule metadata
   const rules: RuleConfig[] = [];
   for (const activeRule of activeRules) {
-    // Extract rule params as configurations
-    const configurations: any[] = [];
-    const params = activeRule.params || [];
-    if (params.length > 0) {
-      const paramsObj: Record<string, unknown> = {};
-      for (const param of params) {
-        // Try to parse numeric values
-        const numValue = Number(param.value);
-        paramsObj[param.key ?? ''] = !isNaN(numValue) ? numValue : param.value;
-      }
-      configurations.push(paramsObj);
+    const ruleKey = activeRule.ruleKey ?? '';
+    const ruleMeta = ruleMetaMap.get(ruleKey);
+
+    if (!ruleMeta) {
+      // Unknown rule - skip it
+      continue;
     }
 
-    // Add rule for both JS and TS to support both languages
-    for (const language of ['js', 'ts'] as const) {
+    // Build configurations from params using fields mapping
+    const configurations: unknown[] = [];
+    const params = activeRule.params || [];
+
+    if (params.length > 0 && ruleMeta.fields?.length) {
+      // Build lookup from SQ param key to field definition
+      const paramKeyMap = buildParamKeyMap(ruleMeta.fields);
+
+      if (paramKeyMap.size > 0) {
+        // Object-style configuration
+        const paramsObj: Record<string, unknown> = {};
+
+        for (const param of params) {
+          const sqKey = param.key ?? '';
+          const fieldDef = paramKeyMap.get(sqKey);
+
+          if (fieldDef) {
+            // Map SQ key to ESLint field name and parse value
+            paramsObj[fieldDef.field] = parseParamValue(param.value ?? '', fieldDef.default);
+          }
+        }
+
+        if (Object.keys(paramsObj).length > 0) {
+          configurations.push(paramsObj);
+        }
+      } else {
+        // Primitive configuration (non-array element in fields)
+        const firstField = ruleMeta.fields[0];
+        if (firstField && !Array.isArray(firstField) && params[0]) {
+          configurations.push(parseParamValue(params[0].value ?? '', firstField.default));
+        }
+      }
+    }
+
+    // Determine file type targets from scope
+    const fileTypeTargets: FileType[] = ruleMeta.scope === 'Tests' ? ['TEST'] : ['MAIN', 'TEST'];
+
+    // Create rule config for each supported language
+    for (const language of ruleMeta.languages) {
       rules.push({
-        key: activeRule.ruleKey ?? '',
+        key: ruleKey,
         configurations,
-        fileTypeTargets: ['MAIN', 'TEST'],
+        fileTypeTargets,
         language,
         analysisModes: ['DEFAULT'],
       });
@@ -114,7 +182,8 @@ export function transformRequestToProjectInput(
     files,
     rules,
     configuration: {
-      baseDir,
+      // baseDir is irrelevant since we don't access the filesystem
+      baseDir: '/',
       // gRPC requests contain all file contents inline - no filesystem access needed
       canAccessFileSystem: false,
     },
