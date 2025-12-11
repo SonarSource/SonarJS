@@ -118,10 +118,6 @@ await esbuild.build({
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     textReplace({
-      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.mjs$/,
-      pattern: [['const require = createRequire(import.meta.url);', '']],
-    }),
-    textReplace({
       include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]mathMLTags\.mjs$/,
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
