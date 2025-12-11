@@ -153,12 +153,12 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-      - &maven_cache_restore
-        name: Restore Maven cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - &maven_cache
+        name: Cache Maven repository
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}-${{ github.run_id }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
@@ -183,13 +183,6 @@ jobs:
             **/target/
             !**/target/site/
           retention-days: 1
-      - &maven_cache_save
-        name: Save Maven cache
-        if: always()
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
 
   # Windows builds and tests
   build_win:
@@ -202,7 +195,7 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *maven_cache_restore
+      - *maven_cache
       - name: Build Maven (no deploy)
         uses: SonarSource/ci-github-actions/build-maven@master
         with:
@@ -212,7 +205,6 @@ jobs:
           sonar-platform: none
           maven-args: '-DskipTests -T1C'
       - *upload_maven_targets
-      - *maven_cache_save
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -376,7 +368,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *npm_cache
       - &download_maven_targets
         name: Download Maven target artifacts
@@ -402,7 +394,6 @@ jobs:
       - *config_maven
       - name: Run Java tests with coverage
         run: mvn verify -T1C -Pcoverage,coverage-report
-      - *maven_cache_save
 
   test_java_win:
     runs-on: github-windows-latest-m
@@ -413,14 +404,13 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *npm_cache
       - *download_maven_targets
       - *prevent_recompilation
       - *config_maven
       - name: Run Java tests on Windows
         run: mvn test -T1C
-      - *maven_cache_save
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
@@ -437,7 +427,7 @@ jobs:
           fetch-tags: 'true'
       - *mise
       - *npm_cache
-      - *maven_cache_restore
+      - *maven_cache
       - &js_coverage_cache
         name: Cache JS coverage
         id: js-coverage-cache
@@ -477,7 +467,6 @@ jobs:
           fi
 
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
-      - *maven_cache_save
 
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
@@ -496,7 +485,7 @@ jobs:
       - *checkout_with_tags
       - *mise
       - *npm_cache
-      - *maven_cache_restore
+      - *maven_cache
       - *js_coverage_cache
       - *java_coverage_cache
       - *download_maven_targets
@@ -531,7 +520,6 @@ jobs:
           fi
 
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
-      - *maven_cache_save
 
   plugin_qa_with_node:
     runs-on: github-ubuntu-latest-m
@@ -552,7 +540,7 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "${{ matrix.node-version }}"
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - &get_licenses_token
         id: secrets
@@ -567,9 +555,9 @@ jobs:
           MONTHLY_CACHE_DATE=$(date +'%Y-%m')
           echo "MONTHLY_CACHE_DATE=$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
           echo "ORCHESTRATOR_HOME_MONTHLY=${{ github.workspace }}/orchestrator/$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
-      - &orchestrator_cache_restore
-        name: Restore Orchestrator cache (monthly)
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - &orchestrator_cache
+        name: Cache Orchestrator (monthly)
+        uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ${{ env.ORCHESTRATOR_HOME_MONTHLY }}
           key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}-${{ github.run_id }}
@@ -588,14 +576,6 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
-      - &orchestrator_cache_save
-        name: Save Orchestrator cache (monthly)
-        if: always()
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ${{ env.ORCHESTRATOR_HOME_MONTHLY }}
-          key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}-${{ github.run_id }}
 
   plugin_qa_fast_with_node:
     runs-on: github-ubuntu-latest-m
@@ -608,7 +588,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_matrix_node
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - name: Run Fast Plugin QA
@@ -618,7 +598,6 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
 
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-m
@@ -652,7 +631,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *set_monthly_cache_date
@@ -701,7 +680,6 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
 
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-m
@@ -724,7 +702,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
@@ -736,7 +714,6 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
 
   plugin_qa_win:
     runs-on: github-windows-latest-m
@@ -747,11 +724,11 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *set_monthly_cache_date
-      - *orchestrator_cache_restore
+      - *orchestrator_cache
       - *setup_orchestrator_home_monthly
       - name: Run Plugin QA on Windows
         shell: bash
@@ -761,8 +738,6 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
-      - *orchestrator_cache_save
 
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
@@ -773,7 +748,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - name: Run Plugin QA on Windows
         shell: bash
@@ -781,7 +756,6 @@ jobs:
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-      - *maven_cache_save
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
@@ -792,7 +766,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - name: Run Fast Plugin QA on Windows
@@ -803,7 +777,6 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - *maven_cache_save
 
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
@@ -839,11 +812,11 @@ jobs:
     steps:
       - *checkout_with_submodules
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *set_monthly_cache_date
-      - *orchestrator_cache_restore
+      - *orchestrator_cache
       - *setup_orchestrator_home_monthly
       - name: Run Ruling Tests
         run: |
@@ -858,8 +831,6 @@ jobs:
         with:
           name: ruling-differences
           path: its/ruling/target/actual/jsts/
-      - *maven_cache_save
-      - *orchestrator_cache_save
 
   css_ruling:
     runs-on: github-ubuntu-latest-m
@@ -870,11 +841,11 @@ jobs:
     steps:
       - *checkout_with_submodules
       - *mise
-      - *maven_cache_restore
+      - *maven_cache
       - *config_maven
       - *get_licenses_token
       - *set_monthly_cache_date
-      - *orchestrator_cache_restore
+      - *orchestrator_cache
       - *setup_orchestrator_home_monthly
       - name: Run CSS Ruling
         run: |
@@ -889,8 +860,6 @@ jobs:
         with:
           name: ruling-differences-css
           path: its/ruling/target/actual/
-      - *maven_cache_save
-      - *orchestrator_cache_save
 
   # IRIS tasks (nightly only)
   run_iris:
