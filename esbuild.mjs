@@ -118,7 +118,16 @@ await esbuild.build({
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     textReplace({
+      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.mjs$/,
+      pattern: [['const require = createRequire(import.meta.url);', '']],
+    }),
+    textReplace({
       include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]mathMLTags\.mjs$/,
+      pattern: [['const require = createRequire(import.meta.url);', '']],
+    }),
+    textReplace({
+      include:
+        /node_modules[\/\\]stylelint[\/\\]lib[\/\\]rules[\/\\]declaration-property-value-no-unknown[\/\\]index\.mjs$/,
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
