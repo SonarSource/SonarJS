@@ -71,74 +71,14 @@ jobs:
           echo "month=$MONTH" >> $GITHUB_OUTPUT
           echo "Cache month: $MONTH"
 
-  config_maven:
+  get_build_number:
     runs-on: github-ubuntu-latest-s
-    name: Configure Maven
+    name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - *checkout
-      - &mise_java_maven
-        name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-      - name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
-
-  populate_maven_cache:
-    runs-on: github-ubuntu-latest-m
-    name: Populate Maven cache for Linux
-    needs: [setup, config_maven]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps: &populate_maven_cache_steps
-      - name: Check Maven cache
-        id: cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
-          lookup-only: true
-      - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure Maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Populate Maven dependencies
-        run: |
-          # Download all external dependencies (excludes reactor/internal modules)
-          mvn dependency:go-offline -B
-
-  populate_maven_cache_win:
-    runs-on: github-windows-latest-s
-    name: Populate Maven cache for Windows
-    needs: [setup, config_maven]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps: *populate_maven_cache_steps
+      - uses: SonarSource/ci-github-actions/get-build-number@master
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
@@ -158,13 +98,14 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Setup Node
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            node = "24.11.0"
+            java = "21.0"
+            maven = "3.9"
+            node = "24.0.0"
       - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
         name: Access vault secrets
@@ -192,7 +133,7 @@ jobs:
   build:
     runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
-    needs: [setup, populate_maven_cache, populate_npm_cache]
+    needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -205,7 +146,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - &npm_cache
         name: Cache NPM dependencies
         uses: SonarSource/ci-github-actions/cache@v1
@@ -247,7 +188,7 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
-    needs: [setup, populate_maven_cache_win, populate_npm_cache_win]
+    needs: [setup, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -334,14 +275,7 @@ jobs:
     permissions: *read_permissions
     steps:
       - *checkout
-      - &mise_node_only
-        name: Setup Node
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            node = "24.11.0"
+      - *mise
       - *npm_cache
       - name: Run knip
         run: |
@@ -364,8 +298,7 @@ jobs:
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Setup tools
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -373,7 +306,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/cache@v1
@@ -403,8 +336,7 @@ jobs:
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Setup tools
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -412,7 +344,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/cache@v1
@@ -599,7 +531,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - &mise_with_java_and_matrix_node
+      - &mise_java_matrix_node
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -616,25 +548,8 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &set_monthly_cache_date
-        name: Set monthly cache date
-        shell: bash
-        run: |
-          MONTHLY_CACHE_DATE=$(date +'%Y-%m')
-          echo "MONTHLY_CACHE_DATE=$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME_MONTHLY=${{ github.workspace }}/orchestrator/$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
-      - &orchestrator_cache_monthly
-        name: Cache Orchestrator (monthly)
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ${{ env.ORCHESTRATOR_HOME_MONTHLY }}
-          key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}
-      - &setup_orchestrator_home_monthly
-        name: Setup Orchestrator home directory (monthly)
-        shell: bash
-        run: |
-          mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
-          echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
+      - &orchestrator_cache
+        uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -654,7 +569,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - *mise_with_java_and_matrix_node
+      - *mise_java_matrix_node
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -678,18 +593,15 @@ jobs:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
             artifact: multi
-            cache-type: monthly
 #          - os: Alpine
 #            sq-version: LATEST_RELEASE
 #            artifact: linux-x64-musl
-#            cache-type: monthly
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
-            cache-type: daily
     steps:
       - *checkout
-      - &mise_with_java
+      - &mise_java_only
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.5.1
         with:
@@ -701,13 +613,6 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
-      - name: Set daily cache date
-        shell: bash
-        run: |
-          DAILY_CACHE_DATE=$(date +'%Y-%m-%d')
-          echo "DAILY_CACHE_DATE=$DAILY_CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME_DAILY=${{ github.workspace }}/orchestrator/$DAILY_CACHE_DATE" >> $GITHUB_ENV
       - &remove_node_from_path
         name: Disable existing node
         shell: bash
@@ -715,7 +620,7 @@ jobs:
           node --version
           NODE_PATH=$(which node)
           sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
-          
+
           # Verify node is no longer accessible
           if which node 2>/dev/null; then
             echo "ERROR: node is still accessible!"
@@ -723,21 +628,7 @@ jobs:
           else
             echo "SUCCESS: node is no longer accessible"
           fi
-      - name: Cache Orchestrator
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ${{ matrix.cache-type == 'monthly' && env.ORCHESTRATOR_HOME_MONTHLY || env.ORCHESTRATOR_HOME_DAILY }}
-          key: orchestrator-${{ matrix.cache-type }}-${{ matrix.cache-type == 'monthly' && env.MONTHLY_CACHE_DATE || env.DAILY_CACHE_DATE }}
-      - name: Setup Orchestrator home directory
-        shell: bash
-        run: |
-          if [ "${{ matrix.cache-type }}" = "monthly" ]; then
-            mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
-            echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
-          else
-            mkdir -p "$ORCHESTRATOR_HOME_DAILY"
-            echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_DAILY" >> $GITHUB_ENV
-          fi
+      - *orchestrator_cache
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -768,7 +659,7 @@ jobs:
             artifact: multi
     steps:
       - *checkout
-      - *mise_with_java
+      - *mise_java_only
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -785,7 +676,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -794,9 +685,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
-      - *orchestrator_cache_monthly
-      - *setup_orchestrator_home_monthly
+      - *orchestrator_cache
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -809,7 +698,7 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
     name: QA SonarLint on Windows
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -827,7 +716,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -857,7 +746,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           submodules: true
-      - *mise_node_only
+      - *mise
       - *npm_cache
       - name: Run JS/TS Ruling
         run: |
@@ -882,9 +771,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
-      - *orchestrator_cache_monthly
-      - *setup_orchestrator_home_monthly
+      - *orchestrator_cache
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -911,9 +798,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
-      - *orchestrator_cache_monthly
-      - *setup_orchestrator_home_monthly
+      - *orchestrator_cache
       - name: Run CSS Ruling
         run: |
           cd its/ruling
