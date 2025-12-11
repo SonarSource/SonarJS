@@ -55,7 +55,7 @@ for (const [, ruleMeta] of Object.entries(metas)) {
 function parseParamValue(value: string, defaultValue: unknown): unknown {
   if (typeof defaultValue === 'number') {
     const num = Number(value);
-    return isNaN(num) ? defaultValue : num;
+    return Number.isNaN(num) ? defaultValue : num;
   }
   if (typeof defaultValue === 'boolean') {
     return value === 'true';
@@ -65,7 +65,7 @@ function parseParamValue(value: string, defaultValue: unknown): unknown {
     const parts = value.split(',').map(v => v.trim());
     // Check first element of default to determine array element type
     if (defaultValue.length > 0 && typeof defaultValue[0] === 'number') {
-      return parts.map(p => Number(p)).filter(n => !isNaN(n));
+      return parts.map(p => Number(p)).filter(n => !Number.isNaN(n));
     }
     return parts;
   }
@@ -74,26 +74,125 @@ function parseParamValue(value: string, defaultValue: unknown): unknown {
 }
 
 /**
- * Build a lookup from SonarQube param key to field definition
- * SQ key is either displayName (if set) or field name
+ * Transform source files from gRPC format to JsTsFiles format
  */
-function buildParamKeyMap(fields: ESLintConfiguration): Map<string, FieldDef> {
-  const map = new Map<string, FieldDef>();
+function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
+  const files: JsTsFiles = {};
 
-  for (const element of fields) {
-    if (Array.isArray(element)) {
-      // Array of named properties (object configuration)
-      for (const prop of element) {
-        const fieldDef = prop as FieldDef;
-        // SQ key is displayName if present, otherwise field name
-        const sqKey = fieldDef.displayName ?? fieldDef.field;
-        map.set(sqKey, fieldDef);
-      }
-    }
-    // Non-array elements (primitive configs) don't have named keys
+  for (const sourceFile of sourceFiles) {
+    const relativePath = sourceFile.relativePath ?? '';
+    files[relativePath] = {
+      filePath: relativePath,
+      fileContent: sourceFile.content ?? '',
+      fileType: 'MAIN', // Default to MAIN, we will need metadata from context to know for sure
+    };
   }
 
-  return map;
+  return files;
+}
+
+/**
+ * Build ESLint configurations array from gRPC params using rule field definitions.
+ *
+ * ESLintConfiguration is an array where each element maps to a position in the ESLint config:
+ * - Primitive element: `{default, displayName?}` → value at that position
+ * - Object element: `[{field, default}, ...]` → object at that position
+ *
+ * Example: `[{default: '1tbs', displayName: 'braceStyle'}, [{field: 'allowSingleLine', default: true}]]`
+ * Maps to ESLint config: `['1tbs', { allowSingleLine: true }]`
+ */
+function buildConfigurations(
+  params: analyzer.IRuleParam[],
+  fields: ESLintConfiguration,
+): unknown[] {
+  if (!fields?.length) {
+    return [];
+  }
+
+  // Convert params array to a lookup map
+  const paramsLookup = new Map<string, string>();
+  for (const param of params) {
+    if (param.key) {
+      paramsLookup.set(param.key, param.value ?? '');
+    }
+  }
+
+  // Build configurations array - one entry per field element
+  const configurations: unknown[] = [];
+
+  for (let index = 0; index < fields.length; index++) {
+    const element = fields[index];
+
+    if (Array.isArray(element)) {
+      // Object configuration - collect all matching params
+      const paramsObj: Record<string, unknown> = {};
+
+      for (const prop of element) {
+        const fieldDef = prop as FieldDef;
+        const sqKey = fieldDef.displayName ?? fieldDef.field;
+        const paramValue = paramsLookup.get(sqKey);
+
+        if (paramValue !== undefined) {
+          paramsObj[fieldDef.field] = parseParamValue(paramValue, fieldDef.default);
+        }
+      }
+
+      if (Object.keys(paramsObj).length > 0) {
+        configurations.push(paramsObj);
+      }
+    } else {
+      // Primitive configuration
+      const primitiveElement = element as { default: unknown; displayName?: string };
+      const sqKey = primitiveElement.displayName;
+
+      if (sqKey) {
+        const paramValue = paramsLookup.get(sqKey);
+        if (paramValue !== undefined) {
+          configurations.push(parseParamValue(paramValue, primitiveElement.default));
+        }
+      } else if (params.length > 0 && index === 0) {
+        // Fallback: primitive without displayName uses first param
+        configurations.push(parseParamValue(params[0].value ?? '', primitiveElement.default));
+      }
+    }
+  }
+
+  return configurations;
+}
+
+/**
+ * Transform a single active rule to RuleConfig entries (one per supported language)
+ */
+function transformActiveRule(activeRule: analyzer.IActiveRule): RuleConfig[] {
+  const ruleKey = activeRule.ruleKey ?? '';
+  const ruleMeta = ruleMetaMap.get(ruleKey);
+
+  if (!ruleMeta) {
+    // Unknown rule - skip it
+    return [];
+  }
+
+  const params = activeRule.params || [];
+  const configurations = buildConfigurations(params, ruleMeta.fields ?? []);
+
+  // Determine file type targets from scope
+  const fileTypeTargets: FileType[] = ruleMeta.scope === 'Tests' ? ['TEST'] : ['MAIN'];
+
+  // Create a rule config for each supported language
+  return ruleMeta.languages.map(language => ({
+    key: ruleKey,
+    configurations,
+    fileTypeTargets,
+    language,
+    analysisModes: ['DEFAULT'] as const,
+  }));
+}
+
+/**
+ * Transform active rules from gRPC format to RuleConfig array
+ */
+function transformActiveRules(activeRules: analyzer.IActiveRule[]): RuleConfig[] {
+  return activeRules.flatMap(transformActiveRule);
 }
 
 /**
@@ -106,81 +205,9 @@ export function transformRequestToProjectInput(
   const sourceFiles = request.sourceFiles || [];
   const activeRules = request.activeRules || [];
 
-  // Transform source files to JsTsFiles format
-  const files: JsTsFiles = {};
-
-  for (const sourceFile of sourceFiles) {
-    const relativePath = sourceFile.relativePath ?? '';
-    files[relativePath] = {
-      filePath: relativePath,
-      fileContent: sourceFile.content ?? '',
-      fileType: 'MAIN', // Default to MAIN, we will need metadata from context to know for sure
-    };
-  }
-
-  // Transform active rules to RuleConfig format using rule metadata
-  const rules: RuleConfig[] = [];
-  for (const activeRule of activeRules) {
-    const ruleKey = activeRule.ruleKey ?? '';
-    const ruleMeta = ruleMetaMap.get(ruleKey);
-
-    if (!ruleMeta) {
-      // Unknown rule - skip it
-      continue;
-    }
-
-    // Build configurations from params using fields mapping
-    const configurations: unknown[] = [];
-    const params = activeRule.params || [];
-
-    if (params.length > 0 && ruleMeta.fields?.length) {
-      // Build lookup from SQ param key to field definition
-      const paramKeyMap = buildParamKeyMap(ruleMeta.fields);
-
-      if (paramKeyMap.size > 0) {
-        // Object-style configuration
-        const paramsObj: Record<string, unknown> = {};
-
-        for (const param of params) {
-          const sqKey = param.key ?? '';
-          const fieldDef = paramKeyMap.get(sqKey);
-
-          if (fieldDef) {
-            // Map SQ key to ESLint field name and parse value
-            paramsObj[fieldDef.field] = parseParamValue(param.value ?? '', fieldDef.default);
-          }
-        }
-
-        if (Object.keys(paramsObj).length > 0) {
-          configurations.push(paramsObj);
-        }
-      } else {
-        // Primitive configuration (non-array element in fields)
-        const firstField = ruleMeta.fields[0];
-        if (firstField && !Array.isArray(firstField) && params[0]) {
-          configurations.push(parseParamValue(params[0].value ?? '', firstField.default));
-        }
-      }
-    }
-
-    // Determine file type targets from scope
-    const fileTypeTargets: FileType[] = ruleMeta.scope === 'Tests' ? ['TEST'] : ['MAIN', 'TEST'];
-
-    // Create rule config for each supported language
-    for (const language of ruleMeta.languages) {
-      rules.push({
-        key: ruleKey,
-        configurations,
-        fileTypeTargets,
-        language,
-        analysisModes: ['DEFAULT'],
-      });
-    }
-  }
-
   return {
-    files,
-    rules,
+    files: transformSourceFiles(sourceFiles),
+    rules: transformActiveRules(activeRules),
     configuration: {
       // baseDir is irrelevant since we don't access the filesystem
       baseDir: '/',

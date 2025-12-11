@@ -387,4 +387,39 @@ describe('gRPC server', () => {
     expect(issues[0].rule).toBe('S4619');
     expect(issues[0].message).toContain('indexOf');
   });
+
+  it('should handle rules with mixed primitive and object parameters', async () => {
+    // S1105 (BraceStyle) has a mixed config:
+    // - First element: primitive with displayName 'braceStyle' (default: '1tbs')
+    // - Second element: object with field 'allowSingleLine' (default: true)
+    // ESLint config: ['1tbs', { allowSingleLine: true }]
+
+    // Code with Allman brace style (brace on new line)
+    const fileContent = `function foo()
+{
+  return 1;
+}
+`;
+
+    // With default '1tbs' style, Allman should trigger an issue
+    const requestDefault: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S1105', params: [] }],
+    };
+
+    const responseDefault = await client.analyzeFile(requestDefault);
+    expect(responseDefault.issues?.length).toBe(1);
+    expect(responseDefault.issues?.[0].rule).toBe('S1105');
+
+    // With 'allman' style, should NOT trigger
+    const requestAllman: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S1105', params: [{ key: 'braceStyle', value: 'allman' }] }],
+    };
+
+    const responseAllman = await client.analyzeFile(requestAllman);
+    expect(responseAllman.issues?.length).toBe(0);
+  });
 });
