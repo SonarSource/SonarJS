@@ -265,7 +265,6 @@ jobs:
       - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache: 'false'
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
