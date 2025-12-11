@@ -71,36 +71,22 @@ jobs:
           echo "month=$MONTH" >> $GITHUB_OUTPUT
           echo "Cache month: $MONTH"
 
-  config_maven:
+  get_build_number:
     runs-on: github-ubuntu-latest-s
-    name: Configure Maven
+    name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - *checkout
-      - &mise_java_maven
-        name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-      - name: Configure Maven
-        id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
+      - uses: SonarSource/ci-github-actions/get-build-number@master
 
-  populate_maven_cache:
-    runs-on: github-ubuntu-latest-m
-    name: Populate Maven cache for Linux
-    needs: [setup, config_maven]
+  populate_maven_cache_win:
+    runs-on: github-windows-latest-s
+    name: Populate Maven cache for Windows
+    needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    steps: &populate_maven_cache_steps
+    steps:
       - name: Check Maven cache
         id: cache
         uses: SonarSource/ci-github-actions/cache@v1
@@ -121,6 +107,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
+            node = "24.0.0"
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure Maven
         uses: SonarSource/ci-github-actions/config-maven@master
@@ -131,14 +118,6 @@ jobs:
         run: |
           # Download all external dependencies (excludes reactor/internal modules)
           mvn dependency:go-offline -B
-
-  populate_maven_cache_win:
-    runs-on: github-windows-latest-s
-    name: Populate Maven cache for Windows
-    needs: [setup, config_maven]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps: *populate_maven_cache_steps
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
@@ -158,13 +137,14 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Setup Node
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            node = "24.11.0"
+            java = "21.0"
+            maven = "3.9"
+            node = "24.0.0"
       - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
         name: Access vault secrets
@@ -192,7 +172,7 @@ jobs:
   build:
     runs-on: github-ubuntu-latest-m
     name: Build SonarJS on Linux
-    needs: [setup, populate_maven_cache, populate_npm_cache]
+    needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -205,7 +185,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - &npm_cache
         name: Cache NPM dependencies
         uses: SonarSource/ci-github-actions/cache@v1
@@ -316,6 +296,7 @@ jobs:
       - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache: 'false'
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
@@ -334,14 +315,7 @@ jobs:
     permissions: *read_permissions
     steps:
       - *checkout
-      - &mise_node_only
-        name: Setup Node
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            node = "24.11.0"
+      - *mise
       - *npm_cache
       - name: Run knip
         run: |
@@ -364,8 +338,7 @@ jobs:
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Setup tools
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -373,7 +346,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/cache@v1
@@ -403,8 +376,7 @@ jobs:
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Setup tools
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -412,7 +384,7 @@ jobs:
             [tools]
             java = "21.0"
             maven = "3.9"
-            node = "24.11.0"
+            node = "24.0.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/cache@v1
@@ -599,7 +571,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - &mise_with_java_and_matrix_node
+      - &mise_java_matrix_node
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -654,7 +626,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
-      - *mise_with_java_and_matrix_node
+      - *mise_java_matrix_node
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -689,7 +661,7 @@ jobs:
             cache-type: daily
     steps:
       - *checkout
-      - &mise_with_java
+      - &mise_java_only
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.5.1
         with:
@@ -768,7 +740,7 @@ jobs:
             artifact: multi
     steps:
       - *checkout
-      - *mise_with_java
+      - *mise_java_only
       - *maven_cache
       - *config_maven
       - *get_licenses_token
@@ -857,7 +829,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           submodules: true
-      - *mise_node_only
+      - *mise
       - *npm_cache
       - name: Run JS/TS Ruling
         run: |
