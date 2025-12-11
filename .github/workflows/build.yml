@@ -158,7 +158,7 @@ jobs:
         uses: SonarSource/ci-github-actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}-${{ github.run_id }}
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: SonarSource/ci-github-actions/build-maven@master
         with:
@@ -548,26 +548,27 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &set_monthly_cache_date
-        name: Set monthly cache date
+      - &set_orchestrator_cache_date
+        name: Set orchestrator cache date
         shell: bash
         run: |
-          MONTHLY_CACHE_DATE=$(date +'%Y-%m')
-          echo "MONTHLY_CACHE_DATE=$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME_MONTHLY=${{ github.workspace }}/orchestrator/$MONTHLY_CACHE_DATE" >> $GITHUB_ENV
+          # Use monthly prefix with daily suffix for versioned monthly cache
+          CACHE_DATE=$(date +'%Y-%m-%d')
+          CACHE_MONTH=$(date +'%Y-%m')
+          echo "ORCHESTRATOR_CACHE_DATE=$CACHE_DATE" >> $GITHUB_ENV
+          echo "ORCHESTRATOR_CACHE_MONTH=$CACHE_MONTH" >> $GITHUB_ENV
+          echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
       - &orchestrator_cache
-        name: Cache Orchestrator (monthly)
+        name: Cache Orchestrator
         uses: SonarSource/ci-github-actions/cache@v1
         with:
-          path: ${{ env.ORCHESTRATOR_HOME_MONTHLY }}
-          key: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}-${{ github.run_id }}
-          restore-keys: orchestrator-monthly-${{ env.MONTHLY_CACHE_DATE }}-
-      - &setup_orchestrator_home_monthly
-        name: Setup Orchestrator home directory (monthly)
+          path: ${{ env.ORCHESTRATOR_HOME }}
+          key: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
+          restore-keys: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+      - &setup_orchestrator_home
+        name: Setup Orchestrator home directory
         shell: bash
-        run: |
-          mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
-          echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
+        run: mkdir -p "$ORCHESTRATOR_HOME"
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -611,15 +612,12 @@ jobs:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
             artifact: multi
-            cache-type: monthly
 #          - os: Alpine
 #            sq-version: LATEST_RELEASE
 #            artifact: linux-x64-musl
-#            cache-type: monthly
           - os: Ubuntu
             sq-version: DEV
             artifact: multi
-            cache-type: daily
     steps:
       - *checkout
       - &mise_java_only
@@ -634,13 +632,6 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
-      - name: Set daily cache date
-        shell: bash
-        run: |
-          DAILY_CACHE_DATE=$(date +'%Y-%m-%d')
-          echo "DAILY_CACHE_DATE=$DAILY_CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME_DAILY=${{ github.workspace }}/orchestrator/$DAILY_CACHE_DATE" >> $GITHUB_ENV
       - &remove_node_from_path
         name: Disable existing node
         shell: bash
@@ -648,7 +639,7 @@ jobs:
           node --version
           NODE_PATH=$(which node)
           sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
-          
+
           # Verify node is no longer accessible
           if which node 2>/dev/null; then
             echo "ERROR: node is still accessible!"
@@ -656,21 +647,9 @@ jobs:
           else
             echo "SUCCESS: node is no longer accessible"
           fi
-      - name: Cache Orchestrator
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ${{ matrix.cache-type == 'monthly' && env.ORCHESTRATOR_HOME_MONTHLY || env.ORCHESTRATOR_HOME_DAILY }}
-          key: orchestrator-${{ matrix.cache-type }}-${{ matrix.cache-type == 'monthly' && env.MONTHLY_CACHE_DATE || env.DAILY_CACHE_DATE }}
-      - name: Setup Orchestrator home directory
-        shell: bash
-        run: |
-          if [ "${{ matrix.cache-type }}" = "monthly" ]; then
-            mkdir -p "$ORCHESTRATOR_HOME_MONTHLY"
-            echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_MONTHLY" >> $GITHUB_ENV
-          else
-            mkdir -p "$ORCHESTRATOR_HOME_DAILY"
-            echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME_DAILY" >> $GITHUB_ENV
-          fi
+      - *set_orchestrator_cache_date
+      - *orchestrator_cache
+      - *setup_orchestrator_home
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -727,9 +706,9 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
+      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home_monthly
+      - *setup_orchestrator_home
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -815,9 +794,9 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
+      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home_monthly
+      - *setup_orchestrator_home
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -844,9 +823,9 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_monthly_cache_date
+      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home_monthly
+      - *setup_orchestrator_home
       - name: Run CSS Ruling
         run: |
           cd its/ruling
