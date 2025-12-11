@@ -80,45 +80,6 @@ jobs:
     steps:
       - uses: SonarSource/ci-github-actions/get-build-number@master
 
-  populate_maven_cache_win:
-    runs-on: github-windows-latest-s
-    name: Populate Maven cache for Windows
-    needs: [setup, get_build_number]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - name: Check Maven cache
-        id: cache
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
-          lookup-only: true
-      - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.1
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.0.0"
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure Maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Populate Maven dependencies
-        run: |
-          # Download all external dependencies (excludes reactor/internal modules)
-          mvn dependency:go-offline -B
-
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
     name: Populate NPM cache for Linux
@@ -234,7 +195,7 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
-    needs: [setup, populate_maven_cache_win, populate_npm_cache_win]
+    needs: [setup, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -781,7 +742,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -807,7 +768,7 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
     name: QA SonarLint on Windows
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -826,7 +787,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node
-    needs: [setup, populate_maven_cache_win, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
