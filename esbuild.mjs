@@ -118,10 +118,6 @@ await esbuild.build({
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
     textReplace({
-      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.mjs$/,
-      pattern: [['const require = createRequire(import.meta.url);', '']],
-    }),
-    textReplace({
       include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]utils[\/\\]mathMLTags\.mjs$/,
       pattern: [['const require = createRequire(import.meta.url);', '']],
     }),
@@ -150,6 +146,7 @@ await esbuild.build({
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
           "postcssDoc && (postcssDoc instanceof require('postcss').Document) ? postcssDoc.nodes : [postcssDoc]",
         ],
+        ['const require = createRequire(import.meta.url);', ''],
       ],
     }),
     // do not let stylelint fs read its package.json
