@@ -170,6 +170,49 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        {
+          code: `
+      // False positive scenario: imported/required variable
+      // This should NOT raise an issue because the variable is imported
+      // and may be modified externally
+      import { externalFlag } from './external';
+      while (externalFlag) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: object passed as argument
+      // This should NOT raise an issue because objects can be modified
+      // by the function they're passed to
+      let obj = { flag: true };
+      while (obj.flag) {
+        processObject(obj);
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: file-scope variable with function call in loop
+      // This should NOT raise an issue because the function may modify the file-scope variable
+      let globalFlag = true;
+      while (globalFlag) {
+        someFunction();
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: file-scope variable written elsewhere in file
+      // This should NOT raise an issue because the variable is modified elsewhere
+      let fileFlag = true;
+
+      function toggleFlag() {
+        fileFlag = false;
+      }
+
+      while (fileFlag) {
+        doSomething();
+      }`,
+        },
       ],
       invalid: [
         {
@@ -264,6 +307,31 @@ describe('S2189', () => {
           code: `
       while (true) {
         var a = function () {return 0;};
+      }
+            `,
+          errors: 1,
+        },
+        {
+          code: `
+      // Should raise: primitive passed as argument
+      // Primitives are passed by value, so they cannot be modified
+      let count = 0;
+      while (count < 10) {
+        processNumber(count);
+      }
+            `,
+          errors: 1,
+        },
+        {
+          code: `
+      // Should raise: file-scope variable with no function calls and no external writes
+      // This is truly an infinite loop
+      let flag = true;
+      while (flag) {
+        doSomethingLocal();
+      }
+      function doSomethingLocal() {
+        console.log('test');
       }
             `,
           errors: 1,
