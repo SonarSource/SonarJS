@@ -252,34 +252,87 @@ describe('gRPC server', () => {
     expect(issues[0].rule).toBe('S2260');
   });
 
-  it('should handle rules with parameters', async () => {
+  it('should handle rules with number parameters', async () => {
     // S104 (TooManyLinesInFile) has a configurable maximum line threshold
-    const request: analyzer.IAnalyzeFileRequest = {
+    const fileContent = 'const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;\nconst e = 5;\n';
+
+    // With maximum=3, should trigger (5 > 3)
+    const requestTrigger: analyzer.IAnalyzeFileRequest = {
       contextIds: {},
-      sourceFiles: [
-        {
-          relativePath: '/project/src/max-lines.js',
-          // 5 lines of code
-          content: 'const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;\nconst e = 5;\n',
-        },
-      ],
+      sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '3' }] }],
+    };
+
+    const responseTrigger = await client.analyzeFile(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule).toBe('S104');
+
+    // With maximum=10, should NOT trigger (5 < 10)
+    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '10' }] }],
+    };
+
+    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle rules with string parameters', async () => {
+    // S100 (FunctionName) has a configurable format regex
+    const fileContent = 'function MyFunction() { return 1; }\n';
+
+    // With lowercase-first pattern, should trigger
+    const requestTrigger: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[a-z][a-zA-Z0-9]*$' }] }],
+    };
+
+    const responseTrigger = await client.analyzeFile(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule).toBe('S100');
+    expect(responseTrigger.issues?.[0].message).toContain('MyFunction');
+
+    // With uppercase-allowed pattern, should NOT trigger
+    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
+      activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[A-Z][a-zA-Z0-9]*$' }] }],
+    };
+
+    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle rules with array parameters', async () => {
+    // S2068 (HardcodedCredentials) has a configurable passwordWords array
+    const fileContent = 'const secret = "hardcoded123";\n';
+
+    // With 'secret' in the list, should trigger
+    const requestTrigger: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
       activeRules: [
-        {
-          ruleKey: 'S104',
-          params: [
-            { key: 'maximum', value: '3' }, // Trigger rule if more than 3 lines
-          ],
-        },
+        { ruleKey: 'S2068', params: [{ key: 'passwordWords', value: 'secret,token,apikey' }] },
       ],
     };
 
-    const response = await client.analyzeFile(request);
-    const issues = response.issues || [];
+    const responseTrigger = await client.analyzeFile(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule).toBe('S2068');
 
-    // Should detect too many lines (5 > 3)
-    expect(response).toBeDefined();
-    expect(issues.length).toBe(1);
-    expect(issues[0].rule).toBe('S104');
+    // Without 'secret' in the list, should NOT trigger
+    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
+      activeRules: [
+        { ruleKey: 'S2068', params: [{ key: 'passwordWords', value: 'password,token,apikey' }] },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
   it('should analyze TypeScript file with type-checker dependent rule', async () => {
