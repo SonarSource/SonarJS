@@ -227,7 +227,7 @@ describe('gRPC server', () => {
     expect(filePaths.some(p => p?.endsWith('/project/src/file2.js'))).toBe(true);
   });
 
-  it('should handle parsing errors gracefully', async () => {
+  it('should handle parsing errors', async () => {
     const request: analyzer.IAnalyzeFileRequest = {
       contextIds: {},
       sourceFiles: [
@@ -246,9 +246,10 @@ describe('gRPC server', () => {
 
     const response = await client.analyzeFile(request);
 
-    // Should not crash, might have parsing error in analysisProblems
-    expect(response).toBeDefined();
-    expect(response.analysisProblems?.length).toBeGreaterThan(0);
+    const issues = response.issues || [];
+
+    expect(issues.length).toBe(1);
+    expect(issues[0].rule).toBe('S2260');
   });
 
   it('should handle rules with parameters', async () => {
