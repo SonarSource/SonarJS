@@ -1,0 +1,23 @@
+name: Setup Orchestrator Cache
+description: Sets up orchestrator cache with daily-versioned monthly keys
+
+runs:
+  using: composite
+  steps:
+    - name: Set orchestrator cache date
+      shell: bash
+      run: |
+        CACHE_DATE=$(date +'%Y-%m-%d')
+        CACHE_MONTH=$(date +'%Y-%m')
+        echo "ORCHESTRATOR_CACHE_DATE=$CACHE_DATE" >> $GITHUB_ENV
+        echo "ORCHESTRATOR_CACHE_MONTH=$CACHE_MONTH" >> $GITHUB_ENV
+        echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
+    - name: Cache Orchestrator
+      uses: SonarSource/ci-github-actions/cache@v1
+      with:
+        path: ${{ env.ORCHESTRATOR_HOME }}
+        key: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
+        restore-keys: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+    - name: Setup Orchestrator home directory
+      shell: bash
+      run: mkdir -p "$ORCHESTRATOR_HOME"

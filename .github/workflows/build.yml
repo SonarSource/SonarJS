@@ -548,27 +548,8 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &set_orchestrator_cache_date
-        name: Set orchestrator cache date
-        shell: bash
-        run: |
-          # Use monthly prefix with daily suffix for versioned monthly cache
-          CACHE_DATE=$(date +'%Y-%m-%d')
-          CACHE_MONTH=$(date +'%Y-%m')
-          echo "ORCHESTRATOR_CACHE_DATE=$CACHE_DATE" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_CACHE_MONTH=$CACHE_MONTH" >> $GITHUB_ENV
-          echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
       - &orchestrator_cache
-        name: Cache Orchestrator
-        uses: SonarSource/ci-github-actions/cache@v1
-        with:
-          path: ${{ env.ORCHESTRATOR_HOME }}
-          key: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
-          restore-keys: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
-      - &setup_orchestrator_home
-        name: Setup Orchestrator home directory
-        shell: bash
-        run: mkdir -p "$ORCHESTRATOR_HOME"
+        uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -647,9 +628,7 @@ jobs:
           else
             echo "SUCCESS: node is no longer accessible"
           fi
-      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -706,9 +685,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -794,9 +771,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -823,9 +798,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
-      - *set_orchestrator_cache_date
       - *orchestrator_cache
-      - *setup_orchestrator_home
       - name: Run CSS Ruling
         run: |
           cd its/ruling
