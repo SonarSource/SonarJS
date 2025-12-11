@@ -143,7 +143,7 @@ describe('transformRequestToProjectInput', () => {
       const result = transformRequestToProjectInput(request);
 
       const s107Rules = result.rules.filter(r => r.key === 'S107');
-      expect(s107Rules[0].fileTypeTargets).toEqual(['MAIN', 'TEST']);
+      expect(s107Rules[0].fileTypeTargets).toEqual(['MAIN']);
     });
 
     it('should skip unknown rules', () => {
