@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import $protobuf from $DEPENDENCY;
+import $protobuf from "protobufjs/minimal.js";
 
 $OUTPUT;
 
