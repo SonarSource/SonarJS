@@ -115,7 +115,7 @@
     "@typescript-eslint/parser": "8.49.0",
     "@typescript-eslint/type-utils": "8.49.0",
     "@typescript-eslint/utils": "8.49.0",
-    "@typescript/native-preview": "7.0.0-dev.20251210.1",
+    "@typescript/native-preview": "7.0.0-dev.20251211.1",
     "builtin-modules": "5.0.0",
     "bytes": "3.1.2",
     "color": "5.0.3",
