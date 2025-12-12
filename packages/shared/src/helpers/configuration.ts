@@ -15,9 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
-import { join, extname, isAbsolute as isUnixAbsolute } from 'node:path/posix';
-import { isAbsolute as isWinAbsolute } from 'node:path/win32';
-import { toUnixPath } from './files.js';
+import { join, extname } from 'node:path/posix';
+import { isAbsolutePath, toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
 
@@ -350,8 +349,4 @@ function normalizePath(path: string) {
     return join(getBaseDir(), normalized);
   }
   return normalized;
-}
-
-function isAbsolutePath(path: string) {
-  return isUnixAbsolute(path) || isWinAbsolute(path.replaceAll(/[\\/]+/g, '\\'));
 }

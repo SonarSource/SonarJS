@@ -29,3 +29,4 @@ sonar-plugin/sonar-javascript-plugin/target
 sonar-plugin/sonar-javascript-plugin/src/test/resources
 
 tools/fetch-node/downloads
+packages/grpc/src/proto/es6-wrapper.js

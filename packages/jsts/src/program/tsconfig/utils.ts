@@ -15,9 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import path from 'node:path/posix';
+import { basename, join } from 'node:path/posix';
 import { warn } from '../../../../shared/src/helpers/logging.js';
-import { toUnixPath, addTsConfigIfDirectory } from '../../../../shared/src/helpers/files.js';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import fs from 'node:fs';
 
 /**
  * Checks if a file path is in the root node_modules directory (used to detect last tsconfig check)
@@ -25,7 +26,7 @@ import { toUnixPath, addTsConfigIfDirectory } from '../../../../shared/src/helpe
 export function isRootNodeModules(file: string) {
   const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
   const normalizedFile = toUnixPath(file);
-  const topNodeModules = toUnixPath(path.join(root, 'node_modules'));
+  const topNodeModules = toUnixPath(join(root, 'node_modules'));
   return normalizedFile.startsWith(topNodeModules);
 }
 
@@ -34,7 +35,7 @@ export function isRootNodeModules(file: string) {
  * (i.e., tsconfig.json in root node_modules directory)
  */
 export function isLastTsConfigCheck(file: string) {
-  return path.basename(file) === 'tsconfig.json' && isRootNodeModules(file);
+  return basename(file) === 'tsconfig.json' && isRootNodeModules(file);
 }
 
 /**
@@ -61,4 +62,21 @@ export function sanitizeReferences(references: readonly ts.ProjectReference[]): 
   }
 
   return sanitized;
+}
+
+/**
+ * Adds tsconfig.json to a path if it does not exist
+ *
+ * @param tsConfig
+ */
+function addTsConfigIfDirectory(tsConfig: string) {
+  try {
+    if (fs.lstatSync(tsConfig).isDirectory()) {
+      return join(tsConfig, 'tsconfig.json');
+    }
+
+    return tsConfig;
+  } catch {
+    return null;
+  }
 }

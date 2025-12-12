@@ -14,16 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { buildBundle } from './esbuild-common.mjs';
-
-await buildBundle({
-  entryPoint: './server.mjs',
-  outfile: './bin/server.cjs',
-  additionalAssets: [
-    // We copy run-node into the bundle, as it's used from the java side on Mac
-    {
-      from: ['./run-node'],
-      to: ['./bin/'],
-    },
-  ],
-});
+export { transformRequestToProjectInput } from './request.js';
+export { transformProjectOutputToResponse } from './response.js';
