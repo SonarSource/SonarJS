@@ -23,7 +23,10 @@ import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.Issue;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -66,7 +69,7 @@ class EslintReportTest {
       .withScannerProperty("sonar.eslint.reportPaths", "report.json")
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     try {
       assertIssues(result.scannerOutputReader().getProject().getAllIssues());
     } catch (UnsupportedOperationException e) {
@@ -87,30 +90,27 @@ class EslintReportTest {
       .withScannerProperty("sonar.eslint.reportPaths", reportWithAbsolutePaths.getAbsolutePath())
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     assertIssues(result.scannerOutputReader().getProject().getAllIssues());
 
     Files.delete(reportWithAbsolutePaths.toPath());
   }
 
-  private void assertIssues(List<ScannerOutputReader.Issue> issues) {
+  private void assertIssues(List<Issue> issues) {
     var TextRangeIssues = issues
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
-    List<ScannerOutputReader.TextRangeIssue> jsIssuesList = TextRangeIssues.stream()
+    List<TextRangeIssue> jsIssuesList = TextRangeIssues.stream()
       .filter(issue -> issue.componentPath().equals("src/file.js"))
       .toList();
-    List<ScannerOutputReader.TextRangeIssue> tsIssuesList = TextRangeIssues.stream()
+    List<TextRangeIssue> tsIssuesList = TextRangeIssues.stream()
       .filter(issue -> issue.componentPath().equals("src/file.ts"))
       .toList();
 
     assertThat(jsIssuesList)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::ruleKey
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),
@@ -120,10 +120,7 @@ class EslintReportTest {
       );
 
     assertThat(tsIssuesList)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::ruleKey
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "external_eslint_repo:@typescript-eslint/no-unused-vars"),
         tuple(2, "external_eslint_repo:use-isnan"),

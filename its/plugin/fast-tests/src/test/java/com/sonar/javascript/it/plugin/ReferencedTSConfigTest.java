@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class ReferencedTSConfigTest {
   @Test
   void test() {
     ScannerInput build = ScannerInput.create(PROJECT, PROJECT_DIR).withScmDisabled().build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     assertThat(
       result

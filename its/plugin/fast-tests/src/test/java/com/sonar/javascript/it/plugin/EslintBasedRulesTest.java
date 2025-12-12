@@ -23,10 +23,11 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,7 +68,7 @@ class EslintBasedRulesTest {
       .withScmDisabled()
       .withVerbose()
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     assertThat(
       result
@@ -88,8 +89,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -105,15 +106,15 @@ class EslintBasedRulesTest {
     )
       .withScmDisabled()
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -129,14 +130,18 @@ class EslintBasedRulesTest {
     )
       .withScmDisabled()
       .build();
-    var result = ScannerRunner.run(getServerContext("js-with-ts-eslint-profile.xml"), build);
+    var result = ScannerRunner.run(
+      getServerContext("js-with-ts-eslint-profile.xml"),
+      build,
+      ScannerRunnerConfig.builder().build()
+    );
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3525"))
       .toList();
 
@@ -155,7 +160,7 @@ class EslintBasedRulesTest {
       .withScannerProperty("sonar.javascript.exclusions", "excluded_dir/**,**/node_modules")
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     assertThat(
       result
         .logOutput()
@@ -168,13 +173,13 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S3923"))
       .toList();
     assertThat(issues)
       .hasSize(1)
-      .extracting(ScannerOutputReader.TextRangeIssue::componentPath)
+      .extracting(TextRangeIssue::componentPath)
       .containsExactly("main.js");
   }
 
@@ -198,7 +203,7 @@ class EslintBasedRulesTest {
     Path fakeNodePath = projectDir.resolve("node.exe");
     Files.copy(ping, fakeNodePath, StandardCopyOption.REPLACE_EXISTING);
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.logOutput())
       .extracting(Log::message)
@@ -224,7 +229,11 @@ class EslintBasedRulesTest {
     var projectKey = "quickfix";
     var projectDir = TestUtils.projectDir(projectKey);
     ScannerInput build = ScannerInput.create(projectKey, projectDir).withScmDisabled().build();
-    var result = ScannerRunner.run(getServerContext("no-empty-statement.xml"), build);
+    var result = ScannerRunner.run(
+      getServerContext("no-empty-statement.xml"),
+      build,
+      ScannerRunnerConfig.builder().build()
+    );
     assertThat(
       result
         .logOutput()
@@ -237,8 +246,8 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .filter(issue -> issue.ruleKey().equals("javascript:S1116"))
       .toList();
     assertThat(issues).hasSize(1);
@@ -256,7 +265,7 @@ class EslintBasedRulesTest {
       .withVerbose()
       .withScmDisabled()
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     assertThat(
       result
@@ -274,14 +283,11 @@ class EslintBasedRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::ruleKey,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::ruleKey, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(
         tuple("javascript:S3403", "file.js"), // rule requires type information
         tuple("javascript:S3923", "file.js"), // rule does not require type information
@@ -299,7 +305,7 @@ class EslintBasedRulesTest {
       .withVerbose()
       .withScmDisabled()
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.logOutput())
       .extracting(Log::message)

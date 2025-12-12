@@ -20,9 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRange;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -56,24 +58,21 @@ class HtmlAnalysisTest {
         Path.of("src", "test", "resources", "eslint-based-rules.xml")
       )
     );
-    var result = ScannerRunner.run(serverContext, build);
+    var result = ScannerRunner.run(serverContext, build, ScannerRunnerConfig.builder().build());
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues).hasSize(3);
     var issue = issues.get(2);
-    assertThat(issue.range()).isEqualTo(new ScannerOutputReader.TextRange(7, 7, 19, 25));
+    assertThat(issue.range()).isEqualTo(new TextRange(7, 7, 19, 25));
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::ruleKey
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923"),
@@ -94,21 +93,18 @@ class HtmlAnalysisTest {
         Path.of("src", "test", "resources", "html-profile.xml")
       )
     );
-    var result = ScannerRunner.run(serverContext, build);
+    var result = ScannerRunner.run(serverContext, build, ScannerRunnerConfig.builder().build());
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::ruleKey
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         tuple(1, "Web:DoctypePresenceCheck"),
         tuple(4, "javascript:S3923")

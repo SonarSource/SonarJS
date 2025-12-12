@@ -23,6 +23,7 @@ import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
@@ -58,7 +59,7 @@ class ConsumerPluginTest {
       .withVerbose()
       .withSourceDirs("src")
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     var logMatch =
       "Registered JsAnalysisConsumers \\[org.sonar.samples.javascript.consumer.Consumer.*]";
     assertThat(result.logOutput())

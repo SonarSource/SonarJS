@@ -20,10 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import org.junit.jupiter.api.Test;
 import org.sonar.css.CssLanguage;
 
@@ -55,21 +56,21 @@ class CssStylelintReportTest {
       .withScmDisabled()
       .withScannerProperty("sonar.css.stylelint.reportPaths", "report.json")
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(ScannerOutputReader.TextRangeIssue::line)
+      .extracting(TextRangeIssue::line)
       .containsExactlyInAnyOrder(111, 81, 55, 58, 58, 114);
     assertThat(issues)
-      .extracting(ScannerOutputReader.TextRangeIssue::ruleKey)
+      .extracting(TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
         "external_stylelint:no-missing-end-of-source-newline",
         "external_stylelint:no-missing-end-of-source-newline",
