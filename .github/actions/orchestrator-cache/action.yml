@@ -1,6 +1,12 @@
 name: Setup Orchestrator Cache
 description: Sets up orchestrator cache with daily-versioned monthly keys
 
+inputs:
+  key-prefix:
+    description: 'Prefix for the cache key (default: orchestrator)'
+    required: false
+    default: 'orchestrator'
+
 runs:
   using: composite
   steps:
@@ -16,8 +22,8 @@ runs:
       uses: SonarSource/ci-github-actions/cache@v1
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
-        key: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
-        restore-keys: orchestrator-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+        key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
+        restore-keys: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
     - name: Setup Orchestrator home directory
       shell: bash
       run: mkdir -p "$ORCHESTRATOR_HOME"
