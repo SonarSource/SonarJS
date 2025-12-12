@@ -42,7 +42,7 @@ class TypeScriptAnalysisTest {
   private static final File PROJECT_DIR = TestUtils.projectDir("tsproject");
 
   @Test
-  void test() throws Exception {
+  void test() {
     String projectKey = "tsproject";
     SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
@@ -169,7 +169,7 @@ class TypeScriptAnalysisTest {
   }
 
   @Test
-  void should_analyze_without_tsconfig() throws Exception {
+  void should_analyze_without_tsconfig() {
     File dir = TestUtils.projectDir("missing-tsconfig");
 
     String projectKey = "missing-tsconfig";
@@ -185,9 +185,9 @@ class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getRule).containsExactly("typescript:S4325");
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(
-      1
-    );
+    assertThat(
+      result.getLogsLines(l -> l.contains("Analyzing 1 file(s) using default options"))
+    ).hasSize(1);
   }
 
   /**
@@ -195,7 +195,7 @@ class TypeScriptAnalysisTest {
    * This is legacy behavior, which we might discontinue to support, because it's not very realistic
    */
   @Test
-  void should_analyze_without_tsconfig_vue() throws Exception {
+  void should_analyze_without_tsconfig_vue() {
     File dir = TestUtils.projectDir("missing-tsconfig-vue");
 
     String projectKey = "missing-tsconfig-vue";
@@ -217,13 +217,13 @@ class TypeScriptAnalysisTest {
         tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
       );
 
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(
-      1
-    );
+    assertThat(
+      result.getLogsLines(l -> l.contains("Analyzing 2 file(s) using default options"))
+    ).hasSize(1);
   }
 
   @Test
-  void should_exclude_from_extended_tsconfig() throws Exception {
+  void should_exclude_from_extended_tsconfig() {
     File dir = TestUtils.projectDir("tsproject-extended");
 
     String projectKey = "tsproject-extended";
@@ -246,16 +246,7 @@ class TypeScriptAnalysisTest {
       );
 
     assertThat(
-      result.getLogsLines(l ->
-        l.contains(
-          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
-        )
-      )
-    ).hasSize(1);
-    assertThat(
-      result.getLogsLines(l ->
-        l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
-      )
+      result.getLogsLines(log -> log.contains("Analyzing 1 file(s) using merged compiler options"))
     ).hasSize(1);
   }
 

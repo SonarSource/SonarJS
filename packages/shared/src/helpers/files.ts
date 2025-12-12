@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import path from 'node:path';
+import path from 'node:path/posix';
 
 /**
  * Byte Order Marker
@@ -46,20 +46,6 @@ export type FileType = 'MAIN' | 'TEST';
  */
 export async function readFile(filePath: string) {
   const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
-  return stripBOM(fileContent);
-}
-
-/**
- * Synchronous read of file contents from a file path
- *
- * The function gets rid of any Byte Order Marker (BOM)
- * present in the file's header.
- *
- * @param filePath the path of a file
- * @returns Promise which resolves with the content of the file
- */
-export function readFileSync(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
 }
 
