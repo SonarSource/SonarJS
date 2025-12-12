@@ -22,7 +22,7 @@ import type { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
-import { toUnixPath } from '../../../rules/helpers/index.js';
+import { toUnixPath, isRoot } from '../../../rules/helpers/index.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
@@ -101,7 +101,7 @@ export async function simulateFromInputFiles(
   // add all parent directories of input files up to the baseDir
   for (const path of inputFilesPaths) {
     let currentPath = path;
-    while (baseDir !== currentPath) {
+    while (baseDir !== currentPath && !isRoot(currentPath)) {
       allPaths.add(currentPath);
       currentPath = dirname(currentPath);
     }

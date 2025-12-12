@@ -307,6 +307,305 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 - Use comment-based tests with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/pull/4443/files#diff-92d7c68b7e4cc945d0f128acbd458648eb8021903587c1ee7025243f2fae89d2)>)
 - Use ESLint's Rule tester with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/commit/dc9435738093286869edff742c90d17d74e39b1c#diff-55f5136cfbed4170ed04f718f78f46015d6bb1f78c26403e036136211a333425R154-R213)>)
 
+## Rule Options Architecture
+
+This section explains how rule options (configurations) work across the SonarJS stack.
+
+### Overview
+
+There are two parallel workflows for requesting JS/TS analysis from Node.js:
+
+**1. SonarQube workflow (HTTP bridge via WebSocket):**
+
+```
+SonarQube UI → Java Check Class → HTTP/WebSocket → analyzeProject() → ESLint Linter
+                     ↓
+              configurations() returns
+              typed objects (int, boolean, etc.)
+```
+
+**2. External workflow (gRPC - without SonarQube):**
+
+```
+External Client → gRPC → transformers.ts → analyzeProject() → ESLint Linter
+                              ↓
+                   parseParamValue() converts
+                   string params to typed values
+```
+
+The key difference is that SonarQube's Java side sends already-typed values via `configurations()`, while the gRPC endpoint receives string key-value pairs that need type parsing.
+
+Each rule can have configurable options defined in several places that serve different purposes.
+
+### File Structure for a Rule
+
+Each rule lives in `packages/jsts/src/rules/SXXXX/` with these key files:
+
+| File                | Purpose                                                                      |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `rule.ts`           | Rule implementation (ESLint rule factory)                                    |
+| `meta.ts`           | Manual metadata: `implementation`, `eslintId`, `schema`, re-exports `fields` |
+| `config.ts`         | Option definitions with `fields` array                                       |
+| `generated-meta.ts` | Auto-generated: `defaultOptions`, `sonarKey`, `scope`, `languages`           |
+
+### Implementation Types
+
+The `implementation` field in `meta.ts` determines how a rule is structured:
+
+#### `original`
+
+Rules written from scratch for SonarJS. If the rule accepts options, it defines its own JSON Schema in `meta.ts`. Rules without options don't need a schema or config.ts:
+
+```typescript
+// S100/meta.ts
+export const implementation = 'original';
+export const eslintId = 'function-name';
+export * from './config.js';
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const schema = {
+  type: 'array',
+  items: [{ type: 'object', properties: { format: { type: 'string' } } }],
+} as const satisfies JSONSchema4;
+```
+
+#### `decorated`
+
+Rules that wrap/extend an existing ESLint rule, adding SonarJS-specific behavior. They may optionally define a `schema` if needed:
+
+```typescript
+// S109/meta.ts - no schema, uses external rule's schema at runtime
+export const implementation = 'decorated';
+export const eslintId = 'no-magic-numbers';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
+];
+export * from './config.js';
+```
+
+```typescript
+// S107/meta.ts - explicit schema (when customization is needed)
+export const implementation = 'decorated';
+export const eslintId = 'max-params';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
+export * from './config.js';
+export const schema = {
+  /* ... */
+} as const satisfies JSONSchema4;
+```
+
+#### `external`
+
+Rules that directly use an ESLint rule without modification. The schema is inherited from the external rule at runtime. Some external rules expose user-configurable options via `config.ts` (e.g., S103, S139, S1441):
+
+```typescript
+// S106/meta.ts
+export const implementation = 'external';
+export const eslintId = 'no-console';
+export const externalPlugin = 'eslint';
+export * from './config.js';
+```
+
+### The `fields` Array (`config.ts`)
+
+The `fields` array is the **source of truth** for rule options. It defines:
+
+- ESLint field names
+- Default values (which determine types)
+- SonarQube UI descriptions
+- Key mappings when SQ and ESLint names differ
+
+```typescript
+// S107/config.ts
+export const fields = [
+  [
+    {
+      field: 'max', // ESLint option name
+      displayName: 'maximumFunctionParameters', // SonarQube UI name (optional)
+      description: 'Maximum authorized...', // Shows in SQ UI
+      default: 7, // Default value & type inference
+    },
+  ],
+] as const satisfies ESLintConfiguration;
+```
+
+#### Field Properties
+
+| Property        | Required              | Purpose                                                                     |
+| --------------- | --------------------- | --------------------------------------------------------------------------- |
+| `field`         | Yes                   | ESLint/schema key name                                                      |
+| `default`       | Yes                   | Default value; also determines type (`number`, `string`, `boolean`, arrays) |
+| `description`   | **For SQ visibility** | Makes the option visible in SonarQube UI                                    |
+| `displayName`   | No                    | SonarQube key if different from `field`                                     |
+| `items`         | For arrays            | `{ type: 'string' }` or `{ type: 'integer' }`                               |
+| `customDefault` | No                    | Different default for SQ than JS/TS                                         |
+| `fieldType`     | No                    | Override SQ field type (e.g., `'TEXT'`)                                     |
+
+### Making Options Visible in SonarQube
+
+**A field is only visible in SonarQube if it has a `description`.**
+
+The Java code generator (`tools/generate-java-rule-classes.ts`) checks:
+
+```typescript
+function isSonarSQProperty(property): property is ESLintConfigurationSQProperty {
+  return property.description !== undefined;
+}
+```
+
+Fields without `description` are internal-only defaults that users cannot configure.
+
+**Example - S109 (Magic Numbers):**
+
+```typescript
+// S109/config.ts - NO descriptions, so not exposed in SQ
+export const fields = [
+  [
+    { field: 'ignore', default: [0, 1, -1, 24, 60] }, // Internal only
+    { field: 'ignoreDefaultValues', default: true }, // Internal only
+  ],
+] as const satisfies ESLintConfiguration;
+```
+
+**Example - S2068 (Hardcoded Credentials):**
+
+```typescript
+// S2068/config.ts - HAS description, so visible in SQ
+export const fields = [
+  [
+    {
+      field: 'passwordWords',
+      items: { type: 'string' },
+      description: 'Comma separated list of words identifying potential passwords.',
+      default: ['password', 'pwd', 'passwd', 'passphrase'],
+    },
+  ],
+] as const satisfies ESLintConfiguration;
+```
+
+### Key Mapping: SonarQube ↔ ESLint
+
+When SonarQube and ESLint use different names for the same option:
+
+| SonarQube Key               | ESLint Key | Mapping                                                 |
+| --------------------------- | ---------- | ------------------------------------------------------- |
+| `maximumFunctionParameters` | `max`      | `displayName: 'maximumFunctionParameters'` in config.ts |
+| `format`                    | `format`   | No `displayName` needed (same name)                     |
+
+The transformation layer (`packages/grpc/src/transformers.ts`) handles this mapping at runtime.
+
+### JSON Schema vs `fields`
+
+| Aspect           | JSON Schema (`meta.ts`)       | `fields` (`config.ts`)                |
+| ---------------- | ----------------------------- | ------------------------------------- |
+| **Purpose**      | ESLint validation             | SQ UI + defaults + key mapping        |
+| **Used by**      | ESLint at runtime             | Java codegen, meta generation, linter |
+| **Required for** | `original` rules with options | All rules with options                |
+| **Defines**      | Structure & constraints       | Defaults, descriptions, SQ keys       |
+
+**Important:** The schema is for ESLint validation. The `fields` array provides default values and metadata for SonarQube integration. For `original` rules with options, both schema and fields must be kept in sync manually. For `decorated`/`external` rules, the schema is inherited from the external rule at runtime.
+
+### `defaultOptions` in `generated-meta.ts`
+
+The `npm run generate-meta` script reads `fields` and generates `defaultOptions`:
+
+```typescript
+// generated-meta.ts (auto-generated)
+export const meta = {
+  // ...
+  defaultOptions: [
+    { format: '^[_a-z][a-zA-Z0-9]*$' }, // From fields[0][0].default
+  ],
+};
+```
+
+This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
+
+### How Options Flow at Runtime
+
+#### SonarQube workflow (HTTP/WebSocket)
+
+1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>` (e.g., `Map.of("max", 7)`)
+2. **Transport**: Gson serializes to JSON with proper types preserved
+3. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
+   ```typescript
+   rules[`sonarjs/${rule.key}`] = [
+     'error',
+     ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
+   ];
+   ```
+
+#### gRPC workflow (external clients)
+
+1. **Client**: Sends rule params as string key-value pairs via proto3
+2. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys and parses string values to proper types
+3. **Linter**: Same merging as above
+
+### Type Parsing from Strings (gRPC only)
+
+The gRPC workflow receives all param values as strings. The transformer parses them based on the `default` value type in `fields`:
+
+| Default Type | Input String | Parsed Result     |
+| ------------ | ------------ | ----------------- |
+| `number`     | `"5"`        | `5`               |
+| `boolean`    | `"true"`     | `true`            |
+| `string`     | `"pattern"`  | `"pattern"`       |
+| `string[]`   | `"a,b,c"`    | `["a", "b", "c"]` |
+| `number[]`   | `"1,2,3"`    | `[1, 2, 3]`       |
+
+### Adding Options to an Existing Rule
+
+1. **Update `config.ts`** with the new field in the `fields` array
+2. **Add `description`** if it should be visible in SonarQube
+3. **Update `meta.ts` schema** (for `original`/`decorated` rules) to match
+4. **Run `npm run generate-meta`** to update `generated-meta.ts`
+5. **Run `npm run generate-java-rule-classes`** to update Java check classes
+
+### Common Patterns
+
+#### Object-style configuration (most common):
+
+```typescript
+// config.ts
+export const fields = [
+  [
+    { field: 'max', description: '...', default: 7 },
+    { field: 'ignoreIIFE', description: '...', default: false },
+  ],
+] as const satisfies ESLintConfiguration;
+
+// ESLint receives: [{ max: 7, ignoreIIFE: false }]
+```
+
+#### Primitive configuration:
+
+```typescript
+// config.ts
+export const fields = [
+  { default: '^[a-z]+$' }, // Single non-array element
+] as const satisfies ESLintConfiguration;
+
+// ESLint receives: ['^[a-z]+$']
+```
+
+#### Array options (comma-separated in SQ):
+
+```typescript
+// config.ts
+export const fields = [
+  [
+    {
+      field: 'passwordWords',
+      items: { type: 'string' }, // Required for Java codegen
+      description: 'Comma separated list...',
+      default: ['password', 'pwd'],
+    },
+  ],
+] as const satisfies ESLintConfiguration;
+
+// SQ sends: "password,pwd,secret"
+// ESLint receives: [{ passwordWords: ['password', 'pwd', 'secret'] }]
+```
+
 ## Misc
 
 - Use issue number for a branch name, e.g. `issue-1234`
