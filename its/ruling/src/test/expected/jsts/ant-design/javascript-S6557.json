@@ -1,0 +1,20 @@
+{
+"ant-design:components/locale-provider/__tests__/index.test.js": [
+252
+],
+"ant-design:scripts/check-version-md.js": [
+15
+],
+"ant-design:site/theme/index.js": [
+12,
+31
+],
+"ant-design:site/theme/template/Content/MainContent.jsx": [
+254
+],
+"ant-design:site/theme/template/Icon/utils.js": [
+19,
+21,
+23
+]
+}

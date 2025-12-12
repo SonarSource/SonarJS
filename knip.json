@@ -5,6 +5,7 @@
     "packages/jsts/src/rules/plugin.ts",
     "packages/jsts/src/rules/*/*.fixture.*",
     "**/fixtures/**",
+    "**/fixtures-*/**",
     "packages/bridge/src/worker.ts",
     "its/**",
     "tools/header.ts",
