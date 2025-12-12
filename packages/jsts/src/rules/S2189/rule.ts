@@ -69,91 +69,6 @@ function isImportedOrRequired(symbol: Scope.Variable): boolean {
 }
 
 /**
- * Checks if a variable is passed as an argument and determines if it's a primitive type
- */
-function isPassedAsArgumentWithType(
-  symbol: Scope.Variable,
-  context: Rule.RuleContext,
-): 'primitive' | 'object' | null {
-  for (const reference of symbol?.references ?? []) {
-    const id = reference.identifier as TSESTree.Node;
-
-    if (
-      id.parent?.type === 'CallExpression' &&
-      id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
-    ) {
-      // Try to determine the type using TypeScript services
-      const services = context.sourceCode.parserServices;
-      if (services?.program && services.esTreeNodeToTSNodeMap) {
-        try {
-          const tsNode = services.esTreeNodeToTSNodeMap.get(id);
-          const checker = services.program.getTypeChecker();
-          const type = checker.getTypeAtLocation(tsNode);
-
-          // Check if it's a primitive type using TypeScript type flags
-          // TypeFlags: String = 4, Number = 8, Boolean = 16, Null = 32, Undefined = 128
-          // BooleanLiteral = 512, StringLiteral = 128, NumberLiteral = 256
-          const primitiveFlags = 4 | 8 | 16 | 32 | 128 | 512 | 256;
-          if (type.flags & primitiveFlags) {
-            return 'primitive';
-          }
-          return 'object';
-        } catch (e) {
-          // Fall through to heuristic checks
-        }
-      }
-      // If type services unavailable, check the variable's initializer for hints
-      if (symbol.defs.length > 0) {
-        const def = symbol.defs[0];
-        if (def.type === 'Variable' && def.node.init) {
-          const init = def.node.init;
-          // Check for primitive literals
-          if (
-            init.type === 'Literal' &&
-            (typeof init.value === 'string' ||
-              typeof init.value === 'number' ||
-              typeof init.value === 'boolean' ||
-              init.value === null)
-          ) {
-            return 'primitive';
-          }
-          // Check for object/array literals
-          if (
-            init.type === 'ObjectExpression' ||
-            init.type === 'ArrayExpression' ||
-            init.type === 'FunctionExpression' ||
-            init.type === 'ArrowFunctionExpression'
-          ) {
-            return 'object';
-          }
-        }
-      }
-      // If we can't determine the type, assume it's a primitive (more likely to catch issues)
-      return 'primitive';
-    }
-  }
-  return null;
-}
-
-/**
- * Checks if a variable is used as a method receiver (e.g., obj.method())
- */
-function isUsedAsMethodReceiver(symbol: Scope.Variable): boolean {
-  for (const reference of symbol?.references ?? []) {
-    const id = reference.identifier as TSESTree.Node;
-
-    if (
-      id.parent?.type === 'MemberExpression' &&
-      id.parent.parent?.type === 'CallExpression' &&
-      id.parent.object === id
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
  * Checks if a variable is declared at file/module scope
  * Excludes variables declared in loop init (e.g., for (var i=0; ...))
  */
@@ -166,7 +81,9 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
   for (const def of symbol.defs) {
     if (def.type === 'Variable') {
       // Check if the variable declarator is part of a for loop init
-      let node: estree.Node | undefined = def.node as estree.Node;
+      let node: (estree.Node & { parent?: estree.Node }) | undefined = def.node as estree.Node & {
+        parent?: estree.Node;
+      };
       while (node) {
         if (node.type === 'ForStatement') {
           return false;
@@ -175,7 +92,7 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
         if (node.type === 'Program') {
           break;
         }
-        node = node.parent as estree.Node | undefined;
+        node = node.parent as (estree.Node & { parent?: estree.Node }) | undefined;
       }
     }
   }
@@ -193,7 +110,6 @@ function findContainingLoop(
   node: estree.Node,
   context: Rule.RuleContext,
 ): estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null {
-  let current: estree.Node | undefined = node;
   const ancestors = context.sourceCode.getAncestors(node);
 
   for (let i = ancestors.length - 1; i >= 0; i--) {
