@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./lib",
+    "lib": ["ESNext"],
+    "baseUrl": "./",
+    "paths": {
+      "string42": ["subfolder"]
+    }
+  },
+  "include": ["file.ts"]
+}

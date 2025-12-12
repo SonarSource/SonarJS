@@ -16,47 +16,18 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import * as ts from 'typescript';
 import { parseForESLint } from '@typescript-eslint/parser';
 import { RequiredParserServices, typeHasMethod } from '../../../src/rules/helpers/index.js';
+import { createProgramFromSingleFile } from '../../../src/program/factory.js';
 
 // Helper function to create a TypeScript program and services from source code
 function createProgramFromSource(sourceCode: string): {
   services: RequiredParserServices;
-  sourceFile: ts.SourceFile;
   ast: any;
 } {
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2020,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Node10,
-    lib: ['ES2020', 'DOM'],
-    strict: true,
-    esModuleInterop: true,
-    skipLibCheck: true,
-    allowSyntheticDefaultImports: true,
-  };
-
-  const compilerHost = ts.createCompilerHost(compilerOptions);
-
   // Create a virtual file system with our source code
   const fileName = 'test.ts';
-  const sourceFile = ts.createSourceFile(fileName, sourceCode, ts.ScriptTarget.ES2020, true);
-
-  // Create program
-  const program = ts.createProgram({
-    rootNames: [fileName],
-    options: compilerOptions,
-    host: {
-      ...compilerHost,
-      getSourceFile: (name: string) => {
-        if (name === fileName) return sourceFile;
-        return compilerHost.getSourceFile(name, ts.ScriptTarget.ES2020);
-      },
-      fileExists: (name: string) => name === fileName || ts.sys.fileExists(name),
-      readFile: (name: string) => (name === fileName ? sourceCode : ts.sys.readFile(name)),
-    },
-  });
+  const program = createProgramFromSingleFile(fileName, sourceCode);
 
   // Parse with TypeScript ESLint parser
   const parseResult = parseForESLint(sourceCode, {
@@ -76,7 +47,6 @@ function createProgramFromSource(sourceCode: string): {
 
   return {
     services: parseResult.services as RequiredParserServices,
-    sourceFile,
     ast: parseResult.ast,
   };
 }
