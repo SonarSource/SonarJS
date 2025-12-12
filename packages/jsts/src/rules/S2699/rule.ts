@@ -182,11 +182,19 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
   if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
     return false;
   }
-  const propertyAccessExpression = node.expression as ts.PropertyAccessExpression;
-  if (propertyAccessExpression.expression.kind !== ts.SyntaxKind.CallExpression) {
+
+  // Walk up the chain of property accesses to find the innermost call expression
+  // This handles: expect(...).toHaveBeenCalled() as well as expect(...).not.toHaveBeenCalled()
+  let current: ts.Expression = (node.expression as ts.PropertyAccessExpression).expression;
+  while (current.kind === ts.SyntaxKind.PropertyAccessExpression) {
+    current = (current as ts.PropertyAccessExpression).expression;
+  }
+
+  if (current.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
-  const innerCallExpression = propertyAccessExpression.expression as ts.CallExpression;
+
+  const innerCallExpression = current as ts.CallExpression;
   return (
     innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
     (innerCallExpression.expression as ts.Identifier).text === 'expect'
