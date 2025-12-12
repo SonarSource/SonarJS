@@ -15,12 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import path from 'node:path';
-
-/**
- * Byte Order Marker
- */
-const BOM_BYTE = 0xfeff;
+import { stripBOM } from '../../../jsts/src/rules/helpers/index.js';
+export * from '../../../jsts/src/rules/helpers/index.js';
 
 /**
  * The type of input file
@@ -47,58 +43,4 @@ export type FileType = 'MAIN' | 'TEST';
 export async function readFile(filePath: string) {
   const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
-}
-
-/**
- * Synchronous read of file contents from a file path
- *
- * The function gets rid of any Byte Order Marker (BOM)
- * present in the file's header.
- *
- * @param filePath the path of a file
- * @returns Promise which resolves with the content of the file
- */
-export function readFileSync(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-  return stripBOM(fileContent);
-}
-
-/**
- * Removes any Byte Order Marker (BOM) from a string's head
- *
- * A string's head is nothing else but its first character.
- *
- * @param str the input string
- * @returns the stripped string
- */
-function stripBOM(str: string) {
-  if (str.codePointAt(0) === BOM_BYTE) {
-    return str.slice(1);
-  }
-  return str;
-}
-/**
- * Converts a path to Unix format
- * @param filePath the path to convert
- * @returns the converted path
- */
-export function toUnixPath(filePath: string) {
-  return filePath.replaceAll(/[\\/]+/g, '/');
-}
-
-/**
- * Adds tsconfig.json to a path if it does not exist
- *
- * @param tsConfig
- */
-export function addTsConfigIfDirectory(tsConfig: string) {
-  try {
-    if (fs.lstatSync(tsConfig).isDirectory()) {
-      return path.join(tsConfig, 'tsconfig.json');
-    }
-
-    return tsConfig;
-  } catch {
-    return null;
-  }
 }

@@ -1,5 +1,9 @@
 {
 "vuetify:packages/docs/src/service-worker.js": [
 84
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+174,
+292
 ]
 }

@@ -3,7 +3,7 @@ coverage
 sonarpedia.json
 lib
 
-packages/*/tests/**/fixtures
+packages/*/tests/**/fixtures*
 packages/jsts/src/rules/**/*.fixture.*
 packages/jsts/src/rules/**/fixtures
 packages/jsts/src/rules/**/schema.json
@@ -29,3 +29,4 @@ sonar-plugin/sonar-javascript-plugin/target
 sonar-plugin/sonar-javascript-plugin/src/test/resources
 
 tools/fetch-node/downloads
+packages/grpc/src/proto/es6-wrapper.js

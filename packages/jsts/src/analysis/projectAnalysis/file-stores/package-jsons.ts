@@ -55,6 +55,7 @@ export class PackageJsonStore implements FileStore {
       const [filename] = fileEvent;
       if (isPackageJson(filename)) {
         this.clearCache();
+        return;
       }
     }
   }

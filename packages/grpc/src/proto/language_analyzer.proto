@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.sonarsource.a3s.analyzer.grpc";
+option java_outer_classname = "LanguageAnalyzerProto";
+
+package analyzer;
+
+// Language Analyzer Service
+service LanguageAnalyzerService {
+  // Analyze a file
+  rpc AnalyzeFile(AnalyzeFileRequest) returns (AnalyzeFileResponse);
+}
+
+// Request to analyze a file
+message AnalyzeFileRequest {
+  map<string, string> context_ids = 1; // Map of context ID by kind
+  repeated SourceFile source_files = 2; // List of source files to analyze
+  repeated ActiveRule active_rules = 3; // List of active rules
+}
+
+// Represents a source file
+message SourceFile {
+  string relative_path = 1;            // The repo-relative path and filename
+  string content = 2;                  // The full content of the file
+}
+
+// Response containing analysis results
+message AnalyzeFileResponse {
+  repeated Issue issues = 1;
+  repeated string analysis_problems = 2;
+}
+
+// Represents an active rule with configuration
+message ActiveRule {
+  string rule_key = 1;             // e.g., "java:S1172"
+  repeated RuleParam params = 2;   // Optional configuration parameters
+}
+
+// Represents a rule parameter
+message RuleParam {
+  string key = 1;
+  string value = 2;
+}
+
+// Represents a code issue found during analysis
+message Issue {
+  string id = 1;                   // Unique ID of the issue
+  string file_path = 2;            // Path to the file containing the issue
+  string message = 3;              // Descriptive message
+  string rule = 4;                 // Rule key that raised this issue
+  TextRange text_range = 5;        // Location in the file
+  repeated Flow flows = 6;         // Optional data/control flow paths
+}
+
+// Represents a text range in a file
+message TextRange {
+  int32 start_line = 1;            // 1-indexed
+  int32 end_line = 2;              // 1-indexed
+  int32 start_offset = 3;          // 0-indexed character offset
+  int32 end_offset = 4;            // 0-indexed character offset
+}
+
+// Represents a flow (sequence of locations)
+message Flow {
+  repeated FlowLocation locations = 1;
+}
+
+// Represents a location in a flow
+message FlowLocation {
+  TextRange text_range = 1;
+  string message = 2;              // Description of the step
+  string file = 3;                 // File path where this location exists
+}
