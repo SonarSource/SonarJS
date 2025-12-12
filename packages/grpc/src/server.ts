@@ -24,7 +24,7 @@ const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
 /**
  * Create gRPC service definition using static generated protobuf code
  */
-function createServiceDefinition(): grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+function createServiceDefinition(): grpc.ServiceDefinition {
   return {
     AnalyzeFile: {
       path: `/${SERVICE_NAME}/AnalyzeFile`,

@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { transformRequestToProjectInput } from '../src/transformers.js';
+import { transformRequestToProjectInput } from '../src/transformers/index.js';
 import type { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {

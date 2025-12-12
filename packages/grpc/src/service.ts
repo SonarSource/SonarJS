@@ -19,7 +19,7 @@ import type { analyzer } from './proto/language_analyzer.js';
 import {
   transformRequestToProjectInput,
   transformProjectOutputToResponse,
-} from './transformers.js';
+} from './transformers/index.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
