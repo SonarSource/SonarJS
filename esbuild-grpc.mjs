@@ -17,13 +17,6 @@
 import { buildBundle } from './esbuild-common.mjs';
 
 await buildBundle({
-  entryPoint: './server.mjs',
-  outfile: './bin/server.cjs',
-  additionalAssets: [
-    // We copy run-node into the bundle, as it's used from the java side on Mac
-    {
-      from: ['./run-node'],
-      to: ['./bin/'],
-    },
-  ],
+  entryPoint: './grpc-server.mjs',
+  outfile: './bin/grpc-server.cjs',
 });
