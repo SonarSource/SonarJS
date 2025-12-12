@@ -158,6 +158,19 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            code: `
+        // False positive scenario: comparison with unknown type from generic Record
+        // This should NOT raise an issue because unknown can be compared with string
+        class Foo<T extends Record<string, unknown>> {
+          constructor(private readonly foo: T) {}
+
+          reproduction<Key extends keyof T>(key: Key) {
+            return this.foo[key] === 'foo';
+          }
+        }
+            `,
+          },
         ],
         invalid: [
           {
