@@ -21,7 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -43,10 +45,10 @@ class ECMAScriptModulesTest {
       .withScmDisabled()
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     var issues = result.scannerOutputReader().getProject().getAllIssues();
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0)).isInstanceOf(ScannerOutputReader.TextRangeIssue.class);
-    Assertions.assertThat(((ScannerOutputReader.TextRangeIssue) issues.get(0)).line()).isEqualTo(2);
+    assertThat(issues.get(0)).isInstanceOf(TextRangeIssue.class);
+    Assertions.assertThat(((TextRangeIssue) issues.get(0)).line()).isEqualTo(2);
   }
 }

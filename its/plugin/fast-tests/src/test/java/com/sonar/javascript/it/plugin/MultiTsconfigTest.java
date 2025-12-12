@@ -20,9 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -47,21 +48,18 @@ class MultiTsconfigTest {
       .withScmDisabled()
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     var issues = result
       .scannerOutputReader()
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(
         tuple(4, "src/bar/main.ts"),
         tuple(3, "src/dir1/main.ts"),

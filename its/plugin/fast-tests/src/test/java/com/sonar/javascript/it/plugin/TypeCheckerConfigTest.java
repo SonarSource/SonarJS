@@ -23,7 +23,9 @@ import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +68,11 @@ class TypeCheckerConfigTest {
   @Test
   void multiple_targets() {
     var project = "multiple-targets";
-    var result = ScannerRunner.run(SERVER_CONTEXT, getSonarScannerBuilder(project).build());
+    var result = ScannerRunner.run(
+      SERVER_CONTEXT,
+      getSonarScannerBuilder(project).build(),
+      ScannerRunnerConfig.builder().build()
+    );
 
     assertThat(result.logOutput())
       .extracting(Log::message)
@@ -86,14 +92,11 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"));
     // Missing issues for main.es6.ts
 
@@ -101,7 +104,8 @@ class TypeCheckerConfigTest {
       SERVER_CONTEXT,
       getSonarScannerBuilder(project)
         .withScannerProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,tsconfig.es6.json")
-        .build()
+        .build(),
+      ScannerRunnerConfig.builder().build()
     );
 
     assertThat(result2.logOutput())
@@ -117,14 +121,11 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     assertThat(issues2)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"), tuple(4, "src/main.es6.ts"));
   }
 
@@ -137,7 +138,11 @@ class TypeCheckerConfigTest {
   void extend_main_from_folder() {
     var project = "extend-main-from-folder";
     var scanner = getSonarScannerBuilder(project);
-    var result = ScannerRunner.run(SERVER_CONTEXT, scanner.build());
+    var result = ScannerRunner.run(
+      SERVER_CONTEXT,
+      scanner.build(),
+      ScannerRunnerConfig.builder().build()
+    );
 
     assertThat(result.logOutput())
       .extracting(Log::message)
@@ -148,7 +153,8 @@ class TypeCheckerConfigTest {
 
     var result2 = ScannerRunner.run(
       SERVER_CONTEXT,
-      scanner.withScannerProperty("sonar.typescript.tsconfigPaths", "src/tsconfig.json").build()
+      scanner.withScannerProperty("sonar.typescript.tsconfigPaths", "src/tsconfig.json").build(),
+      ScannerRunnerConfig.builder().build()
     );
     assertThat(result2.logOutput())
       .extracting(Log::message)
@@ -160,14 +166,11 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(tuple(4, "src/main.ts"));
   }
 
@@ -179,7 +182,11 @@ class TypeCheckerConfigTest {
   @Test
   void should_analyze_javascript_with_jsconfig() {
     var project = "jsconfig";
-    var result = ScannerRunner.run(SERVER_CONTEXT, getSonarScannerBuilder(project).build());
+    var result = ScannerRunner.run(
+      SERVER_CONTEXT,
+      getSonarScannerBuilder(project).build(),
+      ScannerRunnerConfig.builder().build()
+    );
 
     assertThat(result.logOutput())
       .filteredOn(
@@ -194,7 +201,8 @@ class TypeCheckerConfigTest {
       SERVER_CONTEXT,
       getSonarScannerBuilder(project)
         .withScannerProperty("sonar.typescript.tsconfigPaths", "src/jsconfig.json")
-        .build()
+        .build(),
+      ScannerRunnerConfig.builder().build()
     );
     assertThat(result.logOutput())
       .filteredOn(
@@ -211,7 +219,8 @@ class TypeCheckerConfigTest {
   void should_analyze_with_zero_config(Project project) {
     var result = ScannerRunner.run(
       SERVER_CONTEXT,
-      getSonarScannerBuilder(project.getName()).build()
+      getSonarScannerBuilder(project.getName()).build(),
+      ScannerRunnerConfig.builder().build()
     );
 
     assertThat(result.logOutput())
@@ -225,14 +234,11 @@ class TypeCheckerConfigTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     Assertions.assertThat(issues)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::line, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(project.getIssues());
   }
 

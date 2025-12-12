@@ -21,9 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
@@ -58,7 +59,7 @@ class EslintCustomRulesTest {
       .withScmDisabled()
       .withSourceDirs("src")
       .build();
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     assertThat(result.logOutput())
       .filteredOn(
         l ->
@@ -85,8 +86,8 @@ class EslintCustomRulesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
     var eslintCustomRuleIssues = issues
       .stream()
@@ -96,10 +97,10 @@ class EslintCustomRulesTest {
     assertThat(eslintCustomRuleIssues).hasSize(1);
     assertThat(eslintCustomRuleIssues)
       .extracting(
-        ScannerOutputReader.TextRangeIssue::ruleKey,
-        ScannerOutputReader.TextRangeIssue::componentPath,
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::message
+        TextRangeIssue::ruleKey,
+        TextRangeIssue::componentPath,
+        TextRangeIssue::line,
+        TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
         new Tuple("js-custom-rules:jsRuleKey", "src/dir/Person.js", 21, "jsRuleKey call")
@@ -110,10 +111,10 @@ class EslintCustomRulesTest {
       .toList();
     assertThat(tsEslintCustomRuleIssues)
       .extracting(
-        ScannerOutputReader.TextRangeIssue::ruleKey,
-        ScannerOutputReader.TextRangeIssue::componentPath,
-        ScannerOutputReader.TextRangeIssue::line,
-        ScannerOutputReader.TextRangeIssue::message
+        TextRangeIssue::ruleKey,
+        TextRangeIssue::componentPath,
+        TextRangeIssue::line,
+        TextRangeIssue::message
       )
       .containsExactlyInAnyOrder(
         new Tuple("ts-custom-rules:tsRuleKey", "src/dir/file.ts", 4, "tsRuleKey call")

@@ -23,6 +23,7 @@ import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +52,7 @@ class EmbeddedNodeTest {
 
     var build = ScannerInput.create(projectKey, projectDir).withScmDisabled().build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     assertThat(result.exitCode()).isEqualTo(0);
     assertThat(result.logOutput())

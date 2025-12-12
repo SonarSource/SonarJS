@@ -22,11 +22,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
-import com.sonarsource.scanner.integrationtester.dsl.ScannerOutputReader;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.sonar.css.CssLanguage;
@@ -66,7 +67,7 @@ class CssIssuesTest {
       .withScannerProperty("sonar.exclusions", "**/file-with-parsing-error-excluded.css")
       .build();
 
-    var result = ScannerRunner.run(SERVER_CONTEXT, build);
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
     checkIssues(result);
     parsingErrorsNotExcluded(result);
   }
@@ -99,15 +100,12 @@ class CssIssuesTest {
       .getProject()
       .getAllIssues()
       .stream()
-      .filter(ScannerOutputReader.TextRangeIssue.class::isInstance)
-      .map(ScannerOutputReader.TextRangeIssue.class::cast)
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
       .toList();
 
     assertThat(issuesList)
-      .extracting(
-        ScannerOutputReader.TextRangeIssue::ruleKey,
-        ScannerOutputReader.TextRangeIssue::componentPath
-      )
+      .extracting(TextRangeIssue::ruleKey, TextRangeIssue::componentPath)
       .containsExactlyInAnyOrder(
         tuple("css:S4662", "src/cssModules.css"),
         tuple("css:S7924", "src/cssModules.css"),

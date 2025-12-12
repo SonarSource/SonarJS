@@ -22,6 +22,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
+import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,7 +65,7 @@ class TypeScriptRuleTest {
       .withScannerProperty("sonar.cpd.exclusions", "**/*")
       .build();
 
-    ScannerRunner.run(SERVER_CONTEXT, build);
+    ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
     assertThat(Files.readString(Paths.get("target/differences"))).isEmpty();
   }
