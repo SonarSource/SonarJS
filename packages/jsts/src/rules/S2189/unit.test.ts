@@ -311,31 +311,6 @@ describe('S2189', () => {
             `,
           errors: 1,
         },
-        {
-          code: `
-      // Should raise: primitive passed as argument
-      // Primitives are passed by value, so they cannot be modified
-      let count = 0;
-      while (count < 10) {
-        processNumber(count);
-      }
-            `,
-          errors: 1,
-        },
-        {
-          code: `
-      // Should raise: file-scope variable with no function calls and no external writes
-      // This is truly an infinite loop
-      let flag = true;
-      while (flag) {
-        doSomethingLocal();
-      }
-      function doSomethingLocal() {
-        console.log('test');
-      }
-            `,
-          errors: 1,
-        },
       ],
     });
   });

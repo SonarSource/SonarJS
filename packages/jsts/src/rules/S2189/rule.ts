@@ -31,6 +31,274 @@ import * as meta from './generated-meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
+/**
+ * Checks if a variable is imported or required
+ */
+function isImportedOrRequired(symbol: Scope.Variable): boolean {
+  if (!symbol || symbol.defs.length === 0) {
+    return false;
+  }
+
+  for (const def of symbol.defs) {
+    // Check for import statements
+    if (def.type === 'ImportBinding') {
+      return true;
+    }
+    // Check for require calls
+    if (def.type === 'Variable' && def.node.init) {
+      const init = def.node.init;
+      if (
+        init.type === 'CallExpression' &&
+        init.callee.type === 'Identifier' &&
+        init.callee.name === 'require'
+      ) {
+        return true;
+      }
+      // Check for destructured require: const { x } = require('...')
+      if (
+        init.type === 'MemberExpression' &&
+        init.object.type === 'CallExpression' &&
+        init.object.callee.type === 'Identifier' &&
+        init.object.callee.name === 'require'
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a variable is passed as an argument and determines if it's a primitive type
+ */
+function isPassedAsArgumentWithType(
+  symbol: Scope.Variable,
+  context: Rule.RuleContext,
+): 'primitive' | 'object' | null {
+  for (const reference of symbol?.references ?? []) {
+    const id = reference.identifier as TSESTree.Node;
+
+    if (
+      id.parent?.type === 'CallExpression' &&
+      id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+    ) {
+      // Try to determine the type using TypeScript services
+      const services = context.sourceCode.parserServices;
+      if (services?.program && services.esTreeNodeToTSNodeMap) {
+        try {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(id);
+          const checker = services.program.getTypeChecker();
+          const type = checker.getTypeAtLocation(tsNode);
+
+          // Check if it's a primitive type using TypeScript type flags
+          // TypeFlags: String = 4, Number = 8, Boolean = 16, Null = 32, Undefined = 128
+          // BooleanLiteral = 512, StringLiteral = 128, NumberLiteral = 256
+          const primitiveFlags = 4 | 8 | 16 | 32 | 128 | 512 | 256;
+          if (type.flags & primitiveFlags) {
+            return 'primitive';
+          }
+          return 'object';
+        } catch (e) {
+          // Fall through to heuristic checks
+        }
+      }
+      // If type services unavailable, check the variable's initializer for hints
+      if (symbol.defs.length > 0) {
+        const def = symbol.defs[0];
+        if (def.type === 'Variable' && def.node.init) {
+          const init = def.node.init;
+          // Check for primitive literals
+          if (
+            init.type === 'Literal' &&
+            (typeof init.value === 'string' ||
+              typeof init.value === 'number' ||
+              typeof init.value === 'boolean' ||
+              init.value === null)
+          ) {
+            return 'primitive';
+          }
+          // Check for object/array literals
+          if (
+            init.type === 'ObjectExpression' ||
+            init.type === 'ArrayExpression' ||
+            init.type === 'FunctionExpression' ||
+            init.type === 'ArrowFunctionExpression'
+          ) {
+            return 'object';
+          }
+        }
+      }
+      // If we can't determine the type, assume it's a primitive (more likely to catch issues)
+      return 'primitive';
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks if a variable is used as a method receiver (e.g., obj.method())
+ */
+function isUsedAsMethodReceiver(symbol: Scope.Variable): boolean {
+  for (const reference of symbol?.references ?? []) {
+    const id = reference.identifier as TSESTree.Node;
+
+    if (
+      id.parent?.type === 'MemberExpression' &&
+      id.parent.parent?.type === 'CallExpression' &&
+      id.parent.object === id
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a variable is declared at file/module scope
+ * Excludes variables declared in loop init (e.g., for (var i=0; ...))
+ */
+function isFileScopeVariable(symbol: Scope.Variable): boolean {
+  if (!symbol || symbol.defs.length === 0) {
+    return false;
+  }
+
+  // Check if declared in a loop init
+  for (const def of symbol.defs) {
+    if (def.type === 'Variable') {
+      // Check if the variable declarator is part of a for loop init
+      let node: estree.Node | undefined = def.node as estree.Node;
+      while (node) {
+        if (node.type === 'ForStatement') {
+          return false;
+        }
+        // Stop at the program level
+        if (node.type === 'Program') {
+          break;
+        }
+        node = node.parent as estree.Node | undefined;
+      }
+    }
+  }
+
+  // A file-scope variable has a scope that is either 'module' or 'global'
+  const scope = symbol.scope;
+  const isFileScope = scope.type === 'module' || scope.type === 'global';
+  return isFileScope;
+}
+
+/**
+ * Finds the loop node that contains the given node
+ */
+function findContainingLoop(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null {
+  let current: estree.Node | undefined = node;
+  const ancestors = context.sourceCode.getAncestors(node);
+
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+    if (
+      ancestor.type === 'WhileStatement' ||
+      ancestor.type === 'DoWhileStatement' ||
+      ancestor.type === 'ForStatement'
+    ) {
+      return ancestor;
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks if any non-local function is called within a loop body
+ * Local functions are defined in the same file and don't modify external state
+ */
+function hasNonLocalFunctionCallInLoop(
+  loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement,
+  context: Rule.RuleContext,
+): boolean {
+  const body = loopNode.body;
+  const program = context.sourceCode.ast;
+
+  // Get all function declarations in the file
+  const localFunctions = new Set<string>();
+  for (const statement of program.body) {
+    if (statement.type === 'FunctionDeclaration' && statement.id) {
+      localFunctions.add(statement.id.name);
+    }
+  }
+
+  function visitNode(node: estree.Node): boolean {
+    if (node.type === 'CallExpression') {
+      // Check if it's a call to a locally-defined function
+      if (node.callee.type === 'Identifier' && localFunctions.has(node.callee.name)) {
+        // It's a local function, skip it
+        return false;
+      }
+      // It's a non-local function call
+      return true;
+    }
+    // Don't traverse into nested functions
+    if (
+      node.type === 'FunctionExpression' ||
+      node.type === 'FunctionDeclaration' ||
+      node.type === 'ArrowFunctionExpression'
+    ) {
+      return false;
+    }
+    // Check children using the helper
+    for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+      if (visitNode(child)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return visitNode(body);
+}
+
+/**
+ * Checks if a file-scope variable is written to elsewhere in the file (outside the loop)
+ */
+function isWrittenElsewhereInFile(symbol: Scope.Variable, loopNode: estree.Node): boolean {
+  // Get the definition nodes to exclude them
+  const definitionNodes = new Set(
+    symbol.defs.map(def => def.name.range).filter((r): r is [number, number] => r !== undefined),
+  );
+
+  for (const reference of symbol.references) {
+    if (reference.isWrite()) {
+      const writeNode = reference.identifier as estree.Node;
+      const writeRange = writeNode.range;
+
+      // Skip if this is the initial declaration/definition
+      if (writeRange && definitionNodes.has(writeRange as [number, number])) {
+        continue;
+      }
+
+      // Check if the write is outside the loop
+      if (!isNodeInsideLoop(writeNode, loopNode)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a node is inside a loop
+ */
+function isNodeInsideLoop(node: estree.Node, loopNode: estree.Node): boolean {
+  // Simple range check
+  const nodeRange = node.range;
+  const loopRange = loopNode.range;
+  if (!nodeRange || !loopRange) {
+    return false;
+  }
+  return nodeRange[0] >= loopRange[0] && nodeRange[1] <= loopRange[1];
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: { ...noUnmodifiedLoopEslint.meta!.messages },
@@ -48,28 +316,87 @@ export const rule: Rule.RuleModule = {
         const symbol = context.sourceCode
           .getScope(node)
           .references.find(v => v.identifier === node)?.resolved;
+
         /** Ignoring symbols that have already been reported */
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
         }
 
-        /** Ignoring symbols called on or passed as arguments */
+        // Step 1: Ignore imported/required variables
+        if (symbol && isImportedOrRequired(symbol)) {
+          return;
+        }
+
+        // Step 2: Check if passed as argument or used as method receiver
+        // If passed as argument: check type and decide (don't continue to step 3)
+        // If used as method receiver: don't raise (object can be modified)
+        let isPassedAsArgument = false;
+        let isUsedAsMethodReceiver = false;
+
         for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
 
+          // Check if passed as argument
           if (
             id.parent?.type === 'CallExpression' &&
             id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
           ) {
-            return;
+            isPassedAsArgument = true;
           }
 
+          // Check if used as method receiver (e.g., obj.method())
           if (
             id.parent?.type === 'MemberExpression' &&
             id.parent.parent?.type === 'CallExpression' &&
             id.parent.object === id
           ) {
+            isUsedAsMethodReceiver = true;
+          }
+        }
+
+        // If used as method receiver, don't raise (object can be modified)
+        if (isUsedAsMethodReceiver) {
+          return;
+        }
+
+        // If passed as argument, check type and decide (skip step 3)
+        if (isPassedAsArgument) {
+          // Check if the variable is initialized with an object/array literal
+          let isObject = false;
+          if (symbol && symbol.defs.length > 0) {
+            const def = symbol.defs[0];
+            if (def.type === 'Variable' && def.node.init) {
+              const init = def.node.init;
+              if (init.type === 'ObjectExpression' || init.type === 'ArrayExpression') {
+                isObject = true;
+              }
+            }
+          }
+          // If it's an object, don't raise
+          if (isObject) {
             return;
+          }
+          // If it's a primitive, continue to raise (skip step 3)
+          // Don't check file-scope logic - we already know the decision
+          if (symbol) {
+            alreadyRaisedSymbols.add(symbol);
+          }
+          context.report(descriptor);
+          return;
+        }
+
+        // Step 3: For file-scope variables, check for function calls or external writes
+        if (symbol && isFileScopeVariable(symbol)) {
+          const loopNode = findContainingLoop(node, context);
+          if (loopNode) {
+            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
+            if (hasNonLocal) {
+              return;
+            }
+            const writtenElsewhere = isWrittenElsewhereInFile(symbol, loopNode);
+            if (writtenElsewhere) {
+              return;
+            }
           }
         }
 
