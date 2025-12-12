@@ -150,11 +150,10 @@ class SonarLintIntegrationTest {
       assertThat(results).hasSize(2);
       assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
       assertThat(client.getLogMessages()).contains(
-        "Using tsConfig " +
+        "Using tsconfig " +
           tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " for file source file " +
-          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " (0/1 tsconfigs not yet checked)"
+          " for " +
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
       );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
       assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
@@ -170,11 +169,10 @@ class SonarLintIntegrationTest {
       assertThat(results).hasSize(2);
       assertThat(client.getLogMessages()).doesNotContain("Resetting the TsConfigCache");
       assertThat(client.getLogMessages()).doesNotContain(
-        "Using tsConfig " +
+        "Using tsconfig " +
           tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          "  for file source file " +
-          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " (0/1 tsconfigs not yet checked)"
+          "  for " +
+          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
       );
     });
     backend
@@ -196,9 +194,13 @@ class SonarLintIntegrationTest {
     triggerAnalysisByFileOpened(jsFileDTO);
 
     assertResults(results -> {
-      assertThat(results).hasSize(1);
+      assertThat(results).hasSize(2);
       assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
+      assertThat(client.getLogMessages()).contains(
+        "No tsconfig found for files, using default options"
+      );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
+      assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
     });
   }
 

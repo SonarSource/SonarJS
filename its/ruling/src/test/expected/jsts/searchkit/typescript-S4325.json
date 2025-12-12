@@ -1,5 +1,9 @@
 {
 "searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
 109
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/VisibleWhen.test.ts": [
+50,
+67
 ]
 }

@@ -178,7 +178,6 @@ public interface BridgeServer extends Startable {
     Boolean skipAst;
     boolean ignoreHeaderComments;
     long maxFileSize;
-    int maxFilesForTypeChecking;
     List<String> environments;
     List<String> globals;
     List<String> tsSuffixes;
@@ -219,7 +218,6 @@ public interface BridgeServer extends Startable {
       this.skipAst = true;
       this.ignoreHeaderComments = analysisConfiguration.ignoreHeaderComments();
       this.maxFileSize = analysisConfiguration.getMaxFileSizeProperty();
-      this.maxFilesForTypeChecking = analysisConfiguration.getTypeCheckingLimit();
       this.environments = analysisConfiguration.getEnvironments();
       this.globals = analysisConfiguration.getGlobals();
       this.tsSuffixes = analysisConfiguration.getTsExtensions();
