@@ -15,17 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { analyzeFile } from './analyzeFile.js';
-import {
-  fieldsForJsTsAnalysisInput,
-  getBaseDir,
-} from '../../../../shared/src/helpers/configuration.js';
+import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { handleFileResult } from './handleFileResult.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
+import { analyzeSingleFile } from './analyzeFile.js';
 
 /**
  * Analyzes files without type-checking.
@@ -48,11 +44,14 @@ export async function analyzeWithoutProgram(
       return;
     }
     debug(`File not part of any tsconfig.json: ${relative(getBaseDir(), filename)}`);
-    progressReport.nextFile(filename);
-    const result = await analyzeFile({
-      ...files[filename],
-      ...fieldsForJsTsAnalysisInput(),
-    });
-    handleFileResult(result, filename, results, incrementalResultsChannel);
+    await analyzeSingleFile(
+      filename,
+      files[filename],
+      undefined,
+      results,
+      undefined,
+      progressReport,
+      incrementalResultsChannel,
+    );
   }
 }

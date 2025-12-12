@@ -16,7 +16,7 @@
  */
 import type { ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
-import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
+import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import {
@@ -30,6 +30,7 @@ import { getFilesToAnalyze } from './file-stores/index.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -64,6 +65,7 @@ export async function analyzeProject(
   };
   setGlobalConfiguration(configuration);
   const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(getBaseDir(), files);
+  setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
     rules,
     environments: getEnvironments(),
@@ -76,7 +78,7 @@ export async function analyzeProject(
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
     if (isSonarLint()) {
-      await analyzeWithWatchProgram(
+      await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
         pendingFiles,
