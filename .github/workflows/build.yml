@@ -675,10 +675,17 @@ jobs:
 
   plugin_qa_win:
     runs-on: github-windows-latest-m
-    name: QA on Windows
+    name: QA on Windows (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - group: 1
+            exclude: false
+          - group: 2
+            exclude: true
     steps:
       - *checkout
       - *mise
@@ -689,8 +696,18 @@ jobs:
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
+          # Tests for group 1 (group 2 runs everything else)
+          GROUP1_TESTS="CoverageTest,CssMetricsTest,MetricsTest,MinifiedFilesTest"
+
+          if [ "${{ matrix.exclude }}" == "true" ]; then
+            # Convert to exclusion pattern: add ! prefix to each test
+            TEST_PATTERN=$(echo "$GROUP1_TESTS" | sed 's/,/,!/g' | sed 's/^/!/')
+          else
+            TEST_PATTERN="$GROUP1_TESTS"
+          fi
+
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -715,10 +732,17 @@ jobs:
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
-    name: Fast QA on Windows with Node
+    name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - group: 1
+            exclude: false
+          - group: 2
+            exclude: true
     steps:
       - *checkout
       - *mise
@@ -728,8 +752,18 @@ jobs:
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
+          # Tests for group 1 (group 2 runs everything else)
+          GROUP1_TESTS="ConsumerPluginTest,CssIssuesTest,CssNoCssFileProjectTest,CssNonStandardPathTest,CssStylelintReportTest,ECMAScriptModulesTest,EmbeddedNodeTest,EslintBasedRulesTest,EslintCustomRulesLegacyTest,EslintCustomRulesTest,EslintReportTest,ExternalTSConfigDependencyTest"
+
+          if [ "${{ matrix.exclude }}" == "true" ]; then
+            # Convert to exclusion pattern: add ! prefix to each test
+            TEST_PATTERN=$(echo "$GROUP1_TESTS" | sed 's/,/,!/g' | sed 's/^/!/')
+          else
+            TEST_PATTERN="$GROUP1_TESTS"
+          fi
+
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
