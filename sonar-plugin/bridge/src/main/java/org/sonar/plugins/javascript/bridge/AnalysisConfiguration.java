@@ -31,8 +31,6 @@ public interface AnalysisConfiguration {
 
   long getMaxFileSizeProperty();
 
-  int getTypeCheckingLimit();
-
   List<String> getEnvironments();
 
   List<String> getGlobals();

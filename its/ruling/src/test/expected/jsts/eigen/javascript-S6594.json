@@ -2,5 +2,8 @@
 "eigen:scripts/changelog/parsePRDescription.js": [
 36,
 83
+],
+"eigen:scripts/generate-manifest.js": [
+37
 ]
 }
