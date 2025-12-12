@@ -79,11 +79,10 @@ class TypeCheckerConfigTest {
       .filteredOn(m -> m.startsWith("Found 1 tsconfig.json file(s)"))
       .hasSize(1);
     assertThat(result.logOutput())
-      .extracting(Log::message)
-      .filteredOn(m ->
-        m.equals(
-          "Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
-        )
+      .filteredOn(
+        l ->
+          l.level().equals(Log.Level.INFO) &&
+          l.message().equals("Analyzing 1 file(s) using merged compiler options")
       )
       .hasSize(1);
 
