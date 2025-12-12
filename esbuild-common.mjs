@@ -127,6 +127,11 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
         include: /node_modules[/\\]stylelint[/\\]lib[/\\]utils[/\\]mathMLTags\.mjs$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
       }),
+      textReplace({
+        include:
+          /node_modules[\/\\]stylelint[\/\\]lib[\/\\]rules[\/\\]declaration-property-value-no-unknown[\/\\]index\.mjs$/,
+        pattern: [['const require = createRequire(import.meta.url);', '']],
+      }),
       // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
       textReplace({
         include: /node_modules[/\\]eslint-module-utils[/\\]resolve\.js$/,
@@ -147,6 +152,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
             "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
             "postcssDoc && (postcssDoc instanceof require('postcss').Document) ? postcssDoc.nodes : [postcssDoc]",
           ],
+          ['const require = createRequire(import.meta.url);', ''],
         ],
       }),
       // do not let stylelint fs read its package.json
