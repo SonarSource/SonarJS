@@ -573,6 +573,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *orchestrator_cache
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -664,6 +665,7 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
+      - *orchestrator_cache
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
@@ -749,6 +751,7 @@ jobs:
       - *maven_cache
       - *config_maven
       - *get_licenses_token
+      - *orchestrator_cache
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
