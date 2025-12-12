@@ -64,6 +64,12 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+            <forkCount>6</forkCount>
+            <reuseForks>false</reuseForks>
+            <parallel>classes</parallel>
+            <useUnlimitedThreads>true</useUnlimitedThreads>
+        </configuration>
       </plugin>
     </plugins>
   </build>
