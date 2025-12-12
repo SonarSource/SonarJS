@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
@@ -76,6 +76,21 @@ describe('chai test cases', () => {
           errors: 1,
         },
       ],
+    });
+    const typedRuleTester = new RuleTester();
+    typedRuleTester.run('Test cases must have assertions', rule, {
+      valid: [
+        {
+          code: `import { Mock } from "vitest";
+          const input = Math.sqrt(4)
+describe('no import from test library', () => {
+  it('should not fail', () => {
+      expect(input).to.equal(2) // chai API
+  });
+});`,
+        },
+      ],
+      invalid: [],
     });
   });
 });
