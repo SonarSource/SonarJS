@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>85.0.0.3035</version>
+    <version>86.0.0.3040</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -57,7 +57,7 @@
   </issueManagement>
 
   <properties>
-    <revision>11.7.0-SNAPSHOT</revision>
+    <revision>11.7.1-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -71,11 +71,11 @@
     <jetbrains.annotations.version>26.0.2-1</jetbrains.annotations.version>
     <sonar.version>25.11.0.114957</sonar.version>
     <sonar.api.version>13.4.2.4284</sonar.api.version>
-    <sonar-orchestrator.version>6.0.1.3892</sonar-orchestrator.version>
+    <sonar-orchestrator.version>6.0.3.3907</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.13.2</gson.version>
     <analyzer-commons.version>2.21.0.4626</analyzer-commons.version>
-    <sslr.version>1.25.0.3878</sslr.version>
+    <sslr.version>1.25.1.3886</sslr.version>
     <sonarlint.plugin.api.version>10.37.1.83894</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
@@ -90,7 +90,7 @@
 
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths>coverage/js/lcov.info</sonar.javascript.lcov.reportPaths>
@@ -326,6 +326,7 @@
                 <exclude>**/generated-meta.ts</exclude>
                 <!-- Fixtures -->
                 <exclude>**/fixtures/**/*</exclude>
+                <exclude>**/fixtures-*/**/*</exclude>
                 <exclude>**/*.fixture.*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>

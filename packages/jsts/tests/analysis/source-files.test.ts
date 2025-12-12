@@ -25,7 +25,7 @@ import { setGlobalConfiguration } from '../../../shared/src/helpers/configuratio
 import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/source-files.js';
 
-const fixtures = join(import.meta.dirname, 'fixtures');
+const fixtures = join(import.meta.dirname, 'fixtures-source-files');
 
 describe('files', () => {
   beforeEach(() => {
