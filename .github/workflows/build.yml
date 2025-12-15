@@ -182,11 +182,10 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
       - name: Build and deploy Maven artifacts
-        run: mvn deploy -DskipTests -T1C
+        run: mvn deploy -DskipTests -T1C -DaltDeploymentRepository=repox::https://repox.jfrog.io/artifactory/sonarsource-public-qa
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
-          ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
       - &upload_maven_targets
         name: Upload Maven target artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
