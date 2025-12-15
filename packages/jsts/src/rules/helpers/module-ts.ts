@@ -99,11 +99,13 @@ export function getFullyQualifiedNameTS(
       }
       case ts.SyntaxKind.Identifier: {
         const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
-        if (isCompilerModule(identifierSymbol) || !identifierSymbol?.declarations?.length) {
+        const declaration = identifierSymbol?.declarations?.at(0);
+        // Handle: no symbol info, compiler module, or self-referential declaration (e.g., `module` in CommonJS)
+        if (isCompilerModule(identifierSymbol) || !declaration || declaration === node) {
           result.push((node as ts.Identifier).text);
           return returnResult();
         } else {
-          node = identifierSymbol.declarations.at(0);
+          node = declaration;
           break;
         }
       }
