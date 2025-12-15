@@ -77,8 +77,11 @@ jobs:
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    outputs:
+      BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
     steps:
       - uses: SonarSource/ci-github-actions/get-build-number@master
+        id: get-build-number
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
@@ -929,3 +932,51 @@ jobs:
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
           promote-pull-request: true
+
+  # A3S Docker image build and publish
+  build_publish_docker_image:
+    runs-on: github-ubuntu-latest-m
+    name: Build and publish A3S Docker image
+    needs: [setup, get_build_number, populate_npm_cache]
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/branch-')
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - name: Build bridge bundle for Docker
+        run: npm run bridge:bundle
+      - id: aws-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/a3s-ecr aws_access_key_id | AWS_ACCESS_KEY_ID;
+            development/kv/data/a3s-ecr aws_secret_access_key | AWS_SECRET_ACCESS_KEY;
+            development/kv/data/a3s-ecr registry | ECR_REGISTRY;
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ fromJSON(steps.aws-secrets.outputs.vault).AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ fromJSON(steps.aws-secrets.outputs.vault).AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG="${BUILD_NUMBER}"
+          docker build -t "${ECR_REGISTRY}/a3s/javascript:${IMAGE_TAG}" .
+          docker push "${ECR_REGISTRY}/a3s/javascript:${IMAGE_TAG}"
+        env:
+          ECR_REGISTRY: ${{ fromJSON(steps.aws-secrets.outputs.vault).ECR_REGISTRY }}
+          BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
+
+  promote_docker_image:
+    name: Promote A3S Docker image
+    needs: [get_build_number, build_publish_docker_image, promote]
+    if: github.ref == 'refs/heads/master'
+    uses: SonarSource/sonarqube-cloud-github-actions/.github/workflows/promote-docker-image.yml@master
+    with:
+      ENV_NAME: Staging
+      repository_name: a3s/javascript
+      image_tag: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
