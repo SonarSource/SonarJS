@@ -89,7 +89,7 @@ jobs:
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
         id: cache
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -149,13 +149,13 @@ jobs:
             node = "24.11.0"
       - &npm_cache
         name: Cache NPM dependencies
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - &maven_cache
         name: Cache Maven dependencies
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: |
             ~/.m2/repository
@@ -164,7 +164,7 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &sonarjs_build_cache
         name: Cache SonarJS artifacts
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: ~/.m2/repository/org/sonarsource/javascript
           key: sonarjs-${{ github.run_id }}
@@ -240,7 +240,7 @@ jobs:
         run: npm run eslint-plugin:build
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
@@ -300,7 +300,7 @@ jobs:
     steps:
       - name: Check JS coverage cache
         id: cache
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
@@ -319,7 +319,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -338,7 +338,7 @@ jobs:
     steps:
       - name: Cache JS test results marker (Windows)
         id: cache
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
@@ -357,7 +357,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -398,7 +398,7 @@ jobs:
           find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - &java_coverage_cache
         name: Cache Java coverage
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
@@ -443,7 +443,7 @@ jobs:
       - &js_coverage_cache
         name: Cache JS coverage
         id: js-coverage-cache
-        uses: SonarSource/ci-github-actions/cache@v1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
