@@ -101,6 +101,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -142,6 +143,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -154,14 +156,10 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - &maven_cache
-        name: Cache Maven dependencies
-        uses: SonarSource/gh-action_cache@v1
+        uses: ./.github/actions/maven-cache
         with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/sonarsource/javascript
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+          cache-month: ${{ needs.setup.outputs.cache-month }}
+          maven-hash: ${{ needs.setup.outputs.maven-hash }}
       - &sonarjs_build_cache
         name: Cache SonarJS artifacts
         uses: SonarSource/gh-action_cache@v1
@@ -267,6 +265,7 @@ jobs:
       - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
@@ -312,6 +311,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -350,6 +350,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -547,6 +548,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -623,6 +625,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
+          cache_save: ${{ github.ref == 'refs/heads/master' }}
           mise_toml: |
             [tools]
             java = "21.0"
