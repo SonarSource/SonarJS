@@ -532,18 +532,16 @@ export const rule: Rule.RuleModule = {
           if (isObject) {
             return;
           }
-          // If it's a primitive, continue to raise (skip step 3)
-          // Don't check file-scope logic - we already know the decision
-          if (symbol) {
-            alreadyRaisedSymbols.add(symbol);
-          }
-          context.report(descriptor);
-          return;
+          // If it's a primitive, continue to raise (skip step 3 but still check step 4)
+          // Don't skip the end condition check - even primitives shouldn't be reported
+          // if the loop has an unconditional break/return/throw
+          // Fall through to step 4
         }
 
         // Step 3: For file-scope variables (or function-scope variables in the same scope as the loop),
         // check for function calls or external writes
-        if (symbol && isFileScopeVariable(symbol)) {
+        // Skip this step if we already determined the variable was passed as argument
+        if (symbol && !isPassedAsArgument && isFileScopeVariable(symbol)) {
           const loopNode = findContainingLoop(node, context);
           if (loopNode) {
             const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
@@ -559,7 +557,13 @@ export const rule: Rule.RuleModule = {
 
         // Step 3b: For variables in function scope (not file-scope, but in an enclosing function),
         // also check if there are local function expressions that might modify them
-        if (symbol && !isFileScopeVariable(symbol) && symbol.scope.type === 'function') {
+        // Skip this step if we already determined the variable was passed as argument
+        if (
+          symbol &&
+          !isPassedAsArgument &&
+          !isFileScopeVariable(symbol) &&
+          symbol.scope.type === 'function'
+        ) {
           const loopNode = findContainingLoop(node, context);
           if (loopNode) {
             const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);

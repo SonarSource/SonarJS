@@ -363,6 +363,44 @@ describe('S2189', () => {
         },
         {
           code: `
+      // False positive scenario: method context with large switch and break
+      // Pattern from ace csslint.js:4691
+      var TokenStream = {};
+      TokenStream.prototype = {
+        _getToken: function() {
+          var c, reader = this._reader, token = null;
+          c = reader.read();
+          while (c) {
+            switch (c) {
+              case "/":
+                if (reader.peek() === "*") {
+                  token = this.commentToken(c);
+                } else {
+                  token = this.charToken(c);
+                }
+                break;
+              case "|":
+              case "~":
+                if (reader.peek() === "=") {
+                  token = this.comparisonToken(c);
+                } else {
+                  token = this.charToken(c);
+                }
+                break;
+              case "\\\\":
+                token = this.identOrFunctionToken(c);
+                break;
+              default:
+                token = this._getDefaultToken(c);
+            }
+            break;
+          }
+          return token;
+        }
+      };`,
+        },
+        {
+          code: `
       // False positive scenario: parameter in OR condition with break
       // Pattern from TypeScript scanner: scanAsManyAsPossible is parameter
       function scanHexDigits(minCount, scanAsManyAsPossible) {
