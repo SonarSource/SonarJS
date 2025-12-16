@@ -315,6 +315,63 @@ describe('S2189', () => {
         }
       }`,
         },
+        {
+          code: `
+      // False positive scenario: function call in loop condition modifies variable
+      // Pattern from json_parse.js: next() modifies ch, which is also in the condition
+      var at = 0;
+      var ch = '';
+      var text = 'some text';
+
+      var next = function() {
+        ch = text.charAt(at);
+        at += 1;
+        return ch;
+      };
+
+      function parseNumber() {
+        var string = '';
+        while (next() && ch >= '0' && ch <= '9') {
+          string += ch;
+        }
+        return string;
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: local variable with switch and break
+      // Pattern from csslint.js: c is not modified but loop has break
+      function tokenize() {
+        var c = getChar();
+        while (c) {
+          switch (c) {
+            case 'a':
+              processA();
+              break;
+            case 'b':
+              processB();
+              break;
+          }
+          break; // Always exits after one iteration
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: parameter in OR condition with break
+      // Pattern from TypeScript scanner: scanAsManyAsPossible is parameter
+      function scanHexDigits(minCount, scanAsManyAsPossible) {
+        var digits = 0;
+        while (digits < minCount || scanAsManyAsPossible) {
+          var ch = getChar();
+          if (ch >= '0' && ch <= '9') {
+            digits++;
+          } else {
+            break;
+          }
+        }
+      }`,
+        },
       ],
       invalid: [
         {

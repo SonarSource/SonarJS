@@ -138,6 +138,61 @@ function collectIdentifiers(
 }
 
 /**
+ * Checks if a function call in the loop condition might modify the variable
+ * For example: while (next() && ch < 10) where next() modifies ch
+ */
+function hasFunctionCallInConditionThatMightModifyVariable(
+  node: estree.Node,
+  symbol: Scope.Variable | undefined,
+  context: Rule.RuleContext,
+): boolean {
+  if (!symbol || !isFileScopeVariable(symbol)) {
+    return false;
+  }
+
+  const ancestors = context.sourceCode.getAncestors(node);
+
+  // Find the loop node
+  let loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null = null;
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+    if (
+      ancestor.type === 'WhileStatement' ||
+      ancestor.type === 'DoWhileStatement' ||
+      ancestor.type === 'ForStatement'
+    ) {
+      loopNode = ancestor;
+      break;
+    }
+  }
+
+  if (!loopNode) {
+    return false;
+  }
+
+  // Get the loop's test condition
+  const testCondition = loopNode.type === 'ForStatement' ? loopNode.test : loopNode.test;
+  if (!testCondition) {
+    return false;
+  }
+
+  // Check if there are any function calls in the test condition
+  function hasCallExpression(n: estree.Node): boolean {
+    if (n.type === 'CallExpression') {
+      return true;
+    }
+    for (const child of childrenOf(n, context.sourceCode.visitorKeys)) {
+      if (hasCallExpression(child)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return hasCallExpression(testCondition);
+}
+
+/**
  * Checks if there are other variables in the same compound condition that ARE modified in the loop
  */
 function hasOtherModifiedVariablesInCompoundCondition(
@@ -411,6 +466,13 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        // Step 1d: If there's a function call in the loop condition that might modify the variable
+        // For example: while (next() && ch < 10) where next() modifies ch
+        // This applies to file-scope variables that could be modified by function calls
+        if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol, context)) {
+          return;
+        }
+
         // Step 2: Check if passed as argument or used as method receiver
         // If passed as argument: check type and decide (don't continue to step 3)
         // If used as method receiver: don't raise (object can be modified)
@@ -474,7 +536,7 @@ export const rule: Rule.RuleModule = {
         if (symbol && isFileScopeVariable(symbol)) {
           const loopNode = findContainingLoop(node, context);
           if (loopNode) {
-            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context, symbol.scope);
+            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
             if (hasNonLocal) {
               return;
             }
@@ -490,7 +552,7 @@ export const rule: Rule.RuleModule = {
         if (symbol && !isFileScopeVariable(symbol) && symbol.scope.type === 'function') {
           const loopNode = findContainingLoop(node, context);
           if (loopNode) {
-            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context, symbol.scope);
+            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
             if (hasNonLocal) {
               return;
             }
