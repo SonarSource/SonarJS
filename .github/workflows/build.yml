@@ -28,6 +28,7 @@ jobs:
       maven-hash: ${{ steps.compute-maven-hash.outputs.hash }}
       npm-hash: ${{ steps.compute-npm-hash.outputs.hash }}
       cache-month: ${{ steps.cache-month.outputs.month }}
+      is-default-branch: ${{ github.ref_name == github.event.repository.default_branch }}
     steps:
       - &checkout
         name: Checkout source code
@@ -101,7 +102,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -143,7 +144,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -160,13 +161,6 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
-      - &sonarjs_build_cache
-        name: Cache SonarJS artifacts
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: ~/.m2/repository/org/sonarsource/javascript
-          key: sonarjs-${{ github.run_id }}
-          enableCrossOsArchive: true
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -180,17 +174,28 @@ jobs:
           secrets: |
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
-      - name: Build and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource -DskipTests -T1C
+      - &java_coverage_cache
+        name: Cache Java coverage
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: coverage/java
+          key: java-coverage-${{ github.sha }}
+      - name: Build, test and deploy Maven artifacts
+        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
-      - &upload_maven_targets
-        name: Upload Maven target artifacts
+      - name: Upload SonarJS artifacts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+          retention-days: 1
+      - name: Upload Maven target artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+          name: maven-targets-${{ github.sha }}
           path: |
             **/target/
             !**/target/site/
@@ -208,11 +213,9 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - *sonarjs_build_cache
       - *config_maven
-      - name: Build Maven (no deploy)
-        run: mvn install -DskipTests -T1C
-      - *upload_maven_targets
+      - name: Build and test Maven (no deploy)
+        run: mvn verify -T1C
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -246,7 +249,7 @@ jobs:
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: build_eslint_plugin
+    needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
     strategy:
       matrix:
@@ -265,7 +268,7 @@ jobs:
       - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
@@ -311,7 +314,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -350,7 +353,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -371,64 +374,10 @@ jobs:
           npm run bridge:test:js
           mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
 
-  test_java:
-    runs-on: github-ubuntu-latest-m
-    name: Unit tests Java
-    needs: [setup, build]
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - *maven_cache
-      - *sonarjs_build_cache
-      - *npm_cache
-      - &download_maven_targets
-        name: Download Maven target artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-        with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
-      - &prevent_recompilation
-        name: Fix timestamps and restore executable permissions
-        shell: bash
-        run: |
-          # Make all class files and jars newer than source files to prevent Maven from recompiling
-          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
-
-          # Restore executable permissions (lost during artifact upload/download)
-          # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
-      - &java_coverage_cache
-        name: Cache Java coverage
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: coverage/java
-          key: java-coverage-${{ github.sha }}
-      - *config_maven
-      - name: Run Java tests with coverage
-        run: mvn verify -T1C -Pcoverage,coverage-report
-
-  test_java_win:
-    runs-on: github-windows-latest-m
-    name: Unit tests Java on Windows
-    needs: [setup, build_win]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - *maven_cache
-      - *sonarjs_build_cache
-      - *npm_cache
-      - *download_maven_targets
-      - *prevent_recompilation
-      - *config_maven
-      - name: Run Java tests on Windows
-        run: mvn test -T1C
-
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [setup, test_js, test_java]
+    needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -449,8 +398,11 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
-      - *download_maven_targets
-      - *prevent_recompilation
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: maven-targets-${{ github.sha }}
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -484,7 +436,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, test_js, test_java]
+    needs: [setup, test_js, build]
     permissions: *read_permissions
     if: github.event_name == 'schedule'
     strategy:
@@ -502,7 +454,6 @@ jobs:
       - *js_coverage_cache
       - *java_coverage_cache
       - *download_maven_targets
-      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -548,14 +499,19 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
             maven = "3.9"
             node = "${{ matrix.node-version }}"
       - *maven_cache
-      - *sonarjs_build_cache
+      - &download_sonarjs_m2
+        name: Download SonarJS artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
       - *config_maven
       - &get_licenses_token
         id: secrets
@@ -586,7 +542,7 @@ jobs:
       - *checkout
       - *mise_java_matrix_node
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
@@ -625,13 +581,13 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
             maven = "3.9"
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - &remove_node_from_path
@@ -682,7 +638,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
@@ -715,7 +671,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
@@ -748,7 +704,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - name: Run Plugin QA on Windows
         shell: bash
@@ -774,7 +730,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
@@ -834,7 +790,7 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
@@ -862,7 +818,7 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
@@ -908,10 +864,9 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs:
       - build
+      - build_win
       - test_js
-      - test_java
       - test_js_win
-      - test_java_win
       - analyze_primary
       - test_eslint_plugin
       - plugin_qa_with_node
