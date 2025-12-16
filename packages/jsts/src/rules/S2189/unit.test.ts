@@ -345,6 +345,24 @@ describe('S2189', () => {
         },
         {
           code: `
+      // False positive scenario: local variable with default case without break, then break outside
+      // Pattern from csslint.js: default case has no break, but there's a break after the switch
+      function tokenize() {
+        var c = getChar(), token;
+        while (c) {
+          switch (c) {
+            case '/':
+              token = 1;
+              break;
+            default:
+              token = 2;
+          }
+          break; // Always exits after one iteration
+        }
+      }`,
+        },
+        {
+          code: `
       // False positive scenario: parameter in OR condition with break
       // Pattern from TypeScript scanner: scanAsManyAsPossible is parameter
       function scanHexDigits(minCount, scanAsManyAsPossible) {
