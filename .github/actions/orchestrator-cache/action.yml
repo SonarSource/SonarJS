@@ -1,5 +1,5 @@
 name: Setup Orchestrator Cache
-description: Sets up orchestrator cache with daily-versioned monthly keys
+description: Sets up orchestrator cache with restore-only behavior on non-master branches
 
 inputs:
   key-prefix:
@@ -18,12 +18,25 @@ runs:
         echo "ORCHESTRATOR_CACHE_DATE=$CACHE_DATE" >> $GITHUB_ENV
         echo "ORCHESTRATOR_CACHE_MONTH=$CACHE_MONTH" >> $GITHUB_ENV
         echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
-    - name: Cache Orchestrator
-      uses: SonarSource/ci-github-actions/cache@v1
+
+    # Restore only on branches (no save) - allows branches to read from master's cache
+    - name: Restore Orchestrator cache (branches)
+      if: github.ref != 'refs/heads/master'
+      uses: actions/cache/restore@v4
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
         restore-keys: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+
+    # Full cache on master (save enabled)
+    - name: Cache Orchestrator (master)
+      if: github.ref == 'refs/heads/master'
+      uses: SonarSource/gh-action_cache@v1
+      with:
+        path: ${{ env.ORCHESTRATOR_HOME }}
+        key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
+        restore-keys: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+
     - name: Setup Orchestrator home directory
       shell: bash
       run: mkdir -p "$ORCHESTRATOR_HOME"

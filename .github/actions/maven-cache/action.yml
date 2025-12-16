@@ -1,0 +1,35 @@
+name: Setup Maven Cache
+description: Sets up Maven cache with restore-only behavior on non-master branches
+
+inputs:
+  cache-month:
+    description: 'Month string for cache key rotation (YYYY-MM)'
+    required: true
+  maven-hash:
+    description: 'Hash of pom.xml files for cache key'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # Restore only on branches (no save) - allows branches to read from master's cache
+    - name: Restore Maven cache (branches)
+      if: github.ref != 'refs/heads/master'
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/org/sonarsource/javascript
+        key: maven-${{ runner.os }}-${{ inputs.cache-month }}-${{ inputs.maven-hash }}
+        restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
+
+    # Full cache on master (save enabled)
+    - name: Cache Maven dependencies (master)
+      if: github.ref == 'refs/heads/master'
+      uses: SonarSource/gh-action_cache@v1
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/org/sonarsource/javascript
+        key: maven-${{ runner.os }}-${{ inputs.cache-month }}-${{ inputs.maven-hash }}
+        restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
