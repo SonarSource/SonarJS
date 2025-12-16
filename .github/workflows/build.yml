@@ -391,16 +391,6 @@ jobs:
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: maven-targets-${{ runner.os }}-${{ github.sha }}
-      - &prevent_recompilation
-        name: Fix timestamps and restore executable permissions
-        shell: bash
-        run: |
-          # Make all class files and jars newer than source files to prevent Maven from recompiling
-          find . -type f \( -name "*.class" -o -name "*.jar" \) -exec touch {} +
-
-          # Restore executable permissions (lost during artifact upload/download)
-          # Find all executables: .sh, .exe, files in bin/ directories, and binaries without extensions
-          find . -type f \( -name "*.sh" -o -name "*.exe" -o -path "*/bin/*" \) -exec chmod +x {} + 2>/dev/null || true
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/gh-action_cache@v1
@@ -409,7 +399,7 @@ jobs:
           key: java-coverage-${{ github.sha }}
       - *config_maven
       - name: Run Java tests with coverage
-        run: mvn verify -T1C -Pcoverage,coverage-report
+        run: mvn jacoco:prepare-agent surefire:test jacoco:report-aggregate -Pcoverage,coverage-report -T1C
 
   test_java_win:
     runs-on: github-windows-latest-m
@@ -424,10 +414,9 @@ jobs:
       - *download_sonarjs_m2
       - *npm_cache
       - *download_maven_targets
-      - *prevent_recompilation
       - *config_maven
       - name: Run Java tests on Windows
-        run: mvn test -T1C
+        run: mvn surefire:test -T1C
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
@@ -454,7 +443,6 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
       - *download_maven_targets
-      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -506,7 +494,6 @@ jobs:
       - *js_coverage_cache
       - *java_coverage_cache
       - *download_maven_targets
-      - *prevent_recompilation
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
