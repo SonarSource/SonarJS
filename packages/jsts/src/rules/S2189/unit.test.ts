@@ -213,6 +213,41 @@ describe('S2189', () => {
         doSomething();
       }`,
         },
+        {
+          code: `
+      // False positive scenario: function parameter in compound condition
+      // This should NOT raise because the loop can terminate via the other condition
+      function processItems(items, maxCount) {
+        let count = 0;
+        while (count < maxCount && items[count]) {
+          processItem(items[count]);
+          count++;
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: parameter controls loop behavior in compound condition
+      function block(ordinary) {
+        let indent = 0;
+        while (!ordinary && getIndent() > indent) {
+          indent++;
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: parameter in OR condition with changing variable
+      function scanHexDigits(minCount, scanAsManyAsPossible) {
+        let digits = 0;
+        while (digits < minCount || scanAsManyAsPossible) {
+          if (!isHexDigit(getChar())) {
+            break;
+          }
+          digits++;
+        }
+      }`,
+        },
       ],
       invalid: [
         {

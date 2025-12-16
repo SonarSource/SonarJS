@@ -69,6 +69,50 @@ function isImportedOrRequired(symbol: Scope.Variable): boolean {
 }
 
 /**
+ * Checks if a variable is a function parameter
+ */
+function isFunctionParameter(symbol: Scope.Variable): boolean {
+  if (!symbol || symbol.defs.length === 0) {
+    return false;
+  }
+
+  for (const def of symbol.defs) {
+    if (def.type === 'Parameter') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a node is part of a compound logical expression (&&, ||)
+ * within the loop condition
+ */
+function isInCompoundCondition(node: estree.Node, context: Rule.RuleContext): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
+
+  // Look for a LogicalExpression ancestor (&&, ||) before hitting a loop statement
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+
+    // Stop when we hit a loop - we only care about compound conditions within the loop test
+    if (
+      ancestor.type === 'WhileStatement' ||
+      ancestor.type === 'DoWhileStatement' ||
+      ancestor.type === 'ForStatement'
+    ) {
+      break;
+    }
+
+    if (ancestor.type === 'LogicalExpression') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Checks if a variable is declared at file/module scope
  * Excludes variables declared in loop init (e.g., for (var i=0; ...))
  */
@@ -240,6 +284,13 @@ export const rule: Rule.RuleModule = {
 
         // Step 1: Ignore imported/required variables
         if (symbol && isImportedOrRequired(symbol)) {
+          return;
+        }
+
+        // Step 1b: Ignore function parameters in compound conditions
+        // Function parameters often act as configuration/control flags in compound conditions
+        // where other parts of the condition can change to terminate the loop
+        if (symbol && isFunctionParameter(symbol) && isInCompoundCondition(node, context)) {
           return;
         }
 
