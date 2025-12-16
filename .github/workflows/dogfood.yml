@@ -1,13 +1,20 @@
 name: dogfood merge
-# This workflow is triggered on pushes to master and dogfood branches
-on: 
+# This workflow is triggered:
+# - After the Build workflow completes successfully on master (to avoid redundant builds)
+# - On direct pushes to dogfood/* branches
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+    branches: [master]
   push:
     branches:
-      - master
       - 'dogfood/*'
 
 jobs:
   dogfood_merge:
+    # Run if triggered by push to dogfood/*, or if Build workflow succeeded on master
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: github-ubuntu-latest-s
     name: Update dogfood branch
     permissions:
