@@ -469,16 +469,29 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        // Step 3: For file-scope variables, check for function calls or external writes
+        // Step 3: For file-scope variables (or function-scope variables in the same scope as the loop),
+        // check for function calls or external writes
         if (symbol && isFileScopeVariable(symbol)) {
           const loopNode = findContainingLoop(node, context);
           if (loopNode) {
-            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
+            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context, symbol.scope);
             if (hasNonLocal) {
               return;
             }
             const writtenElsewhere = isWrittenElsewhereInFile(symbol, loopNode);
             if (writtenElsewhere) {
+              return;
+            }
+          }
+        }
+
+        // Step 3b: For variables in function scope (not file-scope, but in an enclosing function),
+        // also check if there are local function expressions that might modify them
+        if (symbol && !isFileScopeVariable(symbol) && symbol.scope.type === 'function') {
+          const loopNode = findContainingLoop(node, context);
+          if (loopNode) {
+            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context, symbol.scope);
+            if (hasNonLocal) {
               return;
             }
           }
