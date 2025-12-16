@@ -117,7 +117,7 @@ function isInCompoundCondition(node: estree.Node, context: Rule.RuleContext): bo
  */
 function collectIdentifiers(
   node: estree.Node,
-  visitorKeys: Rule.SourceCode['visitorKeys'],
+  visitorKeys: Record<string, string[]>,
 ): estree.Identifier[] {
   const identifiers: estree.Identifier[] = [];
 
@@ -471,7 +471,7 @@ export const rule: Rule.RuleModule = {
         // This handles cases where one variable acts as a gate but other variables control termination
         if (
           isInCompoundCondition(node, context) &&
-          hasOtherModifiedVariablesInCompoundCondition(node, symbol, context)
+          hasOtherModifiedVariablesInCompoundCondition(node, symbol ?? undefined, context)
         ) {
           return;
         }
@@ -479,7 +479,7 @@ export const rule: Rule.RuleModule = {
         // Step 1d: If there's a function call in the loop condition that might modify the variable
         // For example: while (next() && ch < 10) where next() modifies ch
         // This applies to file-scope variables that could be modified by function calls
-        if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol, context)) {
+        if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol ?? undefined, context)) {
           return;
         }
 
