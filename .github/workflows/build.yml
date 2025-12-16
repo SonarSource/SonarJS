@@ -174,8 +174,14 @@ jobs:
           secrets: |
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
-      - name: Build and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource -DskipTests -T1C
+      - &java_coverage_cache
+        name: Cache Java coverage
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: coverage/java
+          key: java-coverage-${{ github.sha }}
+      - name: Build, test and deploy Maven artifacts
+        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
@@ -186,11 +192,10 @@ jobs:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
-      - &upload_maven_targets
-        name: Upload Maven target artifacts
+      - name: Upload Maven target artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
+          name: maven-targets-${{ github.sha }}
           path: |
             **/target/
             !**/target/site/
@@ -209,9 +214,8 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *config_maven
-      - name: Build Maven (no deploy)
-        run: mvn install -DskipTests -T1C
-      - *upload_maven_targets
+      - name: Build and test Maven (no deploy)
+        run: mvn verify -T1C
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -370,58 +374,10 @@ jobs:
           npm run bridge:test:js
           mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
 
-  test_java:
-    runs-on: github-ubuntu-latest-m
-    name: Unit tests Java
-    needs: [setup, build]
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - *maven_cache
-      - &download_sonarjs_m2
-        name: Download SonarJS artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
-        with:
-          name: sonarjs-m2
-          path: ~/.m2/repository/org/sonarsource/javascript
-      - *npm_cache
-      - &download_maven_targets
-        name: Download Maven target artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-        with:
-          name: maven-targets-${{ runner.os }}-${{ github.sha }}
-      - &java_coverage_cache
-        name: Cache Java coverage
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: coverage/java
-          key: java-coverage-${{ github.sha }}
-      - *config_maven
-      - name: Run Java tests with coverage
-        run: mvn jacoco:prepare-agent surefire:test jacoco:report-aggregate -Pcoverage,coverage-report -T1C
-
-  test_java_win:
-    runs-on: github-windows-latest-m
-    name: Unit tests Java on Windows
-    needs: [setup, build, build_win]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - *checkout
-      - *mise
-      - *maven_cache
-      - *download_sonarjs_m2
-      - *npm_cache
-      - *download_maven_targets
-      - *config_maven
-      - name: Run Java tests on Windows
-        run: mvn surefire:test -T1C
-
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [setup, test_js, test_java]
+    needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -442,7 +398,11 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - *java_coverage_cache
-      - *download_maven_targets
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: maven-targets-${{ github.sha }}
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -476,7 +436,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, test_js, test_java]
+    needs: [setup, test_js, build]
     permissions: *read_permissions
     if: github.event_name == 'schedule'
     strategy:
@@ -546,7 +506,12 @@ jobs:
             maven = "3.9"
             node = "${{ matrix.node-version }}"
       - *maven_cache
-      - *download_sonarjs_m2
+      - &download_sonarjs_m2
+        name: Download SonarJS artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
       - *config_maven
       - &get_licenses_token
         id: secrets
@@ -899,10 +864,9 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs:
       - build
+      - build_win
       - test_js
-      - test_java
       - test_js_win
-      - test_java_win
       - analyze_primary
       - test_eslint_plugin
       - plugin_qa_with_node
