@@ -372,6 +372,34 @@ describe('S2189', () => {
         }
       }`,
         },
+        {
+          code: `
+      // False positive scenario: for loop with parameter in compound condition
+      // Pattern from knockout: parameter limitFailedCompares with changing variables
+      function findMatches(left, right, limitFailedCompares) {
+        var failedCompares, l, leftItem, rightItem;
+        for (failedCompares = l = 0; (!limitFailedCompares || failedCompares < limitFailedCompares) && (leftItem = left[l]); ++l) {
+          rightItem = findMatch(leftItem);
+          if (rightItem) {
+            failedCompares = 0;
+          }
+          failedCompares += 1;
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: complex compound condition with changing variable
+      // Pattern from TypeScript: multiple logical operators with variable that changes
+      function processContainers(container, declarationContainer) {
+        var flowContainer = getFlowContainer();
+        while (flowContainer !== declarationContainer &&
+               (flowContainer.kind === 186 || flowContainer.kind === 187) &&
+               isConstVariable(flowContainer)) {
+          flowContainer = getFlowContainer();
+        }
+      }`,
+        },
       ],
       invalid: [
         {
