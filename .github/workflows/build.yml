@@ -28,6 +28,7 @@ jobs:
       maven-hash: ${{ steps.compute-maven-hash.outputs.hash }}
       npm-hash: ${{ steps.compute-npm-hash.outputs.hash }}
       cache-month: ${{ steps.cache-month.outputs.month }}
+      is-default-branch: ${{ github.ref_name == github.event.repository.default_branch }}
     steps:
       - &checkout
         name: Checkout source code
@@ -101,7 +102,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -143,7 +144,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -160,13 +161,6 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
-      - &sonarjs_build_cache
-        name: Cache SonarJS artifacts
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: ~/.m2/repository/org/sonarsource/javascript
-          key: sonarjs-${{ github.run_id }}
-          enableCrossOsArchive: true
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -186,6 +180,12 @@ jobs:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+      - name: Upload SonarJS artifacts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+          retention-days: 1
       - &upload_maven_targets
         name: Upload Maven target artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -208,7 +208,6 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - *sonarjs_build_cache
       - *config_maven
       - name: Build Maven (no deploy)
         run: mvn install -DskipTests -T1C
@@ -246,7 +245,7 @@ jobs:
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: build_eslint_plugin
+    needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
     strategy:
       matrix:
@@ -265,7 +264,7 @@ jobs:
       - uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
@@ -311,7 +310,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -350,7 +349,7 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -380,7 +379,12 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - &download_sonarjs_m2
+        name: Download SonarJS artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
       - *npm_cache
       - &download_maven_targets
         name: Download Maven target artifacts
@@ -410,14 +414,14 @@ jobs:
   test_java_win:
     runs-on: github-windows-latest-m
     name: Unit tests Java on Windows
-    needs: [setup, build_win]
+    needs: [setup, build, build_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *npm_cache
       - *download_maven_targets
       - *prevent_recompilation
@@ -548,14 +552,14 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
             maven = "3.9"
             node = "${{ matrix.node-version }}"
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - &get_licenses_token
         id: secrets
@@ -586,7 +590,7 @@ jobs:
       - *checkout
       - *mise_java_matrix_node
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
@@ -625,13 +629,13 @@ jobs:
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
-          cache_save: ${{ github.ref == 'refs/heads/master' }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
             java = "21.0"
             maven = "3.9"
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - &remove_node_from_path
@@ -682,7 +686,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
@@ -715,7 +719,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
@@ -748,7 +752,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - name: Run Plugin QA on Windows
         shell: bash
@@ -774,7 +778,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
@@ -834,7 +838,7 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
@@ -862,7 +866,7 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache
-      - *sonarjs_build_cache
+      - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
