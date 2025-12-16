@@ -113,6 +113,99 @@ function isInCompoundCondition(node: estree.Node, context: Rule.RuleContext): bo
 }
 
 /**
+ * Collects all identifier nodes from an expression tree
+ */
+function collectIdentifiers(
+  node: estree.Node,
+  visitorKeys: Rule.SourceCode['visitorKeys'],
+): estree.Identifier[] {
+  const identifiers: estree.Identifier[] = [];
+
+  function visit(n: estree.Node) {
+    if (n.type === 'Identifier') {
+      identifiers.push(n);
+      return;
+    }
+
+    // Use childrenOf to properly traverse without circular references
+    for (const child of childrenOf(n, visitorKeys)) {
+      visit(child);
+    }
+  }
+
+  visit(node);
+  return identifiers;
+}
+
+/**
+ * Checks if there are other variables in the same compound condition that ARE modified in the loop
+ */
+function hasOtherModifiedVariablesInCompoundCondition(
+  node: estree.Node,
+  symbol: Scope.Variable | undefined,
+  context: Rule.RuleContext,
+): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
+
+  // Find the loop node
+  let loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null = null;
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+    if (
+      ancestor.type === 'WhileStatement' ||
+      ancestor.type === 'DoWhileStatement' ||
+      ancestor.type === 'ForStatement'
+    ) {
+      loopNode = ancestor;
+      break;
+    }
+  }
+
+  if (!loopNode) {
+    return false;
+  }
+
+  // Get the loop's test condition
+  const testCondition = loopNode.type === 'ForStatement' ? loopNode.test : loopNode.test;
+  if (!testCondition) {
+    return false;
+  }
+
+  // Collect all identifiers in the test condition
+  const allIdentifiers = collectIdentifiers(testCondition, context.sourceCode.visitorKeys);
+
+  // Get all unique symbols in the condition
+  const symbolsInCondition = new Set<Scope.Variable>();
+  for (const id of allIdentifiers) {
+    const scope = context.sourceCode.getScope(id);
+    const ref = scope.references.find(r => r.identifier === id);
+    if (ref?.resolved) {
+      symbolsInCondition.add(ref.resolved);
+    }
+  }
+
+  // Check if any OTHER symbol (not the current one) is modified in the loop
+  for (const otherSymbol of symbolsInCondition) {
+    if (otherSymbol === symbol) {
+      continue; // Skip the current symbol
+    }
+
+    // Check if this other symbol is written to in the loop body
+    for (const ref of otherSymbol.references) {
+      if (ref.isWrite()) {
+        const writeNode = ref.identifier as estree.Node;
+        // Check if the write is inside the loop
+        if (isNodeInsideLoop(writeNode, loopNode)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  * Checks if a variable is declared at file/module scope
  * Excludes variables declared in loop init (e.g., for (var i=0; ...))
  */
@@ -291,6 +384,16 @@ export const rule: Rule.RuleModule = {
         // Function parameters often act as configuration/control flags in compound conditions
         // where other parts of the condition can change to terminate the loop
         if (symbol && isFunctionParameter(symbol) && isInCompoundCondition(node, context)) {
+          return;
+        }
+
+        // Step 1c: For variables in compound conditions, check if OTHER variables in the condition change
+        // If the loop condition is compound (&&, ||) and other variables ARE modified, don't raise
+        // This handles cases where one variable acts as a gate but other variables control termination
+        if (
+          isInCompoundCondition(node, context) &&
+          hasOtherModifiedVariablesInCompoundCondition(node, symbol, context)
+        ) {
           return;
         }
 

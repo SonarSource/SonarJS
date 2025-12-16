@@ -248,6 +248,31 @@ describe('S2189', () => {
         }
       }`,
         },
+        {
+          code: `
+      // False positive scenario: local variable in compound condition with other changing variables
+      // Pattern from yaml-lint: detectedIndent doesn't change but other variables do
+      function parseIndent() {
+        let detectedIndent = false;
+        let lineIndent = 0;
+        let ch = getChar();
+        while ((!detectedIndent || lineIndent < 4) && ch === 0x20) {
+          lineIndent++;
+          ch = getChar();
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: variable in simple compound condition where other part changes
+      // Pattern from json_parse: ch appears in condition and changes in loop
+      function skipWhitespace() {
+        let ch = getChar();
+        while (ch && ch <= ' ') {
+          ch = getChar();
+        }
+      }`,
+        },
       ],
       invalid: [
         {
