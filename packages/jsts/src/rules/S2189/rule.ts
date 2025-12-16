@@ -641,19 +641,22 @@ class LoopVisitor {
   }
 
   private visit(root: estree.Node, context: Rule.RuleContext) {
-    const visitNode = (node: estree.Node, isNestedLoop = false) => {
+    const visitNode = (node: estree.Node, isNestedLoop = false, isInSwitch = false) => {
       switch (node.type) {
         case 'WhileStatement':
         case 'DoWhileStatement':
         case 'ForStatement':
           isNestedLoop = true;
           break;
+        case 'SwitchStatement':
+          isInSwitch = true;
+          break;
         case 'FunctionExpression':
         case 'FunctionDeclaration':
           // Don't consider nested functions
           return;
         case 'BreakStatement':
-          if (!isNestedLoop || !!node.label) {
+          if ((!isNestedLoop && !isInSwitch) || !!node.label) {
             this.hasEndCondition = true;
           }
           break;
@@ -664,7 +667,7 @@ class LoopVisitor {
           return;
       }
       for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
-        visitNode(child, isNestedLoop);
+        visitNode(child, isNestedLoop, isInSwitch);
       }
     };
     visitNode(root);

@@ -1,11 +1,5 @@
 {
-"ace:lib/ace/mode/javascript/jshint.js": [
-6549
-],
-"ace:lib/ace/mode/json/json_parse.js": [
-194
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-1826
+"ace:lib/ace/mode/css/csslint.js": [
+4691
 ]
 }
