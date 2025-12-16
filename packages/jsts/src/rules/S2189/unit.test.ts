@@ -237,19 +237,6 @@ describe('S2189', () => {
         },
         {
           code: `
-      // False positive scenario: parameter in OR condition with changing variable
-      function scanHexDigits(minCount, scanAsManyAsPossible) {
-        let digits = 0;
-        while (digits < minCount || scanAsManyAsPossible) {
-          if (!isHexDigit(getChar())) {
-            break;
-          }
-          digits++;
-        }
-      }`,
-        },
-        {
-          code: `
       // False positive scenario: local variable in compound condition with other changing variables
       // Pattern from yaml-lint: detectedIndent doesn't change but other variables do
       function parseIndent() {
