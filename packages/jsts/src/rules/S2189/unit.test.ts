@@ -273,6 +273,48 @@ describe('S2189', () => {
         }
       }`,
         },
+        {
+          code: `
+      // False positive scenario: file-scope variable modified by function expression
+      // Pattern from json_parse: ch is file-scope, next is a function expression that modifies it
+      var at = 0;
+      var ch = '';
+      var text = 'input text';
+
+      var next = function() {
+        ch = text.charAt(at);
+        at += 1;
+        return ch;
+      };
+
+      function white() {
+        while (ch && ch <= ' ') {
+          next();
+        }
+      }`,
+        },
+        {
+          code: `
+      // False positive scenario: loop with break statement
+      // Pattern from paper.js: valid is local but loop has breaks
+      function processSegments(segments) {
+        for (var i = 0; i < segments.length; i++) {
+          var seg = segments[i];
+          var valid = isValid(seg);
+
+          while (valid) {
+            if (shouldFinish(seg)) {
+              seg.visited = true;
+              break;
+            }
+            if (!isValid(seg)) {
+              break;
+            }
+            seg = getNext(seg);
+          }
+        }
+      }`,
+        },
       ],
       invalid: [
         {

@@ -273,11 +273,25 @@ function hasNonLocalFunctionCallInLoop(
   const body = loopNode.body;
   const program = context.sourceCode.ast;
 
-  // Get all function declarations in the file
+  // Get all function declarations and function expressions assigned to variables in the file
   const localFunctions = new Set<string>();
   for (const statement of program.body) {
     if (statement.type === 'FunctionDeclaration' && statement.id) {
       localFunctions.add(statement.id.name);
+    }
+    // Also check for function expressions assigned to variables
+    // e.g., var next = function() { ... }
+    if (statement.type === 'VariableDeclaration') {
+      for (const declarator of statement.declarations) {
+        if (
+          declarator.id.type === 'Identifier' &&
+          declarator.init &&
+          (declarator.init.type === 'FunctionExpression' ||
+            declarator.init.type === 'ArrowFunctionExpression')
+        ) {
+          localFunctions.add(declarator.id.name);
+        }
+      }
     }
   }
 
@@ -467,6 +481,16 @@ export const rule: Rule.RuleModule = {
             if (writtenElsewhere) {
               return;
             }
+          }
+        }
+
+        // Step 4: Check if the loop has an end condition (break/return/throw)
+        // This applies to all loops, not just while(true)
+        const loopNode = findContainingLoop(node, context);
+        if (loopNode) {
+          const hasEndCondition = LoopVisitor.hasEndCondition(loopNode.body, context);
+          if (hasEndCondition) {
+            return;
           }
         }
 
