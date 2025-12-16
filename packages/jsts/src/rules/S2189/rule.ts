@@ -140,13 +140,23 @@ function collectIdentifiers(
 /**
  * Checks if a function call in the loop condition might modify the variable
  * For example: while (next() && ch < 10) where next() modifies ch
+ * This applies to file-scope variables and also to function-scope variables that
+ * are at the top level of their function (module pattern like AMD/CommonJS)
  */
 function hasFunctionCallInConditionThatMightModifyVariable(
   node: estree.Node,
   symbol: Scope.Variable | undefined,
   context: Rule.RuleContext,
 ): boolean {
-  if (!symbol || !isFileScopeVariable(symbol)) {
+  if (!symbol) {
+    return false;
+  }
+
+  // Check if it's a file-scope variable OR a function-scope variable at the top level
+  const isFileScope = isFileScopeVariable(symbol);
+  const isFunctionScopeTopLevel = symbol.scope.type === 'function';
+
+  if (!isFileScope && !isFunctionScopeTopLevel) {
     return false;
   }
 
