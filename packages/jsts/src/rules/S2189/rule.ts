@@ -101,11 +101,7 @@ function isInCompoundCondition(node: estree.Node, context: Rule.RuleContext): bo
     const ancestor = ancestors[i];
 
     // Stop when we hit a loop - we only care about compound conditions within the loop test
-    if (
-      ancestor.type === 'WhileStatement' ||
-      ancestor.type === 'DoWhileStatement' ||
-      ancestor.type === 'ForStatement'
-    ) {
+    if (isLoopStatement(ancestor)) {
       break;
     }
 
@@ -166,21 +162,7 @@ function hasFunctionCallInConditionThatMightModifyVariable(
   }
 
   const ancestors = context.sourceCode.getAncestors(node);
-
-  // Find the loop node
-  let loopNode: LoopStatement | null = null;
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-    if (
-      ancestor.type === 'WhileStatement' ||
-      ancestor.type === 'DoWhileStatement' ||
-      ancestor.type === 'ForStatement'
-    ) {
-      loopNode = ancestor;
-      break;
-    }
-  }
-
+  const loopNode = findLoopInAncestors(ancestors);
   if (!loopNode) {
     return false;
   }
@@ -191,20 +173,22 @@ function hasFunctionCallInConditionThatMightModifyVariable(
     return false;
   }
 
-  // Check if there are any function calls in the test condition
-  function hasCallExpression(n: estree.Node): boolean {
-    if (n.type === 'CallExpression') {
+  return hasCallExpressionInNode(testCondition, context);
+}
+
+/**
+ * Check if there are any function calls in a node tree
+ */
+function hasCallExpressionInNode(node: estree.Node, context: Rule.RuleContext): boolean {
+  if (node.type === 'CallExpression') {
+    return true;
+  }
+  for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+    if (hasCallExpressionInNode(child, context)) {
       return true;
     }
-    for (const child of childrenOf(n, context.sourceCode.visitorKeys)) {
-      if (hasCallExpression(child)) {
-        return true;
-      }
-    }
-    return false;
   }
-
-  return hasCallExpression(testCondition);
+  return false;
 }
 
 /**
@@ -216,21 +200,7 @@ function hasOtherModifiedVariablesInCompoundCondition(
   context: Rule.RuleContext,
 ): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
-
-  // Find the loop node
-  let loopNode: LoopStatement | null = null;
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-    if (
-      ancestor.type === 'WhileStatement' ||
-      ancestor.type === 'DoWhileStatement' ||
-      ancestor.type === 'ForStatement'
-    ) {
-      loopNode = ancestor;
-      break;
-    }
-  }
-
+  const loopNode = findLoopInAncestors(ancestors);
   if (!loopNode) {
     return false;
   }
@@ -241,10 +211,18 @@ function hasOtherModifiedVariablesInCompoundCondition(
     return false;
   }
 
-  // Collect all identifiers in the test condition
-  const allIdentifiers = collectIdentifiers(testCondition, context.sourceCode.visitorKeys);
+  const symbolsInCondition = getSymbolsInCondition(testCondition, context);
+  return checkIfOtherSymbolsModified(symbolsInCondition, symbol, loopNode);
+}
 
-  // Get all unique symbols in the condition
+/**
+ * Get all symbols referenced in a condition
+ */
+function getSymbolsInCondition(
+  condition: estree.Node,
+  context: Rule.RuleContext,
+): Set<Scope.Variable> {
+  const allIdentifiers = collectIdentifiers(condition, context.sourceCode.visitorKeys);
   const symbolsInCondition = new Set<Scope.Variable>();
   for (const id of allIdentifiers) {
     const scope = context.sourceCode.getScope(id);
@@ -253,25 +231,54 @@ function hasOtherModifiedVariablesInCompoundCondition(
       symbolsInCondition.add(ref.resolved);
     }
   }
+  return symbolsInCondition;
+}
 
-  // Check if any OTHER symbol (not the current one) is modified in the loop
+/**
+ * Check if any other symbol (besides the given one) is modified in the loop
+ */
+function checkIfOtherSymbolsModified(
+  symbolsInCondition: Set<Scope.Variable>,
+  currentSymbol: Scope.Variable | undefined,
+  loopNode: LoopStatement,
+): boolean {
   for (const otherSymbol of symbolsInCondition) {
-    if (otherSymbol === symbol) {
-      continue; // Skip the current symbol
+    if (otherSymbol === currentSymbol) {
+      continue;
     }
 
-    // Check if this other symbol is written to in the loop body
     for (const ref of otherSymbol.references) {
       if (ref.isWrite()) {
         const writeNode = ref.identifier as estree.Node;
-        // Check if the write is inside the loop
         if (isNodeInsideLoop(writeNode, loopNode)) {
           return true;
         }
       }
     }
   }
+  return false;
+}
 
+/**
+ * Checks if a variable is declared in a loop initialization
+ */
+function isDeclaredInLoopInit(def: Scope.Definition): boolean {
+  if (def.type !== 'Variable') {
+    return false;
+  }
+
+  let node: (estree.Node & { parent?: estree.Node }) | undefined = def.node as estree.Node & {
+    parent?: estree.Node;
+  };
+  while (node) {
+    if (node.type === 'ForStatement') {
+      return true;
+    }
+    if (node.type === 'Program') {
+      break;
+    }
+    node = node.parent as (estree.Node & { parent?: estree.Node }) | undefined;
+  }
   return false;
 }
 
@@ -286,28 +293,37 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
 
   // Check if declared in a loop init
   for (const def of symbol.defs) {
-    if (def.type === 'Variable') {
-      // Check if the variable declarator is part of a for loop init
-      let node: (estree.Node & { parent?: estree.Node }) | undefined = def.node as estree.Node & {
-        parent?: estree.Node;
-      };
-      while (node) {
-        if (node.type === 'ForStatement') {
-          return false;
-        }
-        // Stop at the program level
-        if (node.type === 'Program') {
-          break;
-        }
-        node = node.parent as (estree.Node & { parent?: estree.Node }) | undefined;
-      }
+    if (isDeclaredInLoopInit(def)) {
+      return false;
     }
   }
 
   // A file-scope variable has a scope that is either 'module' or 'global'
   const scope = symbol.scope;
-  const isFileScope = scope.type === 'module' || scope.type === 'global';
-  return isFileScope;
+  return scope.type === 'module' || scope.type === 'global';
+}
+
+/**
+ * Helper to check if a node is a loop statement
+ */
+function isLoopStatement(node: estree.Node): node is LoopStatement {
+  return (
+    node.type === 'WhileStatement' ||
+    node.type === 'DoWhileStatement' ||
+    node.type === 'ForStatement'
+  );
+}
+
+/**
+ * Finds a loop node in an array of ancestors
+ */
+function findLoopInAncestors(ancestors: estree.Node[]): LoopStatement | null {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (isLoopStatement(ancestors[i])) {
+      return ancestors[i] as LoopStatement;
+    }
+  }
+  return null;
 }
 
 /**
@@ -315,39 +331,18 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
  */
 function findContainingLoop(node: estree.Node, context: Rule.RuleContext): LoopStatement | null {
   const ancestors = context.sourceCode.getAncestors(node);
-
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-    if (
-      ancestor.type === 'WhileStatement' ||
-      ancestor.type === 'DoWhileStatement' ||
-      ancestor.type === 'ForStatement'
-    ) {
-      return ancestor;
-    }
-  }
-  return null;
+  return findLoopInAncestors(ancestors);
 }
 
 /**
- * Checks if any non-local function is called within a loop body
- * Local functions are defined in the same file and don't modify external state
+ * Get all locally-defined function names in the program
  */
-function hasNonLocalFunctionCallInLoop(
-  loopNode: LoopStatement,
-  context: Rule.RuleContext,
-): boolean {
-  const body = loopNode.body;
-  const program = context.sourceCode.ast;
-
-  // Get all function declarations and function expressions assigned to variables in the file
+function getLocalFunctionNames(program: estree.Program): Set<string> {
   const localFunctions = new Set<string>();
   for (const statement of program.body) {
     if (statement.type === 'FunctionDeclaration' && statement.id) {
       localFunctions.add(statement.id.name);
     }
-    // Also check for function expressions assigned to variables
-    // e.g., var next = function() { ... }
     if (statement.type === 'VariableDeclaration') {
       for (const declarator of statement.declarations) {
         if (
@@ -361,35 +356,48 @@ function hasNonLocalFunctionCallInLoop(
       }
     }
   }
+  return localFunctions;
+}
 
-  function visitNode(node: estree.Node): boolean {
-    if (node.type === 'CallExpression') {
-      // Check if it's a call to a locally-defined function
-      if (node.callee.type === 'Identifier' && localFunctions.has(node.callee.name)) {
-        // It's a local function, skip it
-        return false;
-      }
-      // It's a non-local function call
-      return true;
-    }
-    // Don't traverse into nested functions
-    if (
-      node.type === 'FunctionExpression' ||
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'ArrowFunctionExpression'
-    ) {
-      return false;
-    }
-    // Check children using the helper
-    for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
-      if (visitNode(child)) {
-        return true;
-      }
-    }
+/**
+ * Check if a node contains a non-local function call
+ */
+function containsNonLocalCall(
+  node: estree.Node,
+  localFunctions: Set<string>,
+  visitorKeys: Record<string, string[]>,
+): boolean {
+  if (node.type === 'CallExpression') {
+    const isLocalCall = node.callee.type === 'Identifier' && localFunctions.has(node.callee.name);
+    return !isLocalCall;
+  }
+  // Don't traverse into nested functions
+  if (
+    node.type === 'FunctionExpression' ||
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'ArrowFunctionExpression'
+  ) {
     return false;
   }
+  // Check children
+  for (const child of childrenOf(node, visitorKeys)) {
+    if (containsNonLocalCall(child, localFunctions, visitorKeys)) {
+      return true;
+    }
+  }
+  return false;
+}
 
-  return visitNode(body);
+/**
+ * Checks if any non-local function is called within a loop body
+ * Local functions are defined in the same file and don't modify external state
+ */
+function hasNonLocalFunctionCallInLoop(
+  loopNode: LoopStatement,
+  context: Rule.RuleContext,
+): boolean {
+  const localFunctions = getLocalFunctionNames(context.sourceCode.ast);
+  return containsNonLocalCall(loopNode.body, localFunctions, context.sourceCode.visitorKeys);
 }
 
 /**
@@ -433,156 +441,143 @@ function isNodeInsideLoop(node: estree.Node, loopNode: estree.Node): boolean {
   return nodeRange[0] >= loopRange[0] && nodeRange[1] <= loopRange[1];
 }
 
+/**
+ * Check how a symbol is used (as argument or method receiver)
+ */
+function analyzeSymbolUsage(symbol: Scope.Variable | undefined): {
+  isPassedAsArgument: boolean;
+  isUsedAsMethodReceiver: boolean;
+} {
+  let isPassedAsArgument = false;
+  let isUsedAsMethodReceiver = false;
+
+  for (const reference of symbol?.references ?? []) {
+    const id = reference.identifier as TSESTree.Node;
+
+    if (
+      id.parent?.type === 'CallExpression' &&
+      id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
+    ) {
+      isPassedAsArgument = true;
+    }
+
+    if (
+      id.parent?.type === 'MemberExpression' &&
+      id.parent.parent?.type === 'CallExpression' &&
+      id.parent.object === id
+    ) {
+      isUsedAsMethodReceiver = true;
+    }
+  }
+
+  return { isPassedAsArgument, isUsedAsMethodReceiver };
+}
+
+/**
+ * Check if a symbol is initialized with an object or array
+ */
+function isInitializedWithObject(symbol: Scope.Variable | undefined): boolean {
+  if (!symbol || symbol.defs.length === 0) {
+    return false;
+  }
+
+  const def = symbol.defs[0];
+  if (def.type === 'Variable' && def.node.init) {
+    const init = def.node.init;
+    return init.type === 'ObjectExpression' || init.type === 'ArrayExpression';
+  }
+  return false;
+}
+
+/**
+ * Apply step 1 filters: imported variables, parameters, compound conditions
+ */
+function shouldSkipStep1(
+  node: estree.Node,
+  symbol: Scope.Variable | undefined,
+  context: Rule.RuleContext,
+): boolean {
+  if (!symbol) return false;
+
+  if (isImportedOrRequired(symbol)) return true;
+  if (isFunctionParameter(symbol) && isInCompoundCondition(node, context)) return true;
+  if (
+    isInCompoundCondition(node, context) &&
+    hasOtherModifiedVariablesInCompoundCondition(node, symbol, context)
+  )
+    return true;
+  if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol, context)) return true;
+
+  return false;
+}
+
+/**
+ * Apply step 3 filter: check file-scope and function-scope variables
+ */
+function shouldSkipStep3(
+  node: estree.Node,
+  symbol: Scope.Variable | undefined,
+  isPassedAsArgument: boolean,
+  context: Rule.RuleContext,
+): boolean {
+  if (!symbol || isPassedAsArgument) return false;
+
+  const loopNode = findContainingLoop(node, context);
+  if (!loopNode) return false;
+
+  // Check for non-local function calls (applies to both file-scope and function-scope)
+  if (isFileScopeVariable(symbol) || symbol.scope.type === 'function') {
+    const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
+    if (hasNonLocal) return true;
+  }
+
+  // Check for writes elsewhere in file (only for file-scope)
+  if (isFileScopeVariable(symbol)) {
+    return isWrittenElsewhereInFile(symbol, loopNode);
+  }
+
+  return false;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
   }),
   create(context: Rule.RuleContext) {
-    /**
-     * Decorates ESLint `no-unmodified-loop-condition` to raise one issue per symbol.
-     */
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
     const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
         const node = (descriptor as Rule.ReportDescriptor & { node: estree.Node }).node;
-
         const symbol = context.sourceCode
           .getScope(node)
           .references.find(v => v.identifier === node)?.resolved;
 
-        /** Ignoring symbols that have already been reported */
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
         }
 
-        // Step 1: Ignore imported/required variables
-        if (symbol && isImportedOrRequired(symbol)) {
+        if (shouldSkipStep1(node, symbol, context)) {
           return;
         }
 
-        // Step 1b: Ignore function parameters in compound conditions
-        // Function parameters often act as configuration/control flags in compound conditions
-        // where other parts of the condition can change to terminate the loop
-        if (symbol && isFunctionParameter(symbol) && isInCompoundCondition(node, context)) {
-          return;
-        }
+        const { isPassedAsArgument, isUsedAsMethodReceiver } = analyzeSymbolUsage(symbol);
 
-        // Step 1c: For variables in compound conditions, check if OTHER variables in the condition change
-        // If the loop condition is compound (&&, ||) and other variables ARE modified, don't raise
-        // This handles cases where one variable acts as a gate but other variables control termination
-        if (
-          isInCompoundCondition(node, context) &&
-          hasOtherModifiedVariablesInCompoundCondition(node, symbol ?? undefined, context)
-        ) {
-          return;
-        }
-
-        // Step 1d: If there's a function call in the loop condition that might modify the variable
-        // For example: while (next() && ch < 10) where next() modifies ch
-        // This applies to file-scope variables that could be modified by function calls
-        if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol ?? undefined, context)) {
-          return;
-        }
-
-        // Step 2: Check if passed as argument or used as method receiver
-        // If passed as argument: check type and decide (don't continue to step 3)
-        // If used as method receiver: don't raise (object can be modified)
-        let isPassedAsArgument = false;
-        let isUsedAsMethodReceiver = false;
-
-        for (const reference of symbol?.references ?? []) {
-          const id = reference.identifier as TSESTree.Node;
-
-          // Check if passed as argument
-          if (
-            id.parent?.type === 'CallExpression' &&
-            id.parent.arguments.includes(id as TSESTree.CallExpressionArgument)
-          ) {
-            isPassedAsArgument = true;
-          }
-
-          // Check if used as method receiver (e.g., obj.method())
-          if (
-            id.parent?.type === 'MemberExpression' &&
-            id.parent.parent?.type === 'CallExpression' &&
-            id.parent.object === id
-          ) {
-            isUsedAsMethodReceiver = true;
-          }
-        }
-
-        // If used as method receiver, don't raise (object can be modified)
         if (isUsedAsMethodReceiver) {
           return;
         }
 
-        // If passed as argument, check type and decide (skip step 3)
-        if (isPassedAsArgument) {
-          // Check if the variable is initialized with an object/array literal
-          let isObject = false;
-          if (symbol && symbol.defs.length > 0) {
-            const def = symbol.defs[0];
-            if (def.type === 'Variable' && def.node.init) {
-              const init = def.node.init;
-              if (init.type === 'ObjectExpression' || init.type === 'ArrayExpression') {
-                isObject = true;
-              }
-            }
-          }
-          // If it's an object, don't raise
-          if (isObject) {
-            return;
-          }
-          // If it's a primitive, continue to raise (skip step 3 but still check step 4)
-          // Don't skip the end condition check - even primitives shouldn't be reported
-          // if the loop has an unconditional break/return/throw
-          // Fall through to step 4
+        if (isPassedAsArgument && isInitializedWithObject(symbol)) {
+          return;
         }
 
-        // Step 3: For file-scope variables (or function-scope variables in the same scope as the loop),
-        // check for function calls or external writes
-        // Skip this step if we already determined the variable was passed as argument
-        if (symbol && !isPassedAsArgument && isFileScopeVariable(symbol)) {
-          const loopNode = findContainingLoop(node, context);
-          if (loopNode) {
-            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
-            if (hasNonLocal) {
-              return;
-            }
-            const writtenElsewhere = isWrittenElsewhereInFile(symbol, loopNode);
-            if (writtenElsewhere) {
-              return;
-            }
-          }
+        if (shouldSkipStep3(node, symbol, isPassedAsArgument, context)) {
+          return;
         }
 
-        // Step 3b: For variables in function scope (not file-scope, but in an enclosing function),
-        // also check if there are local function expressions that might modify them
-        // Skip this step if we already determined the variable was passed as argument
-        if (
-          symbol &&
-          !isPassedAsArgument &&
-          !isFileScopeVariable(symbol) &&
-          symbol.scope.type === 'function'
-        ) {
-          const loopNode = findContainingLoop(node, context);
-          if (loopNode) {
-            const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
-            if (hasNonLocal) {
-              return;
-            }
-          }
-        }
-
-        // Step 4: Check if the loop has an end condition (break/return/throw)
-        // This applies to all loops, not just while(true)
         const loopNode = findContainingLoop(node, context);
-        if (loopNode) {
-          const hasEndCondition = LoopVisitor.hasEndCondition(loopNode.body, context);
-          if (hasEndCondition) {
-            return;
-          }
+        if (loopNode && LoopVisitor.hasEndCondition(loopNode.body, context)) {
+          return;
         }
 
         if (symbol) {
