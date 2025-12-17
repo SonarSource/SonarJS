@@ -523,16 +523,25 @@ function shouldSkipStep1(
   symbol: Scope.Variable | undefined,
   context: Rule.RuleContext,
 ): boolean {
-  if (!symbol) return false;
+  if (!symbol) {
+    return false;
+  }
 
-  if (isImportedOrRequired(symbol)) return true;
-  if (isFunctionParameter(symbol) && isInCompoundCondition(node, context)) return true;
+  if (isImportedOrRequired(symbol)) {
+    return true;
+  }
+  if (isFunctionParameter(symbol) && isInCompoundCondition(node, context)) {
+    return true;
+  }
   if (
     isInCompoundCondition(node, context) &&
     hasOtherModifiedVariablesInCompoundCondition(node, symbol, context)
-  )
+  ) {
     return true;
-  if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol, context)) return true;
+  }
+  if (hasFunctionCallInConditionThatMightModifyVariable(node, symbol, context)) {
+    return true;
+  }
 
   return false;
 }
@@ -567,10 +576,14 @@ function shouldSkipStep3(
   isPassedAsArgument: boolean,
   context: Rule.RuleContext,
 ): boolean {
-  if (!symbol || isPassedAsArgument) return false;
+  if (!symbol || isPassedAsArgument) {
+    return false;
+  }
 
   const loopNode = findContainingLoop(node, context);
-  if (!loopNode) return false;
+  if (!loopNode) {
+    return false;
+  }
 
   // Check for non-local function calls (applies to both file-scope and function-scope)
   if (shouldSkipDueToNonLocalCalls(symbol, loopNode, context)) {
