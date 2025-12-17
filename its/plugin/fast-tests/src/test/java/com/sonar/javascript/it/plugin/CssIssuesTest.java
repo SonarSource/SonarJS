@@ -39,7 +39,7 @@ class CssIssuesTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestRelease())
+    .withEngineVersion(SonarScannerIntegrationHelper.getEngineVersion())
     .withLanguage(
       CssLanguage.KEY,
       "CSS",
