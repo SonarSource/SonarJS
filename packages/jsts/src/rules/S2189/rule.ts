@@ -349,6 +349,7 @@ function isFunctionDeclarator(declarator: estree.VariableDeclarator): boolean {
   return (
     declarator.id.type === 'Identifier' &&
     declarator.init !== null &&
+    declarator.init !== undefined &&
     (declarator.init.type === 'FunctionExpression' ||
       declarator.init.type === 'ArrowFunctionExpression')
   );
@@ -594,9 +595,9 @@ export const rule: Rule.RuleModule = {
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
         const node = (descriptor as Rule.ReportDescriptor & { node: estree.Node }).node;
-        const symbol = context.sourceCode
-          .getScope(node)
-          .references.find(v => v.identifier === node)?.resolved;
+        const symbol =
+          context.sourceCode.getScope(node).references.find(v => v.identifier === node)?.resolved ??
+          undefined;
 
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
@@ -651,10 +652,12 @@ export const rule: Rule.RuleModule = {
             const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
             if (!hasEndCondition) {
               const firstToken = context.sourceCode.getFirstToken(node);
-              context.report({
-                loc: firstToken?.loc,
-                message: MESSAGE,
-              });
+              if (firstToken?.loc) {
+                context.report({
+                  loc: firstToken.loc,
+                  message: MESSAGE,
+                });
+              }
             }
           }
         }
@@ -665,7 +668,9 @@ export const rule: Rule.RuleModule = {
             const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
             if (!hasEndCondition) {
               const firstToken = context.sourceCode.getFirstToken(node);
-              context.report({ loc: firstToken?.loc, message: MESSAGE });
+              if (firstToken?.loc) {
+                context.report({ loc: firstToken.loc, message: MESSAGE });
+              }
             }
           }
         }
