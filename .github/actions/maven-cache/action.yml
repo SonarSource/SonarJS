@@ -15,7 +15,7 @@ runs:
     # Restore only on branches (no save) - allows branches to read from default branch's cache
     - name: Restore Maven cache (branches)
       if: github.ref_name != github.event.repository.default_branch
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: |
           ~/.m2/repository

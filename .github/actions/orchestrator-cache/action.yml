@@ -22,7 +22,7 @@ runs:
     # Restore only on branches (no save) - allows branches to read from default branch's cache
     - name: Restore Orchestrator cache (branches)
       if: github.ref_name != github.event.repository.default_branch
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
