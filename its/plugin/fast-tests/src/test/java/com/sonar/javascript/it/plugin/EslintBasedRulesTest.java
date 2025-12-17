@@ -325,7 +325,7 @@ class EslintBasedRulesTest {
   private SonarServerContext getServerContext(String xml) {
     return SonarServerContext.builder()
       .withProduct(SonarServerContext.Product.SERVER)
-      .withEngineVersion(EngineVersion.latestMasterBuild())
+      .withEngineVersion(SonarScannerIntegrationHelper.getEngineVersion())
       .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
       .withLanguage(
         JavaScriptLanguage.KEY,

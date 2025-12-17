@@ -558,22 +558,10 @@ jobs:
 
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-m
-    name: QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
+    name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    strategy:
-      matrix:
-        include:
-          - os: Ubuntu
-            sq-version: LATEST_RELEASE
-            artifact: multi
-#          - os: Alpine
-#            sq-version: LATEST_RELEASE
-#            artifact: linux-x64-musl
-          - os: Ubuntu
-            sq-version: DEV
-            artifact: multi
     steps:
       - *checkout
       - &mise_java_only
@@ -609,11 +597,37 @@ jobs:
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  # DEV tests run only on nightly schedule to avoid constant downloads
+  plugin_qa_without_node_dev:
+    runs-on: github-ubuntu-latest-m
+    name: QA without Node on Ubuntu SQ:DEV
+    needs: [setup, build]
+    if: github.event_name == 'schedule'
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_java_only
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      # No orchestrator cache for DEV - version changes too frequently
+      - name: Run Plugin QA without Node (DEV)
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
@@ -631,9 +645,6 @@ jobs:
 #          - os: Alpine
 #            sq-version: LATEST_RELEASE
 #            artifact: linux-x64-musl
-          - os: Ubuntu
-            sq-version: DEV
-            artifact: multi
     steps:
       - *checkout
       - *mise_java_only
@@ -652,6 +663,31 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  # DEV tests run only on nightly schedule to avoid constant downloads
+  plugin_qa_fast_without_node_dev:
+    runs-on: github-ubuntu-latest-m
+    name: Fast QA without Node on Ubuntu SQ:DEV
+    needs: [setup, build]
+    if: github.event_name == 'schedule'
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_java_only
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      # No orchestrator cache for DEV - version changes too frequently
+      - name: Run Fast Plugin QA without Node (DEV)
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:

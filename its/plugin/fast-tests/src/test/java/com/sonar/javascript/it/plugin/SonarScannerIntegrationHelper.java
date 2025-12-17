@@ -41,6 +41,18 @@ public final class SonarScannerIntegrationHelper {
 
   static final String LITS_VERSION = "0.11.0.2659";
 
+  /**
+   * Get the engine version based on the sonar.runtimeVersion system property.
+   * Defaults to LATEST_RELEASE if not specified.
+   */
+  public static EngineVersion.Version getEngineVersion() {
+    String runtimeVersion = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
+    if ("DEV".equals(runtimeVersion)) {
+      return EngineVersion.latestMasterBuild();
+    }
+    return EngineVersion.latestRelease();
+  }
+
   public static SonarServerContext getContext(
     List<String> languages,
     List<Location> pluginLocations,
@@ -48,7 +60,7 @@ public final class SonarScannerIntegrationHelper {
   ) {
     var builder = SonarServerContext.builder()
       .withProduct(SonarServerContext.Product.SERVER)
-      .withEngineVersion(EngineVersion.latestMasterBuild());
+      .withEngineVersion(getEngineVersion());
     for (var pluginLocation : pluginLocations) {
       builder.withPlugin(pluginLocation);
     }

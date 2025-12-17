@@ -44,7 +44,7 @@ class EslintReportTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarServerContext.builder()
     .withProduct(SonarServerContext.Product.SERVER)
-    .withEngineVersion(EngineVersion.latestMasterBuild())
+    .withEngineVersion(SonarScannerIntegrationHelper.getEngineVersion())
     .withPlugin(SonarScannerIntegrationHelper.getJavascriptPlugin())
     .withLanguage(
       TypeScriptLanguage.KEY,
