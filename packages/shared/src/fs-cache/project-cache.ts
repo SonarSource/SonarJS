@@ -17,6 +17,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createGzip, createGunzip } from 'node:zlib';
+import { finished } from 'node:stream/promises';
 import type {
   CacheStats,
   CacheOperationType,
@@ -461,12 +463,16 @@ export class ProjectFsCache {
       nodes: nodeEntries,
     };
 
-    // Serialize and write to disk
-    const buffer = fscache.FsCacheData.encode(cacheData).finish();
-
     // Ensure cache directory exists
     await fs.promises.mkdir(path.dirname(cacheFilePath), { recursive: true });
-    await fs.promises.writeFile(cacheFilePath, buffer);
+
+    // Stream: encode → gzip → file
+    // This avoids holding both uncompressed and compressed buffers in memory
+    const buffer = fscache.FsCacheData.encode(cacheData).finish();
+    const gzip = createGzip();
+    gzip.pipe(fs.createWriteStream(cacheFilePath));
+    gzip.end(buffer);
+    await finished(gzip);
 
     this.stats.diskWrites++;
 
@@ -481,7 +487,17 @@ export class ProjectFsCache {
     const cacheFilePath = getCacheFilePath(this.cacheDir, this.projectId);
 
     try {
-      const buffer = await fs.promises.readFile(cacheFilePath);
+      // Stream: file → gunzip → collect chunks (using async iteration)
+      // This avoids holding both compressed and uncompressed buffers in memory
+      const gunzip = createGunzip();
+      fs.createReadStream(cacheFilePath).pipe(gunzip);
+
+      const chunks: Buffer[] = [];
+      for await (const chunk of gunzip) {
+        chunks.push(chunk as Buffer);
+      }
+      const buffer = Buffer.concat(chunks);
+
       const cacheData = fscache.FsCacheData.decode(buffer);
 
       // Load nodes

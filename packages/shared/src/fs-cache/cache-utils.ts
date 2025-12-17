@@ -35,7 +35,7 @@ export function normalizeCachePath(filePath: string): string {
 export function getCacheFilePath(cacheDir: string, projectId: string): string {
   // Sanitize project ID for use as filename
   const safeProjectId = projectId.replace(/[^a-zA-Z0-9_-]/g, '_');
-  return path.join(cacheDir, `${safeProjectId}.fscache.pb`);
+  return path.join(cacheDir, `${safeProjectId}.fscache.pb.gz`);
 }
 
 /**
