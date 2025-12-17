@@ -18,21 +18,16 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-describe('S2189', () => {
-  it('S2189', () => {
-    const ruleTester = new DefaultParserRuleTester();
-
-    ruleTester.run('Loops should not be infinite', rule, {
-      valid: [
-        {
-          code: `
+const validTestCases = [
+  {
+    code: `
       for (var i=0;i<5;i++) {
         console.log("hello");
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       var j = 0;
       while (true) { // reachable end condition added
         j++;
@@ -41,9 +36,9 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       function * generator() {
         while(true) { // OK (yield in the loop)
             foo();
@@ -51,9 +46,9 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       function someFunction() {
         while(true) { // OK (return in the loop)
             foo();
@@ -61,9 +56,9 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       const sleep = time => {
         let count = 0;
         const waitTill = new Date(new Date().getTime() + time);
@@ -72,9 +67,9 @@ describe('S2189', () => {
         }
       };
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       function do_while() {
 
         var trueValue = true;
@@ -84,9 +79,9 @@ describe('S2189', () => {
         } while (trueValue);
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       function always_true() {
 
         var trueValue = true;
@@ -96,9 +91,9 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       function throws_interrupts_loop() {
         for(;;) {               // OK
             throw "We are leaving!";
@@ -111,16 +106,16 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       while (until === undefined) {
         until = getUntil();
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       outer:
       while (true) {
         while (true) {
@@ -129,9 +124,9 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       while (true) {  // FN
         inner:
         while (true) {
@@ -140,38 +135,38 @@ describe('S2189', () => {
         }
       }
             `,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       let xs = [1, 2, 3];
       while (xs) {
         doSomething(xs.pop());
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       let xs = [1, 2, 3];
       while (xs) {
         doSomething(xs);
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       var parent = $container.find('.list')[0];
       while (parent && parent.firstChild) {
         parent.removeChild(parent.firstChild);
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       let coverage = [1, 2, 3];
       while (coverage) {
         coverage.length;
         doSomething(coverage);
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: imported/required variable
       // This should NOT raise an issue because the variable is imported
       // and may be modified externally
@@ -179,9 +174,9 @@ describe('S2189', () => {
       while (externalFlag) {
         doSomething();
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: object passed as argument
       // This should NOT raise an issue because objects can be modified
       // by the function they're passed to
@@ -189,18 +184,18 @@ describe('S2189', () => {
       while (obj.flag) {
         processObject(obj);
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: file-scope variable with function call in loop
       // This should NOT raise an issue because the function may modify the file-scope variable
       let globalFlag = true;
       while (globalFlag) {
         someFunction();
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: file-scope variable written elsewhere in file
       // This should NOT raise an issue because the variable is modified elsewhere
       let fileFlag = true;
@@ -212,9 +207,9 @@ describe('S2189', () => {
       while (fileFlag) {
         doSomething();
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: function parameter in compound condition
       // This should NOT raise because the loop can terminate via the other condition
       function processItems(items, maxCount) {
@@ -224,9 +219,9 @@ describe('S2189', () => {
           count++;
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: parameter controls loop behavior in compound condition
       function block(ordinary) {
         let indent = 0;
@@ -234,9 +229,9 @@ describe('S2189', () => {
           indent++;
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: local variable in compound condition with other changing variables
       // Pattern from yaml-lint: detectedIndent doesn't change but other variables do
       function parseIndent() {
@@ -248,9 +243,9 @@ describe('S2189', () => {
           ch = getChar();
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: variable in simple compound condition where other part changes
       // Pattern from json_parse: ch appears in condition and changes in loop
       function skipWhitespace() {
@@ -259,9 +254,9 @@ describe('S2189', () => {
           ch = getChar();
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: file-scope variable modified by function expression
       // Pattern from json_parse: ch is file-scope, next is a function expression that modifies it
       var at = 0;
@@ -279,9 +274,9 @@ describe('S2189', () => {
           next();
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: loop with break statement
       // Pattern from paper.js: valid is local but loop has breaks
       function processSegments(segments) {
@@ -301,9 +296,9 @@ describe('S2189', () => {
           }
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: function call in loop condition modifies variable
       // Pattern from json_parse.js: next() modifies ch, which is also in the condition
       var at = 0;
@@ -323,9 +318,9 @@ describe('S2189', () => {
         }
         return string;
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: local variable with switch and break
       // Pattern from csslint.js: c is not modified but loop has break
       function tokenize() {
@@ -342,9 +337,9 @@ describe('S2189', () => {
           break; // Always exits after one iteration
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: local variable with default case without break, then break outside
       // Pattern from csslint.js: default case has no break, but there's a break after the switch
       function tokenize() {
@@ -360,9 +355,9 @@ describe('S2189', () => {
           break; // Always exits after one iteration
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: method context with large switch and break
       // Pattern from ace csslint.js:4691
       var TokenStream = {};
@@ -398,9 +393,9 @@ describe('S2189', () => {
           return token;
         }
       };`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: parameter in OR condition with break
       // Pattern from TypeScript scanner: scanAsManyAsPossible is parameter
       function scanHexDigits(minCount, scanAsManyAsPossible) {
@@ -414,9 +409,9 @@ describe('S2189', () => {
           }
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: for loop with parameter in compound condition
       // Pattern from knockout: parameter limitFailedCompares with changing variables
       function findMatches(left, right, limitFailedCompares) {
@@ -429,9 +424,9 @@ describe('S2189', () => {
           failedCompares += 1;
         }
       }`,
-        },
-        {
-          code: `
+  },
+  {
+    code: `
       // False positive scenario: complex compound condition with changing variable
       // Pattern from TypeScript: multiple logical operators with variable that changes
       function processContainers(container, declarationContainer) {
@@ -442,69 +437,70 @@ describe('S2189', () => {
           flowContainer = getFlowContainer();
         }
       }`,
-        },
-      ],
-      invalid: [
-        {
-          code: `
+  },
+];
+
+const invalidTestCases = [
+  {
+    code: `
       var k = 0;
       var b = true;
       while (b) { // Noncompliant; b never written to in loop
         k++;
       }
             `,
-          errors: [
-            {
-              line: 4,
-              endLine: 4,
-              column: 14,
-              endColumn: 15,
-              message: "'b' is not modified in this loop.",
-            },
-          ],
-        },
-        {
-          code: `
+    errors: [
+      {
+        line: 4,
+        endLine: 4,
+        column: 14,
+        endColumn: 15,
+        message: "'b' is not modified in this loop.",
+      },
+    ],
+  },
+  {
+    code: `
       while (true) {
         console.log("hello");
       }
             `,
-          errors: [
-            {
-              line: 2,
-              endLine: 2,
-              column: 7,
-              endColumn: 12,
-              message: "Correct this loop's end condition to not be invariant.",
-            },
-          ],
-        },
-        {
-          code: `
+    errors: [
+      {
+        line: 2,
+        endLine: 2,
+        column: 7,
+        endColumn: 12,
+        message: "Correct this loop's end condition to not be invariant.",
+      },
+    ],
+  },
+  {
+    code: `
       for (;;) {
         console.log("hello");
       }
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       for (var str = '';str >= '0' && '9' >= str;) {
         console.log("hello");
       }
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       for (;true;) {
         console.log("hello");
       }
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       while (true) { // Noncompliant
         while (true) {
           if (cond) {
@@ -513,35 +509,42 @@ describe('S2189', () => {
         }
       }
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       do {
         console.log("hello");
       } while (true);
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       while (true) {
         function doSomething() {
           return "hello";
         }
       }
             `,
-          errors: 1,
-        },
-        {
-          code: `
+    errors: 1,
+  },
+  {
+    code: `
       while (true) {
         var a = function () {return 0;};
       }
             `,
-          errors: 1,
-        },
-      ],
+    errors: 1,
+  },
+];
+
+describe('S2189', () => {
+  it('S2189', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: validTestCases,
+      invalid: invalidTestCases,
     });
   });
 });

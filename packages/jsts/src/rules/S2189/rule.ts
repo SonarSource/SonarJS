@@ -235,6 +235,21 @@ function getSymbolsInCondition(
 }
 
 /**
+ * Check if a symbol has a write reference inside the loop
+ */
+function hasWriteReferenceInLoop(symbol: Scope.Variable, loopNode: LoopStatement): boolean {
+  for (const ref of symbol.references) {
+    if (ref.isWrite()) {
+      const writeNode = ref.identifier as estree.Node;
+      if (isNodeInsideLoop(writeNode, loopNode)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
  * Check if any other symbol (besides the given one) is modified in the loop
  */
 function checkIfOtherSymbolsModified(
@@ -247,13 +262,8 @@ function checkIfOtherSymbolsModified(
       continue;
     }
 
-    for (const ref of otherSymbol.references) {
-      if (ref.isWrite()) {
-        const writeNode = ref.identifier as estree.Node;
-        if (isNodeInsideLoop(writeNode, loopNode)) {
-          return true;
-        }
-      }
+    if (hasWriteReferenceInLoop(otherSymbol, loopNode)) {
+      return true;
     }
   }
   return false;
@@ -292,10 +302,8 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
   }
 
   // Check if declared in a loop init
-  for (const def of symbol.defs) {
-    if (isDeclaredInLoopInit(def)) {
-      return false;
-    }
+  if (symbol.defs.some(def => isDeclaredInLoopInit(def))) {
+    return false;
   }
 
   // A file-scope variable has a scope that is either 'module' or 'global'
@@ -335,6 +343,32 @@ function findContainingLoop(node: estree.Node, context: Rule.RuleContext): LoopS
 }
 
 /**
+ * Check if a declarator is a function expression or arrow function
+ */
+function isFunctionDeclarator(declarator: estree.VariableDeclarator): boolean {
+  return (
+    declarator.id.type === 'Identifier' &&
+    declarator.init !== null &&
+    (declarator.init.type === 'FunctionExpression' ||
+      declarator.init.type === 'ArrowFunctionExpression')
+  );
+}
+
+/**
+ * Add function names from variable declarations to the set
+ */
+function addFunctionNamesFromDeclaration(
+  declaration: estree.VariableDeclaration,
+  localFunctions: Set<string>,
+): void {
+  for (const declarator of declaration.declarations) {
+    if (isFunctionDeclarator(declarator) && declarator.id.type === 'Identifier') {
+      localFunctions.add(declarator.id.name);
+    }
+  }
+}
+
+/**
  * Get all locally-defined function names in the program
  */
 function getLocalFunctionNames(program: estree.Program): Set<string> {
@@ -344,16 +378,7 @@ function getLocalFunctionNames(program: estree.Program): Set<string> {
       localFunctions.add(statement.id.name);
     }
     if (statement.type === 'VariableDeclaration') {
-      for (const declarator of statement.declarations) {
-        if (
-          declarator.id.type === 'Identifier' &&
-          declarator.init &&
-          (declarator.init.type === 'FunctionExpression' ||
-            declarator.init.type === 'ArrowFunctionExpression')
-        ) {
-          localFunctions.add(declarator.id.name);
-        }
-      }
+      addFunctionNamesFromDeclaration(statement, localFunctions);
     }
   }
   return localFunctions;
@@ -512,6 +537,27 @@ function shouldSkipStep1(
 }
 
 /**
+ * Check if a symbol is file-scope or function-scope
+ */
+function isFileScopeOrFunctionScope(symbol: Scope.Variable): boolean {
+  return isFileScopeVariable(symbol) || symbol.scope.type === 'function';
+}
+
+/**
+ * Check if symbol should be skipped due to non-local function calls
+ */
+function shouldSkipDueToNonLocalCalls(
+  symbol: Scope.Variable,
+  loopNode: LoopStatement,
+  context: Rule.RuleContext,
+): boolean {
+  if (!isFileScopeOrFunctionScope(symbol)) {
+    return false;
+  }
+  return hasNonLocalFunctionCallInLoop(loopNode, context);
+}
+
+/**
  * Apply step 3 filter: check file-scope and function-scope variables
  */
 function shouldSkipStep3(
@@ -526,9 +572,8 @@ function shouldSkipStep3(
   if (!loopNode) return false;
 
   // Check for non-local function calls (applies to both file-scope and function-scope)
-  if (isFileScopeVariable(symbol) || symbol.scope.type === 'function') {
-    const hasNonLocal = hasNonLocalFunctionCallInLoop(loopNode, context);
-    if (hasNonLocal) return true;
+  if (shouldSkipDueToNonLocalCalls(symbol, loopNode, context)) {
+    return true;
   }
 
   // Check for writes elsewhere in file (only for file-scope)
@@ -541,7 +586,7 @@ function shouldSkipStep3(
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
+    messages: noUnmodifiedLoopEslint.meta?.messages ?? {},
   }),
   create(context: Rule.RuleContext) {
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
