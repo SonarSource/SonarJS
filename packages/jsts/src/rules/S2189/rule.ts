@@ -32,6 +32,11 @@ import * as meta from './generated-meta.js';
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');
 
 /**
+ * Type alias for loop statement nodes
+ */
+type LoopStatement = estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement;
+
+/**
  * Checks if a variable is imported or required
  */
 function isImportedOrRequired(symbol: Scope.Variable): boolean {
@@ -163,7 +168,7 @@ function hasFunctionCallInConditionThatMightModifyVariable(
   const ancestors = context.sourceCode.getAncestors(node);
 
   // Find the loop node
-  let loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null = null;
+  let loopNode: LoopStatement | null = null;
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const ancestor = ancestors[i];
     if (
@@ -181,7 +186,7 @@ function hasFunctionCallInConditionThatMightModifyVariable(
   }
 
   // Get the loop's test condition
-  const testCondition = loopNode.type === 'ForStatement' ? loopNode.test : loopNode.test;
+  const testCondition = loopNode.test;
   if (!testCondition) {
     return false;
   }
@@ -213,7 +218,7 @@ function hasOtherModifiedVariablesInCompoundCondition(
   const ancestors = context.sourceCode.getAncestors(node);
 
   // Find the loop node
-  let loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null = null;
+  let loopNode: LoopStatement | null = null;
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const ancestor = ancestors[i];
     if (
@@ -231,7 +236,7 @@ function hasOtherModifiedVariablesInCompoundCondition(
   }
 
   // Get the loop's test condition
-  const testCondition = loopNode.type === 'ForStatement' ? loopNode.test : loopNode.test;
+  const testCondition = loopNode.test;
   if (!testCondition) {
     return false;
   }
@@ -308,10 +313,7 @@ function isFileScopeVariable(symbol: Scope.Variable): boolean {
 /**
  * Finds the loop node that contains the given node
  */
-function findContainingLoop(
-  node: estree.Node,
-  context: Rule.RuleContext,
-): estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement | null {
+function findContainingLoop(node: estree.Node, context: Rule.RuleContext): LoopStatement | null {
   const ancestors = context.sourceCode.getAncestors(node);
 
   for (let i = ancestors.length - 1; i >= 0; i--) {
@@ -332,7 +334,7 @@ function findContainingLoop(
  * Local functions are defined in the same file and don't modify external state
  */
 function hasNonLocalFunctionCallInLoop(
-  loopNode: estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement,
+  loopNode: LoopStatement,
   context: Rule.RuleContext,
 ): boolean {
   const body = loopNode.body;
@@ -405,7 +407,7 @@ function isWrittenElsewhereInFile(symbol: Scope.Variable, loopNode: estree.Node)
       const writeRange = writeNode.range;
 
       // Skip if this is the initial declaration/definition
-      if (writeRange && definitionNodes.has(writeRange as [number, number])) {
+      if (writeRange && definitionNodes.has(writeRange)) {
         continue;
       }
 
@@ -433,7 +435,7 @@ function isNodeInsideLoop(node: estree.Node, loopNode: estree.Node): boolean {
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...noUnmodifiedLoopEslint.meta!.messages },
+    messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
   }),
   create(context: Rule.RuleContext) {
     /**
@@ -443,7 +445,7 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       noUnmodifiedLoopEslint,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const node = (descriptor as any).node as estree.Node;
+        const node = (descriptor as Rule.ReportDescriptor & { node: estree.Node }).node;
 
         const symbol = context.sourceCode
           .getScope(node)
@@ -600,20 +602,22 @@ export const rule: Rule.RuleModule = {
         return {
           WhileStatement: checkWhileStatement,
           DoWhileStatement: checkWhileStatement,
-          ForStatement: (node: estree.Node) => {
-            const { test, body } = node as estree.ForStatement;
-            if (!test || (test.type === 'Literal' && test.value === true)) {
-              const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
-              if (!hasEndCondition) {
-                const firstToken = context.sourceCode.getFirstToken(node);
-                context.report({
-                  loc: firstToken!.loc,
-                  message: MESSAGE,
-                });
-              }
-            }
-          },
+          ForStatement: checkForStatement,
         };
+
+        function checkForStatement(node: estree.Node) {
+          const { test, body } = node as estree.ForStatement;
+          if (!test || (test.type === 'Literal' && test.value === true)) {
+            const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
+            if (!hasEndCondition) {
+              const firstToken = context.sourceCode.getFirstToken(node);
+              context.report({
+                loc: firstToken?.loc,
+                message: MESSAGE,
+              });
+            }
+          }
+        }
 
         function checkWhileStatement(node: estree.Node) {
           const whileStatement = node as estree.WhileStatement | estree.DoWhileStatement;
@@ -621,7 +625,7 @@ export const rule: Rule.RuleModule = {
             const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
             if (!hasEndCondition) {
               const firstToken = context.sourceCode.getFirstToken(node);
-              context.report({ loc: firstToken!.loc, message: MESSAGE });
+              context.report({ loc: firstToken?.loc, message: MESSAGE });
             }
           }
         }
