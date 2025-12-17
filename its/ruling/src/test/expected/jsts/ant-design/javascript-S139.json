@@ -1,0 +1,38 @@
+{
+"ant-design:components/form/__tests__/list.test.js": [
+150
+],
+"ant-design:components/message/__tests__/config.test.js": [
+151
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+489,
+567
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+1546
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+720
+],
+"ant-design:components/tooltip/__tests__/tooltip.test.js": [
+94
+],
+"ant-design:components/transfer/__tests__/index.test.js": [
+106,
+122,
+129
+],
+"ant-design:scripts/check-commit.js": [
+13
+],
+"ant-design:scripts/post-script.js": [
+9,
+10
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+22,
+23,
+24
+]
+}

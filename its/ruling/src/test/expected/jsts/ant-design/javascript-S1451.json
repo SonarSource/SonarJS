@@ -1,0 +1,686 @@
+{
+"ant-design:components/__tests__/index.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/easings.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/getScroll.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/responsiveObserve.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/scrollTo.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/transButton.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/useSyncState.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/util.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/warning.test.js": [
+0
+],
+"ant-design:components/_util/__tests__/wave.test.js": [
+0
+],
+"ant-design:components/auto-complete/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/auto-complete/__tests__/focus.test.js": [
+0
+],
+"ant-design:components/auto-complete/__tests__/index.test.js": [
+0
+],
+"ant-design:components/avatar/__tests__/Avatar.test.js": [
+0
+],
+"ant-design:components/avatar/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/back-top/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/back-top/__tests__/index.test.js": [
+0
+],
+"ant-design:components/breadcrumb/__tests__/Breadcrumb.test.js": [
+0
+],
+"ant-design:components/breadcrumb/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/breadcrumb/__tests__/router.test.js": [
+0
+],
+"ant-design:components/calendar/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/calendar/__tests__/index.test.js": [
+0
+],
+"ant-design:components/card/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/carousel/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/carousel/__tests__/index.test.js": [
+0
+],
+"ant-design:components/cascader/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/cascader/__tests__/index.test.js": [
+0
+],
+"ant-design:components/checkbox/__tests__/checkbox.test.js": [
+0
+],
+"ant-design:components/checkbox/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/checkbox/__tests__/group.test.js": [
+0
+],
+"ant-design:components/collapse/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/collapse/__tests__/index.test.js": [
+0
+],
+"ant-design:components/comment/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/comment/__tests__/index.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/components.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/container.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/form.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/icon.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/index.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/locale.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/memo.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/static.test.js": [
+0
+],
+"ant-design:components/config-provider/__tests__/target.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/DatePicker.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/QuarterPicker.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/RangePicker.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/WeekPicker.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/mount.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/other.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/utils.js": [
+0
+],
+"ant-design:components/descriptions/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/descriptions/__tests__/index.test.js": [
+0
+],
+"ant-design:components/divider/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/divider/__tests__/index.test.js": [
+0
+],
+"ant-design:components/drawer/__tests__/Drawer.test.js": [
+0
+],
+"ant-design:components/drawer/__tests__/DrawerEvent.test.js": [
+0
+],
+"ant-design:components/drawer/__tests__/MultiDrawer.test.js": [
+0
+],
+"ant-design:components/drawer/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/dropdown/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/dropdown/__tests__/dropdown-button.test.js": [
+0
+],
+"ant-design:components/dropdown/__tests__/index.test.js": [
+0
+],
+"ant-design:components/empty/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/empty/__tests__/index.test.js": [
+0
+],
+"ant-design:components/form/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/form/__tests__/index.test.js": [
+0
+],
+"ant-design:components/form/__tests__/list.test.js": [
+0
+],
+"ant-design:components/grid/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/grid/__tests__/gap.test.js": [
+0
+],
+"ant-design:components/grid/__tests__/index.test.js": [
+0
+],
+"ant-design:components/grid/__tests__/server.test.js": [
+0
+],
+"ant-design:components/image/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/image/__tests__/index.test.js": [
+0
+],
+"ant-design:components/input-number/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/input-number/__tests__/index.test.js": [
+0
+],
+"ant-design:components/input-number/__tests__/prefix.test.js": [
+0
+],
+"ant-design:components/input/__tests__/Password.test.js": [
+0
+],
+"ant-design:components/input/__tests__/Search.test.js": [
+0
+],
+"ant-design:components/input/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/input/__tests__/textarea.test.js": [
+0
+],
+"ant-design:components/layout/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/layout/__tests__/index.test.js": [
+0
+],
+"ant-design:components/list/__tests__/Item.test.js": [
+0
+],
+"ant-design:components/list/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/list/__tests__/empty.test.js": [
+0
+],
+"ant-design:components/list/__tests__/index.test.js": [
+0
+],
+"ant-design:components/list/__tests__/loading.test.js": [
+0
+],
+"ant-design:components/list/__tests__/pagination.test.js": [
+0
+],
+"ant-design:components/locale-provider/__tests__/config.test.js": [
+0
+],
+"ant-design:components/locale-provider/__tests__/index.test.js": [
+0
+],
+"ant-design:components/mentions/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/mentions/__tests__/index.test.js": [
+0
+],
+"ant-design:components/menu/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/menu/__tests__/index.test.js": [
+0
+],
+"ant-design:components/message/__tests__/config.test.js": [
+0
+],
+"ant-design:components/message/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/message/__tests__/hooks.test.js": [
+0
+],
+"ant-design:components/message/__tests__/index.test.js": [
+0
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+0
+],
+"ant-design:components/notification/__tests__/config.test.js": [
+0
+],
+"ant-design:components/notification/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/notification/__tests__/hooks.test.js": [
+0
+],
+"ant-design:components/notification/__tests__/index.test.js": [
+0
+],
+"ant-design:components/notification/__tests__/placement.test.js": [
+0
+],
+"ant-design:components/page-header/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/page-header/__tests__/index.test.js": [
+0
+],
+"ant-design:components/pagination/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/pagination/__tests__/index.test.js": [
+0
+],
+"ant-design:components/popconfirm/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/popconfirm/__tests__/index.test.js": [
+0
+],
+"ant-design:components/popover/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/popover/__tests__/index.test.js": [
+0
+],
+"ant-design:components/progress/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/progress/__tests__/index.test.js": [
+0
+],
+"ant-design:components/radio/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/radio/__tests__/group.test.js": [
+0
+],
+"ant-design:components/radio/__tests__/radio-button.test.js": [
+0
+],
+"ant-design:components/radio/__tests__/radio.test.js": [
+0
+],
+"ant-design:components/rate/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/rate/__tests__/index.test.js": [
+0
+],
+"ant-design:components/select/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/select/__tests__/index.test.js": [
+0
+],
+"ant-design:components/skeleton/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/skeleton/__tests__/index.test.js": [
+0
+],
+"ant-design:components/slider/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/slider/__tests__/index.test.js": [
+0
+],
+"ant-design:components/space/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/space/__tests__/gap.test.js": [
+0
+],
+"ant-design:components/space/__tests__/index.test.js": [
+0
+],
+"ant-design:components/spin/__tests__/delay.test.js": [
+0
+],
+"ant-design:components/spin/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/spin/__tests__/index.test.js": [
+0
+],
+"ant-design:components/steps/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/steps/__tests__/index.test.js": [
+0
+],
+"ant-design:components/switch/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/switch/__tests__/index.test.js": [
+0
+],
+"ant-design:components/switch/__tests__/wave.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.expand.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.order.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.pagination.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.sorter.test.js": [
+0
+],
+"ant-design:components/table/__tests__/Table.test.js": [
+0
+],
+"ant-design:components/table/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/table/__tests__/empty.test.js": [
+0
+],
+"ant-design:components/tabs/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/tabs/__tests__/index.test.js": [
+0
+],
+"ant-design:components/tag/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/tag/__tests__/index.test.js": [
+0
+],
+"ant-design:components/time-picker/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/time-picker/__tests__/index.test.js": [
+0
+],
+"ant-design:components/timeline/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/timeline/__tests__/index.test.js": [
+0
+],
+"ant-design:components/tooltip/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/tooltip/__tests__/tooltip.test.js": [
+0
+],
+"ant-design:components/transfer/__tests__/customize.test.js": [
+0
+],
+"ant-design:components/transfer/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/transfer/__tests__/index.test.js": [
+0
+],
+"ant-design:components/transfer/__tests__/list.test.js": [
+0
+],
+"ant-design:components/transfer/__tests__/search.test.js": [
+0
+],
+"ant-design:components/tree-select/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/tree-select/__tests__/index.test.js": [
+0
+],
+"ant-design:components/tree/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/tree/__tests__/directory.test.js": [
+0
+],
+"ant-design:components/tree/__tests__/index.test.js": [
+0
+],
+"ant-design:components/tree/__tests__/util.test.js": [
+0
+],
+"ant-design:components/typography/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/typography/__tests__/ellipsis.test.js": [
+0
+],
+"ant-design:components/typography/__tests__/index.test.js": [
+0
+],
+"ant-design:components/upload/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/upload/__tests__/dragger.test.js": [
+0
+],
+"ant-design:components/upload/__tests__/mock.js": [
+0
+],
+"ant-design:components/upload/__tests__/requests.js": [
+0
+],
+"ant-design:components/upload/__tests__/upload.test.js": [
+0
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+0
+],
+"ant-design:index-style-only.js": [
+0
+],
+"ant-design:index-with-locales.js": [
+0
+],
+"ant-design:index.js": [
+0
+],
+"ant-design:jest-puppeteer.config.js": [
+0
+],
+"ant-design:scripts/argos-upload.js": [
+0
+],
+"ant-design:scripts/batch/convert-demo.js": [
+0
+],
+"ant-design:scripts/check-commit.js": [
+0
+],
+"ant-design:scripts/check-demo.js": [
+0
+],
+"ant-design:scripts/check-site.js": [
+0
+],
+"ant-design:scripts/check-ts-demo.js": [
+0
+],
+"ant-design:scripts/check-version-md.js": [
+0
+],
+"ant-design:scripts/compact-vars.js": [
+0
+],
+"ant-design:scripts/css-variable-sync.js": [
+0
+],
+"ant-design:scripts/dark-vars.js": [
+0
+],
+"ant-design:scripts/default-vars.js": [
+0
+],
+"ant-design:scripts/generate-authors.js": [
+0
+],
+"ant-design:scripts/generate-version.js": [
+0
+],
+"ant-design:scripts/generateLegacyLocale.js": [
+0
+],
+"ant-design:scripts/post-script.js": [
+0
+],
+"ant-design:scripts/print-changelog.js": [
+0
+],
+"ant-design:scripts/update-rc.js": [
+0
+],
+"ant-design:site/antd.js": [
+0
+],
+"ant-design:site/bisheng.config.js": [
+0
+],
+"ant-design:site/theme/en-US.js": [
+0
+],
+"ant-design:site/theme/index-css-only.js": [
+0
+],
+"ant-design:site/theme/index.js": [
+0
+],
+"ant-design:site/theme/static/style.js": [
+0
+],
+"ant-design:site/theme/template/AppShell.jsx": [
+0
+],
+"ant-design:site/theme/template/BrowserFrame.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/ColorBlock.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/ColorPaletteTool.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/ColorPaletteToolDark.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/ColorPalettes.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/ColorPatterns.jsx": [
+0
+],
+"ant-design:site/theme/template/Color/Palette.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/ComponentOverview.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/Demo/CodePenIcon.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/Demo/CodePreview.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/Demo/CodeSandboxIcon.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/Demo/RiddleIcon.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/MainContent.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/PrevAndNext.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/ThemeIcon.jsx": [
+0
+],
+"ant-design:site/theme/template/Content/index.jsx": [
+0
+],
+"ant-design:site/theme/template/Icon/index.jsx": [
+0
+],
+"ant-design:site/theme/template/Icon/utils.js": [
+0
+],
+"ant-design:site/theme/template/Layout/index.jsx": [
+0
+],
+"ant-design:site/theme/zh-CN.js": [
+0
+],
+"ant-design:site/themeConfig.js": [
+0
+],
+"ant-design:webpack.config.js": [
+0
+]
+}

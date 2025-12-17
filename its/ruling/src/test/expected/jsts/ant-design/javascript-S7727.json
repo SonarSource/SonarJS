@@ -1,0 +1,84 @@
+{
+"ant-design:components/_util/__tests__/util.test.js": [
+152,
+165,
+176
+],
+"ant-design:components/calendar/__tests__/index.test.js": [
+20
+],
+"ant-design:components/date-picker/__tests__/RangePicker.test.js": [
+73
+],
+"ant-design:components/dropdown/__tests__/dropdown-button.test.js": [
+29,
+43,
+65
+],
+"ant-design:components/dropdown/__tests__/index.test.js": [
+60
+],
+"ant-design:components/form/__tests__/index.test.js": [
+591
+],
+"ant-design:components/layout/__tests__/index.test.js": [
+154,
+157
+],
+"ant-design:components/menu/__tests__/index.test.js": [
+485,
+485,
+486,
+486,
+487,
+487,
+488,
+488,
+489,
+489,
+490,
+490,
+689,
+694,
+697,
+698,
+699
+],
+"ant-design:components/switch/__tests__/wave.test.js": [
+19
+],
+"ant-design:components/transfer/__tests__/index.test.js": [
+137,
+147,
+159,
+169,
+199,
+203,
+203,
+203,
+208,
+228,
+245,
+249,
+268,
+272,
+293,
+296,
+314,
+319,
+377,
+382,
+387,
+393
+],
+"ant-design:components/transfer/__tests__/list.test.js": [
+36,
+41,
+49
+],
+"ant-design:scripts/print-changelog.js": [
+123,
+124,
+125
+]
+}

@@ -1,0 +1,39 @@
+{
+"ant-design:components/_util/__tests__/useSyncState.test.js": [
+11
+],
+"ant-design:components/breadcrumb/__tests__/router.test.js": [
+56,
+57
+],
+"ant-design:components/calendar/__tests__/index.test.js": [
+421
+],
+"ant-design:components/drawer/__tests__/DrawerEvent.test.js": [
+119
+],
+"ant-design:components/locale-provider/__tests__/config.test.js": [
+31,
+34
+],
+"ant-design:components/space/__tests__/index.test.js": [
+123
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+184,
+187,
+190,
+193,
+2242,
+2251
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+630,
+1311,
+1314,
+1317
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+436
+]
+}

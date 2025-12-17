@@ -1,0 +1,57 @@
+{
+"ant-design:components/_util/wave.tsx": [
+35
+],
+"ant-design:components/affix/index.tsx": [
+56
+],
+"ant-design:components/anchor/Anchor.tsx": [
+92,
+97
+],
+"ant-design:components/anchor/AnchorLink.tsx": [
+18,
+22
+],
+"ant-design:components/locale-provider/LocaleReceiver.tsx": [
+18,
+22
+],
+"ant-design:components/locale-provider/index.tsx": [
+57
+],
+"ant-design:components/menu/MenuItem.tsx": [
+21
+],
+"ant-design:components/menu/index.tsx": [
+180,
+182,
+184,
+186
+],
+"ant-design:components/spin/index.tsx": [
+79
+],
+"ant-design:components/statistic/Countdown.tsx": [
+22
+],
+"ant-design:components/transfer/index.tsx": [
+113,
+115,
+117,
+119
+],
+"ant-design:components/transfer/list.tsx": [
+84
+],
+"ant-design:site/theme/template/Color/ColorPicker.tsx": [
+16
+],
+"ant-design:site/theme/template/IconDisplay/index.tsx": [
+33,
+35
+],
+"ant-design:site/theme/template/Layout/Header/index.tsx": [
+92
+]
+}

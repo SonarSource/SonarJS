@@ -1,0 +1,26 @@
+{
+"ant-design:components/message/__tests__/index.test.js": [
+103,
+136
+],
+"ant-design:components/space/__tests__/index.test.js": [
+74
+],
+"ant-design:components/table/__tests__/Table.pagination.test.js": [
+292,
+319
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+56,
+72
+],
+"ant-design:components/tooltip/__tests__/tooltip.test.js": [
+205,
+223
+],
+"ant-design:site/theme/template/Color/Palette.jsx": [
+8,
+9,
+10
+]
+}
