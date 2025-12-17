@@ -10,12 +10,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set orchestrator cache date
+    - name: Set orchestrator cache variables
       shell: bash
       run: |
-        CACHE_DATE=$(date +'%Y-%m-%d')
         CACHE_MONTH=$(date +'%Y-%m')
-        echo "ORCHESTRATOR_CACHE_DATE=$CACHE_DATE" >> $GITHUB_ENV
         echo "ORCHESTRATOR_CACHE_MONTH=$CACHE_MONTH" >> $GITHUB_ENV
         echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
 
@@ -25,17 +23,17 @@ runs:
       uses: actions/cache/restore@v5
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
-        key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
-        restore-keys: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+        key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
 
-    # Full cache on default branch (save enabled)
+    # Full cache on default branch (save enabled) - uses run_id for rolling cache
     - name: Cache Orchestrator (default branch)
       if: github.ref_name == github.event.repository.default_branch
       uses: SonarSource/gh-action_cache@v1
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
-        key: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_DATE }}
-        restore-keys: ${{ inputs.key-prefix }}-monthly-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
+        key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
 
     - name: Setup Orchestrator home directory
       shell: bash
