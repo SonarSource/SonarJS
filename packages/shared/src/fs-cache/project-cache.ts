@@ -29,7 +29,7 @@ import type {
   ProjectCacheInfo,
 } from './cache-types.js';
 import { createEmptyStats } from './cache-types.js';
-import { normalizeCachePath, getCacheFilePath, getContentSize } from './cache-utils.js';
+import { normalizeCachePath, getCacheFilePath } from './cache-utils.js';
 import { fscache } from './proto/fs-cache.js';
 
 /**
@@ -130,13 +130,11 @@ export class ProjectFsCache {
   }
 
   /**
-   * Gets file content from cache.
+   * Gets file content from cache (always as Buffer).
    * Returns undefined if not in cache or if path doesn't exist.
    * Throws if path is cached as non-existent.
    */
-  getFileContent(
-    filePath: string,
-  ): CacheLookupResult<{ content: string | Buffer; encoding?: BufferEncoding }> | undefined {
+  getFileContent(filePath: string): CacheLookupResult<{ content: Buffer }> | undefined {
     this.lastAccess = Date.now();
     const node = this.getNode(filePath);
     if (!node) {
@@ -150,23 +148,22 @@ export class ProjectFsCache {
       return undefined; // Exists but content not cached
     }
     this.recordHit('readFile');
-    return { exists: true, value: { content: node.content, encoding: node.encoding } };
+    return { exists: true, value: { content: node.content } };
   }
 
   /**
-   * Sets file content in cache.
+   * Sets file content in cache (always as Buffer).
    */
-  setFileContent(filePath: string, content: string | Buffer, encoding?: BufferEncoding): void {
+  setFileContent(filePath: string, content: Buffer): void {
     this.lastAccess = Date.now();
     const node = this.getOrCreateNode(filePath, true);
     node.exists = true;
     node.type = 'file';
     node.content = content;
-    node.encoding = encoding;
     // Infer stat size from content
     if (!node.stat) {
       node.stat = {
-        size: getContentSize(content),
+        size: content.length,
         mtimeMs: Date.now(),
         mode: 0o644,
         isFile: true,
@@ -174,7 +171,7 @@ export class ProjectFsCache {
         isSymbolicLink: false,
       };
     } else {
-      node.stat.size = getContentSize(content);
+      node.stat.size = content.length;
     }
     this.checkMemoryThreshold();
   }
@@ -398,9 +395,9 @@ export class ProjectFsCache {
       // Base node overhead
       size += 100;
 
-      // Content size
+      // Content size (content is always Buffer)
       if (node.content !== undefined) {
-        size += getContentSize(node.content);
+        size += node.content.length;
       }
 
       // Children
@@ -457,13 +454,10 @@ export class ProjectFsCache {
         exists: node.exists,
         timestamp: node.timestamp,
         type: node.type,
-        encoding: node.encoding,
       };
 
       if (node.content !== undefined) {
-        entry.content = Buffer.isBuffer(node.content)
-          ? node.content
-          : Buffer.from(node.content, node.encoding || 'utf8');
+        entry.content = node.content;
       }
 
       if (node.stat) {
@@ -573,13 +567,10 @@ export class ProjectFsCache {
           exists: entry.exists ?? false,
           timestamp: Number(entry.timestamp || 0),
           type: entry.type as FsNode['type'],
-          encoding: entry.encoding as BufferEncoding | undefined,
         };
 
         if (entry.content && entry.content.length > 0) {
-          node.content = entry.encoding
-            ? Buffer.from(entry.content).toString(entry.encoding as BufferEncoding)
-            : Buffer.from(entry.content);
+          node.content = Buffer.from(entry.content);
         }
 
         if (entry.stat) {

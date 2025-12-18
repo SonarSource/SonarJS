@@ -30,6 +30,9 @@ const CACHED_SYNC_METHODS = new Set([
   'realpathSync',
   'accessSync',
   'opendirSync',
+  // Note: fd operations (openSync, readSync, closeSync, fstatSync) are NOT cached
+  // because they cause TypeScript to behave differently (better type info).
+  // See comment in patchFs() for details.
 ]);
 
 const CACHED_PROMISE_METHODS = new Set([
@@ -121,7 +124,64 @@ const originalFs = {
   realpathSyncNative: fs.realpathSync.native.bind(fs),
   accessSync: fs.accessSync.bind(fs),
   opendirSync: fs.opendirSync.bind(fs),
+  // File descriptor operations
+  openSync: fs.openSync.bind(fs),
+  readSync: fs.readSync.bind(fs),
+  closeSync: fs.closeSync.bind(fs),
+  fstatSync: fs.fstatSync.bind(fs),
 };
+
+// ============================================================================
+// Virtual File Descriptor System
+// ============================================================================
+
+// Track file descriptors: fd -> { path, position, isReal }
+interface FdEntry {
+  path: string;
+  position: number;
+  isReal: boolean; // true = real kernel fd, false = fake fd for offline mode
+}
+const fdMap = new Map<number, FdEntry>();
+
+// Counter for generating fake fd numbers for offline mode
+let nextFakeFd = 10000; // High enough to not conflict with real fds
+
+/**
+ * Checks if a file descriptor is tracked by us.
+ */
+function isTrackedFd(fd: number): boolean {
+  return fdMap.has(fd);
+}
+
+/**
+ * Tracks a real fd for a path.
+ */
+function trackFd(fd: number, path: string, isReal: boolean = true): void {
+  fdMap.set(fd, { path, position: 0, isReal });
+}
+
+/**
+ * Gets a new fake fd number for offline mode.
+ */
+function getNextCachedFd(): number {
+  return nextFakeFd++;
+}
+
+/**
+ * Gets fd entry.
+ */
+function getFdEntry(fd: number): FdEntry | undefined {
+  return fdMap.get(fd);
+}
+
+/**
+ * Removes fd tracking and returns the entry (to check if it was real).
+ */
+function untrackFd(fd: number): FdEntry | undefined {
+  const entry = fdMap.get(fd);
+  fdMap.delete(fd);
+  return entry;
+}
 
 const originalFsPromises = {
   readFile: fs.promises.readFile.bind(fs.promises),
@@ -329,25 +389,31 @@ function cachedReadFileSync(
       throw createEnoentError('open', path);
     }
     if (cached.value) {
+      // Content is always stored as Buffer - convert to string if encoding requested
+      const buffer = cached.value.content;
       if (encoding) {
-        if (typeof cached.value.content === 'string') {
-          return cached.value.content;
-        }
-        return cached.value.content.toString(encoding);
+        return buffer.toString(encoding);
       }
-      if (Buffer.isBuffer(cached.value.content)) {
-        return cached.value.content;
-      }
-      return Buffer.from(cached.value.content, cached.value.encoding || 'utf8');
+      return buffer;
     }
   }
 
-  // Cache miss - read from disk
+  // Cache miss - read from disk as Buffer (always cache raw bytes)
   cache.recordMiss('readFile', getCallerFromStack());
   try {
-    const content = originalFs.readFileSync(path, options as BufferEncoding);
-    cache.setFileContent(path, content, encoding || undefined);
-    return content;
+    const buffer = originalFs.readFileSync(path);
+    if (
+      DEBUG_FD &&
+      (path.endsWith('.d.ts') || path.endsWith('tsconfig.json') || path.endsWith('package.json'))
+    ) {
+      console.log(`[readFileSync] ${path}`);
+    }
+    cache.setFileContent(path, buffer);
+    // Return with encoding if requested
+    if (encoding) {
+      return buffer.toString(encoding);
+    }
+    return buffer;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
       cache.setFileNotExists(path);
@@ -703,6 +769,383 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
 }
 
 // ============================================================================
+// File descriptor operations (openSync, readSync, closeSync)
+// ============================================================================
+
+const DEBUG_FD = process.env.DEBUG_FD === '1';
+const DEBUG_FD_COMPARE = process.env.DEBUG_FD_COMPARE === '1';
+
+// For comparison mode: map real fd -> path for tracking
+const realFdPaths = new Map<number, { path: string; position: number }>();
+
+function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | null): number {
+  // Only cache read operations (flags starting with 'r')
+  const flagStr = typeof flags === 'string' ? flags : String(flags);
+  const isReadOnly = flagStr === 'r' || (flagStr.startsWith('r') && !flagStr.includes('+'));
+
+  if (typeof path !== 'string' || !isReadOnly) {
+    return originalFs.openSync(path, flags, mode);
+  }
+
+  const cache = getFsCacheManager().getActiveCache();
+  if (!cache) {
+    return originalFs.openSync(path, flags, mode);
+  }
+
+  // Check if we have cached content FIRST (enables offline mode)
+  const cached = cache.getFileContent(path);
+
+  if (cached) {
+    if (!cached.exists) {
+      throw createEnoentError('open', path);
+    }
+    if (cached.value) {
+      // Cache hit - try to open real fd, but fall back to fake fd for offline mode
+      cache.recordHit('readFile', getCallerFromStack());
+      try {
+        const realFd = originalFs.openSync(path, flags, mode);
+        if (DEBUG_FD) {
+          console.log(`[FD] openSync: ${path} (cache: HIT, fd=${realFd})`);
+        }
+        trackFd(realFd, path, true); // real fd
+        return realFd;
+      } catch {
+        // File doesn't exist on disk but we have cached content - use fake fd (offline mode)
+        const fakeFd = getNextCachedFd();
+        if (DEBUG_FD) {
+          console.log(`[FD] openSync: ${path} (cache: HIT, offline fakeFd=${fakeFd})`);
+        }
+        trackFd(fakeFd, path, false); // fake fd
+        return fakeFd;
+      }
+    }
+  }
+
+  // Cache miss - must read from real filesystem
+  cache.recordMiss('readFile', getCallerFromStack());
+  const realFd = originalFs.openSync(path, flags, mode);
+  if (DEBUG_FD) {
+    console.log(`[FD] openSync: ${path} (cache: MISS, fd=${realFd})`);
+  }
+  try {
+    const stats = originalFs.fstatSync(realFd);
+    const buffer = Buffer.allocUnsafe(stats.size);
+    let bytesRead = 0;
+    while (bytesRead < stats.size) {
+      const result = originalFs.readSync(
+        realFd,
+        buffer,
+        bytesRead,
+        stats.size - bytesRead,
+        bytesRead,
+      );
+      if (result === 0) break;
+      bytesRead += result;
+    }
+    const content = bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead);
+    cache.setFileContent(path, content);
+    trackFd(realFd, path, true); // real fd
+    return realFd;
+  } catch (err) {
+    originalFs.closeSync(realFd);
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+      cache.setFileNotExists(path);
+    }
+    throw err;
+  }
+}
+
+function cachedReadSync(
+  fd: number,
+  buffer: NodeJS.ArrayBufferView,
+  offset?: number | null,
+  length?: number | null,
+  position?: number | null,
+): number {
+  const entry = getFdEntry(fd);
+
+  // Not tracked - pass through to original
+  if (!entry) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (originalFs.readSync as any)(fd, buffer, offset, length, position);
+  }
+
+  // Get content from cache
+  const cache = getFsCacheManager().getActiveCache();
+  if (!cache) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (originalFs.readSync as any)(fd, buffer, offset, length, position);
+  }
+
+  const cached = cache.getFileContent(entry.path);
+  if (!cached?.value) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (originalFs.readSync as any)(fd, buffer, offset, length, position);
+  }
+
+  // Read from cached content
+  const content = cached.value.content;
+  const buf = buffer as Buffer;
+  const readOffset = offset ?? 0;
+  const readLength = length ?? buf.length - readOffset;
+  const readPosition = position ?? entry.position;
+
+  const bytesAvailable = content.length - readPosition;
+  const bytesToRead = Math.min(readLength, bytesAvailable);
+
+  if (bytesToRead <= 0) {
+    return 0; // EOF
+  }
+
+  content.copy(buf, readOffset, readPosition, readPosition + bytesToRead);
+
+  // Update position if not using explicit position
+  if (position === null || position === undefined) {
+    entry.position += bytesToRead;
+  }
+
+  return bytesToRead;
+}
+
+function cachedCloseSync(fd: number): void {
+  const entry = untrackFd(fd);
+  if (!entry || entry.isReal) {
+    // Real fd or unknown - close it
+    originalFs.closeSync(fd);
+  }
+  // Fake fds (offline mode) don't need closing
+}
+
+function cachedFstatSync(fd: number, options?: fs.StatSyncOptions): Stats | undefined {
+  const entry = getFdEntry(fd);
+
+  // Not tracked - pass through to original
+  if (!entry) {
+    return originalFs.fstatSync(fd, options);
+  }
+
+  // Get stat from cache via the path
+  const cache = getFsCacheManager().getActiveCache();
+  if (!cache) {
+    return originalFs.fstatSync(fd, options);
+  }
+
+  // Check stat cache first
+  const cached = cache.getStatEntry(entry.path);
+  if (cached?.value) {
+    return createStatsFromCache(cached.value);
+  }
+
+  // Derive stats from cached content
+  const contentCached = cache.getFileContent(entry.path);
+  if (contentCached?.value) {
+    const content = contentCached.value.content;
+    const stats = Object.create(fs.Stats.prototype) as Stats;
+    Object.assign(stats, {
+      dev: 0,
+      ino: 0,
+      mode: 0o100644, // Regular file
+      nlink: 1,
+      uid: 0,
+      gid: 0,
+      rdev: 0,
+      size: content.length,
+      blksize: 4096,
+      blocks: Math.ceil(content.length / 512),
+      atimeMs: Date.now(),
+      mtimeMs: Date.now(),
+      ctimeMs: Date.now(),
+      birthtimeMs: Date.now(),
+      atime: new Date(),
+      mtime: new Date(),
+      ctime: new Date(),
+      birthtime: new Date(),
+    });
+    stats.isFile = () => true;
+    stats.isDirectory = () => false;
+    stats.isSymbolicLink = () => false;
+    stats.isBlockDevice = () => false;
+    stats.isCharacterDevice = () => false;
+    stats.isFIFO = () => false;
+    stats.isSocket = () => false;
+    return stats;
+  }
+
+  // Fallback to real fstatSync (shouldn't happen if properly tracked)
+  return originalFs.fstatSync(fd, options);
+}
+
+// ============================================================================
+// Comparison mode wrappers - call real fs and compare with what cache would return
+// ============================================================================
+
+function compareOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | null): number {
+  // Always use real fd
+  const realFd = originalFs.openSync(path, flags, mode);
+
+  // Track this fd for comparison in readSync
+  if (typeof path === 'string') {
+    const flagStr = typeof flags === 'string' ? flags : String(flags);
+    const isReadOnly = flagStr === 'r' || (flagStr.startsWith('r') && !flagStr.includes('+'));
+    if (isReadOnly) {
+      realFdPaths.set(realFd, { path, position: 0 });
+
+      // Check what cache would have done
+      const cache = getFsCacheManager().getActiveCache();
+      if (cache) {
+        const cached = cache.getFileContent(path);
+        if (cached?.value) {
+          console.log(`[FD-CMP] openSync HIT: ${path} (real fd=${realFd})`);
+        } else {
+          // Cache miss - read and cache for future comparison
+          try {
+            const stats = originalFs.fstatSync(realFd);
+            const buffer = Buffer.allocUnsafe(stats.size);
+            let bytesRead = 0;
+            // Read at position 0 without changing fd position
+            while (bytesRead < stats.size) {
+              const result = originalFs.readSync(
+                realFd,
+                buffer,
+                bytesRead,
+                stats.size - bytesRead,
+                bytesRead,
+              );
+              if (result === 0) break;
+              bytesRead += result;
+            }
+            const content = bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead);
+            cache.setFileContent(path, content);
+            cache.recordMiss('readFile', getCallerFromStack());
+            console.log(`[FD-CMP] openSync MISS: ${path} (cached ${content.length} bytes)`);
+          } catch (e) {
+            console.log(`[FD-CMP] openSync ERROR caching: ${path}: ${e}`);
+          }
+        }
+      }
+    }
+  }
+
+  return realFd;
+}
+
+function compareReadSync(
+  fd: number,
+  buffer: NodeJS.ArrayBufferView,
+  offset?: number | null,
+  length?: number | null,
+  position?: number | null,
+): number {
+  const tracking = realFdPaths.get(fd);
+
+  // Call real readSync
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const realResult = (originalFs.readSync as any)(fd, buffer, offset, length, position);
+
+  // Compare with what cache would return
+  if (tracking) {
+    const cache = getFsCacheManager().getActiveCache();
+    if (cache) {
+      const cached = cache.getFileContent(tracking.path);
+      if (cached?.value) {
+        const content = cached.value.content;
+        const buf = buffer as Buffer;
+        const readOffset = offset ?? 0;
+        const readLength = length ?? buf.length - readOffset;
+        const readPosition = position ?? tracking.position;
+
+        // Calculate what cache would return
+        const bytesAvailable = content.length - readPosition;
+        const bytesToRead = Math.min(readLength, bytesAvailable);
+        const cachedResult = bytesToRead <= 0 ? 0 : bytesToRead;
+
+        // Compare bytes read count
+        if (realResult !== cachedResult) {
+          console.log(`[FD-CMP] readSync MISMATCH bytesRead: ${tracking.path}`);
+          console.log(`  real=${realResult}, cached=${cachedResult}`);
+          console.log(`  offset=${readOffset}, length=${readLength}, position=${readPosition}`);
+          console.log(`  content.length=${content.length}, bytesAvailable=${bytesAvailable}`);
+        }
+
+        // Compare actual content
+        if (realResult > 0 && cachedResult > 0) {
+          const realData = buf.subarray(readOffset, readOffset + realResult);
+          const cachedData = content.subarray(readPosition, readPosition + cachedResult);
+
+          if (
+            !realData.equals(cachedData.subarray(0, Math.min(realData.length, cachedData.length)))
+          ) {
+            console.log(`[FD-CMP] readSync MISMATCH content: ${tracking.path}`);
+            console.log(`  position=${readPosition}`);
+            // Show first difference
+            for (let i = 0; i < Math.min(realData.length, cachedData.length); i++) {
+              if (realData[i] !== cachedData[i]) {
+                console.log(
+                  `  first diff at byte ${i}: real=0x${realData[i].toString(16)}, cached=0x${cachedData[i].toString(16)}`,
+                );
+                break;
+              }
+            }
+          }
+        }
+
+        // Update tracked position if not using explicit position
+        if (position === null || position === undefined) {
+          tracking.position += realResult;
+        }
+      }
+    }
+  }
+
+  return realResult;
+}
+
+function compareCloseSync(fd: number): void {
+  realFdPaths.delete(fd);
+  return originalFs.closeSync(fd);
+}
+
+function compareFstatSync(fd: number, options?: fs.StatSyncOptions): Stats | undefined {
+  // Call real fstatSync
+  const realStats = originalFs.fstatSync(fd, options);
+
+  // Compare with what cache would return
+  const tracking = realFdPaths.get(fd);
+  if (tracking && realStats) {
+    const cache = getFsCacheManager().getActiveCache();
+    if (cache) {
+      // Check stat cache first
+      const cachedStat = cache.getStatEntry(tracking.path);
+      if (cachedStat?.value) {
+        const cached = cachedStat.value;
+        if (realStats.size !== cached.size) {
+          console.log(`[FD-CMP] fstatSync MISMATCH size: ${tracking.path}`);
+          console.log(`  real=${realStats.size}, cached=${cached.size}`);
+        }
+        if (realStats.isFile() !== cached.isFile) {
+          console.log(`[FD-CMP] fstatSync MISMATCH isFile: ${tracking.path}`);
+        }
+        if (realStats.isDirectory() !== cached.isDirectory) {
+          console.log(`[FD-CMP] fstatSync MISMATCH isDirectory: ${tracking.path}`);
+        }
+      } else {
+        // Check if we'd derive stats from content cache
+        const contentCached = cache.getFileContent(tracking.path);
+        if (contentCached?.value) {
+          const contentSize = contentCached.value.content.length;
+          if (realStats.size !== contentSize) {
+            console.log(`[FD-CMP] fstatSync MISMATCH size (from content): ${tracking.path}`);
+            console.log(`  real=${realStats.size}, cached content.length=${contentSize}`);
+          }
+        }
+      }
+    }
+  }
+
+  return realStats;
+}
+
+// ============================================================================
 // Async implementations
 // ============================================================================
 
@@ -727,25 +1170,25 @@ async function cachedReadFile(
       throw createEnoentError('open', path);
     }
     if (cached.value) {
+      // Content is always stored as Buffer - convert to string if encoding requested
+      const buffer = cached.value.content;
       if (encoding) {
-        if (typeof cached.value.content === 'string') {
-          return cached.value.content;
-        }
-        return cached.value.content.toString(encoding);
+        return buffer.toString(encoding);
       }
-      if (Buffer.isBuffer(cached.value.content)) {
-        return cached.value.content;
-      }
-      return Buffer.from(cached.value.content, cached.value.encoding || 'utf8');
+      return buffer;
     }
   }
 
-  // Cache miss
+  // Cache miss - read from disk as Buffer (always cache raw bytes)
   cache.recordMiss('readFile', getCallerFromStack());
   try {
-    const content = await originalFsPromises.readFile(path, options as BufferEncoding);
-    cache.setFileContent(path, content, encoding || undefined);
-    return content;
+    const buffer = await originalFsPromises.readFile(path);
+    cache.setFileContent(path, buffer);
+    // Return with encoding if requested
+    if (encoding) {
+      return buffer.toString(encoding);
+    }
+    return buffer;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
       cache.setFileNotExists(path);
@@ -1057,6 +1500,17 @@ function createTrackingWrapper(
       if (cache) {
         cache.recordUncached(methodName, getCallerFromStack());
       }
+      // Debug: log openSync calls
+      if (DEBUG_FD && methodName === 'openSync' && typeof args[0] === 'string') {
+        const path = args[0] as string;
+        if (path.includes('lib.') && path.endsWith('.d.ts')) {
+          console.log(`[FD-UNCACHED] openSync: ${path}`);
+        }
+        // Also log tsconfig and package.json
+        if (path.endsWith('tsconfig.json') || path.endsWith('package.json')) {
+          console.log(`[FD-UNCACHED] openSync: ${path}`);
+        }
+      }
       return originalFn.apply(this, args);
     };
   }
@@ -1198,6 +1652,27 @@ export function patchFs(): void {
   fsAny.accessSync = cachedAccessSync;
   fsAny.opendirSync = cachedOpendirSync;
 
+  // File descriptor operations - enabled by default
+  // Uses small fd numbers (starting at 10) to avoid issues with high fd numbers
+  const DISABLE_FD_CACHE = process.env.DISABLE_FD_CACHE === '1';
+  if (DEBUG_FD_COMPARE) {
+    // Comparison mode: use real fs but compare with what cache would return
+    fsAny.openSync = compareOpenSync;
+    fsAny.readSync = compareReadSync;
+    fsAny.closeSync = compareCloseSync;
+    fsAny.fstatSync = compareFstatSync;
+  } else if (!DISABLE_FD_CACHE) {
+    // Cached fd mode (DEFAULT): return small fd numbers, serve content from cache
+    fsAny.openSync = cachedOpenSync;
+    fsAny.readSync = cachedReadSync;
+    fsAny.closeSync = cachedCloseSync;
+    fsAny.fstatSync = cachedFstatSync;
+  }
+  // Env vars for fd operations:
+  //   (default)           - cached fd mode with small fd numbers
+  //   DISABLE_FD_CACHE=1  - disable fd caching entirely
+  //   DEBUG_FD_COMPARE=1  - compare real vs cached, log mismatches
+
   Object.defineProperty(fs, 'statSync', {
     value: cachedStatSync,
     writable: true,
@@ -1252,6 +1727,18 @@ export function unpatchFs(): void {
   fsAny.accessSync = originalFs.accessSync;
   fsAny.opendirSync = originalFs.opendirSync;
 
+  // File descriptor operations - restore unless disabled
+  const DISABLE_FD_CACHE = process.env.DISABLE_FD_CACHE === '1';
+  if (!DISABLE_FD_CACHE || DEBUG_FD_COMPARE) {
+    fsAny.openSync = originalFs.openSync;
+    fsAny.readSync = originalFs.readSync;
+    fsAny.closeSync = originalFs.closeSync;
+    fsAny.fstatSync = originalFs.fstatSync;
+    realFdPaths.clear();
+    fdMap.clear();
+    nextFakeFd = 10000;
+  }
+
   Object.defineProperty(fs, 'statSync', {
     value: originalFs.statSync,
     writable: true,
@@ -1284,6 +1771,10 @@ export function unpatchFs(): void {
 
   // Restore all uncached methods
   unpatchUncachedMethods();
+
+  // Clear fd tracking
+  fdMap.clear();
+  nextFakeFd = 10000;
 
   isPatched = false;
 }

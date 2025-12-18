@@ -70,11 +70,8 @@ export interface FsNode {
   /** File type (when known) */
   type?: 'file' | 'directory' | 'symlink';
 
-  /** File content (only for files) */
-  content?: string | Buffer;
-
-  /** Encoding used when content was read */
-  encoding?: BufferEncoding;
+  /** File content as raw bytes (only for files) */
+  content?: Buffer;
 
   /** Stat information */
   stat?: FsNodeStat;
