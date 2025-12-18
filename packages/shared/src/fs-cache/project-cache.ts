@@ -369,6 +369,21 @@ export class ProjectFsCache {
   }
 
   /**
+   * Records an external (outside baseDir) passthrough operation.
+   * These are calls for paths outside the project directory that go directly to real fs.
+   */
+  recordExternal(operation: string, caller?: string): void {
+    const key = `external:${operation}`;
+    const current = this.stats.uncached.get(key) ?? 0;
+    this.stats.uncached.set(key, current + 1);
+
+    // Track caller if provided
+    if (caller) {
+      this.trackCaller(caller, `external:${operation}`);
+    }
+  }
+
+  /**
    * Tracks a call from a specific caller.
    */
   private trackCaller(caller: string, operation: string): void {

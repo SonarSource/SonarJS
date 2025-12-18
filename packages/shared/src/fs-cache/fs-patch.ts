@@ -384,6 +384,7 @@ function cachedReadFileSync(
 
   // Only cache files under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    cache.recordExternal('readFile', getCallerFromStack());
     return originalFs.readFileSync(path, options as BufferEncoding);
   }
 
@@ -455,6 +456,7 @@ function cachedReaddirSync(
 
   // Only cache directories under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    cache.recordExternal('readdir', getCallerFromStack());
     return originalFs.readdirSync(path, options as BufferEncoding) as string[];
   }
 
@@ -509,6 +511,7 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    cache.recordExternal('stat', getCallerFromStack());
     return originalFs.statSync(path, options);
   }
 
@@ -557,6 +560,7 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    cache.recordExternal('lstat', getCallerFromStack());
     return originalFs.lstatSync(path, options);
   }
 
@@ -607,6 +611,7 @@ function cachedExistsSync(path: fs.PathLike): boolean {
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    cache.recordExternal('exists', getCallerFromStack());
     return originalFs.existsSync(path);
   }
 

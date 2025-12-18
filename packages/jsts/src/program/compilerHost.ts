@@ -42,12 +42,24 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   private readonly modifiedFiles = new Set<string>();
   private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
+  private readonly baseDirPrefix: string;
+  private readonly tsLibDirPrefix: string;
 
   constructor(
     compilerOptions: ts.CompilerOptions,
     private readonly baseDir: string,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions, true);
+    // Store with trailing slash for simple startsWith checks
+    this.baseDirPrefix = baseDir.endsWith('/') ? baseDir : baseDir + '/';
+    this.tsLibDirPrefix = this.baseHost.getDefaultLibLocation!() + '/';
+  }
+
+  /**
+   * Checks if a path is within the project directory or is a TypeScript lib file.
+   */
+  private isAllowedPath(filePath: string): boolean {
+    return filePath.startsWith(this.baseDirPrefix) || filePath.startsWith(this.tsLibDirPrefix);
   }
 
   /**
@@ -135,7 +147,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return content;
     }
 
-    // 3. Fallback to real filesystem (and cache it)
+    // 3. Block access to files outside baseDir (except TypeScript lib files)
+    if (!this.isAllowedPath(fileName)) {
+      this.trackFsCall('readFile-blocked', fileName);
+      return undefined;
+    }
+
+    // 4. Fallback to real filesystem (and cache it)
     this.trackFsCall('readFile-disk', fileName);
     const content = this.baseHost.readFile(fileName);
     if (content) {
@@ -166,9 +184,28 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return true;
     }
 
-    // 3. Fallback to filesystem
+    // 3. Block access to files outside baseDir (except TypeScript lib files)
+    //    This prevents TypeScript from walking up parent directories looking for node_modules
+    if (!this.isAllowedPath(fileName)) {
+      this.trackFsCall('fileExists-blocked', fileName);
+      return false;
+    }
+
+    // 4. Fallback to filesystem
     this.trackFsCall('fileExists-disk', fileName);
     return this.baseHost.fileExists(fileName);
+  }
+
+  directoryExists(dirPath: string): boolean {
+    // Block access to directories outside baseDir (except TypeScript lib paths)
+    // This prevents TypeScript from walking up parent directories looking for node_modules
+    if (!this.isAllowedPath(dirPath)) {
+      this.trackFsCall('directoryExists-blocked', dirPath);
+      return false;
+    }
+
+    this.trackFsCall('directoryExists-disk', dirPath);
+    return ts.sys.directoryExists(dirPath);
   }
 
   getSourceFile(
