@@ -101,7 +101,28 @@ export interface ProjectCacheInfo {
   memorySize: number;
   diskSize: number;
   nodeCount: number;
+  diskNodeCount: number;
   lastAccess: number;
+  lastFlushTiming?: { build: number; encode: number; gzip: number; total: number };
+  lastLoadTiming?: { gunzip: number; decode: number; total: number };
+}
+
+/**
+ * Caller statistics - tracks which packages make fs calls
+ */
+export interface CallerStats {
+  /** Total calls from this caller */
+  calls: number;
+  /** Calls by operation (all fs methods, dynamically tracked) */
+  operations: Map<string, number>;
+}
+
+/**
+ * Stats for a cached operation (has hits and misses)
+ */
+export interface CachedOpStats {
+  hits: number;
+  misses: number;
 }
 
 /**
@@ -112,19 +133,24 @@ export interface CacheStats {
   misses: number;
   diskReads: number;
   diskWrites: number;
+  /** Cached operations (can have hits) */
   operations: {
-    readFile: { hits: number; misses: number };
-    readdir: { hits: number; misses: number };
-    opendir: { hits: number; misses: number };
-    stat: { hits: number; misses: number };
-    exists: { hits: number; misses: number };
-    realpath: { hits: number; misses: number };
-    access: { hits: number; misses: number };
+    readFile: CachedOpStats;
+    readdir: CachedOpStats;
+    opendir: CachedOpStats;
+    stat: CachedOpStats;
+    exists: CachedOpStats;
+    realpath: CachedOpStats;
+    access: CachedOpStats;
   };
+  /** Uncached/passthrough operations (dynamically discovered) */
+  uncached: Map<string, number>;
+  /** Calls grouped by caller package/module */
+  callers?: Map<string, CallerStats>;
 }
 
 /**
- * Operation types for stats tracking
+ * Cached operation types (can have cache hits)
  */
 export type CacheOperationType =
   | 'readFile'
@@ -161,5 +187,6 @@ export function createEmptyStats(): CacheStats {
       realpath: { hits: 0, misses: 0 },
       access: { hits: 0, misses: 0 },
     },
+    uncached: new Map(),
   };
 }

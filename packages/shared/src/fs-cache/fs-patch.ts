@@ -20,6 +20,96 @@ import type { Stats, StatOptions, StatSyncOptions, Dirent, Dir } from 'node:fs';
 import { getFsCacheManager } from './cache-manager.js';
 import type { FsChildEntry, FsNodeStat } from './cache-types.js';
 
+// Methods that we cache (these have custom implementations)
+const CACHED_SYNC_METHODS = new Set([
+  'readFileSync',
+  'readdirSync',
+  'statSync',
+  'lstatSync',
+  'existsSync',
+  'realpathSync',
+  'accessSync',
+  'opendirSync',
+]);
+
+const CACHED_PROMISE_METHODS = new Set([
+  'readFile',
+  'readdir',
+  'stat',
+  'lstat',
+  'realpath',
+  'access',
+  'opendir',
+]);
+
+// Methods to skip (not real fs operations or shouldn't be wrapped)
+const SKIP_METHODS = new Set([
+  // Constants and properties
+  'constants',
+  'promises',
+  'F_OK',
+  'R_OK',
+  'W_OK',
+  'X_OK',
+  // Classes (wrapping these would break instanceof)
+  'Stats',
+  'Dirent',
+  'Dir',
+  'ReadStream',
+  'WriteStream',
+  'FileHandle',
+  // Deprecated
+  'exists', // deprecated async version
+]);
+
+/**
+ * Extracts the caller module/package from a stack trace.
+ * Looks for the first frame that's not in fs-cache or node internals.
+ */
+function getCallerFromStack(): string {
+  const err = new Error();
+  const stack = err.stack;
+  if (!stack) return 'unknown';
+
+  const lines = stack.split('\n');
+  // Skip first line (Error message) and frames from fs-cache
+  for (let i = 2; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Skip our own modules
+    if (line.includes('fs-cache') || line.includes('fs-patch')) continue;
+
+    // Skip node internals
+    if (line.includes('node:') || line.includes('(node:')) continue;
+
+    // Extract module path
+    // Format: "    at functionName (path:line:col)" or "    at path:line:col"
+    const match = line.match(/at\s+(?:.*?\s+\()?(.+?)(?::\d+:\d+)?\)?$/);
+    if (match) {
+      const fullPath = match[1];
+
+      // Try to extract package name from path
+      // Look for node_modules/package-name or just the filename
+      const nodeModulesMatch = fullPath.match(/node_modules[/\\](@[^/\\]+[/\\][^/\\]+|[^/\\]+)/);
+      if (nodeModulesMatch) {
+        return nodeModulesMatch[1].replace(/\\/g, '/');
+      }
+
+      // For non-node_modules paths, extract just filename or relative path
+      const pathMatch = fullPath.match(/([^/\\]+[/\\][^/\\]+[/\\][^/\\]+)$/);
+      if (pathMatch) {
+        return pathMatch[1].replace(/\\/g, '/');
+      }
+
+      // Fallback: just return the last part of the path
+      const lastPart = fullPath.split(/[/\\]/).slice(-2).join('/');
+      return lastPart || fullPath;
+    }
+  }
+
+  return 'unknown';
+}
+
 // Store original functions before patching
 const originalFs = {
   readFileSync: fs.readFileSync.bind(fs),
@@ -253,7 +343,7 @@ function cachedReadFileSync(
   }
 
   // Cache miss - read from disk
-  cache.recordMiss('readFile');
+  cache.recordMiss('readFile', getCallerFromStack());
   try {
     const content = originalFs.readFileSync(path, options as BufferEncoding);
     cache.setFileContent(path, content, encoding || undefined);
@@ -306,7 +396,7 @@ function cachedReaddirSync(
   }
 
   // Cache miss - read from disk
-  cache.recordMiss('readdir');
+  cache.recordMiss('readdir', getCallerFromStack());
   try {
     if (withFileTypes) {
       const entries = originalFs.readdirSync(path, { ...opts, withFileTypes: true }) as Dirent[];
@@ -352,11 +442,14 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
   }
 
   // Cache miss
-  cache.recordMiss('stat');
+  cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = originalFs.statSync(path, options) as Stats | undefined;
     if (stats) {
       cache.setStatEntry(path, extractStatsData(stats));
+    } else if (options?.throwIfNoEntry === false) {
+      // statSync returned undefined = file doesn't exist
+      cache.setExists(path, false);
     }
     return stats;
   } catch (err) {
@@ -393,11 +486,14 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
   }
 
   // Cache miss
-  cache.recordMiss('stat');
+  cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = originalFs.lstatSync(path, options) as Stats | undefined;
     if (stats) {
       cache.setStatEntry(cacheKey, extractStatsData(stats));
+    } else if (options?.throwIfNoEntry === false) {
+      // lstatSync returned undefined = file doesn't exist
+      cache.setExists(path, false);
     }
     return stats;
   } catch (err) {
@@ -424,7 +520,7 @@ function cachedExistsSync(path: fs.PathLike): boolean {
   }
 
   // Cache miss
-  cache.recordMiss('exists');
+  cache.recordMiss('exists', getCallerFromStack());
   const exists = originalFs.existsSync(path);
   cache.setExists(path, exists);
   return exists;
@@ -459,7 +555,7 @@ function cachedRealpathSync(
   }
 
   // Cache miss
-  cache.recordMiss('realpath');
+  cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSync(path, options as BufferEncoding) as string;
     cache.setRealpath(path, resolvedPath, false);
@@ -501,7 +597,7 @@ function cachedRealpathSyncNative(
   }
 
   // Cache miss
-  cache.recordMiss('realpath');
+  cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSyncNative(path, options as BufferEncoding) as string;
     cache.setRealpath(path, resolvedPath, true);
@@ -547,7 +643,7 @@ function cachedAccessSync(path: fs.PathLike, mode?: number): void {
   }
 
   // Cache miss
-  cache.recordMiss('access');
+  cache.recordMiss('access', getCallerFromStack());
   try {
     originalFs.accessSync(path, accessMode);
     cache.setAccess(path, accessMode, true);
@@ -584,7 +680,7 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
   }
 
   // Cache miss - read from disk and cache
-  cache.recordMiss('opendir');
+  cache.recordMiss('opendir', getCallerFromStack());
   try {
     const dir = originalFs.opendirSync(path, options);
     const entries: FsChildEntry[] = [];
@@ -645,7 +741,7 @@ async function cachedReadFile(
   }
 
   // Cache miss
-  cache.recordMiss('readFile');
+  cache.recordMiss('readFile', getCallerFromStack());
   try {
     const content = await originalFsPromises.readFile(path, options as BufferEncoding);
     cache.setFileContent(path, content, encoding || undefined);
@@ -697,7 +793,7 @@ async function cachedReaddir(
   }
 
   // Cache miss
-  cache.recordMiss('readdir');
+  cache.recordMiss('readdir', getCallerFromStack());
   try {
     if (withFileTypes) {
       const entries = (await originalFsPromises.readdir(path, {
@@ -746,7 +842,7 @@ async function cachedStat(path: fs.PathLike, options?: StatOptions): Promise<Sta
   }
 
   // Cache miss
-  cache.recordMiss('stat');
+  cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = (await originalFsPromises.stat(path, options)) as Stats;
     cache.setStatEntry(path, extractStatsData(stats));
@@ -781,7 +877,7 @@ async function cachedLstat(path: fs.PathLike, options?: StatOptions): Promise<St
   }
 
   // Cache miss
-  cache.recordMiss('stat');
+  cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = (await originalFsPromises.lstat(path, options)) as Stats;
     cache.setStatEntry(cacheKey, extractStatsData(stats));
@@ -823,7 +919,7 @@ async function cachedRealpathPromise(
   }
 
   // Cache miss
-  cache.recordMiss('realpath');
+  cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = (await originalFsPromises.realpath(
       path,
@@ -872,7 +968,7 @@ async function cachedAccessPromise(path: fs.PathLike, mode?: number): Promise<vo
   }
 
   // Cache miss
-  cache.recordMiss('access');
+  cache.recordMiss('access', getCallerFromStack());
   try {
     await originalFsPromises.access(path, accessMode);
     cache.setAccess(path, accessMode, true);
@@ -909,7 +1005,7 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
   }
 
   // Cache miss - read from disk and cache
-  cache.recordMiss('opendir');
+  cache.recordMiss('opendir', getCallerFromStack());
   try {
     const dir = await originalFsPromises.opendir(path, options);
     const entries: FsChildEntry[] = [];
@@ -930,6 +1026,157 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
 }
 
 // ============================================================================
+// Dynamic uncached method tracking
+// ============================================================================
+
+// Store original uncached sync methods
+const originalUncachedSync = new Map<string, Function>();
+
+// Store original uncached promise methods
+const originalUncachedPromises = new Map<string, Function>();
+
+/**
+ * Creates a wrapper function that tracks stats but forwards to the original.
+ */
+function createTrackingWrapper(
+  methodName: string,
+  originalFn: Function,
+  isPromise: boolean,
+): Function {
+  if (isPromise) {
+    return async function (...args: unknown[]) {
+      const cache = getFsCacheManager().getActiveCache();
+      if (cache) {
+        cache.recordUncached(methodName, getCallerFromStack());
+      }
+      return originalFn.apply(this, args);
+    };
+  } else {
+    return function (...args: unknown[]) {
+      const cache = getFsCacheManager().getActiveCache();
+      if (cache) {
+        cache.recordUncached(methodName, getCallerFromStack());
+      }
+      return originalFn.apply(this, args);
+    };
+  }
+}
+
+/**
+ * Safely patches a method on an object, handling getter-only properties.
+ */
+function safePatchMethod(
+  obj: object,
+  key: string,
+  wrapper: Function,
+  original: Function,
+  store: Map<string, Function>,
+): boolean {
+  try {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+    if (descriptor && !descriptor.configurable) {
+      // Can't patch non-configurable properties
+      return false;
+    }
+    if (descriptor && descriptor.get && !descriptor.set) {
+      // Getter-only property - try to redefine
+      try {
+        Object.defineProperty(obj, key, {
+          value: wrapper,
+          writable: true,
+          configurable: true,
+          enumerable: descriptor.enumerable,
+        });
+      } catch {
+        return false;
+      }
+    } else {
+      // Normal property - direct assignment
+      (obj as Record<string, unknown>)[key] = wrapper;
+    }
+    store.set(key, original);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Safely restores a method on an object.
+ */
+function safeRestoreMethod(obj: object, key: string, original: Function): void {
+  try {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, key);
+    if (descriptor && !descriptor.configurable) {
+      return;
+    }
+    if (descriptor && descriptor.get && !descriptor.set) {
+      Object.defineProperty(obj, key, {
+        value: original,
+        writable: true,
+        configurable: true,
+        enumerable: descriptor.enumerable ?? true,
+      });
+    } else {
+      (obj as Record<string, unknown>)[key] = original;
+    }
+  } catch {
+    // Ignore restore errors
+  }
+}
+
+/**
+ * Discovers and wraps all uncached fs methods.
+ */
+function patchUncachedMethods(): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fsAny = fs as any;
+
+  // Patch uncached sync methods on fs
+  for (const key of Object.keys(fs)) {
+    if (SKIP_METHODS.has(key)) continue;
+    if (CACHED_SYNC_METHODS.has(key)) continue;
+
+    const value = fsAny[key];
+    if (typeof value === 'function') {
+      const original = value.bind(fs);
+      const wrapper = createTrackingWrapper(key, original, false);
+      safePatchMethod(fs, key, wrapper, original, originalUncachedSync);
+    }
+  }
+
+  // Patch uncached promise methods on fs.promises
+  for (const key of Object.keys(fs.promises)) {
+    if (SKIP_METHODS.has(key)) continue;
+    if (CACHED_PROMISE_METHODS.has(key)) continue;
+
+    const value = fsAny.promises[key];
+    if (typeof value === 'function') {
+      const original = value.bind(fs.promises);
+      const wrapper = createTrackingWrapper(key, original, true);
+      safePatchMethod(fs.promises, key, wrapper, original, originalUncachedPromises);
+    }
+  }
+}
+
+/**
+ * Restores all uncached fs methods to their originals.
+ */
+function unpatchUncachedMethods(): void {
+  // Restore sync methods
+  for (const [key, fn] of originalUncachedSync) {
+    safeRestoreMethod(fs, key, fn);
+  }
+  originalUncachedSync.clear();
+
+  // Restore promise methods
+  for (const [key, fn] of originalUncachedPromises) {
+    safeRestoreMethod(fs.promises, key, fn);
+  }
+  originalUncachedPromises.clear();
+}
+
+// ============================================================================
 // Patching functions
 // ============================================================================
 
@@ -944,6 +1191,7 @@ export function patchFs(): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fsAny = fs as any;
 
+  // Patch cached sync methods
   fsAny.readFileSync = cachedReadFileSync;
   fsAny.readdirSync = cachedReaddirSync;
   fsAny.existsSync = cachedExistsSync;
@@ -971,7 +1219,7 @@ export function patchFs(): void {
     configurable: true,
   });
 
-  // Patch fs.promises
+  // Patch cached promise methods
   fsAny.promises.readFile = cachedReadFile;
   fsAny.promises.readdir = cachedReaddir;
   fsAny.promises.stat = cachedStat;
@@ -979,6 +1227,9 @@ export function patchFs(): void {
   fsAny.promises.realpath = cachedRealpathPromise;
   fsAny.promises.access = cachedAccessPromise;
   fsAny.promises.opendir = cachedOpendirPromise;
+
+  // Patch all uncached methods for tracking
+  patchUncachedMethods();
 
   isPatched = true;
 }
@@ -994,6 +1245,7 @@ export function unpatchFs(): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fsAny = fs as any;
 
+  // Restore cached sync methods
   fsAny.readFileSync = originalFs.readFileSync;
   fsAny.readdirSync = originalFs.readdirSync;
   fsAny.existsSync = originalFs.existsSync;
@@ -1021,6 +1273,7 @@ export function unpatchFs(): void {
     configurable: true,
   });
 
+  // Restore cached promise methods
   fsAny.promises.readFile = originalFsPromises.readFile;
   fsAny.promises.readdir = originalFsPromises.readdir;
   fsAny.promises.stat = originalFsPromises.stat;
@@ -1028,6 +1281,9 @@ export function unpatchFs(): void {
   fsAny.promises.realpath = originalFsPromises.realpath;
   fsAny.promises.access = originalFsPromises.access;
   fsAny.promises.opendir = originalFsPromises.opendir;
+
+  // Restore all uncached methods
+  unpatchUncachedMethods();
 
   isPatched = false;
 }

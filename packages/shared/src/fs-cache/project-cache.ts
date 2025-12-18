@@ -22,6 +22,7 @@ import { finished } from 'node:stream/promises';
 import type {
   CacheStats,
   CacheOperationType,
+  CallerStats,
   FsNode,
   FsNodeStat,
   FsChildEntry,
@@ -61,6 +62,9 @@ export class ProjectFsCache {
 
   // Statistics
   private stats: CacheStats = createEmptyStats();
+
+  // Caller tracking
+  private callers = new Map<string, CallerStats>();
 
   private lastAccess: number = Date.now();
   private createdAt: number = Date.now();
@@ -344,9 +348,44 @@ export class ProjectFsCache {
   /**
    * Records a cache miss for statistics.
    */
-  recordMiss(operation: CacheOperationType): void {
+  recordMiss(operation: CacheOperationType, caller?: string): void {
     this.stats.misses++;
     this.stats.operations[operation].misses++;
+
+    // Track caller if provided
+    if (caller) {
+      this.trackCaller(caller, operation);
+    }
+  }
+
+  /**
+   * Records an uncached (passthrough) operation.
+   */
+  recordUncached(operation: string, caller?: string): void {
+    const current = this.stats.uncached.get(operation) ?? 0;
+    this.stats.uncached.set(operation, current + 1);
+
+    // Track caller if provided
+    if (caller) {
+      this.trackCaller(caller, operation);
+    }
+  }
+
+  /**
+   * Tracks a call from a specific caller.
+   */
+  private trackCaller(caller: string, operation: string): void {
+    let callerStats = this.callers.get(caller);
+    if (!callerStats) {
+      callerStats = {
+        calls: 0,
+        operations: new Map(),
+      };
+      this.callers.set(caller, callerStats);
+    }
+    callerStats.calls++;
+    const opCount = callerStats.operations.get(operation) ?? 0;
+    callerStats.operations.set(operation, opCount + 1);
   }
 
   /**
@@ -392,13 +431,20 @@ export class ProjectFsCache {
     }
   }
 
+  // Timing stats for last flush/load operation
+  lastFlushTiming?: { build: number; encode: number; gzip: number; write: number; total: number };
+  lastLoadTiming?: { read: number; gunzip: number; decode: number; total: number };
+
   /**
    * Flushes all memory cache data to disk.
    */
   async flushToDisk(): Promise<void> {
     const cacheFilePath = getCacheFilePath(this.cacheDir, this.projectId);
+    const timings = { build: 0, encode: 0, gzip: 0, write: 0, total: 0 };
+    const totalStart = performance.now();
 
     // Merge memory nodes into disk nodes
+    const buildStart = performance.now();
     for (const [key, node] of this.nodes) {
       this.diskNodes.set(key, node);
     }
@@ -462,18 +508,26 @@ export class ProjectFsCache {
       lastModified: Date.now(),
       nodes: nodeEntries,
     };
+    timings.build = performance.now() - buildStart;
 
     // Ensure cache directory exists
     await fs.promises.mkdir(path.dirname(cacheFilePath), { recursive: true });
 
-    // Stream: encode → gzip → file
-    // This avoids holding both uncompressed and compressed buffers in memory
+    // Encode to protobuf
+    const encodeStart = performance.now();
     const buffer = fscache.FsCacheData.encode(cacheData).finish();
+    timings.encode = performance.now() - encodeStart;
+
+    // Gzip and write
+    const gzipStart = performance.now();
     const gzip = createGzip();
     gzip.pipe(fs.createWriteStream(cacheFilePath));
     gzip.end(buffer);
     await finished(gzip);
+    timings.gzip = performance.now() - gzipStart;
 
+    timings.total = performance.now() - totalStart;
+    this.lastFlushTiming = timings;
     this.stats.diskWrites++;
 
     // Clear memory cache (data is now on disk)
@@ -486,9 +540,18 @@ export class ProjectFsCache {
   async loadFromDisk(): Promise<boolean> {
     const cacheFilePath = getCacheFilePath(this.cacheDir, this.projectId);
 
+    // Check if file exists first (stream errors are async and hard to catch)
+    if (!fs.existsSync(cacheFilePath)) {
+      return false;
+    }
+
+    const timings = { read: 0, gunzip: 0, decode: 0, total: 0 };
+    const totalStart = performance.now();
+
     try {
       // Stream: file → gunzip → collect chunks (using async iteration)
       // This avoids holding both compressed and uncompressed buffers in memory
+      const gunzipStart = performance.now();
       const gunzip = createGunzip();
       fs.createReadStream(cacheFilePath).pipe(gunzip);
 
@@ -497,7 +560,9 @@ export class ProjectFsCache {
         chunks.push(chunk as Buffer);
       }
       const buffer = Buffer.concat(chunks);
+      timings.gunzip = performance.now() - gunzipStart;
 
+      const decodeStart = performance.now();
       const cacheData = fscache.FsCacheData.decode(buffer);
 
       // Load nodes
@@ -554,9 +619,13 @@ export class ProjectFsCache {
 
         this.diskNodes.set(entry.path, node);
       }
+      timings.decode = performance.now() - decodeStart;
 
       this.createdAt = Number(cacheData.createdAt || Date.now());
       this.stats.diskReads++;
+
+      timings.total = performance.now() - totalStart;
+      this.lastLoadTiming = timings;
 
       return true;
     } catch {
@@ -604,8 +673,11 @@ export class ProjectFsCache {
       baseDir: this.baseDir,
       memorySize: this.getMemorySize(),
       diskSize,
-      nodeCount: this.nodes.size + this.diskNodes.size,
+      nodeCount: this.nodes.size,
+      diskNodeCount: this.diskNodes.size,
       lastAccess: this.lastAccess,
+      lastFlushTiming: this.lastFlushTiming,
+      lastLoadTiming: this.lastLoadTiming,
     };
   }
 
@@ -613,7 +685,10 @@ export class ProjectFsCache {
    * Gets cache statistics.
    */
   getStats(): CacheStats {
-    return { ...this.stats };
+    return {
+      ...this.stats,
+      callers: this.callers.size > 0 ? new Map(this.callers) : undefined,
+    };
   }
 
   /**

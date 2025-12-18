@@ -51,6 +51,7 @@ export type {
   FsCacheConfig,
   ProjectCacheInfo,
   CacheStats,
+  CallerStats,
   FsNode,
   FsNodeStat,
   FsChildEntry,
@@ -60,13 +61,14 @@ export { DEFAULT_CONFIG, createEmptyStats } from './cache-types.js';
 
 // Re-export classes
 export { FsCacheManager, getFsCacheManager, resetFsCacheManager } from './cache-manager.js';
-export { ProjectFsCache, CacheLookupResult } from './project-cache.js';
+export { ProjectFsCache } from './project-cache.js';
+export type { CacheLookupResult } from './project-cache.js';
 
 // Re-export patching functions
 export { patchFs, unpatchFs, getOriginalFs, isFsPatched } from './fs-patch.js';
 
 // Import for internal use
-import type { FsCacheConfig, CacheStats } from './cache-types.js';
+import type { FsCacheConfig, CacheStats, ProjectCacheInfo } from './cache-types.js';
 import { getFsCacheManager, resetFsCacheManager } from './cache-manager.js';
 import { patchFs, unpatchFs, isFsPatched } from './fs-patch.js';
 import type { ProjectFsCache } from './project-cache.js';
@@ -173,6 +175,19 @@ export function getFsCacheStats(projectId?: string): CacheStats | null {
     ? getFsCacheManager().getProjectCache(projectId)
     : getFsCacheManager().getActiveCache();
   return cache?.getStats() ?? null;
+}
+
+/**
+ * Gets cache info for a project or the active project.
+ *
+ * @param projectId Optional project identifier (uses active project if not provided)
+ * @returns Cache info or null if no cache found
+ */
+export function getProjectCacheInfo(projectId?: string): ProjectCacheInfo | null {
+  const cache = projectId
+    ? getFsCacheManager().getProjectCache(projectId)
+    : getFsCacheManager().getActiveCache();
+  return cache?.getInfo() ?? null;
 }
 
 /**
