@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import type { Stats, StatOptions, StatSyncOptions, Dirent, Dir } from 'node:fs';
 import { getFsCacheManager } from './cache-manager.js';
 import type { FsChildEntry, FsNodeStat } from './cache-types.js';
+import { isUnderBaseDir, toRelativeCachePath } from './cache-utils.js';
 
 // Methods that we cache (these have custom implementations)
 const CACHED_SYNC_METHODS = new Set([
@@ -381,8 +382,14 @@ function cachedReadFileSync(
     return originalFs.readFileSync(path, options as BufferEncoding);
   }
 
+  // Only cache files under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.readFileSync(path, options as BufferEncoding);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   const encoding = typeof options === 'string' ? options : options?.encoding;
-  const cached = cache.getFileContent(path);
+  const cached = cache.getFileContent(relativePath);
 
   if (cached) {
     if (!cached.exists) {
@@ -408,7 +415,7 @@ function cachedReadFileSync(
     ) {
       console.log(`[readFileSync] ${path}`);
     }
-    cache.setFileContent(path, buffer);
+    cache.setFileContent(relativePath, buffer);
     // Return with encoding if requested
     if (encoding) {
       return buffer.toString(encoding);
@@ -416,7 +423,7 @@ function cachedReadFileSync(
     return buffer;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setFileNotExists(path);
+      cache.setFileNotExists(relativePath);
     }
     throw err;
   }
@@ -446,8 +453,14 @@ function cachedReaddirSync(
     return originalFs.readdirSync(path, options as BufferEncoding) as string[];
   }
 
+  // Only cache directories under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.readdirSync(path, options as BufferEncoding) as string[];
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   const withFileTypes = opts?.withFileTypes ?? false;
-  const cached = cache.getDirEntries(path, withFileTypes);
+  const cached = cache.getDirEntries(relativePath, withFileTypes);
 
   if (cached) {
     if (!cached.exists) {
@@ -466,19 +479,19 @@ function cachedReaddirSync(
   try {
     if (withFileTypes) {
       const entries = originalFs.readdirSync(path, { ...opts, withFileTypes: true }) as Dirent[];
-      cache.setDirEntries(path, entries.map(direntToChildEntry));
+      cache.setDirEntries(relativePath, entries.map(direntToChildEntry));
       return entries;
     } else {
       const entries = originalFs.readdirSync(path, options as BufferEncoding) as string[];
       cache.setDirEntries(
-        path,
+        relativePath,
         entries.map(name => ({ name })),
       );
       return entries;
     }
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -494,7 +507,13 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
     return originalFs.statSync(path, options);
   }
 
-  const cached = cache.getStatEntry(path);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.statSync(path, options);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getStatEntry(relativePath);
   if (cached) {
     if (!cached.exists) {
       if (options?.throwIfNoEntry === false) {
@@ -512,15 +531,15 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
   try {
     const stats = originalFs.statSync(path, options) as Stats | undefined;
     if (stats) {
-      cache.setStatEntry(path, extractStatsData(stats));
+      cache.setStatEntry(relativePath, extractStatsData(stats));
     } else if (options?.throwIfNoEntry === false) {
       // statSync returned undefined = file doesn't exist
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     return stats;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -536,8 +555,14 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
     return originalFs.lstatSync(path, options);
   }
 
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.lstatSync(path, options);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   // Use lstat: prefix to distinguish from stat
-  const cacheKey = `lstat:${path}`;
+  const cacheKey = `lstat:${relativePath}`;
   const cached = cache.getStatEntry(cacheKey);
   if (cached) {
     if (!cached.exists) {
@@ -559,12 +584,12 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
       cache.setStatEntry(cacheKey, extractStatsData(stats));
     } else if (options?.throwIfNoEntry === false) {
       // lstatSync returned undefined = file doesn't exist
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     return stats;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -580,7 +605,13 @@ function cachedExistsSync(path: fs.PathLike): boolean {
     return originalFs.existsSync(path);
   }
 
-  const cached = cache.getExists(path);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.existsSync(path);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getExists(relativePath);
   if (cached !== undefined) {
     return cached;
   }
@@ -588,7 +619,7 @@ function cachedExistsSync(path: fs.PathLike): boolean {
   // Cache miss
   cache.recordMiss('exists', getCallerFromStack());
   const exists = originalFs.existsSync(path);
-  cache.setExists(path, exists);
+  cache.setExists(relativePath, exists);
   return exists;
 }
 
@@ -610,13 +641,20 @@ function cachedRealpathSync(
     return originalFs.realpathSync(path, options as BufferEncoding);
   }
 
-  const cached = cache.getRealpath(path, false);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.realpathSync(path, options as BufferEncoding);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getRealpath(relativePath, false);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      return cached.value;
+      // Cached value is relative, convert back to absolute
+      return cache.baseDir + '/' + cached.value;
     }
   }
 
@@ -624,11 +662,15 @@ function cachedRealpathSync(
   cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSync(path, options as BufferEncoding) as string;
-    cache.setRealpath(path, resolvedPath, false);
+    // Store relative path if result is under baseDir
+    if (isUnderBaseDir(resolvedPath, cache.baseDir)) {
+      const relativeResolved = toRelativeCachePath(resolvedPath, cache.baseDir);
+      cache.setRealpath(relativePath, relativeResolved, false);
+    }
     return resolvedPath;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -652,13 +694,20 @@ function cachedRealpathSyncNative(
     return originalFs.realpathSyncNative(path, options as BufferEncoding);
   }
 
-  const cached = cache.getRealpath(path, true);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.realpathSyncNative(path, options as BufferEncoding);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getRealpath(relativePath, true);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      return cached.value;
+      // Cached value is relative, convert back to absolute
+      return cache.baseDir + '/' + cached.value;
     }
   }
 
@@ -666,11 +715,15 @@ function cachedRealpathSyncNative(
   cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSyncNative(path, options as BufferEncoding) as string;
-    cache.setRealpath(path, resolvedPath, true);
+    // Store relative path if result is under baseDir
+    if (isUnderBaseDir(resolvedPath, cache.baseDir)) {
+      const relativeResolved = toRelativeCachePath(resolvedPath, cache.baseDir);
+      cache.setRealpath(relativePath, relativeResolved, true);
+    }
     return resolvedPath;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -688,7 +741,13 @@ function cachedAccessSync(path: fs.PathLike, mode?: number): void {
     return originalFs.accessSync(path, accessMode);
   }
 
-  const cached = cache.getAccess(path, accessMode);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.accessSync(path, accessMode);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getAccess(relativePath, accessMode);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('access', path);
@@ -712,13 +771,13 @@ function cachedAccessSync(path: fs.PathLike, mode?: number): void {
   cache.recordMiss('access', getCallerFromStack());
   try {
     originalFs.accessSync(path, accessMode);
-    cache.setAccess(path, accessMode, true);
+    cache.setAccess(relativePath, accessMode, true);
   } catch (err) {
     const errCode = (err as NodeJS.ErrnoException).code;
     if (errCode === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     } else if (errCode === 'EACCES') {
-      cache.setAccess(path, accessMode, false);
+      cache.setAccess(relativePath, accessMode, false);
     }
     throw err;
   }
@@ -734,8 +793,14 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
     return originalFs.opendirSync(path, options);
   }
 
+  // Only cache directories under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.opendirSync(path, options);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   // Check if we have cached children with type info
-  const cached = cache.getDirEntries(path, true);
+  const cached = cache.getDirEntries(relativePath, true);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('opendir', path);
@@ -758,11 +823,11 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
     }
     dir.closeSync();
 
-    cache.setDirEntries(path, entries);
+    cache.setDirEntries(relativePath, entries);
     return new CachedDir(path, entries);
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -792,8 +857,14 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
     return originalFs.openSync(path, flags, mode);
   }
 
+  // Only cache files under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFs.openSync(path, flags, mode);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   // Check if we have cached content FIRST (enables offline mode)
-  const cached = cache.getFileContent(path);
+  const cached = cache.getFileContent(relativePath);
 
   if (cached) {
     if (!cached.exists) {
@@ -807,7 +878,7 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
         if (DEBUG_FD) {
           console.log(`[FD] openSync: ${path} (cache: HIT, fd=${realFd})`);
         }
-        trackFd(realFd, path, true); // real fd
+        trackFd(realFd, relativePath, true); // real fd, store relative path
         return realFd;
       } catch {
         // File doesn't exist on disk but we have cached content - use fake fd (offline mode)
@@ -815,7 +886,7 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
         if (DEBUG_FD) {
           console.log(`[FD] openSync: ${path} (cache: HIT, offline fakeFd=${fakeFd})`);
         }
-        trackFd(fakeFd, path, false); // fake fd
+        trackFd(fakeFd, relativePath, false); // fake fd, store relative path
         return fakeFd;
       }
     }
@@ -843,13 +914,13 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
       bytesRead += result;
     }
     const content = bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead);
-    cache.setFileContent(path, content);
-    trackFd(realFd, path, true); // real fd
+    cache.setFileContent(relativePath, content);
+    trackFd(realFd, relativePath, true); // real fd, store relative path
     return realFd;
   } catch (err) {
     originalFs.closeSync(realFd);
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setFileNotExists(path);
+      cache.setFileNotExists(relativePath);
     }
     throw err;
   }
@@ -1162,8 +1233,14 @@ async function cachedReadFile(
     return originalFsPromises.readFile(path, options as BufferEncoding);
   }
 
+  // Only cache files under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.readFile(path, options as BufferEncoding);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   const encoding = typeof options === 'string' ? options : options?.encoding;
-  const cached = cache.getFileContent(path);
+  const cached = cache.getFileContent(relativePath);
 
   if (cached) {
     if (!cached.exists) {
@@ -1183,7 +1260,7 @@ async function cachedReadFile(
   cache.recordMiss('readFile', getCallerFromStack());
   try {
     const buffer = await originalFsPromises.readFile(path);
-    cache.setFileContent(path, buffer);
+    cache.setFileContent(relativePath, buffer);
     // Return with encoding if requested
     if (encoding) {
       return buffer.toString(encoding);
@@ -1191,7 +1268,7 @@ async function cachedReadFile(
     return buffer;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setFileNotExists(path);
+      cache.setFileNotExists(relativePath);
     }
     throw err;
   }
@@ -1220,8 +1297,14 @@ async function cachedReaddir(
     return originalFsPromises.readdir(path, options as BufferEncoding) as Promise<string[]>;
   }
 
+  // Only cache directories under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.readdir(path, options as BufferEncoding) as Promise<string[]>;
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   const withFileTypes = opts?.withFileTypes ?? false;
-  const cached = cache.getDirEntries(path, withFileTypes);
+  const cached = cache.getDirEntries(relativePath, withFileTypes);
 
   if (cached) {
     if (!cached.exists) {
@@ -1243,7 +1326,7 @@ async function cachedReaddir(
         ...opts,
         withFileTypes: true,
       })) as Dirent[];
-      cache.setDirEntries(path, entries.map(direntToChildEntry));
+      cache.setDirEntries(relativePath, entries.map(direntToChildEntry));
       return entries;
     } else {
       const entries = (await originalFsPromises.readdir(
@@ -1251,14 +1334,14 @@ async function cachedReaddir(
         options as BufferEncoding,
       )) as string[];
       cache.setDirEntries(
-        path,
+        relativePath,
         entries.map(name => ({ name })),
       );
       return entries;
     }
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -1274,7 +1357,13 @@ async function cachedStat(path: fs.PathLike, options?: StatOptions): Promise<Sta
     return originalFsPromises.stat(path, options) as Promise<Stats>;
   }
 
-  const cached = cache.getStatEntry(path);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.stat(path, options) as Promise<Stats>;
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getStatEntry(relativePath);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('stat', path);
@@ -1288,11 +1377,11 @@ async function cachedStat(path: fs.PathLike, options?: StatOptions): Promise<Sta
   cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = (await originalFsPromises.stat(path, options)) as Stats;
-    cache.setStatEntry(path, extractStatsData(stats));
+    cache.setStatEntry(relativePath, extractStatsData(stats));
     return stats;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -1308,7 +1397,13 @@ async function cachedLstat(path: fs.PathLike, options?: StatOptions): Promise<St
     return originalFsPromises.lstat(path, options) as Promise<Stats>;
   }
 
-  const cacheKey = `lstat:${path}`;
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.lstat(path, options) as Promise<Stats>;
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cacheKey = `lstat:${relativePath}`;
   const cached = cache.getStatEntry(cacheKey);
   if (cached) {
     if (!cached.exists) {
@@ -1327,7 +1422,7 @@ async function cachedLstat(path: fs.PathLike, options?: StatOptions): Promise<St
     return stats;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -1351,13 +1446,20 @@ async function cachedRealpathPromise(
     return originalFsPromises.realpath(path, options as BufferEncoding);
   }
 
-  const cached = cache.getRealpath(path, false);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.realpath(path, options as BufferEncoding);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getRealpath(relativePath, false);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      return cached.value;
+      // Cached value is relative, convert back to absolute
+      return cache.baseDir + '/' + cached.value;
     }
   }
 
@@ -1368,11 +1470,15 @@ async function cachedRealpathPromise(
       path,
       options as BufferEncoding,
     )) as string;
-    cache.setRealpath(path, resolvedPath, false);
+    // Store relative path if result is under baseDir
+    if (isUnderBaseDir(resolvedPath, cache.baseDir)) {
+      const relativeResolved = toRelativeCachePath(resolvedPath, cache.baseDir);
+      cache.setRealpath(relativePath, relativeResolved, false);
+    }
     return resolvedPath;
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
@@ -1390,7 +1496,13 @@ async function cachedAccessPromise(path: fs.PathLike, mode?: number): Promise<vo
     return originalFsPromises.access(path, accessMode);
   }
 
-  const cached = cache.getAccess(path, accessMode);
+  // Only cache paths under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.access(path, accessMode);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
+  const cached = cache.getAccess(relativePath, accessMode);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('access', path);
@@ -1414,13 +1526,13 @@ async function cachedAccessPromise(path: fs.PathLike, mode?: number): Promise<vo
   cache.recordMiss('access', getCallerFromStack());
   try {
     await originalFsPromises.access(path, accessMode);
-    cache.setAccess(path, accessMode, true);
+    cache.setAccess(relativePath, accessMode, true);
   } catch (err) {
     const errCode = (err as NodeJS.ErrnoException).code;
     if (errCode === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     } else if (errCode === 'EACCES') {
-      cache.setAccess(path, accessMode, false);
+      cache.setAccess(relativePath, accessMode, false);
     }
     throw err;
   }
@@ -1436,8 +1548,14 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
     return originalFsPromises.opendir(path, options);
   }
 
+  // Only cache directories under baseDir
+  if (!isUnderBaseDir(path, cache.baseDir)) {
+    return originalFsPromises.opendir(path, options);
+  }
+
+  const relativePath = toRelativeCachePath(path, cache.baseDir);
   // Check if we have cached children with type info
-  const cached = cache.getDirEntries(path, true);
+  const cached = cache.getDirEntries(relativePath, true);
   if (cached) {
     if (!cached.exists) {
       throw createEnoentError('opendir', path);
@@ -1458,11 +1576,11 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
       entries.push(direntToChildEntry(dirent));
     }
 
-    cache.setDirEntries(path, entries);
+    cache.setDirEntries(relativePath, entries);
     return new CachedDir(path, entries);
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      cache.setExists(path, false);
+      cache.setExists(relativePath, false);
     }
     throw err;
   }
