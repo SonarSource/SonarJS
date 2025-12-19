@@ -1,0 +1,42 @@
+syntax = "proto3";
+package fscache;
+
+message FsCacheData {
+  string project_id = 1;
+  int64 created_at = 2;
+  int64 last_modified = 3;
+  repeated FsNodeEntry nodes = 4;
+}
+
+message FsNodeEntry {
+  string path = 1;
+  bool exists = 2;
+  int64 timestamp = 3;
+  string type = 4;  // 'file', 'directory', 'symlink'
+  bytes content = 5;
+  string encoding = 6;
+  FsNodeStat stat = 7;
+  repeated FsChildEntry children = 8;
+  string resolved_path = 9;
+  string resolved_path_native = 10;
+  repeated AccessMode access_modes = 11;
+}
+
+message FsNodeStat {
+  int64 size = 1;
+  int64 mtime_ms = 2;
+  int32 mode = 3;
+  bool is_file = 4;
+  bool is_directory = 5;
+  bool is_symbolic_link = 6;
+}
+
+message FsChildEntry {
+  string name = 1;
+  string type = 2;  // 'file', 'directory', 'symlink'
+}
+
+message AccessMode {
+  int32 mode = 1;
+  bool accessible = 2;
+}
