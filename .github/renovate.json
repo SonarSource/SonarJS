@@ -38,6 +38,11 @@
       "matchUpdateTypes": ["minor", "patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": false
+    },
+    {
+      "description": "Disable @typescript/native-preview - dev builds update too frequently",
+      "matchPackageNames": ["@typescript/native-preview"],
+      "enabled": false
     }
   ],
   "hostRules": [
