@@ -48,14 +48,17 @@ const fsCacheDir = join(currentPath, 'caches');
 // FS_CACHE=0 or FS_CACHE=false: disable fs caching entirely (baseline mode)
 // FS_CACHE=cold: enable caching but don't load existing cache (cold start)
 // FS_CACHE=1 or unset: enable caching with warm start (default)
+// FS_CACHE_STATS=1: enable detailed stats tracking (caller tracking, hit/miss per operation)
 //
 // Usage examples:
-//   FS_CACHE=0 npx tsx --test ...     # baseline - no caching
-//   FS_CACHE=cold npx tsx --test ...  # cold start - caching enabled, no cache load
-//   npx tsx --test ...                # warm start - caching enabled, load cache
+//   FS_CACHE=0 npx tsx --test ...              # baseline - no caching
+//   FS_CACHE=cold npx tsx --test ...           # cold start - caching enabled, no cache load
+//   FS_CACHE_STATS=1 npx tsx --test ...        # with detailed stats (performance overhead)
+//   npx tsx --test ...                         # warm start - caching enabled, load cache
 const fsCacheEnv = process.env.FS_CACHE?.toLowerCase() ?? '1';
 const FS_CACHE_ENABLED = fsCacheEnv !== '0' && fsCacheEnv !== 'false';
 const COLD_CACHE = fsCacheEnv === 'cold';
+const STATS_ENABLED = process.env.FS_CACHE_STATS === '1';
 
 // Initialize fs-cache if enabled
 if (FS_CACHE_ENABLED) {
@@ -153,10 +156,14 @@ export async function testProject(projectName: string) {
 
   // Print fs-cache stats and save cache (if enabled)
   if (FS_CACHE_ENABLED) {
-    const stats = getFsCacheStats();
-    if (stats) {
-      printCacheStats(name, stats, analysisTime);
+    // Only print detailed stats if FS_CACHE_STATS=1 (has performance overhead)
+    if (STATS_ENABLED) {
+      const stats = getFsCacheStats();
+      if (stats) {
+        printCacheStats(name, stats, analysisTime);
+      }
     }
+
     const finalInfo = getProjectCacheInfo();
 
     const saveStart = performance.now();

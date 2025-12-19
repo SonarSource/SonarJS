@@ -16,10 +16,15 @@
  */
 
 import fs from 'node:fs';
+import path from 'node:path';
 import type { Stats, StatOptions, StatSyncOptions, Dirent, Dir } from 'node:fs';
 import { getFsCacheManager } from './cache-manager.js';
 import type { FsChildEntry, FsNodeStat } from './cache-types.js';
 import { isUnderBaseDir, toRelativeCachePath } from './cache-utils.js';
+
+// Enable detailed stats tracking (caller tracking, hit/miss per operation)
+// This has performance overhead due to stack trace analysis on every fs call
+const STATS_ENABLED = process.env.FS_CACHE_STATS === '1';
 
 // Methods that we cache (these have custom implementations)
 const CACHED_SYNC_METHODS = new Set([
@@ -384,7 +389,7 @@ function cachedReadFileSync(
 
   // Only cache files under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
-    cache.recordExternal('readFile', getCallerFromStack());
+    STATS_ENABLED && cache.recordExternal('readFile', getCallerFromStack());
     return originalFs.readFileSync(path, options as BufferEncoding);
   }
 
@@ -407,7 +412,7 @@ function cachedReadFileSync(
   }
 
   // Cache miss - read from disk as Buffer (always cache raw bytes)
-  cache.recordMiss('readFile', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('readFile', getCallerFromStack());
   try {
     const buffer = originalFs.readFileSync(path);
     if (
@@ -456,7 +461,7 @@ function cachedReaddirSync(
 
   // Only cache directories under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
-    cache.recordExternal('readdir', getCallerFromStack());
+    STATS_ENABLED && cache.recordExternal('readdir', getCallerFromStack());
     return originalFs.readdirSync(path, options as BufferEncoding) as string[];
   }
 
@@ -477,7 +482,7 @@ function cachedReaddirSync(
   }
 
   // Cache miss - read from disk
-  cache.recordMiss('readdir', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('readdir', getCallerFromStack());
   try {
     if (withFileTypes) {
       const entries = originalFs.readdirSync(path, { ...opts, withFileTypes: true }) as Dirent[];
@@ -511,7 +516,7 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
-    cache.recordExternal('stat', getCallerFromStack());
+    STATS_ENABLED && cache.recordExternal('stat', getCallerFromStack());
     return originalFs.statSync(path, options);
   }
 
@@ -530,7 +535,7 @@ function cachedStatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | u
   }
 
   // Cache miss
-  cache.recordMiss('stat', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = originalFs.statSync(path, options) as Stats | undefined;
     if (stats) {
@@ -560,7 +565,7 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
-    cache.recordExternal('lstat', getCallerFromStack());
+    STATS_ENABLED && cache.recordExternal('lstat', getCallerFromStack());
     return originalFs.lstatSync(path, options);
   }
 
@@ -581,7 +586,7 @@ function cachedLstatSync(path: fs.PathLike, options?: StatSyncOptions): Stats | 
   }
 
   // Cache miss
-  cache.recordMiss('stat', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = originalFs.lstatSync(path, options) as Stats | undefined;
     if (stats) {
@@ -611,7 +616,7 @@ function cachedExistsSync(path: fs.PathLike): boolean {
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
-    cache.recordExternal('exists', getCallerFromStack());
+    STATS_ENABLED && cache.recordExternal('exists', getCallerFromStack());
     return originalFs.existsSync(path);
   }
 
@@ -622,7 +627,7 @@ function cachedExistsSync(path: fs.PathLike): boolean {
   }
 
   // Cache miss
-  cache.recordMiss('exists', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('exists', getCallerFromStack());
   const exists = originalFs.existsSync(path);
   cache.setExists(relativePath, exists);
   return exists;
@@ -648,6 +653,7 @@ function cachedRealpathSync(
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('realpath', getCallerFromStack());
     return originalFs.realpathSync(path, options as BufferEncoding);
   }
 
@@ -658,13 +664,14 @@ function cachedRealpathSync(
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      // Cached value is relative, convert back to absolute
+      // Cached value is relative, convert back to absolute.
+      // Note: Returns Unix-style path (forward slashes) for consistency with baseDir.
       return cache.baseDir + '/' + cached.value;
     }
   }
 
   // Cache miss
-  cache.recordMiss('realpath', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSync(path, options as BufferEncoding) as string;
     // Store relative path if result is under baseDir
@@ -701,6 +708,7 @@ function cachedRealpathSyncNative(
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('realpath', getCallerFromStack());
     return originalFs.realpathSyncNative(path, options as BufferEncoding);
   }
 
@@ -711,13 +719,14 @@ function cachedRealpathSyncNative(
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      // Cached value is relative, convert back to absolute
+      // Cached value is relative, convert back to absolute.
+      // Note: Returns Unix-style path (forward slashes) for consistency with baseDir.
       return cache.baseDir + '/' + cached.value;
     }
   }
 
   // Cache miss
-  cache.recordMiss('realpath', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = originalFs.realpathSyncNative(path, options as BufferEncoding) as string;
     // Store relative path if result is under baseDir
@@ -748,6 +757,7 @@ function cachedAccessSync(path: fs.PathLike, mode?: number): void {
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('access', getCallerFromStack());
     return originalFs.accessSync(path, accessMode);
   }
 
@@ -773,7 +783,7 @@ function cachedAccessSync(path: fs.PathLike, mode?: number): void {
   }
 
   // Cache miss
-  cache.recordMiss('access', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('access', getCallerFromStack());
   try {
     originalFs.accessSync(path, accessMode);
     cache.setAccess(relativePath, accessMode, true);
@@ -800,6 +810,7 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
 
   // Only cache directories under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('opendir', getCallerFromStack());
     return originalFs.opendirSync(path, options);
   }
 
@@ -816,7 +827,7 @@ function cachedOpendirSync(path: fs.PathLike, options?: fs.OpenDirOptions): Dir 
   }
 
   // Cache miss - read from disk and cache
-  cache.recordMiss('opendir', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('opendir', getCallerFromStack());
   try {
     const dir = originalFs.opendirSync(path, options);
     const entries: FsChildEntry[] = [];
@@ -877,7 +888,7 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
     }
     if (cached.value) {
       // Cache hit - try to open real fd, but fall back to fake fd for offline mode
-      cache.recordHit('readFile', getCallerFromStack());
+      STATS_ENABLED && cache.recordHit('readFile', getCallerFromStack());
       try {
         const realFd = originalFs.openSync(path, flags, mode);
         if (DEBUG_FD) {
@@ -898,7 +909,7 @@ function cachedOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode | 
   }
 
   // Cache miss - must read from real filesystem
-  cache.recordMiss('readFile', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('readFile', getCallerFromStack());
   const realFd = originalFs.openSync(path, flags, mode);
   if (DEBUG_FD) {
     console.log(`[FD] openSync: ${path} (cache: MISS, fd=${realFd})`);
@@ -1092,7 +1103,7 @@ function compareOpenSync(path: fs.PathLike, flags: fs.OpenMode, mode?: fs.Mode |
             }
             const content = bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead);
             cache.setFileContent(path, content);
-            cache.recordMiss('readFile', getCallerFromStack());
+            STATS_ENABLED && cache.recordMiss('readFile', getCallerFromStack());
             console.log(`[FD-CMP] openSync MISS: ${path} (cached ${content.length} bytes)`);
           } catch (e) {
             console.log(`[FD-CMP] openSync ERROR caching: ${path}: ${e}`);
@@ -1240,6 +1251,7 @@ async function cachedReadFile(
 
   // Only cache files under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('readFile', getCallerFromStack());
     return originalFsPromises.readFile(path, options as BufferEncoding);
   }
 
@@ -1262,7 +1274,7 @@ async function cachedReadFile(
   }
 
   // Cache miss - read from disk as Buffer (always cache raw bytes)
-  cache.recordMiss('readFile', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('readFile', getCallerFromStack());
   try {
     const buffer = await originalFsPromises.readFile(path);
     cache.setFileContent(relativePath, buffer);
@@ -1304,6 +1316,7 @@ async function cachedReaddir(
 
   // Only cache directories under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('readdir', getCallerFromStack());
     return originalFsPromises.readdir(path, options as BufferEncoding) as Promise<string[]>;
   }
 
@@ -1324,7 +1337,7 @@ async function cachedReaddir(
   }
 
   // Cache miss
-  cache.recordMiss('readdir', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('readdir', getCallerFromStack());
   try {
     if (withFileTypes) {
       const entries = (await originalFsPromises.readdir(path, {
@@ -1364,6 +1377,7 @@ async function cachedStat(path: fs.PathLike, options?: StatOptions): Promise<Sta
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('stat', getCallerFromStack());
     return originalFsPromises.stat(path, options) as Promise<Stats>;
   }
 
@@ -1379,7 +1393,7 @@ async function cachedStat(path: fs.PathLike, options?: StatOptions): Promise<Sta
   }
 
   // Cache miss
-  cache.recordMiss('stat', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = (await originalFsPromises.stat(path, options)) as Stats;
     cache.setStatEntry(relativePath, extractStatsData(stats));
@@ -1404,6 +1418,7 @@ async function cachedLstat(path: fs.PathLike, options?: StatOptions): Promise<St
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('lstat', getCallerFromStack());
     return originalFsPromises.lstat(path, options) as Promise<Stats>;
   }
 
@@ -1420,7 +1435,7 @@ async function cachedLstat(path: fs.PathLike, options?: StatOptions): Promise<St
   }
 
   // Cache miss
-  cache.recordMiss('stat', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('stat', getCallerFromStack());
   try {
     const stats = (await originalFsPromises.lstat(path, options)) as Stats;
     cache.setStatEntry(cacheKey, extractStatsData(stats));
@@ -1453,6 +1468,7 @@ async function cachedRealpathPromise(
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('realpath', getCallerFromStack());
     return originalFsPromises.realpath(path, options as BufferEncoding);
   }
 
@@ -1463,13 +1479,14 @@ async function cachedRealpathPromise(
       throw createEnoentError('realpath', path);
     }
     if (cached.value) {
-      // Cached value is relative, convert back to absolute
+      // Cached value is relative, convert back to absolute.
+      // Note: Returns Unix-style path (forward slashes) for consistency with baseDir.
       return cache.baseDir + '/' + cached.value;
     }
   }
 
   // Cache miss
-  cache.recordMiss('realpath', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('realpath', getCallerFromStack());
   try {
     const resolvedPath = (await originalFsPromises.realpath(
       path,
@@ -1503,6 +1520,7 @@ async function cachedAccessPromise(path: fs.PathLike, mode?: number): Promise<vo
 
   // Only cache paths under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('access', getCallerFromStack());
     return originalFsPromises.access(path, accessMode);
   }
 
@@ -1528,7 +1546,7 @@ async function cachedAccessPromise(path: fs.PathLike, mode?: number): Promise<vo
   }
 
   // Cache miss
-  cache.recordMiss('access', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('access', getCallerFromStack());
   try {
     await originalFsPromises.access(path, accessMode);
     cache.setAccess(relativePath, accessMode, true);
@@ -1555,6 +1573,7 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
 
   // Only cache directories under baseDir
   if (!isUnderBaseDir(path, cache.baseDir)) {
+    STATS_ENABLED && cache.recordExternal('opendir', getCallerFromStack());
     return originalFsPromises.opendir(path, options);
   }
 
@@ -1571,7 +1590,7 @@ async function cachedOpendirPromise(path: fs.PathLike, options?: fs.OpenDirOptio
   }
 
   // Cache miss - read from disk and cache
-  cache.recordMiss('opendir', getCallerFromStack());
+  STATS_ENABLED && cache.recordMiss('opendir', getCallerFromStack());
   try {
     const dir = await originalFsPromises.opendir(path, options);
     const entries: FsChildEntry[] = [];
@@ -1613,7 +1632,7 @@ function createTrackingWrapper(
     return async function (...args: unknown[]) {
       const cache = getFsCacheManager().getActiveCache();
       if (cache) {
-        cache.recordUncached(methodName, getCallerFromStack());
+        STATS_ENABLED && cache.recordUncached(methodName, getCallerFromStack());
       }
       return originalFn.apply(this, args);
     };
@@ -1621,7 +1640,7 @@ function createTrackingWrapper(
     return function (...args: unknown[]) {
       const cache = getFsCacheManager().getActiveCache();
       if (cache) {
-        cache.recordUncached(methodName, getCallerFromStack());
+        STATS_ENABLED && cache.recordUncached(methodName, getCallerFromStack());
       }
       // Debug: log openSync calls
       if (DEBUG_FD && methodName === 'openSync' && typeof args[0] === 'string') {

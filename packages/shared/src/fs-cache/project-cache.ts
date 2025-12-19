@@ -71,7 +71,8 @@ export class ProjectFsCache {
 
   constructor(projectId: string, baseDir: string, cacheDir: string, memoryThreshold: number) {
     this.projectId = projectId;
-    this.baseDir = baseDir;
+    // Normalize baseDir to Unix-style path for consistent path handling
+    this.baseDir = normalizeCachePath(baseDir);
     this.cacheDir = cacheDir;
     this.memoryThreshold = memoryThreshold;
   }
