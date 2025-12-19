@@ -244,6 +244,20 @@ describe('S2189', () => {
         }
       }`,
         },
+        // JS-131: Ruling insights - while loop with local boolean check and break exit (paper.js pattern)
+        {
+          code: `
+      function tracePath(segments) {
+        var valid = true;
+        while (valid) {
+          var seg = segments.shift();
+          if (!seg) {
+            break;
+          }
+          process(seg);
+        }
+      }`,
+        },
       ],
       invalid: [
         {
