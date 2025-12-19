@@ -356,6 +356,22 @@ describe('S2189', () => {
             `,
           errors: 1,
         },
+        // JS-131: Ruling insight - compound condition where only one part is modified should raise on unmodified part
+        {
+          code: `
+      function processBlock(ordinary) {
+        var indent = 0;
+        while (!ordinary && shouldContinue(indent)) {
+          indent += 1;
+        }
+      }
+            `,
+          errors: [
+            {
+              message: "'ordinary' is not modified in this loop.",
+            },
+          ],
+        },
       ],
     });
   });
