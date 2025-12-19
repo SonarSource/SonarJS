@@ -193,9 +193,10 @@ class PRAnalysisTest {
 
   @BeforeAll
   static void startOrchestrator() {
+    var version = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .setSonarVersion(version)
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .addPlugin(
         FileLocation.byWildcardMavenFilename(
@@ -205,10 +206,8 @@ class PRAnalysisTest {
       )
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", "DEV"))
-      .addPlugin(
-        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
-      );
+      .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", version))
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", version));
 
     for (var projectTestCase : TestProject.values()) {
       builder.restoreProfileAtStartup(FileLocation.ofClasspath(projectTestCase.getProfileFile()));
