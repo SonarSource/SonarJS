@@ -18,11 +18,12 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-const ruleTester = new DefaultParserRuleTester();
+const RULE_NAME = 'Loops should not be infinite';
 
-describe('S2189', () => {
+describe('S2189 - valid loops with exit conditions', () => {
   it('should accept valid loops with proper exit conditions', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -110,9 +111,12 @@ describe('S2189', () => {
       invalid: [],
     });
   });
+});
 
+describe('S2189 - false negatives and edge cases', () => {
   it('should accept loops with false negatives (modified value type)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -155,7 +159,8 @@ describe('S2189', () => {
   });
 
   it('should accept loops with method calls that may modify condition', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -190,9 +195,12 @@ describe('S2189', () => {
       invalid: [],
     });
   });
+});
 
+describe('S2189 - JS-131 false positive suppression', () => {
   it('should not raise on imported/required variables (JS-131)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -214,7 +222,8 @@ describe('S2189', () => {
   });
 
   it('should not raise on file-scope variables with function calls (JS-131)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -236,7 +245,8 @@ describe('S2189', () => {
   });
 
   it('should not raise on file-scope variables written inside functions (JS-131)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -262,7 +272,8 @@ describe('S2189', () => {
   });
 
   it('should not raise on loops with break/return exit conditions (JS-131)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -304,9 +315,12 @@ describe('S2189', () => {
       invalid: [],
     });
   });
+});
 
+describe('S2189 - detection of infinite loops', () => {
   it('should detect infinite loops with unmodified variables', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {
@@ -332,7 +346,8 @@ describe('S2189', () => {
   });
 
   it('should detect infinite loops with literal true condition', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {
@@ -380,7 +395,8 @@ describe('S2189', () => {
   });
 
   it('should detect infinite loops with invariant string condition', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {
@@ -396,7 +412,8 @@ describe('S2189', () => {
   });
 
   it('should detect infinite loops with nested break targeting inner loop', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {
@@ -416,7 +433,8 @@ describe('S2189', () => {
   });
 
   it('should detect infinite loops with function declarations inside', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {
@@ -442,7 +460,8 @@ describe('S2189', () => {
   });
 
   it('should raise on unmodified part of compound condition (JS-131)', () => {
-    ruleTester.run('Loops should not be infinite', rule, {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [],
       invalid: [
         {

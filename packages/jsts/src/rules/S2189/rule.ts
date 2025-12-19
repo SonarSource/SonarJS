@@ -213,7 +213,7 @@ function shouldSuppressFileScopeSymbol(
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: { ...(noUnmodifiedLoopEslint.meta?.messages ?? {}) },
+    messages: { ...noUnmodifiedLoopEslint.meta?.messages },
   }),
   create(context: Rule.RuleContext) {
     /**
