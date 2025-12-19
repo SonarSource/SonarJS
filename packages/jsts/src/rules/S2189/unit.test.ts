@@ -170,6 +170,62 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
+        // JS-131: FP tests for S2189 - imported/required variables
+        {
+          code: `
+      // Imported variable - should NOT raise because it could be modified externally
+      import { config } from './config';
+      while (config.running) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      // Required variable - should NOT raise because it could be modified externally
+      const config = require('./config');
+      while (config.running) {
+        doSomething();
+      }`,
+        },
+        // JS-131: FP tests for S2189 - file-scope variables with function calls
+        {
+          code: `
+      // File-scope variable with function call in loop - should NOT raise
+      // because the function could modify the variable
+      var globalFlag = true;
+      while (globalFlag) {
+        someFunction();
+      }`,
+        },
+        {
+          code: `
+      // File-scope variable with async function call - should NOT raise
+      let running = true;
+      while (running) {
+        await processNext();
+      }`,
+        },
+        // JS-131: FP tests for S2189 - file-scope variables written elsewhere
+        {
+          code: `
+      // File-scope variable written elsewhere in file - should NOT raise
+      var counter = 0;
+      function updateCounter() {
+        counter = 10;
+      }
+      while (counter < 5) {
+        doWork();
+      }`,
+        },
+        {
+          code: `
+      // File-scope variable with callback that modifies it - should NOT raise
+      let done = false;
+      setTimeout(() => { done = true; }, 1000);
+      while (!done) {
+        wait();
+      }`,
+        },
       ],
       invalid: [
         {
