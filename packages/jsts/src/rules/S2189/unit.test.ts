@@ -219,6 +219,31 @@ describe('S2189', () => {
         wait();
       }`,
         },
+        // JS-131: Ruling insights - loops with break should not raise on unmodified variables
+        {
+          code: `
+      function scanHexDigits(minCount, scanAsManyAsPossible) {
+        var digits = 0;
+        while (digits < minCount || scanAsManyAsPossible) {
+          if (!isHexDigit(text.charCodeAt(pos))) {
+            break;
+          }
+          digits++;
+        }
+      }`,
+        },
+        // JS-131: Ruling insights - loops with return should not raise on unmodified variables
+        {
+          code: `
+      function findMatch(items, target) {
+        var found = false;
+        while (!found) {
+          if (items.pop() === target) {
+            return true;
+          }
+        }
+      }`,
+        },
       ],
       invalid: [
         {

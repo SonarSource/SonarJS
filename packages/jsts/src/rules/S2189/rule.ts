@@ -78,7 +78,19 @@ export const rule: Rule.RuleModule = {
       symbol: Scope.Variable,
       node: estree.Node,
     ): boolean {
+      // Find the containing loop for this node
+      const containingLoop = findContainingLoop(node);
+
+      if (containingLoop) {
+        // Check if loop has break/return/throw - don't raise if there's another exit condition
+        const body = getLoopBody(containingLoop);
+        if (body && LoopVisitor.hasEndCondition(body, context)) {
+          return false;
+        }
+      }
+
       // Only filter file-scope variables; local variables should always be reported
+      // (unless the loop has break/return/throw checked above)
       if (!isFileScopeVariable(symbol)) {
         return true;
       }
@@ -110,11 +122,9 @@ export const rule: Rule.RuleModule = {
         }
       }
 
-      // Find the containing loop for this node
-      const containingLoop = findContainingLoop(node);
-
       if (containingLoop) {
         // Check if any function is called in the loop - don't raise
+        // (only for file-scope variables that could be modified through closures)
         if (hasFunctionCallInLoop(containingLoop, context)) {
           return false;
         }
@@ -127,6 +137,18 @@ export const rule: Rule.RuleModule = {
 
       // File-scope variable with no function calls and no writes inside functions - raise
       return true;
+    }
+
+    /**
+     * Gets the body of a loop node.
+     */
+    function getLoopBody(loop: estree.Node): estree.Node | null {
+      return (
+        (loop as estree.WhileStatement).body ||
+        (loop as estree.ForStatement).body ||
+        (loop as estree.DoWhileStatement).body ||
+        null
+      );
     }
 
     /**
