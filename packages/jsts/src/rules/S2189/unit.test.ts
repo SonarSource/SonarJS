@@ -18,10 +18,10 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-describe('S2189', () => {
-  it('S2189', () => {
-    const ruleTester = new DefaultParserRuleTester();
+const ruleTester = new DefaultParserRuleTester();
 
+describe('S2189', () => {
+  it('should accept valid loops with proper exit conditions', () => {
     ruleTester.run('Loops should not be infinite', rule, {
       valid: [
         {
@@ -75,35 +75,11 @@ describe('S2189', () => {
         },
         {
           code: `
-      function do_while() {
-
-        var trueValue = true;
-      
-        do {                      // FN
-          trueValue = true;
-        } while (trueValue);
-      }
-            `,
-        },
-        {
-          code: `
-      function always_true() {
-
-        var trueValue = true;
-      
-        while(trueValue) {        // FN
-          trueValue = 42;
-        }
-      }
-            `,
-        },
-        {
-          code: `
       function throws_interrupts_loop() {
         for(;;) {               // OK
             throw "We are leaving!";
         }
-    
+
         while(true) {           // OK Doubly-nested throw
             while(true) {
                 throw "We are leaving from deep inside!";
@@ -130,6 +106,38 @@ describe('S2189', () => {
       }
             `,
         },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should accept loops with false negatives (modified value type)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
+        {
+          code: `
+      function do_while() {
+
+        var trueValue = true;
+
+        do {                      // FN
+          trueValue = true;
+        } while (trueValue);
+      }
+            `,
+        },
+        {
+          code: `
+      function always_true() {
+
+        var trueValue = true;
+
+        while(trueValue) {        // FN
+          trueValue = 42;
+        }
+      }
+            `,
+        },
         {
           code: `
       while (true) {  // FN
@@ -141,6 +149,14 @@ describe('S2189', () => {
       }
             `,
         },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should accept loops with method calls that may modify condition', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
         {
           code: `
       let xs = [1, 2, 3];
@@ -170,7 +186,14 @@ describe('S2189', () => {
         doSomething(coverage);
       }`,
         },
-        // JS-131: FP tests - imported/required variables should not raise
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on imported/required variables (JS-131)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
         {
           code: `
       import { config } from './config';
@@ -185,7 +208,14 @@ describe('S2189', () => {
         doSomething();
       }`,
         },
-        // JS-131: FP tests - file-scope variables with function calls should not raise
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on file-scope variables with function calls (JS-131)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
         {
           code: `
       var globalFlag = true;
@@ -200,7 +230,14 @@ describe('S2189', () => {
         await processNext();
       }`,
         },
-        // JS-131: FP tests - file-scope variables written inside functions should not raise
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on file-scope variables written inside functions (JS-131)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
         {
           code: `
       var counter = 0;
@@ -219,7 +256,14 @@ describe('S2189', () => {
         wait();
       }`,
         },
-        // JS-131: Ruling insights - loops with break should not raise on unmodified variables
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on loops with break/return exit conditions (JS-131)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [
         {
           code: `
       function scanHexDigits(minCount, scanAsManyAsPossible) {
@@ -232,7 +276,6 @@ describe('S2189', () => {
         }
       }`,
         },
-        // JS-131: Ruling insights - loops with return should not raise on unmodified variables
         {
           code: `
       function findMatch(items, target) {
@@ -244,7 +287,6 @@ describe('S2189', () => {
         }
       }`,
         },
-        // JS-131: Ruling insights - while loop with local boolean check and break exit (paper.js pattern)
         {
           code: `
       function tracePath(segments) {
@@ -259,6 +301,13 @@ describe('S2189', () => {
       }`,
         },
       ],
+      invalid: [],
+    });
+  });
+
+  it('should detect infinite loops with unmodified variables', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
       invalid: [
         {
           code: `
@@ -278,6 +327,14 @@ describe('S2189', () => {
             },
           ],
         },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with literal true condition', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
+      invalid: [
         {
           code: `
       while (true) {
@@ -304,28 +361,8 @@ describe('S2189', () => {
         },
         {
           code: `
-      for (var str = '';str >= '0' && '9' >= str;) {
-        console.log("hello");
-      }
-            `,
-          errors: 1,
-        },
-        {
-          code: `
       for (;true;) {
         console.log("hello");
-      }
-            `,
-          errors: 1,
-        },
-        {
-          code: `
-      while (true) { // Noncompliant
-        while (true) {
-          if (cond) {
-            break;
-          }
-        }
       }
             `,
           errors: 1,
@@ -338,6 +375,50 @@ describe('S2189', () => {
             `,
           errors: 1,
         },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with invariant string condition', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      for (var str = '';str >= '0' && '9' >= str;) {
+        console.log("hello");
+      }
+            `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with nested break targeting inner loop', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      while (true) { // Noncompliant
+        while (true) {
+          if (cond) {
+            break;
+          }
+        }
+      }
+            `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with function declarations inside', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
+      invalid: [
         {
           code: `
       while (true) {
@@ -356,7 +437,14 @@ describe('S2189', () => {
             `,
           errors: 1,
         },
-        // JS-131: Ruling insight - compound condition where only one part is modified should raise on unmodified part
+      ],
+    });
+  });
+
+  it('should raise on unmodified part of compound condition (JS-131)', () => {
+    ruleTester.run('Loops should not be infinite', rule, {
+      valid: [],
+      invalid: [
         {
           code: `
       function processBlock(ordinary) {
