@@ -207,7 +207,9 @@ class PRAnalysisTest {
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
       .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", version))
-      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", version));
+      .addPlugin(
+        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
+      );
 
     for (var projectTestCase : TestProject.values()) {
       builder.restoreProfileAtStartup(FileLocation.ofClasspath(projectTestCase.getProfileFile()));
