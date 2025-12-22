@@ -6,6 +6,10 @@ inputs:
     description: 'Prefix for the cache key (default: orchestrator)'
     required: false
     default: 'orchestrator'
+  save:
+    description: 'Whether to save the cache on the default branch (default: true)'
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -18,8 +22,9 @@ runs:
         echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
 
     # Restore only on branches (no save) - allows branches to read from default branch's cache
-    - name: Restore Orchestrator cache (branches)
-      if: github.ref_name != github.event.repository.default_branch
+    # Also used when save is disabled
+    - name: Restore Orchestrator cache (restore only)
+      if: github.ref_name != github.event.repository.default_branch || inputs.save != 'true'
       uses: actions/cache/restore@v5
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
@@ -28,7 +33,7 @@ runs:
 
     # Full cache on default branch (save enabled) - uses run_id for rolling cache
     - name: Cache Orchestrator (default branch)
-      if: github.ref_name == github.event.repository.default_branch
+      if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
       uses: SonarSource/gh-action_cache@v1
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}

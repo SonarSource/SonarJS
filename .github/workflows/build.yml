@@ -829,7 +829,9 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          save: 'false'
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -857,7 +859,9 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          save: 'false'
       - name: Run CSS Ruling
         run: |
           cd its/ruling
