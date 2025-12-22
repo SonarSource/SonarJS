@@ -2,6 +2,15 @@ name: Build A3S Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - Dev5
+          - Staging
+        default: Dev5
 
 jobs:
   get_build_number:
@@ -20,7 +29,7 @@ jobs:
     name: Build and publish Docker image
     runs-on: github-ubuntu-latest-m
     needs: get_build_number
-    environment: Staging
+    environment: ${{ inputs.environment }}
     permissions:
       id-token: write
       contents: read
@@ -58,7 +67,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::718197818630:role/${{ vars.CICD_ROLE }}
+          role-to-assume: arn:aws:iam::${{ inputs.environment == 'Staging' && '718197818630' || '011528275708' }}:role/${{ vars.CICD_ROLE }}
           aws-region: eu-central-1
 
       - name: Login to Amazon ECR
