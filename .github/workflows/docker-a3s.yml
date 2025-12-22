@@ -2,14 +2,6 @@ name: Build A3S Docker Image
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to build Docker image from'
-        required: true
-        type: string
-  push:
-    branches:
-      - mz/js-985-a3s-docker-workflow
 
 jobs:
   get_build_number:
@@ -28,7 +20,7 @@ jobs:
     name: Build and publish Docker image
     runs-on: github-ubuntu-latest-m
     needs: get_build_number
-    environment: Dev5
+    environment: Staging
     permissions:
       id-token: write
       contents: read
@@ -37,8 +29,6 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch || github.ref }}
 
       - uses: jdx/mise-action@v3.5.1
         with:
@@ -68,14 +58,14 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::011528275708:role/${{ vars.CICD_ROLE }}
+          role-to-assume: arn:aws:iam::718197818630:role/${{ vars.CICD_ROLE }}
           aws-region: eu-central-1
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registries: "011528275708" # SharedServices Dev Account
+          registries: "982534363626" # SharedServices Dev Account
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
