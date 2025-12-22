@@ -45,11 +45,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkOperator(context: Rule.RuleContext, unaryNode?: estree.Expression | null) {
-  if (
-    unaryNode &&
-    unaryNode.type === 'UnaryExpression' &&
-    isUnaryOperatorOfInterest(unaryNode.operator)
-  ) {
+  if (unaryNode?.type === 'UnaryExpression' && isUnaryOperatorOfInterest(unaryNode.operator)) {
     const { sourceCode } = context;
     const assignmentOperatorToken = sourceCode.getTokenBefore(
       unaryNode,

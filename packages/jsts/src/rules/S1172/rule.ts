@@ -59,7 +59,7 @@ function reportUnusedArgument(
   context: Rule.RuleContext,
 ) {
   const parent = (node as TSESTree.Node).parent;
-  if (parent && parent.type === 'Property' && parent.kind === 'set') {
+  if (parent?.type === 'Property' && parent.kind === 'set') {
     return;
   }
 
@@ -137,7 +137,7 @@ function getParameterRemovalSuggestion(
           token => token.value === ')',
         );
         let [start, end] = param.range!;
-        if (openingParenthesis && openingParenthesis.value === '(') {
+        if (openingParenthesis?.value === '(') {
           start = openingParenthesis.range[0];
           end = closingParenthesis!.range[1];
         }

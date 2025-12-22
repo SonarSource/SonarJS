@@ -113,7 +113,7 @@ export const rule: Rule.RuleModule = {
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
         const currentScope = context.sourceCode.getScope(node);
-        if (currentScope && currentScope.type === 'function') {
+        if (currentScope?.type === 'function') {
           const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
             computeNewContextInfo(variableUsageContext, context, node);
 

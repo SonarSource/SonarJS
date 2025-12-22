@@ -171,11 +171,7 @@ function isMemberWithProperty(expr: estree.Node, property: string) {
 }
 
 function keepExtensionsValue(extensionValue?: estree.Node): boolean {
-  if (
-    extensionValue &&
-    extensionValue.type === 'Literal' &&
-    typeof extensionValue.value === 'boolean'
-  ) {
+  if (extensionValue?.type === 'Literal' && typeof extensionValue.value === 'boolean') {
     return extensionValue.value;
   }
 

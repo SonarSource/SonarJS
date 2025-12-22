@@ -126,8 +126,7 @@ function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): bool
   const parent = (node as TSESTree.Node).parent;
   return (
     // check assignment
-    parent !== undefined &&
-    parent.type === 'AssignmentExpression' &&
+    parent?.type === 'AssignmentExpression' &&
     parent.operator === '=' &&
     parent.left.type === 'Identifier' &&
     mutatedArray.type === 'Identifier' &&

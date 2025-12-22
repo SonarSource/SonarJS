@@ -68,7 +68,7 @@ function checkExecutor(
   const rejectParameterName = getParameterName(rejectParameterDeclaration);
 
   const bodyExpression = getOnlyBodyExpression(body);
-  if (bodyExpression && bodyExpression.type === 'CallExpression') {
+  if (bodyExpression?.type === 'CallExpression') {
     const { callee, arguments: args } = bodyExpression;
     if (callee.type === 'Identifier') {
       const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
@@ -128,5 +128,5 @@ function getPromiseAction(
 }
 
 function getParameterName(node: estree.Node | undefined) {
-  return node && node.type === 'Identifier' ? node.name : undefined;
+  return node?.type === 'Identifier' ? node.name : undefined;
 }

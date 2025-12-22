@@ -136,7 +136,7 @@ export const rule: Rule.RuleModule = {
           }
           const firstArgValue = getValueOfExpression(context, firstArg, 'ObjectExpression');
           const secure = getProperty(firstArgValue, 'secure', context);
-          if (secure && secure.value.type === 'Literal' && secure.value.raw === 'false') {
+          if (secure?.value.type === 'Literal' && secure.value.raw === 'false') {
             context.report({
               node: callExpression.callee,
               ...getMessageAndData('ftp'),
@@ -150,8 +150,7 @@ export const rule: Rule.RuleModule = {
       if (callExpression.callee.type === 'Identifier' && callExpression.callee.name === 'require') {
         const firstArg = callExpression.arguments.length > 0 ? callExpression.arguments[0] : null;
         if (
-          firstArg &&
-          firstArg.type === 'Literal' &&
+          firstArg?.type === 'Literal' &&
           typeof firstArg.value === 'string' &&
           firstArg.value === 'telnet-client'
         ) {

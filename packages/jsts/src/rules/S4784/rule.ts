@@ -66,8 +66,7 @@ export const rule: Rule.RuleModule = {
 function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
   const firstArg = args[0];
   if (
-    firstArg &&
-    firstArg.type === 'Literal' &&
+    firstArg?.type === 'Literal' &&
     typeof firstArg.value === 'string' &&
     isUnsafeRegexLiteral(firstArg.value)
   ) {

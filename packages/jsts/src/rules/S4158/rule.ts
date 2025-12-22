@@ -174,9 +174,9 @@ function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
 }
 
 function isEmptyCollectionType(node: TSESTree.Node) {
-  if (node && node.type === 'ArrayExpression') {
+  if (node?.type === 'ArrayExpression') {
     return node.elements.length === 0;
-  } else if (node && (node.type === 'CallExpression' || node.type === 'NewExpression')) {
+  } else if (node?.type === 'CallExpression' || node?.type === 'NewExpression') {
     return isIdentifier(node.callee, ...collectionConstructor) && node.arguments.length === 0;
   }
   return false;
@@ -188,9 +188,9 @@ function isReadingCollectionUsage(ref: Scope.Reference) {
 
 function isStrictlyReadingMethodCall(usage: Scope.Reference) {
   const { parent } = usage.identifier as TSESTree.Node;
-  if (parent && parent.type === 'MemberExpression') {
+  if (parent?.type === 'MemberExpression') {
     const memberExpressionParent = parent.parent;
-    if (memberExpressionParent && memberExpressionParent.type === 'CallExpression') {
+    if (memberExpressionParent?.type === 'CallExpression') {
       return isIdentifier(parent.property as TSESTree.Node, ...strictlyReadingMethods);
     }
   }
@@ -209,8 +209,7 @@ function isForIterationPattern(ref: Scope.Reference) {
 function isElementRead(ref: Scope.Reference) {
   const { parent } = ref.identifier as TSESTree.Node;
   return (
-    parent &&
-    parent.type === 'MemberExpression' &&
+    parent?.type === 'MemberExpression' &&
     parent.computed &&
     !isElementWrite(parent as estree.MemberExpression)
   );
@@ -221,7 +220,7 @@ function isElementWrite(memberExpression: estree.MemberExpression) {
   const assignment = ancestors.find(
     n => n.type === 'AssignmentExpression',
   ) as TSESTree.AssignmentExpression;
-  if (assignment && assignment.operator === '=') {
+  if (assignment?.operator === '=') {
     return [memberExpression, ...ancestors].includes(assignment.left);
   }
   return false;

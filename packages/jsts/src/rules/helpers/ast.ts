@@ -75,19 +75,19 @@ export const functionLike = new Set([
 export function isFunctionExpression(
   node: TSESTree.Node | undefined,
 ): node is TSESTree.FunctionExpression {
-  return node !== undefined && node.type === 'FunctionExpression';
+  return node?.type === 'FunctionExpression';
 }
 
 export function isFunctionDeclaration(
   node: TSESTree.Node | undefined,
 ): node is TSESTree.FunctionDeclaration {
-  return node !== undefined && node.type === 'FunctionDeclaration';
+  return node?.type === 'FunctionDeclaration';
 }
 
 export function isArrowFunctionExpression(
   node: TSESTree.Node | undefined,
 ): node is TSESTree.ArrowFunctionExpression {
-  return node !== undefined && node.type === 'ArrowFunctionExpression';
+  return node?.type === 'ArrowFunctionExpression';
 }
 
 export function isIdentifier(
@@ -101,7 +101,7 @@ export function getProgramStatements(program: estree.Program) {
   return program.body.filter((node): node is estree.Statement => !isModuleDeclaration(node));
 }
 export function isIfStatement(node: Node | undefined): node is TSESTree.IfStatement {
-  return node !== undefined && node.type === 'IfStatement';
+  return node?.type === 'IfStatement';
 }
 
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
@@ -109,7 +109,7 @@ export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
 }
 
 export function isThrowStatement(node: Node | undefined): node is TSESTree.ThrowStatement {
-  return node !== undefined && node.type === 'ThrowStatement';
+  return node?.type === 'ThrowStatement';
 }
 
 export function isMemberExpression(
@@ -130,7 +130,7 @@ export function isMemberExpression(
 export function isLogicalExpression(
   node: TSESTree.Node | undefined,
 ): node is TSESTree.LogicalExpression {
-  return node !== undefined && node.type === 'LogicalExpression';
+  return node?.type === 'LogicalExpression';
 }
 
 export function isBinaryPlus(
@@ -140,7 +140,7 @@ export function isBinaryPlus(
 }
 
 export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
-  return node !== undefined && node.type === 'ArrayExpression';
+  return node?.type === 'ArrayExpression';
 }
 
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
@@ -228,7 +228,7 @@ export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
 // we have similar function in eslint-plugin-sonarjs, however this one accepts null
 // eventually we should update eslint-plugin-sonarjs
 export function isLiteral(n: estree.Node | null): n is estree.Literal {
-  return n != null && n.type === 'Literal';
+  return n?.type === 'Literal';
 }
 
 export function isNullLiteral(n: estree.Node): boolean {
@@ -545,8 +545,7 @@ export function resolveFromFunctionReference(
   for (const scope of scopeManager.scopes) {
     const reference = scope.references.find(r => r.identifier === functionIdentifier);
     if (
-      reference?.resolved &&
-      reference.resolved.defs.length === 1 &&
+      reference?.resolved?.defs.length === 1 &&
       reference.resolved.defs[0].type === 'FunctionName'
     ) {
       return reference.resolved.defs[0].node;

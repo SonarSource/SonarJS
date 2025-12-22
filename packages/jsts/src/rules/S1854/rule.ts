@@ -179,16 +179,12 @@ export const rule: Rule.RuleModule = {
 
     function isIncrementOrDecrement(ref: ReferenceLike) {
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      return parent && parent.type === 'UpdateExpression';
+      return parent?.type === 'UpdateExpression';
     }
 
     function isNullAssignment(ref: ReferenceLike) {
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      return (
-        parent &&
-        parent.type === 'AssignmentExpression' &&
-        isNullLiteral(parent.right as estree.Node)
-      );
+      return parent?.type === 'AssignmentExpression' && isNullLiteral(parent.right as estree.Node);
     }
 
     function isEnumConstant(node: estree.Node) {
@@ -202,7 +198,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      return parent && parent.type === 'AssignmentPattern';
+      return parent?.type === 'AssignmentPattern';
     }
 
     function isLocalVar(variable: Scope.Variable) {
@@ -434,7 +430,7 @@ function findJSXVariableInScope(
 
 function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
   const parent = node.parent;
-  return parent && parent.type === 'JSXAttribute' && parent.name === node;
+  return parent?.type === 'JSXAttribute' && parent.name === node;
 }
 
 function isBasicValue(node: TSESTree.Node): boolean {

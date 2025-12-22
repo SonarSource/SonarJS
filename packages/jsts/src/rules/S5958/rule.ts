@@ -42,9 +42,9 @@ export const rule: Rule.RuleModule = {
         }
         catchWithDone = false;
         const { param } = node as estree.CatchClause;
-        if (param && param.type === 'Identifier') {
+        if (param?.type === 'Identifier') {
           const exception = getVariableFromIdentifier(param, context.sourceCode.getScope(node));
-          if (exception && exception.references.length === 0) {
+          if (exception?.references.length === 0) {
             context.report({
               node: param,
               message:

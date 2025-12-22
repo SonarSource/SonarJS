@@ -117,9 +117,9 @@ function isReferenceAssigningCollection(ref: Scope.Reference) {
 }
 
 function isCollectionType(node: TSESTree.Node) {
-  if (node && node.type === 'ArrayExpression') {
+  if (node?.type === 'ArrayExpression') {
     return true;
-  } else if (node && (node.type === 'CallExpression' || node.type === 'NewExpression')) {
+  } else if (node?.type === 'CallExpression' || node?.type === 'NewExpression') {
     return isIdentifier(node.callee, ...collectionConstructor);
   }
   return false;

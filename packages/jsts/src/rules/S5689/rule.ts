@@ -156,5 +156,5 @@ function isAppEscaping(callExpr: estree.CallExpression, app: estree.Identifier):
 
 function isAppEscapingThroughReturn(ret: estree.ReturnStatement, app: estree.Identifier): boolean {
   const arg = ret.argument;
-  return Boolean(arg && arg.type === 'Identifier' && arg.name === app.name);
+  return Boolean(arg?.type === 'Identifier' && arg.name === app.name);
 }

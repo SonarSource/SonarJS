@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
         const declaration = (node as estree.ExportDefaultDeclaration).declaration;
         if (declaration.type === 'Identifier') {
           const variable = getVariableFromName(context, declaration.name, node);
-          if (variable && variable.defs.length === 1) {
+          if (variable?.defs.length === 1) {
             const def = variable.defs[0];
             if (def.type === 'ClassName' || def.type === 'FunctionName' || isConst(def)) {
               nameOfExported = declaration.name;
@@ -82,7 +82,7 @@ function sameName(nameOfExported: string, fileName: string) {
 }
 
 function isConst(def: Scope.Definition) {
-  return def.type === 'Variable' && def.parent && def.parent.kind === 'const';
+  return def.type === 'Variable' && def.parent?.kind === 'const';
 }
 
 function sliceOffPostfix(fileName: string) {

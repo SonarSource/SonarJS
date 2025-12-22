@@ -171,8 +171,7 @@ function isFullLineComment(line: string, lineNumber: number, comment: estree.Com
 function isIIFE(node: estree.Node, parent: estree.Node) {
   return (
     node.type === 'FunctionExpression' &&
-    parent &&
-    parent.type === 'CallExpression' &&
+    parent?.type === 'CallExpression' &&
     parent.callee === node
   );
 }

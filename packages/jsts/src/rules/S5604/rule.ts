@@ -168,7 +168,7 @@ function checkForCameraAndMicrophonePermissions(
 
 function isOtherThanFalse(context: Rule.RuleContext, value: estree.Node) {
   const exprValue = getValueOfExpression(context, value, 'Literal');
-  if (exprValue && exprValue.value === false) {
+  if (exprValue?.value === false) {
     return false;
   }
   return true;

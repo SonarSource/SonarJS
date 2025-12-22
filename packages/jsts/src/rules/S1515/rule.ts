@@ -99,7 +99,7 @@ function isIIFE(node: estree.Node, context: Rule.RuleContext) {
 
 function isAllowedCallbacks(context: Rule.RuleContext, node: estree.Node) {
   const parent = getParent(context, node);
-  if (parent && parent.type === 'CallExpression') {
+  if (parent?.type === 'CallExpression') {
     const callee = parent.callee;
     if (callee.type === 'MemberExpression') {
       return callee.property.type === 'Identifier' && allowedCallbacks.has(callee.property.name);
@@ -113,7 +113,7 @@ function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
   if (variable) {
     const definition = variable.defs[0];
     const declaration = definition?.parent;
-    const kind = declaration && declaration.type === 'VariableDeclaration' ? declaration.kind : '';
+    const kind = declaration?.type === 'VariableDeclaration' ? declaration.kind : '';
 
     if (kind !== 'let' && kind !== 'const') {
       return hasConstValue(variable, loopNode);

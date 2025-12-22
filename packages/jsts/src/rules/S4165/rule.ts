@@ -329,7 +329,7 @@ function isSelfAssignement(ref: Scope.Reference) {
 function isCompoundAssignment(writeExpr: estree.Node | null) {
   if (writeExpr?.hasOwnProperty('parent')) {
     const node = (writeExpr as TSESTree.Node).parent;
-    return node && node.type === 'AssignmentExpression' && node.operator !== '=';
+    return node?.type === 'AssignmentExpression' && node.operator !== '=';
   }
   return false;
 }
@@ -339,5 +339,5 @@ function isDefaultParameter(ref: Scope.Reference) {
     return false;
   }
   const parent = (ref.identifier as TSESTree.Identifier).parent;
-  return parent && parent.type === 'AssignmentPattern';
+  return parent?.type === 'AssignmentPattern';
 }

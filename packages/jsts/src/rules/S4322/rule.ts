@@ -55,10 +55,7 @@ function checkFunctionLikeDeclaration(
   functionDeclaration: FunctionLikeDeclaration,
   context: Rule.RuleContext,
 ) {
-  if (
-    functionDeclaration.returnType &&
-    functionDeclaration.returnType.typeAnnotation.type === 'TSTypePredicate'
-  ) {
+  if (functionDeclaration.returnType?.typeAnnotation.type === 'TSTypePredicate') {
     return;
   }
 
@@ -85,7 +82,7 @@ function checkFunctionLikeDeclaration(
 function getReturnedExpression(
   block?: TSESTree.BlockStatement | null,
 ): TSESTree.Expression | undefined | null {
-  if (block && block.body.length === 1) {
+  if (block?.body.length === 1) {
     const statement = block.body[0];
     if (statement.type === 'ReturnStatement') {
       return statement.argument;

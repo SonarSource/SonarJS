@@ -89,12 +89,10 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (
     node.type === 'CallExpression' &&
-    node.callee &&
-    node.callee.type === 'MemberExpression' &&
+    node.callee?.type === 'MemberExpression' &&
     node.callee.object &&
     isGeneratedExpression(node.callee.object) &&
-    node.callee.property &&
-    node.callee.property.type === 'Identifier' &&
+    node.callee.property?.type === 'Identifier' &&
     node.callee.property.name === 'toString'
   ) {
     // key={bar.toString()}
@@ -107,8 +105,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
 
   if (
     node.type === 'CallExpression' &&
-    node.callee &&
-    node.callee.type === 'Identifier' &&
+    node.callee?.type === 'Identifier' &&
     node.callee.name === 'String' &&
     Array.isArray(node.arguments) &&
     node.arguments.length > 0 &&
