@@ -11,6 +11,11 @@ on:
           - Dev5
           - Staging
         default: Dev5
+      branch:
+        description: 'Branch to build from'
+        required: true
+        type: string
+        default: master
 
 jobs:
   get_build_number:
@@ -38,6 +43,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
 
       - uses: jdx/mise-action@v3.5.1
         with:
