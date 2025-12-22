@@ -18,11 +18,12 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-describe('S2189', () => {
-  it('S2189', () => {
-    const ruleTester = new DefaultParserRuleTester();
+const RULE_NAME = 'Loops should not be infinite';
 
-    ruleTester.run('Loops should not be infinite', rule, {
+describe('S2189 - valid loops with exit conditions', () => {
+  it('should accept valid loops with proper exit conditions', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           code: `
@@ -75,35 +76,11 @@ describe('S2189', () => {
         },
         {
           code: `
-      function do_while() {
-
-        var trueValue = true;
-      
-        do {                      // FN
-          trueValue = true;
-        } while (trueValue);
-      }
-            `,
-        },
-        {
-          code: `
-      function always_true() {
-
-        var trueValue = true;
-      
-        while(trueValue) {        // FN
-          trueValue = 42;
-        }
-      }
-            `,
-        },
-        {
-          code: `
       function throws_interrupts_loop() {
         for(;;) {               // OK
             throw "We are leaving!";
         }
-    
+
         while(true) {           // OK Doubly-nested throw
             while(true) {
                 throw "We are leaving from deep inside!";
@@ -130,6 +107,41 @@ describe('S2189', () => {
       }
             `,
         },
+      ],
+      invalid: [],
+    });
+  });
+});
+
+describe('S2189 - false negatives and edge cases', () => {
+  it('should accept loops with false negatives (modified value type)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          code: `
+      function do_while() {
+
+        var trueValue = true;
+
+        do {                      // FN
+          trueValue = true;
+        } while (trueValue);
+      }
+            `,
+        },
+        {
+          code: `
+      function always_true() {
+
+        var trueValue = true;
+
+        while(trueValue) {        // FN
+          trueValue = 42;
+        }
+      }
+            `,
+        },
         {
           code: `
       while (true) {  // FN
@@ -141,6 +153,15 @@ describe('S2189', () => {
       }
             `,
         },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should accept loops with method calls that may modify condition', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
         {
           code: `
       let xs = [1, 2, 3];
@@ -171,6 +192,126 @@ describe('S2189', () => {
       }`,
         },
       ],
+      invalid: [],
+    });
+  });
+});
+
+describe('S2189 - JS-131 false positive suppression', () => {
+  it('should not raise on imported/required variables (JS-131)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          code: `
+      import { config } from './config';
+      while (config.running) {
+        doSomething();
+      }`,
+        },
+        {
+          code: `
+      const config = require('./config');
+      while (config.running) {
+        doSomething();
+      }`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on file-scope variables with function calls (JS-131)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          code: `
+      var globalFlag = true;
+      while (globalFlag) {
+        someFunction();
+      }`,
+        },
+        {
+          code: `
+      let running = true;
+      while (running) {
+        await processNext();
+      }`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on file-scope variables written inside functions (JS-131)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          code: `
+      let done = false;
+      setTimeout(() => { done = true; }, 1000);
+      while (!done) {
+        wait();
+      }`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise on loops with break/return exit conditions (JS-131)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          code: `
+      function scanHexDigits(minCount, scanAsManyAsPossible) {
+        var digits = 0;
+        while (digits < minCount || scanAsManyAsPossible) {
+          if (!isHexDigit(text.charCodeAt(pos))) {
+            break;
+          }
+          digits++;
+        }
+      }`,
+        },
+        {
+          code: `
+      function findMatch(items, target) {
+        var found = false;
+        while (!found) {
+          if (items.pop() === target) {
+            return true;
+          }
+        }
+      }`,
+        },
+        {
+          code: `
+      function tracePath(segments) {
+        var valid = true;
+        while (valid) {
+          var seg = segments.shift();
+          if (!seg) {
+            break;
+          }
+          process(seg);
+        }
+      }`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+});
+
+describe('S2189 - detection of infinite loops', () => {
+  it('should detect infinite loops with unmodified variables', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
       invalid: [
         {
           code: `
@@ -190,6 +331,15 @@ describe('S2189', () => {
             },
           ],
         },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with literal true condition', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
         {
           code: `
       while (true) {
@@ -216,28 +366,8 @@ describe('S2189', () => {
         },
         {
           code: `
-      for (var str = '';str >= '0' && '9' >= str;) {
-        console.log("hello");
-      }
-            `,
-          errors: 1,
-        },
-        {
-          code: `
       for (;true;) {
         console.log("hello");
-      }
-            `,
-          errors: 1,
-        },
-        {
-          code: `
-      while (true) { // Noncompliant
-        while (true) {
-          if (cond) {
-            break;
-          }
-        }
       }
             `,
           errors: 1,
@@ -250,6 +380,53 @@ describe('S2189', () => {
             `,
           errors: 1,
         },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with invariant string condition', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      for (var str = '';str >= '0' && '9' >= str;) {
+        console.log("hello");
+      }
+            `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with nested break targeting inner loop', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      while (true) { // Noncompliant
+        while (true) {
+          if (cond) {
+            break;
+          }
+        }
+      }
+            `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should detect infinite loops with function declarations inside', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
         {
           code: `
       while (true) {
@@ -267,6 +444,30 @@ describe('S2189', () => {
       }
             `,
           errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should raise on unmodified part of compound condition (JS-131)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      function processBlock(ordinary) {
+        var indent = 0;
+        while (!ordinary && shouldContinue(indent)) {
+          indent += 1;
+        }
+      }
+            `,
+          errors: [
+            {
+              message: "'ordinary' is not modified in this loop.",
+            },
+          ],
         },
       ],
     });
