@@ -21,9 +21,10 @@ import { CompleteJsTsAnalysisInput, JsTsAnalysisInput } from '../../../src/analy
 type allOptional = Partial<JsTsAnalysisInput>;
 
 export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysisInput> {
+  const filePath = input.filePath!;
   return {
-    filePath: input.filePath!,
-    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
+    filePath,
+    fileContent: input.fileContent ?? (await readFile(filePath)),
     fileType: input.fileType ?? 'MAIN',
     programId: input.programId,
     tsConfigs: input.tsConfigs ?? [],
@@ -35,8 +36,9 @@ export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysi
 }
 
 export async function embeddedInput(input: allOptional): Promise<CompleteEmbeddedAnalysisInput> {
+  const filePath = input.filePath!;
   return {
-    filePath: input.filePath!,
-    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
+    filePath,
+    fileContent: input.fileContent ?? (await readFile(filePath)),
   };
 }

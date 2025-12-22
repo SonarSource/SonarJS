@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
     return {
       Program(node) {
-        scopeRanges = [node.range!];
+        scopeRanges = [node.range];
         reported = [];
       },
 

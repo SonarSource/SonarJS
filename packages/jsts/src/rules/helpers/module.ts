@@ -66,7 +66,7 @@ export function isRequire(node: Node): node is estree.CallExpression {
  */
 function getModuleNameFromRequire(node: Node): estree.Literal | undefined {
   if (isRequire(node)) {
-    const moduleName = (node as estree.CallExpression).arguments[0];
+    const moduleName = node.arguments[0];
     if (moduleName.type === 'Literal') {
       return moduleName;
     }
