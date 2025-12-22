@@ -42,7 +42,7 @@ export namespace Express {
     context: Rule.RuleContext,
   ): estree.Identifier | undefined {
     const rhs = varDecl.init;
-    if (rhs && rhs.type === 'CallExpression' && getFullyQualifiedName(context, rhs) === EXPRESS) {
+    if (rhs?.type === 'CallExpression' && getFullyQualifiedName(context, rhs) === EXPRESS) {
       const pattern = varDecl.id;
       return pattern.type === 'Identifier' ? pattern : undefined;
     }

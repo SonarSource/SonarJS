@@ -84,5 +84,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isLiteral(node: estree.Node | undefined, value: string) {
-  return node && node.type === 'Literal' && node.value === value;
+  return node?.type === 'Literal' && node.value === value;
 }

@@ -68,7 +68,7 @@ function containsValidChaiShould(node: estree.Node, isSubexpr = false): boolean 
   if (node.type === 'CallExpression') {
     return containsValidChaiShould(node.callee, true);
   } else if (node.type === 'MemberExpression') {
-    if (node.property && node.property.type === 'Identifier' && node.property.name === 'should') {
+    if (node.property?.type === 'Identifier' && node.property.name === 'should') {
       // Expressions like `x.should` are valid only as subexpressions, not on top level
       return isSubexpr;
     } else {

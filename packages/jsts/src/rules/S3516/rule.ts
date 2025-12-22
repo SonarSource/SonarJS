@@ -182,8 +182,7 @@ function isPossibleObjectUpdate(ref: Scope.Reference) {
   // To avoid FP, we consider method calls as write operations, since we do not know whether they will
   // update the object state or not.
   return (
-    expressionStatement &&
-    expressionStatement.type === 'ExpressionStatement' &&
+    expressionStatement?.type === 'ExpressionStatement' &&
     (isElementWrite(expressionStatement, ref) ||
       expressionStatement.expression.type === 'CallExpression')
   );

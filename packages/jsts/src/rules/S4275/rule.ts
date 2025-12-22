@@ -490,11 +490,7 @@ function getFunctionBody(node: TSESTree.Node) {
 }
 
 function getPropertyName(expression: TSESTree.Expression | null): string | null {
-  if (
-    expression &&
-    expression.type === 'MemberExpression' &&
-    expression.object.type === 'ThisExpression'
-  ) {
+  if (expression?.type === 'MemberExpression' && expression.object.type === 'ThisExpression') {
     return getName(expression.property);
   }
   return null;

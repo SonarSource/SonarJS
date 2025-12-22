@@ -59,11 +59,7 @@ function isIgnored(node: estree.Node, ancestors: estree.Node[]): boolean {
         return firstAncestor.update === node;
       case 'SequenceExpression': {
         const secondAncestor = ancestors.pop();
-        return (
-          secondAncestor !== undefined &&
-          secondAncestor.type === 'ForStatement' &&
-          secondAncestor.update === firstAncestor
-        );
+        return secondAncestor?.type === 'ForStatement' && secondAncestor.update === firstAncestor;
       }
     }
   }

@@ -166,8 +166,7 @@ function isAwaitLike(callExpr: CallLikeExpression) {
 
 function isThened(callExpr: CallLikeExpression) {
   return (
-    callExpr.parent &&
-    callExpr.parent.type === 'MemberExpression' &&
+    callExpr.parent?.type === 'MemberExpression' &&
     callExpr.parent.property.type === 'Identifier' &&
     callExpr.parent.property.name === 'then'
   );
@@ -175,8 +174,7 @@ function isThened(callExpr: CallLikeExpression) {
 
 function isCaught(callExpr: CallLikeExpression) {
   return (
-    callExpr.parent &&
-    callExpr.parent.type === 'MemberExpression' &&
+    callExpr.parent?.type === 'MemberExpression' &&
     callExpr.parent.property.type === 'Identifier' &&
     callExpr.parent.property.name === 'catch'
   );

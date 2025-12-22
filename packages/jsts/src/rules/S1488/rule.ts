@@ -71,7 +71,7 @@ export const rule: Rule.RuleModule = {
           }
 
           // there must be only one "read" - in `return` or `throw`
-          if (sameVariable && sameVariable.references.filter(ref => ref.isRead()).length === 1) {
+          if (sameVariable?.references.filter(ref => ref.isRead()).length === 1) {
             context.report({
               messageId: 'doImmediateAction',
               data: {

@@ -108,7 +108,7 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
     }
   }
 
-  if (counter && counter.type === 'Identifier') {
+  if (counter?.type === 'Identifier') {
     counters.push(counter);
   }
 }

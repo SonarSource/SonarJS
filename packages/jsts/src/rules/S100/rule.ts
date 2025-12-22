@@ -117,10 +117,8 @@ export const rule: Rule.RuleModule = {
           if (functionLike.has(ancestors[i].type)) {
             const enclosingFunction = ancestors[i];
             if (
-              knowledge &&
-              knowledge.func === enclosingFunction &&
-              node.argument &&
-              (node.argument as any).type.startsWith('JSX')
+              knowledge?.func === enclosingFunction &&
+              (node.argument as any)?.type?.startsWith('JSX')
             ) {
               knowledge.returnsJSX = true;
             }

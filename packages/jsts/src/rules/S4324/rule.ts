@@ -53,8 +53,7 @@ export const rule: Rule.RuleModule = {
         'FunctionDeclaration:exit'(node: estree.Node) {
           const returnType = (node as TSESTree.FunctionDeclaration).returnType;
           if (
-            returnType &&
-            returnType.typeAnnotation.type === 'TSAnyKeyword' &&
+            returnType?.typeAnnotation.type === 'TSAnyKeyword' &&
             returnedExpressions.length > 0 &&
             allReturnTypesEqual(last(returnedExpressions), services)
           ) {

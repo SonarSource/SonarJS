@@ -148,7 +148,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
   }
 
   const limitsPropertyValue = getProperty(multerOptions, LIMITS_OPTION, context)?.value;
-  if (limitsPropertyValue && limitsPropertyValue.type === 'ObjectExpression') {
+  if (limitsPropertyValue?.type === 'ObjectExpression') {
     const fileSizeProperty = getProperty(limitsPropertyValue, FILE_SIZE_OPTION, context);
     checkSize(context, callExpression, fileSizeProperty);
   }

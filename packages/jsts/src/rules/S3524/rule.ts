@@ -63,7 +63,7 @@ function checkParameters(
   // `functionTakingCallbacks(x => {...})` where the opening parenthesis before `x` isn't part
   // of the function literal
   const tokenAfterParameter = context.sourceCode.getTokenAfter(parameter);
-  const hasParameterParentheses = tokenAfterParameter && tokenAfterParameter.value === ')';
+  const hasParameterParentheses = tokenAfterParameter?.value === ')';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
     context.report({ node: parameter, message: MESSAGE_ADD_PARAMETER });
@@ -92,7 +92,7 @@ function checkParameters(
 function hasGeneric(context: Rule.RuleContext, arrowFunction: estree.ArrowFunctionExpression) {
   const offset = arrowFunction.async ? 1 : 0;
   const firstTokenIgnoreAsync = context.sourceCode.getFirstToken(arrowFunction, offset);
-  return firstTokenIgnoreAsync && firstTokenIgnoreAsync.value === '<';
+  return firstTokenIgnoreAsync?.value === '<';
 }
 
 function checkBody(

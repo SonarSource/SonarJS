@@ -53,11 +53,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const secrets = getProperty(firstArgument, 'secrets', context);
-        if (
-          secrets &&
-          secrets.value.type === 'ArrayExpression' &&
-          secrets.value.elements.length === 0
-        ) {
+        if (secrets?.value.type === 'ArrayExpression' && secrets.value.elements.length === 0) {
           report(
             context,
             {

@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
               (parent as estree.CallExpression).arguments[2],
               'FunctionExpression',
             );
-            if (callback && callback.type === 'FunctionExpression') {
+            if (callback?.type === 'FunctionExpression') {
               sessionRegenerate = false;
               visitCallback(callback);
               if (!sessionRegenerate) {

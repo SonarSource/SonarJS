@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
       }
       if (toCheck === 'let-const-function') {
         const def = v.defs[0];
-        if (def.parent && def.parent.type === 'VariableDeclaration' && def.parent.kind === 'var') {
+        if (def.parent?.type === 'VariableDeclaration' && def.parent.kind === 'var') {
           return;
         }
       }

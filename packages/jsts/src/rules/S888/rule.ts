@@ -112,7 +112,7 @@ function collectCounters(expression: estree.Expression, counters: Array<string>)
     }
   }
 
-  if (counter && counter.type === 'Identifier') {
+  if (counter?.type === 'Identifier') {
     counters.push(counter.name);
   }
 }
@@ -196,7 +196,7 @@ function getValue(node: estree.Node) {
 }
 
 function getInteger(node: estree.Node | undefined | null) {
-  if (node && node.type === 'Literal' && typeof node.value === 'number') {
+  if (node?.type === 'Literal' && typeof node.value === 'number') {
     return node.value;
   }
   return undefined;

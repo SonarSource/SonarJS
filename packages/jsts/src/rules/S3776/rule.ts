@@ -350,7 +350,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const { parent } = node;
-      if (parent && parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+      if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
         return checkFirstLetter(parent.id.name);
       }
 
