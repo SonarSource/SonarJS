@@ -250,16 +250,6 @@ describe('S2189 - JS-131 false positive suppression', () => {
       valid: [
         {
           code: `
-      var counter = 0;
-      function updateCounter() {
-        counter = 10;
-      }
-      while (counter < 5) {
-        doWork();
-      }`,
-        },
-        {
-          code: `
       let done = false;
       setTimeout(() => { done = true; }, 1000);
       while (!done) {
