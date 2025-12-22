@@ -87,4 +87,3 @@ jobs:
           platforms: linux/arm64
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/a3s/analysis/javascript:${{ env.BUILD_NUMBER }}
-            ${{ steps.login-ecr.outputs.registry }}/a3s/analysis/javascript:latest
