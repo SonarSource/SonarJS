@@ -9,6 +9,8 @@ coverage/
 test-report.xml
 
 packages/jsts/src/rules/*/generated-meta.ts
+packages/grpc/src/proto/language_analyzer.js
+packages/grpc/src/proto/language_analyzer.d.ts
 sonarjs-1.0.0.tgz
 
 # IntelliJ IDEA
