@@ -1,0 +1,89 @@
+name: Build A3S Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        type: string
+        default: master
+
+jobs:
+  get_build_number:
+    runs-on: github-ubuntu-latest-s
+    name: Get build number
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
+    steps:
+      - uses: SonarSource/ci-github-actions/get-build-number@master
+        id: get-build-number
+
+  build_and_publish:
+    name: Build and publish Docker image
+    runs-on: github-ubuntu-latest-m
+    needs: get_build_number
+    environment: Dev5
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: jdx/mise-action@v3.5.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+
+      - name: Access vault secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build bundle for Docker
+        run: npm run grpc:build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::011528275708:role/${{ vars.CICD_ROLE }}
+          aws-region: eu-central-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: "982534363626" # SharedServices Dev Account
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/a3s/analysis/javascript:${{ env.BUILD_NUMBER }}
