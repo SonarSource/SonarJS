@@ -5,12 +5,19 @@
     "packages/jsts/src/rules/plugin.ts",
     "packages/jsts/src/rules/*/*.fixture.*",
     "**/fixtures/**",
+    "**/fixtures-*/**",
     "packages/bridge/src/worker.ts",
     "its/**",
     "tools/header.ts",
     "tools/new-plugin.ts"
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
-  "ignoreDependencies": ["nyc", "@istanbuljs/esm-loader-hook"],
+  "ignoreDependencies": [
+    "nyc",
+    "@istanbuljs/esm-loader-hook",
+    "esbuild",
+    "esbuild-plugin-copy",
+    "esbuild-plugin-text-replace"
+  ],
   "ignoreBinaries": ["mvn", "NODE_OPTIONS=--import ./tools/nyc-esm-hook-loader.js"]
 }
