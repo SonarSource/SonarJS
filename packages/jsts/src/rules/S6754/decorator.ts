@@ -44,11 +44,23 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           const setterName = setter.name;
           const setterPrefix = 'set';
 
-          if (
-            setterName.startsWith(setterPrefix) &&
-            setterName.substring(setterPrefix.length) === getterName
-          ) {
-            return;
+          if (setterName.startsWith(setterPrefix)) {
+            const setterSuffix = setterName.substring(setterPrefix.length);
+
+            // Standard match: [Foo, setFoo]
+            if (setterSuffix === getterName) {
+              return;
+            }
+
+            // Exception for "is" prefix: [isReady, setReady] is valid
+            // This is more readable than [isReady, setIsReady]
+            if (
+              getterName.startsWith('is') &&
+              getterName.length > 2 &&
+              setterSuffix === getterName.substring(2)
+            ) {
+              return;
+            }
           }
         }
       }
