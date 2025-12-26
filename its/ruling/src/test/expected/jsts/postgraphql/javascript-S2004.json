@@ -1,33 +1,8 @@
 {
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
-41
-],
 "postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
-59
+60
 ],
 "postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
 302
-],
-"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
-384,
-387,
-389,
-395,
-408,
-421,
-434,
-447,
-460,
-473,
-477,
-481,
-494,
-507,
-520,
-533,
-546,
-559,
-572,
-585
 ]
 }
