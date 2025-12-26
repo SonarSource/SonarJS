@@ -845,8 +845,10 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('ruling-report.md', 'utf8');
+            let report = fs.readFileSync('ruling-report.md', 'utf8');
             if (report && report.trim()) {
+              const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              report += `\n---\n✅ Ruling has been updated. [Re-run the workflow](${runUrl}) to pass CI.\n`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

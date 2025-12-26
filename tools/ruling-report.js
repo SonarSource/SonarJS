@@ -172,8 +172,11 @@ function generateMarkdown(changes) {
   return md;
 }
 
+const MAX_SNIPPETS = 10;
+
 function generateChangesSection(changes) {
   let md = '';
+  let snippetCount = 0;
 
   // Group by rule
   const byRule = new Map();
@@ -185,9 +188,17 @@ function generateChangesSection(changes) {
   }
 
   for (const [rule, ruleChanges] of byRule) {
+    if (snippetCount >= MAX_SNIPPETS) break;
+
     md += `#### ${rule}\n\n`;
 
     for (const change of ruleChanges) {
+      if (snippetCount >= MAX_SNIPPETS) {
+        const remaining = changes.length - snippetCount;
+        md += `\n_...and ${remaining} more (see ruling JSON files for full list)_\n\n`;
+        break;
+      }
+
       const snippet = getSnippet(change.project, change.filePath, change.line);
       md += `**${change.project}/${change.filePath}:${change.line}**\n`;
       if (snippet) {
@@ -198,6 +209,7 @@ function generateChangesSection(changes) {
       } else {
         md += `_(snippet not available)_\n\n`;
       }
+      snippetCount++;
     }
   }
 
