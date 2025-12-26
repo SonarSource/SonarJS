@@ -213,6 +213,25 @@ describe('S4158', () => {
         console.log(arguments[0]);
       }`,
         },
+        {
+          // JS-258: ||=, &&=, ??= should be recognized as writes
+          code: `
+      function logicalAssignmentOperators() {
+        let strings = [];
+        strings[0] ||= "foo!";
+        if (strings[0]) {
+          console.log(strings[0]);
+        }
+      }`,
+        },
+        {
+          code: `
+      function nullishAssignment() {
+        let arr = [];
+        arr[0] ??= "default";
+        console.log(arr[0]);
+      }`,
+        },
       ],
       invalid: [
         {
