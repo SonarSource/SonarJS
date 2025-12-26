@@ -816,6 +816,62 @@ jobs:
           name: ruling-differences-jsts
           path: packages/ruling/actual/jsts/
 
+  js_ts_ruling_update:
+    runs-on: github-ubuntu-latest-m
+    name: Update JS/TS Ruling
+    needs: [setup, js_ts_ruling]
+    if: always() && needs.js_ts_ruling.result == 'failure' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - *mise
+      - *npm_cache
+      - name: Download ruling differences
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: ruling-differences-jsts
+          path: packages/ruling/actual/jsts/
+      - name: Sync ruling results
+        run: npm run ruling-sync
+      - name: Generate ruling report
+        id: report
+        run: node tools/ruling-report.js --removed-only > ruling-report.md
+      - name: Commit and push ruling changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add its/ruling/src/test/expected/jsts/
+          if git diff --staged --quiet; then
+            echo "No ruling changes to commit"
+          else
+            git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+            git push
+          fi
+      - name: Post ruling report comment
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('ruling-report.md', 'utf8');
+            if (report && report.trim()) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: report
+              });
+            }
+
   ruling:
     runs-on: github-ubuntu-latest-l
     name: Ruling Test
