@@ -133,11 +133,17 @@ export const rule: Rule.RuleModule = {
       },
       ConditionalExpression: node => {
         /**
-         * A conditional expression is suspect if it is the direct child of a suspect body or the direct child of a suspect return statement
+         * A conditional expression is suspect if it is the direct child of a suspect body or the direct child of a suspect return statement,
+         * AND both branches have side effects (function calls, new expressions, etc.)
+         * Simple value transformations like `value ? 'Yes' : 'No'` should not be flagged.
          */
         const parent = node.parent;
 
         if (suspectBodies.includes(parent) || suspectReturnStatements.includes(parent)) {
+          // Don't flag if both branches are pure expressions (no side effects)
+          if (!hasSideEffects(node.consequent) && !hasSideEffects(node.alternate)) {
+            return;
+          }
           suspectTestNodes.push(node.test as Node);
         }
       },
@@ -169,4 +175,39 @@ function isCallbackArgument(
   node: (ArrowFunctionExpression | FunctionExpression) & Rule.NodeParentExtension,
 ) {
   return node.parent.type === 'CallExpression' && node.parent.arguments.includes(node);
+}
+
+/**
+ * Checks if an expression has side effects (function calls, new expressions, assignments).
+ * Used to distinguish selector parameters from simple value transformations.
+ */
+function hasSideEffects(node: Node): boolean {
+  switch (node.type) {
+    case 'CallExpression':
+    case 'NewExpression':
+    case 'AssignmentExpression':
+    case 'UpdateExpression':
+    case 'YieldExpression':
+    case 'AwaitExpression':
+      return true;
+    case 'SequenceExpression':
+      return node.expressions.some(hasSideEffects);
+    case 'ConditionalExpression':
+      return hasSideEffects(node.consequent) || hasSideEffects(node.alternate);
+    case 'LogicalExpression':
+    case 'BinaryExpression':
+      return hasSideEffects(node.left) || hasSideEffects(node.right);
+    case 'UnaryExpression':
+      return node.operator === 'delete' || hasSideEffects(node.argument);
+    case 'MemberExpression':
+      return hasSideEffects(node.object);
+    case 'ArrayExpression':
+      return node.elements.some(el => el !== null && hasSideEffects(el as Node));
+    case 'ObjectExpression':
+      return node.properties.some(
+        prop => prop.type !== 'SpreadElement' && hasSideEffects(prop.value as Node),
+      );
+    default:
+      return false;
+  }
 }
