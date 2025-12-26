@@ -25,6 +25,34 @@ describe('S2301', () => {
     ruleTester.run('S2301:TypeScript', S2301, {
       invalid: [
         {
+          // JS-709: NewExpression has side effects - should still be flagged
+          code: `function createInstance(flag: boolean) {
+  return flag ? new Foo() : new Bar();
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Array with function call inside - should still be flagged
+          code: `function getArray(flag: boolean) {
+  return flag ? [doA()] : [doB()];
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Object with function call inside - should still be flagged
+          code: `function getObject(flag: boolean) {
+  return flag ? { a: doA() } : { b: doB() };
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Nested ternary with side effects - should still be flagged
+          code: `function nested(flag: boolean, other: boolean) {
+  return flag ? (other ? doA() : doB()) : doC();
+}`,
+          errors: 1,
+        },
+        {
           name: 'RSPEC non-compliant code example',
           code: `function tempt1(name: string, ofAge: boolean) {
   if (ofAge) {
@@ -117,6 +145,68 @@ function tempt3(name: string, ofAge: boolean) {
         },
       ],
       valid: [
+        {
+          // JS-709: Simple value transformations should not be flagged
+          code: `
+function transform(value: boolean): string {
+    return value ? 'Yes' : 'No';
+}`,
+        },
+        {
+          // JS-709: Arrow function with simple value transformation
+          code: `
+const transform = (value: boolean): number => value ? 1 : 0;
+`,
+        },
+        {
+          // JS-709: Returning computed values (no side effects)
+          code: `
+function getValue(flag: boolean): number {
+    return flag ? 1 + 2 : 3 * 4;
+}`,
+        },
+        {
+          // JS-709: Array expressions without side effects
+          code: `
+function getArray(flag: boolean): number[] {
+    return flag ? [1, 2, 3] : [4, 5, 6];
+}`,
+        },
+        {
+          // JS-709: Object expressions without side effects
+          code: `
+function getObject(flag: boolean): object {
+    return flag ? { a: 1 } : { b: 2 };
+}`,
+        },
+        {
+          // JS-709: Member expressions without side effects
+          code: `
+function getValue(flag: boolean, obj: { a: number, b: number }): number {
+    return flag ? obj.a : obj.b;
+}`,
+        },
+        {
+          // JS-709: Unary expressions without side effects
+          code: `
+function getNegated(flag: boolean, x: number): number {
+    return flag ? -x : +x;
+}`,
+        },
+        {
+          // JS-709: Logical expressions without side effects
+          code: `
+function getLogical(flag: boolean, a: boolean, b: boolean): boolean {
+    return flag ? a && b : a || b;
+}`,
+        },
+        {
+          // JS-709: Nested ternary without side effects
+          code: `
+function getNestedValue(flag: boolean, other: boolean): string {
+    return flag ? (other ? 'a' : 'b') : 'c';
+}`,
+        },
         {
           code: `
 function foo({ isField }: {isField: boolean}) {

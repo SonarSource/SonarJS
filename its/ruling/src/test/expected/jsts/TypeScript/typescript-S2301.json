@@ -1,10 +1,6 @@
 {
 "TypeScript:src/compiler/checker.ts": [
-4042,
-10963
-],
-"TypeScript:src/compiler/core.ts": [
-2306
+4042
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 660
