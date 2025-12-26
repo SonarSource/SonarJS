@@ -23,6 +23,7 @@ import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { dirname } from 'node:path/posix';
 import { getManifests } from '../helpers/package-jsons/all-in-parent-dirs.js';
+import { minVersion } from 'semver';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -38,11 +39,10 @@ export const rule: Rule.RuleModule = {
     }
     function getVersionFromPackageJson() {
       for (const packageJson of getManifests(dirname(toUnixPath(context.filename)), context.cwd)) {
-        if (packageJson.dependencies?.react) {
-          return packageJson.dependencies.react;
-        }
-        if (packageJson.devDependencies?.react) {
-          return packageJson.devDependencies.react;
+        const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
+        if (reactVersion) {
+          // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
+          return minVersion(reactVersion)?.version ?? null;
         }
       }
       return null;

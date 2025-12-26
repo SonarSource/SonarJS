@@ -1,0 +1,8 @@
+{
+  "name": "react18-range-app",
+  "version": "1.0.0",
+  "author": "Your Name <email@example.com>",
+  "dependencies": {
+    "react": "^18.0.0"
+  }
+}

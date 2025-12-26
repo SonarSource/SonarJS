@@ -146,6 +146,40 @@ ReactDOMServer.renderToNodeStream(element);
       ],
     });
 
+    // JS-536: Test that version ranges (e.g., "^18.0.0") are properly coerced to valid semver
+    const filenameReact18Range = path.join(fixtures, 'react18-range/file.js');
+
+    ruleTester.run('React18 with version range', rule, {
+      valid: [
+        {
+          // Non-deprecated code should not be flagged
+          code: `
+import React from 'react';
+const element = <div>Hello</div>;
+`,
+          filename: filenameReact18Range,
+        },
+      ],
+      invalid: [
+        {
+          // React 18 deprecations should be flagged when using version range "^18.0.0"
+          // This verifies that the version range is properly coerced to "18.0.0"
+          code: `
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+ReactDOM.render(<div></div>, container);
+`,
+          filename: filenameReact18Range,
+          errors: [
+            {
+              message: 'ReactDOM.render is deprecated since React 18.0.0, use createRoot instead',
+            },
+          ],
+        },
+      ],
+    });
+
     shouldRaiseAllIssues(path.join(fixtures, 'noreact1/file.js'));
     shouldRaiseAllIssues(path.join(fixtures, 'noreact2/file.js'));
 
