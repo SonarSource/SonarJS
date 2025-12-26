@@ -813,55 +813,47 @@ jobs:
         run: |
           npm run generate-meta
           npm run ruling
-      # On failure: sync ruling, commit, and post comment
-      - name: Sync ruling results
+      - name: Update ruling and notify
         if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        run: npm run ruling-sync
-      - name: Generate ruling report
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        run: node tools/ruling-report.js > ruling-report.md
-      - name: Checkout PR branch for push
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          git fetch origin ${{ github.head_ref }}
-          git checkout ${{ github.head_ref }}
-      - name: Commit and push ruling changes
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        run: |
+          # Sync ruling results
+          npm run ruling-sync
+
+          # Generate report
+          node tools/ruling-report.js > ruling-report.md
+
+          # Checkout PR branch and push changes
+          git fetch origin "$HEAD_REF"
+          git checkout "$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add its/ruling/src/test/expected/jsts/
+
           if git diff --staged --quiet; then
             echo "No ruling changes to commit"
-          else
-            git commit -m "Update ruling results
+            exit 0
+          fi
+
+          git commit -m "Update ruling results
 
           🤖 Generated with GitHub Actions"
-            git push origin ${{ github.head_ref }}
+          git push origin "$HEAD_REF"
+
+          # Post comment with report and re-run link
+          if [ -s ruling-report.md ]; then
+            {
+              cat ruling-report.md
+              echo ""
+              echo "---"
+              echo "✅ Ruling has been updated. [Re-run the workflow](https://github.com/${{ github.repository }}/actions/runs/$RUN_ID) to pass CI."
+            } > comment.md
+            gh pr comment "$PR_NUMBER" --body-file comment.md
           fi
-      - name: Post ruling report comment
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const fs = require('fs');
-            let report = fs.readFileSync('ruling-report.md', 'utf8');
-            if (report && report.trim()) {
-              const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-              report += `\n---\n✅ Ruling has been updated. [Re-run the workflow](${runUrl}) to pass CI.\n`;
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: report
-              });
-            }
-      - name: Upload ruling differences
-        if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: ruling-differences-jsts
-          path: packages/ruling/actual/jsts/
 
   ruling:
     runs-on: github-ubuntu-latest-l
