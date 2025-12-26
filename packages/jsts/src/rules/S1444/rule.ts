@@ -30,6 +30,10 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    // The `readonly` modifier is TypeScript-only, so this rule should not run on JavaScript files
+    if (!/\.tsx?$/i.test(context.filename)) {
+      return {};
+    }
     return {
       'PropertyDefinition[readonly!=true][static=true][accessibility!="private"][accessibility!="protected"]'(
         node: PropertyDefinition,
