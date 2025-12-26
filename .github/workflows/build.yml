@@ -843,7 +843,7 @@ jobs:
         run: npm run ruling-sync
       - name: Generate ruling report
         id: report
-        run: node tools/ruling-report.js --removed-only > ruling-report.md
+        run: node tools/ruling-report.js > ruling-report.md
       - name: Commit and push ruling changes
         run: |
           git config user.name "github-actions[bot]"
