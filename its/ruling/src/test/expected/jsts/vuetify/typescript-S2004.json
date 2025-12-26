@@ -1,29 +1,10 @@
 {
-"vuetify:packages/vuetify/src/components/VAlert/__tests__/VAlert.spec.cy.tsx": [
-25,
-35
-],
 "vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 325,
 330,
 333,
 336,
 351
-],
-"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
-50,
-60,
-97,
-107
-],
-"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
-57,
-67
-],
-"vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
-17,
-35,
-53
 ],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 129
@@ -38,22 +19,11 @@
 416,
 431
 ],
-"vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
-35,
-36
-],
 "vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
 214,
 219,
 226,
 238
-],
-"vuetify:packages/vuetify/src/components/VIcon/__tests__/VIcon.spec.cy.tsx": [
-86
-],
-"vuetify:packages/vuetify/src/components/VOverlay/__tests__/VOverlay.spec.cy.tsx": [
-84,
-85
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
 137
@@ -64,64 +34,8 @@
 291,
 305
 ],
-"vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.cy.tsx": [
-13,
-24
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
-17,
-68,
-193,
-211,
-232
-],
 "vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
 133
-],
-"vuetify:packages/vuetify/src/components/VTimeline/__tests__/VTimeline.spec.cy.tsx": [
-24,
-25,
-30,
-31,
-46,
-47,
-52,
-53,
-87,
-93,
-98,
-104,
-124,
-130,
-135,
-141,
-159,
-165,
-170,
-176,
-194,
-195,
-200,
-201,
-216,
-217,
-222,
-223,
-257,
-263,
-268,
-274,
-294,
-300,
-305,
-311
-],
-"vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
-232
-],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-153,
-158
 ],
 "vuetify:packages/vuetify/src/composables/delay.ts": [
 33
@@ -129,8 +43,5 @@
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
 71,
 82
-],
-"vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
-19
 ]
 }
