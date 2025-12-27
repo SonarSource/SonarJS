@@ -813,13 +813,20 @@ jobs:
         run: |
           npm run generate-meta
           npm run ruling
+      - name: Get push token
+        id: secrets
+        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-ruling-update token | GITHUB_PUSH_TOKEN;
       - name: Update ruling and notify
         if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_PUSH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_PUSH_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
-          RUN_ID: ${{ github.run_id }}
         run: |
           # Sync ruling results
           npm run ruling-sync
@@ -827,11 +834,12 @@ jobs:
           # Generate report
           node tools/ruling-report.js > ruling-report.md
 
-          # Checkout PR branch and push changes
+          # Checkout PR branch and push changes using PAT (triggers new workflow)
           git fetch origin "$HEAD_REF"
           git checkout "$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_PUSH_TOKEN}@github.com/${{ github.repository }}.git"
           git add its/ruling/src/test/expected/jsts/
 
           if git diff --staged --quiet; then
@@ -844,13 +852,13 @@ jobs:
           🤖 Generated with GitHub Actions"
           git push origin "$HEAD_REF"
 
-          # Post comment with report and re-run link
+          # Post comment with report
           if [ -s ruling-report.md ]; then
             {
               cat ruling-report.md
               echo ""
               echo "---"
-              echo "✅ Ruling has been updated. [Re-run the workflow](https://github.com/${{ github.repository }}/actions/runs/$RUN_ID) to pass CI."
+              echo "✅ Ruling has been updated and CI will re-run automatically."
             } > comment.md
             gh pr comment "$PR_NUMBER" --body-file comment.md
           fi
