@@ -813,18 +813,10 @@ jobs:
         run: |
           npm run generate-meta
           npm run ruling
-      - name: Get push token
-        id: secrets
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-ruling-update token | GITHUB_PUSH_TOKEN;
       - name: Update ruling and notify
         if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-          GITHUB_PUSH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_PUSH_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
@@ -849,7 +841,6 @@ jobs:
           git checkout "$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${GITHUB_PUSH_TOKEN}@github.com/${{ github.repository }}.git"
 
           # Pop the stashed changes
           git stash pop
@@ -866,16 +857,18 @@ jobs:
           🤖 Generated with GitHub Actions"
           git push origin "$HEAD_REF"
 
-          # Post comment with report
-          if [ -s ruling-report.md ]; then
-            {
+          # Post comment with report and instructions
+          {
+            if [ -s ruling-report.md ]; then
               cat ruling-report.md
               echo ""
-              echo "---"
-              echo "✅ Ruling has been updated and CI will re-run automatically."
-            } > comment.md
-            gh pr comment "$PR_NUMBER" --body-file comment.md
-          fi
+            fi
+            echo "---"
+            echo "✅ **Ruling has been updated.** To re-run CI, either:"
+            echo "- Close and reopen this PR, or"
+            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+          } > comment.md
+          gh pr comment "$PR_NUMBER" --body-file comment.md
 
   ruling:
     runs-on: github-ubuntu-latest-l
