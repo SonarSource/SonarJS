@@ -48,6 +48,14 @@ describe('S6754', () => {
         const [Foo, setFoo] = useState();
       }`,
           },
+          {
+            name: 'isXXX pattern: [isReady, setReady] is valid',
+            code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const [isReady, setReady] = useState(false);
+      }`,
+          },
         ],
         invalid: [
           {
@@ -56,6 +64,24 @@ describe('S6754', () => {
       function useFoo() {
         const [foo, bar] = useState();
         return [foo, bar];
+      }`,
+            errors: 1,
+          },
+          {
+            name: 'isXXX pattern does not apply when setter is unrelated',
+            code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const [isReady, updateReady] = useState(false);
+      }`,
+            errors: 1,
+          },
+          {
+            name: 'is alone is too short for the exception',
+            code: `
+      import { useState } from 'react';
+      function useFoo() {
+        const [is, set] = useState(false);
       }`,
             errors: 1,
           },
