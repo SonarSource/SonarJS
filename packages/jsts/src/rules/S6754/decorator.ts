@@ -56,7 +56,7 @@ function isValidUseStatePattern(node: ArrayPattern): boolean {
     return false;
   }
 
-  const setterSuffix = setterName.substring(3);
+  const setterSuffix = setterName.substring('set'.length);
 
   // Standard match: [Foo, setFoo]
   if (setterSuffix === getterName) {
@@ -67,8 +67,8 @@ function isValidUseStatePattern(node: ArrayPattern): boolean {
   // This is more readable than [isReady, setIsReady]
   if (
     getterName.startsWith('is') &&
-    getterName.length > 2 &&
-    setterSuffix === getterName.substring(2)
+    getterName.length > 'is'.length &&
+    setterSuffix === getterName.substring('is'.length)
   ) {
     return true;
   }
