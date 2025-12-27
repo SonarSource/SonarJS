@@ -828,6 +828,13 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
+          # Check if last commit was already an auto-update (prevent infinite loop)
+          LAST_COMMIT_MSG=$(git log -1 --format=%B)
+          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+            echo "Last commit was an auto-update, skipping to prevent infinite loop"
+            exit 0
+          fi
+
           # Sync ruling results
           npm run ruling-sync
 
