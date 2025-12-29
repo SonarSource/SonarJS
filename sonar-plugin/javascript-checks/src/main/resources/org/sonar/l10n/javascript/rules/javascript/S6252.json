@@ -30,6 +30,10 @@
     ],
     "PCI DSS 4.0": [
       "10.2.1.7"
+    ],
+    "CWE": [
+      16,
+      693
     ]
   },
   "compatibleLanguages": [

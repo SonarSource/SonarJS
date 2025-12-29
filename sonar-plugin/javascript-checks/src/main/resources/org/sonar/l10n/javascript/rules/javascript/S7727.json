@@ -16,7 +16,7 @@
   "ruleSpecification": "RSPEC-7727",
   "sqKey": "S7727",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "RELIABILITY": "HIGH",
