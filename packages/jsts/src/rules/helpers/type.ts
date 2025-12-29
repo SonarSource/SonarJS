@@ -330,3 +330,16 @@ export function typeHasMethod(
   }
   return false;
 }
+
+/**
+ * Checks if a type is iterable (has Symbol.iterator).
+ * TypeScript stores Symbol.iterator as `__@iterator@<id>` where id is a number.
+ * @param node The node to check
+ * @param services The parser services
+ * @returns true if the type has Symbol.iterator, false otherwise
+ */
+export function isIterable(node: estree.Node, services: RequiredParserServices): boolean {
+  const type = getTypeFromTreeNode(node, services);
+  const properties = type.getProperties();
+  return properties.some(prop => prop.name.startsWith('__@iterator@'));
+}
