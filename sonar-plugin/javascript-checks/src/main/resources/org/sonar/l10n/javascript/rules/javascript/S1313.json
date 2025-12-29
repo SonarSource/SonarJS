@@ -27,6 +27,9 @@
     ],
     "OWASP Top 10 2021": [
       "A1"
+    ],
+    "CWE": [
+      547
     ]
   },
   "compatibleLanguages": [

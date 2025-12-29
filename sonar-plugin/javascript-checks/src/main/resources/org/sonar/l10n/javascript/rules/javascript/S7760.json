@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-7760",
   "sqKey": "S7760",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"
