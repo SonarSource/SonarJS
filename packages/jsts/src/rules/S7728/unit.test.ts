@@ -125,6 +125,30 @@ for (const x of typed) console.log(x);
 `,
           errors: [{ messageId: 'no-array-for-each/error' }],
         },
+        {
+          // this.property pattern - string[] is iterable, should report
+          code: `
+class Base {
+  public tests: string[] = [];
+}
+class Child extends Base {
+  foo() {
+    this.tests.forEach(t => console.log(t));
+  }
+}
+`,
+          output: `
+class Base {
+  public tests: string[] = [];
+}
+class Child extends Base {
+  foo() {
+    for (const t of this.tests) console.log(t);
+  }
+}
+`,
+          errors: [{ messageId: 'no-array-for-each/error' }],
+        },
       ],
     });
   });

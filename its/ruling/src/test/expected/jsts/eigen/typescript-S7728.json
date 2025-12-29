@@ -54,9 +54,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 62
 ],
-"eigen:src/app/Scenes/Map/EventEmitter.ts": [
-15
-],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 252,
 313,
