@@ -13,9 +13,6 @@
 "vuetify:packages/docs/src/util/markdown-it.ts": [
 53
 ],
-"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
-77
-],
 "vuetify:packages/vuetify/src/components/VAlert/__tests__/VAlert.spec.cy.tsx": [
 35
 ],
@@ -58,10 +55,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
 33
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-44,
-75
 ],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 162

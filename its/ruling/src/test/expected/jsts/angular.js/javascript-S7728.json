@@ -5,7 +5,6 @@
 315
 ],
 "angular.js:docs/app/assets/js/search-worker.js": [
-26,
 40
 ],
 "angular.js:docs/app/src/docs.js": [
@@ -73,9 +72,6 @@
 120,
 125,
 224
-],
-"angular.js:src/Angular.js": [
-252
 ],
 "angular.js:src/ng/directive/ngOptions.js": [
 517,
