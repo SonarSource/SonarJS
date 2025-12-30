@@ -34,9 +34,6 @@
 1771,
 1826,
 1922,
-2027,
-2835,
-3046,
 6045,
 19185,
 19278,
@@ -65,40 +62,23 @@
 2412
 ],
 "TypeScript:src/harness/compilerRunner.ts": [
-93,
 102,
 195,
 201
 ],
 "TypeScript:src/harness/fourslash.ts": [
-204,
-229,
-266,
-329,
-336,
 351,
 535,
-963,
 1490,
 1566,
-1615,
 2647,
 2651,
-2788,
-3032,
-3036,
 3298
 ],
 "TypeScript:src/harness/fourslashRunner.ts": [
 52
 ],
 "TypeScript:src/harness/harness.ts": [
-254,
-280,
-1211,
-1212,
-1252,
-1256,
 1286,
 1300,
 1303,
@@ -106,30 +86,11 @@
 1342,
 1475,
 1477,
-1503,
-1826
-],
-"TypeScript:src/harness/harnessLanguageService.ts": [
-536,
-544,
-552
-],
-"TypeScript:src/harness/loggedIO.ts": [
-133
+1503
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 51,
-56,
-374,
-408,
-486
-],
-"TypeScript:src/harness/runner.ts": [
-36
-],
-"TypeScript:src/harness/rwcRunner.ts": [
-74,
-99
+56
 ],
 "TypeScript:src/harness/test262Runner.ts": [
 113,
@@ -166,9 +127,5 @@
 "TypeScript:src/services/jsTyping.ts": [
 120,
 133
-],
-"TypeScript:src/services/symbolDisplay.ts": [
-355,
-528
 ]
 }
