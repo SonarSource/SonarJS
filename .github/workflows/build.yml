@@ -133,7 +133,7 @@ jobs:
     steps: *populate_npm_cache_steps
 
   build:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: Build SonarJS on Linux
     needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -201,7 +201,7 @@ jobs:
         if: always()
         run: |
           kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
-          echo "=== Runner Utilization Report (github-ubuntu-latest-m) ==="
+          echo "=== Runner Utilization Report (github-ubuntu-latest-s) ==="
           echo "CPUs available: $(nproc)"
           echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
           echo ""
@@ -242,8 +242,47 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *config_maven
+      - name: Start resource monitor
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:TEMP\metrics | Out-Null
+          $script = {
+            while ($true) {
+              $cpu = (Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue
+              $mem = Get-CimInstance Win32_OperatingSystem
+              $usedMem = [math]::Round(($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / 1024)
+              $totalMem = [math]::Round($mem.TotalVisibleMemorySize / 1024)
+              Add-Content "$env:TEMP\metrics\usage.csv" "$([DateTimeOffset]::Now.ToUnixTimeSeconds()),$cpu,$usedMem,$totalMem"
+              Start-Sleep -Seconds 5
+            }
+          }
+          "timestamp,cpu_percent,mem_used_mb,mem_total_mb" | Out-File "$env:TEMP\metrics\usage.csv"
+          $job = Start-Job -ScriptBlock $script
+          $job.Id | Out-File "$env:TEMP\metrics\monitor.pid"
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
+      - name: Stop monitor and report utilization
+        if: always()
+        shell: pwsh
+        run: |
+          $jobId = Get-Content "$env:TEMP\metrics\monitor.pid" -ErrorAction SilentlyContinue
+          if ($jobId) { Stop-Job -Id $jobId -ErrorAction SilentlyContinue; Remove-Job -Id $jobId -ErrorAction SilentlyContinue }
+          Write-Host "=== Runner Utilization Report (github-windows-latest-m) ==="
+          Write-Host "CPUs available: $env:NUMBER_OF_PROCESSORS"
+          $mem = Get-CimInstance Win32_OperatingSystem
+          Write-Host "Memory available: $([math]::Round($mem.TotalVisibleMemorySize / 1024 / 1024)) GB"
+          $data = Import-Csv "$env:TEMP\metrics\usage.csv"
+          if ($data) {
+            $maxCpu = ($data | Measure-Object -Property cpu_percent -Maximum).Maximum
+            $maxMem = ($data | Measure-Object -Property mem_used_mb -Maximum).Maximum
+            $avgCpu = ($data | Measure-Object -Property cpu_percent -Average).Average
+            $avgMem = ($data | Measure-Object -Property mem_used_mb -Average).Average
+            $totalMem = $data[-1].mem_total_mb
+            Write-Host "Peak CPU: $([math]::Round($maxCpu, 1))%"
+            Write-Host "Peak Memory: $maxMem MB / $totalMem MB"
+            Write-Host "Avg CPU: $([math]::Round($avgCpu, 1))%"
+            Write-Host "Avg Memory: $([math]::Round($avgMem)) MB"
+          }
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -323,7 +362,7 @@ jobs:
           npx knip
 
   test_js:
-    runs-on: github-ubuntu-latest-l
+    runs-on: github-ubuntu-latest-m
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache]
     permissions: *read_permissions
@@ -336,9 +375,9 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
       - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'false'
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - if: steps.cache.outputs.cache-hit != 'false'
+      - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -349,13 +388,13 @@ jobs:
             maven = "3.9"
             node = "24.11.0"
       - name: Cache NPM dependencies
-        if: steps.cache.outputs.cache-hit != 'false'
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - name: Start resource monitor
-        if: steps.cache.outputs.cache-hit != 'false'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p /tmp/metrics
           echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
@@ -366,17 +405,17 @@ jobs:
             sleep 5
           done) &
           echo $! > /tmp/metrics/monitor.pid
-      - if: steps.cache.outputs.cache-hit != 'false'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
       - name: Stop monitor and report utilization
-        if: always() && steps.cache.outputs.cache-hit != 'false'
+        if: always() && steps.cache.outputs.cache-hit != 'true'
         run: |
           kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
-          echo "=== Runner Utilization Report (github-ubuntu-latest-l) ==="
+          echo "=== Runner Utilization Report (github-ubuntu-latest-m) ==="
           echo "CPUs available: $(nproc)"
           echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
           echo ""
@@ -422,6 +461,24 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - name: Start resource monitor
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:TEMP\metrics | Out-Null
+          $script = {
+            while ($true) {
+              $cpu = (Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue
+              $mem = Get-CimInstance Win32_OperatingSystem
+              $usedMem = [math]::Round(($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / 1024)
+              $totalMem = [math]::Round($mem.TotalVisibleMemorySize / 1024)
+              Add-Content "$env:TEMP\metrics\usage.csv" "$([DateTimeOffset]::Now.ToUnixTimeSeconds()),$cpu,$usedMem,$totalMem"
+              Start-Sleep -Seconds 5
+            }
+          }
+          "timestamp,cpu_percent,mem_used_mb,mem_total_mb" | Out-File "$env:TEMP\metrics\usage.csv"
+          $job = Start-Job -ScriptBlock $script
+          $job.Id | Out-File "$env:TEMP\metrics\monitor.pid"
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
@@ -430,6 +487,28 @@ jobs:
           npm run bridge:compile
           npm run bridge:test:js
           mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
+      - name: Stop monitor and report utilization
+        if: always() && steps.cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $jobId = Get-Content "$env:TEMP\metrics\monitor.pid" -ErrorAction SilentlyContinue
+          if ($jobId) { Stop-Job -Id $jobId -ErrorAction SilentlyContinue; Remove-Job -Id $jobId -ErrorAction SilentlyContinue }
+          Write-Host "=== Runner Utilization Report (github-windows-latest-m) ==="
+          Write-Host "CPUs available: $env:NUMBER_OF_PROCESSORS"
+          $mem = Get-CimInstance Win32_OperatingSystem
+          Write-Host "Memory available: $([math]::Round($mem.TotalVisibleMemorySize / 1024 / 1024)) GB"
+          $data = Import-Csv "$env:TEMP\metrics\usage.csv"
+          if ($data) {
+            $maxCpu = ($data | Measure-Object -Property cpu_percent -Maximum).Maximum
+            $maxMem = ($data | Measure-Object -Property mem_used_mb -Maximum).Maximum
+            $avgCpu = ($data | Measure-Object -Property cpu_percent -Average).Average
+            $avgMem = ($data | Measure-Object -Property mem_used_mb -Average).Average
+            $totalMem = $data[-1].mem_total_mb
+            Write-Host "Peak CPU: $([math]::Round($maxCpu, 1))%"
+            Write-Host "Peak Memory: $maxMem MB / $totalMem MB"
+            Write-Host "Avg CPU: $([math]::Round($avgCpu, 1))%"
+            Write-Host "Avg Memory: $([math]::Round($avgMem)) MB"
+          }
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
@@ -578,6 +657,18 @@ jobs:
             development/github/token/licenses-ro token | licenses_token;
       - &orchestrator_cache
         uses: ./.github/actions/orchestrator-cache
+      - &start_linux_monitor
+        name: Start resource monitor
+        run: |
+          mkdir -p /tmp/metrics
+          echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
+          (while true; do
+            cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+            mem=$(free -m | awk '/^Mem:/ {print $3","$2}')
+            echo "$(date +%s),$cpu,$mem" >> /tmp/metrics/usage.csv
+            sleep 5
+          done) &
+          echo $! > /tmp/metrics/monitor.pid
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -586,6 +677,24 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - &stop_linux_monitor
+        name: Stop monitor and report utilization
+        if: always()
+        run: |
+          kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
+          echo "=== Runner Utilization Report (github-ubuntu-latest-m) ==="
+          echo "CPUs available: $(nproc)"
+          echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo ""
+          awk -F',' 'NR>1 {
+            if($2>maxcpu)maxcpu=$2; if($3>maxmem)maxmem=$3
+            sumcpu+=$2; summem+=$3; n++
+          } END {
+            printf "Peak CPU: %.1f%%\n", maxcpu
+            printf "Peak Memory: %d MB / %d MB\n", maxmem, $4
+            printf "Avg CPU: %.1f%%\n", sumcpu/n
+            printf "Avg Memory: %.0f MB\n", summem/n
+          }' /tmp/metrics/usage.csv
 
   plugin_qa_fast_with_node:
     runs-on: github-ubuntu-latest-m
@@ -605,6 +714,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+      - *start_linux_monitor
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -612,6 +722,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_linux_monitor
 
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-m
@@ -651,6 +762,7 @@ jobs:
             echo "SUCCESS: node is no longer accessible"
           fi
       - *orchestrator_cache
+      - *start_linux_monitor
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -660,6 +772,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_linux_monitor
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
@@ -677,6 +790,7 @@ jobs:
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
+      - *start_linux_monitor
       - name: Run Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -686,6 +800,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_linux_monitor
 
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-m
@@ -713,6 +828,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+      - *start_linux_monitor
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
@@ -721,6 +837,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: ${{ matrix.artifact }}
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_linux_monitor
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
@@ -738,6 +855,7 @@ jobs:
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
+      - *start_linux_monitor
       - name: Run Fast Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
@@ -746,6 +864,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_linux_monitor
 
   plugin_qa_win:
     runs-on: github-windows-latest-m
@@ -768,6 +887,24 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
+      - &start_win_monitor
+        name: Start resource monitor
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:TEMP\metrics | Out-Null
+          $script = {
+            while ($true) {
+              $cpu = (Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue
+              $mem = Get-CimInstance Win32_OperatingSystem
+              $usedMem = [math]::Round(($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / 1024)
+              $totalMem = [math]::Round($mem.TotalVisibleMemorySize / 1024)
+              Add-Content "$env:TEMP\metrics\usage.csv" "$([DateTimeOffset]::Now.ToUnixTimeSeconds()),$cpu,$usedMem,$totalMem"
+              Start-Sleep -Seconds 5
+            }
+          }
+          "timestamp,cpu_percent,mem_used_mb,mem_total_mb" | Out-File "$env:TEMP\metrics\usage.csv"
+          $job = Start-Job -ScriptBlock $script
+          $job.Id | Out-File "$env:TEMP\metrics\monitor.pid"
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -786,6 +923,29 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - &stop_win_monitor
+        name: Stop monitor and report utilization
+        if: always()
+        shell: pwsh
+        run: |
+          $jobId = Get-Content "$env:TEMP\metrics\monitor.pid" -ErrorAction SilentlyContinue
+          if ($jobId) { Stop-Job -Id $jobId -ErrorAction SilentlyContinue; Remove-Job -Id $jobId -ErrorAction SilentlyContinue }
+          Write-Host "=== Runner Utilization Report (github-windows-latest-m) ==="
+          Write-Host "CPUs available: $env:NUMBER_OF_PROCESSORS"
+          $mem = Get-CimInstance Win32_OperatingSystem
+          Write-Host "Memory available: $([math]::Round($mem.TotalVisibleMemorySize / 1024 / 1024)) GB"
+          $data = Import-Csv "$env:TEMP\metrics\usage.csv"
+          if ($data) {
+            $maxCpu = ($data | Measure-Object -Property cpu_percent -Maximum).Maximum
+            $maxMem = ($data | Measure-Object -Property mem_used_mb -Maximum).Maximum
+            $avgCpu = ($data | Measure-Object -Property cpu_percent -Average).Average
+            $avgMem = ($data | Measure-Object -Property mem_used_mb -Average).Average
+            $totalMem = $data[-1].mem_total_mb
+            Write-Host "Peak CPU: $([math]::Round($maxCpu, 1))%"
+            Write-Host "Peak Memory: $maxMem MB / $totalMem MB"
+            Write-Host "Avg CPU: $([math]::Round($avgCpu, 1))%"
+            Write-Host "Avg Memory: $([math]::Round($avgMem)) MB"
+          }
 
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
@@ -799,12 +959,14 @@ jobs:
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven
+      - *start_win_monitor
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+      - *stop_win_monitor
 
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
@@ -829,6 +991,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+      - *start_win_monitor
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -847,6 +1010,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *stop_win_monitor
 
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
@@ -862,6 +1026,7 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
+      - *start_linux_monitor
       - name: Run JS/TS Ruling
         run: |
           npm run generate-meta
@@ -872,9 +1037,10 @@ jobs:
         with:
           name: ruling-differences-jsts
           path: packages/ruling/actual/jsts/
+      - *stop_linux_monitor
 
   ruling:
-    runs-on: github-ubuntu-latest-l
+    runs-on: github-ubuntu-latest-m
     name: Ruling Test
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -889,17 +1055,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           save: 'false'
-      - name: Start resource monitor
-        run: |
-          mkdir -p /tmp/metrics
-          echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
-          (while true; do
-            cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
-            mem=$(free -m | awk '/^Mem:/ {print $3","$2}')
-            echo "$(date +%s),$cpu,$mem" >> /tmp/metrics/usage.csv
-            sleep 5
-          done) &
-          echo $! > /tmp/metrics/monitor.pid
+      - *start_linux_monitor
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -913,23 +1069,7 @@ jobs:
         with:
           name: ruling-differences
           path: its/ruling/target/actual/jsts/
-      - name: Stop monitor and report utilization
-        if: always()
-        run: |
-          kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
-          echo "=== Runner Utilization Report (github-ubuntu-latest-l) ==="
-          echo "CPUs available: $(nproc)"
-          echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
-          echo ""
-          awk -F',' 'NR>1 {
-            if($2>maxcpu)maxcpu=$2; if($3>maxmem)maxmem=$3
-            sumcpu+=$2; summem+=$3; n++
-          } END {
-            printf "Peak CPU: %.1f%%\n", maxcpu
-            printf "Peak Memory: %d MB / %d MB\n", maxmem, $4
-            printf "Avg CPU: %.1f%%\n", sumcpu/n
-            printf "Avg Memory: %.0f MB\n", summem/n
-          }' /tmp/metrics/usage.csv
+      - *stop_linux_monitor
 
   css_ruling:
     runs-on: github-ubuntu-latest-m
@@ -947,6 +1087,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           save: 'false'
+      - *start_linux_monitor
       - name: Run CSS Ruling
         run: |
           cd its/ruling
@@ -960,6 +1101,7 @@ jobs:
         with:
           name: ruling-differences-css
           path: its/ruling/target/actual/
+      - *stop_linux_monitor
 
   # IRIS tasks (nightly only)
   run_iris:
