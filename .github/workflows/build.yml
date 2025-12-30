@@ -180,12 +180,40 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
+      - name: Start resource monitor
+        run: |
+          mkdir -p /tmp/metrics
+          echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
+          (while true; do
+            cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+            mem=$(free -m | awk '/^Mem:/ {print $3","$2}')
+            echo "$(date +%s),$cpu,$mem" >> /tmp/metrics/usage.csv
+            sleep 5
+          done) &
+          echo $! > /tmp/metrics/monitor.pid
       - name: Build, test and deploy Maven artifacts
         run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+      - name: Stop monitor and report utilization
+        if: always()
+        run: |
+          kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
+          echo "=== Runner Utilization Report (github-ubuntu-latest-m) ==="
+          echo "CPUs available: $(nproc)"
+          echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo ""
+          awk -F',' 'NR>1 {
+            if($2>maxcpu)maxcpu=$2; if($3>maxmem)maxmem=$3
+            sumcpu+=$2; summem+=$3; n++
+          } END {
+            printf "Peak CPU: %.1f%%\n", maxcpu
+            printf "Peak Memory: %d MB / %d MB\n", maxmem, $4
+            printf "Avg CPU: %.1f%%\n", sumcpu/n
+            printf "Avg Memory: %.0f MB\n", summem/n
+          }' /tmp/metrics/usage.csv
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -326,12 +354,41 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - name: Start resource monitor
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/metrics
+          echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
+          (while true; do
+            cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+            mem=$(free -m | awk '/^Mem:/ {print $3","$2}')
+            echo "$(date +%s),$cpu,$mem" >> /tmp/metrics/usage.csv
+            sleep 5
+          done) &
+          echo $! > /tmp/metrics/monitor.pid
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
+      - name: Stop monitor and report utilization
+        if: always() && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
+          echo "=== Runner Utilization Report (github-ubuntu-latest-l) ==="
+          echo "CPUs available: $(nproc)"
+          echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo ""
+          awk -F',' 'NR>1 {
+            if($2>maxcpu)maxcpu=$2; if($3>maxmem)maxmem=$3
+            sumcpu+=$2; summem+=$3; n++
+          } END {
+            printf "Peak CPU: %.1f%%\n", maxcpu
+            printf "Peak Memory: %d MB / %d MB\n", maxmem, $4
+            printf "Avg CPU: %.1f%%\n", sumcpu/n
+            printf "Avg Memory: %.0f MB\n", summem/n
+          }' /tmp/metrics/usage.csv
 
   test_js_win:
     runs-on: github-windows-latest-m
@@ -832,6 +889,17 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           save: 'false'
+      - name: Start resource monitor
+        run: |
+          mkdir -p /tmp/metrics
+          echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
+          (while true; do
+            cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+            mem=$(free -m | awk '/^Mem:/ {print $3","$2}')
+            echo "$(date +%s),$cpu,$mem" >> /tmp/metrics/usage.csv
+            sleep 5
+          done) &
+          echo $! > /tmp/metrics/monitor.pid
       - name: Run Ruling Tests
         run: |
           cd its/ruling
@@ -845,6 +913,23 @@ jobs:
         with:
           name: ruling-differences
           path: its/ruling/target/actual/jsts/
+      - name: Stop monitor and report utilization
+        if: always()
+        run: |
+          kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
+          echo "=== Runner Utilization Report (github-ubuntu-latest-l) ==="
+          echo "CPUs available: $(nproc)"
+          echo "Memory available: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo ""
+          awk -F',' 'NR>1 {
+            if($2>maxcpu)maxcpu=$2; if($3>maxmem)maxmem=$3
+            sumcpu+=$2; summem+=$3; n++
+          } END {
+            printf "Peak CPU: %.1f%%\n", maxcpu
+            printf "Peak Memory: %d MB / %d MB\n", maxmem, $4
+            printf "Avg CPU: %.1f%%\n", sumcpu/n
+            printf "Avg Memory: %.0f MB\n", summem/n
+          }' /tmp/metrics/usage.csv
 
   css_ruling:
     runs-on: github-ubuntu-latest-m
