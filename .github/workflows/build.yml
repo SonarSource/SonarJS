@@ -336,9 +336,9 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
       - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'false'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'false'
         uses: jdx/mise-action@v3.5.1
         with:
           version: 2025.11.2
@@ -349,13 +349,13 @@ jobs:
             maven = "3.9"
             node = "24.11.0"
       - name: Cache NPM dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'false'
         uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - name: Start resource monitor
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'false'
         run: |
           mkdir -p /tmp/metrics
           echo "timestamp,cpu_percent,mem_used_mb,mem_total_mb" > /tmp/metrics/usage.csv
@@ -366,14 +366,14 @@ jobs:
             sleep 5
           done) &
           echo $! > /tmp/metrics/monitor.pid
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'false'
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
       - name: Stop monitor and report utilization
-        if: always() && steps.cache.outputs.cache-hit != 'true'
+        if: always() && steps.cache.outputs.cache-hit != 'false'
         run: |
           kill $(cat /tmp/metrics/monitor.pid) 2>/dev/null || true
           echo "=== Runner Utilization Report (github-ubuntu-latest-l) ==="
