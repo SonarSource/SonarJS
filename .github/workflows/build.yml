@@ -133,7 +133,7 @@ jobs:
     steps: *populate_npm_cache_steps
 
   build:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: Build SonarJS on Linux
     needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -203,7 +203,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Build SonarJS on Windows
     needs: [setup, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -295,7 +295,7 @@ jobs:
           npx knip
 
   test_js:
-    runs-on: github-ubuntu-latest-l
+    runs-on: github-ubuntu-latest-m
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache]
     permissions: *read_permissions
@@ -334,7 +334,7 @@ jobs:
           npm run bridge:test:cov
 
   test_js_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win]
     permissions: *read_permissions
@@ -486,7 +486,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   plugin_qa_with_node:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -531,7 +531,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -557,7 +557,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -606,7 +606,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -631,7 +631,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -667,7 +667,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -691,7 +691,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: QA on Windows (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -731,7 +731,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_sonarlint_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: QA SonarLint on Windows
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -750,7 +750,7 @@ jobs:
           SONARSOURCE_QA: true
 
   plugin_qa_win_fast_with_node:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -817,7 +817,7 @@ jobs:
           path: packages/ruling/actual/jsts/
 
   ruling:
-    runs-on: github-ubuntu-latest-l
+    runs-on: github-ubuntu-latest-m
     name: Ruling Test
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -847,7 +847,7 @@ jobs:
           path: its/ruling/target/actual/jsts/
 
   css_ruling:
-    runs-on: github-ubuntu-latest-m
+    runs-on: github-ubuntu-latest-s
     name: CSS Ruling
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
