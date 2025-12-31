@@ -203,7 +203,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Build SonarJS on Windows
     needs: [setup, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -334,7 +334,7 @@ jobs:
           npm run bridge:test:cov
 
   test_js_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win]
     permissions: *read_permissions
@@ -691,7 +691,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: QA on Windows (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -731,7 +731,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_sonarlint_win:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: QA SonarLint on Windows
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -750,7 +750,7 @@ jobs:
           SONARSOURCE_QA: true
 
   plugin_qa_win_fast_with_node:
-    runs-on: github-windows-latest-m
+    runs-on: github-windows-latest-s
     name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
