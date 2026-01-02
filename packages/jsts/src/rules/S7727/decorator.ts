@@ -59,17 +59,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 
   /**
-   * Gets the number of parameters for a callback function.
+   * Gets the number of parameters for a callback function reference.
    * Returns null if the parameter count cannot be determined.
+   *
+   * Note: The base rule only reports on function references (Identifier, MemberExpression),
+   * never on inline function expressions, so we don't need to handle those.
    */
   function getCallbackParameterCount(node: estree.Node, context: Rule.RuleContext): number | null {
-    // For inline function expressions, we can directly count parameters
-    if (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
-      return node.params.length;
-    }
-
-    // For identifiers, use type information via the shared helper
-    if (node.type === 'Identifier') {
+    // Use type information to get parameter count for function references
+    if (node.type === 'Identifier' || node.type === 'MemberExpression') {
       const services = context.sourceCode.parserServices;
       if (isRequiredParserServices(services)) {
         return getFunctionParameterCount(node, services);
