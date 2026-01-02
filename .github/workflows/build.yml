@@ -101,7 +101,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -143,7 +143,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -267,7 +267,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -313,7 +313,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -352,7 +352,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -498,7 +498,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -562,13 +562,24 @@ jobs:
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - os: Ubuntu
+            sq-version: LATEST_RELEASE
+            artifact: multi
+            cache-type: monthly
+          - os: Ubuntu
+            sq-version: DEV
+            artifact: multi
+            cache-type: daily
     steps:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
         uses: jdx/mise-action@v3.5.1
         with:
-          version: 2025.11.2
+          version: 2025.12.12
           cache_save: ${{ needs.setup.outputs.is-default-branch }}
           mise_toml: |
             [tools]
@@ -630,6 +641,43 @@ jobs:
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
+  plugin_qa_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    container:
+      image: alpine/java:21.0.4-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+    permissions: *read_permissions
+    env:
+      MISE_VERBOSE: 1
+    steps:
+      - *checkout
+      - name: Install dependencies
+        run: apk add --no-cache curl github-cli bash
+      - name: Setup Java and Maven
+        uses: jdx/mise-action@v3.5.1
+        with:
+          version: 2025.12.12
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          mise_toml: |
+            [tools]
+            maven = "3.9"
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *orchestrator_cache
+      - name: Run Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
@@ -641,6 +689,9 @@ jobs:
         include:
           - os: Ubuntu
             sq-version: LATEST_RELEASE
+            artifact: multi
+          - os: Ubuntu
+            sq-version: DEV
             artifact: multi
 #          - os: Alpine
 #            sq-version: LATEST_RELEASE
@@ -688,6 +739,42 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          
+  plugin_qa_fast_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    container:
+      image: alpine/java:21.0.4-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+    steps:
+      - *checkout
+      - name: Install dependencies
+        run: apk add --no-cache curl github-cli bash
+      - name: Setup Maven
+        uses: jdx/mise-action@v3.5.1
+        with:
+          version: 2025.12.12
+          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          mise_toml: |
+            [tools]
+            maven = "3.9"
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
