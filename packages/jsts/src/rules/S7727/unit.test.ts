@@ -86,6 +86,15 @@ describe('S7727', () => {
           `,
           errors: 1,
         },
+        {
+          // Class constructor - has no call signatures, only construct signatures
+          // getCallSignatures() returns empty array, so we report (can't determine)
+          code: `
+            class MyClass { constructor(public value: number) {} }
+            [1, 2, 3].map(MyClass);
+          `,
+          errors: 1,
+        },
       ],
     });
   });
