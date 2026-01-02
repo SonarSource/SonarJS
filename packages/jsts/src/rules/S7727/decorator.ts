@@ -65,7 +65,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   function getCallbackParameterCount(node: estree.Node, context: Rule.RuleContext): number | null {
     // For inline function expressions, we can directly count parameters
     if (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
-      return (node as estree.FunctionExpression | estree.ArrowFunctionExpression).params.length;
+      return node.params.length;
     }
 
     // For identifiers, use type information via the shared helper
