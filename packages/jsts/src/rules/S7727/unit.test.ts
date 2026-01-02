@@ -38,6 +38,13 @@ describe('S7727', () => {
           `,
         },
         {
+          // Single parameter method reference (MemberExpression) - safe
+          code: `
+            const utils = { double: (x: number) => x * 2 };
+            [1, 2, 3].map(utils.double);
+          `,
+        },
+        {
           // Boolean is explicitly allowed
           code: `[1, 0, 2].filter(Boolean);`,
         },
