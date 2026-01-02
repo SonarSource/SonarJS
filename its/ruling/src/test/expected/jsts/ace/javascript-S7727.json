@@ -3,8 +3,6 @@
 100
 ],
 "ace:lib/ace/mode/css/csslint.js": [
-440,
-467,
 7895,
 7912,
 8198,
@@ -38,9 +36,6 @@
 5643,
 5649,
 5704
-],
-"ace:src/mode/text.js": [
-79
 ],
 "ace:src/mouse/multi_select_handler.js": [
 126
