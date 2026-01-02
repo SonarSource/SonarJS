@@ -43,23 +43,20 @@ const REACT_INTL_COMPONENTS = new Set([
  * Checks if a JSXExpressionContainer is the `values` attribute of a react-intl component.
  */
 function isReactIntlValuesAttribute(container: TSESTree.JSXExpressionContainer): boolean {
-  const jsxAttribute = container.parent;
-  if (jsxAttribute?.type !== 'JSXAttribute') {
-    return false;
-  }
+  // container -> JSXAttribute -> JSXOpeningElement
+  const jsxAttribute = container.parent as TSESTree.JSXAttribute | undefined;
+  const jsxOpeningElement = jsxAttribute?.parent as TSESTree.JSXOpeningElement | undefined;
 
-  const attrName = jsxAttribute.name;
-  if (attrName.type !== 'JSXIdentifier' || attrName.name !== 'values') {
-    return false;
-  }
+  // Must be a `values` attribute on a react-intl component
+  const attrName = jsxAttribute?.name;
+  const elementName = jsxOpeningElement?.name;
 
-  const jsxOpeningElement = jsxAttribute.parent;
-  if (jsxOpeningElement?.type !== 'JSXOpeningElement') {
-    return false;
-  }
-
-  const elementName = jsxOpeningElement.name;
-  return elementName.type === 'JSXIdentifier' && REACT_INTL_COMPONENTS.has(elementName.name);
+  return (
+    attrName?.type === 'JSXIdentifier' &&
+    attrName.name === 'values' &&
+    elementName?.type === 'JSXIdentifier' &&
+    REACT_INTL_COMPONENTS.has(elementName.name)
+  );
 }
 
 /**
@@ -70,20 +67,15 @@ function isFormatMessageCall(
   callExpr: TSESTree.CallExpression,
   objectExpr: TSESTree.ObjectExpression,
 ): boolean {
-  // Check if the object is the second argument
-  if (callExpr.arguments.length < 2 || callExpr.arguments[1] !== objectExpr) {
-    return false;
-  }
-
-  // Check if the callee is a member expression like `intl.formatMessage`
+  // Must be: something.formatMessage(arg1, objectExpr)
   const callee = callExpr.callee;
-  if (callee.type !== 'MemberExpression') {
-    return false;
-  }
+  const property = callee.type === 'MemberExpression' ? callee.property : null;
 
-  // Check if the method name is `formatMessage`
-  const property = callee.property;
-  return property.type === 'Identifier' && property.name === 'formatMessage';
+  return (
+    callExpr.arguments[1] === objectExpr &&
+    property?.type === 'Identifier' &&
+    property.name === 'formatMessage'
+  );
 }
 
 /**
@@ -95,22 +87,20 @@ function isFormatMessageCall(
  * 2. Hook: intl.formatMessage(descriptor, { b: chunks => <b>{chunks}</b> })
  */
 function isReactIntlFormattingValue(node: estree.Node): boolean {
+  // Only check function expressions (arrow or regular)
   if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
     return false;
   }
 
+  // Navigate: function -> Property -> ObjectExpression -> container
   const tsNode = node as TSESTree.Node;
-  const property = tsNode.parent;
-  if (property?.type !== 'Property') {
+  const property = tsNode.parent as TSESTree.Property | undefined;
+  const objectExpr = property?.parent as TSESTree.ObjectExpression | undefined;
+  const container = objectExpr?.parent;
+
+  if (property?.type !== 'Property' || objectExpr?.type !== 'ObjectExpression') {
     return false;
   }
-
-  const objectExpr = property.parent;
-  if (objectExpr?.type !== 'ObjectExpression') {
-    return false;
-  }
-
-  const container = objectExpr.parent;
 
   // Pattern 1: JSX <FormattedMessage values={{ ... }} />
   if (container?.type === 'JSXExpressionContainer') {
