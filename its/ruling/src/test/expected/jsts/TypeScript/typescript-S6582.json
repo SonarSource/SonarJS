@@ -1,8 +1,14 @@
 {
 "TypeScript:src/compiler/binder.ts": [
 292,
+294,
 380,
 392,
+443,
+1196,
+1797,
+2198,
+2201,
 2219,
 2237,
 2264,
@@ -11,9 +17,12 @@
 2407
 ],
 "TypeScript:src/compiler/checker.ts": [
+822,
+946,
 972,
 1000,
 1045,
+1060,
 1143,
 1406,
 1771,
@@ -23,48 +32,87 @@
 2477,
 2478,
 2706,
+2850,
 2923,
 2933,
+2939,
 3482,
 3511,
 3529,
+3756,
 3869,
 4382,
 4421,
 4755,
 5131,
 5225,
+5252,
 5989,
+6055,
+6204,
+6236,
 6455,
 6717,
 6720,
+7314,
+7378,
+7396,
 7634,
 7741,
 7961,
 8023,
+9393,
+10328,
 11574,
 12131,
+12164,
+12184,
+12200,
 12206,
 12445,
 13096,
 13381,
 14275,
+14369,
 14563,
+14602,
+14756,
 14765,
+14878,
 14886,
 15643,
 15899,
 16104,
+16259,
+16498,
+16517,
 17374,
+18291,
+18361,
+18433,
+19067,
 19263,
 19315,
+19617,
+19785,
+21109,
 21672,
+22120,
+22129,
+22133,
+22342,
+22378,
+22755,
+22765,
+23127,
 23163,
 23169,
 23561,
 23574,
 23680,
-23713
+23713,
+23921,
+24088
 ],
 "TypeScript:src/compiler/commandLineParser.ts": [
 683,
@@ -80,6 +128,7 @@
 133
 ],
 "TypeScript:src/compiler/core.ts": [
+658,
 799,
 809,
 1220,
@@ -94,6 +143,8 @@
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 286,
+1008,
+1025,
 1204,
 1740
 ],
@@ -104,6 +155,7 @@
 2693
 ],
 "TypeScript:src/compiler/factory.ts": [
+1018,
 2212,
 2213,
 2259,
@@ -152,6 +204,7 @@
 702,
 703,
 1292,
+1389,
 1606
 ],
 "TypeScript:src/compiler/sourcemap.ts": [
@@ -173,6 +226,7 @@
 611,
 1329,
 1889,
+2658,
 2979
 ],
 "TypeScript:src/compiler/transformers/es5.ts": [
@@ -185,9 +239,12 @@
 2056
 ],
 "TypeScript:src/compiler/transformers/module/module.ts": [
+1358,
 1484
 ],
 "TypeScript:src/compiler/transformers/module/system.ts": [
+1524,
+1770,
 1774
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
@@ -205,14 +262,37 @@
 "TypeScript:src/compiler/utilities.ts": [
 88,
 129,
+377,
+388,
+531,
+800,
+823,
+826,
+926,
+930,
+940,
+944,
+1383,
 1477,
 1577,
+1586,
+1587,
 1639,
+1664,
+1666,
 1674,
+1735,
+1738,
 2493,
 2520,
+2753,
 2823,
-3172
+3172,
+4527,
+4555,
+4560,
+4582,
+4587
 ],
 "TypeScript:src/harness/compilerRunner.ts": [
 114
@@ -236,11 +316,13 @@
 2340,
 2349,
 2534,
-2610
+2610,
+2848
 ],
 "TypeScript:src/harness/harness.ts": [
 742,
 905,
+1307,
 1591,
 1909,
 1909,
@@ -277,6 +359,7 @@
 943,
 1373,
 1392,
+1432,
 1507
 ],
 "TypeScript:src/server/lsHost.ts": [
@@ -320,7 +403,14 @@
 845
 ],
 "TypeScript:src/services/codefixes/disableJsDiagnostics.ts": [
+11,
 27
+],
+"TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
+21
+],
+"TypeScript:src/services/codefixes/fixExtendsInterfaceBecomesImplements.ts": [
+20
 ],
 "TypeScript:src/services/codefixes/helpers.ts": [
 60
@@ -328,9 +418,25 @@
 "TypeScript:src/services/codefixes/importFixes.ts": [
 159,
 251,
-278
+252,
+278,
+301
+],
+"TypeScript:src/services/codefixes/unusedIdentifierFixes.ts": [
+52,
+56,
+103,
+120
 ],
 "TypeScript:src/services/completions.ts": [
+42,
+149,
+480,
+730,
+1060,
+1104,
+1106,
+1115,
 1182,
 1198
 ],
@@ -339,31 +445,52 @@
 54,
 136
 ],
+"TypeScript:src/services/documentRegistry.ts": [
+124
+],
 "TypeScript:src/services/findAllReferences.ts": [
 47,
+554,
 649,
 695,
+949,
 1057,
 1155,
+1193,
+1292,
+1323,
+1376,
 1622
 ],
 "TypeScript:src/services/formatting/formatting.ts": [
 143,
 159,
-473
+178,
+473,
+1171
+],
+"TypeScript:src/services/formatting/formattingScanner.ts": [
+145
 ],
 "TypeScript:src/services/goToDefinition.ts": [
 18
 ],
 "TypeScript:src/services/importTracker.ts": [
 105,
-328
+106,
+222,
+328,
+344,
+539
 ],
 "TypeScript:src/services/jsTyping.ts": [
 67
 ],
 "TypeScript:src/services/navigationBar.ts": [
-448
+448,
+449,
+585,
+613
 ],
 "TypeScript:src/services/pathCompletions.ts": [
 57,
@@ -373,6 +500,7 @@
 533
 ],
 "TypeScript:src/services/services.ts": [
+628,
 873,
 878,
 1003,
@@ -391,15 +519,24 @@
 ],
 "TypeScript:src/services/signatureHelp.ts": [
 72,
-88
+88,
+124,
+144
 ],
 "TypeScript:src/services/symbolDisplay.ts": [
 85,
-279
+113,
+116,
+279,
+435
 ],
 "TypeScript:src/services/utilities.ts": [
+130,
+144,
 181,
 219,
+817,
+868,
 1355
 ]
 }

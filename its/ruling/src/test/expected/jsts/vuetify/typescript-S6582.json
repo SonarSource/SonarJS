@@ -7,5 +7,11 @@
 ],
 "vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 112
+],
+"vuetify:packages/vuetify/src/util/getScrollParent.ts": [
+25
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+108
 ]
 }
