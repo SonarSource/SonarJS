@@ -60,8 +60,8 @@ class ExternalTSConfigDependencyTest {
     assertThat(result.logOutput()).anyMatch(l ->
       l
         .message()
-        .equals(
-          "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
+        .contains(
+          "extends a configuration that was not found. Please run 'npm install' for a more complete analysis"
         )
     );
 

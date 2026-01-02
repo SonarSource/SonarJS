@@ -90,7 +90,7 @@
 
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*,packages/grpc/src/proto/*</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths>coverage/js/lcov.info</sonar.javascript.lcov.reportPaths>
@@ -316,6 +316,7 @@
               <excludes>
                 <!-- Files -->
                 <exclude>server.mjs</exclude>
+                <exclude>grpc-server.mjs</exclude>
                 <exclude>**/*.d.ts</exclude>
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
@@ -326,6 +327,7 @@
                 <exclude>**/generated-meta.ts</exclude>
                 <!-- Fixtures -->
                 <exclude>**/fixtures/**/*</exclude>
+                <exclude>**/fixtures-*/**/*</exclude>
                 <exclude>**/*.fixture.*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
