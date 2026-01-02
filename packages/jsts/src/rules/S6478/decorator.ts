@@ -43,28 +43,22 @@ const REACT_INTL_COMPONENTS = new Set([
  * Checks if a JSXExpressionContainer is the `values` attribute of a react-intl component.
  */
 function isReactIntlValuesAttribute(container: TSESTree.JSXExpressionContainer): boolean {
-  const jsxAttribute = container.parent;
-  if (jsxAttribute?.type !== 'JSXAttribute') {
+  // JSXExpressionContainer -> JSXAttribute -> JSXOpeningElement
+  const jsxAttribute = container.parent!;
+  if (jsxAttribute.type !== 'JSXAttribute') {
     return false;
   }
 
   // Check if the attribute name is "values"
-  if (jsxAttribute.name.type !== 'JSXIdentifier' || jsxAttribute.name.name !== 'values') {
-    return false;
-  }
-
-  const jsxOpeningElement = jsxAttribute.parent;
-  if (jsxOpeningElement?.type !== 'JSXOpeningElement') {
+  const attrName = jsxAttribute.name;
+  if (attrName.type !== 'JSXIdentifier' || attrName.name !== 'values') {
     return false;
   }
 
   // Check if the component is a known react-intl component
+  const jsxOpeningElement = jsxAttribute.parent! as TSESTree.JSXOpeningElement;
   const elementName = jsxOpeningElement.name;
-  if (elementName.type === 'JSXIdentifier') {
-    return REACT_INTL_COMPONENTS.has(elementName.name);
-  }
-
-  return false;
+  return elementName.type === 'JSXIdentifier' && REACT_INTL_COMPONENTS.has(elementName.name);
 }
 
 /**
@@ -88,11 +82,7 @@ function isFormatMessageCall(
 
   // Check if the method name is `formatMessage`
   const property = callee.property;
-  if (property.type === 'Identifier' && property.name === 'formatMessage') {
-    return true;
-  }
-
-  return false;
+  return property.type === 'Identifier' && property.name === 'formatMessage';
 }
 
 /**
@@ -108,24 +98,15 @@ function isReactIntlFormattingValue(node: estree.Node): boolean {
     return false;
   }
 
+  // Function -> Property -> ObjectExpression -> Container
   const tsNode = node as TSESTree.Node;
-
-  // Check if the function is a value in an object property
-  const property = tsNode.parent;
-  if (property?.type !== 'Property') {
+  const property = tsNode.parent!;
+  if (property.type !== 'Property') {
     return false;
   }
 
-  // Check if the property is inside an ObjectExpression
-  const objectExpr = property.parent;
-  if (objectExpr?.type !== 'ObjectExpression') {
-    return false;
-  }
-
-  const container = objectExpr.parent;
-  if (!container) {
-    return false;
-  }
+  const objectExpr = property.parent! as TSESTree.ObjectExpression;
+  const container = objectExpr.parent!;
 
   // Pattern 1: JSX <FormattedMessage values={{ ... }} />
   if (container.type === 'JSXExpressionContainer') {
