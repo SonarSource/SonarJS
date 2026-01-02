@@ -53,6 +53,11 @@
 91,
 123
 ],
+"desktop:app/src/lib/menu-update.ts": [
+181,
+318,
+332
+],
 "desktop:app/src/lib/oauth.ts": [
 45
 ],
@@ -79,11 +84,23 @@
 1755,
 2060,
 2863,
-5702
+4764,
+5702,
+5801,
+6122,
+6469,
+6571,
+6575,
+6968,
+7017
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
 510,
 541,
+1150,
+1170,
+1192,
+1213,
 1246,
 1260
 ],
@@ -98,6 +115,18 @@
 ],
 "desktop:app/src/lib/stores/issues-store.ts": [
 54
+],
+"desktop:app/src/lib/stores/sign-in-store.ts": [
+340,
+359,
+368,
+461,
+481,
+519,
+551,
+593,
+618,
+628
 ],
 "desktop:app/src/lib/text-token-parser.ts": [
 221
@@ -115,24 +144,61 @@
 22
 ],
 "desktop:app/src/models/app-menu.ts": [
+347,
 432
 ],
 "desktop:app/src/models/branch.ts": [
 88
 ],
+"desktop:app/src/models/diff/diff-selection.ts": [
+103
+],
 "desktop:app/src/models/repository.ts": [
 64
+],
+"desktop:app/src/ui/app-error.tsx": [
+168,
+299
 ],
 "desktop:app/src/ui/app-menu/app-menu.tsx": [
 127
 ],
 "desktop:app/src/ui/app.tsx": [
+487,
 578,
+643,
+668,
+684,
+706,
+715,
+762,
+836,
 841,
-921
+852,
+875,
+888,
+901,
+906,
+917,
+921,
+930,
+939,
+948,
+1016,
+1082,
+1274,
+1303,
+2535,
+2607,
+2661,
+2682,
+2715
 ],
 "desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
 403
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+275
 ],
 "desktop:app/src/ui/changes/sidebar.tsx": [
 296,
@@ -153,7 +219,16 @@
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 494,
 686,
+1136,
+2961,
+3082,
 3551
+],
+"desktop:app/src/ui/dispatcher/error-handlers.ts": [
+556
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+87
 ],
 "desktop:app/src/ui/lib/author-input.tsx": [
 482
@@ -170,8 +245,18 @@
 "desktop:app/src/ui/missing-repository.tsx": [
 154
 ],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx": [
+49
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/rebase-choose-branch-dialog.tsx": [
+20
+],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
 150
+],
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+57,
+314
 ],
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 329,

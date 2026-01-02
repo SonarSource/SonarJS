@@ -28,6 +28,12 @@
 145,
 165
 ],
+"ag-grid:src/ts/filter/numberFilter.ts": [
+101
+],
+"ag-grid:src/ts/filter/textFilter.ts": [
+111
+],
 "ag-grid:src/ts/grid.ts": [
 148
 ],

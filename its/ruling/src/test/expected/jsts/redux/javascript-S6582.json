@@ -3,7 +3,8 @@
 9
 ],
 "redux:src/utils/combineReducers.js": [
-9
+9,
+20
 ],
 "redux:test/utils/combineReducers.spec.js": [
 37

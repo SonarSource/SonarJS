@@ -6,10 +6,17 @@
 33
 ],
 "ocanvas:src/core.js": [
+63,
 209
 ],
 "ocanvas:src/displayobject.js": [
 320
+],
+"ocanvas:src/displayobjects/image.js": [
+34
+],
+"ocanvas:src/displayobjects/sprite.js": [
+48
 ],
 "ocanvas:src/keyboard.js": [
 84

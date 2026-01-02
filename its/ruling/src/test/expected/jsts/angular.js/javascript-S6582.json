@@ -24,6 +24,8 @@
 "angular.js:src/Angular.js": [
 682,
 768,
+1136,
+1137,
 1708,
 1918,
 1938,
@@ -33,6 +35,7 @@
 16
 ],
 "angular.js:src/auto/injector.js": [
+855,
 911
 ],
 "angular.js:src/jqLite.js": [
@@ -99,6 +102,9 @@
 ],
 "angular.js:src/ng/document.js": [
 44
+],
+"angular.js:src/ng/http.js": [
+143
 ],
 "angular.js:src/ng/location.js": [
 154,

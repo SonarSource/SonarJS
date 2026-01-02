@@ -45,6 +45,7 @@
 10635
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
+2613,
 5000,
 9398,
 10225,
@@ -105,6 +106,7 @@
 10865,
 10998,
 11096,
+11311,
 13304,
 13307,
 13311,
@@ -143,6 +145,9 @@
 4272
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
+666,
+761,
+778,
 3117,
 4031,
 4054,
@@ -219,6 +224,7 @@
 34,
 79,
 86,
+251,
 313,
 377
 ],
@@ -349,6 +355,7 @@
 1400,
 1401,
 1483,
+1834,
 1997,
 3140,
 3403,
@@ -445,6 +452,8 @@
 61
 ],
 "ace:src/mode/behaviour/xml.js": [
+140,
+153,
 163
 ],
 "ace:src/mode/behaviour/xquery.js": [
@@ -464,11 +473,17 @@
 18,
 48
 ],
+"ace:src/mode/folding/haskell_cabal.js": [
+22
+],
 "ace:src/mode/folding/latex.js": [
 113
 ],
 "ace:src/mode/folding/lua.js": [
 93
+],
+"ace:src/mode/folding/markdown.js": [
+57
 ],
 "ace:src/mode/folding/mixed.js": [
 41,
@@ -487,6 +502,12 @@
 ],
 "ace:src/mode/lua.js": [
 97
+],
+"ace:src/mode/mixal_highlight_rules.js": [
+31
+],
+"ace:src/mode/nix_highlight_rules.js": [
+62
 ],
 "ace:src/mode/php.js": [
 83
@@ -539,7 +560,8 @@
 54
 ],
 "ace:src/search.js": [
-82
+82,
+192
 ],
 "ace:src/selection.js": [
 739

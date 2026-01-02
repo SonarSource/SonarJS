@@ -89,6 +89,9 @@
 "sonar-web:src/main/js/libs/translate.js": [
 33
 ],
+"sonar-web:src/main/js/main/nav/component/component-nav.js": [
+24
+],
 "sonar-web:src/main/js/main/nav/global/search-view.js": [
 111
 ],

@@ -61,6 +61,7 @@
 ],
 "jquery:src/event.js": [
 301,
+314,
 338,
 575,
 618,
@@ -68,6 +69,7 @@
 820
 ],
 "jquery:src/event/trigger.js": [
+70,
 102,
 110
 ],
