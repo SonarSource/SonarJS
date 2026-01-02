@@ -43,20 +43,21 @@ const REACT_INTL_COMPONENTS = new Set([
  * Checks if a JSXExpressionContainer is the `values` attribute of a react-intl component.
  */
 function isReactIntlValuesAttribute(container: TSESTree.JSXExpressionContainer): boolean {
-  // JSXExpressionContainer -> JSXAttribute -> JSXOpeningElement
-  const jsxAttribute = container.parent!;
-  if (jsxAttribute.type !== 'JSXAttribute') {
+  const jsxAttribute = container.parent;
+  if (jsxAttribute?.type !== 'JSXAttribute') {
     return false;
   }
 
-  // Check if the attribute name is "values"
   const attrName = jsxAttribute.name;
   if (attrName.type !== 'JSXIdentifier' || attrName.name !== 'values') {
     return false;
   }
 
-  // Check if the component is a known react-intl component
-  const jsxOpeningElement = jsxAttribute.parent! as TSESTree.JSXOpeningElement;
+  const jsxOpeningElement = jsxAttribute.parent;
+  if (jsxOpeningElement?.type !== 'JSXOpeningElement') {
+    return false;
+  }
+
   const elementName = jsxOpeningElement.name;
   return elementName.type === 'JSXIdentifier' && REACT_INTL_COMPONENTS.has(elementName.name);
 }
@@ -98,23 +99,26 @@ function isReactIntlFormattingValue(node: estree.Node): boolean {
     return false;
   }
 
-  // Function -> Property -> ObjectExpression -> Container
   const tsNode = node as TSESTree.Node;
-  const property = tsNode.parent!;
-  if (property.type !== 'Property') {
+  const property = tsNode.parent;
+  if (property?.type !== 'Property') {
     return false;
   }
 
-  const objectExpr = property.parent! as TSESTree.ObjectExpression;
-  const container = objectExpr.parent!;
+  const objectExpr = property.parent;
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+
+  const container = objectExpr.parent;
 
   // Pattern 1: JSX <FormattedMessage values={{ ... }} />
-  if (container.type === 'JSXExpressionContainer') {
+  if (container?.type === 'JSXExpressionContainer') {
     return isReactIntlValuesAttribute(container);
   }
 
   // Pattern 2: intl.formatMessage(descriptor, { ... })
-  if (container.type === 'CallExpression') {
+  if (container?.type === 'CallExpression') {
     return isFormatMessageCall(container, objectExpr);
   }
 
