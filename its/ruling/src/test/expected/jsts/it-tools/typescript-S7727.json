@@ -2,9 +2,6 @@
 "it-tools:src/tools/benchmark-builder/benchmark-builder.vue": [
 22
 ],
-"it-tools:src/tools/json-viewer/json.models.ts": [
-12
-],
 "it-tools:src/tools/qr-code-generator/useQRCode.ts": [
 19
 ],

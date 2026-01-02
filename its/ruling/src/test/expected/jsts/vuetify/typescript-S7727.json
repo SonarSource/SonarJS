@@ -4,19 +4,5 @@
 ],
 "vuetify:packages/api-generator/src/utils.ts": [
 135
-],
-"vuetify:packages/api-generator/src/web-types.ts": [
-81,
-82,
-83,
-131,
-135,
-136
-],
-"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
-191
-],
-"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
-32
 ]
 }

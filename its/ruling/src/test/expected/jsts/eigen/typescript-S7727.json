@@ -1,16 +1,9 @@
 {
-"eigen:dangerfile.ts": [
-13,
-39,
-57,
-77
-],
 "eigen:src/app/Components/Artist/ArtistArtworks/ArtistCollectionsRail.tests.tsx": [
 52,
 58
 ],
 "eigen:src/app/Components/Artist/ArtistArtworks/ArtistNotableWorksRail.tests.tsx": [
-40,
 41,
 48,
 50,
@@ -18,15 +11,6 @@
 57,
 63,
 65
-],
-"eigen:src/app/Components/ArtworkFilter/Filters/ArtistIDsSaleArtworksOptionsScreen.tsx": [
-54
-],
-"eigen:src/app/Components/ArtworkFilter/Filters/MultiSelectOption.tests.tsx": [
-29,
-62,
-70,
-82
 ],
 "eigen:src/app/Components/Bidding/Components/Timer.tests.tsx": [
 36,
@@ -44,9 +28,6 @@
 "eigen:src/app/Components/Countdown/DurationProvider.tests.tsx": [
 23,
 36
-],
-"eigen:src/app/Components/Countdown/StateManager.tests.tsx": [
-28
 ],
 "eigen:src/app/Components/Portal.tests.tsx": [
 20
@@ -210,15 +191,11 @@
 130,
 135,
 140,
-140,
 153,
-159,
 159,
 162,
 169,
-169,
 172,
-179,
 179,
 195,
 205,
@@ -332,34 +309,15 @@
 108,
 108
 ],
-"eigen:src/app/Scenes/MyBids/MyBids.tests.tsx": [
-109,
-142
-],
-"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
-348
-],
 "eigen:src/app/Scenes/PrivacyRequest/PrivacyRequest.tests.tsx": [
 13,
 21,
 31
 ],
-"eigen:src/app/Scenes/SavedSearchAlert/EditSavedSearchAlert.tests.tsx": [
-41
-],
-"eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtwork.tsx": [
-55
-],
-"eigen:src/app/relay/RelayCache.ts": [
-13
-],
 "eigen:src/app/tests/renderUntil.tests.tsx": [
 40,
 51,
 53
-],
-"eigen:src/app/utils/googleMaps.ts": [
-39
 ],
 "eigen:src/shared/utils/flattenChildren.ts": [
 7

@@ -1,11 +1,6 @@
 {
 "courselit:apps/web/graphql/courses/logic.ts": [
-250,
-328,
-385
-],
-"courselit:apps/web/graphql/lessons/logic.ts": [
-166
+250
 ],
 "courselit:apps/web/lib/graphql.ts": [
 110
