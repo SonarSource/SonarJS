@@ -15,17 +15,8 @@
 10630,
 10707
 ],
-"ace:lib/ace/mode/html/saxparser.js": [
-2602,
-2611,
-2620
-],
 "ace:lib/ace/mode/javascript/jshint.js": [
-8100,
 10888
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-2738
 ],
 "ace:src/editor.js": [
 2471,
@@ -34,13 +25,6 @@
 "ace:src/editor_highlight_selected_word_test.js": [
 120,
 174
-],
-"ace:src/ext/language_tools.js": [
-107
-],
-"ace:src/ext/rtl.js": [
-127,
-128
 ],
 "ace:src/ext/searchbox.js": [
 240
@@ -58,19 +42,12 @@
 "ace:src/mode/text.js": [
 79
 ],
-"ace:src/mode/text_highlight_rules.js": [
-176
-],
 "ace:src/mouse/multi_select_handler.js": [
 126
 ],
 "ace:src/multi_select.js": [
 18,
-219,
-794,
-795,
-795,
-795
+219
 ],
 "ace:src/search_test.js": [
 27,
@@ -98,19 +75,9 @@
 468
 ],
 "ace:src/snippets.js": [
-657,
-683,
 760
 ],
 "ace:src/split.js": [
 165
-],
-"ace:src/undomanager.js": [
-336,
-344
-],
-"ace:tool/tmlanguage.js": [
-361,
-694
 ]
 }

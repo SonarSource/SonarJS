@@ -19,28 +19,15 @@
 "angular.js:docs/config/processors/pages-data.js": [
 24
 ],
-"angular.js:docs/config/processors/versions-data.js": [
-86
-],
 "angular.js:lib/grunt/utils.js": [
 271
 ],
 "angular.js:scripts/compare-master-to-stable.js": [
 100,
-101,
-140
-],
-"angular.js:src/ng/directive/ngClass.js": [
-133
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-515
+101
 ],
 "angular.js:src/ng/parse.js": [
 1023
-],
-"angular.js:src/ng/urlUtils.js": [
-137
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 104,

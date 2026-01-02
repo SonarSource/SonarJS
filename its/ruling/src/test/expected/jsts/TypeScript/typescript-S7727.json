@@ -29,9 +29,7 @@
 266,
 329,
 336,
-847,
 963,
-999,
 1981,
 2360,
 2388,
@@ -41,13 +39,11 @@
 3036
 ],
 "TypeScript:src/harness/harness.ts": [
-211,
 1141,
 1211,
 1212,
 1252,
 1256,
-1300,
 1826
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
@@ -72,29 +68,11 @@
 74,
 99
 ],
-"TypeScript:src/server/client.ts": [
-642,
-649
-],
 "TypeScript:src/server/editorServices.ts": [
 195
 ],
 "TypeScript:src/server/session.ts": [
-463,
-742,
-754
-],
-"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
-318
-],
-"TypeScript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts": [
-30
-],
-"TypeScript:src/services/findAllReferences.ts": [
-55
-],
-"TypeScript:src/services/importTracker.ts": [
-71
+463
 ],
 "TypeScript:src/services/jsDoc.ts": [
 114,
