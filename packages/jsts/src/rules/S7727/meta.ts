@@ -15,6 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7727/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-array-callback-reference';
 export const externalPlugin = 'unicorn';

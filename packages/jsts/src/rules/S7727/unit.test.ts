@@ -1,0 +1,84 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
+import { describe, it } from 'node:test';
+
+describe('S7727', () => {
+  it('should only report when callback has multiple parameters', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('S7727', rule, {
+      valid: [
+        {
+          // Single parameter arrow function - safe
+          code: `
+            const double = (x: number) => x * 2;
+            [1, 2, 3].map(double);
+          `,
+        },
+        {
+          // Single parameter function declaration - safe
+          code: `
+            function square(n: number): number { return n * n; }
+            [1, 2, 3].map(square);
+          `,
+        },
+        {
+          // Boolean is explicitly allowed
+          code: `[1, 0, 2].filter(Boolean);`,
+        },
+        {
+          // Inline functions are not flagged by the base rule
+          code: `[1, 2, 3].map(x => x * 2);`,
+        },
+      ],
+      invalid: [
+        {
+          // parseInt has 2 parameters (string, radix)
+          code: `['1', '2', '3'].map(parseInt);`,
+          errors: 1,
+        },
+        {
+          // Custom function with 2 parameters
+          code: `
+            const addIndex = (value: number, index: number) => value + index;
+            [1, 2, 3].map(addIndex);
+          `,
+          errors: 1,
+        },
+        {
+          // Function declaration with multiple parameters
+          code: `
+            function processWithIndex(item: number, idx: number): number {
+              return item * idx;
+            }
+            [1, 2, 3].map(processWithIndex);
+          `,
+          errors: 1,
+        },
+        {
+          // reduce callback with multiple parameters
+          code: `
+            const reducer = (acc: number, curr: number) => acc + curr;
+            [1, 2, 3].reduce(reducer);
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});

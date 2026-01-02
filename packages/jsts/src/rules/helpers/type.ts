@@ -330,3 +330,34 @@ export function typeHasMethod(
   }
   return false;
 }
+
+/**
+ * Gets the number of parameters for a function-typed node using TypeScript type information.
+ * Returns null if the parameter count cannot be determined.
+ *
+ * For functions with multiple call signatures (overloads), returns the maximum
+ * parameter count across all signatures.
+ *
+ * @param node The node to get parameter count for
+ * @param services TypeScript parser services
+ * @returns The parameter count, or null if it cannot be determined
+ */
+export function getFunctionParameterCount(
+  node: estree.Node,
+  services: RequiredParserServices,
+): number | null {
+  try {
+    const type = getTypeFromTreeNode(node, services);
+    const signatures = type.getCallSignatures();
+
+    if (signatures.length === 0) {
+      return null;
+    }
+
+    // Return the maximum parameter count across all signatures
+    // (handles function overloads)
+    return Math.max(...signatures.map(sig => sig.parameters.length));
+  } catch {
+    return null;
+  }
+}
