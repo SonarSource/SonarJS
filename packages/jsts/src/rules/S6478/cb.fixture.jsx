@@ -116,3 +116,25 @@ function Component10() {
         />
     );
 }
+
+// Compliant: FormattedMessage with function expression (not arrow)
+function Component11() {
+    return (
+        <FormattedMessage
+            values={{
+                b: function(chunks) { return <b>{chunks}</b>; },
+            }}
+        />
+    );
+}
+
+// Compliant: formatMessage with function expression
+function Component12() {
+    const intl = useIntl();
+    return intl.formatMessage(
+        { id: 'test' },
+        {
+            b: function(chunks) { return <b>{chunks}</b>; },
+        }
+    );
+}
