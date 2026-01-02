@@ -95,6 +95,51 @@ function isFormatMessageCall(
   return false;
 }
 
+/**
+ * Checks if a node is a function used as a react-intl rich text formatting value.
+ * These are render callbacks, not React components, and should not be flagged.
+ *
+ * Supports two patterns:
+ * 1. JSX: <FormattedMessage values={{ b: chunks => <b>{chunks}</b> }} />
+ * 2. Hook: intl.formatMessage(descriptor, { b: chunks => <b>{chunks}</b> })
+ */
+function isReactIntlFormattingValue(node: estree.Node): boolean {
+  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
+    return false;
+  }
+
+  const tsNode = node as TSESTree.Node;
+
+  // Check if the function is a value in an object property
+  const property = tsNode.parent;
+  if (property?.type !== 'Property') {
+    return false;
+  }
+
+  // Check if the property is inside an ObjectExpression
+  const objectExpr = property.parent;
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+
+  const container = objectExpr.parent;
+  if (!container) {
+    return false;
+  }
+
+  // Pattern 1: JSX <FormattedMessage values={{ ... }} />
+  if (container.type === 'JSXExpressionContainer') {
+    return isReactIntlValuesAttribute(container);
+  }
+
+  // Pattern 2: intl.formatMessage(descriptor, { ... })
+  if (container.type === 'CallExpression') {
+    return isFormatMessageCall(container, objectExpr);
+  }
+
+  return false;
+}
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
@@ -140,50 +185,5 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
     /* should not happen */
     return node.loc;
-  }
-
-  /**
-   * Checks if a node is a function used as a react-intl rich text formatting value.
-   * These are render callbacks, not React components, and should not be flagged.
-   *
-   * Supports two patterns:
-   * 1. JSX: <FormattedMessage values={{ b: chunks => <b>{chunks}</b> }} />
-   * 2. Hook: intl.formatMessage(descriptor, { b: chunks => <b>{chunks}</b> })
-   */
-  function isReactIntlFormattingValue(node: estree.Node): boolean {
-    if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
-      return false;
-    }
-
-    const tsNode = node as TSESTree.Node;
-
-    // Check if the function is a value in an object property
-    const property = tsNode.parent;
-    if (property?.type !== 'Property') {
-      return false;
-    }
-
-    // Check if the property is inside an ObjectExpression
-    const objectExpr = property.parent;
-    if (objectExpr?.type !== 'ObjectExpression') {
-      return false;
-    }
-
-    const container = objectExpr.parent;
-    if (!container) {
-      return false;
-    }
-
-    // Pattern 1: JSX <FormattedMessage values={{ ... }} />
-    if (container.type === 'JSXExpressionContainer') {
-      return isReactIntlValuesAttribute(container);
-    }
-
-    // Pattern 2: intl.formatMessage(descriptor, { ... })
-    if (container.type === 'CallExpression') {
-      return isFormatMessageCall(container, objectExpr);
-    }
-
-    return false;
   }
 }
