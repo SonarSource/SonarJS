@@ -45,16 +45,23 @@ const REACT_INTL_COMPONENTS = new Set([
 function isReactIntlValuesAttribute(container: TSESTree.JSXExpressionContainer): boolean {
   // container -> JSXAttribute -> JSXOpeningElement
   const jsxAttribute = container.parent;
-  const jsxOpeningElement = jsxAttribute?.parent;
+  if (jsxAttribute?.type !== 'JSXAttribute') {
+    return false;
+  }
+
+  const jsxOpeningElement = jsxAttribute.parent;
+  if (jsxOpeningElement?.type !== 'JSXOpeningElement') {
+    return false;
+  }
 
   // Must be a `values` attribute on a react-intl component
-  const attrName = jsxAttribute?.name;
-  const elementName = jsxOpeningElement?.name;
+  const attrName = jsxAttribute.name;
+  const elementName = jsxOpeningElement.name;
 
   return (
-    attrName?.type === 'JSXIdentifier' &&
+    attrName.type === 'JSXIdentifier' &&
     attrName.name === 'values' &&
-    elementName?.type === 'JSXIdentifier' &&
+    elementName.type === 'JSXIdentifier' &&
     REACT_INTL_COMPONENTS.has(elementName.name)
   );
 }
