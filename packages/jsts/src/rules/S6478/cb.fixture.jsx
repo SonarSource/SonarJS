@@ -81,3 +81,38 @@ function Component7() {
     };
     return <Something renderers={renderers} />;
 }
+
+// Compliant: FormattedHTMLMessage (another react-intl component)
+function Component8() {
+    return (
+        <FormattedHTMLMessage
+            values={{
+                b: chunks => <b>{chunks}</b>,
+            }}
+        />
+    );
+}
+
+// Compliant: $t alias for react-intl
+function Component9() {
+    return (
+        <$t
+            values={{
+                strong: chunks => <strong>{chunks}</strong>,
+            }}
+        />
+    );
+}
+
+// JSXMemberExpression component name (Intl.FormattedMessage) - still flagged
+// This is not in our allowlist - only simple identifiers are checked
+function Component10() {
+    return (
+        <Intl.FormattedMessage
+            values={{
+                b: chunks => <b>{chunks}</b>, // Noncompliant {{Move this component definition out of the parent component and pass data as props.}}
+//                        ^^
+            }}
+        />
+    );
+}
