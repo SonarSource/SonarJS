@@ -28,17 +28,6 @@ import {
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 
-/**
- * Known react-intl component names that accept a `values` prop
- * with rich text formatting functions.
- */
-const REACT_INTL_COMPONENTS = new Set([
-  'FormattedMessage',
-  'FormattedHTMLMessage',
-  'FormattedPlural',
-  '$t', // common alias
-]);
-
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
@@ -46,16 +35,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, report) => {
-      const { node } = report as { node: estree.Node };
-
-      // Skip functions used as react-intl rich text formatting values.
-      // These are render callbacks, not React components.
-      if (isReactIntlFormattingValue(node)) {
-        return;
-      }
-
       const message =
         'Move this component definition out of the parent component and pass data as props.';
+      const { node } = report as { node: estree.Node };
       const loc = getMainNodeLocation(node, context);
       if (loc) {
         context.report({ ...report, loc, message });
@@ -84,106 +66,5 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
     /* should not happen */
     return node.loc;
-  }
-
-  /**
-   * Checks if a node is a function used as a react-intl rich text formatting value.
-   * These are render callbacks, not React components, and should not be flagged.
-   *
-   * Supports two patterns:
-   * 1. JSX: <FormattedMessage values={{ b: chunks => <b>{chunks}</b> }} />
-   * 2. Hook: intl.formatMessage(descriptor, { b: chunks => <b>{chunks}</b> })
-   */
-  function isReactIntlFormattingValue(node: estree.Node): boolean {
-    if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
-      return false;
-    }
-
-    const tsNode = node as TSESTree.Node;
-
-    // Check if the function is a value in an object property
-    const property = tsNode.parent;
-    if (!property || property.type !== 'Property') {
-      return false;
-    }
-
-    // Check if the property is inside an ObjectExpression
-    const objectExpr = property.parent;
-    if (!objectExpr || objectExpr.type !== 'ObjectExpression') {
-      return false;
-    }
-
-    const container = objectExpr.parent;
-    if (!container) {
-      return false;
-    }
-
-    // Pattern 1: JSX <FormattedMessage values={{ ... }} />
-    if (container.type === 'JSXExpressionContainer') {
-      return isReactIntlValuesAttribute(container);
-    }
-
-    // Pattern 2: intl.formatMessage(descriptor, { ... })
-    if (container.type === 'CallExpression') {
-      return isFormatMessageCall(container, objectExpr);
-    }
-
-    return false;
-  }
-
-  /**
-   * Checks if a JSXExpressionContainer is the `values` attribute of a react-intl component.
-   */
-  function isReactIntlValuesAttribute(container: TSESTree.JSXExpressionContainer): boolean {
-    const jsxAttribute = container.parent;
-    if (!jsxAttribute || jsxAttribute.type !== 'JSXAttribute') {
-      return false;
-    }
-
-    // Check if the attribute name is "values"
-    if (jsxAttribute.name.type !== 'JSXIdentifier' || jsxAttribute.name.name !== 'values') {
-      return false;
-    }
-
-    const jsxOpeningElement = jsxAttribute.parent;
-    if (!jsxOpeningElement || jsxOpeningElement.type !== 'JSXOpeningElement') {
-      return false;
-    }
-
-    // Check if the component is a known react-intl component
-    const elementName = jsxOpeningElement.name;
-    if (elementName.type === 'JSXIdentifier') {
-      return REACT_INTL_COMPONENTS.has(elementName.name);
-    }
-
-    return false;
-  }
-
-  /**
-   * Checks if a CallExpression is a call to `intl.formatMessage(descriptor, values)`
-   * and the objectExpr is the second argument (values).
-   */
-  function isFormatMessageCall(
-    callExpr: TSESTree.CallExpression,
-    objectExpr: TSESTree.ObjectExpression,
-  ): boolean {
-    // Check if the object is the second argument
-    if (callExpr.arguments.length < 2 || callExpr.arguments[1] !== objectExpr) {
-      return false;
-    }
-
-    // Check if the callee is a member expression like `intl.formatMessage`
-    const callee = callExpr.callee;
-    if (callee.type !== 'MemberExpression') {
-      return false;
-    }
-
-    // Check if the method name is `formatMessage`
-    const property = callee.property;
-    if (property.type === 'Identifier' && property.name === 'formatMessage') {
-      return true;
-    }
-
-    return false;
   }
 }
