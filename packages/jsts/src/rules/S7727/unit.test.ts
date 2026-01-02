@@ -79,7 +79,7 @@ describe('S7727', () => {
           errors: 1,
         },
         {
-          // Method reference (MemberExpression) - can't determine params, so report
+          // Method reference (MemberExpression) with 2 parameters
           code: `
             const utils = { process: (x: number, y: number) => x + y };
             [1, 2, 3].map(utils.process);
