@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -39,6 +40,13 @@ export const rule: Rule.RuleModule = {
       const checker = services.program.getTypeChecker();
       const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
       const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+
+      // If either type is indeterminate (unknown, type parameter, or indexed access),
+      // we cannot know at compile time if the comparison will always fail
+      if (isIndeterminateType(lhsType) || isIndeterminateType(rhsType)) {
+        return true;
+      }
+
       // @ts-ignore private API
       return (
         checker.isTypeAssignableTo(lhsType, rhsType) || checker.isTypeAssignableTo(rhsType, lhsType)
@@ -73,3 +81,15 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Checks if a type is indeterminate (its actual value cannot be determined at compile time).
+ * - Unknown: can be compared with anything
+ * - TypeParameter: generics like T
+ * - IndexedAccess: like T[K]
+ */
+function isIndeterminateType(type: ts.Type): boolean {
+  const indeterminateFlags =
+    ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter | ts.TypeFlags.IndexedAccess;
+  return (type.flags & indeterminateFlags) !== 0;
+}
