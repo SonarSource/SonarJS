@@ -96,7 +96,10 @@ export const rule: Rule.RuleModule = {
         }
       },
       ReturnStatement(node: ReturnStatement) {
-        last(functionInfo).returns.push(node);
+        const current = last(functionInfo);
+        if (current) {
+          current.returns.push(node);
+        }
       },
     };
 
