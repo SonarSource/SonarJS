@@ -17,9 +17,6 @@
 "eigen:src/app/Scenes/ArtistSeries/ArtistSeries.tsx": [
 33
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/CollapsibleArtworkDetails.tsx": [
-41
-],
 "eigen:src/app/Scenes/Collection/Components/CollectionArtworksFilter.tsx": [
 18
 ],
@@ -30,17 +27,9 @@
 33
 ],
 "eigen:src/app/Scenes/Home/Components/EmailConfirmationBanner.tsx": [
-17,
-18
-],
-"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/Rarity.tsx": [
-13
-],
-"eigen:src/app/Scenes/MyCollection/Screens/Insights/AverageSalePriceAtAuction.tsx": [
-18
+17
 ],
 "eigen:src/app/Scenes/Sale/Sale.tsx": [
-83,
 84
 ],
 "eigen:src/app/Scenes/Search/SearchArtworksGrid.tsx": [
