@@ -33,6 +33,62 @@ describe('S2004', () => {
         }
       }`,
         },
+        {
+          // JS-486: Test framework functions should not count toward nesting depth
+          code: `
+      describe("Foo", () => {
+        describe("visiting", () => {
+          describe("accept()", () => {
+            it("throws an exception", () => {
+              expect(() => "id").toThrowError("some error");
+            });
+          });
+        });
+      });`,
+        },
+        {
+          // JS-486: Nested test functions with beforeEach/afterEach
+          code: `
+      describe("Suite", () => {
+        beforeEach(() => {
+          setup();
+        });
+        describe("nested", () => {
+          afterEach(() => {
+            cleanup();
+          });
+          it("works", () => {
+            expect(true).toBe(true);
+          });
+        });
+      });`,
+        },
+        {
+          // JS-486: Test framework functions with modifiers (describe.only, test.skip, etc.)
+          code: `
+      describe.only("focused suite", () => {
+        test.skip("skipped test", () => {
+          it.todo("todo test", () => {
+            expect(true).toBe(true);
+          });
+        });
+      });`,
+        },
+        {
+          // JS-486: Mixed test framework and regular functions - regular functions still count
+          code: `
+      describe("Suite", () => {
+        it("test", () => {
+          function helper1() {
+            function helper2() {
+              function helper3() {
+                // This is fine - only 3 levels of regular functions
+              }
+            }
+          }
+        });
+      });`,
+        },
       ],
       invalid: [
         {

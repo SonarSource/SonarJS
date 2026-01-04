@@ -17,30 +17,12 @@
 "TypeScript:src/compiler/sys.ts": [
 135
 ],
-"TypeScript:src/harness/fourslashRunner.ts": [
-62
-],
 "TypeScript:src/harness/instrumenter.ts": [
 31
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
-452,
-463,
-468,
-475,
-483,
-519,
-529
-],
-"TypeScript:src/harness/rwcRunner.ts": [
-63,
-74,
-95,
-201,
-202
-],
-"TypeScript:src/harness/test262Runner.ts": [
-71
+455,
+458
 ],
 "TypeScript:src/services/codefixes/importFixes.ts": [
 414,
