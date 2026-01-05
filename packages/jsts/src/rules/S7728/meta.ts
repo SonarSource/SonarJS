@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7728/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-array-for-each';
-export const externalPlugin = 'unicorn';
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'no-array-for-each' }];
+export const quickFixMessage = 'Replace with for-of loop';

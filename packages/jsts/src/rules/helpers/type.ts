@@ -332,6 +332,18 @@ export function typeHasMethod(
 }
 
 /**
+ * Checks if a type is iterable (can be used in for-of loops).
+ * @param node The node to check
+ * @param services The parser services
+ * @returns true if the type is iterable, false otherwise
+ */
+export function isIterable(node: estree.Node, services: RequiredParserServices): boolean {
+  const type = getTypeFromTreeNode(node, services);
+  const properties = type.getProperties();
+  return properties.some(prop => prop.name.startsWith('__@iterator@'));
+}
+
+/**
  * Gets the number of parameters for a function-typed node using TypeScript type information.
  * Returns null if the parameter count cannot be determined.
  *
