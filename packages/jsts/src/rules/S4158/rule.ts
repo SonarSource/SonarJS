@@ -215,12 +215,14 @@ function isElementRead(ref: Scope.Reference) {
   );
 }
 
+const writingAssignmentOperators = new Set(['=', '||=', '&&=', '??=']);
+
 function isElementWrite(memberExpression: estree.MemberExpression) {
   const ancestors = ancestorsChain(memberExpression as TSESTree.Node, new Set());
   const assignment = ancestors.find(
     n => n.type === 'AssignmentExpression',
   ) as TSESTree.AssignmentExpression;
-  if (assignment?.operator === '=') {
+  if (assignment && writingAssignmentOperators.has(assignment.operator)) {
     return [memberExpression, ...ancestors].includes(assignment.left);
   }
   return false;
