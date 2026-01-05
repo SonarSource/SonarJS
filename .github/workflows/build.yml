@@ -796,7 +796,10 @@ jobs:
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
     steps:
       - &checkout_with_submodules
         name: Checkout source code
@@ -806,15 +809,66 @@ jobs:
       - *mise
       - *npm_cache
       - name: Run JS/TS Ruling
+        id: ruling
         run: |
           npm run generate-meta
           npm run ruling
-      - name: Upload ruling differences
-        if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: ruling-differences-jsts
-          path: packages/ruling/actual/jsts/
+      - name: Update ruling and notify
+        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          # Check if last commit was already an auto-update (prevent infinite loop)
+          LAST_COMMIT_MSG=$(git log -1 --format=%B)
+          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+            echo "Last commit was an auto-update, skipping to prevent infinite loop"
+            exit 0
+          fi
+
+          # Sync ruling results (this modifies its/ruling/...)
+          npm run ruling-sync
+
+          # Generate report before checkout (compares current state)
+          node tools/ruling-report.js > ruling-report.md
+
+          # Stash changes before checkout
+          git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
+
+          # Checkout PR branch
+          git fetch origin "$HEAD_REF"
+          git checkout "$HEAD_REF"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Pop the stashed changes
+          git stash pop
+
+          git add its/ruling/src/test/expected/jsts/
+
+          if git diff --staged --quiet; then
+            echo "No ruling changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+          git push origin "$HEAD_REF"
+
+          # Post comment with report and instructions
+          {
+            if [ -s ruling-report.md ]; then
+              cat ruling-report.md
+              echo ""
+            fi
+            echo "---"
+            echo "✅ **Ruling has been updated.** To re-run CI, either:"
+            echo "- Close and reopen this PR, or"
+            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+          } > comment.md
+          gh pr comment "$PR_NUMBER" --body-file comment.md
 
   ruling:
     runs-on: github-ubuntu-latest-m
