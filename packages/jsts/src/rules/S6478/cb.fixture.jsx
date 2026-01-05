@@ -38,15 +38,19 @@ function Component3() {
     );
 }
 
-// Compliant: react-intl useIntl().formatMessage
+// Compliant: react-intl useIntl().formatMessage inside JSX
 function Component4() {
     const intl = useIntl();
-    return intl.formatMessage(
-        { id: 'greeting' },
-        {
-            b: chunks => <b>{chunks}</b>,
-            name: chunks => <strong>{chunks}</strong>,
-        }
+    return (
+        <p>
+            {intl.formatMessage(
+                { id: 'greeting' },
+                {
+                    b: chunks => <b>{chunks}</b>,
+                    name: chunks => <strong>{chunks}</strong>,
+                }
+            )}
+        </p>
     );
 }
 
@@ -128,13 +132,17 @@ function Component11() {
     );
 }
 
-// Compliant: formatMessage with function expression
+// Compliant: formatMessage with function expression inside JSX
 function Component12() {
     const intl = useIntl();
-    return intl.formatMessage(
-        { id: 'test' },
-        {
-            b: function(chunks) { return <b>{chunks}</b>; },
-        }
+    return (
+        <p>
+            {intl.formatMessage(
+                { id: 'test' },
+                {
+                    b: function(chunks) { return <b>{chunks}</b>; },
+                }
+            )}
+        </p>
     );
 }

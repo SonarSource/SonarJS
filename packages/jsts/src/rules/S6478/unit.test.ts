@@ -38,15 +38,19 @@ describe('S6478', () => {
           `,
         },
         {
-          // intl.formatMessage with values - should not be flagged
+          // intl.formatMessage with values inside JSX - should not be flagged
           code: `
             function Parent() {
               const intl = useIntl();
-              return intl.formatMessage(
-                { id: 'test' },
-                {
-                  b: chunks => <b>{chunks}</b>,
-                }
+              return (
+                <p>
+                  {intl.formatMessage(
+                    { id: 'test' },
+                    {
+                      b: chunks => <b>{chunks}</b>,
+                    }
+                  )}
+                </p>
               );
             }
           `,
