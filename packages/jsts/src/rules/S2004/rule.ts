@@ -80,9 +80,8 @@ export const rule: Rule.RuleModule = {
         }
       },
       ':function:exit'(node: estree.Node) {
-        const fn = node as TSESTree.FunctionLike;
-        // Only pop if we pushed (i.e., not a test framework callback)
-        if (!isTestFrameworkCallback(fn)) {
+        // Only pop if we pushed (i.e., current node is on the stack)
+        if (nestedStack.at(-1) === node) {
           nestedStack.pop();
         }
       },
