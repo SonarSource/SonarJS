@@ -6,15 +6,8 @@
 60,
 61
 ],
-"ant-design:components/form/__tests__/type.test.tsx": [
-34,
-58
-],
 "ant-design:components/form/hooks/useFrameState.ts": [
 36
-],
-"ant-design:components/input/__tests__/index.test.tsx": [
-396
 ],
 "ant-design:components/layout/layout.tsx": [
 76
@@ -23,18 +16,11 @@
 41,
 54
 ],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-37,
-111
-],
 "ant-design:components/modal/useModal/index.tsx": [
 71,
 78,
 82,
 89
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-146
 ],
 "ant-design:components/table/hooks/useFilter/index.tsx": [
 174
@@ -49,13 +35,5 @@
 566,
 577,
 578
-],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-105,
-132
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-35,
-244
 ]
 }

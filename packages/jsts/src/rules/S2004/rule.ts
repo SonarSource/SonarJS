@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getMainFunctionTokenLocation,
+  isTestFrameworkCall,
   report,
   RuleContext,
   toSecondaryLocation,
@@ -30,6 +31,18 @@ import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_THRESHOLD = 4;
+
+/**
+ * Checks if a function is a callback argument to a test framework function.
+ * For example: describe("test", () => { ... }) or it("should work", function() { ... })
+ */
+function isTestFrameworkCallback(node: TSESTree.FunctionLike): boolean {
+  const { parent } = node;
+  if (parent?.type !== 'CallExpression') {
+    return false;
+  }
+  return isTestFrameworkCall(parent as unknown as estree.Node);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -40,6 +53,12 @@ export const rule: Rule.RuleModule = {
     return {
       ':function'(node: estree.Node) {
         const fn = node as TSESTree.FunctionLike;
+
+        // Don't count test framework callbacks toward nesting depth
+        if (isTestFrameworkCallback(fn)) {
+          return;
+        }
+
         nestedStack.push(fn);
         if (nestedStack.length === max + 1) {
           const secondaries = nestedStack.slice(0, -1);
@@ -60,8 +79,11 @@ export const rule: Rule.RuleModule = {
           );
         }
       },
-      ':function:exit'() {
-        nestedStack.pop();
+      ':function:exit'(node: estree.Node) {
+        // Only pop if we pushed (i.e., current node is on the stack)
+        if (nestedStack.at(-1) === node) {
+          nestedStack.pop();
+        }
       },
     };
   },
