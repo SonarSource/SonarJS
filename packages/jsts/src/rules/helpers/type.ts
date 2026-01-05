@@ -332,53 +332,15 @@ export function typeHasMethod(
 }
 
 /**
- * Known iterable types that can be used in for-of loops.
- * These are checked by name in addition to Symbol.iterator because
- * some tsconfig lib settings (e.g., ES5) don't include iterator declarations.
- */
-const KNOWN_ITERABLE_TYPES = new Set([
-  'Array',
-  'Set',
-  'Map',
-  'String',
-  'NodeList',
-  'HTMLCollection',
-  ...TYPED_ARRAY_TYPES,
-]);
-
-/**
  * Checks if a type is iterable (can be used in for-of loops).
- * Checks both for Symbol.iterator property and known iterable type names.
  * @param node The node to check
  * @param services The parser services
  * @returns true if the type is iterable, false otherwise
  */
 export function isIterable(node: estree.Node, services: RequiredParserServices): boolean {
   const type = getTypeFromTreeNode(node, services);
-
-  // Check for Symbol.iterator (works when lib includes ES2015+)
   const properties = type.getProperties();
-  if (properties.some(prop => prop.name.startsWith('__@iterator@'))) {
-    return true;
-  }
-
-  // Check for known iterable types by name (works regardless of lib setting)
-  const typeName = type.symbol?.name;
-  if (typeName && KNOWN_ITERABLE_TYPES.has(typeName)) {
-    return true;
-  }
-
-  // Check if it's an array type using TypeScript's internal API
-  const checker = services.program.getTypeChecker();
-  if (
-    'isArrayType' in checker &&
-    typeof checker.isArrayType === 'function' &&
-    checker.isArrayType(type)
-  ) {
-    return true;
-  }
-
-  return false;
+  return properties.some(prop => prop.name.startsWith('__@iterator@'));
 }
 
 /**
