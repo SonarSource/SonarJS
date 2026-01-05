@@ -1,8 +1,0 @@
-{
-"postgraphql:src/graphql/schema/type/getGqlOutputType.ts": [
-287
-],
-"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts": [
-168
-]
-}

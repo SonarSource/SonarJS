@@ -7,11 +7,5 @@
 ],
 "ant-design:components/table/hooks/useSelection.tsx": [
 373
-],
-"ant-design:components/table/hooks/useSorter.tsx": [
-251
-],
-"ant-design:components/tree/utils/dictUtil.ts": [
-20
 ]
 }
