@@ -158,6 +158,33 @@ describe('S3403', () => {
       symbols.filter(symbol => symbol !== foo);
       `,
           },
+          {
+            // JS-619: FP when comparing generic indexed access with literal
+            code: `
+      class Foo<T extends Record<string, unknown>> {
+        constructor(private readonly foo: T) {}
+        reproduction<Key extends keyof T>(key: Key) {
+          return this.foo[key] === 'foo';
+        }
+      }
+      `,
+          },
+          {
+            // JS-619: FP when comparing type parameter with literal
+            code: `
+      function compare<T>(value: T) {
+        return value === 'test';
+      }
+      `,
+          },
+          {
+            // JS-619: FP when comparing unknown with literal
+            code: `
+      function compareUnknown(value: unknown) {
+        return value === 42;
+      }
+      `,
+          },
         ],
         invalid: [
           {
