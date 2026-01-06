@@ -305,17 +305,10 @@ function caseEndsWithReturnOrThrow(caseClause: estree.SwitchCase): boolean {
       return true;
     } else if (stmt.type === 'BreakStatement') {
       // Break doesn't count - continue checking
-      continue;
     } else if (stmt.type === 'BlockStatement' && blockEndsWithReturnOrThrow(stmt)) {
       // Check inside the block
       return true;
-    } else if (stmt.type === 'IfStatement' && ifEndsWithReturnOrThrow(stmt)) {
-      // For if statements, both branches must end with return/throw
-      return true;
-    } else {
-      // Other statements - this case doesn't end with return/throw
-      return false;
-    }
+    } else return stmt.type === 'IfStatement' && ifEndsWithReturnOrThrow(stmt);
   }
   return false;
 }
