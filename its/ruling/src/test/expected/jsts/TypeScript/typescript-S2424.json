@@ -32,6 +32,7 @@
 ],
 "TypeScript:src/compiler/types.ts": [
 12,
+26,
 2862
 ],
 "TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [

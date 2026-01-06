@@ -8,6 +8,9 @@
 "console:src/views/ActionsView/ActionsView.tsx": [
 38
 ],
+"console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx": [
+30
+],
 "console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
 453,
 470
@@ -26,6 +29,9 @@
 ],
 "console:src/views/ProjectRootView/AddProjectPopup.tsx": [
 222
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+612
 ],
 "console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
 286
