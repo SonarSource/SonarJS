@@ -120,6 +120,19 @@ describe('expectX without assertion', () => {
 });`,
           errors: 1,
         },
+        // Tests using done() callback without assertions should still raise
+        {
+          code: `
+const chai = require('chai');
+describe('async tests', () => {
+  it('should raise when only using done callback without assertions', (done) => {
+    setTimeout(() => {
+      done();
+    }, 100);
+  });
+});`,
+          errors: 1,
+        },
       ],
     });
     const typedRuleTester = new RuleTester();
