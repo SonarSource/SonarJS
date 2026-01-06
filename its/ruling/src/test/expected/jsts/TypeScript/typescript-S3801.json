@@ -42,7 +42,6 @@
 14903,
 14965,
 15712,
-15806,
 16726,
 16959,
 17255,
@@ -122,10 +121,9 @@
 ],
 "TypeScript:src/compiler/factory.ts": [
 2922,
+3332,
 3729,
-3958,
-4006,
-4059
+3958
 ],
 "TypeScript:src/compiler/moduleNameResolver.ts": [
 938,
@@ -142,7 +140,6 @@
 1821,
 2729,
 3838,
-4905,
 4959,
 5344,
 6189,
@@ -161,7 +158,8 @@
 2203
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
-220
+220,
+660
 ],
 "TypeScript:src/compiler/transformers/jsx.ts": [
 139
