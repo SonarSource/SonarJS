@@ -130,22 +130,32 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: estree.Variab
 function findKeySuspect(node: estree.Node): string | undefined {
   if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
     return node.name;
+  } else if (
+    isStringLiteral(node) &&
+    secretWordRegexps.some(pattern => pattern.test(node.value as string))
+  ) {
+    return node.value as string;
   } else {
     return undefined;
   }
 }
 
 function findValueSuspect(node: estree.Node | undefined | null): estree.Node | undefined {
+  if (!node) {
+    return undefined;
+  }
   if (
-    node &&
     isStringLiteral(node) &&
     valuePassesPostValidation(node.value) &&
     entropyShouldRaise(node.value)
   ) {
     return node;
-  } else {
-    return undefined;
   }
+  // Check ternary expressions (ConditionalExpression)
+  if (node.type === 'ConditionalExpression') {
+    return findValueSuspect(node.consequent) ?? findValueSuspect(node.alternate);
+  }
+  return undefined;
 }
 
 function valuePassesPostValidation(value: string): boolean {

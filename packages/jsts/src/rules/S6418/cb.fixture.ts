@@ -51,3 +51,15 @@ function defaultValues(foo) {
 function customSecretWord() {
   const yolo = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant {{"yolo" detected here, make sure this is not a hard-coded secret.}}
 }
+
+function ternaryExpression(condition: boolean) {
+  const secret = condition ? '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.=' : 'fallback'; // Noncompliant {{"secret" detected here, make sure this is not a hard-coded secret.}}
+  const token = condition ? 'fallback' : '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant {{"token" detected here, make sure this is not a hard-coded secret.}}
+  const safe = condition ? 'not-a-secret' : 'also-not-a-secret';
+}
+
+const objectWithStringKeys = {
+  'api-key': '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.=', // Noncompliant {{"api-key" detected here, make sure this is not a hard-coded secret.}}
+  'auth-token': '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.=', // Noncompliant {{"auth-token" detected here, make sure this is not a hard-coded secret.}}
+  'not-secret': 'some-value',
+}
