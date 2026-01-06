@@ -2,9 +2,6 @@
 "desktop:app/src/crash/crash-app.tsx": [
 172
 ],
-"desktop:app/src/lib/ci-checks/ci-checks.ts": [
-120
-],
 "desktop:app/src/lib/fatal-error.ts": [
 43
 ],
@@ -49,9 +46,6 @@
 6521,
 6815,
 6951
-],
-"desktop:app/src/lib/stores/notifications-store.ts": [
-104
 ],
 "desktop:app/src/lib/stores/pull-request-store.ts": [
 114
@@ -106,7 +100,6 @@
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 873,
 1127,
-1998,
 2197,
 2893,
 3005,
@@ -160,10 +153,6 @@
 ],
 "desktop:app/src/ui/multi-commit-operation/squash.tsx": [
 8
-],
-"desktop:app/src/ui/notifications/pull-request-review-helpers.ts": [
-9,
-28
 ],
 "desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
 112
