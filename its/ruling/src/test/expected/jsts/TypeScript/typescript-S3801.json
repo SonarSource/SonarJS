@@ -1,5 +1,6 @@
 {
 "TypeScript:src/compiler/binder.ts": [
+36,
 229,
 1483,
 1999
@@ -42,6 +43,7 @@
 14903,
 14965,
 15712,
+15806,
 16726,
 16959,
 17255,
@@ -121,10 +123,14 @@
 ],
 "TypeScript:src/compiler/factory.ts": [
 2922,
+3332,
 3729,
-3958
+3958,
+4006,
+4059
 ],
 "TypeScript:src/compiler/moduleNameResolver.ts": [
+906,
 938,
 989,
 1008
@@ -139,6 +145,7 @@
 1821,
 2729,
 3838,
+4905,
 4959,
 5344,
 6189,
@@ -146,6 +153,7 @@
 ],
 "TypeScript:src/compiler/program.ts": [
 33,
+251,
 1172
 ],
 "TypeScript:src/compiler/sourcemap.ts": [
@@ -153,12 +161,16 @@
 421,
 442
 ],
+"TypeScript:src/compiler/sys.ts": [
+288
+],
 "TypeScript:src/compiler/transformers/es2015.ts": [
 2203
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
 220,
-660
+660,
+676
 ],
 "TypeScript:src/compiler/transformers/jsx.ts": [
 139
@@ -168,6 +180,7 @@
 645
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
+1856,
 2829,
 3132
 ],
@@ -186,6 +199,7 @@
 1471,
 1520,
 1605,
+1771,
 1891,
 2724,
 2732,
@@ -206,6 +220,9 @@
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 367
+],
+"TypeScript:src/harness/runner.ts": [
+41
 ],
 "TypeScript:src/harness/sourceMapRecorder.ts": [
 64,
@@ -232,7 +249,11 @@
 "TypeScript:src/server/server.ts": [
 35
 ],
+"TypeScript:src/server/utilities.ts": [
+36
+],
 "TypeScript:src/services/breakpoints.ts": [
+71,
 385,
 495,
 509
@@ -254,6 +275,7 @@
 339
 ],
 "TypeScript:src/services/findAllReferences.ts": [
+107,
 1621
 ],
 "TypeScript:src/services/formatting/formatting.ts": [

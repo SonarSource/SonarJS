@@ -41,7 +41,8 @@
 25
 ],
 "eigen:src/app/Components/LocationMap/LocationMap.tsx": [
-27
+27,
+52
 ],
 "eigen:src/app/Components/PartnerEntityHeader.tests.tsx": [
 30
@@ -161,6 +162,10 @@
 "eigen:src/app/Scenes/Home/Components/ShowsRail.tests.tsx": [
 57
 ],
+"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tsx": [
+48,
+101
+],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
 40
 ],
@@ -219,6 +224,12 @@
 ],
 "eigen:src/app/Scenes/MyProfile/MyProfileHeaderMyCollectionAndSavedWorks.tests.tsx": [
 46
+],
+"eigen:src/app/Scenes/MyProfile/MyProfilePayment.tsx": [
+52
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
+140
 ],
 "eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx": [
 54,
@@ -295,6 +306,9 @@
 "eigen:src/app/utils/AboveTheFoldQueryRenderer.tsx": [
 90
 ],
+"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
+21
+],
 "eigen:src/app/utils/getTestWrapper.tsx": [
 13
 ],
@@ -310,6 +324,9 @@
 ],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 142
+],
+"eigen:src/palette/elements/Pill/Pill.tsx": [
+36
 ],
 "eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 74
