@@ -434,9 +434,20 @@ describe('S3801', () => {
             }
           `,
         },
-        // Note: We intentionally don't handle complex control flow (if-else, loops, etc.)
-        // in switch cases. Such cases will be flagged by ESLint's code path analysis,
-        // which is the conservative and safe behavior.
+        {
+          // Fall-through to last case that returns - should not raise
+          // All fall-throughs eventually reach the last case which returns
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                  console.log('a');
+                case 'b': return 2;
+              }
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -448,21 +459,6 @@ describe('S3801', () => {
                 case 'a': return 1;
                 case 'b': return 2;
                 // missing 'c'
-              }
-            }
-          `,
-          errors: 1,
-        },
-        {
-          // Exhaustive but has fall-through - should raise
-          code: `
-            type Kind = 'a' | 'b';
-            function getValue(kind: Kind) {
-              switch (kind) {
-                case 'a':
-                  console.log('a');
-                  // falls through
-                case 'b': return 2;
               }
             }
           `,
@@ -481,14 +477,26 @@ describe('S3801', () => {
           errors: 1,
         },
         {
-          // Exhaustive switch but case ends with other statement - should raise
+          // Exhaustive but last case doesn't return - should raise
           code: `
             type Kind = 'a' | 'b';
             function getValue(kind: Kind) {
               switch (kind) {
-                case 'a':
-                  console.log('a');
-                case 'b': return 2;
+                case 'a': return 1;
+                case 'b': console.log('b'); // no return
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive but last case is empty - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': // empty, falls through to end
               }
             }
           `,

@@ -227,14 +227,19 @@ function isVoidType(typeNode: TSESTree.TypeNode) {
 }
 
 /**
- * Checks if a switch statement is exhaustive over a union/enum type and all cases exit.
- * This is used to detect when ESLint's code path analysis incorrectly thinks there's an implicit
- * return, when in fact TypeScript knows the code after the switch is unreachable.
+ * Checks if a switch statement is exhaustive and its last case exits.
+ * Since all fall-throughs eventually reach the last case, we only need to verify:
+ * 1. The switch covers all possible values (exhaustive)
+ * 2. The last case exits (return/throw)
  */
 function isExhaustiveSwitch(
   switchStmt: estree.SwitchStatement,
   services: RequiredParserServices,
 ): boolean {
+  if (switchStmt.cases.length === 0) {
+    return false;
+  }
+
   // If there's a default case, the switch handles all possible values
   const hasDefaultCase = switchStmt.cases.some(c => c.test === null);
 
@@ -272,37 +277,27 @@ function isExhaustiveSwitch(
     }
   }
 
-  // Check if all cases exit (return or throw) - we check the last statement only
-  // Empty cases fall through to the next case, which is handled by ESLint's code path analysis
-  return switchStmt.cases.every(caseClause => {
-    const statements = caseClause.consequent;
-    if (statements.length === 0) {
-      // Empty case - falls through to next case, which is fine
-      return true;
-    }
-    return lastStatementExits(statements);
-  });
+  // All fall-throughs reach the last case, so only check if last case exits
+  const lastCase = switchStmt.cases.at(-1)!;
+  return lastCaseExits(lastCase.consequent);
 }
 
 /**
- * Checks if the last non-break statement in a list exits (return/throw).
- * Only checks direct returns/throws, not complex control flow.
+ * Checks if a case's statements exit (return/throw).
+ * Skips trailing break statements which don't affect the exit behavior.
  */
-function lastStatementExits(statements: estree.Statement[]): boolean {
-  // Find the last non-break statement (break after return is unreachable but valid syntax)
+function lastCaseExits(statements: estree.Statement[]): boolean {
   for (let i = statements.length - 1; i >= 0; i--) {
     const stmt = statements[i];
     if (stmt.type === 'BreakStatement') {
-      continue; // Skip break statements
+      continue;
     }
     if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
       return true;
     }
     if (stmt.type === 'BlockStatement') {
-      return lastStatementExits(stmt.body);
+      return lastCaseExits(stmt.body);
     }
-    // For other statement types (if, for, while, etc.), we don't try to analyze
-    // and conservatively return false - let ESLint handle those paths
     return false;
   }
   return false;
