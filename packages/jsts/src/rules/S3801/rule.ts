@@ -40,6 +40,8 @@ interface FunctionContext {
   containsImplicitReturn: boolean;
   returnStatements: estree.ReturnStatement[];
   switchStatements: estree.SwitchStatement[];
+  /** Tracks whether last case of each switch has reachable exit (doesn't return/throw) */
+  switchLastCaseReachable: Map<estree.SwitchStatement, boolean>;
 }
 
 interface FunctionLikeDeclaration {
@@ -111,11 +113,14 @@ export const rule: Rule.RuleModule = {
       const hasReachableSegment = Array.from(currentSegments).some(segment => segment.reachable);
 
       if (hasReachableSegment && services) {
-        // Check if any exhaustive switch makes the implicit return unreachable
-        // TypeScript knows exhaustive switches make subsequent code unreachable,
-        // but ESLint's code path analysis doesn't account for this
-        const hasExhaustiveSwitch = functionContext.switchStatements.some(switchStmt =>
-          isExhaustiveSwitch(switchStmt, services),
+        // Check if any exhaustive switch makes the implicit return unreachable.
+        // A switch eliminates the implicit return if:
+        // 1. It's exhaustive (covers all possible values)
+        // 2. Its last case doesn't have a reachable exit (all paths return/throw)
+        const hasExhaustiveSwitch = functionContext.switchStatements.some(
+          switchStmt =>
+            isExhaustiveSwitch(switchStmt, services) &&
+            !functionContext.switchLastCaseReachable.get(switchStmt),
         );
         functionContext.containsImplicitReturn = !hasExhaustiveSwitch;
       } else {
@@ -154,6 +159,7 @@ export const rule: Rule.RuleModule = {
           containsImplicitReturn: false,
           returnStatements: [],
           switchStatements: [],
+          switchLastCaseReachable: new Map(),
         });
         allCurrentSegments.push(currentSegments);
         currentSegments = new Set();
@@ -196,6 +202,19 @@ export const rule: Rule.RuleModule = {
           currentContext.switchStatements.push(node as estree.SwitchStatement);
         }
       },
+      'SwitchCase:exit'(node: estree.Node) {
+        const currentContext = functionContextStack.at(-1);
+        if (!currentContext) return;
+
+        const switchStmt = getParent(context, node) as estree.SwitchStatement;
+        const lastCase = switchStmt.cases.at(-1);
+
+        // Only track the last case - all fall-throughs eventually reach it
+        if (node === lastCase) {
+          const hasReachableExit = Array.from(currentSegments).some(s => s.reachable);
+          currentContext.switchLastCaseReachable.set(switchStmt, hasReachableExit);
+        }
+      },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
       'ArrowFunctionExpression:exit': checkOnFunctionExit,
@@ -227,10 +246,9 @@ function isVoidType(typeNode: TSESTree.TypeNode) {
 }
 
 /**
- * Checks if a switch statement is exhaustive and its last case exits.
- * Since all fall-throughs eventually reach the last case, we only need to verify:
- * 1. The switch covers all possible values (exhaustive)
- * 2. The last case exits (return/throw)
+ * Checks if a switch statement is exhaustive (covers all possible values).
+ * If exhaustive, ESLint's "implicit return" detection is a false positive
+ * because the "no case matches" path doesn't actually exist.
  */
 function isExhaustiveSwitch(
   switchStmt: estree.SwitchStatement,
@@ -241,66 +259,37 @@ function isExhaustiveSwitch(
   }
 
   // If there's a default case, the switch handles all possible values
-  const hasDefaultCase = switchStmt.cases.some(c => c.test === null);
-
-  if (!hasDefaultCase) {
-    // Without a default, we need to verify all union/enum members are covered
-    const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
-    const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
-
-    // Must be a union or enum type to be exhaustive without a default
-    if (types.length <= 1 && !isEnumType(discriminantType)) {
-      return false;
-    }
-
-    // Collect all case test values
-    const coveredTypes = new Set<ts.Type>();
-    for (const caseClause of switchStmt.cases) {
-      if (caseClause.test) {
-        const testType = getTypeFromTreeNode(caseClause.test, services);
-        if (testType.isUnion()) {
-          testType.types.forEach(t => coveredTypes.add(t));
-        } else {
-          coveredTypes.add(testType);
-        }
-      }
-    }
-
-    // Check if all types are covered
-    const checker = services.program.getTypeChecker();
-    const allTypesCovered = types.every(type =>
-      Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
-    );
-
-    if (!allTypesCovered) {
-      return false;
-    }
+  if (switchStmt.cases.some(c => c.test === null)) {
+    return true;
   }
 
-  // All fall-throughs reach the last case, so only check if last case exits
-  const lastCase = switchStmt.cases.at(-1)!;
-  return lastCaseExits(lastCase.consequent);
-}
+  // Without a default, verify all union/enum members are covered
+  const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
+  const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
 
-/**
- * Checks if a case's statements exit (return/throw).
- * Skips trailing break statements which don't affect the exit behavior.
- */
-function lastCaseExits(statements: estree.Statement[]): boolean {
-  for (let i = statements.length - 1; i >= 0; i--) {
-    const stmt = statements[i];
-    if (stmt.type === 'BreakStatement') {
-      continue;
-    }
-    if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
-      return true;
-    }
-    if (stmt.type === 'BlockStatement') {
-      return lastCaseExits(stmt.body);
-    }
+  // Must be a union or enum type to be exhaustive without a default
+  if (types.length <= 1 && !isEnumType(discriminantType)) {
     return false;
   }
-  return false;
+
+  // Collect all case test values
+  const coveredTypes = new Set<ts.Type>();
+  for (const caseClause of switchStmt.cases) {
+    if (caseClause.test) {
+      const testType = getTypeFromTreeNode(caseClause.test, services);
+      if (testType.isUnion()) {
+        testType.types.forEach(t => coveredTypes.add(t));
+      } else {
+        coveredTypes.add(testType);
+      }
+    }
+  }
+
+  // Check if all types are covered
+  const checker = services.program.getTypeChecker();
+  return types.every(type =>
+    Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
+  );
 }
 
 function isEnumType(type: ts.Type): boolean {
