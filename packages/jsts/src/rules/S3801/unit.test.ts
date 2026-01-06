@@ -401,6 +401,76 @@ describe('S3801', () => {
             }
           `,
         },
+        {
+          // Exhaustive switch with break after return - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                  return 1;
+                  break;
+                case 'b':
+                  return 2;
+                  break;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with if-else returning in both branches - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind, flag: boolean) {
+              switch (kind) {
+                case 'a':
+                  if (flag) {
+                    return 1;
+                  } else {
+                    return 2;
+                  }
+                case 'b':
+                  return 3;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with nested block returning - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': {
+                  {
+                    return 1;
+                  }
+                }
+                case 'b':
+                  return 2;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with nested if in block - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind, flag: boolean) {
+              switch (kind) {
+                case 'a': {
+                  if (flag) {
+                    return 1;
+                  } else {
+                    return 2;
+                  }
+                }
+                case 'b':
+                  return 3;
+              }
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -438,6 +508,51 @@ describe('S3801', () => {
             function getValue(kind: string) {
               switch (kind) {
                 case 'a': return 1;
+                case 'b': return 2;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive switch but empty case - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                case 'b': return 2;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive switch but if without else - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind, flag: boolean) {
+              switch (kind) {
+                case 'a':
+                  if (flag) {
+                    return 1;
+                  }
+                  // no else - falls through
+                case 'b':
+                  return 2;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive switch but case ends with other statement - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                  console.log('a');
                 case 'b': return 2;
               }
             }

@@ -245,10 +245,10 @@ function isExhaustiveSwitchWithAllCasesReturning(
     return false;
   }
 
-  // Collect all case test values
+  // Collect all case test values (exclude default case which has test === null)
   const caseTests = switchStmt.cases
-    .filter(c => c.test !== null) // Exclude default case
-    .map(c => c.test!);
+    .map(c => c.test)
+    .filter((test): test is estree.Expression => test !== null);
 
   // Check if all union/enum members are covered
   const coveredTypes = new Set<ts.Type>();
@@ -303,34 +303,28 @@ function caseEndsWithReturnOrThrow(caseClause: estree.SwitchCase): boolean {
     const stmt = statements[i];
     if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
       return true;
-    }
-    if (stmt.type === 'BreakStatement') {
+    } else if (stmt.type === 'BreakStatement') {
       // Break doesn't count - continue checking
       continue;
-    }
-    if (stmt.type === 'BlockStatement') {
+    } else if (stmt.type === 'BlockStatement' && blockEndsWithReturnOrThrow(stmt)) {
       // Check inside the block
-      if (blockEndsWithReturnOrThrow(stmt)) {
-        return true;
-      }
-    }
-    if (stmt.type === 'IfStatement') {
+      return true;
+    } else if (stmt.type === 'IfStatement' && ifEndsWithReturnOrThrow(stmt)) {
       // For if statements, both branches must end with return/throw
-      if (ifEndsWithReturnOrThrow(stmt)) {
-        return true;
-      }
+      return true;
+    } else {
+      // Other statements - this case doesn't end with return/throw
+      return false;
     }
-    // Other statements - this case doesn't end with return/throw
-    return false;
   }
   return false;
 }
 
 function blockEndsWithReturnOrThrow(block: estree.BlockStatement): boolean {
-  if (block.body.length === 0) {
+  const lastStmt = block.body.at(-1);
+  if (!lastStmt) {
     return false;
   }
-  const lastStmt = block.body[block.body.length - 1];
   if (lastStmt.type === 'ReturnStatement' || lastStmt.type === 'ThrowStatement') {
     return true;
   }
