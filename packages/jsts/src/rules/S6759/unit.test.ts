@@ -158,7 +158,29 @@ function NonReadonlyComponent(props: Props) {
   return <div className={props.className}>{props.title}</div>;
 }
           `,
-          errors: [{ messageId: 'readOnlyProps' }],
+          errors: [
+            {
+              messageId: 'readOnlyProps',
+              suggestions: [
+                {
+                  messageId: 'readOnlyPropsFix',
+                  output: `
+interface NonReadonlyProps {
+  className?: string;
+  title?: string;
+  children?: React.ReactNode;
+}
+
+type Props = Omit<NonReadonlyProps, 'children'>;
+
+function NonReadonlyComponent(props: Readonly<Props>) {
+  return <div className={props.className}>{props.title}</div>;
+}
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           // Pick<T, K> where T does NOT have readonly members should still raise an issue
@@ -175,7 +197,29 @@ function MutablePickComponent(props: SelectedProps) {
   return <div id={props.id}>{props.name}</div>;
 }
           `,
-          errors: [{ messageId: 'readOnlyProps' }],
+          errors: [
+            {
+              messageId: 'readOnlyProps',
+              suggestions: [
+                {
+                  messageId: 'readOnlyPropsFix',
+                  output: `
+interface MutableProps {
+  id: string;
+  name: string;
+  value: number;
+}
+
+type SelectedProps = Pick<MutableProps, 'id' | 'name'>;
+
+function MutablePickComponent(props: Readonly<SelectedProps>) {
+  return <div id={props.id}>{props.name}</div>;
+}
+          `,
+                },
+              ],
+            },
+          ],
         },
       ],
     });
