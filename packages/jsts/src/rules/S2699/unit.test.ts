@@ -63,6 +63,44 @@ describe('no import from test library', () => {
 });
 `,
         },
+        // False positive scenario: expectObservable(...).toBe(...) and expectSubscriptions(...).toBe(...)
+        // are not recognized as assertions.
+        // This is a false positive because these are valid assertion functions from RxJS marble testing
+        // that follow the same pattern as expect() but with different prefixes.
+        {
+          code: `
+const chai = require('chai');
+describe('RxJS marble testing', () => {
+  it('should recognize expectObservable as an assertion', () => {
+    const observable = { toObservable: () => 'a' };
+    expectObservable(observable).toBe('(a|)');
+  });
+});
+`,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('RxJS marble testing', () => {
+  it('should recognize expectSubscriptions as an assertion', () => {
+    const source = hot('----a----b----c----|');
+    expectSubscriptions(source.subscriptions).toBe(['^ !']);
+  });
+});
+`,
+        },
+        // False positive scenario: expectTypeOf(...).toEqualTypeOf(...) is not recognized as an assertion.
+        // expectTypeOf is commonly used for type testing in vitest and other libraries.
+        {
+          code: `
+const chai = require('chai');
+describe('Type testing', () => {
+  it('should recognize expectTypeOf as an assertion', () => {
+    expectTypeOf({ a: 1 }).toEqualTypeOf<{ a: number }>();
+  });
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -88,6 +126,58 @@ describe('no import from test library', () => {
       expect(input).to.equal(2) // chai API
   });
 });`,
+        },
+        // False positive scenario: expectObservable/expectSubscriptions in TypeScript
+        // These are valid assertion functions from RxJS marble testing
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectObservable(observable: any): { toBe: (expected: string) => void };
+declare function expectSubscriptions(subscriptions: any): { toBe: (expected: string[]) => void };
+
+describe('RxJS marble testing with types', () => {
+  it('should recognize expectObservable as an assertion', () => {
+    const observable = {};
+    expectObservable(observable).toBe('(a|)');
+  });
+
+  it('should recognize expectSubscriptions as an assertion', () => {
+    const subscriptions: any[] = [];
+    expectSubscriptions(subscriptions).toBe(['^ !']);
+  });
+});
+`,
+        },
+        // False positive scenario: expectTypeOf in TypeScript
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectTypeOf<T>(value: T): { toEqualTypeOf: <U>() => void; toBe: () => void };
+
+describe('Type testing with expectTypeOf', () => {
+  it('should recognize expectTypeOf as an assertion', () => {
+    expectTypeOf({ a: 1 }).toEqualTypeOf<{ a: number }>();
+  });
+});
+`,
+        },
+        // False positive scenario: expectObservable with chained property access
+        // e.g., expectObservable(...).not.toBe(...) or expectObservable(...).someProperty.toBe(...)
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectObservable(observable: any): { not: { toBe: (expected: string) => void }; toBe: (expected: string) => void };
+
+describe('RxJS marble testing with chained access', () => {
+  it('should recognize expectObservable with chained not.toBe', () => {
+    const observable = {};
+    expectObservable(observable).not.toBe('(a|)');
+  });
+});
+`,
         },
       ],
       invalid: [],
