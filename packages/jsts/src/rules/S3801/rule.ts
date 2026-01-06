@@ -204,7 +204,9 @@ export const rule: Rule.RuleModule = {
       },
       'SwitchCase:exit'(node: estree.Node) {
         const currentContext = functionContextStack.at(-1);
-        if (!currentContext) return;
+        if (!currentContext) {
+          return;
+        }
 
         const switchStmt = getParent(context, node) as estree.SwitchStatement;
         const lastCase = switchStmt.cases.at(-1);
