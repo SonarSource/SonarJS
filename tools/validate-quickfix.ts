@@ -14,15 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join } from 'node:path/posix';
-import { pathToFileURL } from 'node:url';
 import type { Rule } from 'eslint';
 import * as rules from '../packages/jsts/src/rules/rules.js';
-import { getRspecMeta, RULES_FOLDER } from './helpers.js';
-
-type RuleMeta = {
-  quickFixMessage?: string;
-};
+import { getRspecMeta, getRuleMetadata } from './helpers.js';
 
 const errors: string[] = [];
 
@@ -30,15 +24,7 @@ console.log('Validating quickfix configuration...\n');
 
 for (const [sonarKey, rule] of Object.entries(rules) as [string, Rule.RuleModule][]) {
   const rspecMeta = await getRspecMeta(sonarKey, {});
-
-  // Load rule meta.ts for quickFixMessage
-  const metaFile = pathToFileURL(join(RULES_FOLDER, sonarKey, 'meta.ts')).toString();
-  let ruleMeta: RuleMeta = {};
-  try {
-    ruleMeta = await import(metaFile);
-  } catch {
-    // meta.ts might not exist for all rules
-  }
+  const ruleMeta = await getRuleMetadata(sonarKey);
 
   const rspecHasQuickfix = rspecMeta.quickfix === 'covered';
   const ruleHasFixable = !!rule.meta?.fixable;
