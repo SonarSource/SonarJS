@@ -14,16 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'fs/promises';
 import { join } from 'node:path/posix';
 import { pathToFileURL } from 'node:url';
 import type { Rule } from 'eslint';
 import * as rules from '../packages/jsts/src/rules/rules.js';
-import { METADATA_FOLDER, RULES_FOLDER } from './helpers.js';
-
-type RspecMeta = {
-  quickfix?: 'covered';
-};
+import { getRspecMeta, RULES_FOLDER } from './helpers.js';
 
 type RuleMeta = {
   quickFixMessage?: string;
@@ -34,15 +29,7 @@ const errors: string[] = [];
 console.log('Validating quickfix configuration...\n');
 
 for (const [sonarKey, rule] of Object.entries(rules) as [string, Rule.RuleModule][]) {
-  // Load RSPEC metadata
-  const rspecFile = join(METADATA_FOLDER, `${sonarKey}.json`);
-  let rspecMeta: RspecMeta;
-  try {
-    rspecMeta = JSON.parse(await readFile(rspecFile, 'utf-8'));
-  } catch {
-    // Skip rules without RSPEC (shouldn't happen in normal builds)
-    continue;
-  }
+  const rspecMeta = await getRspecMeta(sonarKey, {});
 
   // Load rule meta.ts for quickFixMessage
   const metaFile = pathToFileURL(join(RULES_FOLDER, sonarKey, 'meta.ts')).toString();
