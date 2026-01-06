@@ -96,10 +96,14 @@ function raiseOnImplicitImport(
   whitelist: string[],
   context: Rule.RuleContext,
 ) {
-  const moduleName = module.value;
-  if (typeof moduleName !== 'string') {
+  const moduleValue = module.value;
+  if (typeof moduleValue !== 'string') {
     return;
   }
+
+  // Strip query parameters and hash fragments from module name
+  // Bundlers like Vite use these for transformations (e.g., '?react' for SVG-to-React)
+  const moduleName = moduleValue.split('?')[0].split('#')[0];
 
   if (ts.isExternalModuleNameRelative(moduleName)) {
     return;
