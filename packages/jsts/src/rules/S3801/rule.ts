@@ -18,12 +18,16 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
+  getTypeFromTreeNode,
+  isRequiredParserServices,
   report,
+  RequiredParserServices,
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
@@ -35,6 +39,7 @@ interface FunctionContext {
   containsReturnWithoutValue: boolean;
   containsImplicitReturn: boolean;
   returnStatements: estree.ReturnStatement[];
+  switchStatements: estree.SwitchStatement[];
 }
 
 interface FunctionLikeDeclaration {
@@ -47,9 +52,15 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
+    const services = sourceCode.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     const functionContextStack: FunctionContext[] = [];
     const checkOnFunctionExit = (node: estree.Node) =>
-      checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, functionContextStack.at(-1));
+      checkFunctionLikeDeclaration(
+        node as FunctionLikeDeclaration,
+        functionContextStack.at(-1),
+        hasTypeInformation ? services : undefined,
+      );
 
     // tracks the segments we've traversed in the current code path
     let currentSegments: Set<Rule.CodePathSegment>;
@@ -60,6 +71,7 @@ export const rule: Rule.RuleModule = {
     function checkFunctionLikeDeclaration(
       node: FunctionLikeDeclaration,
       functionContext?: FunctionContext,
+      services?: RequiredParserServices,
     ) {
       if (
         !functionContext ||
@@ -69,7 +81,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      checkFunctionForImplicitReturn(functionContext);
+      checkFunctionForImplicitReturn(functionContext, services);
 
       if (hasInconsistentReturns(functionContext)) {
         const secondaryLocations = getSecondaryLocations(functionContext, node as estree.Node);
@@ -89,13 +101,26 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function checkFunctionForImplicitReturn(functionContext: FunctionContext) {
+    function checkFunctionForImplicitReturn(
+      functionContext: FunctionContext,
+      services?: RequiredParserServices,
+    ) {
       // As this method is called at the exit point of a function definition, the current
       // segments are the ones leading to the exit point at the end of the function. If they
       // are reachable, it means there is an implicit return.
-      functionContext.containsImplicitReturn = Array.from(currentSegments).some(
-        segment => segment.reachable,
-      );
+      const hasReachableSegment = Array.from(currentSegments).some(segment => segment.reachable);
+
+      if (hasReachableSegment && services) {
+        // Check if any exhaustive switch makes the implicit return unreachable
+        // TypeScript knows exhaustive switches make subsequent code unreachable,
+        // but ESLint's code path analysis doesn't account for this
+        const hasExhaustiveSwitch = functionContext.switchStatements.some(switchStmt =>
+          isExhaustiveSwitchWithAllCasesReturning(switchStmt, services),
+        );
+        functionContext.containsImplicitReturn = !hasExhaustiveSwitch;
+      } else {
+        functionContext.containsImplicitReturn = hasReachableSegment;
+      }
     }
 
     function getSecondaryLocations(functionContext: FunctionContext, node: estree.Node) {
@@ -128,6 +153,7 @@ export const rule: Rule.RuleModule = {
           containsReturnWithoutValue: false,
           containsImplicitReturn: false,
           returnStatements: [],
+          switchStatements: [],
         });
         allCurrentSegments.push(currentSegments);
         currentSegments = new Set();
@@ -164,6 +190,12 @@ export const rule: Rule.RuleModule = {
           currentContext.returnStatements.push(returnStatement);
         }
       },
+      SwitchStatement(node: estree.Node) {
+        const currentContext = functionContextStack.at(-1);
+        if (currentContext) {
+          currentContext.switchStatements.push(node as estree.SwitchStatement);
+        }
+      },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
       'ArrowFunctionExpression:exit': checkOnFunctionExit,
@@ -192,4 +224,144 @@ function isVoidType(typeNode: TSESTree.TypeNode) {
     typeNode.type === 'TSVoidKeyword' ||
     typeNode.type === 'TSNeverKeyword'
   );
+}
+
+/**
+ * Checks if a switch statement is exhaustive over a union/enum type and all cases return or throw.
+ * This is used to detect when ESLint's code path analysis incorrectly thinks there's an implicit
+ * return, when in fact TypeScript knows the code after the switch is unreachable.
+ */
+function isExhaustiveSwitchWithAllCasesReturning(
+  switchStmt: estree.SwitchStatement,
+  services: RequiredParserServices,
+): boolean {
+  const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
+
+  // Get all types in the union (or single type if not a union)
+  const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
+
+  // Must be a union or enum type
+  if (types.length <= 1 && !isEnumType(discriminantType)) {
+    return false;
+  }
+
+  // Collect all case test values
+  const caseTests = switchStmt.cases
+    .filter(c => c.test !== null) // Exclude default case
+    .map(c => c.test!);
+
+  // Check if all union/enum members are covered
+  const coveredTypes = new Set<ts.Type>();
+  for (const test of caseTests) {
+    const testType = getTypeFromTreeNode(test, services);
+    if (testType.isUnion()) {
+      testType.types.forEach(t => coveredTypes.add(t));
+    } else {
+      coveredTypes.add(testType);
+    }
+  }
+
+  // Check if all types are covered
+  // For enums and unions, we compare by checking if each type has a matching covered type
+  const checker = services.program.getTypeChecker();
+  const allTypesCovered = types.every(type =>
+    Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
+  );
+
+  if (!allTypesCovered) {
+    return false;
+  }
+
+  // Check if all non-default cases end with return or throw (not fall-through)
+  const nonDefaultCases = switchStmt.cases.filter(c => c.test !== null);
+  return nonDefaultCases.every(caseClause => caseEndsWithReturnOrThrow(caseClause));
+}
+
+function isEnumType(type: ts.Type): boolean {
+  // Check if any flag related to enum is set
+  return (
+    (type.flags & ts.TypeFlags.EnumLike) !== 0 ||
+    (type.flags & ts.TypeFlags.EnumLiteral) !== 0 ||
+    type.symbol?.flags === ts.SymbolFlags.EnumMember
+  );
+}
+
+/**
+ * Checks if a case clause ends with a return or throw statement.
+ * A case "ends" with return/throw if the last statement (ignoring trailing break) is return/throw,
+ * or if all paths through the case end with return/throw.
+ */
+function caseEndsWithReturnOrThrow(caseClause: estree.SwitchCase): boolean {
+  const statements = caseClause.consequent;
+  if (statements.length === 0) {
+    // Empty case falls through - not ending with return
+    return false;
+  }
+
+  // Check the last statement (or the one before break)
+  for (let i = statements.length - 1; i >= 0; i--) {
+    const stmt = statements[i];
+    if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
+      return true;
+    }
+    if (stmt.type === 'BreakStatement') {
+      // Break doesn't count - continue checking
+      continue;
+    }
+    if (stmt.type === 'BlockStatement') {
+      // Check inside the block
+      if (blockEndsWithReturnOrThrow(stmt)) {
+        return true;
+      }
+    }
+    if (stmt.type === 'IfStatement') {
+      // For if statements, both branches must end with return/throw
+      if (ifEndsWithReturnOrThrow(stmt)) {
+        return true;
+      }
+    }
+    // Other statements - this case doesn't end with return/throw
+    return false;
+  }
+  return false;
+}
+
+function blockEndsWithReturnOrThrow(block: estree.BlockStatement): boolean {
+  if (block.body.length === 0) {
+    return false;
+  }
+  const lastStmt = block.body[block.body.length - 1];
+  if (lastStmt.type === 'ReturnStatement' || lastStmt.type === 'ThrowStatement') {
+    return true;
+  }
+  if (lastStmt.type === 'BlockStatement') {
+    return blockEndsWithReturnOrThrow(lastStmt);
+  }
+  if (lastStmt.type === 'IfStatement') {
+    return ifEndsWithReturnOrThrow(lastStmt);
+  }
+  return false;
+}
+
+function ifEndsWithReturnOrThrow(ifStmt: estree.IfStatement): boolean {
+  // Both branches must exist and end with return/throw
+  if (!ifStmt.alternate) {
+    return false;
+  }
+  const consequentEnds = statementEndsWithReturnOrThrow(ifStmt.consequent);
+  const alternateEnds = statementEndsWithReturnOrThrow(ifStmt.alternate);
+  return consequentEnds && alternateEnds;
+}
+
+function statementEndsWithReturnOrThrow(stmt: estree.Statement): boolean {
+  if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
+    return true;
+  }
+  if (stmt.type === 'BlockStatement') {
+    return blockEndsWithReturnOrThrow(stmt);
+  }
+  if (stmt.type === 'IfStatement') {
+    return ifEndsWithReturnOrThrow(stmt);
+  }
+  return false;
 }
