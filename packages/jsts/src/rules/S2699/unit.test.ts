@@ -63,10 +63,7 @@ describe('no import from test library', () => {
 });
 `,
         },
-        // False positive scenario: expectObservable(...).toBe(...) and expectSubscriptions(...).toBe(...)
-        // are not recognized as assertions.
-        // This is a false positive because these are valid assertion functions from RxJS marble testing
-        // that follow the same pattern as expect() but with different prefixes.
+        // RxJS marble testing: expectObservable/expectSubscriptions should be recognized as assertions
         {
           code: `
 const chai = require('chai');
@@ -89,14 +86,13 @@ describe('RxJS marble testing', () => {
 });
 `,
         },
-        // False positive scenario: expectTypeOf(...).toEqualTypeOf(...) is not recognized as an assertion.
-        // expectTypeOf is commonly used for type testing in vitest and other libraries.
+        // expectTypeOf from vitest/expect-type libraries should be recognized as an assertion
         {
           code: `
 const chai = require('chai');
 describe('Type testing', () => {
   it('should recognize expectTypeOf as an assertion', () => {
-    expectTypeOf({ a: 1 }).toEqualTypeOf<{ a: number }>();
+    expectTypeOf({ a: 1 }).toEqualTypeOf();
   });
 });
 `,
@@ -127,8 +123,7 @@ describe('no import from test library', () => {
   });
 });`,
         },
-        // False positive scenario: expectObservable/expectSubscriptions in TypeScript
-        // These are valid assertion functions from RxJS marble testing
+        // RxJS marble testing in TypeScript: expectObservable/expectSubscriptions
         {
           code: `
 import { expect } from 'chai';
@@ -149,7 +144,7 @@ describe('RxJS marble testing with types', () => {
 });
 `,
         },
-        // False positive scenario: expectTypeOf in TypeScript
+        // expectTypeOf in TypeScript
         {
           code: `
 import { expect } from 'chai';
@@ -163,8 +158,7 @@ describe('Type testing with expectTypeOf', () => {
 });
 `,
         },
-        // False positive scenario: expectObservable with chained property access
-        // e.g., expectObservable(...).not.toBe(...) or expectObservable(...).someProperty.toBe(...)
+        // Chained property access: expectObservable(...).not.toBe(...)
         {
           code: `
 import { expect } from 'chai';

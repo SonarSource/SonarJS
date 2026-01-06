@@ -185,6 +185,7 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
 
   // Walk up the chain of property accesses to find the innermost call expression
   // This handles: expect(...).toHaveBeenCalled() as well as expect(...).not.toHaveBeenCalled()
+  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
   let current: ts.Expression = (node.expression as ts.PropertyAccessExpression).expression;
   while (current.kind === ts.SyntaxKind.PropertyAccessExpression) {
     current = (current as ts.PropertyAccessExpression).expression;
@@ -197,7 +198,7 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
   const innerCallExpression = current as ts.CallExpression;
   return (
     innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    (innerCallExpression.expression as ts.Identifier).text === 'expect'
+    (innerCallExpression.expression as ts.Identifier).text.startsWith('expect')
   );
 }
 
@@ -213,7 +214,38 @@ function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolea
   if (isFunctionCall(node) && node.callee.name === 'expect') {
     return true;
   }
+  // Check for expectX(...).assertion() pattern (e.g., expectObservable(...).toBe(...))
+  if (isExpectPrefixedAssertion(node)) {
+    return true;
+  }
   return isFunctionCallFromNodeAssert(context, node);
+}
+
+/**
+ * Checks if the node matches the pattern expectX(...).assertion()
+ * where X can be any suffix (e.g., expectObservable, expectSubscriptions, expectTypeOf)
+ */
+function isExpectPrefixedAssertion(node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const callExpr = node as estree.CallExpression;
+  if (callExpr.callee.type !== 'MemberExpression') {
+    return false;
+  }
+
+  // Walk up the chain of member expressions to find the innermost call expression
+  let current: estree.Expression | estree.Super = callExpr.callee.object;
+  while (current.type === 'MemberExpression') {
+    current = current.object;
+  }
+
+  if (current.type !== 'CallExpression') {
+    return false;
+  }
+
+  const innerCall = current;
+  return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
