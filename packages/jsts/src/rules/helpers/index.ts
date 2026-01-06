@@ -26,7 +26,6 @@ export * from './equivalence.js';
 export * from './express.js';
 export * from './files.js';
 export * from './generate-meta.js';
-export * from './globals.js';
 export * from './jsx.js';
 export * from './location.js';
 export * from './lva.js';

@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, globalsByLibraries } from '../helpers/index.js';
+import globals from 'globals';
+import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const illegalNames = new Set(['arguments']);
@@ -158,7 +159,8 @@ function isIllegalName(name: string) {
 }
 
 function isBuiltInName(name: string) {
-  return globalsByLibraries.builtin.includes(name);
+  // 'undefined' has special handling in isUndefinedShadowing (only flagged on write)
+  return name !== 'undefined' && name in globals.builtin;
 }
 
 function isUndefinedShadowing(isWrite: boolean, name: string) {

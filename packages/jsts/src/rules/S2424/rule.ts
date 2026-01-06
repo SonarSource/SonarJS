@@ -16,10 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2424/javascript
 
-import { generateMeta, globalsByLibraries } from '../helpers/index.js';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
+import globals from 'globals';
+import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -79,5 +80,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isBuiltIn(variable: Scope.Variable) {
-  return globalsByLibraries.builtin.includes(variable.name);
+  return variable.name in globals.builtin;
 }
