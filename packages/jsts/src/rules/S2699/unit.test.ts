@@ -109,6 +109,17 @@ describe('chai test cases', () => {
 });`,
           errors: 1,
         },
+        // expectX function without chained assertion method should still raise
+        {
+          code: `
+const chai = require('chai');
+describe('expectX without assertion', () => {
+  it('should raise when expectSomething has no chained method', () => {
+    expectSomething(value);
+  });
+});`,
+          errors: 1,
+        },
       ],
     });
     const typedRuleTester = new RuleTester();
