@@ -115,7 +115,7 @@ export const rule: Rule.RuleModule = {
         // TypeScript knows exhaustive switches make subsequent code unreachable,
         // but ESLint's code path analysis doesn't account for this
         const hasExhaustiveSwitch = functionContext.switchStatements.some(switchStmt =>
-          isExhaustiveSwitchWithAllCasesReturning(switchStmt, services),
+          isExhaustiveSwitch(switchStmt, services),
         );
         functionContext.containsImplicitReturn = !hasExhaustiveSwitch;
       } else {
@@ -227,128 +227,91 @@ function isVoidType(typeNode: TSESTree.TypeNode) {
 }
 
 /**
- * Checks if a switch statement is exhaustive over a union/enum type and all cases return or throw.
+ * Checks if a switch statement is exhaustive over a union/enum type and all cases exit.
  * This is used to detect when ESLint's code path analysis incorrectly thinks there's an implicit
  * return, when in fact TypeScript knows the code after the switch is unreachable.
  */
-function isExhaustiveSwitchWithAllCasesReturning(
+function isExhaustiveSwitch(
   switchStmt: estree.SwitchStatement,
   services: RequiredParserServices,
 ): boolean {
-  const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
+  // If there's a default case, the switch handles all possible values
+  const hasDefaultCase = switchStmt.cases.some(c => c.test === null);
 
-  // Get all types in the union (or single type if not a union)
-  const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
+  if (!hasDefaultCase) {
+    // Without a default, we need to verify all union/enum members are covered
+    const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
+    const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
 
-  // Must be a union or enum type
-  if (types.length <= 1 && !isEnumType(discriminantType)) {
-    return false;
-  }
+    // Must be a union or enum type to be exhaustive without a default
+    if (types.length <= 1 && !isEnumType(discriminantType)) {
+      return false;
+    }
 
-  // Collect all case test values (exclude default case which has test === null)
-  const caseTests = switchStmt.cases
-    .map(c => c.test)
-    .filter((test): test is estree.Expression => test !== null);
+    // Collect all case test values
+    const coveredTypes = new Set<ts.Type>();
+    for (const caseClause of switchStmt.cases) {
+      if (caseClause.test) {
+        const testType = getTypeFromTreeNode(caseClause.test, services);
+        if (testType.isUnion()) {
+          testType.types.forEach(t => coveredTypes.add(t));
+        } else {
+          coveredTypes.add(testType);
+        }
+      }
+    }
 
-  // Check if all union/enum members are covered
-  const coveredTypes = new Set<ts.Type>();
-  for (const test of caseTests) {
-    const testType = getTypeFromTreeNode(test, services);
-    if (testType.isUnion()) {
-      testType.types.forEach(t => coveredTypes.add(t));
-    } else {
-      coveredTypes.add(testType);
+    // Check if all types are covered
+    const checker = services.program.getTypeChecker();
+    const allTypesCovered = types.every(type =>
+      Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
+    );
+
+    if (!allTypesCovered) {
+      return false;
     }
   }
 
-  // Check if all types are covered
-  // For enums and unions, we compare by checking if each type has a matching covered type
-  const checker = services.program.getTypeChecker();
-  const allTypesCovered = types.every(type =>
-    Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
-  );
+  // Check if all cases exit (return or throw) - we check the last statement only
+  // Empty cases fall through to the next case, which is handled by ESLint's code path analysis
+  return switchStmt.cases.every(caseClause => {
+    const statements = caseClause.consequent;
+    if (statements.length === 0) {
+      // Empty case - falls through to next case, which is fine
+      return true;
+    }
+    return lastStatementExits(statements);
+  });
+}
 
-  if (!allTypesCovered) {
+/**
+ * Checks if the last non-break statement in a list exits (return/throw).
+ * Only checks direct returns/throws, not complex control flow.
+ */
+function lastStatementExits(statements: estree.Statement[]): boolean {
+  // Find the last non-break statement (break after return is unreachable but valid syntax)
+  for (let i = statements.length - 1; i >= 0; i--) {
+    const stmt = statements[i];
+    if (stmt.type === 'BreakStatement') {
+      continue; // Skip break statements
+    }
+    if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
+      return true;
+    }
+    if (stmt.type === 'BlockStatement') {
+      return lastStatementExits(stmt.body);
+    }
+    // For other statement types (if, for, while, etc.), we don't try to analyze
+    // and conservatively return false - let ESLint handle those paths
     return false;
   }
-
-  // Check if all non-default cases end with return or throw (not fall-through)
-  const nonDefaultCases = switchStmt.cases.filter(c => c.test !== null);
-  return nonDefaultCases.every(caseClause => caseEndsWithReturnOrThrow(caseClause));
+  return false;
 }
 
 function isEnumType(type: ts.Type): boolean {
-  // Check if any flag related to enum is set
   return (
     (type.flags & ts.TypeFlags.EnumLike) !== 0 ||
     (type.flags & ts.TypeFlags.EnumLiteral) !== 0 ||
     type.symbol?.flags === ts.SymbolFlags.EnumMember
   );
-}
-
-/**
- * Checks if a case clause ends with a return or throw statement.
- * A case "ends" with return/throw if the last statement (ignoring trailing break) is return/throw,
- * or if all paths through the case end with return/throw.
- */
-function caseEndsWithReturnOrThrow(caseClause: estree.SwitchCase): boolean {
-  const statements = caseClause.consequent;
-  if (statements.length === 0) {
-    // Empty case falls through - not ending with return
-    return false;
-  }
-
-  // Check the last statement (or the one before break)
-  for (let i = statements.length - 1; i >= 0; i--) {
-    const stmt = statements[i];
-    if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
-      return true;
-    } else if (stmt.type === 'BreakStatement') {
-      // Break doesn't count - continue checking
-    } else if (stmt.type === 'BlockStatement' && blockEndsWithReturnOrThrow(stmt)) {
-      // Check inside the block
-      return true;
-    } else return stmt.type === 'IfStatement' && ifEndsWithReturnOrThrow(stmt);
-  }
-  return false;
-}
-
-function blockEndsWithReturnOrThrow(block: estree.BlockStatement): boolean {
-  const lastStmt = block.body.at(-1);
-  if (!lastStmt) {
-    return false;
-  }
-  if (lastStmt.type === 'ReturnStatement' || lastStmt.type === 'ThrowStatement') {
-    return true;
-  }
-  if (lastStmt.type === 'BlockStatement') {
-    return blockEndsWithReturnOrThrow(lastStmt);
-  }
-  if (lastStmt.type === 'IfStatement') {
-    return ifEndsWithReturnOrThrow(lastStmt);
-  }
-  return false;
-}
-
-function ifEndsWithReturnOrThrow(ifStmt: estree.IfStatement): boolean {
-  // Both branches must exist and end with return/throw
-  if (!ifStmt.alternate) {
-    return false;
-  }
-  const consequentEnds = statementEndsWithReturnOrThrow(ifStmt.consequent);
-  const alternateEnds = statementEndsWithReturnOrThrow(ifStmt.alternate);
-  return consequentEnds && alternateEnds;
-}
-
-function statementEndsWithReturnOrThrow(stmt: estree.Statement): boolean {
-  if (stmt.type === 'ReturnStatement' || stmt.type === 'ThrowStatement') {
-    return true;
-  }
-  if (stmt.type === 'BlockStatement') {
-    return blockEndsWithReturnOrThrow(stmt);
-  }
-  if (stmt.type === 'IfStatement') {
-    return ifEndsWithReturnOrThrow(stmt);
-  }
-  return false;
 }
