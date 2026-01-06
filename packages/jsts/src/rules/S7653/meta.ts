@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-output-rename';
 export const externalPlugin = '@angular-eslint';
+export const quickFixMessage = 'Remove output alias';

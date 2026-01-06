@@ -25,7 +25,7 @@
   "ruleSpecification": "RSPEC-1440",
   "sqKey": "S1440",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"

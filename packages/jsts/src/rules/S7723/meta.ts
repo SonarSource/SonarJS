@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'new-for-builtins';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = "Add 'new' keyword";

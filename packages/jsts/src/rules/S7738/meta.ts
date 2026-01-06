@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-single-promise-in-promise-methods';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Unwrap single promise';

@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-typeof-undefined';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace typeof check with strict equality';

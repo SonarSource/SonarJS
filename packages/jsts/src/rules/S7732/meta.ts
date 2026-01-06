@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-instanceof-builtins';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Fix instanceof check';

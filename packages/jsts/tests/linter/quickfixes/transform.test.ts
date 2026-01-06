@@ -110,26 +110,6 @@ describe('transformFixes', () => {
     ]);
   });
 
-  it('should ignore an undeclared rule quick fix', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'undeclared.js');
-    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
-
-    const ruleId = 'S1440';
-
-    const linter = new Linter();
-    const [message] = linter.verify(sourceCode, {
-      plugins: {
-        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
-      },
-      rules: { [`sonarjs/${ruleId}`]: 'error' },
-    });
-    expect(message).toEqual(expect.objectContaining({ ruleId: `sonarjs/${ruleId}` }));
-    expect(message.fix).toBeDefined();
-
-    const quickFixes = transformFixes(sourceCode, message);
-    expect(quickFixes).toEqual([]);
-  });
-
   it('should not return quick fixes for a fixless rule', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'fixless.js');
     const { sourceCode } = await parseJavaScriptSourceFile(filePath);

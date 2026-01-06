@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-input-rename';
 export const externalPlugin = '@angular-eslint';
+export const quickFixMessage = 'Remove input alias';

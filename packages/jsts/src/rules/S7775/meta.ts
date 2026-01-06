@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-regexp-test';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with RegExp.test()';

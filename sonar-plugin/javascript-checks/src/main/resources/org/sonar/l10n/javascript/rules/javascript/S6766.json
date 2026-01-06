@@ -18,7 +18,7 @@
   "ruleSpecification": "RSPEC-6766",
   "sqKey": "S6766",
   "scope": "Main",
-  "quickfix": "infeasible",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW",

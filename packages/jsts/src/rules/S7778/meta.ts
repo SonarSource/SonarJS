@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-single-call';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Combine into single call';

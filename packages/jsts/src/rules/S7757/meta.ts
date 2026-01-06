@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-class-fields';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Convert to class field';

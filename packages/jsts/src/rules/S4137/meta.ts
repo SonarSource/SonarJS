@@ -17,4 +17,5 @@
 export const implementation = 'external';
 export const eslintId = 'consistent-type-assertions';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = 'Fix type assertion style';
 export * from './config.js';

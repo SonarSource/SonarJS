@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-explicit-any';
 export const externalPlugin = 'typescript-eslint';
+export const quickFixMessage = "Replace 'any' with 'unknown'";

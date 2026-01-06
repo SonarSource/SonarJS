@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'use-lifecycle-interface';
 export const externalPlugin = '@angular-eslint';
+export const quickFixMessage = 'Add lifecycle interface';
