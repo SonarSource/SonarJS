@@ -17,11 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2703/javascript
 
 import type { Rule } from 'eslint';
-import { flatMap, generateMeta, globalsByLibraries } from '../helpers/index.js';
 import type estree from 'estree';
+import globals from 'globals';
+import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
+const excludedNames = new Set(Object.values(globals).flatMap(env => Object.keys(env)));
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
