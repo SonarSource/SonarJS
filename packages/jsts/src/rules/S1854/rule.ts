@@ -394,22 +394,22 @@ export const rule: Rule.RuleModule = {
       }
       return null;
     }
-
-    function isDefinedOutsideTry(variable: Scope.Variable, tryStmt: estree.TryStatement): boolean {
-      return variable.defs.some(def => !isNodeInsideTryBlock(def.node, tryStmt));
-    }
-
-    function isNodeInsideTryBlock(node: estree.Node, tryStmt: estree.TryStatement): boolean {
-      const tryBlock = tryStmt.block;
-      const nodeRange = node.range;
-      const tryRange = tryBlock.range;
-      if (nodeRange && tryRange) {
-        return nodeRange[0] >= tryRange[0] && nodeRange[1] <= tryRange[1];
-      }
-      return false;
-    }
   },
 };
+
+function isDefinedOutsideTry(variable: Scope.Variable, tryStmt: estree.TryStatement): boolean {
+  return variable.defs.some(def => !isNodeInsideTryBlock(def.node, tryStmt));
+}
+
+function isNodeInsideTryBlock(node: estree.Node, tryStmt: estree.TryStatement): boolean {
+  const tryBlock = tryStmt.block;
+  const nodeRange = node.range;
+  const tryRange = tryBlock.range;
+  if (nodeRange && tryRange) {
+    return nodeRange[0] >= tryRange[0] && nodeRange[1] <= tryRange[1];
+  }
+  return false;
+}
 
 class CodePathContext {
   codePath: Rule.CodePath;
