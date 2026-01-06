@@ -149,7 +149,7 @@
     "tmp": "0.2.5",
     "typescript": "5.9.3",
     "vue-eslint-parser": "10.2.0",
-    "ws": "8.18.3",
+    "ws": "8.19.0",
     "yaml": "2.8.2"
   },
   "prettier": {
