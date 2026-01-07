@@ -64,7 +64,6 @@
 2747,
 2769,
 2955,
-5100,
 5333,
 5923,
 5970,
@@ -102,13 +101,6 @@
 ],
 "ace:lib/ace/mode/javascript_worker.js": [
 105
-],
-"ace:lib/ace/mode/json/json_parse.js": [
-106,
-147,
-199,
-229,
-256
 ],
 "ace:lib/ace/mode/jsoniq.js": [
 26,
