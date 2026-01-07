@@ -14,11 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from '../analysis.js';
-import { RuleConfig } from '../../linter/config/rule-config.js';
-import { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
-import { ErrorCode } from '../../../../shared/src/errors/error.js';
-import { Configuration } from '../../../../shared/src/helpers/configuration.js';
+import type {
+  JsTsAnalysisInput,
+  JsTsAnalysisOutput,
+  JsTsAnalysisOutputWithAst,
+} from '../analysis.js';
+import type { RuleConfig } from '../../linter/config/rule-config.js';
+import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
+import type { ErrorCode } from '../../../../shared/src/errors/error.js';
+import type { Configuration } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
