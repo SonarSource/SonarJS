@@ -28,6 +28,7 @@ import {
   RequiredParserServices,
 } from '../helpers/index.js';
 import { isPropertyReadonlyInType } from 'ts-api-utils';
+import ts from 'typescript';
 import * as meta from './generated-meta.js';
 
 /**
@@ -155,6 +156,11 @@ function isReadOnly(props: Node, services: RequiredParserServices) {
 
   /* Readonly utility type */
   if (type.aliasSymbol?.escapedName === 'Readonly') {
+    return true;
+  }
+
+  /* Non-object types (primitives) don't need readonly marking */
+  if (!(type.flags & ts.TypeFlags.Object)) {
     return true;
   }
 
