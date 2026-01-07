@@ -125,6 +125,46 @@ describe('S4721', () => {
       `,
           errors: 1,
         },
+        // JS-638: Verify location is correct for chained calls
+        {
+          code: `
+const childProcess = require("child_process");
+function getArch(command) {
+  const output = childProcess.execSync(command).toString().trim();
+  return output;
+}
+          `,
+          errors: [
+            {
+              message: 'Make sure that executing this OS command is safe here.',
+              line: 4,
+              endLine: 4,
+              column: 18,
+              endColumn: 39,
+            },
+          ],
+        },
+        // JS-638: Verify no false positive when using result of execSync later
+        {
+          code: `
+const childProcess = require("child_process");
+function getArch(version) {
+  const output = childProcess.execSync(version).toString().trim();
+  const armVersions = ["armv5", "armv6", "armv7"];
+  const armVersion = armVersions.find(v => output.startsWith(v));
+  return armVersion;
+}
+          `,
+          errors: [
+            {
+              message: 'Make sure that executing this OS command is safe here.',
+              line: 4,
+              endLine: 4,
+              column: 18,
+              endColumn: 39,
+            },
+          ],
+        },
       ],
     });
   });
