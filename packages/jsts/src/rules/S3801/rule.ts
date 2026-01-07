@@ -18,12 +18,16 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
+  getTypeFromTreeNode,
+  isRequiredParserServices,
   report,
+  RequiredParserServices,
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
@@ -35,6 +39,9 @@ interface FunctionContext {
   containsReturnWithoutValue: boolean;
   containsImplicitReturn: boolean;
   returnStatements: estree.ReturnStatement[];
+  switchStatements: estree.SwitchStatement[];
+  /** Tracks whether last case of each switch has reachable exit (doesn't return/throw) */
+  switchLastCaseReachable: Map<estree.SwitchStatement, boolean>;
 }
 
 interface FunctionLikeDeclaration {
@@ -47,9 +54,15 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
+    const services = sourceCode.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     const functionContextStack: FunctionContext[] = [];
     const checkOnFunctionExit = (node: estree.Node) =>
-      checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, functionContextStack.at(-1));
+      checkFunctionLikeDeclaration(
+        node as FunctionLikeDeclaration,
+        functionContextStack.at(-1),
+        hasTypeInformation ? services : undefined,
+      );
 
     // tracks the segments we've traversed in the current code path
     let currentSegments: Set<Rule.CodePathSegment>;
@@ -60,6 +73,7 @@ export const rule: Rule.RuleModule = {
     function checkFunctionLikeDeclaration(
       node: FunctionLikeDeclaration,
       functionContext?: FunctionContext,
+      services?: RequiredParserServices,
     ) {
       if (
         !functionContext ||
@@ -69,7 +83,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      checkFunctionForImplicitReturn(functionContext);
+      checkFunctionForImplicitReturn(functionContext, services);
 
       if (hasInconsistentReturns(functionContext)) {
         const secondaryLocations = getSecondaryLocations(functionContext, node as estree.Node);
@@ -89,13 +103,29 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function checkFunctionForImplicitReturn(functionContext: FunctionContext) {
+    function checkFunctionForImplicitReturn(
+      functionContext: FunctionContext,
+      services?: RequiredParserServices,
+    ) {
       // As this method is called at the exit point of a function definition, the current
       // segments are the ones leading to the exit point at the end of the function. If they
       // are reachable, it means there is an implicit return.
-      functionContext.containsImplicitReturn = Array.from(currentSegments).some(
-        segment => segment.reachable,
-      );
+      const hasReachableSegment = Array.from(currentSegments).some(segment => segment.reachable);
+
+      if (hasReachableSegment && services) {
+        // Check if any exhaustive switch makes the implicit return unreachable.
+        // A switch eliminates the implicit return if:
+        // 1. It's exhaustive (covers all possible values)
+        // 2. Its last case doesn't have a reachable exit (all paths return/throw)
+        const hasExhaustiveSwitch = functionContext.switchStatements.some(
+          switchStmt =>
+            isExhaustiveSwitch(switchStmt, services) &&
+            !functionContext.switchLastCaseReachable.get(switchStmt),
+        );
+        functionContext.containsImplicitReturn = !hasExhaustiveSwitch;
+      } else {
+        functionContext.containsImplicitReturn = hasReachableSegment;
+      }
     }
 
     function getSecondaryLocations(functionContext: FunctionContext, node: estree.Node) {
@@ -128,6 +158,8 @@ export const rule: Rule.RuleModule = {
           containsReturnWithoutValue: false,
           containsImplicitReturn: false,
           returnStatements: [],
+          switchStatements: [],
+          switchLastCaseReachable: new Map(),
         });
         allCurrentSegments.push(currentSegments);
         currentSegments = new Set();
@@ -164,6 +196,27 @@ export const rule: Rule.RuleModule = {
           currentContext.returnStatements.push(returnStatement);
         }
       },
+      SwitchStatement(node: estree.Node) {
+        const currentContext = functionContextStack.at(-1);
+        if (currentContext) {
+          currentContext.switchStatements.push(node as estree.SwitchStatement);
+        }
+      },
+      'SwitchCase:exit'(node: estree.Node) {
+        const currentContext = functionContextStack.at(-1);
+        if (!currentContext) {
+          return;
+        }
+
+        const switchStmt = getParent(context, node) as estree.SwitchStatement;
+        const lastCase = switchStmt.cases.at(-1);
+
+        // Only track the last case - all fall-throughs eventually reach it
+        if (node === lastCase) {
+          const hasReachableExit = Array.from(currentSegments).some(s => s.reachable);
+          currentContext.switchLastCaseReachable.set(switchStmt, hasReachableExit);
+        }
+      },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
       'ArrowFunctionExpression:exit': checkOnFunctionExit,
@@ -191,5 +244,60 @@ function isVoidType(typeNode: TSESTree.TypeNode) {
     typeNode.type === 'TSUndefinedKeyword' ||
     typeNode.type === 'TSVoidKeyword' ||
     typeNode.type === 'TSNeverKeyword'
+  );
+}
+
+/**
+ * Checks if a switch statement is exhaustive (covers all possible values).
+ * If exhaustive, ESLint's "implicit return" detection is a false positive
+ * because the "no case matches" path doesn't actually exist.
+ */
+function isExhaustiveSwitch(
+  switchStmt: estree.SwitchStatement,
+  services: RequiredParserServices,
+): boolean {
+  if (switchStmt.cases.length === 0) {
+    return false;
+  }
+
+  // If there's a default case, the switch handles all possible values
+  if (switchStmt.cases.some(c => c.test === null)) {
+    return true;
+  }
+
+  // Without a default, verify all union/enum members are covered
+  const discriminantType = getTypeFromTreeNode(switchStmt.discriminant, services);
+  const types = discriminantType.isUnion() ? discriminantType.types : [discriminantType];
+
+  // Must be a union or enum type to be exhaustive without a default
+  if (types.length <= 1 && !isEnumType(discriminantType)) {
+    return false;
+  }
+
+  // Collect all case test values
+  const coveredTypes = new Set<ts.Type>();
+  for (const caseClause of switchStmt.cases) {
+    if (caseClause.test) {
+      const testType = getTypeFromTreeNode(caseClause.test, services);
+      if (testType.isUnion()) {
+        testType.types.forEach(t => coveredTypes.add(t));
+      } else {
+        coveredTypes.add(testType);
+      }
+    }
+  }
+
+  // Check if all types are covered
+  const checker = services.program.getTypeChecker();
+  return types.every(type =>
+    Array.from(coveredTypes).some(covered => checker.isTypeAssignableTo(type, covered)),
+  );
+}
+
+function isEnumType(type: ts.Type): boolean {
+  return (
+    (type.flags & ts.TypeFlags.EnumLike) !== 0 ||
+    (type.flags & ts.TypeFlags.EnumLiteral) !== 0 ||
+    type.symbol?.flags === ts.SymbolFlags.EnumMember
   );
 }
