@@ -24,6 +24,7 @@ import {
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
+  getSignatureFromCallee,
   getTypeFromTreeNode,
   isRequiredParserServices,
   report,
@@ -42,6 +43,8 @@ interface FunctionContext {
   switchStatements: estree.SwitchStatement[];
   /** Tracks whether last case of each switch has reachable exit (doesn't return/throw) */
   switchLastCaseReachable: Map<estree.SwitchStatement, boolean>;
+  /** The last call expression in the function body (may return never) */
+  lastCallExpression: estree.CallExpression | null;
 }
 
 interface FunctionLikeDeclaration {
@@ -122,7 +125,14 @@ export const rule: Rule.RuleModule = {
             isExhaustiveSwitch(switchStmt, services) &&
             !functionContext.switchLastCaseReachable.get(switchStmt),
         );
-        functionContext.containsImplicitReturn = !hasExhaustiveSwitch;
+
+        // Check if the last call expression returns 'never' (e.g., a throwing function)
+        // If so, the implicit return is unreachable
+        const lastCallReturnsNever =
+          functionContext.lastCallExpression &&
+          isNeverReturningCall(functionContext.lastCallExpression, services);
+
+        functionContext.containsImplicitReturn = !hasExhaustiveSwitch && !lastCallReturnsNever;
       } else {
         functionContext.containsImplicitReturn = hasReachableSegment;
       }
@@ -160,6 +170,7 @@ export const rule: Rule.RuleModule = {
           returnStatements: [],
           switchStatements: [],
           switchLastCaseReachable: new Map(),
+          lastCallExpression: null,
         });
         allCurrentSegments.push(currentSegments);
         currentSegments = new Set();
@@ -215,6 +226,16 @@ export const rule: Rule.RuleModule = {
         if (node === lastCase) {
           const hasReachableExit = Array.from(currentSegments).some(s => s.reachable);
           currentContext.switchLastCaseReachable.set(switchStmt, hasReachableExit);
+        }
+      },
+      ExpressionStatement(node: estree.Node) {
+        const currentContext = functionContextStack.at(-1);
+        if (currentContext) {
+          const expr = (node as estree.ExpressionStatement).expression;
+          if (expr.type === 'CallExpression') {
+            // Track any call expression - we'll check if it returns 'never' later
+            currentContext.lastCallExpression = expr;
+          }
         }
       },
       'FunctionDeclaration:exit': checkOnFunctionExit,
@@ -300,4 +321,22 @@ function isEnumType(type: ts.Type): boolean {
     (type.flags & ts.TypeFlags.EnumLiteral) !== 0 ||
     type.symbol?.flags === ts.SymbolFlags.EnumMember
   );
+}
+
+/**
+ * Checks if a call expression returns 'never' (e.g., a function that always throws).
+ * This helps detect when an implicit return is actually unreachable because the
+ * last statement calls a function that never returns.
+ */
+function isNeverReturningCall(
+  callExpr: estree.CallExpression,
+  services: RequiredParserServices,
+): boolean {
+  const signature = getSignatureFromCallee(callExpr, services);
+  if (!signature) {
+    return false;
+  }
+
+  const returnType = signature.getReturnType();
+  return (returnType.flags & ts.TypeFlags.Never) !== 0;
 }

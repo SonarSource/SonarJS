@@ -294,7 +294,8 @@ describe('S3801', () => {
         }`,
           errors: 1,
         },
-        // possible FP, see https://github.com/SonarSource/SonarJS/issues/2579
+        // FP without type information - we can't detect that throwError returns 'never'
+        // See JS-106. With type information, this is now fixed (see type-aware tests below)
         {
           code: `
       function throwError(message: string): never {
@@ -448,8 +449,53 @@ describe('S3801', () => {
             }
           `,
         },
+        {
+          // Issue JS-106: Calling a function that returns 'never' - should not raise
+          // The function terminates via the never-returning call, so no implicit return
+          code: `
+            function throwError(message: string): never {
+              throw new Error(message);
+            }
+            function formatDateOrThrow(value: unknown): string {
+              if (value instanceof Date) {
+                return value.toISOString();
+              }
+              throwError('Invalid date');
+            }
+          `,
+        },
+        {
+          // Calling a never-returning function without explicit return type on caller
+          code: `
+            function throwError(message: string): never {
+              throw new Error(message);
+            }
+            function withNeverType(a) {
+              if (a === 1) {
+                return true;
+              }
+              throwError('False');
+            }
+          `,
+        },
       ],
       invalid: [
+        {
+          // Calling a function without explicit 'never' return type - should raise
+          // TypeScript infers 'void' not 'never' for functions that only throw
+          code: `
+            function throwErrorNoAnnotation() {
+              throw new Error('error');
+            }
+            function test(a) {
+              if (a === 1) {
+                return true;
+              }
+              throwErrorNoAnnotation();
+            }
+          `,
+          errors: 1,
+        },
         {
           // Non-exhaustive switch - should raise
           code: `
