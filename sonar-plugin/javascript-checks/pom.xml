@@ -51,7 +51,7 @@
             </goals>
             <configuration>
               <ruleSubdirectory>javascript</ruleSubdirectory>
-              <vcsBranchName>add-quickfix-javascript-rules</vcsBranchName>
+              <vcsBranchName>dogfood-automerge</vcsBranchName>
               <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
             </configuration>
           </execution>
