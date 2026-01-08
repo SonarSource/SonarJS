@@ -67,7 +67,7 @@ function createHealthServiceDefinition(): grpc.ServiceDefinition {
 /**
  * Create and start the gRPC server
  */
-function createGrpcServer(): grpc.Server {
+export function createGrpcServer(): grpc.Server {
   const server = new grpc.Server();
 
   const analyzerServiceDefinition = createAnalyzerServiceDefinition();

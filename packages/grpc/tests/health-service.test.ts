@@ -17,11 +17,26 @@
 import { describe, it, before, after } from 'node:test';
 import { expect } from 'expect';
 import * as grpc from '@grpc/grpc-js';
-import { startServer } from '../src/server.js';
 import { grpc as healthProto } from '../src/proto/health.js';
+import { createGrpcServer } from '../src/server.js';
 
-const TEST_PORT = 50152;
 const HEALTH_SERVICE_NAME = 'grpc.health.v1.Health';
+
+/**
+ * Start a test server on a dynamically assigned port
+ */
+async function startTestServer(): Promise<{ server: grpc.Server; port: number }> {
+  return new Promise((resolve, reject) => {
+    const server = createGrpcServer();
+    server.bindAsync('0.0.0.0:0', grpc.ServerCredentials.createInsecure(), (error, port) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ server, port });
+      }
+    });
+  });
+}
 
 /**
  * Create a gRPC client for the Health service
@@ -84,8 +99,9 @@ describe('Health service', () => {
   let client: ReturnType<typeof createHealthClient>;
 
   before(async () => {
-    server = await startServer(TEST_PORT);
-    client = createHealthClient(TEST_PORT);
+    const testServer = await startTestServer();
+    server = testServer.server;
+    client = createHealthClient(testServer.port);
   });
 
   after(async () => {
