@@ -20,8 +20,8 @@
  *
  * Usage: node tools/ruling-report.js
  *
- * Parses git diff of ruling JSON files and fetches code snippets
- * from the source files for added/removed issues.
+ * Compares ruling JSON files against origin/master and generates a report
+ * showing all changes introduced by the current branch.
  */
 
 import { execSync } from 'child_process';
@@ -32,11 +32,12 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources/jsts/projects');
+const BASE_REF = 'origin/master';
 
 function getChangedRulingFiles() {
   try {
-    // Use HEAD to catch both staged and unstaged changes
-    const output = execSync('git diff HEAD --name-only its/ruling/src/test/expected/jsts/', {
+    // Compare against master to show all changes introduced by this branch
+    const output = execSync(`git diff ${BASE_REF} --name-only its/ruling/src/test/expected/jsts/`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
@@ -69,26 +70,26 @@ function getRulingChanges(filePath) {
   // Get current (staged/working) version
   const currentData = parseRulingJson(fullPath);
 
-  // Get HEAD version
-  let headData = {};
+  // Get master version
+  let masterData = {};
   try {
-    const headContent = execSync(`git show HEAD:${filePath}`, {
+    const masterContent = execSync(`git show ${BASE_REF}:${filePath}`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
-    headData = JSON.parse(headContent);
+    masterData = JSON.parse(masterContent);
   } catch {
     // File might be new
   }
 
-  // Find added lines (in current but not in HEAD)
+  // Find added lines (in current but not in master)
   for (const [fileKey, lines] of Object.entries(currentData)) {
-    const headLines = new Set(headData[fileKey] || []);
+    const masterLines = new Set(masterData[fileKey] || []);
     // Extract relative path from "project:path" format
     const relativePath = fileKey.includes(':') ? fileKey.split(':')[1] : fileKey;
 
     for (const line of lines) {
-      if (!headLines.has(line)) {
+      if (!masterLines.has(line)) {
         changes.push({
           type: 'added',
           project,
@@ -100,8 +101,8 @@ function getRulingChanges(filePath) {
     }
   }
 
-  // Find removed lines (in HEAD but not in current)
-  for (const [fileKey, lines] of Object.entries(headData)) {
+  // Find removed lines (in master but not in current)
+  for (const [fileKey, lines] of Object.entries(masterData)) {
     const currentLines = new Set(currentData[fileKey] || []);
     const relativePath = fileKey.includes(':') ? fileKey.split(':')[1] : fileKey;
 

@@ -830,7 +830,8 @@ jobs:
           # Sync ruling results (this modifies its/ruling/...)
           npm run ruling-sync
 
-          # Generate report before checkout (compares current state)
+          # Generate report comparing against master
+          git fetch origin master
           node tools/ruling-report.js > ruling-report.md
 
           # Stash changes before checkout
@@ -857,8 +858,10 @@ jobs:
           🤖 Generated with GitHub Actions"
           git push origin "$HEAD_REF"
 
-          # Post comment with report and instructions
+          # Build comment with marker for identification
+          MARKER="<!-- ruling-report -->"
           {
+            echo "$MARKER"
             if [ -s ruling-report.md ]; then
               cat ruling-report.md
               echo ""
@@ -868,7 +871,17 @@ jobs:
             echo "- Close and reopen this PR, or"
             echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
           } > comment.md
-          gh pr comment "$PR_NUMBER" --body-file comment.md
+
+          # Find existing ruling comment and update it, or create new one
+          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
+              -X PATCH -F body=@comment.md
+          else
+            gh pr comment "$PR_NUMBER" --body-file comment.md
+          fi
 
   ruling:
     runs-on: github-ubuntu-latest-m
