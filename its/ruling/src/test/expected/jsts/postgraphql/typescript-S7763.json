@@ -1,14 +1,4 @@
 {
-"postgraphql:src/graphql/index.ts": [
-4
-],
-"postgraphql:src/graphql/utils/index.ts": [
-7,
-7,
-7,
-7,
-7
-],
 "postgraphql:src/index.ts": [
 3,
 6,
@@ -16,56 +6,6 @@
 8
 ],
 "postgraphql:src/interface/index.ts": [
-27,
-28,
-29,
-30,
-31,
-32,
-33,
-34,
-35,
-36,
-37,
-38,
-39,
-40,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-51
-],
-"postgraphql:src/postgraphql/index.ts": [
-6,
-7,
-8
-],
-"postgraphql:src/postgres/index.ts": [
-5,
-6
-],
-"postgraphql:src/postgres/introspection/index.ts": [
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20
-],
-"postgraphql:src/postgres/utils/index.ts": [
-6,
-6,
-6,
-6
+32
 ]
 }
