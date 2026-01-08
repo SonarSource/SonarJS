@@ -20,6 +20,7 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  childrenOf,
   generateMeta,
   isNullLiteral,
   last,
@@ -45,6 +46,9 @@ export const rule: Rule.RuleModule = {
     const destructuringStack: DestructuringContext[] = [];
     const codePathSegments: Rule.CodePathSegment[][] = [];
     let currentCodePathSegments: Rule.CodePathSegment[] = [];
+    // Variables that are written in try blocks and read in catch/finally blocks
+    // These should not be reported as dead stores because exceptions can occur
+    const variablesReadInCatch = new Set<Scope.Variable>();
 
     return {
       ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
@@ -82,6 +86,11 @@ export const rule: Rule.RuleModule = {
             referencesUsedInDestructuring.add(ref);
           }
         }
+      },
+
+      TryStatement: (node: estree.Node) => {
+        const tryStmt = node as estree.TryStatement;
+        collectVariablesReadInCatchOrFinally(tryStmt, context);
       },
 
       'Program:exit': () => {
@@ -173,7 +182,8 @@ export const rule: Rule.RuleModule = {
         !referencesUsedInDestructuring.has(ref) &&
         !variable.name.startsWith('_') &&
         !isIncrementOrDecrement(ref) &&
-        !isNullAssignment(ref)
+        !isNullAssignment(ref) &&
+        !variablesReadInCatch.has(variable)
       );
     }
 
@@ -323,8 +333,83 @@ export const rule: Rule.RuleModule = {
         return resolveReferenceRecursively(node, scope.upper, depth + 1);
       }
     }
+
+    /**
+     * Collects variables that are read in catch or finally blocks.
+     * Variables written in try and read in catch/finally should not be
+     * reported as dead stores because an exception could occur between
+     * assignments, making the earlier assignment value visible in the handler.
+     */
+    function collectVariablesReadInCatchOrFinally(
+      tryStmt: estree.TryStatement,
+      ctx: Rule.RuleContext,
+    ) {
+      const handlerNodes: estree.Node[] = [];
+      if (tryStmt.handler) {
+        handlerNodes.push(tryStmt.handler.body);
+      }
+      if (tryStmt.finalizer) {
+        handlerNodes.push(tryStmt.finalizer);
+      }
+
+      for (const handlerNode of handlerNodes) {
+        // Get all identifier references in the catch/finally block
+        visitIdentifiers(handlerNode, (identifier: estree.Identifier) => {
+          const scope = ctx.sourceCode.getScope(identifier);
+          const variable = findVariableInScope(scope, identifier.name);
+          if (variable && isDefinedOutsideTry(variable, tryStmt)) {
+            variablesReadInCatch.add(variable);
+          }
+        });
+      }
+    }
+
+    function visitIdentifiers(
+      node: estree.Node,
+      callback: (id: estree.Identifier) => void,
+      visited = new Set<estree.Node>(),
+    ) {
+      if (visited.has(node)) {
+        return;
+      }
+      visited.add(node);
+
+      if (node.type === 'Identifier') {
+        callback(node);
+        return;
+      }
+
+      for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+        visitIdentifiers(child, callback, visited);
+      }
+    }
+
+    function findVariableInScope(scope: Scope.Scope | null, name: string): Scope.Variable | null {
+      while (scope) {
+        const variable = scope.variables.find(v => v.name === name);
+        if (variable) {
+          return variable;
+        }
+        scope = scope.upper;
+      }
+      return null;
+    }
   },
 };
+
+function isDefinedOutsideTry(variable: Scope.Variable, tryStmt: estree.TryStatement): boolean {
+  return variable.defs.some(def => !isNodeInsideTryBlock(def.node, tryStmt));
+}
+
+function isNodeInsideTryBlock(node: estree.Node, tryStmt: estree.TryStatement): boolean {
+  const tryBlock = tryStmt.block;
+  const nodeRange = node.range;
+  const tryRange = tryBlock.range;
+  if (nodeRange && tryRange) {
+    return nodeRange[0] >= tryRange[0] && nodeRange[1] <= tryRange[1];
+  }
+  return false;
+}
 
 class CodePathContext {
   codePath: Rule.CodePath;

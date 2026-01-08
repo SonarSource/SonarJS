@@ -241,6 +241,56 @@ describe('S1854', () => {
         }
       `,
         },
+        // JS-384: Variables written in try and read in catch should not be flagged
+        {
+          code: `
+    function tryCatchWithStep() {
+      let step;
+      try {
+        step = 1;
+        operation1();
+        step = 2;
+        operation2();
+      } catch (e) {
+        console.log(step);
+      }
+    }
+          `,
+        },
+        {
+          code: `
+    function tryCatchWithFinally() {
+      let status;
+      try {
+        status = 'started';
+        doWork();
+        status = 'completed';
+      } finally {
+        log(status);
+      }
+    }
+          `,
+        },
+        {
+          code: `
+    function nestedTryCatch() {
+      let outer;
+      try {
+        outer = 1;
+        try {
+          let inner = 1;
+          inner = 2;
+          foo(inner);
+        } catch (e) {
+          // inner is not read here
+        }
+        outer = 2;
+      } catch (e) {
+        console.log(outer);
+      }
+    }
+          `,
+        },
         {
           code: `
         function getIconSettings() {
@@ -415,6 +465,21 @@ describe('S1854', () => {
       // 'b' is ignored but 'unused' is reported
       let {unused, a: {b, ...rest}} = foo(); // Noncompliant
       foo(rest);
+    }
+  `),
+        // JS-384: Dead stores in try blocks should STILL be reported if NOT read in catch
+        noncompliant(`
+    function tryCatchNotRead() {
+      let x;
+      try {
+        x = 1; // Noncompliant - x is NOT read in catch
+        operation1();
+        x = 2;
+        operation2();
+      } catch (e) {
+        console.log(e); // x is not used here
+      }
+      console.log(x);
     }
   `),
       ],

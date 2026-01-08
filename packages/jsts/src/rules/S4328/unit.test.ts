@@ -140,6 +140,63 @@ describe('S4328', () => {
           filename: filenameNestedPackage,
           options,
         },
+        // JS-168: Query parameters in import paths should be stripped before validation
+        // Community report: https://community.sonarsource.com/t/either-remove-this-import-or-add-it-as-a-dependency-if-path-has-react/115608
+        // Bundlers like Vite use query parameters for transformations (e.g., ?react for SVG-to-React)
+        {
+          // Relative path with Vite's ?react suffix for SVG transformation
+          code: `import TiktokIcon from './assets/tiktok.svg?react';`,
+          filename,
+          options,
+        },
+        {
+          // Relative path with ?raw query parameter
+          code: `import icon from "./icon.svg?raw";`,
+          filename,
+          options,
+        },
+        {
+          // Builtin module with query parameter
+          code: `import fs from "fs?query";`,
+          filename,
+          options,
+        },
+        {
+          // Declared dependency with query parameter
+          code: `import dep from "dependency?transform";`,
+          filename,
+          options,
+        },
+        {
+          // Relative path with hash fragment
+          code: `import "./module.js#section";`,
+          filename,
+          options,
+        },
+        {
+          // Builtin module with hash fragment
+          code: `import fs from "fs#hash";`,
+          filename,
+          options,
+        },
+        {
+          // Combined query parameter and hash fragment
+          code: `import "./file.js?param=value#hash";`,
+          filename,
+          options,
+        },
+        {
+          // require() with query parameter
+          code: `const dep = require("dependency?raw");`,
+          filename,
+          options,
+        },
+        {
+          // Scoped package with query parameter
+          code: `import "@namespaced/dependency?query";`,
+          filename,
+          options,
+        },
       ],
       invalid: [
         {
@@ -199,6 +256,25 @@ describe('S4328', () => {
         import { f as f1 } from 'nonexistent';
       `,
           filename: filenameNestedPackage,
+          options,
+          errors: 1,
+        },
+        // JS-168: Unknown packages with query parameters should still raise issues
+        {
+          code: `import "unknown-package?query";`,
+          filename,
+          options,
+          errors: 1,
+        },
+        {
+          code: `import "unknown-package#hash";`,
+          filename,
+          options,
+          errors: 1,
+        },
+        {
+          code: `require("not-a-dependency?transform");`,
+          filename,
           options,
           errors: 1,
         },

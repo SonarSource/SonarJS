@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S3801', () => {
@@ -294,7 +294,8 @@ describe('S3801', () => {
         }`,
           errors: 1,
         },
-        // possible FP, see https://github.com/SonarSource/SonarJS/issues/2579
+        // FP without type information - we can't detect that throwError returns 'never'
+        // See JS-106. With type information, this is now fixed (see type-aware tests below)
         {
           code: `
       function throwError(message: string): never {
@@ -307,6 +308,244 @@ describe('S3801', () => {
         throwError('False')
       }
     `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 with type information - exhaustive switch', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run(`Functions should use "return" consistently [type-aware]`, rule, {
+      valid: [
+        {
+          // Exhaustive switch over union type - should not raise
+          code: `
+            type Kind = 'a' | 'b' | 'c';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': return 2;
+                case 'c': return 3;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch over enum - should not raise
+          code: `
+            enum Status { Pending, Active, Done }
+            function getLabel(status: Status) {
+              switch (status) {
+                case Status.Pending: return 'pending';
+                case Status.Active: return 'active';
+                case Status.Done: return 'done';
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with throw - should not raise
+          code: `
+            type Action = 'start' | 'stop';
+            function execute(action: Action) {
+              switch (action) {
+                case 'start': return 'started';
+                case 'stop': throw new Error('stopped');
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with block statements - should not raise
+          code: `
+            type Mode = 'light' | 'dark';
+            function getColor(mode: Mode) {
+              switch (mode) {
+                case 'light': {
+                  const color = '#fff';
+                  return color;
+                }
+                case 'dark': {
+                  const color = '#000';
+                  return color;
+                }
+              }
+            }
+          `,
+        },
+        {
+          // Issue JS-90: Exhaustive switch with discriminated union - should not raise
+          code: `
+            type Circle = { kind: 'circle'; radius: number };
+            type Square = { kind: 'square'; size: number };
+            type Shape = Circle | Square;
+
+            function getArea(shape: Shape) {
+              switch (shape.kind) {
+                case 'circle': return Math.PI * shape.radius ** 2;
+                case 'square': return shape.size ** 2;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with default case - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                default: return 2;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with break after return - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                  return 1;
+                  break;
+                case 'b':
+                  return 2;
+                  break;
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustive switch with nested block returning - should not raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': {
+                  {
+                    return 1;
+                  }
+                }
+                case 'b':
+                  return 2;
+              }
+            }
+          `,
+        },
+        {
+          // Fall-through to last case that returns - should not raise
+          // All fall-throughs eventually reach the last case which returns
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a':
+                  console.log('a');
+                case 'b': return 2;
+              }
+            }
+          `,
+        },
+        {
+          // Issue JS-106: Calling a function that returns 'never' - should not raise
+          // The function terminates via the never-returning call, so no implicit return
+          code: `
+            function throwError(message: string): never {
+              throw new Error(message);
+            }
+            function formatDateOrThrow(value: unknown): string {
+              if (value instanceof Date) {
+                return value.toISOString();
+              }
+              throwError('Invalid date');
+            }
+          `,
+        },
+        {
+          // Calling a never-returning function without explicit return type on caller
+          code: `
+            function throwError(message: string): never {
+              throw new Error(message);
+            }
+            function withNeverType(a) {
+              if (a === 1) {
+                return true;
+              }
+              throwError('False');
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          // Calling a function without explicit 'never' return type - should raise
+          // TypeScript infers 'void' not 'never' for functions that only throw
+          code: `
+            function throwErrorNoAnnotation() {
+              throw new Error('error');
+            }
+            function test(a) {
+              if (a === 1) {
+                return true;
+              }
+              throwErrorNoAnnotation();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Non-exhaustive switch - should raise
+          code: `
+            type Kind = 'a' | 'b' | 'c';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': return 2;
+                // missing 'c'
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Switch on non-union type - should raise
+          code: `
+            function getValue(kind: string) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': return 2;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive but last case doesn't return - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': console.log('b'); // no return
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exhaustive but last case is empty - should raise
+          code: `
+            type Kind = 'a' | 'b';
+            function getValue(kind: Kind) {
+              switch (kind) {
+                case 'a': return 1;
+                case 'b': // empty, falls through to end
+              }
+            }
+          `,
           errors: 1,
         },
       ],

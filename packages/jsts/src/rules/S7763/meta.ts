@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7763/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'prefer-export-from';
-export const externalPlugin = 'unicorn';
-export const quickFixMessage = "Replace with 'export from'";
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'prefer-export-from' }];
+export const quickFixMessage = 'Use export...from syntax';

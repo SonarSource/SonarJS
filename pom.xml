@@ -65,11 +65,11 @@
 
     <assertj.version>3.27.6</assertj.version>
     <jgit.version>7.5.0.202512021534-r</jgit.version>
-    <junit.version>6.0.1</junit.version>
+    <junit.version>6.0.2</junit.version>
     <mockito.version>5.21.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
     <jetbrains.annotations.version>26.0.2-1</jetbrains.annotations.version>
-    <sonar.version>25.12.0.117093</sonar.version>
+    <sonar.version>26.1.0.118079</sonar.version>
     <sonar.api.version>13.4.3.4290</sonar.api.version>
     <sonar-orchestrator.version>6.0.3.3907</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
@@ -269,7 +269,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.23</version>
+        <version>1.5.24</version>
         <scope>test</scope>
       </dependency>
       <dependency>
