@@ -128,9 +128,6 @@
 "desktop:app/src/ui/lib/list/list.tsx": [
 590
 ],
-"desktop:app/src/ui/local-changes-overwritten/local-changes-overwritten-dialog.tsx": [
-157
-],
 "desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
 75,
 103,
