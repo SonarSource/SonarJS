@@ -24,5 +24,11 @@ export const fields = [
       field: 'destructuring',
       default: 'all',
     },
+    {
+      // JS-124: Ignore variables that are read before being assigned.
+      // This prevents FPs for patterns like: let x; foo(() => x); x = 1;
+      field: 'ignoreReadBeforeAssign',
+      default: true,
+    },
   ],
 ] as const satisfies ESLintConfiguration;
