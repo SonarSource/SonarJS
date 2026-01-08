@@ -11,6 +11,7 @@
     "bf": "npm run build:fast",
     "new-rule": "tsx tools/new-rule.mts",
     "generate-meta": "tsx tools/generate-meta.ts",
+    "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
     "ruling-sync": "rsync -avh packages/ruling/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",

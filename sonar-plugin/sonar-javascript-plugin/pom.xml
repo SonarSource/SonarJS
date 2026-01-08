@@ -156,6 +156,21 @@
         <version>3.6.3</version>
         <executions>
           <execution>
+            <id>Validate quickfix configuration</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <workingDirectory>../..</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>validate-quickfix</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>Generate Node.js properties node-info.properties</id>
             <phase>initialize</phase>
             <goals>

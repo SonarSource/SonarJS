@@ -32,7 +32,7 @@
       "A9"
     ]
   },
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"

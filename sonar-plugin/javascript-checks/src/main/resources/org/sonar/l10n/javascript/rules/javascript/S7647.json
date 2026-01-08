@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-7647",
   "sqKey": "S7647",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "BLOCKER"

@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-dom-node-remove';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with remove() method';

@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'curly';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Add curly braces';

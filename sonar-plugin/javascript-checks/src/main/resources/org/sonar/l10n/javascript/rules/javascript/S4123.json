@@ -23,7 +23,7 @@
   "ruleSpecification": "RSPEC-4123",
   "sqKey": "S4123",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "title": "\"await\" should only be used with promises",
   "compatibleLanguages": [
     "js",

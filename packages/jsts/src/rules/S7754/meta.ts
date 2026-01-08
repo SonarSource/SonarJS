@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-array-some';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with Array.some()';

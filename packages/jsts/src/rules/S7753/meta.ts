@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-array-index-of';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with indexOf()/lastIndexOf()';

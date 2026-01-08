@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-for-loop';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Replace with for-of loop';

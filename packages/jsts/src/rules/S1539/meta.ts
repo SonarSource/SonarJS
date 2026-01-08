@@ -17,4 +17,5 @@
 export const implementation = 'external';
 export const eslintId = 'strict';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = "Add 'use strict'";
 export * from './config.js';

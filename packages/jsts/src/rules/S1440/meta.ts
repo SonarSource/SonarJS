@@ -17,4 +17,5 @@
 export const implementation = 'external';
 export const eslintId = 'eqeqeq';
 export const externalPlugin = 'eslint';
+export const quickFixMessage = 'Replace with strict equality';
 export * from './config.js';

@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'require-module-specifiers';
 export const externalPlugin = 'unicorn';
+export const quickFixMessage = 'Add file extension';

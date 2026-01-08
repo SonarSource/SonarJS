@@ -21,7 +21,7 @@
   "ruleSpecification": "RSPEC-4125",
   "sqKey": "S4125",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js"
   ],
