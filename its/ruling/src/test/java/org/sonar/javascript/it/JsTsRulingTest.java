@@ -26,7 +26,7 @@ import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import com.sonar.orchestrator.version.Version;
+import com.sonar.orchestrator.util.Version;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -328,14 +328,16 @@ class JsTsRulingTest {
           .setPreventReactivation("true")
           .setParams(
             Arrays.asList(
-              ("name=\"" +
+              (
+                "name=\"" +
                 instantiationKey +
                 "\";key=\"" +
                 instantiationKey +
                 "\";markdown_description=\"" +
                 instantiationKey +
                 "\";" +
-                params).split(";", 0)
+                params
+              ).split(";", 0)
             )
           )
       );
