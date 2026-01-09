@@ -167,6 +167,7 @@ export const rule: Rule.RuleModule = {
         !variable.name.startsWith('_') &&
         !isCompoundAssignment(ref.writeExpr) &&
         !isSelfAssignement(ref) &&
+        !isInForLoopInit(ref) &&
         !variable.defs.some(
           def => def.type === 'Parameter' || (def.type === 'Variable' && !def.node.init),
         )
@@ -340,4 +341,42 @@ function isDefaultParameter(ref: Scope.Reference) {
   }
   const parent = (ref.identifier as TSESTree.Identifier).parent;
   return parent?.type === 'AssignmentPattern';
+}
+
+/**
+ * Checks if an assignment is part of a for-loop initialization.
+ * For-loop initializations (e.g., `for (i = 0; ...)`) are idiomatic patterns
+ * that should not be flagged as redundant, even if the variable already holds
+ * the same value.
+ */
+function isInForLoopInit(ref: Scope.Reference): boolean {
+  const writeExpr = ref.writeExpr as TSESTree.Node | null | undefined;
+  if (!writeExpr) {
+    return false;
+  }
+
+  let current: TSESTree.Node | undefined = writeExpr;
+  while (current) {
+    const parent: TSESTree.Node | undefined = current.parent;
+    if (!parent) {
+      break;
+    }
+
+    if (parent.type === 'ForStatement' && parent.init === current) {
+      return true;
+    }
+
+    // Stop at function boundaries
+    if (
+      parent.type === 'FunctionDeclaration' ||
+      parent.type === 'FunctionExpression' ||
+      parent.type === 'ArrowFunctionExpression'
+    ) {
+      break;
+    }
+
+    current = parent;
+  }
+
+  return false;
 }
