@@ -120,6 +120,12 @@ new AwsProvider(this, 'aws', {
             secretKey: '' // your secretKey
         });`,
           },
+          {
+            // Obsidian plugins use Notice for user notifications (like browser Notification)
+            code: `
+import { Notice } from 'obsidian';
+new Notice('Hello from Obsidian plugin!');`,
+          },
         ],
         invalid: [
           {
