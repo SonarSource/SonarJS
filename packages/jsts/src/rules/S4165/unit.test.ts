@@ -220,6 +220,91 @@ describe('S4165', () => {
         end = pos;
     }`,
         },
+        // False positive scenario: for-loop re-initialization should NOT raise an issue
+        // The variable j is re-initialized in the inner for-loop header; this is idiomatic
+        {
+          code: `var dedentStringsArray = function (template) {
+      var length = 10;
+      var lines = [];
+      for (var i = 0; i < length; i++) {
+        for (var j = 2; j < lines.length; j += 2) {
+          console.log(lines[j]);
+        }
+      }
+    };`,
+        },
+        // For-loop re-initialization with assignment expression (not var declaration)
+        // When i is declared outside and re-initialized in for-loop init
+        {
+          code: `function forLoopReinitialization() {
+      var i = 0;
+      for (i = 0; i < 10; i++) {
+        console.log(i);
+      }
+    }`,
+        },
+        // Multiple for-loops re-initializing the same variable
+        {
+          code: `function multipleForLoops() {
+      var i;
+      for (i = 0; i < 5; i++) {
+        console.log(i);
+      }
+      for (i = 0; i < 10; i++) {
+        console.log(i);
+      }
+    }`,
+        },
+        // For-loop with sequence expression in init (i = 0, j = 0)
+        {
+          code: `function sequenceExpressionInit() {
+      var i = 0, j = 0;
+      for (i = 0, j = 0; i < 10; i++, j++) {
+        console.log(i, j);
+      }
+    }`,
+        },
+        // Switch case with for-loop re-initialization (from ruling context)
+        {
+          code: `function switchWithForLoop(shapeMode, verts) {
+      var i = 0;
+      switch (shapeMode) {
+        case 'TRIANGLE_STRIP':
+          for (i = 0; i < verts - 2; i++) {
+            console.log(i);
+          }
+          break;
+        case 'TRIANGLES':
+          for (i = 0; i < verts - 2; i += 3) {
+            console.log(i);
+          }
+          break;
+      }
+    }`,
+        },
+        // For-loop with var re-declaration (var hoisting case from ruling context)
+        // Variable i is declared with var at outer scope and re-declared in for-loop init
+        {
+          code: `function varRedeclarationInForLoop(selections) {
+      var i = 0;
+      if (selections === undefined || selections.length === 0) {
+        selections = [{ cursor: null }];
+      }
+      for (var i = 0, n = selections.length; i < n; i++) {
+        console.log(selections[i]);
+      }
+    }`,
+        },
+        // For-loop with let declaration - new scope per iteration
+        // The inner let i shadows the outer let i
+        {
+          code: `function letForLoopInit(items) {
+      let i = 0;
+      for (let i = 0; i < items.length; i++) {
+        console.log(items[i]);
+      }
+    }`,
+        },
       ],
       invalid: [
         {
