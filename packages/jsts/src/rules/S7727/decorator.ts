@@ -74,46 +74,46 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
     },
   );
+}
 
-  /**
-   * Checks if the callee object (e.g., `arr` in `arr.map(fn)`) is an array-like type.
-   */
-  function isCalleeArrayLike(
-    node: estree.Node,
-    context: Rule.RuleContext,
-    services: RequiredParserServices,
-  ): boolean {
-    const callExpr = getParent(context, node);
-    if (callExpr?.type !== 'CallExpression') {
-      return true; // Can't determine, assume it's an array to be safe
-    }
-
-    const callee = callExpr.callee;
-    if (callee.type !== 'MemberExpression') {
-      return true; // Can't determine, assume it's an array to be safe
-    }
-
-    const calleeObject = callee.object;
-    const type = getTypeFromTreeNode(calleeObject, services);
-    return isArrayLikeType(type, services);
+/**
+ * Checks if the callee object (e.g., `arr` in `arr.map(fn)`) is an array-like type.
+ */
+function isCalleeArrayLike(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+): boolean {
+  const callExpr = getParent(context, node);
+  if (callExpr?.type !== 'CallExpression') {
+    return true; // Can't determine, assume it's an array to be safe
   }
 
-  /**
-   * Gets the number of parameters for a callback function reference.
-   * Returns null if the parameter count cannot be determined.
-   *
-   * Note: The base rule only reports on function references (Identifier, MemberExpression),
-   * never on inline function expressions, so we don't need to handle those.
-   */
-  function getCallbackParameterCount(
-    node: estree.Node,
-    services: RequiredParserServices,
-  ): number | null {
-    // Use type information to get parameter count for function references
-    if (node.type === 'Identifier' || node.type === 'MemberExpression') {
-      return getFunctionParameterCount(node, services);
-    }
-
-    return null;
+  const callee = callExpr.callee;
+  if (callee.type !== 'MemberExpression') {
+    return true; // Can't determine, assume it's an array to be safe
   }
+
+  const calleeObject = callee.object;
+  const type = getTypeFromTreeNode(calleeObject, services);
+  return isArrayLikeType(type, services);
+}
+
+/**
+ * Gets the number of parameters for a callback function reference.
+ * Returns null if the parameter count cannot be determined.
+ *
+ * Note: The base rule only reports on function references (Identifier, MemberExpression),
+ * never on inline function expressions, so we don't need to handle those.
+ */
+function getCallbackParameterCount(
+  node: estree.Node,
+  services: RequiredParserServices,
+): number | null {
+  // Use type information to get parameter count for function references
+  if (node.type === 'Identifier' || node.type === 'MemberExpression') {
+    return getFunctionParameterCount(node, services);
+  }
+
+  return null;
 }
