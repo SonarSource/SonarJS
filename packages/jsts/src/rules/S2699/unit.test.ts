@@ -63,6 +63,40 @@ describe('no import from test library', () => {
 });
 `,
         },
+        // RxJS marble testing: expectObservable/expectSubscriptions should be recognized as assertions
+        {
+          code: `
+const chai = require('chai');
+describe('RxJS marble testing', () => {
+  it('should recognize expectObservable as an assertion', () => {
+    const observable = { toObservable: () => 'a' };
+    expectObservable(observable).toBe('(a|)');
+  });
+});
+`,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('RxJS marble testing', () => {
+  it('should recognize expectSubscriptions as an assertion', () => {
+    const source = hot('----a----b----c----|');
+    expectSubscriptions(source.subscriptions).toBe(['^ !']);
+  });
+});
+`,
+        },
+        // expectTypeOf from vitest/expect-type libraries should be recognized as an assertion
+        {
+          code: `
+const chai = require('chai');
+describe('Type testing', () => {
+  it('should recognize expectTypeOf as an assertion', () => {
+    expectTypeOf({ a: 1 }).toEqualTypeOf();
+  });
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -71,6 +105,30 @@ const chai = require('chai');
 describe('chai test cases', () => {
   it('no assertion', () => {
     const x = 1 + 2;
+  });
+});`,
+          errors: 1,
+        },
+        // expectX function without chained assertion method should still raise
+        {
+          code: `
+const chai = require('chai');
+describe('expectX without assertion', () => {
+  it('should raise when expectSomething has no chained method', () => {
+    expectSomething(value);
+  });
+});`,
+          errors: 1,
+        },
+        // Tests using done() callback without assertions should still raise
+        {
+          code: `
+const chai = require('chai');
+describe('async tests', () => {
+  it('should raise when only using done callback without assertions', (done) => {
+    setTimeout(() => {
+      done();
+    }, 100);
   });
 });`,
           errors: 1,
@@ -88,6 +146,56 @@ describe('no import from test library', () => {
       expect(input).to.equal(2) // chai API
   });
 });`,
+        },
+        // RxJS marble testing in TypeScript: expectObservable/expectSubscriptions
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectObservable(observable: any): { toBe: (expected: string) => void };
+declare function expectSubscriptions(subscriptions: any): { toBe: (expected: string[]) => void };
+
+describe('RxJS marble testing with types', () => {
+  it('should recognize expectObservable as an assertion', () => {
+    const observable = {};
+    expectObservable(observable).toBe('(a|)');
+  });
+
+  it('should recognize expectSubscriptions as an assertion', () => {
+    const subscriptions: any[] = [];
+    expectSubscriptions(subscriptions).toBe(['^ !']);
+  });
+});
+`,
+        },
+        // expectTypeOf in TypeScript
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectTypeOf<T>(value: T): { toEqualTypeOf: <U>() => void; toBe: () => void };
+
+describe('Type testing with expectTypeOf', () => {
+  it('should recognize expectTypeOf as an assertion', () => {
+    expectTypeOf({ a: 1 }).toEqualTypeOf<{ a: number }>();
+  });
+});
+`,
+        },
+        // Chained property access: expectObservable(...).not.toBe(...)
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function expectObservable(observable: any): { not: { toBe: (expected: string) => void }; toBe: (expected: string) => void };
+
+describe('RxJS marble testing with chained access', () => {
+  it('should recognize expectObservable with chained not.toBe', () => {
+    const observable = {};
+    expectObservable(observable).not.toBe('(a|)');
+  });
+});
+`,
         },
       ],
       invalid: [],

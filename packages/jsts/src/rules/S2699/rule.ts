@@ -185,6 +185,7 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
 
   // Walk up the chain of property accesses to find the innermost call expression
   // This handles: expect(...).toHaveBeenCalled() as well as expect(...).not.toHaveBeenCalled()
+  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
   let current: ts.Expression = (node.expression as ts.PropertyAccessExpression).expression;
   while (current.kind === ts.SyntaxKind.PropertyAccessExpression) {
     current = (current as ts.PropertyAccessExpression).expression;
@@ -197,7 +198,7 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
   const innerCallExpression = current as ts.CallExpression;
   return (
     innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    (innerCallExpression.expression as ts.Identifier).text === 'expect'
+    (innerCallExpression.expression as ts.Identifier).text.startsWith('expect')
   );
 }
 
@@ -210,10 +211,42 @@ function isFunctionCallFromNodeAssertTS(
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (isFunctionCall(node) && node.callee.name === 'expect') {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  // Check for global expect (mirrors isGlobalExpectExpression for TS)
+  if (isGlobalExpectExpressionJS(node)) {
     return true;
   }
   return isFunctionCallFromNodeAssert(context, node);
+}
+
+/**
+ * Checks if the node matches the pattern expectX(...).method() where:
+ * - expectX is a function whose name starts with "expect" (e.g., expect, expectObservable, expectSubscriptions, expectTypeOf)
+ * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
+ *
+ * This mirrors the TypeScript isGlobalExpectExpression function logic.
+ */
+function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
+  if (node.callee.type !== 'MemberExpression') {
+    return false;
+  }
+
+  // Walk up the chain of member expressions to find the innermost call expression
+  // This handles: expect(...).toBe() as well as expect(...).not.toBe()
+  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
+  let current: estree.Expression | estree.Super = node.callee.object;
+  while (current.type === 'MemberExpression') {
+    current = current.object;
+  }
+
+  if (current.type !== 'CallExpression') {
+    return false;
+  }
+
+  const innerCall = current;
+  return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
