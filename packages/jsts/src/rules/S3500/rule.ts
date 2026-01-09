@@ -27,7 +27,9 @@ export const rule: Rule.RuleModule = {
     return {
       'VariableDeclaration[kind="const"]': (node: estree.Node) => {
         for (const variable of context.sourceCode.getDeclaredVariables(node)) {
-          for (const reference of variable.references.filter(isModifyingReference)) {
+          for (const reference of variable.references.filter((ref, i, refs) =>
+            isModifyingReference(ref, i, refs),
+          )) {
             report(
               context,
               {

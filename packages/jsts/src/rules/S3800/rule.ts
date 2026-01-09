@@ -133,7 +133,7 @@ function isMixingTypes(type: ts.Type, checker: ts.TypeChecker): boolean {
     type.types
       .filter(tp => !isNullLike(tp))
       .map(tp => prettyPrint(tp, checker))
-      .filter(distinct).length > 1
+      .filter((val, i, arr) => distinct(val, i, arr)).length > 1
   );
 }
 
@@ -154,7 +154,7 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
     const delimiter = type.isUnion() ? ' | ' : ' & ';
     return type.types
       .map(tp => prettyPrint(tp, checker))
-      .filter(distinct)
+      .filter((val, i, arr) => distinct(val, i, arr))
       .join(delimiter);
   }
   const typeNode = checker.typeToTypeNode(type, undefined, undefined);
