@@ -7,9 +7,9 @@ WORKDIR /app
 COPY ./bin/ ./bin/
 COPY package.json ./
 
-# Expose default port (adjust if needed)
-EXPOSE 3000
+# Expose gRPC port to match proxy service expectations
+EXPOSE 50051
 
-# Run the bundled server
-CMD ["node", "./bin/grpc-server.cjs", "3000"]
+# Run the bundled server on port 50051
+CMD ["node", "./bin/grpc-server.cjs", "50051"]
 

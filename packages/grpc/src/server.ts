@@ -16,26 +16,50 @@
  */
 import * as grpc from '@grpc/grpc-js';
 import { analyzer } from './proto/language_analyzer.js';
+import { grpc as healthProto } from './proto/health.js';
 import { analyzeFileHandler } from './service.js';
+import { healthCheckHandler } from './health-service.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
-const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
+const ANALYZER_SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
+const HEALTH_SERVICE_NAME = 'grpc.health.v1.Health';
 
 /**
- * Create gRPC service definition using static generated protobuf code
+ * Create gRPC service definition for LanguageAnalyzerService
  */
-function createServiceDefinition(): grpc.ServiceDefinition {
+function createAnalyzerServiceDefinition(): grpc.ServiceDefinition {
   return {
-    AnalyzeFile: {
-      path: `/${SERVICE_NAME}/AnalyzeFile`,
+    Analyze: {
+      path: `/${ANALYZER_SERVICE_NAME}/Analyze`,
       requestStream: false,
       responseStream: false,
-      requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
-        Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-      requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
-      responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
-        Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-      responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
+      requestSerialize: (value: analyzer.IAnalyzeRequest) =>
+        Buffer.from(analyzer.AnalyzeRequest.encode(value).finish()),
+      requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeRequest.decode(buffer),
+      responseSerialize: (value: analyzer.IAnalyzeResponse) =>
+        Buffer.from(analyzer.AnalyzeResponse.encode(value).finish()),
+      responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeResponse.decode(buffer),
+    },
+  };
+}
+
+/**
+ * Create gRPC service definition for Health service
+ */
+function createHealthServiceDefinition(): grpc.ServiceDefinition {
+  return {
+    Check: {
+      path: `/${HEALTH_SERVICE_NAME}/Check`,
+      requestStream: false,
+      responseStream: false,
+      requestSerialize: (value: healthProto.health.v1.IHealthCheckRequest) =>
+        Buffer.from(healthProto.health.v1.HealthCheckRequest.encode(value).finish()),
+      requestDeserialize: (buffer: Buffer) =>
+        healthProto.health.v1.HealthCheckRequest.decode(buffer),
+      responseSerialize: (value: healthProto.health.v1.IHealthCheckResponse) =>
+        Buffer.from(healthProto.health.v1.HealthCheckResponse.encode(value).finish()),
+      responseDeserialize: (buffer: Buffer) =>
+        healthProto.health.v1.HealthCheckResponse.decode(buffer),
     },
   };
 }
@@ -43,22 +67,33 @@ function createServiceDefinition(): grpc.ServiceDefinition {
 /**
  * Create and start the gRPC server
  */
-function createGrpcServer(): grpc.Server {
+export function createGrpcServer(): grpc.Server {
   const server = new grpc.Server();
-  const serviceDefinition = createServiceDefinition();
 
-  // Create the implementation map
-  const implementation: grpc.UntypedServiceImplementation = {
-    AnalyzeFile: (
-      call: grpc.ServerUnaryCall<analyzer.IAnalyzeFileRequest, analyzer.IAnalyzeFileResponse>,
-      callback: grpc.sendUnaryData<analyzer.IAnalyzeFileResponse>,
+  const analyzerServiceDefinition = createAnalyzerServiceDefinition();
+  const analyzerImplementation: grpc.UntypedServiceImplementation = {
+    Analyze: (
+      call: grpc.ServerUnaryCall<analyzer.IAnalyzeRequest, analyzer.IAnalyzeResponse>,
+      callback: grpc.sendUnaryData<analyzer.IAnalyzeResponse>,
     ) => {
       analyzeFileHandler(call, callback);
     },
   };
+  server.addService(analyzerServiceDefinition, analyzerImplementation);
 
-  // Add the service to the server
-  server.addService(serviceDefinition, implementation);
+  const healthServiceDefinition = createHealthServiceDefinition();
+  const healthImplementation: grpc.UntypedServiceImplementation = {
+    Check: (
+      call: grpc.ServerUnaryCall<
+        healthProto.health.v1.IHealthCheckRequest,
+        healthProto.health.v1.IHealthCheckResponse
+      >,
+      callback: grpc.sendUnaryData<healthProto.health.v1.IHealthCheckResponse>,
+    ) => {
+      healthCheckHandler(call, callback);
+    },
+  };
+  server.addService(healthServiceDefinition, healthImplementation);
 
   return server;
 }
@@ -81,6 +116,7 @@ export function startServer(port: number): Promise<grpc.Server> {
         }
 
         info(`gRPC server listening on port ${boundPort}`);
+        info(`Services: ${ANALYZER_SERVICE_NAME}, ${HEALTH_SERVICE_NAME}`);
         resolve(server);
       },
     );

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { analyzer } from '../proto/language_analyzer.js';
+import { analyzer } from '../proto/language_analyzer.js';
 import type {
   ProjectAnalysisInput,
   JsTsFiles,
@@ -75,12 +75,13 @@ function parseParamValue(value: string, defaultValue: unknown) {
 /**
  * Transform source files from gRPC protobuf format to the internal JsTsFiles format.
  *
- * The gRPC request contains an array of `ISourceFile` objects with `relativePath` and `content`.
- * This function converts them into a dictionary keyed by relative path, which is the format
- * expected by the `analyzeProject` function.
+ * The gRPC request contains an array of `ISourceFile` objects with `relativePath`, `content`,
+ * and optionally `fileScope`. This function converts them into a dictionary keyed by relative
+ * path, which is the format expected by the `analyzeProject` function.
  *
- * Note: File type is defaulted to 'MAIN'. In the future, this could be extended to accept
- * file type metadata from the gRPC request to properly distinguish test files.
+ * File scope handling:
+ * - If fileScope is explicitly set in the request, use it (MAIN or TEST)
+ * - Otherwise, default to 'MAIN' (context-based inference could be added in the future)
  *
  * @param sourceFiles - Array of source files from the gRPC request
  * @returns Dictionary of files keyed by relative path
@@ -90,10 +91,18 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
 
   for (const sourceFile of sourceFiles) {
     const relativePath = sourceFile.relativePath ?? '';
+    let fileType: FileType = 'MAIN';
+
+    if (sourceFile.fileScope !== null && sourceFile.fileScope !== undefined) {
+      fileType = sourceFile.fileScope === analyzer.FileScope.TEST ? 'TEST' : 'MAIN';
+    } else {
+      // TODO: Infer file scope from context when not explicitly provided by the caller
+    }
+
     files[relativePath] = {
       filePath: relativePath,
       fileContent: sourceFile.content ?? '',
-      fileType: 'MAIN', // Default to MAIN, we will need metadata from context to know for sure
+      fileType,
     };
   }
 
@@ -365,7 +374,7 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): RuleConfig[]
 }
 
 /**
- * Transform a gRPC AnalyzeFileRequest into the ProjectAnalysisInput format.
+ * Transform a gRPC AnalyzeRequest into the ProjectAnalysisInput format.
  *
  * This is the main entry point for request transformation in the gRPC workflow.
  * It converts the protobuf-based request format into the internal format expected
@@ -378,18 +387,18 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): RuleConfig[]
  *
  * **Transformation flow:**
  * ```
- * IAnalyzeFileRequest
+ * IAnalyzeRequest
  *   ├── sourceFiles[] ──→ transformSourceFiles() ──→ JsTsFiles (keyed by path)
  *   └── activeRules[] ──→ transformActiveRules() ──→ RuleConfig[] (one per rule+language)
  * ```
  *
- * @param request - The gRPC AnalyzeFileRequest containing source files and active rules
+ * @param request - The gRPC AnalyzeRequest containing source files and active rules
  * @returns ProjectAnalysisInput ready to pass to analyzeProject()
  *
  * @see docs/DEV.md "External workflow (gRPC - without SonarQube)" section
  */
 export function transformRequestToProjectInput(
-  request: analyzer.IAnalyzeFileRequest,
+  request: analyzer.IAnalyzeRequest,
 ): ProjectAnalysisInput {
   // Handle empty/undefined arrays from proto3
   const sourceFiles = request.sourceFiles || [];

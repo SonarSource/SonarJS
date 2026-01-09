@@ -23,7 +23,7 @@ describe('transformRequestToProjectInput', () => {
   describe('rule options transformation', () => {
     it('should map SQ param key to ESLint field name when displayName differs', () => {
       // S107 has displayName: 'maximumFunctionParameters' but field: 'max'
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: 'function f() {}' }],
         activeRules: [
           {
@@ -48,7 +48,7 @@ describe('transformRequestToProjectInput', () => {
 
     it('should parse numeric params correctly', () => {
       // S1192 has threshold (integer) and ignoreStrings (string)
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
@@ -73,7 +73,7 @@ describe('transformRequestToProjectInput', () => {
 
     it('should use field name as SQ key when no displayName', () => {
       // S100 has field: 'format' with no displayName
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
@@ -94,7 +94,7 @@ describe('transformRequestToProjectInput', () => {
 
     it('should create rule configs for correct languages only', () => {
       // S1444 is TypeScript-only (languages: ['ts'])
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.ts', content: '' }],
         activeRules: [{ ruleKey: 'S1444', params: [] }],
       };
@@ -108,7 +108,7 @@ describe('transformRequestToProjectInput', () => {
 
     it('should create rule configs for both JS and TS when supported', () => {
       // S107 supports both JS and TS
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [{ ruleKey: 'S107', params: [] }],
       };
@@ -122,7 +122,7 @@ describe('transformRequestToProjectInput', () => {
 
     it('should set fileTypeTargets based on rule scope', () => {
       // S2699 is a test rule (scope: 'Tests')
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.spec.js', content: '' }],
         activeRules: [{ ruleKey: 'S2699', params: [] }],
       };
@@ -135,7 +135,7 @@ describe('transformRequestToProjectInput', () => {
     });
 
     it('should set fileTypeTargets to MAIN and TEST for main scope rules', () => {
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [{ ruleKey: 'S107', params: [] }],
       };
@@ -147,7 +147,7 @@ describe('transformRequestToProjectInput', () => {
     });
 
     it('should skip unknown rules', () => {
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           { ruleKey: 'UNKNOWN_RULE', params: [] },
@@ -163,7 +163,7 @@ describe('transformRequestToProjectInput', () => {
     });
 
     it('should ignore params with unknown keys', () => {
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
@@ -186,7 +186,7 @@ describe('transformRequestToProjectInput', () => {
     });
 
     it('should handle rules without params', () => {
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [{ ruleKey: 'S107', params: [] }],
       };
@@ -202,7 +202,7 @@ describe('transformRequestToProjectInput', () => {
     it('should parse string array params from comma-separated string', () => {
       // S2068 has passwordWords with default: ['password', 'pwd', 'passwd', 'passphrase']
       // Java sends it as comma-separated string
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
@@ -224,7 +224,7 @@ describe('transformRequestToProjectInput', () => {
     it('should parse number array params from comma-separated string', () => {
       // S109 has ignore with default: [0, 1, -1, 24, 60] (number array)
       // Java sends it as comma-separated string
-      const request: analyzer.IAnalyzeFileRequest = {
+      const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {

@@ -25,7 +25,7 @@
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
     "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
-    "grpc:generate-proto": "pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.proto && pbts -o packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/language_analyzer.js",
+    "grpc:generate-proto": "pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.proto && pbts -o packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/language_analyzer.js && pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/health.js packages/grpc/src/proto/health.proto && pbts -o packages/grpc/src/proto/health.d.ts packages/grpc/src/proto/health.js",
     "grpc:bundle": "node esbuild-grpc.mjs",
     "grpc:build": "npm run bridge:build:fast && npm run grpc:bundle",
     "plugin:build": "mvn install",
@@ -35,7 +35,7 @@
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
     "count-rules": "tsx tools/count-rules.ts",
-    "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers && cpy --flat packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.d.ts lib/grpc/src/proto",
+    "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers && cpy --flat packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/health.js packages/grpc/src/proto/health.d.ts lib/grpc/src/proto",
     "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm run bridge:bundle && npm pack --ignore-scripts && npm run _:plugin:copy-bridge",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
@@ -50,7 +50,7 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "docker:build": "npm run grpc:build && docker build -t sonarjs:latest .",
-    "docker:run": "docker run -p 3000:3000 sonarjs:latest"
+    "docker:run": "docker run -p 50051:50051 sonarjs:latest"
   },
   "repository": {
     "type": "git",
