@@ -30,9 +30,8 @@ export function isESModule(context: Rule.RuleContext): boolean {
 }
 
 export function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.sourceCode.ast;
-  if (program.sourceType === 'module') {
-    return program.body.filter(node => node.type === 'ImportDeclaration');
+  if (isESModule(context)) {
+    return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
   }
   return [];
 }
