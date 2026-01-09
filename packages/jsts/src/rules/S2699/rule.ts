@@ -211,31 +211,32 @@ function isFunctionCallFromNodeAssertTS(
 }
 
 function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (isFunctionCall(node) && node.callee.name === 'expect') {
-    return true;
+  if (node.type !== 'CallExpression') {
+    return false;
   }
-  // Check for expectX(...).assertion() pattern (e.g., expectObservable(...).toBe(...))
-  if (isExpectPrefixedAssertion(node)) {
+  // Check for global expect (mirrors isGlobalExpectExpression for TS)
+  if (isGlobalExpectExpressionJS(node)) {
     return true;
   }
   return isFunctionCallFromNodeAssert(context, node);
 }
 
 /**
- * Checks if the node matches the pattern expectX(...).assertion()
- * where X can be any suffix (e.g., expectObservable, expectSubscriptions, expectTypeOf)
+ * Checks if the node matches the pattern expectX(...).method() where:
+ * - expectX is a function whose name starts with "expect" (e.g., expect, expectObservable, expectSubscriptions, expectTypeOf)
+ * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
+ *
+ * This mirrors the TypeScript isGlobalExpectExpression function logic.
  */
-function isExpectPrefixedAssertion(node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  const callExpr = node as estree.CallExpression;
-  if (callExpr.callee.type !== 'MemberExpression') {
+function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
+  if (node.callee.type !== 'MemberExpression') {
     return false;
   }
 
   // Walk up the chain of member expressions to find the innermost call expression
-  let current: estree.Expression | estree.Super = callExpr.callee.object;
+  // This handles: expect(...).toBe() as well as expect(...).not.toBe()
+  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
+  let current: estree.Expression | estree.Super = node.callee.object;
   while (current.type === 'MemberExpression') {
     current = current.object;
   }
