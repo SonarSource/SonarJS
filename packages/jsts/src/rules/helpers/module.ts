@@ -19,10 +19,19 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
 
+/**
+ * Checks if the current file is an ES module based on sourceType.
+ *
+ * The parser sets sourceType based on file extension (.mjs/.cjs),
+ * package.json "type" field, and ESLint configuration.
+ */
+export function isESModule(context: Rule.RuleContext): boolean {
+  return context.sourceCode.ast.sourceType === 'module';
+}
+
 export function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.sourceCode.ast;
-  if (program.sourceType === 'module') {
-    return program.body.filter(node => node.type === 'ImportDeclaration');
+  if (isESModule(context)) {
+    return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
   }
   return [];
 }

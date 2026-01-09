@@ -1,0 +1,50 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { rule } from './index.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
+
+describe('S7785', () => {
+  it('should skip CommonJS files (sourceType: script)', () => {
+    const cjsRuleTester = new NoTypeCheckingRuleTester({ sourceType: 'script' });
+    cjsRuleTester.run('S7785', rule, {
+      valid: [
+        {
+          code: `(async () => { await fetch('https://example.com'); })();`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report in ES modules (sourceType: module)', () => {
+    const esmRuleTester = new NoTypeCheckingRuleTester();
+    esmRuleTester.run('S7785', rule, {
+      valid: [
+        {
+          code: `await fetch('https://example.com');`,
+        },
+      ],
+      invalid: [
+        {
+          code: `(async () => { await fetch('https://example.com'); })();`,
+          errors: [{ messageId: 'iife' }],
+        },
+      ],
+    });
+  });
+});

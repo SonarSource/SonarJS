@@ -181,6 +181,16 @@ npx tsx --test packages/jsts/src/rules/S1234/**/*.test.ts
 
 Formatting is enforced automatically via pre-commit hooks.
 
+## Shared Helpers
+
+The `packages/jsts/src/rules/helpers/` folder contains shared utility functions for rule implementations. **Before writing utility code in a rule, check if a similar helper already exists.** If you need a new utility that could benefit other rules, add it to the appropriate helper file rather than keeping it in the rule.
+
+Key helper files:
+
+- `ast.ts` - AST traversal and node type checking (`isFunctionNode`, `isIdentifier`, `hasTypePredicateReturn`, etc.)
+- `module.ts` - Module detection (`isESModule`, `getImportDeclarations`, `getFullyQualifiedName`, etc.)
+- `package-jsons/dependencies.ts` - Dependency detection (`getDependencies`, `getReactVersion`, etc.)
+
 ## Important Notes
 
 - `generated-meta.ts` files are auto-generated from RSPEC - do not edit manually
