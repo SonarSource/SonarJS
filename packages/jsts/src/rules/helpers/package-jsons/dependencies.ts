@@ -14,9 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
 import { Minimatch } from 'minimatch';
 import fs from 'node:fs';
+import { dirname } from 'node:path/posix';
+import { minVersion } from 'semver';
+import { toUnixPath } from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
@@ -52,4 +56,22 @@ export function getDependencies(dir: string, topDir: string) {
     return dependenciesCache.get(closestPackageJSONDirName, topDir);
   }
   return new Set<string | Minimatch>();
+}
+
+/**
+ * Gets the React version from the closest package.json.
+ *
+ * @param context ESLint rule context
+ * @returns React version string (coerced from range) or null if not found
+ */
+export function getReactVersion(context: Rule.RuleContext): string | null {
+  const dir = dirname(toUnixPath(context.filename));
+  for (const packageJson of getManifests(dir, context.cwd, fs)) {
+    const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
+    if (reactVersion) {
+      // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
+      return minVersion(reactVersion)?.version ?? null;
+    }
+  }
+  return null;
 }
