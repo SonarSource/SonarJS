@@ -17,7 +17,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7770/javascript
 
 import type { Rule } from 'eslint';
-import type estree from 'estree';
 import { generateMeta, hasTypePredicateReturn, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -36,17 +35,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as { node?: estree.Node }).node;
-      if (!node) {
-        context.report(reportDescriptor);
-        return;
+      if ('node' in reportDescriptor && hasTypePredicateReturn(reportDescriptor.node)) {
+        return; // Skip type predicate functions
       }
-
-      // Check if this function has a type predicate return type
-      if (hasTypePredicateReturn(node)) {
-        return; // Skip reporting for type predicate functions
-      }
-
       context.report(reportDescriptor);
     },
   );
