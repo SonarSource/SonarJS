@@ -20,24 +20,12 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
 
 /**
- * Checks if the current file is an ES module.
+ * Checks if the current file is an ES module based on sourceType.
  *
- * A file is considered an ES module if:
- * - It's parsed with sourceType 'module' (based on package.json "type" or file extension)
- * - It has a .mjs extension (always ESM)
- *
- * A file is CommonJS if:
- * - It's parsed with sourceType 'script'
- * - It has a .cjs extension (always CJS)
+ * The parser sets sourceType based on file extension (.mjs/.cjs),
+ * package.json "type" field, and ESLint configuration.
  */
 export function isESModule(context: Rule.RuleContext): boolean {
-  const filename = context.filename;
-  if (filename.endsWith('.cjs')) {
-    return false;
-  }
-  if (filename.endsWith('.mjs')) {
-    return true;
-  }
   return context.sourceCode.ast.sourceType === 'module';
 }
 

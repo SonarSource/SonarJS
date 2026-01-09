@@ -19,52 +19,29 @@ import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-test
 import { describe, it } from 'node:test';
 
 describe('S7785', () => {
-  it('should skip CommonJS files', () => {
-    // Create a rule tester with sourceType: 'script' for CommonJS
+  it('should skip CommonJS files (sourceType: script)', () => {
     const cjsRuleTester = new NoTypeCheckingRuleTester({ sourceType: 'script' });
-    cjsRuleTester.run('S7785 skips CommonJS files (script)', rule, {
+    cjsRuleTester.run('S7785', rule, {
       valid: [
         {
-          // CommonJS file (sourceType: 'script') - should not report
           code: `(async () => { await fetch('https://example.com'); })();`,
-        },
-      ],
-      invalid: [],
-    });
-
-    // Test .cjs extension
-    const esmRuleTester = new NoTypeCheckingRuleTester();
-    esmRuleTester.run('S7785 skips .cjs files', rule, {
-      valid: [
-        {
-          // .cjs file - should not report regardless of sourceType
-          code: `(async () => { await fetch('https://example.com'); })();`,
-          filename: 'file.cjs',
         },
       ],
       invalid: [],
     });
   });
 
-  it('should report in ES modules', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('S7785 reports in ES modules', rule, {
+  it('should report in ES modules (sourceType: module)', () => {
+    const esmRuleTester = new NoTypeCheckingRuleTester();
+    esmRuleTester.run('S7785', rule, {
       valid: [
         {
-          // Valid top-level await in ESM
           code: `await fetch('https://example.com');`,
         },
       ],
       invalid: [
         {
-          // ESM file - should report IIFE pattern
           code: `(async () => { await fetch('https://example.com'); })();`,
-          errors: [{ messageId: 'iife' }],
-        },
-        {
-          // .mjs file - should report
-          code: `(async () => { await fetch('https://example.com'); })();`,
-          filename: 'file.mjs',
           errors: [{ messageId: 'iife' }],
         },
       ],
