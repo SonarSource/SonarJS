@@ -68,6 +68,10 @@ WORKFLOW:
 DOWNLOADING CSV FILES:
     The S3 bucket requires AWS Console access (CLI is restricted).
 
+    For detailed instructions, see:
+    https://xtranet-sonarsource.atlassian.net/wiki/spaces/PM/pages/2867724422/Access+SonarCloud+User+Feedback
+
+    Quick steps:
     1. Go to JumpCloud: https://console.jumpcloud.com/
     2. Select AWS → sonarcloud-prod account (488059965635)
     3. Open the S3 bucket in AWS Console:
@@ -88,7 +92,10 @@ show_download_instructions() {
 
     echo "The S3 bucket requires AWS Console access (CLI is restricted by SCP)."
     echo ""
-    echo "Steps to download:"
+    echo "For detailed instructions, see:"
+    echo "  ${YELLOW}https://xtranet-sonarsource.atlassian.net/wiki/spaces/PM/pages/2867724422/Access+SonarCloud+User+Feedback${NC}"
+    echo ""
+    echo "Quick steps:"
     echo ""
     echo "  1. Go to JumpCloud: ${YELLOW}https://console.jumpcloud.com/${NC}"
     echo ""

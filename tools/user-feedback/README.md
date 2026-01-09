@@ -16,6 +16,10 @@ The script will guide you through downloading and analyzing the feedback data.
 
 The S3 bucket requires AWS Console access (CLI is restricted by Service Control Policy).
 
+**Detailed instructions:** [Access SonarCloud User Feedback](https://xtranet-sonarsource.atlassian.net/wiki/spaces/PM/pages/2867724422/Access+SonarCloud+User+Feedback)
+
+**Quick steps:**
+
 1. Go to [JumpCloud](https://console.jumpcloud.com/)
 2. Select AWS → `sonarcloud-prod` account (488059965635)
 3. Open the [S3 bucket in AWS Console](https://eu-central-1.console.aws.amazon.com/s3/buckets/488059965635-issuefeedback-reports-eu-central-1-prod-rep?region=eu-central-1&prefix=reports/)
@@ -30,7 +34,7 @@ The S3 bucket requires AWS Console access (CLI is restricted by Service Control 
 
 ## Output
 
-Reports are generated in `reports/`:
+Reports are generated in `reports/` and **tracked in git** for historical reference:
 
 | File                                    | Description                                |
 | --------------------------------------- | ------------------------------------------ |
@@ -43,9 +47,9 @@ Reports are generated in `reports/`:
 tools/user-feedback/
 ├── analyze-feedback.sh    # Main script
 ├── README.md              # This file
-├── .gitignore             # Ignores data/ and reports/
-├── data/                  # Place downloaded CSV files here
-└── reports/               # Generated reports
+├── .gitignore             # Ignores data/ only
+├── data/                  # Place downloaded CSV files here (gitignored)
+└── reports/               # Generated reports (tracked in git)
 ```
 
 ## S3 Bucket Info
@@ -69,4 +73,4 @@ acli jira workitem create \
   --description-file "reports/feedback-report-condensed-YYYYMMDD.md"
 ```
 
-Or use the `--from-json` option with ADF format for rich formatting (see `jira-edit.json` example in `user-feedback/`).
+Or use the `--from-json` option with ADF format for rich formatting.

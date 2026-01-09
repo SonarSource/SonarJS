@@ -1,5 +1,2 @@
 # Downloaded CSV data (contains user feedback - should not be committed)
 data/
-
-# Generated reports (can be regenerated)
-reports/
