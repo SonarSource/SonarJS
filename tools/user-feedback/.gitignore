@@ -1,9 +1,2 @@
-# Downloaded CSV data (contains user feedback - should not be committed)
 data/
-
-# Reports containing user comments (privacy - should not be committed)
 reports/feedback-report-*.md
-reports/feedback-report-condensed-*.md
-
-# Only stats reports (counts only, no comments) are tracked
-!reports/feedback-stats-*.md
