@@ -1,10 +1,4 @@
 {
-"redux:examples/real-world/components/List.js": [
-33
-],
-"redux:examples/todomvc/components/MainSection.js": [
-61
-],
 "redux:examples/todomvc/test/reducers/todos.spec.js": [
 262
 ]
