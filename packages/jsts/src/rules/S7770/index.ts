@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/unicorn.js';
-export const rule = rules['prefer-native-coercion-functions'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['prefer-native-coercion-functions']);
