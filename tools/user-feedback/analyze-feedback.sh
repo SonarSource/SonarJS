@@ -81,8 +81,9 @@ DOWNLOADING CSV FILES:
     5. Place them in: tools/user-feedback/data/
 
 OUTPUT:
-    - reports/feedback-report-YYYYMMDD.md           Full detailed report
-    - reports/feedback-report-condensed-YYYYMMDD.md Summary report
+    - reports/feedback-report-YYYYMMDD.md           Full detailed report (gitignored)
+    - reports/feedback-report-condensed-YYYYMMDD.md Summary with examples (gitignored)
+    - reports/feedback-stats-YYYYMMDD.md            Stats only - tracked in git
 
 EOF
 }
@@ -145,6 +146,7 @@ analyze_feedback() {
 
     local report_file="${REPORTS_DIR}/feedback-report-$(date +%Y%m%d).md"
     local condensed_file="${REPORTS_DIR}/feedback-report-condensed-$(date +%Y%m%d).md"
+    local stats_file="${REPORTS_DIR}/feedback-stats-$(date +%Y%m%d).md"
 
     # Generate summary
     print_step "Generating full report..."
@@ -344,6 +346,71 @@ FOOTER
 
     print_success "Generated: $condensed_file"
 
+    # Generate stats-only report (no user comments - safe to commit)
+    print_step "Generating stats report (for git)..."
+
+    local total_entries=$(cat "${DATA_DIR}"/*.csv | grep -cE "(javascript|typescript)" || echo "0")
+
+    cat > "$stats_file" << HEADER
+# User Feedback Statistics - JS/TS Rules
+
+**Generated:** $(date '+%Y-%m-%d %H:%M')
+**Period:** Last 4 weeks (approx)
+**Total feedback entries:** ${total_entries}
+
+## Summary by Rule
+
+Rules with 3+ feedback reports, sorted by false positive count.
+
+| Rule | FP | WONTFIX | Total | Notes |
+|------|---:|--------:|------:|-------|
+HEADER
+
+    cat "${DATA_DIR}"/*.csv | grep -E "(javascript|typescript)" | \
+    awk -F',' '
+    {
+        gsub(/"/, "", $5); gsub(/"/, "", $6); gsub(/"/, "", $14)
+        if($5=="javascript" || $5=="typescript") {
+            rule=$6
+            total[rule]++
+            if($14=="FALSE-POSITIVE") fp[rule]++
+            else if($14=="WONTFIX") wontfix[rule]++
+            # Count comments
+            comment = $3
+            gsub(/^"/, "", comment)
+            gsub(/"$/, "", comment)
+            if(length(comment) > 5) comments[rule]++
+        }
+    }
+    END {
+        for(rule in total) {
+            f = (rule in fp) ? fp[rule] : 0
+            w = (rule in wontfix) ? wontfix[rule] : 0
+            c = (rule in comments) ? comments[rule] : 0
+            if(f >= 3 || w >= 3) print f, w, total[rule], c, rule
+        }
+    }' | sort -rn | while read fp wontfix total comments rule; do
+        echo "| $rule | $fp | $wontfix | $total | ${comments} with comments |" >> "$stats_file"
+    done
+
+    cat >> "$stats_file" << FOOTER
+
+---
+
+## How to Access Full Details
+
+Full reports with user comments are generated locally but not committed to git
+for privacy reasons. To view detailed feedback:
+
+1. Run \`./analyze-feedback.sh\` locally
+2. Check \`reports/feedback-report-*.md\` for full details
+3. Check \`reports/feedback-report-condensed-*.md\` for key examples
+
+**Documentation:** [Access SonarCloud User Feedback](https://xtranet-sonarsource.atlassian.net/wiki/spaces/PM/pages/2867724422/Access+SonarCloud+User+Feedback)
+FOOTER
+
+    print_success "Generated: $stats_file"
+
     # Print summary to console
     print_header "Analysis Complete"
 
@@ -358,8 +425,9 @@ FOOTER
 
     echo ""
     echo "Reports generated:"
-    echo "  - ${report_file}"
-    echo "  - ${condensed_file}"
+    echo "  - ${report_file} (local only)"
+    echo "  - ${condensed_file} (local only)"
+    echo "  - ${stats_file} (tracked in git)"
     echo ""
     print_success "Done!"
 }
