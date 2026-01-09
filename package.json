@@ -50,7 +50,7 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "docker:build": "npm run grpc:build && docker build -t sonarjs:latest .",
-    "docker:run": "docker run -p 3000:3000 sonarjs:latest"
+    "docker:run": "docker run -p 50051:50051 sonarjs:latest"
   },
   "repository": {
     "type": "git",
