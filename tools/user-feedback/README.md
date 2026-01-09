@@ -34,12 +34,15 @@ The S3 bucket requires AWS Console access (CLI is restricted by Service Control 
 
 ## Output
 
-Reports are generated in `reports/` and **tracked in git** for historical reference:
+Three reports are generated in `reports/`:
 
-| File                                    | Description                                |
-| --------------------------------------- | ------------------------------------------ |
-| `feedback-report-YYYYMMDD.md`           | Full detailed report with all feedback     |
-| `feedback-report-condensed-YYYYMMDD.md` | Summary with top rules and sample comments |
+| File                                    | Description                                | Git     |
+| --------------------------------------- | ------------------------------------------ | ------- |
+| `feedback-stats-YYYYMMDD.md`            | Statistics only (counts, no user comments) | Tracked |
+| `feedback-report-YYYYMMDD.md`           | Full detailed report with all feedback     | Ignored |
+| `feedback-report-condensed-YYYYMMDD.md` | Summary with top rules and sample comments | Ignored |
+
+Reports containing user comments are gitignored for privacy. Only the stats report (counts only) is committed.
 
 ## Directory Structure
 
@@ -47,9 +50,9 @@ Reports are generated in `reports/` and **tracked in git** for historical refere
 tools/user-feedback/
 ├── analyze-feedback.sh    # Main script
 ├── README.md              # This file
-├── .gitignore             # Ignores data/ only
+├── .gitignore             # Ignores data/ and reports with user comments
 ├── data/                  # Place downloaded CSV files here (gitignored)
-└── reports/               # Generated reports (tracked in git)
+└── reports/               # Generated reports (only stats tracked)
 ```
 
 ## S3 Bucket Info
@@ -63,14 +66,14 @@ tools/user-feedback/
 
 ## Creating Jira Tickets
 
-After generating reports, create a Jira ticket:
+After generating reports locally, you can create a Jira ticket with the stats:
 
 ```bash
 acli jira workitem create \
   --project "JS" \
   --type "Task" \
   --summary "User Feedback Analysis: High FP Rate Rules" \
-  --description-file "reports/feedback-report-condensed-YYYYMMDD.md"
+  --description-file "reports/feedback-stats-YYYYMMDD.md"
 ```
 
-Or use the `--from-json` option with ADF format for rich formatting.
+For detailed feedback with user comments, use the local condensed report (not committed to git).
