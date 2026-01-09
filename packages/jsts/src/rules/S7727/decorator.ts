@@ -86,7 +86,7 @@ function isCalleeArrayLike(
 ): boolean {
   const callExpr = getParent(context, node);
   if (callExpr?.type !== 'CallExpression') {
-    return true; // Can't determine, assume it's an array to be safe
+    return false; // Can't determine, lets not raise
   }
 
   const callee = callExpr.callee;
