@@ -52,6 +52,22 @@ describe('S7727', () => {
           // Inline functions are not flagged by the base rule
           code: `[1, 2, 3].map(x => x * 2);`,
         },
+        {
+          // Non-array .find() - should not be flagged (tree.find(key) is not an array method)
+          code: `
+            interface Tree<K, V> { find(key: K): { key: K; value: V } | undefined; }
+            declare const tree: Tree<number, string>;
+            const entry = tree.find(42);
+          `,
+        },
+        {
+          // Custom object with .filter() method - not an array
+          code: `
+            interface Query { filter(predicate: string): Query; }
+            declare const query: Query;
+            const filtered = query.filter('active');
+          `,
+        },
       ],
       invalid: [
         {
