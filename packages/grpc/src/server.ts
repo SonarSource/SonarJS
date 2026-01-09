@@ -29,16 +29,16 @@ const HEALTH_SERVICE_NAME = 'grpc.health.v1.Health';
  */
 function createAnalyzerServiceDefinition(): grpc.ServiceDefinition {
   return {
-    AnalyzeFile: {
-      path: `/${ANALYZER_SERVICE_NAME}/AnalyzeFile`,
+    Analyze: {
+      path: `/${ANALYZER_SERVICE_NAME}/Analyze`,
       requestStream: false,
       responseStream: false,
-      requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
-        Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-      requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
-      responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
-        Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-      responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
+      requestSerialize: (value: analyzer.IAnalyzeRequest) =>
+        Buffer.from(analyzer.AnalyzeRequest.encode(value).finish()),
+      requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeRequest.decode(buffer),
+      responseSerialize: (value: analyzer.IAnalyzeResponse) =>
+        Buffer.from(analyzer.AnalyzeResponse.encode(value).finish()),
+      responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeResponse.decode(buffer),
     },
   };
 }
@@ -72,9 +72,9 @@ export function createGrpcServer(): grpc.Server {
 
   const analyzerServiceDefinition = createAnalyzerServiceDefinition();
   const analyzerImplementation: grpc.UntypedServiceImplementation = {
-    AnalyzeFile: (
-      call: grpc.ServerUnaryCall<analyzer.IAnalyzeFileRequest, analyzer.IAnalyzeFileResponse>,
-      callback: grpc.sendUnaryData<analyzer.IAnalyzeFileResponse>,
+    Analyze: (
+      call: grpc.ServerUnaryCall<analyzer.IAnalyzeRequest, analyzer.IAnalyzeResponse>,
+      callback: grpc.sendUnaryData<analyzer.IAnalyzeResponse>,
     ) => {
       analyzeFileHandler(call, callback);
     },

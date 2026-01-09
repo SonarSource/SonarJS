@@ -28,26 +28,26 @@ const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
  * Create a gRPC client for the LanguageAnalyzerService using static generated code
  */
 function createClient(port: number): {
-  analyzeFile: (request: analyzer.IAnalyzeFileRequest) => Promise<analyzer.IAnalyzeFileResponse>;
+  analyze: (request: analyzer.IAnalyzeRequest) => Promise<analyzer.IAnalyzeResponse>;
   close: () => void;
 } {
   const methodDefinition: grpc.MethodDefinition<
-    analyzer.IAnalyzeFileRequest,
-    analyzer.IAnalyzeFileResponse
+    analyzer.IAnalyzeRequest,
+    analyzer.IAnalyzeResponse
   > = {
-    path: `/${SERVICE_NAME}/AnalyzeFile`,
+    path: `/${SERVICE_NAME}/Analyze`,
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: analyzer.IAnalyzeFileRequest) =>
-      Buffer.from(analyzer.AnalyzeFileRequest.encode(value).finish()),
-    requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileRequest.decode(buffer),
-    responseSerialize: (value: analyzer.IAnalyzeFileResponse) =>
-      Buffer.from(analyzer.AnalyzeFileResponse.encode(value).finish()),
-    responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeFileResponse.decode(buffer),
+    requestSerialize: (value: analyzer.IAnalyzeRequest) =>
+      Buffer.from(analyzer.AnalyzeRequest.encode(value).finish()),
+    requestDeserialize: (buffer: Buffer) => analyzer.AnalyzeRequest.decode(buffer),
+    responseSerialize: (value: analyzer.IAnalyzeResponse) =>
+      Buffer.from(analyzer.AnalyzeResponse.encode(value).finish()),
+    responseDeserialize: (buffer: Buffer) => analyzer.AnalyzeResponse.decode(buffer),
   };
 
   const serviceDefinition = {
-    AnalyzeFile: methodDefinition,
+    Analyze: methodDefinition,
   } as grpc.ServiceDefinition<grpc.UntypedServiceImplementation>;
 
   // Create the client
@@ -55,16 +55,14 @@ function createClient(port: number): {
   const client = new Client(`localhost:${port}`, grpc.credentials.createInsecure());
 
   return {
-    analyzeFile: (
-      request: analyzer.IAnalyzeFileRequest,
-    ): Promise<analyzer.IAnalyzeFileResponse> => {
+    analyze: (request: analyzer.IAnalyzeRequest): Promise<analyzer.IAnalyzeResponse> => {
       return new Promise((resolve, reject) => {
         client.makeUnaryRequest(
-          `/${SERVICE_NAME}/AnalyzeFile`,
+          `/${SERVICE_NAME}/Analyze`,
           methodDefinition.requestSerialize,
           methodDefinition.responseDeserialize,
           request,
-          (error: grpc.ServiceError | null, response?: analyzer.IAnalyzeFileResponse) => {
+          (error: grpc.ServiceError | null, response?: analyzer.IAnalyzeResponse) => {
             if (error) {
               reject(error);
             } else {
@@ -83,6 +81,12 @@ function createClient(port: number): {
 describe('gRPC server', () => {
   let server: grpc.Server;
   let client: ReturnType<typeof createClient>;
+  let analysisCounter = 0;
+
+  function generateAnalysisId(): string {
+    analysisCounter++;
+    return `test-analysis-${analysisCounter}`;
+  }
 
   before(async () => {
     server = await startServer(TEST_PORT);
@@ -100,7 +104,8 @@ describe('gRPC server', () => {
   });
 
   it('should start and accept connections', async () => {
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -111,7 +116,7 @@ describe('gRPC server', () => {
       activeRules: [],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
 
     expect(response).toBeDefined();
     expect(response.issues || []).toEqual([]);
@@ -119,7 +124,8 @@ describe('gRPC server', () => {
 
   it('should analyze a JavaScript file and return issues', async () => {
     // Use a JS rule that works without type information
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -135,7 +141,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
@@ -146,7 +152,8 @@ describe('gRPC server', () => {
 
   it('should analyze a TypeScript file and return issues', async () => {
     // Use a TS rule that works without type information
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -162,7 +169,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
@@ -172,7 +179,8 @@ describe('gRPC server', () => {
   });
 
   it('should analyze a JavaScript file', async () => {
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -188,7 +196,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
@@ -198,7 +206,8 @@ describe('gRPC server', () => {
   });
 
   it('should handle multiple files in a single request', async () => {
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -218,7 +227,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(2);
@@ -228,7 +237,8 @@ describe('gRPC server', () => {
   });
 
   it('should handle parsing errors', async () => {
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -244,7 +254,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
 
     const issues = response.issues || [];
 
@@ -257,24 +267,26 @@ describe('gRPC server', () => {
     const fileContent = 'const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;\nconst e = 5;\n';
 
     // With maximum=3, should trigger (5 > 3)
-    const requestTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '3' }] }],
     };
 
-    const responseTrigger = await client.analyzeFile(requestTrigger);
+    const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
     expect(responseTrigger.issues?.[0].rule).toBe('S104');
 
     // With maximum=10, should NOT trigger (5 < 10)
-    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '10' }] }],
     };
 
-    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
@@ -283,25 +295,27 @@ describe('gRPC server', () => {
     const fileContent = 'function MyFunction() { return 1; }\n';
 
     // With lowercase-first pattern, should trigger
-    const requestTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[a-z][a-zA-Z0-9]*$' }] }],
     };
 
-    const responseTrigger = await client.analyzeFile(requestTrigger);
+    const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
     expect(responseTrigger.issues?.[0].rule).toBe('S100');
     expect(responseTrigger.issues?.[0].message).toContain('MyFunction');
 
     // With uppercase-allowed pattern, should NOT trigger
-    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[A-Z][a-zA-Z0-9]*$' }] }],
     };
 
-    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
@@ -310,7 +324,8 @@ describe('gRPC server', () => {
     const fileContent = 'const secret = "hardcoded123";\n';
 
     // With 'secret' in the list, should trigger
-    const requestTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
       activeRules: [
@@ -318,12 +333,13 @@ describe('gRPC server', () => {
       ],
     };
 
-    const responseTrigger = await client.analyzeFile(requestTrigger);
+    const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
     expect(responseTrigger.issues?.[0].rule).toBe('S2068');
 
     // Without 'secret' in the list, should NOT trigger
-    const requestNoTrigger: analyzer.IAnalyzeFileRequest = {
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
       activeRules: [
@@ -331,13 +347,14 @@ describe('gRPC server', () => {
       ],
     };
 
-    const responseNoTrigger = await client.analyzeFile(requestNoTrigger);
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
   it('should analyze TypeScript file with type-checker dependent rule', async () => {
     // S4619 ("in" should not be used on arrays) requires type checking
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -354,7 +371,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
@@ -364,7 +381,8 @@ describe('gRPC server', () => {
 
   it('should analyze JavaScript file with type-checker dependent rule', async () => {
     // S4619 ("in" should not be used on arrays) requires type checking
-    const request: analyzer.IAnalyzeFileRequest = {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [
         {
@@ -380,7 +398,7 @@ describe('gRPC server', () => {
       ],
     };
 
-    const response = await client.analyzeFile(request);
+    const response = await client.analyze(request);
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
@@ -402,24 +420,26 @@ describe('gRPC server', () => {
 `;
 
     // With default '1tbs' style, Allman should trigger an issue
-    const requestDefault: analyzer.IAnalyzeFileRequest = {
+    const requestDefault: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S1105', params: [] }],
     };
 
-    const responseDefault = await client.analyzeFile(requestDefault);
+    const responseDefault = await client.analyze(requestDefault);
     expect(responseDefault.issues?.length).toBe(1);
     expect(responseDefault.issues?.[0].rule).toBe('S1105');
 
     // With 'allman' style, should NOT trigger
-    const requestAllman: analyzer.IAnalyzeFileRequest = {
+    const requestAllman: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
       activeRules: [{ ruleKey: 'S1105', params: [{ key: 'braceStyle', value: 'allman' }] }],
     };
 
-    const responseAllman = await client.analyzeFile(requestAllman);
+    const responseAllman = await client.analyze(requestAllman);
     expect(responseAllman.issues?.length).toBe(0);
   });
 });

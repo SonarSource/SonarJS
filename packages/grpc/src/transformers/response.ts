@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { analyzer } from '../proto/language_analyzer.js';
+import { analyzer } from '../proto/language_analyzer.js';
 import type { ProjectAnalysisOutput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
 
@@ -41,7 +41,7 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  *
  * **Secondary Locations:**
  * Secondary locations provide additional context for issues (e.g., "this variable was declared here").
- * They are grouped into a single flow in the gRPC format.
+ * They are grouped into a single flow in the gRPC format with type FLOW_TYPE_DATA.
  *
  * @param issue - Internal Issue object from the linter
  * @returns gRPC IIssue object ready for protobuf serialization
@@ -57,7 +57,6 @@ function transformIssue(issue: Issue): analyzer.IIssue {
   // Transform secondary locations into flows
   const flows: analyzer.IFlow[] = [];
   if (issue.secondaryLocations && issue.secondaryLocations.length > 0) {
-    // Group secondary locations into a single flow
     const locations: analyzer.IFlowLocation[] = issue.secondaryLocations.map(loc => ({
       textRange: {
         startLine: loc.line,
@@ -69,7 +68,11 @@ function transformIssue(issue: Issue): analyzer.IIssue {
       file: issue.filePath,
     }));
 
-    flows.push({ locations });
+    flows.push({
+      type: analyzer.FlowType.FLOW_TYPE_DATA,
+      description: '',
+      locations,
+    });
   }
 
   return {
@@ -83,7 +86,7 @@ function transformIssue(issue: Issue): analyzer.IIssue {
 }
 
 /**
- * Transform the ProjectAnalysisOutput into a gRPC AnalyzeFileResponse.
+ * Transform the ProjectAnalysisOutput into a gRPC AnalyzeResponse.
  *
  * This is the main entry point for response transformation in the gRPC workflow.
  * It processes the analysis results for all files and converts them into the
@@ -94,41 +97,58 @@ function transformIssue(issue: Issue): analyzer.IIssue {
  * result can be one of three types:
  *
  * 1. **Error** (`'error' in result`): Analysis failed for this file
- *    - Added to `analysisProblems` array with file path context
+ *    - Added to `analysisProblems` array with UNDEFINED type
  *
  * 2. **Parsing Error** (`'parsingError' in result`): File could not be parsed
- *    - Converted to an issue with rule S2260 (parsing error rule)
- *    - Includes the error message and line number
+ *    - Added to `analysisProblems` array with PARSING type
+ *    - Also converted to an issue with rule S2260
  *
  * 3. **Success** (`'issues' in result`): Analysis completed successfully
  *    - All issues are transformed and added to the response
  *
  * **Response Structure:**
  * ```
- * IAnalyzeFileResponse
+ * IAnalyzeResponse
  *   ├── issues[] ──────────── All issues from successful analyses + parsing errors
- *   └── analysisProblems[] ── Warnings from meta + error messages for failed files
+ *   └── analysisProblems[] ── Structured problems with type, message, and file path
  * ```
  *
  * @param output - The ProjectAnalysisOutput from analyzeProject()
- * @returns gRPC IAnalyzeFileResponse ready for protobuf serialization
+ * @returns gRPC IAnalyzeResponse ready for protobuf serialization
  */
 export function transformProjectOutputToResponse(
   output: ProjectAnalysisOutput,
-): analyzer.IAnalyzeFileResponse {
+): analyzer.IAnalyzeResponse {
   const issues: analyzer.IIssue[] = [];
-  const analysisProblems: string[] = [...output.meta.warnings];
+  const analysisProblems: analyzer.IAnalysisProblem[] = [];
 
-  // Process each file result
+  for (const warning of output.meta.warnings) {
+    analysisProblems.push({
+      type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_UNDEFINED,
+      message: warning,
+      filePath: '',
+    });
+  }
+
   for (const [filePath, fileResult] of Object.entries(output.files)) {
     if ('error' in fileResult) {
-      analysisProblems.push(`Error analyzing ${filePath}: ${fileResult.error}`);
+      analysisProblems.push({
+        type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_UNDEFINED,
+        message: fileResult.error,
+        filePath,
+      });
       continue;
     }
 
     if ('parsingError' in fileResult) {
-      // Report parsing errors as issues with rule S2260
       const { message, line } = fileResult.parsingError;
+
+      analysisProblems.push({
+        type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
+        message,
+        filePath,
+      });
+
       issues.push(
         transformIssue({
           ruleId: PARSING_ERROR_RULE_KEY,
@@ -144,7 +164,6 @@ export function transformProjectOutputToResponse(
       continue;
     }
 
-    // Extract issues from successful analysis
     if ('issues' in fileResult) {
       for (const issue of fileResult.issues) {
         issues.push(transformIssue(issue));
