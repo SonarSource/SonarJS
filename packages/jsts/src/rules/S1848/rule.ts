@@ -101,7 +101,7 @@ function isException(
     return false;
   }
   const exactExceptions = ['vue', '@ag-grid-community.core.Grid'];
-  const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi', '@cdktf'];
+  const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi', '@cdktf', 'obsidian'];
   return (
     exactExceptions.includes(fqn) ||
     startsWithExceptions.some(exception => fqn.startsWith(exception))
