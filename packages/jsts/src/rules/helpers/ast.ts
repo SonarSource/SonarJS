@@ -715,3 +715,14 @@ export function isUnresolved(node: estree.Node | undefined | null, ctx: Rule.Rul
 export function hasParent(node: estree.Node): node is estree.Node & Rule.NodeParentExtension {
   return 'parent' in node && node.parent !== null;
 }
+
+/**
+ * Checks if a function node has a type predicate return type (`: x is Type`).
+ */
+export function hasTypePredicateReturn(node: estree.Node): boolean {
+  if (isFunctionNode(node)) {
+    const tsNode = node as unknown as TSESTree.FunctionDeclaration;
+    return tsNode.returnType?.typeAnnotation?.type === 'TSTypePredicate';
+  }
+  return false;
+}

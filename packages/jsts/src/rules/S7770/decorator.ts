@@ -18,14 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta, hasTypePredicateReturn, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-
-type FunctionLike =
-  | TSESTree.FunctionDeclaration
-  | TSESTree.FunctionExpression
-  | TSESTree.ArrowFunctionExpression;
 
 /**
  * Decorates the unicorn/prefer-native-coercion-functions rule to skip functions
@@ -49,29 +43,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
 
       // Check if this function has a type predicate return type
-      if (hasTypePredicateReturn(node as unknown as TSESTree.Node)) {
+      if (hasTypePredicateReturn(node)) {
         return; // Skip reporting for type predicate functions
       }
 
       context.report(reportDescriptor);
     },
-  );
-}
-
-/**
- * Checks if a node is a function with a type predicate return type (`: x is Type`).
- */
-function hasTypePredicateReturn(node: TSESTree.Node): boolean {
-  if (isFunctionLike(node)) {
-    return node.returnType?.typeAnnotation?.type === 'TSTypePredicate';
-  }
-  return false;
-}
-
-function isFunctionLike(node: TSESTree.Node): node is FunctionLike {
-  return (
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'ArrowFunctionExpression'
   );
 }
