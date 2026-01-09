@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7785/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta, isESModule } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -33,37 +33,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     meta: generateMeta(meta, rule.meta),
 
     create(context: Rule.RuleContext) {
-      // Skip for CommonJS files - top-level await is only available in ES modules
       if (!isESModule(context)) {
         return {};
       }
-
       return rule.create(context);
     },
   };
-}
-
-/**
- * Checks if the current file is an ES module.
- *
- * A file is considered an ES module if:
- * 1. It's parsed with sourceType 'module' (based on package.json "type" or file extension)
- * 2. It has a .mjs extension (always ESM)
- *
- * A file is CommonJS if:
- * 1. It's parsed with sourceType 'script'
- * 2. It has a .cjs extension (always CJS)
- */
-function isESModule(context: Rule.RuleContext): boolean {
-  // Check file extension first - .cjs is always CJS, .mjs is always ESM
-  const filename = context.filename;
-  if (filename.endsWith('.cjs')) {
-    return false;
-  }
-  if (filename.endsWith('.mjs')) {
-    return true;
-  }
-
-  // Check sourceType from parser - 'module' means ESM, 'script' means CJS
-  return context.sourceCode.ast.sourceType === 'module';
 }

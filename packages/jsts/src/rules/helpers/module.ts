@@ -19,6 +19,28 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
 
+/**
+ * Checks if the current file is an ES module.
+ *
+ * A file is considered an ES module if:
+ * - It's parsed with sourceType 'module' (based on package.json "type" or file extension)
+ * - It has a .mjs extension (always ESM)
+ *
+ * A file is CommonJS if:
+ * - It's parsed with sourceType 'script'
+ * - It has a .cjs extension (always CJS)
+ */
+export function isESModule(context: Rule.RuleContext): boolean {
+  const filename = context.filename;
+  if (filename.endsWith('.cjs')) {
+    return false;
+  }
+  if (filename.endsWith('.mjs')) {
+    return true;
+  }
+  return context.sourceCode.ast.sourceType === 'module';
+}
+
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
   if (program.sourceType === 'module') {
