@@ -1,21 +1,8 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-31,
-42
-],
-"paper.js:src/canvas/ProxyContext.js": [
-81
-],
-"paper.js:src/core/Base.js": [
-421
-],
 "paper.js:src/item/Item.js": [
 2693
 ],
 "paper.js:src/path/CompoundPath.js": [
 144
-],
-"paper.js:src/svg/SvgImport.js": [
-66
 ]
 }

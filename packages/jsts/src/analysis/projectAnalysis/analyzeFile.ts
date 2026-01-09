@@ -19,15 +19,53 @@ import { JsTsAnalysisInput } from '../analysis.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
 import { analyzeJSTS } from '../analyzer.js';
-import { isHtmlFile, isYamlFile } from '../../../../shared/src/helpers/configuration.js';
-import { serializeError } from '../../../../bridge/src/request.js';
-import { FileResult } from './projectAnalysis.js';
+import {
+  isHtmlFile,
+  isYamlFile,
+  fieldsForJsTsAnalysisInput,
+} from '../../../../shared/src/helpers/configuration.js';
+import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
+import { FileResult, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { handleFileResult } from './handleFileResult.js';
+import ts from 'typescript';
+
+/**
+ * Analyzes a single file, optionally with a TypeScript program for type-checking.
+ * This is the common entry point for all analysis paths (with program, without program, with cache).
+ */
+export async function analyzeSingleFile(
+  fileName: string,
+  file: JsTsFiles[string],
+  program: ts.Program | undefined,
+  results: ProjectAnalysisOutput,
+  pendingFiles: Set<string> | undefined,
+  progressReport: ProgressReport,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+) {
+  progressReport.nextFile(fileName);
+
+  // Build analysis input
+  const input: JsTsAnalysisInput = {
+    ...file,
+    ...(program ? { program } : {}),
+    ...fieldsForJsTsAnalysisInput(),
+  };
+
+  // Analyze the file (with error handling)
+  const result = await analyzeFile(input);
+
+  if (pendingFiles) {
+    pendingFiles.delete(fileName);
+  }
+  handleFileResult(result, fileName, results, incrementalResultsChannel);
+}
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
-export async function analyzeFile(input: JsTsAnalysisInput): Promise<FileResult> {
+async function analyzeFile(input: JsTsAnalysisInput): Promise<FileResult> {
   try {
     return await getAnalyzerForFile(input.filePath)(input);
   } catch (e) {

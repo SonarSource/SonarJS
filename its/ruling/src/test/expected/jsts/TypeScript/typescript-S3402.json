@@ -1,4 +1,10 @@
 {
+"TypeScript:Gulpfile.ts": [
+616
+],
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+193
+],
 "TypeScript:src/compiler/checker.ts": [
 6514
 ],

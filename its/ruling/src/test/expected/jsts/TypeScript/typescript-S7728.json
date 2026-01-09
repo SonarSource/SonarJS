@@ -1,16 +1,8 @@
 {
 "TypeScript:scripts/authors.ts": [
-62,
-63,
-64,
-108,
-125,
-155,
-162,
-174
+125
 ],
 "TypeScript:scripts/createBenchmark.ts": [
-30,
 122
 ],
 "TypeScript:scripts/errorCheck.ts": [
@@ -18,15 +10,6 @@
 ],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 117
-],
-"TypeScript:scripts/ior.ts": [
-16,
-23,
-26,
-40,
-88,
-96,
-113
 ],
 "TypeScript:src/harness/compilerRunner.ts": [
 102,

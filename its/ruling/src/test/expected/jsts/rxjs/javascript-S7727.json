@@ -2,61 +2,9 @@
 "rxjs:doc/decision-tree-widget/src/main.js": [
 144
 ],
-"rxjs:doc/scripts/theme-toggler.js": [
-23
-],
-"rxjs:perf/macro/mergeMap/perf.js": [
-38
-],
-"rxjs:perf/micro/current-thread-scheduler/operators/filter.js": [
-13,
-13,
-15,
-15
-],
-"rxjs:perf/micro/current-thread-scheduler/operators/map.js": [
-12,
-12,
-13,
-13
-],
 "rxjs:perf/micro/current-thread-scheduler/operators/reduce.js": [
 8,
 9
-],
-"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-array.js": [
-10,
-12
-],
-"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-scalar.js": [
-9,
-10
-],
-"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-this.js": [
-11,
-12
-],
-"rxjs:perf/micro/immediate-scheduler/operators/every-predicate.js": [
-9,
-10
-],
-"rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-false.js": [
-12,
-12,
-13,
-13
-],
-"rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-true.js": [
-12,
-12,
-13,
-13
-],
-"rxjs:perf/micro/immediate-scheduler/operators/filter.js": [
-12,
-12,
-13,
-13
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/find-predicate-this.js": [
 11,
@@ -74,18 +22,6 @@
 9,
 10
 ],
-"rxjs:perf/micro/immediate-scheduler/operators/map-scalar.js": [
-12,
-12,
-13,
-13
-],
-"rxjs:perf/micro/immediate-scheduler/operators/map.js": [
-12,
-12,
-13,
-13
-],
 "rxjs:perf/micro/immediate-scheduler/operators/mapto.js": [
 7
 ],
@@ -100,8 +36,5 @@
 "rxjs:perf/micro/immediate-scheduler/operators/reduce.js": [
 8,
 9
-],
-"rxjs:tools/check-gzip-size.js": [
-7
 ]
 }
