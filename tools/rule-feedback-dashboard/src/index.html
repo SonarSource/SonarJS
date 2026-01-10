@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rule Feedback Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/dist/ag-grid-community.min.js"></script>
+    <style>
+      :root {
+        --sonar-bg: #f3f3f8;
+        --sonar-card: #ffffff;
+        --sonar-primary: #4b9fd5;
+        --sonar-text: #236a97;
+        --sonar-text-dark: #2d4050;
+        --sonar-border: #e6e6e6;
+        --sonar-success: #00aa00;
+        --sonar-warning: #d0a200;
+        --sonar-error: #d02f3a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        background: var(--sonar-bg);
+        color: var(--sonar-text-dark);
+      }
+
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      /* Header / Status Bar */
+      .status-bar {
+        background: var(--sonar-card);
+        border-bottom: 1px solid var(--sonar-border);
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .status-bar h1 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--sonar-text);
+      }
+
+      .status-info {
+        display: flex;
+        gap: 20px;
+        font-size: 13px;
+        color: #666;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .status-item strong {
+        color: var(--sonar-text-dark);
+      }
+
+      /* Controls */
+      .controls {
+        background: var(--sonar-card);
+        border-bottom: 1px solid var(--sonar-border);
+        padding: 10px 20px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .controls label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .controls select {
+        padding: 6px 10px;
+        border: 1px solid var(--sonar-border);
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      /* Main content */
+      .main-content {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* Grid container */
+      .grid-container {
+        flex: 1;
+        padding: 16px;
+        overflow: hidden;
+      }
+
+      #grid {
+        height: 100%;
+        width: 100%;
+      }
+
+      /* Detail panel */
+      .detail-panel {
+        width: 400px;
+        background: var(--sonar-card);
+        border-left: 1px solid var(--sonar-border);
+        overflow-y: auto;
+        display: none;
+      }
+
+      .detail-panel.open {
+        display: block;
+      }
+
+      .detail-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--sonar-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .detail-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--sonar-text);
+      }
+
+      .detail-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .detail-close:hover {
+        color: var(--sonar-text-dark);
+      }
+
+      .detail-section {
+        padding: 16px;
+        border-bottom: 1px solid var(--sonar-border);
+      }
+
+      .detail-section h3 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--sonar-text);
+        text-transform: uppercase;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .detail-row .label {
+        color: #666;
+      }
+
+      .detail-row .value {
+        font-weight: 500;
+      }
+
+      .detail-links {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .detail-links a {
+        color: var(--sonar-primary);
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .detail-links a:hover {
+        text-decoration: underline;
+      }
+
+      .feedback-item {
+        background: var(--sonar-bg);
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      .feedback-item .meta {
+        font-size: 11px;
+        color: #666;
+        margin-top: 6px;
+      }
+
+      .ticket-item {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--sonar-border);
+        font-size: 13px;
+      }
+
+      .ticket-item:last-child {
+        border-bottom: none;
+      }
+
+      .ticket-item a {
+        color: var(--sonar-primary);
+        text-decoration: none;
+      }
+
+      .ticket-item .status {
+        font-size: 11px;
+        color: #666;
+      }
+
+      /* AG Grid customization */
+      .ag-theme-alpine {
+        --ag-header-background-color: #f8f8fb;
+        --ag-row-hover-color: #f0f4ff;
+        --ag-selected-row-background-color: #e8f0ff;
+      }
+
+      .severity-blocker {
+        color: var(--sonar-error);
+        font-weight: bold;
+      }
+      .severity-critical {
+        color: var(--sonar-error);
+      }
+      .severity-major {
+        color: var(--sonar-warning);
+      }
+      .severity-minor {
+        color: #666;
+      }
+      .severity-info {
+        color: #999;
+      }
+
+      .type-bug {
+        color: var(--sonar-error);
+      }
+      .type-vulnerability {
+        color: var(--sonar-error);
+      }
+      .type-code_smell {
+        color: var(--sonar-warning);
+      }
+
+      /* Sonar Way row highlighting */
+      .sonar-way-row {
+        background-color: #e8f5e9 !important;
+      }
+      .sonar-way-row:hover {
+        background-color: #c8e6c9 !important;
+      }
+
+      /* Reset button states */
+      #resetFilters:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #resetFilters:not(:disabled):hover {
+        background: #e8f0ff;
+      }
+
+      /* Fix with Claude button */
+      .btn-claude {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #da7756 0%, #c96442 100%);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-claude:hover {
+        background: linear-gradient(135deg, #c96442 0%, #b85535 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <h1>Rule Feedback Dashboard</h1>
+        <div class="status-info" id="statusInfo">
+          <span class="status-item">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button
+          id="resetFilters"
+          disabled
+          style="
+            padding: 6px 12px;
+            border: 1px solid var(--sonar-border);
+            border-radius: 4px;
+            background: var(--sonar-card);
+            cursor: pointer;
+            font-size: 13px;
+          "
+        >
+          Reset
+        </button>
+        <label>
+          Language:
+          <select id="languageFilter">
+            <option value="all">All</option>
+            <option value="js">JavaScript</option>
+            <option value="ts">TypeScript</option>
+          </select>
+        </label>
+        <label>
+          Sonar Way:
+          <select id="sonarWayFilter">
+            <option value="all">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <label>
+          Feedback:
+          <select id="feedbackFilter">
+            <option value="all">All</option>
+            <option value="with">With feedback</option>
+            <option value="without">Without feedback</option>
+          </select>
+        </label>
+        <label>
+          Jira Tickets:
+          <select id="ticketsFilter">
+            <option value="all">All</option>
+            <option value="with">With tickets</option>
+            <option value="without">Without tickets</option>
+          </select>
+        </label>
+        <label>
+          Scope:
+          <select id="scopeFilter">
+            <option value="all">Any</option>
+            <option value="Main">Main</option>
+            <option value="Tests">Tests</option>
+            <option value="All">All (Main+Tests)</option>
+          </select>
+        </label>
+        <label>
+          Quick Fix:
+          <select id="quickfixFilter">
+            <option value="all">All</option>
+            <option value="covered">Covered</option>
+            <option value="targeted">Targeted</option>
+            <option value="partial">Partial</option>
+            <option value="infeasible">Infeasible</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="grid-container">
+          <div id="grid" class="ag-theme-alpine"></div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel" id="detailPanel">
+          <div class="detail-header">
+            <h2 id="detailTitle">Rule Details</h2>
+            <button class="detail-close" id="detailClose">&times;</button>
+          </div>
+          <div id="detailContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

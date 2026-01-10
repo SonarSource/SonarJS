@@ -1,0 +1,28 @@
+{
+  "name": "rule-feedback-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard for analyzing rule feedback from multiple sources",
+  "type": "module",
+  "scripts": {
+    "fetch-atlan": "npx tsx scripts/fetch-atlan.ts",
+    "fetch-jira": "npx tsx scripts/fetch-jira.ts",
+    "process-rspec": "npx tsx scripts/process-rspec.ts",
+    "fetch-data": "npm run fetch-atlan && npm run fetch-jira",
+    "build-data": "npm run process-rspec && npx tsx scripts/build-data.ts",
+    "build": "esbuild src/main.ts --bundle --outfile=dist/main.js --format=esm && cp src/index.html dist/ && mkdir -p dist/data && cp data/combined.json dist/data/",
+    "serve": "npx tsx src/server.ts",
+    "dev": "npm run build-data && npm run build && npm run serve"
+  },
+  "dependencies": {
+    "ag-grid-community": "^35.0.0",
+    "express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "serve": "^14.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}
