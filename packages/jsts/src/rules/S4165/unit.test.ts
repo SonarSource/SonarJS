@@ -440,6 +440,53 @@ describe('S4165', () => {
             },
           ],
         },
+        // Redundant assignment in if-else else branch when variable is initialized to same value
+        // (pattern from ruling: ant-design iconUtil.tsx:72, Ghost description.js:11)
+        {
+          code: `function redundantElseBranch() {
+        let icon = null;
+        if (cond1) {
+          icon = "check";
+        } else if (cond2) {
+          icon = "cross";
+        } else {
+          icon = null; // Noncompliant - already null
+        }
+      }`,
+          errors: 1,
+        },
+        // Redundant assignment in switch case else branch
+        // (pattern from ruling: TypeScript formatting.ts:770, ace javascript_worker.js:146)
+        {
+          code: `function redundantSwitchCase() {
+        let type = "warning";
+        switch (raw) {
+          case "error":
+            type = "error";
+            break;
+          case "info":
+            type = "info";
+            break;
+          case "unknown":
+            type = "warning"; // Noncompliant - already "warning"
+            break;
+        }
+      }`,
+          errors: 1,
+        },
+        // Redundant reassignment in if branch when condition doesn't change the value
+        // (pattern from ruling: ace document.js:346)
+        {
+          code: `function redundantInIfBranch() {
+        var column = 0;
+        if (row < length) {
+          column = 0; // Noncompliant - already 0
+        } else {
+          column = getLength();
+        }
+      }`,
+          errors: 1,
+        },
       ],
     });
   });
