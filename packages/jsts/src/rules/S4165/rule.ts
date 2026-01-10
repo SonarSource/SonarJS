@@ -406,7 +406,7 @@ function isDeclarationInsideLoopBody(ref: Scope.Reference): boolean {
   // Get the VariableDeclaration node (parent of VariableDeclarator)
   const varDeclarator = varDef.node as TSESTree.VariableDeclarator;
   const varDeclaration = varDeclarator.parent as TSESTree.VariableDeclaration | undefined;
-  if (!varDeclaration || varDeclaration.type !== 'VariableDeclaration') {
+  if (varDeclaration?.type !== 'VariableDeclaration') {
     return false;
   }
 
