@@ -8,20 +8,11 @@
 "ace:src/document.js": [
 346
 ],
-"ace:src/layer/cursor.js": [
-182
-],
 "ace:src/mode/edifact_highlight_rules.js": [
 30
 ],
-"ace:src/mode/folding/vbscript.js": [
-165
-],
 "ace:src/test/mockdom.js": [
 351
-],
-"ace:src/virtual_renderer.js": [
-1340
 ],
 "ace:static.js": [
 95
