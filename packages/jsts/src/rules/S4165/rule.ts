@@ -167,6 +167,8 @@ export const rule: Rule.RuleModule = {
         !variable.name.startsWith('_') &&
         !isCompoundAssignment(ref.writeExpr) &&
         !isSelfAssignement(ref) &&
+        !isInForLoopInit(ref) &&
+        !isDeclarationInsideLoopBody(ref) &&
         !variable.defs.some(
           def => def.type === 'Parameter' || (def.type === 'Variable' && !def.node.init),
         )
@@ -340,4 +342,104 @@ function isDefaultParameter(ref: Scope.Reference) {
   }
   const parent = (ref.identifier as TSESTree.Identifier).parent;
   return parent?.type === 'AssignmentPattern';
+}
+
+/**
+ * Checks if an assignment is part of a for-loop initialization.
+ * For-loop initializations (e.g., `for (i = 0; ...)`) are idiomatic patterns
+ * that should not be flagged as redundant, even if the variable already holds
+ * the same value.
+ */
+function isInForLoopInit(ref: Scope.Reference): boolean {
+  const writeExpr = ref.writeExpr as TSESTree.Node | null | undefined;
+  if (!writeExpr) {
+    return false;
+  }
+
+  let current: TSESTree.Node | undefined = writeExpr;
+  while (current) {
+    const parent: TSESTree.Node | undefined = current.parent;
+    if (!parent) {
+      break;
+    }
+
+    if (parent.type === 'ForStatement' && parent.init === current) {
+      return true;
+    }
+
+    // Stop at function boundaries
+    if (
+      parent.type === 'FunctionDeclaration' ||
+      parent.type === 'FunctionExpression' ||
+      parent.type === 'ArrowFunctionExpression'
+    ) {
+      break;
+    }
+
+    current = parent;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if a variable declaration with initialization is inside a loop body.
+ * Variable declarations inside loop bodies (e.g., `while (cond) { var x = 0; }`)
+ * should not be flagged as redundant because each iteration reinitializes the variable.
+ * For `let`/`const`, each iteration creates a new binding.
+ * For `var`, the initialization still runs each iteration and is idiomatic.
+ */
+function isDeclarationInsideLoopBody(ref: Scope.Reference): boolean {
+  const variable = ref.resolved;
+  if (!variable) {
+    return false;
+  }
+
+  // Find the variable declaration that corresponds to this write reference
+  const varDef = variable.defs.find(
+    def => def.type === 'Variable' && def.node.init && def.name === ref.identifier,
+  );
+  if (!varDef) {
+    return false;
+  }
+
+  // Get the VariableDeclaration node (parent of VariableDeclarator)
+  const varDeclarator = varDef.node as TSESTree.VariableDeclarator;
+  const varDeclaration = varDeclarator.parent as TSESTree.VariableDeclaration | undefined;
+  if (varDeclaration?.type !== 'VariableDeclaration') {
+    return false;
+  }
+
+  // Traverse up to find if this declaration is inside a loop body
+  let current: TSESTree.Node | undefined = varDeclaration;
+  while (current) {
+    const parent: TSESTree.Node | undefined = current.parent;
+    if (!parent) {
+      break;
+    }
+
+    // Check if we're inside a loop body
+    if (
+      (parent.type === 'ForStatement' && parent.body === current) ||
+      (parent.type === 'ForInStatement' && parent.body === current) ||
+      (parent.type === 'ForOfStatement' && parent.body === current) ||
+      (parent.type === 'WhileStatement' && parent.body === current) ||
+      (parent.type === 'DoWhileStatement' && parent.body === current)
+    ) {
+      return true;
+    }
+
+    // Stop at function boundaries
+    if (
+      parent.type === 'FunctionDeclaration' ||
+      parent.type === 'FunctionExpression' ||
+      parent.type === 'ArrowFunctionExpression'
+    ) {
+      break;
+    }
+
+    current = parent;
+  }
+
+  return false;
 }
