@@ -305,6 +305,71 @@ describe('S4165', () => {
       }
     }`,
         },
+        // Variable declaration inside for-loop body with compound assignment
+        // Each iteration creates a fresh variable, so initialization is not redundant
+        // (from ruling: p5.js:src/image/image.js:233)
+        {
+          code: `function varDeclInsideForLoopWithModification(numFrames, palette) {
+      for (let i = 0; i < numFrames; i++) {
+        let powof2 = 1;
+        while (powof2 < palette.length) {
+          powof2 <<= 1;
+        }
+        console.log(powof2);
+      }
+    }`,
+        },
+        // Variable declaration inside while-loop body
+        // Each iteration reinitializes, not redundant
+        // (from ruling: ace:src/mode/folding/vbscript.js:165)
+        {
+          code: `function varDeclInsideWhileLoop(stream) {
+      var token;
+      while (token = stream.step()) {
+        var outputRange = null;
+        var ignore = false;
+        if (token.type === 'keyword') {
+          outputRange = { start: 0, end: 10 };
+        }
+        console.log(outputRange, ignore);
+      }
+    }`,
+        },
+        // Variable declaration inside do-while loop body
+        {
+          code: `function varDeclInsideDoWhileLoop() {
+      let count = 0;
+      do {
+        let result = 0;
+        result = compute();
+        count++;
+      } while (count < 10);
+    }`,
+        },
+        // Variable declaration inside for-of loop body
+        {
+          code: `function varDeclInsideForOfLoop(items) {
+      for (const item of items) {
+        let processed = false;
+        if (item.valid) {
+          processed = true;
+        }
+        console.log(processed);
+      }
+    }`,
+        },
+        // Variable declaration inside for-in loop body
+        {
+          code: `function varDeclInsideForInLoop(obj) {
+      for (const key in obj) {
+        var value = null;
+        if (obj.hasOwnProperty(key)) {
+          value = obj[key];
+        }
+        console.log(value);
+      }
+    }`,
+        },
       ],
       invalid: [
         {
