@@ -249,6 +249,7 @@ function buildCombinedData(): void {
     // Get Atlan stats
     const atlanEntry = atlan?.rules[ruleKey];
     const atlanStats = atlanEntry ? combineAtlanStats(atlanEntry) : null;
+    const atlanByLang = atlanEntry ? { js: atlanEntry.js, ts: atlanEntry.ts } : undefined;
 
     // Get Jira tickets
     const jiraTickets = jira?.rules[ruleKey] || [];
@@ -278,6 +279,7 @@ function buildCombinedData(): void {
       wontfixCount,
       feedbackComments,
       atlan: atlanStats,
+      atlanByLang,
       jiraTicketCount: jiraTickets.length,
       jiraTickets,
     });

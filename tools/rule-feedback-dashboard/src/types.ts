@@ -52,8 +52,10 @@ export interface RuleData {
   wontfixCount: number;
   feedbackComments: FeedbackComment[];
 
-  // Atlan stats
+  // Atlan stats (combined for both languages)
   atlan: AtlanStats | null;
+  // Atlan stats per language (for split view)
+  atlanByLang?: { js?: AtlanStats; ts?: AtlanStats };
 
   // Jira
   jiraTicketCount: number;

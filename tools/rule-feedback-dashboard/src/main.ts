@@ -4,10 +4,48 @@ declare const agGrid: any;
 
 let gridApi: any;
 let allRules: RuleData[] = [];
+let allRulesSplit: RuleData[] = []; // Split by language view
 let metadata: DatasetMetadata | null = null;
 let currentRule: RuleData | null = null;
 let commentsLimit = 10;
 const COMMENTS_PAGE_SIZE = 10;
+let splitByLanguage = false;
+
+// Create split view: rules with "both" languages become two rows (js and ts)
+function createSplitView(rules: RuleData[]): RuleData[] {
+  const result: RuleData[] = [];
+
+  for (const rule of rules) {
+    if (rule.language === 'both' && rule.atlanByLang) {
+      // Create JS version
+      if (rule.atlanByLang.js) {
+        result.push({
+          ...rule,
+          ruleKey: rule.ruleKey,
+          language: 'js',
+          atlan: rule.atlanByLang.js,
+        });
+      }
+      // Create TS version
+      if (rule.atlanByLang.ts) {
+        result.push({
+          ...rule,
+          ruleKey: rule.ruleKey,
+          language: 'ts',
+          atlan: rule.atlanByLang.ts,
+        });
+      }
+      // If no atlan data for either, just show as-is
+      if (!rule.atlanByLang.js && !rule.atlanByLang.ts) {
+        result.push(rule);
+      }
+    } else {
+      result.push(rule);
+    }
+  }
+
+  return result;
+}
 
 // Column definitions for AG Grid
 const columnDefs = [
@@ -461,10 +499,14 @@ function applyFilters() {
   const sonarWayFilter =
     (document.getElementById('sonarWayFilter') as HTMLSelectElement)?.value || 'all';
 
-  let filtered = allRules;
+  // Use split view data if enabled
+  let filtered = splitByLanguage ? allRulesSplit : allRules;
 
   if (languageFilter !== 'all') {
-    filtered = filtered.filter(r => r.language === languageFilter || r.language === 'both');
+    // In split view, exact match only; in joined view, include 'both'
+    filtered = splitByLanguage
+      ? filtered.filter(r => r.language === languageFilter)
+      : filtered.filter(r => r.language === languageFilter || r.language === 'both');
   }
 
   if (scopeFilter !== 'all') {
@@ -551,11 +593,17 @@ async function loadData(): Promise<CombinedData | null> {
   }
 }
 
+function toggleSplitView() {
+  splitByLanguage = (document.getElementById('splitByLang') as HTMLInputElement)?.checked || false;
+  applyFilters();
+}
+
 async function init() {
   const data = await loadData();
   if (!data) return;
 
   allRules = data.rules;
+  allRulesSplit = createSplitView(data.rules);
   metadata = data.metadata;
 
   updateStatusBar(metadata);
@@ -590,6 +638,7 @@ async function init() {
   document.getElementById('feedbackFilter')?.addEventListener('change', applyFilters);
   document.getElementById('ticketsFilter')?.addEventListener('change', applyFilters);
   document.getElementById('sonarWayFilter')?.addEventListener('change', applyFilters);
+  document.getElementById('splitByLang')?.addEventListener('change', toggleSplitView);
   document.getElementById('detailClose')?.addEventListener('click', hideDetailPanel);
 
   // Set initial state of reset button
