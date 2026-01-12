@@ -17,6 +17,7 @@
 import { analyzer } from '../proto/language_analyzer.js';
 import type { ProjectAnalysisOutput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
+import { randomUUID } from 'node:crypto';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
@@ -76,7 +77,7 @@ function transformIssue(issue: Issue): analyzer.IIssue {
   }
 
   return {
-    id: `${issue.ruleId}:${issue.filePath}:${issue.line}:${issue.column}`,
+    id: randomUUID(),
     filePath: issue.filePath,
     message: issue.message,
     rule: issue.ruleId,

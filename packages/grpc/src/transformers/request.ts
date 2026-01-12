@@ -335,11 +335,17 @@ function buildConfigurations(
  * // ]
  */
 function transformActiveRule(activeRule: analyzer.IActiveRule): RuleConfig[] {
-  const ruleKey = activeRule.ruleKey ?? '';
+  const fullRuleKey = activeRule.ruleKey ?? '';
+  // Strip repository prefix if present (e.g., "javascript:S1854" -> "S1854")
+  // The ruleMetaMap uses just the rule ID, not the repo-prefixed format
+  const ruleKey = fullRuleKey.includes(':') ? fullRuleKey.split(':')[1] : fullRuleKey;
   const ruleMeta = ruleMetaMap.get(ruleKey);
 
   if (!ruleMeta) {
     // Unknown rule - skip it
+    console.log(
+      `[DEBUG] transformActiveRule: Unknown rule ${fullRuleKey} (lookup key: ${ruleKey})`,
+    );
     return [];
   }
 
