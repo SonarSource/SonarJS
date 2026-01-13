@@ -17,7 +17,6 @@
 import { analyzer } from '../proto/language_analyzer.js';
 import type { ProjectAnalysisOutput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
-import { randomUUID } from 'node:crypto';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
@@ -32,7 +31,6 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  * by gRPC clients. This includes:
  * - Building the text range (start/end line and column offsets)
  * - Converting secondary locations into a flow with locations
- * - Generating a unique issue ID from rule, file, and position
  *
  * **Text Range Mapping:**
  * - `line` → `startLine`
@@ -77,7 +75,6 @@ function transformIssue(issue: Issue): analyzer.IIssue {
   }
 
   return {
-    id: randomUUID(),
     filePath: issue.filePath,
     message: issue.message,
     rule: issue.ruleId,
