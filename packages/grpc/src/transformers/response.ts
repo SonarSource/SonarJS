@@ -48,9 +48,9 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
 function transformIssue(issue: Issue): analyzer.IIssue {
   const textRange: analyzer.ITextRange = {
     startLine: issue.line,
+    startLineOffset: issue.column,
     endLine: issue.endLine ?? issue.line,
-    startOffset: issue.column,
-    endOffset: issue.endColumn ?? issue.column,
+    endLineOffset: issue.endColumn ?? issue.column,
   };
 
   // Transform secondary locations into flows
@@ -59,9 +59,9 @@ function transformIssue(issue: Issue): analyzer.IIssue {
     const locations: analyzer.IFlowLocation[] = issue.secondaryLocations.map(loc => ({
       textRange: {
         startLine: loc.line,
+        startLineOffset: loc.column,
         endLine: loc.endLine,
-        startOffset: loc.column,
-        endOffset: loc.endColumn,
+        endLineOffset: loc.endColumn,
       },
       message: loc.message ?? '',
       file: issue.filePath,

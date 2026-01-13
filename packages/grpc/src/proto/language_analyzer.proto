@@ -90,9 +90,9 @@ message Issue {
 // Represents a text range in a file
 message TextRange {
   int32 start_line = 1;            // 1-indexed
-  int32 end_line = 2;              // 1-indexed
-  int32 start_offset = 3;          // 0-indexed character offset
-  int32 end_offset = 4;            // 0-indexed character offset
+  int32 start_line_offset = 2;     // 0-indexed character offset
+  int32 end_line = 3;              // 1-indexed
+  int32 end_line_offset = 4;       // 0-indexed character offset
 }
 
 // Flow type enumeration
