@@ -27,7 +27,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: 'function f() {}' }],
         activeRules: [
           {
-            ruleKey: 'S107',
+            ruleKey: { repo: 'javascript', rule: 'S107' },
             params: [{ key: 'maximumFunctionParameters', value: '5' }],
           },
         ],
@@ -52,7 +52,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
-            ruleKey: 'S1192',
+            ruleKey: { repo: 'javascript', rule: 'S1192' },
             params: [
               { key: 'threshold', value: '5' },
               { key: 'ignoreStrings', value: 'foo,bar' },
@@ -77,7 +77,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
-            ruleKey: 'S100',
+            ruleKey: { repo: 'javascript', rule: 'S100' },
             params: [{ key: 'format', value: '^[A-Z][a-zA-Z0-9]*$' }],
           },
         ],
@@ -96,7 +96,7 @@ describe('transformRequestToProjectInput', () => {
       // S1444 is TypeScript-only (languages: ['ts'])
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.ts', content: '' }],
-        activeRules: [{ ruleKey: 'S1444', params: [] }],
+        activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S1444' }, params: [] }],
       };
 
       const result = transformRequestToProjectInput(request);
@@ -110,7 +110,7 @@ describe('transformRequestToProjectInput', () => {
       // S107 supports both JS and TS
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
-        activeRules: [{ ruleKey: 'S107', params: [] }],
+        activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S107' }, params: [] }],
       };
 
       const result = transformRequestToProjectInput(request);
@@ -124,7 +124,7 @@ describe('transformRequestToProjectInput', () => {
       // S2699 is a test rule (scope: 'Tests')
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.spec.js', content: '' }],
-        activeRules: [{ ruleKey: 'S2699', params: [] }],
+        activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S2699' }, params: [] }],
       };
 
       const result = transformRequestToProjectInput(request);
@@ -137,7 +137,7 @@ describe('transformRequestToProjectInput', () => {
     it('should set fileTypeTargets to MAIN and TEST for main scope rules', () => {
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
-        activeRules: [{ ruleKey: 'S107', params: [] }],
+        activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S107' }, params: [] }],
       };
 
       const result = transformRequestToProjectInput(request);
@@ -150,8 +150,8 @@ describe('transformRequestToProjectInput', () => {
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
-          { ruleKey: 'UNKNOWN_RULE', params: [] },
-          { ruleKey: 'S107', params: [] },
+          { ruleKey: { repo: 'javascript', rule: 'UNKNOWN_RULE' }, params: [] },
+          { ruleKey: { repo: 'javascript', rule: 'S107' }, params: [] },
         ],
       };
 
@@ -167,7 +167,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
-            ruleKey: 'S107',
+            ruleKey: { repo: 'javascript', rule: 'S107' },
             params: [
               { key: 'maximumFunctionParameters', value: '5' },
               { key: 'unknownParam', value: 'ignored' },
@@ -188,7 +188,7 @@ describe('transformRequestToProjectInput', () => {
     it('should handle rules without params', () => {
       const request: analyzer.IAnalyzeRequest = {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
-        activeRules: [{ ruleKey: 'S107', params: [] }],
+        activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S107' }, params: [] }],
       };
 
       const result = transformRequestToProjectInput(request);
@@ -206,7 +206,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
-            ruleKey: 'S2068',
+            ruleKey: { repo: 'javascript', rule: 'S2068' },
             params: [{ key: 'passwordWords', value: 'secret,apikey,token' }],
           },
         ],
@@ -228,7 +228,7 @@ describe('transformRequestToProjectInput', () => {
         sourceFiles: [{ relativePath: 'test.js', content: '' }],
         activeRules: [
           {
-            ruleKey: 'S109',
+            ruleKey: { repo: 'javascript', rule: 'S109' },
             params: [{ key: 'ignore', value: '0,1,2,42' }],
           },
         ],

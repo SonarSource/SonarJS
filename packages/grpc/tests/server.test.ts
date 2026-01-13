@@ -135,7 +135,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S134', // Control flow statements should not be nested too deeply
+          ruleKey: { repo: 'javascript', rule: 'S134' }, // Control flow statements should not be nested too deeply
           params: [],
         },
       ],
@@ -146,7 +146,8 @@ describe('gRPC server', () => {
 
     expect(issues.length).toBe(1);
     const issue = issues[0];
-    expect(issue.rule).toBe('S134');
+    expect(issue.rule?.repo).toBe('javascript');
+    expect(issue.rule?.rule).toBe('S134');
     expect(issue.message).toContain('Refactor this code to not nest more than');
   });
 
@@ -163,7 +164,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S134', // Control flow statements should not be nested too deeply
+          ruleKey: { repo: 'javascript', rule: 'S134' }, // Control flow statements should not be nested too deeply
           params: [],
         },
       ],
@@ -174,7 +175,8 @@ describe('gRPC server', () => {
 
     expect(issues.length).toBe(1);
     const issue = issues[0];
-    expect(issue.rule).toBe('S134');
+    expect(issue.rule?.repo).toBe('typescript');
+    expect(issue.rule?.rule).toBe('S134');
     expect(issue.message).toContain('Refactor this code to not nest more than');
   });
 
@@ -190,7 +192,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S1116',
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
           params: [],
         },
       ],
@@ -201,7 +203,8 @@ describe('gRPC server', () => {
 
     expect(issues.length).toBe(1);
     const issue = issues[0];
-    expect(issue.rule).toBe('S1116');
+    expect(issue.rule?.repo).toBe('javascript');
+    expect(issue.rule?.rule).toBe('S1116');
     expect(issue.message).toBe('Unnecessary semicolon.');
   });
 
@@ -221,7 +224,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S1116',
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
           params: [],
         },
       ],
@@ -248,7 +251,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S4621',
+          ruleKey: { repo: 'javascript', rule: 'S4621' },
           params: [],
         },
       ],
@@ -259,7 +262,8 @@ describe('gRPC server', () => {
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
-    expect(issues[0].rule).toBe('S2260');
+    expect(issues[0].rule?.repo).toBe('javascript');
+    expect(issues[0].rule?.rule).toBe('S2260');
   });
 
   it('should handle rules with number parameters', async () => {
@@ -271,19 +275,27 @@ describe('gRPC server', () => {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '3' }] }],
+      activeRules: [
+        { ruleKey: { repo: 'javascript', rule: 'S104' }, params: [{ key: 'maximum', value: '3' }] },
+      ],
     };
 
     const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
-    expect(responseTrigger.issues?.[0].rule).toBe('S104');
+    expect(responseTrigger.issues?.[0].rule?.repo).toBe('javascript');
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S104');
 
     // With maximum=10, should NOT trigger (5 < 10)
     const requestNoTrigger: analyzer.IAnalyzeRequest = {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/max-lines.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S104', params: [{ key: 'maximum', value: '10' }] }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S104' },
+          params: [{ key: 'maximum', value: '10' }],
+        },
+      ],
     };
 
     const responseNoTrigger = await client.analyze(requestNoTrigger);
@@ -299,12 +311,18 @@ describe('gRPC server', () => {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[a-z][a-zA-Z0-9]*$' }] }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S100' },
+          params: [{ key: 'format', value: '^[a-z][a-zA-Z0-9]*$' }],
+        },
+      ],
     };
 
     const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
-    expect(responseTrigger.issues?.[0].rule).toBe('S100');
+    expect(responseTrigger.issues?.[0].rule?.repo).toBe('javascript');
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S100');
     expect(responseTrigger.issues?.[0].message).toContain('MyFunction');
 
     // With uppercase-allowed pattern, should NOT trigger
@@ -312,7 +330,12 @@ describe('gRPC server', () => {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/function-name.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S100', params: [{ key: 'format', value: '^[A-Z][a-zA-Z0-9]*$' }] }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S100' },
+          params: [{ key: 'format', value: '^[A-Z][a-zA-Z0-9]*$' }],
+        },
+      ],
     };
 
     const responseNoTrigger = await client.analyze(requestNoTrigger);
@@ -329,13 +352,17 @@ describe('gRPC server', () => {
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
       activeRules: [
-        { ruleKey: 'S2068', params: [{ key: 'passwordWords', value: 'secret,token,apikey' }] },
+        {
+          ruleKey: { repo: 'javascript', rule: 'S2068' },
+          params: [{ key: 'passwordWords', value: 'secret,token,apikey' }],
+        },
       ],
     };
 
     const responseTrigger = await client.analyze(requestTrigger);
     expect(responseTrigger.issues?.length).toBe(1);
-    expect(responseTrigger.issues?.[0].rule).toBe('S2068');
+    expect(responseTrigger.issues?.[0].rule?.repo).toBe('javascript');
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S2068');
 
     // Without 'secret' in the list, should NOT trigger
     const requestNoTrigger: analyzer.IAnalyzeRequest = {
@@ -343,7 +370,10 @@ describe('gRPC server', () => {
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/credentials.js', content: fileContent }],
       activeRules: [
-        { ruleKey: 'S2068', params: [{ key: 'passwordWords', value: 'password,token,apikey' }] },
+        {
+          ruleKey: { repo: 'javascript', rule: 'S2068' },
+          params: [{ key: 'passwordWords', value: 'password,token,apikey' }],
+        },
       ],
     };
 
@@ -365,7 +395,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S4619',
+          ruleKey: { repo: 'javascript', rule: 'S4619' },
           params: [],
         },
       ],
@@ -375,7 +405,8 @@ describe('gRPC server', () => {
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
-    expect(issues[0].rule).toBe('S4619');
+    expect(issues[0].rule?.repo).toBe('typescript');
+    expect(issues[0].rule?.rule).toBe('S4619');
     expect(issues[0].message).toContain('indexOf');
   });
 
@@ -392,7 +423,7 @@ describe('gRPC server', () => {
       ],
       activeRules: [
         {
-          ruleKey: 'S4619',
+          ruleKey: { repo: 'javascript', rule: 'S4619' },
           params: [],
         },
       ],
@@ -402,7 +433,8 @@ describe('gRPC server', () => {
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
-    expect(issues[0].rule).toBe('S4619');
+    expect(issues[0].rule?.repo).toBe('javascript');
+    expect(issues[0].rule?.rule).toBe('S4619');
     expect(issues[0].message).toContain('indexOf');
   });
 
@@ -424,19 +456,25 @@ describe('gRPC server', () => {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S1105', params: [] }],
+      activeRules: [{ ruleKey: { repo: 'javascript', rule: 'S1105' }, params: [] }],
     };
 
     const responseDefault = await client.analyze(requestDefault);
     expect(responseDefault.issues?.length).toBe(1);
-    expect(responseDefault.issues?.[0].rule).toBe('S1105');
+    expect(responseDefault.issues?.[0].rule?.repo).toBe('javascript');
+    expect(responseDefault.issues?.[0].rule?.rule).toBe('S1105');
 
     // With 'allman' style, should NOT trigger
     const requestAllman: analyzer.IAnalyzeRequest = {
       analysisId: generateAnalysisId(),
       contextIds: {},
       sourceFiles: [{ relativePath: '/project/src/brace-style.js', content: fileContent }],
-      activeRules: [{ ruleKey: 'S1105', params: [{ key: 'braceStyle', value: 'allman' }] }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1105' },
+          params: [{ key: 'braceStyle', value: 'allman' }],
+        },
+      ],
     };
 
     const responseAllman = await client.analyze(requestAllman);

@@ -74,10 +74,16 @@ function transformIssue(issue: Issue): analyzer.IIssue {
     });
   }
 
+  const repo = issue.language === 'js' ? 'javascript' : 'typescript';
+  const ruleKey: analyzer.IRuleKey = {
+    repo: repo,
+    rule: issue.ruleId,
+  };
+
   return {
     filePath: issue.filePath,
     message: issue.message,
-    rule: issue.ruleId,
+    rule: ruleKey,
     textRange,
     flows,
   };
