@@ -27,6 +27,7 @@ import {
   last,
   RequiredParserServices,
 } from '../helpers/index.js';
+import { isPropertyReadonlyInType } from 'ts-api-utils';
 import ts from 'typescript';
 import * as meta from './generated-meta.js';
 
@@ -146,50 +147,32 @@ export const rule: Rule.RuleModule = {
 
 /**
  * A props type is considered to be read-only if the type annotation
- * is decorated with TypeScript utility type `Readonly` or if it refers
- * to a pure type declaration, i.e. where all its members are read-only.
+ * is decorated with TypeScript utility type `Readonly` or if all its
+ * resolved properties are read-only (regardless of how the type was constructed).
  */
 function isReadOnly(props: Node, services: RequiredParserServices) {
-  const tpe = getTypeFromTreeNode(props, services);
+  const type = getTypeFromTreeNode(props, services);
+  const checker = services.program.getTypeChecker();
 
   /* Readonly utility type */
-  const { aliasSymbol } = tpe;
-  if (aliasSymbol?.escapedName === 'Readonly') {
+  if (type.aliasSymbol?.escapedName === 'Readonly') {
     return true;
   }
 
-  /* Resolve symbol definition */
-  const symbol = tpe.getSymbol();
-  if (!symbol?.declarations) {
-    /* Kill the noise */
+  /* Non-object types (primitives) don't need readonly marking */
+  if (!(type.flags & ts.TypeFlags.Object)) {
     return true;
   }
 
-  /* Pure type declaration */
-  const declarations = symbol.declarations;
-  for (const decl of declarations) {
-    if (ts.isInterfaceDeclaration(decl)) {
-      const node = services.tsNodeToESTreeNodeMap.get(decl);
-      if (node?.type === 'TSInterfaceDeclaration') {
-        const {
-          body: { body: members },
-        } = node;
-        if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
-          return true;
-        }
-      }
-    }
-
-    if (ts.isTypeLiteralNode(decl)) {
-      const node = services.tsNodeToESTreeNodeMap.get(decl);
-      if (node?.type === 'TSTypeLiteral') {
-        const { members } = node;
-        if (members.every(m => m.type === 'TSPropertySignature' && m.readonly)) {
-          return true;
-        }
-      }
-    }
+  /* Check all properties of the resolved type */
+  const properties = type.getProperties();
+  if (properties.length === 0) {
+    /* No properties - consider read-only to avoid noise */
+    return true;
   }
 
-  return false;
+  /* All properties must be read-only */
+  return properties.every(property =>
+    isPropertyReadonlyInType(type, property.getEscapedName(), checker),
+  );
 }
