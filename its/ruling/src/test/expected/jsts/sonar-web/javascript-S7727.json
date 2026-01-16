@@ -1,38 +1,8 @@
 {
-"sonar-web:src/main/js/apps/background-tasks/tasks.js": [
-128
-],
-"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
-177
-],
-"sonar-web:src/main/js/apps/overview/components/domain-timeline.js": [
-154
-],
-"sonar-web:src/main/js/apps/projects/projects.js": [
-50
-],
 "sonar-web:src/main/js/apps/update-center/plugins.js": [
 26
 ],
-"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
-44
-],
-"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
-63,
-64
-],
-"sonar-web:src/main/js/components/navigator/controller.js": [
-77
-],
-"sonar-web:src/main/js/components/shared/radio-toggle.js": [
-33
-],
 "sonar-web:src/main/js/components/source-viewer/main.js": [
-360,
 751
-],
-"sonar-web:src/main/js/main/nav/global/global-nav-menu.js": [
-32,
-124
 ]
 }
