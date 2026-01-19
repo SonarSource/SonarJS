@@ -59,4 +59,5 @@ node-info.properties
 .nyc_output/
 lcov.info
 
-.claude
+.claude/*
+!.claude/*.md
