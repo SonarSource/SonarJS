@@ -53,19 +53,22 @@ describe('S7727', () => {
           code: `[1, 2, 3].map(x => x * 2);`,
         },
         {
-          // Non-array .find() - should not be flagged (tree.find(key) is not an array method)
+          // Non-array .find() with function reference - should not be flagged
           code: `
-            interface Tree<K, V> { find(key: K): { key: K; value: V } | undefined; }
-            declare const tree: Tree<number, string>;
-            const entry = tree.find(42);
+            interface TreeNode<T> { value: T; children: TreeNode<T>[]; }
+            interface Tree<T> { find(predicate: (node: TreeNode<T>) => boolean): TreeNode<T> | undefined; }
+            declare const tree: Tree<number>;
+            const isEven = (node: TreeNode<number>) => node.value % 2 === 0;
+            const entry = tree.find(isEven);
           `,
         },
         {
-          // Custom object with .filter() method - not an array
+          // Custom object with .filter() method accepting function - not an array
           code: `
-            interface Query { filter(predicate: string): Query; }
+            interface Query { filter(predicate: (item: unknown) => boolean): Query; }
             declare const query: Query;
-            const filtered = query.filter('active');
+            const isActive = (item: unknown) => true;
+            const filtered = query.filter(isActive);
           `,
         },
       ],

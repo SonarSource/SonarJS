@@ -54,8 +54,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const services = context.sourceCode.parserServices;
       if (!isRequiredParserServices(services)) {
-        // Without type info, defer to base rule
-        context.report(reportDescriptor);
+        // Without type info, be conservative and don't report
         return;
       }
 
@@ -91,7 +90,7 @@ function isCalleeArrayLike(
 
   const callee = callExpr.callee;
   if (callee.type !== 'MemberExpression') {
-    return true; // Can't determine, assume it's an array to be safe
+    return false; // Can't determine, don't raise
   }
 
   const calleeObject = callee.object;
