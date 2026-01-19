@@ -18,12 +18,10 @@
 
 import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
-import { generateMeta, toUnixPath } from '../helpers/index.js';
+import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import { dirname } from 'node:path/posix';
-import { getManifests } from '../helpers/package-jsons/all-in-parent-dirs.js';
-import { minVersion } from 'semver';
+import { getReactVersion } from '../helpers/package-jsons/dependencies.js';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -37,18 +35,8 @@ export const rule: Rule.RuleModule = {
     function getVersionFromOptions() {
       return (context.options as FromSchema<typeof meta.schema>)[0]?.['react-version'];
     }
-    function getVersionFromPackageJson() {
-      for (const packageJson of getManifests(dirname(toUnixPath(context.filename)), context.cwd)) {
-        const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
-        if (reactVersion) {
-          // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
-          return minVersion(reactVersion)?.version ?? null;
-        }
-      }
-      return null;
-    }
 
-    const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
+    const reactVersion = getVersionFromOptions() || getReactVersion(context);
 
     const patchedContext = reactVersion
       ? Object.create(context, {
