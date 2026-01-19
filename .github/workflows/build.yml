@@ -99,10 +99,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -141,10 +141,10 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -269,10 +269,10 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.5.1
+      - uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
@@ -315,10 +315,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -354,10 +354,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -500,10 +500,10 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
@@ -570,10 +570,10 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.5.1
+        uses: jdx/mise-action@v3.6.0
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch }}
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             java = "21.0"
