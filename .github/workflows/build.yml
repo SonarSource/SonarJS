@@ -186,6 +186,16 @@ jobs:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+      - name: Debug SonarJS artifacts size
+        run: |
+          echo "=== Directory size ==="
+          du -sh ~/.m2/repository/org/sonarsource/javascript
+          echo "=== Subdirectory sizes ==="
+          du -sh ~/.m2/repository/org/sonarsource/javascript/*
+          echo "=== Version directories ==="
+          find ~/.m2/repository/org/sonarsource/javascript -type d -name "*SNAPSHOT*" | head -50
+          echo "=== Large files (>10MB) ==="
+          find ~/.m2/repository/org/sonarsource/javascript -type f -size +10M -exec ls -lh {} \;
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
