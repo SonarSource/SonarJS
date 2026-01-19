@@ -33,13 +33,3 @@ runs:
           !~/.m2/repository/org/sonarsource/javascript
         key: maven-${{ runner.os }}-${{ inputs.cache-month }}-${{ inputs.maven-hash }}
         restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
-
-    # Explicitly remove SonarJS artifacts that may have been restored from cache
-    # The exclusion pattern above doesn't work reliably with all cache implementations
-    - name: Remove cached SonarJS artifacts
-      shell: bash
-      run: |
-        if [ -d ~/.m2/repository/org/sonarsource/javascript ]; then
-          echo "Removing cached SonarJS artifacts to ensure clean build..."
-          rm -rf ~/.m2/repository/org/sonarsource/javascript
-        fi
