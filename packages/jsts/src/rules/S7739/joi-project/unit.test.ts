@@ -16,21 +16,31 @@
  */
 import { rule } from '../rule.js';
 import { join } from 'node:path/posix';
-import { DefaultParserRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
 describe('S7739', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup going up the tree
-  const ruleTester = new DefaultParserRuleTester();
-  ruleTester.run('S7739 turns into a noop when joi is a dependency', rule, {
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run('S7739 skips joi validation schemas', rule, {
     valid: [
       {
         // Joi validation schemas use .then() method legitimately
-        code: `const schema = { then: function() { return this; } };`,
-        filename: join(dirname, 'filename.js'),
+        code: `
+          import Joi from 'joi';
+          const schema = Joi.object({ then: Joi.string() });
+        `,
+        filename: join(dirname, 'filename.ts'),
       },
     ],
-    invalid: [],
+    invalid: [
+      {
+        // Non-Joi code should still be flagged even with Joi as dependency
+        code: `const schema = { then: function() { return this; } };`,
+        filename: join(dirname, 'filename.js'),
+        errors: [{ messageId: 'no-thenable-object' }],
+      },
+    ],
   });
 });
