@@ -93,8 +93,36 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    // Build list of props to ignore based on dependencies
+    const frameworkIgnoredProps: string[] = [];
+    if (dependencies.has('next')) {
+      // Next.js styled-jsx uses jsx and global props
+      frameworkIgnoredProps.push('jsx', 'global');
+    }
+    if (dependencies.has('@emotion/react')) {
+      // Emotion uses css prop for styling
+      frameworkIgnoredProps.push('css');
+    }
+
+    // If we have framework-specific props, create a modified context with updated options
+    let effectiveContext = context;
+    if (frameworkIgnoredProps.length > 0) {
+      const userOptions = (context.options[0] as { ignore?: string[] } | undefined) ?? {};
+      const userIgnore = userOptions.ignore ?? [];
+      const mergedIgnore = [...new Set([...userIgnore, ...frameworkIgnoredProps])];
+      effectiveContext = Object.create(context, {
+        options: {
+          value: [{ ...userOptions, ignore: mergedIgnore }],
+          writable: false,
+        },
+      });
+    }
+
+    // aria-props doesn't accept options, so use original context
     const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
-    const noUnknownPropListener: Rule.RuleListener = twiceDecoratedNoUnknownProp.create(context);
+    // no-unknown-property accepts ignore option, so use effectiveContext with merged ignore list
+    const noUnknownPropListener: Rule.RuleListener =
+      twiceDecoratedNoUnknownProp.create(effectiveContext);
 
     return mergeRules(ariaPropsListener, noUnknownPropListener);
   },
