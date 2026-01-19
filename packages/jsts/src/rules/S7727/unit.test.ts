@@ -52,6 +52,25 @@ describe('S7727', () => {
           // Inline functions are not flagged by the base rule
           code: `[1, 2, 3].map(x => x * 2);`,
         },
+        {
+          // Non-array .find() with function reference - should not be flagged
+          code: `
+            interface TreeNode<T> { value: T; children: TreeNode<T>[]; }
+            interface Tree<T> { find(predicate: (node: TreeNode<T>) => boolean): TreeNode<T> | undefined; }
+            declare const tree: Tree<number>;
+            const isEven = (node: TreeNode<number>) => node.value % 2 === 0;
+            const entry = tree.find(isEven);
+          `,
+        },
+        {
+          // Custom object with .filter() method accepting function - not an array
+          code: `
+            interface Query { filter(predicate: (item: unknown) => boolean): Query; }
+            declare const query: Query;
+            const isActive = (item: unknown) => true;
+            const filtered = query.filter(isActive);
+          `,
+        },
       ],
       invalid: [
         {

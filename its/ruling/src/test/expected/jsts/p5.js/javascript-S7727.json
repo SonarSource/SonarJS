@@ -1,8 +1,4 @@
 {
-"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
-1045,
-1056
-],
 "p5.js:src/utilities/conversion.js": [
 108,
 142,
@@ -13,8 +9,5 @@
 ],
 "p5.js:src/utilities/string_functions.js": [
 568
-],
-"p5.js:test/test-reference.html": [
-222
 ]
 }
