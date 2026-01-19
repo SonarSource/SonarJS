@@ -161,6 +161,16 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - name: Debug - Check SonarJS artifacts AFTER cache restore
+        run: |
+          echo "=== After maven cache restore ==="
+          if [ -d ~/.m2/repository/org/sonarsource/javascript ]; then
+            echo "Directory EXISTS - cache exclusion is NOT working!"
+            du -sh ~/.m2/repository/org/sonarsource/javascript
+            find ~/.m2/repository/org/sonarsource/javascript -type d -name "*SNAPSHOT*" | head -20
+          else
+            echo "Directory does NOT exist - cache exclusion is working correctly"
+          fi
       - &config_maven
         name: Configure Maven
         id: config-maven
