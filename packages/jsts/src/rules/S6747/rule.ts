@@ -118,7 +118,9 @@ export const rule: Rule.RuleModule = {
       });
     }
 
-    const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(effectiveContext);
+    // aria-props doesn't accept options, so use original context
+    const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
+    // no-unknown-property accepts ignore option, so use effectiveContext with merged ignore list
     const noUnknownPropListener: Rule.RuleListener =
       twiceDecoratedNoUnknownProp.create(effectiveContext);
 
