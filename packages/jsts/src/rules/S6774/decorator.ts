@@ -60,7 +60,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 function isReact19OrLater(context: Rule.RuleContext): boolean {
   const reactVersion = getReactVersion(context);
   if (!reactVersion) {
-    return false; // If we can't determine the version, be conservative and report
+    return true; // If we can't determine the version, be conservative and don't report
   }
   const version = parseSemver(reactVersion);
   return version !== null && version.major >= 19;
