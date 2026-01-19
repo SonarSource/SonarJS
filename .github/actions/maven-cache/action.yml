@@ -24,12 +24,17 @@ runs:
         restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
 
     # Full cache on default branch (save enabled)
+    # Note: Exclusion patterns don't work reliably with runs-on/cache used by gh-action_cache.
+    # Instead, we clean up SonarJS artifacts at the end of the job before post-job cache save.
     - name: Cache Maven dependencies (default branch)
       if: github.ref_name == github.event.repository.default_branch
       uses: SonarSource/gh-action_cache@v1
       with:
-        path: |
-          ~/.m2/repository
-          !~/.m2/repository/org/sonarsource/javascript
+        path: ~/.m2/repository
         key: maven-${{ runner.os }}-${{ inputs.cache-month }}-${{ inputs.maven-hash }}
         restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
+
+    # Clean up any SonarJS artifacts that were restored from cache
+    - name: Remove restored SonarJS artifacts
+      shell: bash
+      run: rm -rf ~/.m2/repository/org/sonarsource/javascript
