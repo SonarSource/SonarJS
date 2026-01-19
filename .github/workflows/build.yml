@@ -161,16 +161,6 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
-      - name: Debug - Check SonarJS artifacts AFTER cache restore
-        run: |
-          echo "=== After maven cache restore ==="
-          if [ -d ~/.m2/repository/org/sonarsource/javascript ]; then
-            echo "Directory EXISTS - cache exclusion is NOT working!"
-            du -sh ~/.m2/repository/org/sonarsource/javascript
-            find ~/.m2/repository/org/sonarsource/javascript -type d -name "*SNAPSHOT*" | head -20
-          else
-            echo "Directory does NOT exist - cache exclusion is working correctly"
-          fi
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -196,16 +186,6 @@ jobs:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
-      - name: Debug SonarJS artifacts size
-        run: |
-          echo "=== Directory size ==="
-          du -sh ~/.m2/repository/org/sonarsource/javascript
-          echo "=== Subdirectory sizes ==="
-          du -sh ~/.m2/repository/org/sonarsource/javascript/*
-          echo "=== Version directories ==="
-          find ~/.m2/repository/org/sonarsource/javascript -type d -name "*SNAPSHOT*" | head -50
-          echo "=== Large files (>10MB) ==="
-          find ~/.m2/repository/org/sonarsource/javascript -type f -size +10M -exec ls -lh {} \;
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -220,6 +200,10 @@ jobs:
             **/target/
             !**/target/site/
           retention-days: 1
+      # Clean up SonarJS artifacts before post-job cache save (only on default branch where cache is saved)
+      - name: Clean up SonarJS artifacts before cache save
+        if: github.ref_name == github.event.repository.default_branch
+        run: rm -rf ~/.m2/repository/org/sonarsource/javascript
 
   # Windows builds and tests
   build_win:
