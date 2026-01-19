@@ -181,6 +181,47 @@ npx tsx --test packages/jsts/src/rules/S1234/**/*.test.ts
 
 Formatting is enforced automatically via pre-commit hooks.
 
+## Decorating External Rules
+
+When decorating external ESLint rules (from `eslint-plugin-react`, `eslint-plugin-unicorn`, etc.) using `interceptReport`, follow these guidelines:
+
+### Being Conservative
+
+**"Being conservative" means NOT reporting when uncertain.** We only report issues when we are confident they are real problems. This avoids false positives which frustrate users.
+
+When type information is needed but unavailable:
+
+```typescript
+const services = context.sourceCode.parserServices;
+if (!isRequiredParserServices(services)) {
+  return; // Don't report without type info - be conservative
+}
+```
+
+When a condition cannot be determined:
+
+```typescript
+if (!canDetermineIfArray(node)) {
+  return; // Can't determine, don't raise - be conservative
+}
+```
+
+### Key Principle
+
+- **DO NOT** fall back to the base rule's behavior when information is missing
+- **DO** skip reporting when you cannot confidently verify the issue is real
+- It's better to miss some true positives than to report false positives
+
+## Shared Helpers
+
+The `packages/jsts/src/rules/helpers/` folder contains shared utility functions for rule implementations. **Before writing utility code in a rule, check if a similar helper already exists.** If you need a new utility that could benefit other rules, add it to the appropriate helper file rather than keeping it in the rule.
+
+Key helper files:
+
+- `ast.ts` - AST traversal and node type checking (`isFunctionNode`, `isIdentifier`, `hasTypePredicateReturn`, etc.)
+- `module.ts` - Module detection (`isESModule`, `getImportDeclarations`, `getFullyQualifiedName`, etc.)
+- `package-jsons/dependencies.ts` - Dependency detection (`getDependencies`, `getReactVersion`, etc.)
+
 ## Important Notes
 
 - `generated-meta.ts` files are auto-generated from RSPEC - do not edit manually
