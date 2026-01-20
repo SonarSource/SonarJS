@@ -2,10 +2,6 @@ name: Automated Release
 on:
   workflow_dispatch:
     inputs:
-      release-notes:
-        description: "Notes for the GitHub release (Markdown supported)"
-        required: true
-        type: string
       short-description:
         description: "Short description for the REL ticket"
         required: true
@@ -55,10 +51,10 @@ jobs:
       sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
       branch: ${{ github.event.inputs.branch }}
       pm-email: "gabriel.vivas@sonarsource.com"
-      slack-channel: "squad-web"
+      slack-channel: "squad-web-private"
       verbose: true
       use-jira-sandbox: false
-      is-draft-release: false
+      is-draft-release: true
 
   bump_versions:
     name: Bump versions
