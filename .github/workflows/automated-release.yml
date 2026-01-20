@@ -6,6 +6,10 @@ on:
         description: "Short description for the REL ticket"
         required: true
         type: string
+      sq-ide-short-description:
+        description: "Short summary of SQ IDE related changes (optional, falls back to short-description)"
+        required: false
+        type: string
       sqc-integration:
         description: "Integrate into SQC"
         type: boolean
@@ -44,8 +48,8 @@ jobs:
       plugin-name: "javascript"
       jira-project-key: "JS"
       rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
-      release-notes: ${{ github.event.inputs.release-notes }}
       short-description: ${{ github.event.inputs.short-description }}
+      sq-ide-short-description: ${{ github.event.inputs.sq-ide-short-description }}
       new-version: ${{ github.event.inputs.new-version }}
       sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
       sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
