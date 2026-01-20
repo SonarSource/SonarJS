@@ -63,6 +63,10 @@ Key helper files:
 - `module.ts` - Module detection (`isESModule`, `getImportDeclarations`, `getFullyQualifiedName`, etc.)
 - `package-jsons/dependencies.ts` - Dependency detection (`getDependencies`, `getReactVersion`, etc.)
 
+## Pull Requests
+
+- Always add `SonarSource/quality-web-squad` as a reviewer when creating PRs
+
 ## Important Notes
 
 - `generated-meta.ts` files are auto-generated from RSPEC - do not edit manually
