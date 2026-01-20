@@ -17,7 +17,7 @@ jobs:
       startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
       startsWith(github.event.check_suite.head_branch, 'branch-')) &&
       github.event.check_suite.conclusion == 'success' &&
-      github.event.check_suite.app.slug == 'cirrus-ci'
+      github.event.check_suite.app.slug == 'github-actions'
     steps:
       -   uses: SonarSource/gh-action_releasability/releasability-status@v3
           with:
