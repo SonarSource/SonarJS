@@ -40,6 +40,7 @@ const secretSignatures: Record<string, [number]> = {
   'crypto.createHmac': [1],
   'crypto.createSecretKey': [0],
   'crypto.createSign.sign': [0],
+  'crypto.createVerify.verify': [0],
   'crypto.privateDecrypt': [0],
   'crypto.privateEncrypt': [0],
   'crypto.sign': [2],

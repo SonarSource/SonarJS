@@ -14,6 +14,16 @@ sign.end();
 const signature = sign.sign('privateKeyPEM', 'hex'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //                ^^^^^^^^^
 
+const verify = crypto.createVerify('SHA256');
+verify.write('some data to verify');
+verify.end();
+verify.verify('publicKeyPEM', signature); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//       ^^^^^^
+const verifyKey = 'key';
+//                ^^^^^ > {{Hardcoded value assigned here}}
+verify.verify(verifyKey, signature); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//       ^^^^^^
+
 const x509 = new crypto.X509Certificate('public-cert.pem (imagine its imported)');
 const value = x509.checkPrivateKey('key'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //            ^^^^^^^^^^^^^^^^^^^^
