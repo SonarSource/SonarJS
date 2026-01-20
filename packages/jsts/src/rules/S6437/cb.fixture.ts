@@ -14,16 +14,6 @@ sign.end();
 const signature = sign.sign('privateKeyPEM', 'hex'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //                ^^^^^^^^^
 
-const verify = crypto.createVerify('SHA256');
-verify.write('some data to verify');
-verify.end();
-verify.verify('publicKeyPEM', signature); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//       ^^^^^^
-const verifyKey = 'key';
-//                ^^^^^ > {{Hardcoded value assigned here}}
-verify.verify(verifyKey, signature); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//       ^^^^^^
-
 const x509 = new crypto.X509Certificate('public-cert.pem (imagine its imported)');
 const value = x509.checkPrivateKey('key'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //            ^^^^^^^^^^^^^^^^^^^^
@@ -44,13 +34,6 @@ const privateKeyVar = 'key';
 //                    ^^^^^ > {{Hardcoded value assigned here}}
   crypto.sign('sha256', dataBuffer, privateKeyVar); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^
-
-  crypto.verify('sha256', dataBuffer, 'publicKeyPEM', signatureBuffer); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//^^^^^^^^^^^^^
-const publicKeyVar = 'key';
-//                   ^^^^^ > {{Hardcoded value assigned here}}
-  crypto.verify('sha256', dataBuffer, publicKeyVar, signatureBuffer); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//^^^^^^^^^^^^^
 
   crypto.privateEncrypt('privateKeyPEM', Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^^^^^^^^^^^
