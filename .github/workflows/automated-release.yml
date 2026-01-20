@@ -59,3 +59,13 @@ jobs:
       verbose: true
       use-jira-sandbox: false
       is-draft-release: false
+
+  bump_versions:
+    name: Bump versions
+    needs: release
+    uses: ./.github/workflows/bump-versions.yml
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      version: ${{ needs.release.outputs.new-version }}

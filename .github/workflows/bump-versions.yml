@@ -1,0 +1,39 @@
+name: Bump versions
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The new version
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The new version
+        required: true
+        type: string
+
+jobs:
+  bump-version:
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update version in pom.xml
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          snapshot_version="${VERSION}-SNAPSHOT"
+          # Update only root pom.xml to the new snapshot version
+          sed -i "s/<version>.*-SNAPSHOT<\/version>/<version>${snapshot_version}<\/version>/" pom.xml
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          author: ${{ github.actor }} <${{ github.actor }}>
+          commit-message: Prepare next development iteration
+          title: Prepare next development iteration
+          branch: bot/bump-project-version
+          branch-suffix: timestamp
+          base: master
+          reviewers: ${{ github.actor }}

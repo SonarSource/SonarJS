@@ -1,0 +1,35 @@
+name: Toggle lock branch
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+        default: master
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to toggle lock on
+        required: true
+        default: master
+
+jobs:
+  toggle-lock-branch:
+    name: Toggle lock branch
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write
+    steps:
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-lock token | lock_token;
+            development/kv/data/slack token | slack_api_token;
+      - uses: sonarsource/gh-action-lt-backlog/ToggleLockBranch@v2
+        with:
+          github-token: ${{ fromJSON(steps.secrets.outputs.vault).lock_token }}
+          slack-token: ${{ fromJSON(steps.secrets.outputs.vault).slack_api_token }}
+          slack-channel: squad-web
+          branch-pattern: ${{ inputs.branch }}
