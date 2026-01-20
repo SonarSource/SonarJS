@@ -35,6 +35,13 @@ const privateKeyVar = 'key';
   crypto.sign('sha256', dataBuffer, privateKeyVar); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^
 
+  crypto.verify('sha256', dataBuffer, 'publicKeyPEM', signatureBuffer); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^
+const publicKeyVar = 'key';
+//                   ^^^^^ > {{Hardcoded value assigned here}}
+  crypto.verify('sha256', dataBuffer, publicKeyVar, signatureBuffer); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^
+
   crypto.privateEncrypt('privateKeyPEM', Buffer.from('data')); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^^^^^^^^^^^
 const privKey = 'key';
