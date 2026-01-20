@@ -60,6 +60,7 @@ jobs:
       branch: ${{ github.event.inputs.branch }}
       pm-email: "gabriel.vivas@sonarsource.com"
       slack-channel: "squad-web-private"
+      release-automation-secret-name: "SonarJS-release-automation"
       verbose: true
       use-jira-sandbox: false
       is-draft-release: true
