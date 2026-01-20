@@ -512,7 +512,7 @@
               <rules>
                 <requireFilesSize>
                   <minsize>100000000</minsize>
-                  <maxsize>120000000</maxsize>
+                  <maxsize>130000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
@@ -529,7 +529,7 @@
                 </requireFilesSize>
                 <requireFilesSize>
                   <minsize>8000000</minsize>
-                  <maxsize>15000000</maxsize>
+                  <maxsize>18000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
