@@ -24,16 +24,18 @@ import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeP
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
 /**
- * gRPC handler for the AnalyzeFile RPC
+ * gRPC handler for the Analyze RPC
  */
 export async function analyzeFileHandler(
-  call: grpc.ServerUnaryCall<analyzer.IAnalyzeFileRequest, analyzer.IAnalyzeFileResponse>,
-  callback: grpc.sendUnaryData<analyzer.IAnalyzeFileResponse>,
+  call: grpc.ServerUnaryCall<analyzer.IAnalyzeRequest, analyzer.IAnalyzeResponse>,
+  callback: grpc.sendUnaryData<analyzer.IAnalyzeResponse>,
 ): Promise<void> {
   const request = call.request;
 
   try {
-    info(`Received AnalyzeFile request with ${request.sourceFiles?.length ?? 0} files`);
+    info(
+      `Received Analyze request (${request.analysisId ?? 'no id'}) with ${request.sourceFiles?.length ?? 0} files`,
+    );
 
     const projectInput = transformRequestToProjectInput(request);
 
@@ -45,7 +47,7 @@ export async function analyzeFileHandler(
     callback(null, response);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    logError(`AnalyzeFile error: ${errorMessage}`);
+    logError(`Analyze error: ${errorMessage}`);
     callback({
       code: grpc.status.INTERNAL,
       message: errorMessage,

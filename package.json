@@ -21,7 +21,7 @@
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
     "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
-    "grpc:generate-proto": "pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.proto && pbts -o packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/language_analyzer.js",
+    "grpc:generate-proto": "pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.proto && pbts -o packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/language_analyzer.js && pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/health.js packages/grpc/src/proto/health.proto && pbts -o packages/grpc/src/proto/health.d.ts packages/grpc/src/proto/health.js",
     "grpc:bundle": "node esbuild-grpc.mjs",
     "grpc:build": "npm run bridge:build:fast && npm run grpc:bundle",
     "plugin:build": "mvn install",
@@ -31,7 +31,7 @@
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
     "count-rules": "tsx tools/count-rules.ts",
-    "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers && cpy --flat packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.d.ts lib/grpc/src/proto",
+    "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers && cpy --flat packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/health.js packages/grpc/src/proto/health.d.ts lib/grpc/src/proto",
     "_:bridge:clear": "rimraf --glob lib/*",
     "eslint-plugin:build": "npm ci && npm install --no-save builtin-modules@3.3.0 && npm run eslint-plugin:compile && cd lib && npm pack",
     "eslint-plugin:compile": "npm run generate-meta && npm run _:bridge:clear && npm run eslint-plugin:check && npm run eslint-plugin:emit && npm run eslint-plugin:types && npm run eslint-plugin:package-json && npm run eslint-plugin:copy-assets && npm run eslint-docs",
@@ -44,7 +44,7 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "docker:build": "npm run grpc:build && docker build -t sonarjs:latest .",
-    "docker:run": "docker run -p 3000:3000 sonarjs:latest"
+    "docker:run": "docker run -p 50051:50051 sonarjs:latest"
   },
   "repository": {
     "type": "git",
@@ -145,6 +145,7 @@
     "semver": "7.7.3",
     "stylelint": "17.0.0",
     "stylelint-config-html": "1.1.0",
+    "ts-api-utils": "2.4.0",
     "typescript": "5.9.3",
     "vue-eslint-parser": "10.2.0",
     "ws": "8.19.0",
