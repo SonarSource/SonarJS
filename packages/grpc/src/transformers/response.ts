@@ -76,7 +76,7 @@ function transformIssue(issue: Issue): analyzer.IIssue {
 
   const repo = issue.language === 'js' ? 'javascript' : 'typescript';
   const ruleKey: analyzer.IRuleKey = {
-    repo: repo,
+    repo,
     rule: issue.ruleId,
   };
 
