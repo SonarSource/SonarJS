@@ -998,3 +998,23 @@ jobs:
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
           promote-pull-request: true
+
+  releasability:
+    runs-on: github-ubuntu-latest-s
+    name: Releasability
+    needs:
+      - promote
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v3
+        if: >-
+          github.ref_name == github.event.repository.default_branch ||
+          startsWith(github.ref_name, 'branch-') ||
+          startsWith(github.ref_name, 'dogfood-')
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
