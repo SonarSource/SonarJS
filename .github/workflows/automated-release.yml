@@ -18,22 +18,6 @@ on:
         description: "Integrate into SQS"
         type: boolean
         default: true
-      create-slvs-ticket:
-        description: "Create SLVS (SonarLint for Visual Studio) integration ticket"
-        type: boolean
-        default: true
-      create-slvscode-ticket:
-        description: "Create SLVSCODE (SonarLint for VS Code) integration ticket"
-        type: boolean
-        default: true
-      create-sle-ticket:
-        description: "Create SLE (SonarLint for Eclipse) integration ticket"
-        type: boolean
-        default: true
-      create-sli-ticket:
-        description: "Create SLI (SonarLint for IntelliJ) integration ticket"
-        type: boolean
-        default: true
       branch:
         description: "Branch from which to do the release"
         required: true
@@ -69,10 +53,10 @@ jobs:
       new-version: ${{ github.event.inputs.new-version }}
       sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
       sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
-      create-slvs-ticket: ${{ github.event.inputs.create-slvs-ticket == 'true' }}
-      create-slvscode-ticket: ${{ github.event.inputs.create-slvscode-ticket == 'true' }}
-      create-sle-ticket: ${{ github.event.inputs.create-sle-ticket == 'true' }}
-      create-sli-ticket: ${{ github.event.inputs.create-sli-ticket == 'true' }}
+      create-slvs-ticket: true
+      create-slvscode-ticket: true
+      create-sle-ticket: true
+      create-sli-ticket: true
       branch: ${{ github.event.inputs.branch }}
       pm-email: "gabriel.vivas@sonarsource.com"
       slack-channel: "squad-web-private"
