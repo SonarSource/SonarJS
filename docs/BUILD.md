@@ -425,31 +425,15 @@ SONARSOURCE_QA=true mvn clean install -DskipTests=false
 
 ---
 
-## Known Issues and Notes
+## Notes
 
-### Build Order and RSPEC Metadata
+### RSPEC Metadata Flow
 
-**Issue**: The `bridge` module builds **before** `javascript-checks`, but:
+The `bridge` module runs `generate-meta` which reads from `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/`. This directory is **committed to git** (526 JSON files), so:
 
-- `bridge` runs `generate-meta` which needs `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/`
-- `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/` is populated by `deploy-rule-data` in `javascript-checks`
-
-**Why it works**: The `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/` files (526 JSON files) are **committed to git**, so `generate-meta` reads from committed data. On a clean build, fresh RSPEC data is downloaded but `generate-meta` may use stale committed data.
-
-**Potential fix**: Reorder modules in `sonar-plugin/pom.xml`:
-
-```xml
-<modules>
-  <module>api</module>
-  <module>javascript-checks</module>  <!-- Move before bridge -->
-  <module>bridge</module>
-  <module>css</module>
-  <module>sonar-javascript-plugin</module>
-  <module>standalone</module>
-</modules>
-```
-
-This is safe because `javascript-checks` only depends on `api`, not `bridge`.
+- Builds always use stable, committed metadata
+- The `rspec-maven-plugin` and `deploy-rule-data` scripts in `javascript-checks` are for **updating the working tree** when rule metadata needs to be refreshed
+- To update rule metadata: run `mvn generate-resources -pl javascript-checks`, then commit the changes
 
 ### Fallback Behavior in generate-meta
 
