@@ -28,9 +28,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor) {
         const { node, ...rest } = reportDescriptor;
+        const varDecl = node as estree.VariableDeclaration & { declare?: boolean };
+
+        // Skip TypeScript ambient declarations (declare var)
+        if (varDecl.declare) {
+          return;
+        }
+
         const {
           declarations: [firstDecl, ..._],
-        } = node as estree.VariableDeclaration;
+        } = varDecl;
 
         const varToken = context.sourceCode.getTokenBefore(firstDecl.id);
         const identifierEnd = firstDecl.id.loc!.end;
