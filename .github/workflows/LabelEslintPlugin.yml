@@ -44,10 +44,11 @@ jobs:
       - name: Add eslint-plugin label
         if: steps.extract-jira-key.outputs.has_jira_key == 'true'
         env:
-          JIRA_USER: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
-          JIRA_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}
+          VAULT_OUTPUT: ${{ steps.secrets.outputs.vault }}
           JIRA_KEY: ${{ steps.extract-jira-key.outputs.jira_key }}
         run: |
+          JIRA_USER=$(echo "$VAULT_OUTPUT" | jq -r '.JIRA_USER')
+          JIRA_TOKEN=$(echo "$VAULT_OUTPUT" | jq -r '.JIRA_TOKEN')
           # Use Jira REST API to add label
           curl -s -X PUT \
             -H "Content-Type: application/json" \

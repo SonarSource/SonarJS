@@ -57,8 +57,8 @@ function checkOSCommand(context: Rule.RuleContext, call: estree.CallExpression) 
   const fqnParts = fqn.split('.');
   const module = fqnParts[0];
   // JS-638: Use the last part of the FQN as the method (the actual method being called).
-  const method = fqnParts[fqnParts.length - 1];
-  if (module === CHILD_PROCESS_MODULE && isQuestionable(method, args)) {
+  const method = fqnParts.at(-1);
+  if (method && module === CHILD_PROCESS_MODULE && isQuestionable(method, args)) {
     context.report({
       node: callee,
       messageId: 'safeOSCommand',
