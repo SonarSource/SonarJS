@@ -142,17 +142,12 @@ export function isUndefinedOrNull(node: estree.Node, services: RequiredParserSer
 
 export function isThenable(node: estree.Node, services: RequiredParserServices) {
   const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
-  const tp = services.program.getTypeChecker().getTypeAtLocation(mapped);
+  const checker = services.program.getTypeChecker();
+  const tp = checker.getTypeAtLocation(mapped);
   const thenProperty = tp.getProperty('then');
   if (!thenProperty) {
     return false;
   }
-  // Check if it's declared as a method
-  if (thenProperty.flags & ts.SymbolFlags.Method) {
-    return true;
-  }
-  // Check if 'then' is a callable property (function type)
-  const checker = services.program.getTypeChecker();
   const thenType = checker.getTypeOfSymbol(thenProperty);
   return thenType.getCallSignatures().length > 0;
 }
