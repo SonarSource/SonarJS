@@ -425,15 +425,34 @@ SONARSOURCE_QA=true mvn clean install -DskipTests=false
 
 ---
 
-## Notes
+## Known Issues
 
-### RSPEC Metadata Flow
+### Build Order and RSPEC Metadata
 
-The `bridge` module runs `generate-meta` which reads from `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/`. This directory is **committed to git** (526 JSON files), so:
+**Issue**: The `bridge` module builds **before** `javascript-checks`, but the intended data flow is:
 
-- Builds always use stable, committed metadata
-- The `rspec-maven-plugin` and `deploy-rule-data` scripts in `javascript-checks` are for **updating the working tree** when rule metadata needs to be refreshed
-- To update rule metadata: run `mvn generate-resources -pl javascript-checks`, then commit the changes
+1. `rspec-maven-plugin` (javascript-checks) downloads fresh RSPEC metadata
+2. `deploy-rule-data` (javascript-checks) copies it to METADATA_FOLDER
+3. `generate-meta` (bridge) reads METADATA_FOLDER and generates `generated-meta.ts`
+
+Because of the module order, step 3 runs before steps 1-2, so `generate-meta` reads stale committed data instead of freshly downloaded RSPEC.
+
+**Why it still works**: The METADATA_FOLDER files are **committed to git** as a fallback, so builds don't fail. However, builds may not reflect the latest RSPEC changes until the next build.
+
+**Potential fix**: Reorder modules in `sonar-plugin/pom.xml`:
+
+```xml
+<modules>
+  <module>api</module>
+  <module>javascript-checks</module>  <!-- Move before bridge -->
+  <module>bridge</module>
+  <module>css</module>
+  <module>sonar-javascript-plugin</module>
+  <module>standalone</module>
+</modules>
+```
+
+This is safe because `javascript-checks` only depends on `api`, not `bridge`.
 
 ### Fallback Behavior in generate-meta
 
