@@ -91,6 +91,26 @@ describe('S3735', () => {
             void f();
             `,
         },
+        {
+          // Thenable with method signature (standard Promise-like)
+          code: `
+            interface Thenable<T> {
+              then<TResult>(onfulfilled?: (value: T) => TResult): Thenable<TResult>;
+            }
+            declare function executeCommand(): Thenable<void>;
+            void executeCommand();
+            `,
+        },
+        {
+          // Thenable with function property style (e.g., VSCode API)
+          code: `
+            interface ThenableFn<T> {
+              then: <TResult>(onfulfilled?: (value: T) => TResult) => ThenableFn<TResult>;
+            }
+            declare function executeCommand(): ThenableFn<void>;
+            void executeCommand();
+            `,
+        },
       ],
       invalid: [
         {
