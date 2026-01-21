@@ -25,9 +25,9 @@
 
   <modules>
     <module>api</module>
+    <module>javascript-checks</module>
     <module>bridge</module>
     <module>css</module>
-    <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
     <module>standalone</module>
   </modules>

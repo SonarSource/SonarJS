@@ -63,16 +63,16 @@ Modules are declared in this order in `sonar-plugin/pom.xml`:
 
 ```
 1. api
-2. bridge
-3. css
-4. javascript-checks
+2. javascript-checks
+3. bridge
+4. css
 5. sonar-javascript-plugin
 6. standalone
 ```
 
 Maven builds modules respecting their dependencies - modules without dependencies between them may run in parallel when using `-T` flag. The declaration order matters when modules have no explicit dependencies but rely on side effects (like generated files).
 
-> **Note**: This order has implications for the RSPEC metadata dependency chain. See [Known Issues](#known-issues-and-notes).
+> **Note**: `javascript-checks` is intentionally placed before `bridge` so that RSPEC metadata is downloaded before `generate-meta` runs in the bridge module.
 
 ---
 
@@ -425,34 +425,7 @@ SONARSOURCE_QA=true mvn clean install -DskipTests=false
 
 ---
 
-## Known Issues
-
-### Build Order and RSPEC Metadata
-
-**Issue**: The `bridge` module builds **before** `javascript-checks`, but the intended data flow is:
-
-1. `rspec-maven-plugin` (javascript-checks) downloads fresh RSPEC metadata
-2. `deploy-rule-data` (javascript-checks) copies it to METADATA_FOLDER
-3. `generate-meta` (bridge) reads METADATA_FOLDER and generates `generated-meta.ts`
-
-Because of the module order, step 3 runs before steps 1-2, so `generate-meta` reads stale committed data instead of freshly downloaded RSPEC.
-
-**Why it still works**: The METADATA_FOLDER files are **committed to git** as a fallback, so builds don't fail. However, builds may not reflect the latest RSPEC changes until the next build.
-
-**Potential fix**: Reorder modules in `sonar-plugin/pom.xml`:
-
-```xml
-<modules>
-  <module>api</module>
-  <module>javascript-checks</module>  <!-- Move before bridge -->
-  <module>bridge</module>
-  <module>css</module>
-  <module>sonar-javascript-plugin</module>
-  <module>standalone</module>
-</modules>
-```
-
-This is safe because `javascript-checks` only depends on `api`, not `bridge`.
+## Notes
 
 ### Fallback Behavior in generate-meta
 
