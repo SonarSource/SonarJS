@@ -19,6 +19,18 @@ declare var $RefreshHelpers$: any;
 declare var $RefreshReg$: any;
 declare var $RefreshSig$: any;
 
+// Example 5: Complex object type with methods (Node.js process)
+declare var process: {
+  argv: string[];
+  env: Record<string, string>;
+  exit(code?: number): void;
+};
+
+// Example 6: Interface-like type declaration (browser XMLHttpRequest)
+declare var XMLHttpRequest: {
+  new(): XMLHttpRequest;
+};
+
 // Regular var declarations should still be flagged
 function bar() {
   var foo = 42; // Noncompliant [[qf1!]] {{Unexpected var, use let or const instead.}}
