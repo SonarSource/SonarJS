@@ -124,7 +124,7 @@ export function createProgramOptionsFromJson(
  */
 export function createProgramOptions(tsConfig: string, tsconfigContents?: string): ProgramOptions {
   // Check cache first
-  const cached = getCachedProgramOptions(`${tsConfig}:${tsconfigContents}`);
+  const cached = getCachedProgramOptions(tsConfig, tsconfigContents);
   if (cached) {
     return cached;
   }
@@ -157,7 +157,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
         return cachedTsConfig.contents;
       }
 
-      // 3. Read from disk
+      // 3. Read from filesystem or sourceFileStore (depending on canAccessFileSystem())
       const fileContents = defaultParseConfigHost.readFile(file);
 
       // 4. Handle missing extended tsconfig (return empty config)
@@ -226,7 +226,7 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
     [PROGRAM_OPTIONS_BRAND]: true,
   } as const;
 
-  setCachedProgramOptions(`${tsConfig}:${tsconfigContents}`, result);
+  setCachedProgramOptions(tsConfig, result, tsconfigContents);
 
   return result;
 }

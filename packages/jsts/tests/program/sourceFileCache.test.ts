@@ -23,7 +23,7 @@ import {
   getCurrentFilesContext,
   getCachedSourceFile,
   setCachedSourceFile,
-  invalidateCachedSourceFile,
+  invalidateParsedSourceFile,
   clearSourceFileContentCache,
 } from '../../src/program/cache/sourceFileCache.js';
 
@@ -171,7 +171,7 @@ describe('sourceFileCache', () => {
       });
     });
 
-    describe('invalidateCachedSourceFile', () => {
+    describe('invalidateParsedSourceFile', () => {
       it('should remove all cached versions of a file', () => {
         const sourceFileESNext = createSourceFile(
           testFileName,
@@ -187,7 +187,7 @@ describe('sourceFileCache', () => {
         setCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', sourceFileESNext);
         setCachedSourceFile(testFileName, ts.ScriptTarget.ES2020, '1', sourceFileES2020);
 
-        invalidateCachedSourceFile(testFileName);
+        invalidateParsedSourceFile(testFileName);
 
         expect(getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1')).toBeUndefined();
         expect(getCachedSourceFile(testFileName, ts.ScriptTarget.ES2020, '1')).toBeUndefined();
@@ -201,7 +201,7 @@ describe('sourceFileCache', () => {
         setCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', sourceFile1);
         setCachedSourceFile(otherFileName, ts.ScriptTarget.ESNext, '1', sourceFile2);
 
-        invalidateCachedSourceFile(testFileName);
+        invalidateParsedSourceFile(testFileName);
 
         expect(getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1')).toBeUndefined();
         expect(getCachedSourceFile(otherFileName, ts.ScriptTarget.ESNext, '1')).toBe(sourceFile2);
@@ -209,7 +209,7 @@ describe('sourceFileCache', () => {
 
       it('should handle invalidating non-existent file', () => {
         // Should not throw
-        invalidateCachedSourceFile('/project/src/nonexistent.ts');
+        invalidateParsedSourceFile('/project/src/nonexistent.ts');
       });
     });
   });

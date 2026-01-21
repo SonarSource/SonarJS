@@ -21,7 +21,7 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
-import { analyzeSingleFile } from './analyzeFile.js';
+import { analyzeFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from '../../program/tsconfig/utils.js';
 import ts from 'typescript';
@@ -68,7 +68,7 @@ export async function analyzeWithIncrementalProgram(
       programOptionsFromClosestTsconfig(filename, results, foundProgramOptions, pendingFiles),
     );
 
-    await analyzeSingleFile(
+    await analyzeFile(
       filename,
       files[filename],
       program,
@@ -135,12 +135,14 @@ function programOptionsFromClosestTsconfig(
   try {
     info('No tsconfig found for files, using default options');
     // Fallback: use default options if no tsconfig found
+    // TODO(JS-1138): File order can affect program combinations - improve strategy
     return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], getBaseDir());
   } catch (e) {
     error(`Failed to generate program from merged config: ${e}`);
   }
 }
 
+// TODO(JS-1139): Optimize by only checking tsconfigs in ancestor directories
 function pickBestMatchTsConfig(tsconfigs: string[], file: string) {
   let bestTsConfig: string | undefined = undefined;
   for (const tsconfig of tsconfigs) {

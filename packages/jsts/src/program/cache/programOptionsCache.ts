@@ -19,22 +19,33 @@ import type { ProgramOptions } from '../tsconfig/options.js';
 
 /**
  * Cache for createProgramOptions() results
- * Key: tsConfig path and hash of tsconfigContents (if provided)
+ * Key: tsConfig path + tsconfigContents (if provided)
  */
 const programOptionsCache = new Map<string, ProgramOptions>();
+
+function buildCacheKey(tsConfig: string, tsconfigContents?: string): string {
+  return `${tsConfig}:${tsconfigContents}`;
+}
 
 /**
  * Get cached ProgramOptions from createProgramOptions()
  */
-export function getCachedProgramOptions(cacheKey: string): ProgramOptions | undefined {
-  return programOptionsCache.get(cacheKey);
+export function getCachedProgramOptions(
+  tsConfig: string,
+  tsconfigContents?: string,
+): ProgramOptions | undefined {
+  return programOptionsCache.get(buildCacheKey(tsConfig, tsconfigContents));
 }
 
 /**
  * Store ProgramOptions in cache for createProgramOptions()
  */
-export function setCachedProgramOptions(cacheKey: string, options: ProgramOptions): void {
-  programOptionsCache.set(cacheKey, options);
+export function setCachedProgramOptions(
+  tsConfig: string,
+  options: ProgramOptions,
+  tsconfigContents?: string,
+): void {
+  programOptionsCache.set(buildCacheKey(tsConfig, tsconfigContents), options);
 }
 
 /**

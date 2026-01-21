@@ -26,7 +26,8 @@ const sourceFileContentCache = new Map<string, string>();
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
  *
- * This cache stores parsed ASTs keyed by (fileName, scriptTarget, contentHash).
+ * This cache stores parsed ASTs keyed by (fileName, scriptTarget).
+ * The contentHash is stored as a value to validate cache freshness.
  * Multiple programs can share the same parsed AST if they have the same target.
  *
  * IMPLEMENTATION NOTE: We cache SourceFiles per ScriptTarget to preserve the
@@ -95,6 +96,9 @@ export function getCachedSourceFile(
   }
 
   const cached = targetCache.get(scriptTarget);
+  // If hash doesn't match, return undefined (cache miss). The caller will parse
+  // the file and call setCachedSourceFile, which overwrites the stale entry.
+  // This makes the cache self-healing - stale entries cause one miss, then get fixed.
   if (cached?.contentHash === contentHash) {
     return cached.sourceFile;
   }
@@ -125,11 +129,11 @@ export function setCachedSourceFile(
 }
 
 /**
- * Invalidate cached SourceFile for a specific file (all targets)
+ * Invalidate parsed SourceFile AST cache for a specific file (all targets)
  * Used when file content changes
  * @param fileName Normalized file path
  */
-export function invalidateCachedSourceFile(fileName: string): void {
+export function invalidateParsedSourceFile(fileName: string): void {
   parsedSourceFileCache.delete(fileName);
 }
 

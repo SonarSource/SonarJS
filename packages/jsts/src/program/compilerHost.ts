@@ -21,7 +21,7 @@ import {
   getCurrentFilesContext,
   getCachedSourceFile,
   setCachedSourceFile,
-  invalidateCachedSourceFile,
+  invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
 
 interface FsCall {
@@ -38,6 +38,8 @@ interface FsCall {
  * - Incremental file updates for builder programs
  */
 export class IncrementalCompilerHost implements ts.CompilerHost {
+  // Map from normalized file path to version number (incremented on file changes).
+  // Used by TypeScript's builder programs for change detection.
   private readonly fileVersions = new Map<string, number>();
   private readonly modifiedFiles = new Set<string>();
   private fsCallTracker: FsCall[] = [];
@@ -71,7 +73,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     this.modifiedFiles.add(normalized);
 
     // Invalidate global parsed SourceFile cache for this file (all targets)
-    invalidateCachedSourceFile(normalized);
+    invalidateParsedSourceFile(normalized);
 
     return true; // File was updated
   }
@@ -141,7 +143,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (content) {
       cache.set(normalized, content);
 
-      // Update files object if entry exists (keep cache and files in sync)
+      // Update files object if entry already exists (keep cache and files in sync).
+      // We only update existing entries - we don't create new ones as the filesContext
+      // represents files explicitly provided by the caller.
       if (filesContext?.[fileName]) {
         filesContext[fileName].fileContent = content;
       }
@@ -167,6 +171,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
 
     // 3. Fallback to filesystem
+    // TODO: Consider caching negative results to avoid repeated filesystem checks for missing files
     this.trackFsCall('fileExists-disk', fileName);
     return this.baseHost.fileExists(fileName);
   }
@@ -200,8 +205,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const content = this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
     if (content) {
-      this.trackFsCall('getSourceFile', fileName);
-
       // Parse the file
       sourceFile = ts.createSourceFile(
         fileName,
@@ -213,7 +216,8 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       // Store in global cache for reuse across programs
       setCachedSourceFile(normalized, scriptTarget, contentHash, sourceFile);
     } else {
-      // Fallback to base host for files we don't have
+      // Fallback to base host for files not in our cache/context (e.g., TypeScript lib files).
+      // readFile returns undefined for these, but baseHost can resolve them.
       this.trackFsCall('getSourceFile-disk-fallback', fileName);
       sourceFile = this.baseHost.getSourceFile(
         fileName,

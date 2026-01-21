@@ -15,13 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir } from '../../../../shared/src/helpers/configuration.js';
-import { debug } from '../../../../shared/src/helpers/logging.js';
+import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { debug, warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { analyzeSingleFile } from './analyzeFile.js';
+import { analyzeFile } from './analyzeFile.js';
 
 /**
  * Analyzes files without type-checking.
@@ -43,8 +43,15 @@ export async function analyzeWithoutProgram(
     if (isAnalysisCancelled()) {
       return;
     }
-    debug(`File not part of any tsconfig.json: ${relative(getBaseDir(), filename)}`);
-    await analyzeSingleFile(
+    const relativePath = relative(getBaseDir(), filename);
+    if (isJsTsFile(filename)) {
+      warn(
+        `JS/TS file analyzed without type-checking (not part of any tsconfig.json): ${relativePath}`,
+      );
+    } else {
+      debug(`File not part of any tsconfig.json: ${relativePath}`);
+    }
+    await analyzeFile(
       filename,
       files[filename],
       undefined,

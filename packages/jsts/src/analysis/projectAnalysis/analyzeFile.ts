@@ -34,7 +34,7 @@ import ts from 'typescript';
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
  * This is the common entry point for all analysis paths (with program, without program, with cache).
  */
-export async function analyzeSingleFile(
+export async function analyzeFile(
   fileName: string,
   file: JsTsFiles[string],
   program: ts.Program | undefined,
@@ -53,7 +53,7 @@ export async function analyzeSingleFile(
   };
 
   // Analyze the file (with error handling)
-  const result = await analyzeFile(input);
+  const result = await analyzeInput(input);
 
   if (pendingFiles) {
     pendingFiles.delete(fileName);
@@ -65,7 +65,7 @@ export async function analyzeSingleFile(
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
-async function analyzeFile(input: JsTsAnalysisInput): Promise<FileResult> {
+async function analyzeInput(input: JsTsAnalysisInput): Promise<FileResult> {
   try {
     return await getAnalyzerForFile(input.filePath)(input);
   } catch (e) {

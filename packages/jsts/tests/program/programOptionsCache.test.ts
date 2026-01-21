@@ -36,17 +36,16 @@ describe('programOptionsCache', () => {
 
   describe('getCachedProgramOptions', () => {
     it('should return undefined for cache miss', () => {
-      const result = getCachedProgramOptions('/project/tsconfig.json:undefined');
+      const result = getCachedProgramOptions('/project/tsconfig.json');
       expect(result).toBeUndefined();
     });
 
     it('should return cached options for cache hit', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
       const options = createProgramOptions(tsConfig);
-      const cacheKey = `${tsConfig}:custom`;
 
-      setCachedProgramOptions(cacheKey, options);
-      const result = getCachedProgramOptions(cacheKey);
+      setCachedProgramOptions(tsConfig, options, 'custom');
+      const result = getCachedProgramOptions(tsConfig, 'custom');
 
       expect(result).toBe(options);
     });
@@ -56,11 +55,10 @@ describe('programOptionsCache', () => {
     it('should store options in cache', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
       const options = createProgramOptions(tsConfig);
-      const cacheKey = `${tsConfig}:custom`;
 
-      setCachedProgramOptions(cacheKey, options);
+      setCachedProgramOptions(tsConfig, options, 'custom');
 
-      expect(getCachedProgramOptions(cacheKey)).toBe(options);
+      expect(getCachedProgramOptions(tsConfig, 'custom')).toBe(options);
     });
 
     it('should handle different cache keys for same tsconfig with different contents', () => {
@@ -72,14 +70,11 @@ describe('programOptionsCache', () => {
 
       const options2 = createProgramOptions(tsConfig);
 
-      const cacheKey1 = `${tsConfig}:content1`;
-      const cacheKey2 = `${tsConfig}:content2`;
+      setCachedProgramOptions(tsConfig, options1, 'content1');
+      setCachedProgramOptions(tsConfig, options2, 'content2');
 
-      setCachedProgramOptions(cacheKey1, options1);
-      setCachedProgramOptions(cacheKey2, options2);
-
-      expect(getCachedProgramOptions(cacheKey1)).toBe(options1);
-      expect(getCachedProgramOptions(cacheKey2)).toBe(options2);
+      expect(getCachedProgramOptions(tsConfig, 'content1')).toBe(options1);
+      expect(getCachedProgramOptions(tsConfig, 'content2')).toBe(options2);
     });
 
     it('should overwrite existing cache entry', () => {
@@ -91,12 +86,11 @@ describe('programOptionsCache', () => {
       clearTsConfigContentCache();
 
       const options2 = createProgramOptions(tsConfig2);
-      const cacheKey = 'shared-key';
 
-      setCachedProgramOptions(cacheKey, options1);
-      setCachedProgramOptions(cacheKey, options2);
+      setCachedProgramOptions('shared-key', options1);
+      setCachedProgramOptions('shared-key', options2);
 
-      expect(getCachedProgramOptions(cacheKey)).toBe(options2);
+      expect(getCachedProgramOptions('shared-key')).toBe(options2);
     });
   });
 

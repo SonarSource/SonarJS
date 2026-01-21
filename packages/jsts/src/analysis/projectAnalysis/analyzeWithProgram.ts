@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { analyzeSingleFile } from './analyzeFile.js';
+import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
@@ -59,8 +59,9 @@ export async function analyzeWithProgram(
   const processedTSConfigs: Set<string> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
 
-  // Process tsconfigs, discovering references as we go
-  // Iterator calls next() on each iteration, so newly added references are automatically processed
+  // Process tsconfigs, discovering project references as we go.
+  // When a tsconfig has project references, we add them via addDiscoveredTsConfig(),
+  // and they will be included in this iteration since getTsConfigs() returns a live iterable.
   for (const tsConfig of tsconfigs) {
     if (isAnalysisCancelled()) {
       return;
@@ -98,7 +99,8 @@ export async function analyzeWithProgram(
   if (foundProgramOptions.some(options => options.missingTsConfig)) {
     results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);
   }
-  // Clear caches after SonarQube analysis (single-run, don't persist)
+  // Clear caches after SonarQube analysis to free memory (single-run, don't persist).
+  // Note: analyzeWithIncrementalProgram (SonarLint) intentionally keeps caches for subsequent requests.
   const cacheManager = getProgramCacheManager();
   const stats = cacheManager.getCacheStats();
   if (stats.size > 0) {
@@ -140,7 +142,7 @@ async function analyzeFilesFromEntryPoint(
       return;
     }
 
-    await analyzeSingleFile(
+    await analyzeFile(
       fileName,
       files[fileName],
       tsProgram,
@@ -213,7 +215,7 @@ async function analyzeFilesFromTsConfig(
       return;
     }
 
-    await analyzeSingleFile(
+    await analyzeFile(
       fileName,
       files[fileName],
       tsProgram,
