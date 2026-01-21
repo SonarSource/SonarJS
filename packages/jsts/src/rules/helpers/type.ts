@@ -143,8 +143,38 @@ export function isUndefinedOrNull(node: estree.Node, services: RequiredParserSer
 export function isThenable(node: estree.Node, services: RequiredParserServices) {
   const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
   const checker = services.program.getTypeChecker();
-  const tp = checker.getTypeAtLocation(mapped);
-  const thenProperty = tp.getProperty('then');
+  return hasThenMethod(checker.getTypeAtLocation(mapped), checker);
+}
+
+/**
+ * Checks if a node's type is either:
+ * - Thenable (Promise-like), OR
+ * - A union where ALL members are either thenable or "nothing" types (void, undefined, null)
+ *
+ * This is useful for rules like S3735 that allow voiding Promise operations,
+ * including cases like optional chaining (Promise<T> | undefined) or
+ * optional async callbacks (() => void | Promise<void>).
+ */
+export function isThenableOrVoidUnion(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const type = getTypeFromTreeNode(node, services);
+  const unionTypes = type.isUnion() ? type.types : [type];
+  let hasThenable = false;
+  let allThenableOrVoid = true;
+
+  for (const unionType of unionTypes) {
+    const isThenable = hasThenMethod(unionType, checker);
+    const isNothingType =
+      (unionType.flags & (ts.TypeFlags.Void | ts.TypeFlags.Undefined | ts.TypeFlags.Null)) !== 0;
+    hasThenable ||= isThenable;
+    allThenableOrVoid &&= isThenable || isNothingType;
+  }
+
+  return hasThenable && allThenableOrVoid;
+}
+
+function hasThenMethod(type: ts.Type, checker: ts.TypeChecker): boolean {
+  const thenProperty = type.getProperty('then');
   if (!thenProperty) {
     return false;
   }
