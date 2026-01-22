@@ -1,0 +1,76 @@
+name: Automated Release
+on:
+  workflow_dispatch:
+    inputs:
+      short-description:
+        description: "Short description for the REL ticket"
+        required: true
+        type: string
+      sq-ide-short-description:
+        description: "Short summary of SQ IDE related changes (optional, falls back to short-description)"
+        required: false
+        type: string
+      sqc-integration:
+        description: "Integrate into SQC"
+        type: boolean
+        default: true
+      sqs-integration:
+        description: "Integrate into SQS"
+        type: boolean
+        default: true
+      branch:
+        description: "Branch from which to do the release"
+        required: true
+        default: "master"
+        type: string
+      new-version:
+        description: "New version to release (without -SNAPSHOT; if left empty, the current minor version will be auto-incremented)"
+        required: false
+        type: string
+      rule-props-changed:
+        description: >
+          "@RuleProperty" changed? See SC-4654
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    name: Release
+    uses: SonarSource/release-github-actions/.github/workflows/automated-release.yml@v1
+    permissions:
+      statuses: read
+      id-token: write
+      contents: write
+      actions: write
+      pull-requests: write
+    with:
+      project-name: "SonarJS"
+      plugin-name: "javascript"
+      jira-project-key: "JS"
+      rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
+      short-description: ${{ github.event.inputs.short-description }}
+      sq-ide-short-description: ${{ github.event.inputs.sq-ide-short-description }}
+      new-version: ${{ github.event.inputs.new-version }}
+      sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
+      sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
+      create-slvs-ticket: true
+      create-slvscode-ticket: true
+      create-sle-ticket: true
+      create-sli-ticket: true
+      branch: ${{ github.event.inputs.branch }}
+      pm-email: "gabriel.vivas@sonarsource.com"
+      slack-channel: "ask-squad-web"
+      release-automation-secret-name: "SonarJS-release-automation"
+      verbose: true
+      use-jira-sandbox: false
+      is-draft-release: true
+
+  bump_versions:
+    name: Bump versions
+    needs: release
+    uses: ./.github/workflows/bump-versions.yml
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      version: ${{ needs.release.outputs.new-version }}
