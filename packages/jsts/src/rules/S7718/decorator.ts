@@ -14,7 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/unicorn.js';
-import { decorate } from './decorator.js';
+// https://sonarsource.github.io/rspec/#/rspec/S7718/javascript
 
-export const rule = decorate(rules['catch-error-name']);
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import * as meta from './generated-meta.js';
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(meta, rule.meta),
+    },
+    (context, descriptor) => {
+      // TODO: Add filtering logic here to fix false positives
+      // For now, pass through all reports unchanged
+      context.report(descriptor);
+    },
+  );
+}
