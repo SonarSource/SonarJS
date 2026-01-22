@@ -1,17 +1,5 @@
 {
-"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
-112
-],
 "vuetify:packages/vuetify/src/components/VList/VListGroup.tsx": [
 112
-],
-"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
-123
-],
-"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
-130
-],
-"vuetify:packages/vuetify/src/composables/icons.tsx": [
-116
 ]
 }

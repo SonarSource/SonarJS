@@ -2,9 +2,6 @@
 "ant-design:components/_util/transButton.tsx": [
 60
 ],
-"ant-design:components/divider/index.tsx": [
-57
-],
 "ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
 466
 ]
