@@ -42,11 +42,17 @@ superagent.auth(creds);
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 
 const app = express();
 app.disable('x-powered-by');
 app.use(cookieParser('mySecretKey123'));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(session({
+  secret: 'sample secret',
+  name: 'sample.cookie',
+  cookie: { path: '/' }
+}))
 
 cookieParser.JSONCookie('{"data":"value"}', 'secret123');
 const jsonSecret = 'secret';
