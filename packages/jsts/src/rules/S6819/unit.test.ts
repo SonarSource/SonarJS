@@ -148,6 +148,43 @@ describe('S6819', () => {
             </div>
           `,
         },
+        // Pattern 7: role="status" with aria-live on span element
+        // From ruling: vuetify VBadge.tsx uses span for badges with status
+        {
+          code: `
+            <span
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label="3 new notifications"
+            >
+              3
+            </span>
+          `,
+        },
+        // Pattern 8: role="radio" with aria-checked on li element
+        // From ruling: desktop segmented-item.tsx uses li for radio group items
+        {
+          code: `
+            <li
+              role="radio"
+              id="option-1"
+              aria-checked="true"
+              onClick={handleClick}
+            >
+              <div className="title">Option 1</div>
+            </li>
+          `,
+        },
+        // Pattern 9: role="separator" with conditional children (from ant-design divider)
+        // The divider always has the JSX expression as a child node
+        {
+          code: `
+            <div className="divider" role="separator">
+              {children && <span className="divider-inner-text">{children}</span>}
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: div should use semantic element
@@ -163,6 +200,50 @@ describe('S6819', () => {
         // True positive: div should use nav
         {
           code: `<div role="navigation">content</div>`,
+          errors: 1,
+        },
+        // True positive: div with role="group" should use semantic element
+        // From ruling: desktop commit-message.tsx, undo-commit.tsx
+        // Per proposal: HTML role="group" should use <fieldset>, <section>, etc.
+        {
+          code: `<div role="group" aria-label="Create commit">content</div>`,
+          errors: 1,
+        },
+        // True positive: a with role="button" should use button element
+        // From ruling: desktop header.tsx uses <a role="button">
+        {
+          code: `<a role="button" aria-label="close" onClick={handleClose}>X</a>`,
+          errors: 1,
+        },
+        // True positive: div with role="checkbox" without aria-checked
+        // From ruling: file-for-rules S6807.js
+        {
+          code: `<div role="checkbox">Unchecked</div>`,
+          errors: 1,
+        },
+        // True positive: role="separator" without children should use <hr>
+        {
+          code: `<div role="separator" className="divider" />`,
+          errors: 1,
+        },
+        // True positive: role="radio" without aria-checked should use input
+        {
+          code: `<div role="radio">Option</div>`,
+          errors: 1,
+        },
+        // True positive: role="status" without aria-live should use output
+        {
+          code: `<div role="status">Status</div>`,
+          errors: 1,
+        },
+        // True positive: role="slider" without complete aria-value attributes
+        {
+          code: `<div role="slider" aria-valuemin={0}>Slider</div>`,
+          errors: 1,
+        },
+        // True positive: svg with role="img" but missing aria-hidden
+        {
+          code: `<svg role="img"><path d="M0 0" /></svg>`,
           errors: 1,
         },
       ],
