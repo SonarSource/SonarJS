@@ -59,7 +59,7 @@ jobs:
       create-sli-ticket: true
       branch: ${{ github.event.inputs.branch }}
       pm-email: "gabriel.vivas@sonarsource.com"
-      slack-channel: "squad-web-private"
+      slack-channel: "ask-squad-web"
       release-automation-secret-name: "SonarJS-release-automation"
       verbose: true
       use-jira-sandbox: false
