@@ -21,6 +21,8 @@ import type estree from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,
+  getProperty,
+  getValueOfExpression,
   report,
   toSecondaryLocation,
   IssueLocation,
@@ -50,6 +52,12 @@ const secretSignatures: Record<string, [number]> = {
   'jsonwebtoken.verify': [1],
   'node-jose.JWK.asKey': [0],
   'superagent.auth': [0],
+};
+
+// Dictionary with fully qualified names of functions, argument index containing
+// the options object, and property name(s) that hold the secret.
+const secretObjectSignatures: Record<string, { argIndex: number; propertyName: string }> = {
+  'express-session': { argIndex: 0, propertyName: 'secret' },
 };
 
 export const rule: Rule.RuleModule = {
@@ -116,6 +124,33 @@ export const rule: Rule.RuleModule = {
               );
             }
           });
+        }
+
+        // Check for secrets passed as object properties
+        if (fqn && secretObjectSignatures.hasOwnProperty(fqn)) {
+          const { argIndex, propertyName } = secretObjectSignatures[fqn];
+          if (callExpression.arguments.length > argIndex) {
+            const arg = callExpression.arguments[argIndex];
+            const objectExpr = getValueOfExpression(context, arg, 'ObjectExpression');
+            if (objectExpr) {
+              const secretProperty = getProperty(objectExpr, propertyName, context);
+              if (secretProperty && secretProperty.value.type !== 'SpreadElement') {
+                const secretValue = secretProperty.value as estree.Expression;
+                if (isHardcodedString(secretValue)) {
+                  const secondaryLocations: IssueLocation[] = getSecondaryNode(secretValue);
+
+                  report(
+                    context,
+                    {
+                      message: 'Revoke and change this password, as it is compromised.',
+                      loc: callExpression.callee.loc as estree.SourceLocation,
+                    },
+                    secondaryLocations,
+                  );
+                }
+              }
+            }
+          }
         }
       },
     };

@@ -103,3 +103,12 @@ const jwtSecret2 = 'secret';
 //                 ^^^^^^^^ > {{Hardcoded value assigned here}}
   jwt.verify(tokenStr, jwtSecret2); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^
+
+import session from 'express-session';
+  session({ secret: 'hardcoded_secret', name: 'connect.sid', cookie: { path: '/' } }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^
+session({ secret: process.env.SESSION_SECRET, name: 'connect.sid' });
+const sessionSecret = 'beautiful dog';
+//                    ^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  session({ secret: sessionSecret }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^
