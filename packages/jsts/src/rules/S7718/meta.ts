@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7718/javascript
-export const implementation = 'decorated';
+export const implementation = 'external';
 export const eslintId = 'catch-error-name';
-export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'catch-error-name' }];
+export const externalPlugin = 'unicorn';
 export * from './config.js';
 export const quickFixMessage = 'Fix error name';

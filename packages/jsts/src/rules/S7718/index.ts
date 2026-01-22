@@ -15,6 +15,4 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/unicorn.js';
-import { decorate } from './decorator.js';
-
-export const rule = decorate(rules['catch-error-name']);
+export const rule = rules['catch-error-name'];
