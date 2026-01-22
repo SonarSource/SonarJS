@@ -127,49 +127,54 @@ import { Notice } from 'obsidian';
 new Notice('Hello from Obsidian plugin!');`,
           },
           {
-            // False Positive Pattern: Constructor with document.querySelector argument
-            // The constructor receives a DOM element, indicating it attaches to or initializes with
-            // that element as a side effect. The object reference is not needed.
+            // DOM attachment: document.querySelector argument
             code: `new NewBranchForm(document.querySelector('.js-create-branch-form'));`,
           },
           {
-            // False Positive Pattern: Constructor with document.getElementById argument
-            // The constructor receives a DOM element, indicating DOM attachment side effects.
+            // DOM attachment: document.getElementById argument
             code: `new SketchLoader(document.getElementById('js-sketch-viewer'));`,
           },
           {
-            // False Positive Pattern: Constructor with jQuery selector argument
-            // The constructor receives a jQuery-wrapped DOM element, indicating DOM attachment.
+            // DOM attachment: jQuery $() selector
             code: `new IssuableForm($('.merge-request-form'));`,
           },
           {
-            // False Positive Pattern: Constructor with property access on querySelector result
-            // Accessing dataset or properties from a DOM element still indicates DOM-related initialization.
+            // DOM attachment: property access on querySelector result
             code: `new CommitsList(document.querySelector('.js-project-commits-show').dataset.commitsLimit);`,
           },
           {
-            // False Positive Pattern: Constructor with document.getElementsByClassName argument
+            // DOM attachment: getElementsByClassName
             code: `new ElementHandler(document.getElementsByClassName('my-class'));`,
           },
           {
-            // False Positive Pattern: Constructor with document.getElementsByTagName argument
+            // DOM attachment: getElementsByTagName
             code: `new TagHandler(document.getElementsByTagName('div'));`,
           },
           {
-            // False Positive Pattern: Constructor with jQuery() selector argument
+            // DOM attachment: jQuery() selector
             code: `new FormHandler(jQuery('#my-form'));`,
           },
           {
-            // False Positive Pattern: Constructor with this.$() selector (Backbone/Marionette pattern)
+            // DOM attachment: this.$() (Backbone/Marionette pattern)
             code: `new SubView(this.$('.sub-element'));`,
           },
           {
-            // False Positive Pattern: Constructor with DOM selector nested in object argument
+            // DOM attachment: selector nested in object argument
             code: `new ComponentInit({ el: document.querySelector('.component') });`,
           },
           {
-            // False Positive Pattern: Constructor with DOM selector as second argument
+            // DOM attachment: selector as second argument
             code: `new Widget('widget-name', document.getElementById('container'));`,
+          },
+          {
+            // DOM attachment: variable initialized from DOM selection
+            code: `const element = document.querySelector('.container');
+new Widget(element);`,
+          },
+          {
+            // DOM attachment: variable with TypeScript type assertion
+            code: `const el = document.getElementById('app') as HTMLElement;
+new AppController(el);`,
           },
         ],
         invalid: [
