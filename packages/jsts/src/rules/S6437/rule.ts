@@ -134,7 +134,7 @@ export const rule: Rule.RuleModule = {
             const objectExpr = getValueOfExpression(context, arg, 'ObjectExpression');
             if (objectExpr) {
               const secretProperty = getProperty(objectExpr, propertyName, context);
-              if (secretProperty && secretProperty.value.type !== 'SpreadElement') {
+              if (secretProperty) {
                 const secretValue = secretProperty.value as estree.Expression;
                 if (isHardcodedString(secretValue)) {
                   const secondaryLocations: IssueLocation[] = getSecondaryNode(secretValue);
