@@ -126,6 +126,51 @@ new AwsProvider(this, 'aws', {
 import { Notice } from 'obsidian';
 new Notice('Hello from Obsidian plugin!');`,
           },
+          {
+            // False Positive Pattern: Constructor with document.querySelector argument
+            // The constructor receives a DOM element, indicating it attaches to or initializes with
+            // that element as a side effect. The object reference is not needed.
+            code: `new NewBranchForm(document.querySelector('.js-create-branch-form'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with document.getElementById argument
+            // The constructor receives a DOM element, indicating DOM attachment side effects.
+            code: `new SketchLoader(document.getElementById('js-sketch-viewer'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with jQuery selector argument
+            // The constructor receives a jQuery-wrapped DOM element, indicating DOM attachment.
+            code: `new IssuableForm($('.merge-request-form'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with property access on querySelector result
+            // Accessing dataset or properties from a DOM element still indicates DOM-related initialization.
+            code: `new CommitsList(document.querySelector('.js-project-commits-show').dataset.commitsLimit);`,
+          },
+          {
+            // False Positive Pattern: Constructor with document.getElementsByClassName argument
+            code: `new ElementHandler(document.getElementsByClassName('my-class'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with document.getElementsByTagName argument
+            code: `new TagHandler(document.getElementsByTagName('div'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with jQuery() selector argument
+            code: `new FormHandler(jQuery('#my-form'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with this.$() selector (Backbone/Marionette pattern)
+            code: `new SubView(this.$('.sub-element'));`,
+          },
+          {
+            // False Positive Pattern: Constructor with DOM selector nested in object argument
+            code: `new ComponentInit({ el: document.querySelector('.component') });`,
+          },
+          {
+            // False Positive Pattern: Constructor with DOM selector as second argument
+            code: `new Widget('widget-name', document.getElementById('container'));`,
+          },
         ],
         invalid: [
           {
