@@ -176,6 +176,20 @@ new Widget(element);`,
             code: `const el = document.getElementById('app') as HTMLElement;
 new AppController(el);`,
           },
+          {
+            // DOM attachment: variable from querySelector on custom document object
+            code: `let myDocument = getDocument();
+let eBody = myDocument.querySelector('body');
+new DragInstance(params, startEvent, eBody);`,
+          },
+          {
+            // DOM attachment: nested $() calls in object property values
+            code: `new Browser('browser', 'window', window, {titleElement: $('path_content'), valueElement: $('value_content')});`,
+          },
+          {
+            // DOM attachment: this.$() in object property (Backbone/Marionette SelectList pattern)
+            code: `new SelectList({ el: this.$('#groups-users'), width: '100%' });`,
+          },
         ],
         invalid: [
           {
