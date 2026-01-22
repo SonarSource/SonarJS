@@ -64,6 +64,7 @@ jobs:
       verbose: true
       use-jira-sandbox: false
       is-draft-release: true
+      runner-environment: github-ubuntu-latest-s
 
   bump_versions:
     name: Bump versions
