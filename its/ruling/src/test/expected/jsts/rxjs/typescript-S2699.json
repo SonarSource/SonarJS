@@ -27,9 +27,6 @@
 27,
 37
 ],
-"rxjs:spec/observables/using-spec.ts": [
-8
-],
 "rxjs:spec/observables/zip-spec.ts": [
 585,
 596,
@@ -37,9 +34,6 @@
 618,
 628,
 637
-],
-"rxjs:spec/operators/auditTime-spec.ts": [
-27
 ],
 "rxjs:spec/operators/filter-spec.ts": [
 282
@@ -75,15 +69,5 @@
 231,
 238,
 249
-],
-"rxjs:spec/schedulers/AnimationFrameScheduler-spec.ts": [
-28,
-39,
-79
-],
-"rxjs:spec/schedulers/AsapScheduler-spec.ts": [
-28,
-39,
-79
 ]
 }
