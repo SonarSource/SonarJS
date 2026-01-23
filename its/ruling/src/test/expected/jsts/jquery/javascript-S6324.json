@@ -2,8 +2,5 @@
 "jquery:build/tasks/dist.js": [
 36,
 36
-],
-"jquery:src/selector/escapeSelector.js": [
-5
 ]
 }
