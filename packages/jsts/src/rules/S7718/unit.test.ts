@@ -123,6 +123,20 @@ describe('S7718', () => {
           options: defaultOptions,
           errors: [{ message: /The catch parameter `er` should be named `error`/ }],
         },
+        // Names with err prefix but not suffix
+        {
+          code: `try { foo(); } catch (err2) { console.log(err2); }`,
+          output: `try { foo(); } catch (error) { console.log(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `err2` should be named `error`/ }],
+        },
+        // Names ending with 's' not matching err suffix
+        {
+          code: `try { foo(); } catch (errs) { console.log(errs); }`,
+          output: `try { foo(); } catch (error) { console.log(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `errs` should be named `error`/ }],
+        },
         // Promise .catch() handler non-compliant names
         {
           code: `promise.catch(badName => console.log(badName));`,
