@@ -31,7 +31,7 @@ jobs:
     with:
       publishToBinaries: true
       mavenCentralSync: true
-      slackChannel: squad-web
+      slackChannel: ask-squad-web
       version: ${{ inputs.version || github.event.release.tag_name }}
       releaseId: ${{ inputs.releaseId || github.event.release.id }}
       dryRun: ${{ inputs.dryRun == true }}

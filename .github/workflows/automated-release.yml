@@ -63,7 +63,6 @@ jobs:
       release-automation-secret-name: "SonarJS-release-automation"
       verbose: true
       use-jira-sandbox: false
-      is-draft-release: true
 
   bump_versions:
     name: Bump versions
