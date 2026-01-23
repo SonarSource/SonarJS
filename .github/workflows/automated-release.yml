@@ -36,7 +36,7 @@ on:
 jobs:
   release:
     name: Release
-    uses: SonarSource/release-github-actions/.github/workflows/automated-release.yml@1.1.3
+    uses: SonarSource/release-github-actions/.github/workflows/automated-release.yml@v1
     permissions:
       statuses: read
       id-token: write
