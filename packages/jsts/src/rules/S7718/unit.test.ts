@@ -137,6 +137,34 @@ describe('S7718', () => {
           options: defaultOptions,
           errors: [{ message: /The catch parameter `errs` should be named `error`/ }],
         },
+        // Short form with number suffix (from ruling analysis)
+        {
+          code: `try { foo(); } catch (e2) { console.log(e2); }`,
+          output: `try { foo(); } catch (error) { console.log(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `e2` should be named `error`/ }],
+        },
+        // Plural form 'errors' (common pattern in ruling data)
+        {
+          code: `try { foo(); } catch (errors) { console.log(errors); }`,
+          output: `try { foo(); } catch (error) { console.log(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `errors` should be named `error`/ }],
+        },
+        // 'response' - common but non-compliant name (from ruling analysis)
+        {
+          code: `try { foo(); } catch (response) { console.log(response); }`,
+          output: `try { foo(); } catch (error) { console.log(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `response` should be named `error`/ }],
+        },
+        // 'reason' - common in promise rejection handlers (from ruling analysis)
+        {
+          code: `promise.then(res => res, reason => console.log(reason));`,
+          output: `promise.then(res => res, error => console.log(error));`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `reason` should be named `error`/ }],
+        },
         // Promise .catch() handler non-compliant names
         {
           code: `promise.catch(badName => console.log(badName));`,
