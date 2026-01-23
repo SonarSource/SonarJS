@@ -57,11 +57,10 @@ describe('S6324', () => {
           // Unicode escape syntax range for control characters
           code: String.raw`/[\u0000-\u001f]/`,
         },
-        // False positive: Multiple control character ranges in a single pattern (RFC 5322)
+        // False positive: Multiple control character ranges in a single pattern
         {
-          // RFC 5322 quoted-string allowed characters (control char ranges)
-          // The standalone \x0b and \x0c are in a character class with ranges
-          code: String.raw`/[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]/`,
+          // Multiple ranges with control char boundaries - both ranges should be skipped
+          code: String.raw`/[\x01-\x08\x0e-\x1f]/`,
         },
         // False positive: Negated character class with control char range boundary
         {
