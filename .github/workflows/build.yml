@@ -181,7 +181,7 @@ jobs:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report,sign,release -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
