@@ -67,6 +67,19 @@ describe('S6324', () => {
           // Pattern to match non-ASCII characters using control char as range start
           code: String.raw`/[^\u0000-\u007F]/g`,
         },
+        // Additional test cases from ruling analysis:
+        {
+          // CSS escaping pattern with control char ranges (from jquery/sizzle)
+          code: String.raw`/([\0-\x1f\x7f]|^-?\d)/g`,
+        },
+        {
+          // JSON string escaping with control char range (from mootools-core)
+          code: String.raw`/[\x00-\x1f\\"]/g`,
+        },
+        {
+          // String inspection with control char range (from prototype.js)
+          code: String.raw`/[\x00-\x1f\\]/g`,
+        },
       ],
       invalid: [
         {
@@ -138,6 +151,31 @@ describe('S6324', () => {
         },
         {
           code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
+          errors: 1,
+        },
+        // Additional invalid cases from ruling analysis:
+        {
+          // Standalone control char in character class (NOT a range boundary)
+          // The \x00 here is standalone, not part of a range like [\x00-\x1f]
+          code: String.raw`/[^#?\x00]*/`,
+          errors: 1,
+        },
+        {
+          // Control characters in alternation pattern (not in character class range)
+          // \u0009 (tab), \u000a (newline), \u000c (form feed), \u000d (carriage return) are all control chars
+          // \u0020 (space) is NOT a control char (value 32 = 0x20, outside 0x00-0x1f range)
+          // Note: EXCEPTIONS only covers '\t' and '\n' as raw strings, not \uXXXX escapes
+          code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
+          errors: 4, // \u0009, \u000a, \u000c, \u000d - all control chars flagged (EXCEPTIONS only match literal \t and \n)
+        },
+        {
+          // Standalone null character match used in HTML parsing
+          code: String.raw`/\u0000/g`,
+          errors: 1,
+        },
+        {
+          // ANSI escape sequence - control char outside of range
+          code: String.raw`/\u001b\[\d\d?m/g`,
           errors: 1,
         },
       ],
