@@ -8,11 +8,6 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
-    inputs:
-      build-number:
-        description: "Build number to use (optional, fetched automatically if not provided)"
-        required: false
-        type: string
   schedule:
     - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
 
@@ -85,8 +80,6 @@ jobs:
     permissions: *read_permissions
     steps:
       - uses: SonarSource/ci-github-actions/get-build-number@master
-        with:
-          build-number: ${{ inputs.build-number }}
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
