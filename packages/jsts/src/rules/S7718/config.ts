@@ -22,13 +22,7 @@ export const fields = [
   [
     {
       field: 'ignore',
-      default: [
-        '^(e|ex)$',
-        '[Ee][Xx][Cc][Ee][Pp][Tt][Ii][Oo][Nn]$',
-        '[Ee][Rr][Rr]$',
-        '^_',
-        '^\\w\\$\\d+$',
-      ],
+      default: [/^(e|ex)$/, /exception$/i, /err$/i, /^_/, /^\w\$\d+$/],
     },
   ],
 ] as const satisfies ESLintConfiguration;
