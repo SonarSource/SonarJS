@@ -88,44 +88,50 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
   const role = roleValue.toLowerCase();
   const elementName = getElementName(node);
 
-  // SVG with role="presentation" or role="img" and aria-hidden="true"
-  if (elementName === 'svg' && (role === 'presentation' || role === 'img')) {
-    const ariaHiddenProp = getProp(attributes, 'aria-hidden');
-    if (ariaHiddenProp) {
-      const ariaHiddenValue = getLiteralPropValue(ariaHiddenProp);
-      if (ariaHiddenValue === true || ariaHiddenValue === 'true') {
-        return true;
-      }
-    }
-  }
+  return (
+    isDecorativeSvg(elementName, role, attributes) ||
+    isLiveRegionStatus(role, attributes) ||
+    isCustomSlider(role, attributes) ||
+    isCustomRadio(role, attributes) ||
+    isSeparatorWithChildren(role, node)
+  );
+}
 
-  // role="status" with aria-live (live region pattern)
-  if (role === 'status' && getProp(attributes, 'aria-live')) {
-    return true;
+function isDecorativeSvg(
+  elementName: string | null,
+  role: string,
+  attributes: JSXOpeningElement['attributes'],
+): boolean {
+  if (elementName !== 'svg' || (role !== 'presentation' && role !== 'img')) {
+    return false;
   }
-
-  // role="slider" with complete aria-value* attributes
-  if (role === 'slider') {
-    if (
-      getProp(attributes, 'aria-valuemin') &&
-      getProp(attributes, 'aria-valuemax') &&
-      getProp(attributes, 'aria-valuenow')
-    ) {
-      return true;
-    }
+  const ariaHiddenProp = getProp(attributes, 'aria-hidden');
+  if (!ariaHiddenProp) {
+    return false;
   }
+  const ariaHiddenValue = getLiteralPropValue(ariaHiddenProp);
+  return ariaHiddenValue === true || ariaHiddenValue === 'true';
+}
 
-  // role="radio" with aria-checked
-  if (role === 'radio' && getProp(attributes, 'aria-checked')) {
-    return true;
-  }
+function isLiveRegionStatus(role: string, attributes: JSXOpeningElement['attributes']): boolean {
+  return role === 'status' && Boolean(getProp(attributes, 'aria-live'));
+}
 
-  // role="separator" with children (since <hr> is a void element)
-  if (role === 'separator' && hasChildren(node)) {
-    return true;
-  }
+function isCustomSlider(role: string, attributes: JSXOpeningElement['attributes']): boolean {
+  return (
+    role === 'slider' &&
+    Boolean(getProp(attributes, 'aria-valuemin')) &&
+    Boolean(getProp(attributes, 'aria-valuemax')) &&
+    Boolean(getProp(attributes, 'aria-valuenow'))
+  );
+}
 
-  return false;
+function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']): boolean {
+  return role === 'radio' && Boolean(getProp(attributes, 'aria-checked'));
+}
+
+function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement): boolean {
+  return role === 'separator' && hasChildren(node);
 }
 
 /**
@@ -143,7 +149,7 @@ function getElementName(node: TSESTree.JSXOpeningElement): string | null {
  */
 function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
   const parent = node.parent;
-  if (parent && parent.type === 'JSXElement') {
+  if (parent?.type === 'JSXElement') {
     return parent.children.length > 0;
   }
   return false;
