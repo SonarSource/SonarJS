@@ -104,6 +104,59 @@ function hasDoneCallbackAssertion(callback: estree.Function, context: Rule.RuleC
 }
 
 /**
+ * Checks if a method call matches valid done assertion patterns.
+ * Returns true if the pattern is recognized as a valid assertion mechanism.
+ */
+function isValidDoneMethodCallPattern(
+  node: estree.CallExpression & {
+    callee: estree.MemberExpression & { property: estree.Identifier };
+  },
+  doneParamName: string,
+  context: Rule.RuleContext,
+): boolean {
+  const methodName = node.callee.property.name;
+
+  // Pattern 2: .catch(done) - done receives rejection error
+  if (
+    methodName === 'catch' &&
+    node.arguments.length === 1 &&
+    isIdentifier(node.arguments[0], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 3: .then(_, done) - done as second argument
+  if (
+    methodName === 'then' &&
+    node.arguments.length >= 2 &&
+    isIdentifier(node.arguments[1], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 4: .subscribe(_, done) - done as second argument (error position)
+  if (
+    methodName === 'subscribe' &&
+    node.arguments.length >= 2 &&
+    isIdentifier(node.arguments[1], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 5: .subscribe({ error: done }) - done in error property
+  if (
+    methodName === 'subscribe' &&
+    node.arguments.length === 1 &&
+    node.arguments[0].type === 'ObjectExpression'
+  ) {
+    const errorProp = getProperty(node.arguments[0], 'error', context);
+    return errorProp != null && isIdentifier(errorProp.value, doneParamName);
+  }
+
+  return false;
+}
+
+/**
  * Recursively searches for valid done assertion patterns.
  */
 function containsValidDoneAssertion(
@@ -119,38 +172,8 @@ function containsValidDoneAssertion(
     }
 
     // Check method call patterns
-    if (isMethodCall(node)) {
-      const methodName = node.callee.property.name;
-
-      // Pattern 2: .catch(done) - done receives rejection error
-      if (methodName === 'catch' && node.arguments.length === 1) {
-        if (isIdentifier(node.arguments[0], doneParamName)) {
-          return true;
-        }
-      }
-
-      // Pattern 3: .then(_, done) - done as second argument
-      if (methodName === 'then' && node.arguments.length >= 2) {
-        if (isIdentifier(node.arguments[1], doneParamName)) {
-          return true;
-        }
-      }
-
-      // Pattern 4 & 5: .subscribe patterns
-      if (methodName === 'subscribe') {
-        // Pattern 4: .subscribe(_, done) - done as second argument (error position)
-        if (node.arguments.length >= 2 && isIdentifier(node.arguments[1], doneParamName)) {
-          return true;
-        }
-
-        // Pattern 5: .subscribe({ error: done }) - done in error property
-        if (node.arguments.length === 1 && node.arguments[0].type === 'ObjectExpression') {
-          const errorProp = getProperty(node.arguments[0], 'error', context);
-          if (errorProp && isIdentifier(errorProp.value, doneParamName)) {
-            return true;
-          }
-        }
-      }
+    if (isMethodCall(node) && isValidDoneMethodCallPattern(node, doneParamName, context)) {
+      return true;
     }
   }
 
