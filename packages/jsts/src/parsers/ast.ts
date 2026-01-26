@@ -81,7 +81,8 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
 function getProtobufShapeForNode(node: TSESTree.Node) {
   let shape: any;
   switch (
-    node.type // NOSONAR S1479 - This switch handles all AST node types and must be exhaustive for complete protobuf serialization
+    // NOSONAR S1479 - This switch handles all AST node types and must be exhaustive for complete protobuf serialization
+    node.type
   ) {
     case 'Program':
       shape = visitProgram(node);
