@@ -136,8 +136,7 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 <!-- NEW (10.15+) -->
 <dependency>
   <groupId>org.sonarsource.javascript</groupId>
-  <artifactId>sonar-javascript-plugin</artifactId>
-  <classifier>api</classifier>
+  <artifactId>api</artifactId>
   <scope>provided</scope>
 </dependency>
 ```
@@ -223,15 +222,22 @@ JavaScriptCheck (deprecated, marker only)
 
 ## Compatibility Matrix
 
-| Compiled Against                      | SQ 9.9 LTA | SQ 25.4 LTA      | SQ 25.6-25.8   | SQ 25.9+       |
-| ------------------------------------- | ---------- | ---------------- | -------------- | -------------- |
-| SonarJS 5.x-6.x (`javascript-checks`) | ✅         | ❌ ClassLoader   | ❌ ClassLoader | ❌ ClassLoader |
-| SonarJS 9.x (`javascript-checks`)     | ✅         | ❌ ClassLoader   | ❌ ClassLoader | ❌ ClassLoader |
-| SonarJS 10.15-10.21 (`api` module)    | ❌         | ✅               | ⚠️             | ⚠️             |
-| SonarJS 10.22-10.26 (`api` module)    | ❌         | ❌ No EslintHook | ✅             | ✅             |
-| SonarJS 11.x (`api` module)           | ❌         | ❌ No EslintHook | ✅             | ✅             |
+> **Note**: Community Edition and Server have different version numbers. See `SONARQUBE_VERSION_MATRIX.md` for details.
 
-**Legend**: ✅ Works | ⚠️ May work with deprecated APIs | ❌ Does not work
+### By SonarJS Version (what you compile against)
+
+| Compiled Against                  | Implements         | Community 25.6-25.11                    | Community 25.12+      | Server 2025.4 LTA                       |
+| --------------------------------- | ------------------ | --------------------------------------- | --------------------- | --------------------------------------- |
+| SonarJS 9.x (`javascript-checks`) | `EslintBasedCheck` | ❌ ClassCastException                   | ❌ ClassCastException | ❌ ClassCastException                   |
+| SonarJS 10.23+ (`api` module)     | `EslintBasedCheck` | ✅                                      | ✅                    | ✅                                      |
+| SonarJS 10.23+ (`api` module)     | `EslintHook` only  | ❌ CheckFactory expects JavaScriptCheck | ✅                    | ❌ CheckFactory expects JavaScriptCheck |
+
+**Key insight**: `JsTsChecks` uses `checkFactory.<JavaScriptCheck>` until SonarJS 11.6.0, then switches to `checkFactory.<EslintHook>`.
+
+- **SonarJS 10.23 - 11.5**: Must implement `EslintBasedCheck` (extends both `EslintHook` and `JavaScriptCheck`)
+- **SonarJS 11.6+**: Can implement `EslintHook` directly
+
+**Legend**: ✅ Works | ❌ Does not work
 
 ---
 
@@ -257,17 +263,18 @@ JavaScriptCheck (deprecated, marker only)
 1. **Change dependency artifact**:
 
    ```xml
-   <artifactId>sonar-javascript-plugin</artifactId>
-   <classifier>api</classifier>
+   <artifactId>api</artifactId>
    ```
 
 2. **Update `CustomRuleRepository`**:
    - Replace `languages()` with `compatibleLanguages()`
    - Use `org.sonar.plugins.javascript.api.Language` enum
 
-3. **Update check classes** (recommended):
-   - Replace `implements EslintBasedCheck` with `implements EslintHook`
-   - Or keep `EslintBasedCheck` (deprecated but functional)
+3. **Update check classes**:
+   - For **maximum compatibility** (SonarJS 10.23 - 11.x): Use `implements EslintBasedCheck`
+   - For **SonarJS 11.6+ only**: Use `implements EslintHook`
+
+   > **Why?** `JsTsChecks` uses `checkFactory.<JavaScriptCheck>` until 11.6.0. `EslintBasedCheck` extends both `EslintHook` and `JavaScriptCheck`, so it works everywhere.
 
 4. **Recompile** against the new API version
 

@@ -378,9 +378,8 @@ public class MyCustomRulesPlugin implements Plugin {
 ```xml
 <dependency>
   <groupId>org.sonarsource.javascript</groupId>
-  <artifactId>sonar-javascript-plugin</artifactId>
+  <artifactId>api</artifactId>
   <version>11.6.0</version>
-  <classifier>api</classifier>
   <scope>provided</scope>
 </dependency>
 ```

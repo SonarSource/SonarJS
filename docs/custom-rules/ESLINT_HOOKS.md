@@ -2,6 +2,8 @@
 
 This document describes the recommended approach for creating custom rules that integrate with SonarJS analysis using the `EslintHook` interface.
 
+> **Requires SonarJS 11.6+** (SonarQube 25.12+ or SonarCloud). For older versions, see [Supporting Older SonarJS Versions](#supporting-older-sonarjs-versions) below.
+
 ## Overview
 
 The `EslintHook` interface is the modern way to define custom rules in SonarJS. Rules implementing this interface:
@@ -24,7 +26,7 @@ A complete custom rules integration requires:
 
 ### 1. Create Check Classes
 
-Each rule requires a Java class with the `@Rule` annotation that implements `EslintHook`:
+Each rule requires a Java class with the `@Rule` annotation:
 
 ```java
 package com.example.plugin.rules;
@@ -276,9 +278,8 @@ Add the SonarJS API dependency to your `pom.xml`:
 ```xml
 <dependency>
   <groupId>org.sonarsource.javascript</groupId>
-  <artifactId>sonar-javascript-plugin</artifactId>
+  <artifactId>api</artifactId>
   <version>11.6.0</version>
-  <classifier>api</classifier>
   <scope>provided</scope>
 </dependency>
 ```
@@ -319,6 +320,66 @@ Add the SonarJS API dependency to your `pom.xml`:
 See the integration test plugin in SonarJS for a complete working example:
 
 - `its/plugin/plugins/eslint-custom-rules-plugin/`
+
+---
+
+## Supporting Older SonarJS Versions
+
+If you need to support SonarJS versions **before 11.6**, you must use `EslintBasedCheck` instead of `EslintHook`.
+
+> See [SONARQUBE_VERSION_MATRIX.md](../SONARQUBE_VERSION_MATRIX.md) for SonarQube ↔ SonarJS version mapping.
+
+### Why This Is Needed
+
+| SonarJS Version  | CheckFactory Type                | Required Interface                                                   |
+| ---------------- | -------------------------------- | -------------------------------------------------------------------- |
+| **10.23 - 11.5** | `checkFactory.<JavaScriptCheck>` | `EslintBasedCheck` (extends both `EslintHook` and `JavaScriptCheck`) |
+| **11.6+**        | `checkFactory.<EslintHook>`      | `EslintHook` (or `EslintBasedCheck` for compatibility)               |
+
+`EslintBasedCheck` extends both interfaces, so it works with all versions. It is deprecated in 11.6+ but still functional.
+
+### Example Using EslintBasedCheck
+
+```java
+package com.example.plugin.rules;
+
+import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.AnalysisMode;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@Rule(key = "S1234")
+@JavaScriptRule
+@TypeScriptRule
+public class MyCustomCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "my-custom-rule";
+  }
+
+  @Override
+  public List<InputFile.Type> targets() {
+    return List.of(InputFile.Type.MAIN);
+  }
+
+  @Override
+  public List<AnalysisMode> analysisModes() {
+    return List.of(AnalysisMode.DEFAULT, AnalysisMode.SKIP_UNCHANGED);
+  }
+}
+```
+
+The rest of the implementation (repository, bundle, plugin class) remains the same as shown above.
+
+### Recommendation
+
+- **New projects targeting 11.6+**: Use `EslintHook` directly
+- **Projects needing backward compatibility**: Use `EslintBasedCheck`
+- **Migrating from `EslintBasedCheck` to `EslintHook`**: Simply change `implements EslintBasedCheck` to `implements EslintHook` - the API is identical
 
 ---
 
