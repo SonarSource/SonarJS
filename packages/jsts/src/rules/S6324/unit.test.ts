@@ -47,6 +47,27 @@ describe('S6324', () => {
         {
           code: String.raw`new RegExp('\n')`,
         },
+        // Control characters as range boundaries should not trigger (FP fix)
+        {
+          // Simple control char range [\\x00-\\x1f]
+          code: String.raw`/[\x00-\x1f]/g`,
+        },
+        {
+          // Control char range with unicode escape syntax
+          code: String.raw`/[\u0000-\u001f]/`,
+        },
+        {
+          // Multiple control char ranges in same character class
+          code: String.raw`/[\x01-\x08\x0e-\x1f]/`,
+        },
+        {
+          // Negated character class with control char as range boundary
+          code: String.raw`/[^\u0000-\u007F]/g`,
+        },
+        {
+          // Control char range in new RegExp
+          code: String.raw`new RegExp('[\\x00-\\x1f]')`,
+        },
       ],
       invalid: [
         {
@@ -119,6 +140,12 @@ describe('S6324', () => {
         {
           code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
           errors: 1,
+        },
+        {
+          // Standalone control chars in character class should still be flagged
+          // (only range boundaries should be excluded)
+          code: String.raw`/[\x01-\x08\x0b\x0c]/`,
+          errors: 2, // \x0b and \x0c are standalone, not range boundaries
         },
       ],
     });
