@@ -1,6 +1,6 @@
 # Custom Rules API (Legacy)
 
-> **Deprecated since 11.6** - This API is deprecated and marked for removal. Use the [ESLint Hooks API](ESLINT_HOOKS.md) instead for new integrations.
+> **Deprecated since 11.6** - This API uses deprecated interfaces (`EslintBasedCheck`, `JavaScriptCheck`). Use the [EslintHook API](ESLINT_HOOKS.md) instead, which provides the same functionality with the modern `EslintHook` interface.
 
 This document describes the legacy approach for creating custom rules that integrate with SonarJS analysis.
 
@@ -400,14 +400,15 @@ See the integration test plugin in SonarJS for a complete working example:
 | `Check`            | Deprecated | `EslintHook`                         |
 | `TestFileCheck`    | Deprecated | `EslintHook` with custom `targets()` |
 
-## Migration to ESLint Hooks
+## Migration to EslintHook API
 
-To migrate from this API to ESLint Hooks:
+To migrate from this API to the modern EslintHook API:
 
-1. Replace `EslintBasedCheck` implementations with `EslintHook`
-2. Replace `CustomRuleRepository` with `EslintHookRegistrar`
-3. Remove `@Rule` annotations (hooks don't raise issues directly)
-4. Use `register()` to register for multiple languages in one class
+1. Replace `implements EslintBasedCheck` with `implements EslintHook`
+2. Keep `CustomRuleRepository` and `@Rule` annotations (they work with `EslintHook`)
+3. Optionally use a single repository for both languages via `compatibleLanguages()`
+
+The migration is straightforward because `EslintHook` provides the same capabilities as `EslintBasedCheck`.
 
 See [ESLINT_HOOKS.md](ESLINT_HOOKS.md) for the new API documentation.
 

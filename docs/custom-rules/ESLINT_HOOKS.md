@@ -1,63 +1,62 @@
-# ESLint Hooks API (Recommended)
+# EslintHook API (Recommended)
 
-This document describes the recommended approach for integrating custom ESLint-based logic into SonarJS analysis using the `EslintHook` and `EslintHookRegistrar` APIs.
+This document describes the recommended approach for creating custom rules that integrate with SonarJS analysis using the `EslintHook` interface.
 
 ## Overview
 
-ESLint hooks provide a mechanism for external plugins to execute custom logic during SonarJS analysis with full parser context available. Unlike the legacy Custom Rules API, hooks are:
+The `EslintHook` interface is the modern way to define custom rules in SonarJS. Rules implementing this interface:
 
-- **Not associated with rule keys** - they don't raise Sonar issues directly
-- **Executed independently of rule activation** - always run when enabled
-- **Designed for data collection** - ideal for cross-file analysis, IR generation, metrics collection
-
-## When to Use
-
-Use ESLint Hooks when you need to:
-
-- Collect data across multiple files for later analysis
-- Generate intermediate representations (IR) for security analysis
-- Integrate with external analysis tools
-- Execute logic that doesn't map directly to Sonar rules
+- **Can raise Sonar issues** when registered via `CustomRuleRepository`
+- **Are activated through quality profiles** - only run when enabled by users
+- **Provide full control** over analysis modes, file types, and configurations
 
 ## Components
 
-A complete ESLint Hook integration requires:
+A complete custom rules integration requires:
 
-1. **Java Hook Class** - implements `EslintHook` and `EslintHookRegistrar`
-2. **Rules Bundle** - packages the ESLint-side JavaScript code
-3. **Plugin Class** - registers the hook with SonarQube
+1. **Check Classes** - implement `EslintHook`
+2. **Rule Repository** - implements `CustomRuleRepository`
+3. **Rules Bundle** - packages the ESLint-side JavaScript code
+4. **Rules Definition** - defines rule metadata for SonarQube
+5. **Plugin Class** - registers all components
 
 ## Implementation Guide
 
-### 1. Create the ESLint Hook Class
+### 1. Create Check Classes
+
+Each rule requires a Java class with the `@Rule` annotation that implements `EslintHook`:
 
 ```java
-package com.example.plugin;
+package com.example.plugin.rules;
 
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.EslintHook;
-import org.sonar.plugins.javascript.api.EslintHookRegistrar;
-import org.sonar.plugins.javascript.api.Language;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public class MyEslintHook implements EslintHook, EslintHookRegistrar {
+@Rule(key = "S1234")
+@JavaScriptRule // Enable for JavaScript
+@TypeScriptRule // Enable for TypeScript
+public class MyCustomCheck implements EslintHook {
 
   @Override
   public String eslintKey() {
     // Must match the rule name exported by your ESLint plugin
-    return "my-custom-hook";
+    return "my-custom-rule";
   }
 
   @Override
   public List<InputFile.Type> targets() {
-    // Which file types to analyze
-    return List.of(InputFile.Type.MAIN, InputFile.Type.TEST);
+    // Which file types to analyze (default: MAIN only)
+    return List.of(InputFile.Type.MAIN);
   }
 
   @Override
   public List<AnalysisMode> analysisModes() {
-    // When to run the hook
+    // When to run the rule
     return List.of(AnalysisMode.DEFAULT, AnalysisMode.SKIP_UNCHANGED);
   }
 
@@ -69,7 +68,7 @@ public class MyEslintHook implements EslintHook, EslintHookRegistrar {
 
   @Override
   public boolean isEnabled() {
-    // Conditionally enable/disable the hook
+    // Conditionally enable/disable the rule
     return true;
   }
 
@@ -78,17 +77,81 @@ public class MyEslintHook implements EslintHook, EslintHookRegistrar {
     // Optional configuration passed to the ESLint rule
     return List.of();
   }
+}
+```
+
+For rules targeting test files:
+
+```java
+@Rule(key = "S9999")
+@JavaScriptRule
+@TypeScriptRule
+public class MyTestOnlyCheck implements EslintHook {
 
   @Override
-  public void register(RegistrarContext registrarContext) {
-    // Register for JavaScript and/or TypeScript analysis
-    registrarContext.registerEslintHook(Language.JAVASCRIPT, this);
-    registrarContext.registerEslintHook(Language.TYPESCRIPT, this);
+  public String eslintKey() {
+    return "my-test-rule";
+  }
+
+  @Override
+  public List<InputFile.Type> targets() {
+    return List.of(InputFile.Type.TEST);
   }
 }
 ```
 
-### 2. Create the Rules Bundle
+### 2. Create the Rules List
+
+```java
+package com.example.plugin;
+
+import com.example.plugin.rules.*;
+import java.util.List;
+
+public class RulesList {
+
+  public static List<Class<?>> allRules() {
+    return List.of(MyCustomCheck.class, MyTestOnlyCheck.class);
+  }
+}
+```
+
+### 3. Create the Rule Repository
+
+Register your rules with SonarJS via `CustomRuleRepository`:
+
+```java
+package com.example.plugin;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.Language;
+
+public class MyRuleRepository implements CustomRuleRepository {
+
+  public static final String REPOSITORY_KEY = "my-custom-rules";
+
+  @Override
+  public Set<Language> compatibleLanguages() {
+    // Register for both JavaScript and TypeScript
+    return EnumSet.of(Language.JAVASCRIPT, Language.TYPESCRIPT);
+  }
+
+  @Override
+  public String repositoryKey() {
+    return REPOSITORY_KEY;
+  }
+
+  @Override
+  public List<?> checkClasses() {
+    return RulesList.allRules();
+  }
+}
+```
+
+### 4. Create the Rules Bundle
 
 The `RulesBundle` tells SonarJS where to find your ESLint plugin code:
 
@@ -107,66 +170,106 @@ public class MyRulesBundle implements RulesBundle {
 }
 ```
 
-### 3. Create the ESLint Plugin (JavaScript)
+### 5. Create the ESLint Plugin (JavaScript)
 
-Create an ESLint plugin that exports your rule:
+Create an ESLint plugin that exports your rules:
 
 ```javascript
-// src/rules/my-custom-hook.js
+// src/rules/my-custom-rule.js
 module.exports = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Custom hook for data collection',
+      description: 'My custom rule description',
     },
+    schema: [],
   },
   create(context) {
     return {
-      Program(node) {
-        // Your analysis logic here
-        // Access the parsed AST, collect data, etc.
-      },
-
       CallExpression(node) {
-        // Visit specific node types
-      },
-
-      'Program:exit'(node) {
-        // Finalize analysis for this file
+        if (isViolation(node)) {
+          context.report({
+            node,
+            message: 'This is a violation',
+          });
+        }
       },
     };
   },
 };
+
+function isViolation(node) {
+  // Your detection logic
+  return false;
+}
 ```
 
 ```javascript
 // index.js
 module.exports = {
   rules: {
-    'my-custom-hook': require('./rules/my-custom-hook'),
+    'my-custom-rule': require('./rules/my-custom-rule'),
+    'my-test-rule': require('./rules/my-test-rule'),
   },
 };
 ```
 
 Bundle your plugin as a `.tgz` file and include it in your JAR resources.
 
-### 4. Create the Plugin Class
+### 6. Create the Rules Definition
+
+Define rule metadata for SonarQube:
+
+```java
+package com.example.plugin;
+
+import org.sonar.api.server.rule.RulesDefinition;
+
+public class MyRulesDefinition implements RulesDefinition {
+
+  @Override
+  public void define(Context context) {
+    NewRepository repository = context
+      .createRepository(MyRuleRepository.REPOSITORY_KEY, "js")
+      .setName("My Custom Rules");
+
+    // Define each rule
+    repository
+      .createRule("S1234")
+      .setName("My Custom Rule")
+      .setHtmlDescription("<p>Description of the rule</p>")
+      .setSeverity("MAJOR")
+      .setType(RuleType.CODE_SMELL);
+
+    repository.done();
+  }
+}
+```
+
+### 7. Create the Plugin Class
 
 ```java
 package com.example.plugin;
 
 import org.sonar.api.Plugin;
 
-public class MyPlugin implements Plugin {
+public class MyCustomRulesPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(MyRulesBundle.class, MyEslintHook.class);
+    context.addExtensions(
+      // Rules bundle
+      MyRulesBundle.class,
+      // Rule repository
+      MyRuleRepository.class,
+      // Rules definition
+      MyRulesDefinition.class
+    );
   }
 }
 ```
 
-### 5. Configure Maven Dependencies
+### 8. Configure Maven Dependencies
 
 Add the SonarJS API dependency to your `pom.xml`:
 
@@ -180,14 +283,6 @@ Add the SonarJS API dependency to your `pom.xml`:
 </dependency>
 ```
 
-## Complete Example
-
-See the [sonar-architecture](https://github.com/SonarSource/sonar-architecture) repository for a complete working example:
-
-- `ArchitectureJsEslintHook.java` - Hook implementation
-- `ArchitectureJsRulesBundle.java` - Bundle configuration
-- `ArchitectureJsFrontendPlugin.java` - Plugin registration
-
 ## API Reference
 
 ### EslintHook Interface
@@ -199,56 +294,157 @@ See the [sonar-architecture](https://github.com/SonarSource/sonar-architecture) 
 | `targets()`               | File types to analyze (MAIN, TEST)    | MAIN only    |
 | `analysisModes()`         | When to run (DEFAULT, SKIP_UNCHANGED) | DEFAULT only |
 | `blacklistedExtensions()` | Extensions to skip                    | Empty list   |
-| `isEnabled()`             | Whether the hook should run           | `true`       |
+| `isEnabled()`             | Whether the rule should run           | `true`       |
 
-### EslintHookRegistrar Interface
+### CustomRuleRepository Interface
 
-| Method                       | Description                                |
-| ---------------------------- | ------------------------------------------ |
-| `register(RegistrarContext)` | Called to register hooks for each language |
-
-### RegistrarContext Interface
-
-| Method                                     | Description                              |
-| ------------------------------------------ | ---------------------------------------- |
-| `registerEslintHook(Language, EslintHook)` | Registers a hook for a specific language |
+| Method                  | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| `repositoryKey()`       | Unique identifier for your rule repository    |
+| `checkClasses()`        | List of check classes implementing EslintHook |
+| `compatibleLanguages()` | Languages this repository supports (JS/TS)    |
 
 ## Best Practices
 
-1. **Single hook for multiple languages** - Register the same hook instance for both JavaScript and TypeScript when the analysis logic is identical.
+1. **Use `@JavaScriptRule` and `@TypeScriptRule` annotations** - These control which languages your rule applies to.
 
-2. **Use `isEnabled()` for conditional execution** - Check configuration or context to determine if the hook should run.
+2. **Handle analysis modes appropriately** - If your rule supports incremental analysis, include `AnalysisMode.SKIP_UNCHANGED`.
 
-3. **Handle analysis modes appropriately** - If your hook supports incremental analysis, include `AnalysisMode.SKIP_UNCHANGED`.
+3. **Blacklist unsupported file types** - Use `blacklistedExtensions()` to skip files that your analysis doesn't support (e.g., HTML files for module-resolution-dependent analysis).
 
-4. **Blacklist unsupported file types** - Use `blacklistedExtensions()` to skip files that your analysis doesn't support (e.g., HTML files for module-resolution-dependent analysis).
+4. **Use `isEnabled()` for conditional execution** - Check configuration or context to determine if the rule should run.
 
-## Technical Details: How Hooks Are Integrated
+## Complete Example
 
-This section explains how the ESLint Hooks API is wired into the SonarJS analysis pipeline.
+See the integration test plugin in SonarJS for a complete working example:
+
+- `its/plugin/plugins/eslint-custom-rules-plugin/`
+
+---
+
+## Advanced: Data Collection Hooks (EslintHookRegistrar)
+
+> **Note:** This section describes an advanced use case. Most users should use `CustomRuleRepository` as shown above.
+
+If you need to execute custom logic during analysis **without raising Sonar issues**, you can use `EslintHookRegistrar`. This is useful for:
+
+- Collecting data across multiple files for later analysis
+- Generating intermediate representations (IR) for external tools
+- Integrating with external analysis tools
+- Executing logic that doesn't map directly to Sonar rules
+
+### Key Differences
+
+| Aspect                | CustomRuleRepository (above)     | EslintHookRegistrar (this section) |
+| --------------------- | -------------------------------- | ---------------------------------- |
+| **Can raise issues**  | ✅ Yes                           | ❌ No                              |
+| **Quality profile**   | Filtered by QP (only active run) | Always runs when `isEnabled()`     |
+| **Rule key required** | Yes (`@Rule` annotation)         | No                                 |
+| **Use case**          | Custom Sonar rules               | Data collection, external tools    |
+
+### Implementation
+
+```java
+package com.example.plugin;
+
+import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.AnalysisMode;
+import org.sonar.plugins.javascript.api.EslintHook;
+import org.sonar.plugins.javascript.api.EslintHookRegistrar;
+import org.sonar.plugins.javascript.api.Language;
+
+public class MyDataCollectionHook implements EslintHook, EslintHookRegistrar {
+
+  @Override
+  public String eslintKey() {
+    return "my-data-collector";
+  }
+
+  @Override
+  public List<InputFile.Type> targets() {
+    return List.of(InputFile.Type.MAIN, InputFile.Type.TEST);
+  }
+
+  @Override
+  public List<AnalysisMode> analysisModes() {
+    return List.of(AnalysisMode.DEFAULT);
+  }
+
+  @Override
+  public void register(RegistrarContext registrarContext) {
+    // Register for JavaScript and/or TypeScript analysis
+    registrarContext.registerEslintHook(Language.JAVASCRIPT, this);
+    registrarContext.registerEslintHook(Language.TYPESCRIPT, this);
+  }
+}
+```
+
+Register only the hook and bundle (no `CustomRuleRepository`):
+
+```java
+public class MyPlugin implements Plugin {
+
+  @Override
+  public void define(Context context) {
+    context.addExtensions(MyRulesBundle.class, MyDataCollectionHook.class);
+  }
+}
+```
+
+### Why Hooks Cannot Raise Issues
+
+Hooks registered via `EslintHookRegistrar` bypass `CheckFactory` entirely. They are stored directly without building the `eslintKey → RuleKey` mapping that's required for issue conversion. When the bridge returns issues, `ruleKeyByEslintKey()` won't find a mapping for hook eslintKeys, so issues are silently discarded.
+
+```
+CustomRuleRepository path:
+  checkClasses → CheckFactory → filters by QP → eslintKeyToRuleKey map
+                                                     ↓
+                                              Can raise issues ✓
+
+EslintHookRegistrar path:
+  register() → directly stored → NO eslintKeyToRuleKey mapping
+                                        ↓
+                                 Cannot raise issues ✗
+```
+
+### Example: sonar-architecture
+
+See the [sonar-architecture](https://github.com/SonarSource/sonar-architecture) repository for a complete working example of data collection hooks:
+
+- `ArchitectureJsEslintHook.java` - Hook implementation
+- `ArchitectureJsRulesBundle.java` - Bundle configuration
+- `ArchitectureJsFrontendPlugin.java` - Plugin registration
+
+---
+
+## Technical Details: How Custom Rules Are Integrated
+
+This section explains how the Custom Rules API is wired into the SonarJS analysis pipeline.
 
 ### 1. Discovery via SonarQube Dependency Injection
 
-Both `EslintHookRegistrar` and `RulesBundle` interfaces are annotated with `@ScannerSide`, which enables automatic discovery by SonarQube's dependency injection container:
+The `CustomRuleRepository` interface is annotated with `@ScannerSide` and `@SonarLintSide`:
 
 ```java
 @ScannerSide
-public interface EslintHookRegistrar { ... }
-
-@ScannerSide
 @SonarLintSide
-public interface RulesBundle { ... }
+public interface CustomRuleRepository {
+  Set<Language> compatibleLanguages();
+  String repositoryKey();
+  List<?> checkClasses();
+}
 ```
 
 When your plugin is loaded, SonarQube automatically:
 
-1. Discovers all implementations of these interfaces
+1. Discovers all `CustomRuleRepository` implementations
 2. Instantiates them via reflection
-3. Injects them as arrays into dependent components
+3. Injects them as an array into `JsTsChecks`
 
-### 2. Hook Registration in JsTsChecks (Bypasses CheckFactory)
+### 2. Processing in JsTsChecks
 
-The `JsTsChecks` class (`sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`) receives all `EslintHookRegistrar` implementations via constructor injection:
+The `JsTsChecks` class receives all `CustomRuleRepository` implementations:
 
 ```java
 public JsTsChecks(
@@ -256,152 +452,68 @@ public JsTsChecks(
   @Nullable CustomRuleRepository[] customRuleRepositories,
   @Nullable EslintHookRegistrar[] eslintHookRegistrars
 ) {
-  // Process each registrar - hooks are stored DIRECTLY, bypassing CheckFactory
-  for (var registrar : eslintHookRegistrars) {
-    registrar.register(
-      (language, hook) -> eslintHooksByLanguage
-        .computeIfAbsent(language, it -> new HashSet<>())
-        .add(hook)
-    );
-  }
-
-  // Built-in and custom rules go through CheckFactory (quality profile filtering)
+  // Add built-in checks
   doAddChecks(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
+  addCustomChecks(Language.TYPESCRIPT);  // <-- Custom rules added here
+
   doAddChecks(Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
-  // ...
+  addCustomChecks(Language.JAVASCRIPT);  // <-- Custom rules added here
+}
+
+private void addCustomChecks(Language language) {
+  for (CustomRuleRepository repo : customRuleRepositories) {
+    if (repo.compatibleLanguages().contains(language)) {
+      doAddChecks(language, repo.repositoryKey(), repo.checkClasses());
+    }
+  }
 }
 ```
 
-**Key difference from legacy API:** Hooks are stored directly in `eslintHooksByLanguage` map without going through `CheckFactory`. This means:
+### 3. CheckFactory: Quality Profile Filtering
 
-1. **No quality profile filtering**: Hooks always run when `isEnabled()` returns true
-2. **No `eslintKey → RuleKey` mapping**: Hooks are not added to the `eslintKeyToRuleKey` map
-3. **Cannot raise issues**: When the bridge returns issues, `ruleKeyByEslintKey()` won't find a mapping for hook eslintKeys, so issues are discarded
-
-```
-Legacy Rules (CustomRuleRepository):
-  checkClasses → CheckFactory → filters by QP → checks map + eslintKeyToRuleKey map
-                                                     ↓
-                                              Can raise issues ✓
-
-Hooks (EslintHookRegistrar):
-  register() → directly stored → eslintHooksByLanguage map
-                                        ↓
-                                 Cannot raise issues ✗
-                                 (no eslintKey → RuleKey mapping)
-```
-
-### 3. Bundle Deployment
-
-The `RulesBundles` class (`sonar-plugin/bridge/.../RulesBundles.java`) handles deploying JavaScript bundles:
+`CheckFactory` is a SonarQube-provided component that filters rules by the active quality profile:
 
 ```java
-public List<Path> deploy(Path target) {
-  // For each bundle URL:
-  // 1. Extract .tgz to temporary directory
-  // 2. Return path to package/dist/rules.js
-}
-```
+private void doAddChecks(Language language, String repositoryKey, Iterable<?> checkClasses) {
+  // checkClasses contains ALL rule classes
+  // chks will contain only ACTIVE rule instances (filtered by quality profile)
+  var chks = checkFactory.<EslintHook>create(repositoryKey).addAnnotatedChecks(checkClasses);
 
-Bundles are extracted from the plugin JAR and deployed to a temporary directory before analysis starts.
+  var key = new LanguageAndRepository(language, repositoryKey);
+  this.checks.put(key, chks);
 
-### 4. Aggregating Enabled Rules
-
-The `enabledEslintRules()` method in `JsTsChecks` combines all sources:
-
-```java
-public List<EslintRule> enabledEslintRules() {
-  // 1. Built-in rules from CheckList
-  // 2. Custom rules from CustomRuleRepository (legacy)
-  // 3. Hooks from EslintHookRegistrar (new API)
-
-  var eslintHooks = eslintHooksByLanguage
-    .entrySet()
-    .stream()
-    .flatMap(entry ->
-      entry
-        .getValue()
-        .stream()
-        .filter(EslintHook::isEnabled) // Only enabled hooks
-        .map(hook ->
-          new EslintRule(
-            hook.eslintKey(),
-            hook.configurations(),
-            hook.targets(),
-            hook.analysisModes(),
-            hook.blacklistedExtensions(),
-            languageKey
-          )
-        )
+  // Build the eslintKey → RuleKey mapping for active rules only
+  chks
+    .all()
+    .forEach(check ->
+      eslintKeyToRuleKey
+        .computeIfAbsent(check.eslintKey(), k -> new EnumMap<>(Language.class))
+        .put(language, chks.ruleKey(check))
     );
-
-  return Stream.concat(eslintRules, eslintHooks).toList();
 }
 ```
 
-### 5. Sending to the Node.js Bridge
+**What `CheckFactory.create(repositoryKey).addAnnotatedChecks(checkClasses)` does:**
 
-The analysis request is sent via WebSocket to the Node.js bridge:
+1. Takes all check classes you pass in
+2. Reads the `@Rule(key = "...")` annotation from each class
+3. Checks the quality profile: Is this rule active?
+4. Only instantiates active rules (skips inactive ones)
+5. Returns `Checks<EslintHook>` containing only the active check instances
 
-```
-JsTsSensor.analyzeFiles()
-    └── Creates AnalyzeProjectHandler
-    └── handler.getRequest() includes checks.enabledEslintRules()
-            └── BridgeServerImpl.analyzeProject()
-                    └── Serializes request to JSON
-                    └── Sends via WebSocket: { type: "on-analyze-project", data: request }
-```
+### 4. Issue Transformation
 
-The request includes:
+When the bridge returns an issue, `AnalysisProcessor` converts it to a Sonar issue:
 
-- `files`: Map of files to analyze
-- `rules`: List of `EslintRule` objects (includes hooks)
-- `bundles`: Paths to deployed JavaScript bundles
-- `rulesWorkdir`: Working directory for rules accessing the filesystem
-
-### 6. Node.js Bridge Processing
-
-On the JavaScript side (`packages/bridge/src/handle-request.ts`):
-
-```typescript
-case 'on-analyze-project': {
-  const output = await analyzeProject(request.data, incrementalResultsChannel);
-  return { type: 'success', result: output };
+```java
+var ruleKey = checks.ruleKeyByEslintKey(issue.ruleId(), language);
+if (ruleKey != null) {
+  newIssue.at(location).forRule(ruleKey).save();
 }
+// If ruleKey is null, the issue is silently discarded
 ```
 
-The `Linter` class (`packages/jsts/src/linter/linter.ts`) loads bundles dynamically:
-
-```typescript
-static async initialize({ bundles, ... }: InitializeParams) {
-  for (const ruleBundle of bundles) {
-    await Linter.loadRulesFromBundle(ruleBundle);
-  }
-}
-
-private static async loadRulesFromBundle(ruleBundle: string) {
-  const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
-  for (const rule of bundleRules) {
-    Linter.rules[rule.ruleId] = rule.ruleModule;
-  }
-}
-```
-
-### 7. Rule Filtering During Linting
-
-When linting a file, rules are filtered based on the `RuleConfig` properties:
-
-```typescript
-const rules = Linter.ruleConfigs?.filter(ruleConfig => {
-  const { fileTypeTargets, analysisModes, language, blacklistedExtensions } = ruleConfig;
-  return (
-    fileTypeTargets.includes(fileType) &&
-    analysisModes.includes(analysisMode) &&
-    fileLanguage === language &&
-    !(blacklistedExtensions || []).includes(extname(filePath))
-  );
-});
-```
+This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is in the `eslintKeyToRuleKey` map.
 
 ### Data Flow Diagram
 
@@ -411,17 +523,30 @@ const rules = Linter.ruleConfigs?.filter(ruleConfig => {
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌──────────────────────┐     ┌──────────────────────┐                      │
-│  │  EslintHookRegistrar │     │     RulesBundle      │                      │
+│  │  CustomRuleRepository│     │     RulesBundle      │                      │
 │  │   (your plugin)      │     │    (your plugin)     │                      │
+│  │                      │     │                      │                      │
+│  │  - repositoryKey()   │     │  - bundlePath()      │                      │
+│  │  - checkClasses()    │     │                      │                      │
+│  │  - compatibleLangs() │     │                      │                      │
 │  └──────────┬───────────┘     └──────────┬───────────┘                      │
 │             │                            │                                  │
 │             │ @ScannerSide               │ @ScannerSide                     │
 │             │ auto-discovery             │ auto-discovery                   │
+│             ▼                            │                                  │
+│  ┌──────────────────────┐                │                                  │
+│  │     CheckFactory     │                │                                  │
+│  │  - Reads @Rule       │                │                                  │
+│  │  - Filters by QP     │◄── Quality Profile (only active rules)            │
+│  │  - Instantiates      │                │                                  │
+│  └──────────┬───────────┘                │                                  │
+│             │                            │                                  │
 │             ▼                            ▼                                  │
 │  ┌──────────────────────────────────────────────────────────────┐           │
 │  │                      JsTsChecks                              │           │
-│  │  - Calls registrar.register() to collect hooks               │           │
-│  │  - enabledEslintRules() aggregates all rules + hooks         │           │
+│  │  - addCustomChecks() processes each CustomRuleRepository     │           │
+│  │  - Maps: eslintKey() <-> @Rule(key) for issue conversion     │           │
+│  │  - enabledEslintRules() aggregates all active rules          │           │
 │  └──────────────────────────────────────────────────────────────┘           │
 │             │                            │                                  │
 │             │                            ▼                                  │
@@ -447,13 +572,6 @@ const rules = Linter.ruleConfigs?.filter(ruleConfig => {
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌──────────────────────────────────────────────────────────────┐           │
-│  │                    handle-request.ts                         │           │
-│  │  case 'on-analyze-project':                                  │           │
-│  │    analyzeProject(request.data)                              │           │
-│  └──────────────────────────────────────────────────────────────┘           │
-│                                   │                                         │
-│                                   ▼                                         │
-│  ┌──────────────────────────────────────────────────────────────┐           │
 │  │                        Linter                                │           │
 │  │  1. loadRulesFromBundle() - dynamic import of rules.js       │           │
 │  │  2. getRulesForFile() - filters rules by file type/language  │           │
@@ -464,8 +582,14 @@ const rules = Linter.ruleConfigs?.filter(ruleConfig => {
 │  ┌──────────────────────────────────────────────────────────────┐           │
 │  │              Your ESLint Rule (from bundle)                  │           │
 │  │  - Receives parsed AST                                       │           │
-│  │  - Executes analysis logic                                   │           │
-│  │  - Can write data to rulesWorkdir                            │           │
+│  │  - context.report() raises issues                            │           │
+│  └──────────────────────────────────────────────────────────────┘           │
+│                                   │                                         │
+│                                   ▼                                         │
+│  ┌──────────────────────────────────────────────────────────────┐           │
+│  │                   Issue Transformation                       │           │
+│  │  - ESLint messages converted to Sonar issues                 │           │
+│  │  - eslintKey mapped back to Sonar rule key                   │           │
 │  └──────────────────────────────────────────────────────────────┘           │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -473,13 +597,12 @@ const rules = Linter.ruleConfigs?.filter(ruleConfig => {
 
 ### Key Integration Points
 
-| Component             | File                                                             | Purpose                                |
-| --------------------- | ---------------------------------------------------------------- | -------------------------------------- |
-| `EslintHookRegistrar` | `sonar-plugin/api/.../EslintHookRegistrar.java`                  | Interface for hook registration        |
-| `EslintHook`          | `sonar-plugin/api/.../EslintHook.java`                           | Hook descriptor interface              |
-| `RulesBundle`         | `sonar-plugin/api/.../RulesBundle.java`                          | Interface for JS bundle location       |
-| `JsTsChecks`          | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java:74-93` | Processes registrars, aggregates rules |
-| `RulesBundles`        | `sonar-plugin/bridge/.../RulesBundles.java:70-91`                | Deploys JS bundles to filesystem       |
-| `BridgeServerImpl`    | `sonar-plugin/bridge/.../BridgeServerImpl.java:422-429`          | Sends analysis request via WebSocket   |
-| `handle-request.ts`   | `packages/bridge/src/handle-request.ts:66-70`                    | Receives and routes analysis request   |
-| `Linter`              | `packages/jsts/src/linter/linter.ts:147-158`                     | Loads bundle rules dynamically         |
+| Component                      | File                                                       | Purpose                              |
+| ------------------------------ | ---------------------------------------------------------- | ------------------------------------ |
+| `EslintHook`                   | `sonar-plugin/api/.../EslintHook.java`                     | Rule interface                       |
+| `CustomRuleRepository`         | `sonar-plugin/api/.../CustomRuleRepository.java`           | Interface for rule repositories      |
+| `RulesBundle`                  | `sonar-plugin/api/.../RulesBundle.java`                    | Interface for JS bundle location     |
+| `JsTsChecks.addCustomChecks()` | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java` | Processes custom repositories        |
+| `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java` | Instantiates checks via CheckFactory |
+| `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                | Deploys JS bundles                   |
+| `Linter`                       | `packages/jsts/src/linter/linter.ts`                       | Loads and executes rules             |
