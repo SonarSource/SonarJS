@@ -97,6 +97,102 @@ describe('Type testing', () => {
 });
 `,
         },
+        // Mocha done() callback patterns that ARE assertions (false positives to fix)
+        // Pattern 1: done(new Error(...)) in conditional branches - direct call with argument
+        {
+          code: `
+const chai = require('chai');
+describe('Observable.using', () => {
+  it('should dispose of the resource when the subscription is disposed', (done) => {
+    let disposed = false;
+    const subscription = { unsubscribe: () => { disposed = true; } };
+    subscription.unsubscribe();
+    if (disposed) {
+      done();
+    } else {
+      done(new Error('disposed should be true but was false'));
+    }
+  });
+});
+`,
+        },
+        // Pattern 2: done(new Error(...)) in subscribe-like callbacks - direct call with argument
+        {
+          code: `
+const chai = require('chai');
+describe('Observable.prototype.auditTime', () => {
+  it('should not emit values when source completes immediately', (done) => {
+    const onValue = (x) => {
+      done(new Error('should not be called'));
+    };
+    const onComplete = () => {
+      done();
+    };
+    onComplete();
+  });
+});
+`,
+        },
+        // Pattern 3: .catch(done) - done receives rejection error
+        {
+          code: `
+const chai = require('chai');
+describe('Promise error handling', () => {
+  it('should resolve without error', (done) => {
+    asyncOperation()
+      .then((result) => {
+        done();
+      })
+      .catch(done);
+  });
+});
+`,
+        },
+        // Pattern 4: .then(_, done) - done as second argument receives rejection
+        {
+          code: `
+const chai = require('chai');
+describe('Promise rejection handling', () => {
+  it('should resolve without rejection', (done) => {
+    asyncOperation()
+      .then(
+        (result) => { done(); },
+        done
+      );
+  });
+});
+`,
+        },
+        // Pattern 5: .subscribe(_, done) - done as second argument (error position in RxJS)
+        {
+          code: `
+const chai = require('chai');
+describe('Observable error handling', () => {
+  it('should complete without error', (done) => {
+    observable.subscribe(
+      (value) => {},
+      done,
+      () => { done(); }
+    );
+  });
+});
+`,
+        },
+        // Pattern 6: .subscribe({ error: done }) - done in error property
+        {
+          code: `
+const chai = require('chai');
+describe('Observable error handling with object syntax', () => {
+  it('should complete without error using object subscription', (done) => {
+    observable.subscribe({
+      next: (value) => {},
+      error: done,
+      complete: () => { done(); }
+    });
+  });
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -129,6 +225,61 @@ describe('async tests', () => {
     setTimeout(() => {
       done();
     }, 100);
+  });
+});`,
+          errors: 1,
+        },
+        // done() in .finally() should still raise - finalize only signals completion, not assertion
+        {
+          code: `
+const chai = require('chai');
+describe('async tests with finally', () => {
+  it('should raise when done is only in finally', (done) => {
+    asyncOperation().finally(done);
+  });
+});`,
+          errors: 1,
+        },
+        // done() as first argument to .then() should still raise - success position only
+        {
+          code: `
+const chai = require('chai');
+describe('async tests with then', () => {
+  it('should raise when done is only first arg of then', (done) => {
+    asyncOperation().then(done);
+  });
+});`,
+          errors: 1,
+        },
+        // done() as first argument to .subscribe() should still raise - next position only
+        {
+          code: `
+const chai = require('chai');
+describe('async tests with subscribe', () => {
+  it('should raise when done is only first arg of subscribe', (done) => {
+    observable.subscribe(done);
+  });
+});`,
+          errors: 1,
+        },
+        // done() as third argument to .subscribe() should still raise - complete position
+        {
+          code: `
+const chai = require('chai');
+describe('async tests with subscribe complete', () => {
+  it('should raise when done is third arg of subscribe', (done) => {
+    observable.subscribe(() => {}, () => {}, done);
+  });
+});`,
+          errors: 1,
+        },
+        // RxJS finalize(done) should still raise - finalize calls callback without arguments
+        {
+          code: `
+const chai = require('chai');
+describe('async tests with RxJS finalize', () => {
+  it('should raise when done is in finalize', (done) => {
+    observable.pipe(finalize(done)).subscribe();
   });
 });`,
           errors: 1,
@@ -193,6 +344,66 @@ describe('RxJS marble testing with chained access', () => {
   it('should recognize expectObservable with chained not.toBe', () => {
     const observable = {};
     expectObservable(observable).not.toBe('(a|)');
+  });
+});
+`,
+        },
+        // TypeScript: done(new Error(...)) in conditional branches - direct call with argument
+        {
+          code: `
+import { expect } from 'chai';
+
+describe('Observable.using', () => {
+  it('should dispose of the resource when the subscription is disposed', (done: (err?: Error) => void) => {
+    let disposed = false;
+    const subscription = { unsubscribe: () => { disposed = true; } };
+    subscription.unsubscribe();
+    if (disposed) {
+      done();
+    } else {
+      done(new Error('disposed should be true but was false'));
+    }
+  });
+});
+`,
+        },
+        // TypeScript: .catch(done) - done receives rejection error
+        {
+          code: `
+import { expect } from 'chai';
+
+describe('Promise error handling', () => {
+  it('should resolve without error', (done: (err?: Error) => void) => {
+    const asyncOperation = (): Promise<number> => Promise.resolve(42);
+    asyncOperation()
+      .then((result) => {
+        done();
+      })
+      .catch(done);
+  });
+});
+`,
+        },
+        // TypeScript: .subscribe({ error: done }) - done in error property
+        {
+          code: `
+import { expect } from 'chai';
+
+interface Observer<T> {
+  next?: (value: T) => void;
+  error?: (err: Error) => void;
+  complete?: () => void;
+}
+
+declare const observable: { subscribe: (observer: Observer<number>) => void };
+
+describe('Observable error handling with object syntax', () => {
+  it('should complete without error using object subscription', (done: (err?: Error) => void) => {
+    observable.subscribe({
+      next: (value) => {},
+      error: done,
+      complete: () => { done(); }
+    });
   });
 });
 `,

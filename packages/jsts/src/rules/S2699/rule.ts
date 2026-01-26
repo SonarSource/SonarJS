@@ -23,7 +23,10 @@ import {
   generateMeta,
   getFullyQualifiedName,
   getFullyQualifiedNameTS,
+  getProperty,
   isFunctionCall,
+  isIdentifier,
+  isMethodCall,
   isRequiredParserServices,
   Mocha,
   resolveFunction,
@@ -66,6 +69,124 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/**
+ * Checks if a test uses the Mocha done callback as an assertion mechanism.
+ * Only valid when done is called with an error argument OR passed to an error-handling position.
+ *
+ * Valid patterns (considered assertions):
+ * - done(arg) - direct call with any argument (e.g., done(new Error(...)))
+ * - .catch(done) - done receives rejection error
+ * - .then(_, done) - done as second argument receives rejection
+ * - .subscribe(_, done) - done as second argument (error position in RxJS)
+ * - .subscribe({ error: done }) - done in error property
+ *
+ * Invalid patterns (NOT assertions):
+ * - done() - no argument
+ * - .finally(done) - finally handler called without args
+ * - finalize(done) - RxJS finalize called without args
+ * - .then(done) - done as first/only argument (success handler)
+ * - .subscribe(done) - done as first/only argument (next handler)
+ */
+function hasDoneCallbackAssertion(callback: estree.Function, context: Rule.RuleContext): boolean {
+  if (callback.params.length === 0) {
+    return false;
+  }
+
+  const firstParam = callback.params[0];
+  if (!isIdentifier(firstParam)) {
+    return false;
+  }
+
+  const doneParamName = firstParam.name;
+  const visitorKeys = context.sourceCode.visitorKeys;
+
+  return containsValidDoneAssertion(callback.body, doneParamName, visitorKeys, context);
+}
+
+/**
+ * Checks if a method call matches valid done assertion patterns.
+ * Returns true if the pattern is recognized as a valid assertion mechanism.
+ */
+function isValidDoneMethodCallPattern(
+  node: estree.CallExpression & {
+    callee: estree.MemberExpression & { property: estree.Identifier };
+  },
+  doneParamName: string,
+  context: Rule.RuleContext,
+): boolean {
+  const methodName = node.callee.property.name;
+
+  // Pattern 2: .catch(done) - done receives rejection error
+  if (
+    methodName === 'catch' &&
+    node.arguments.length === 1 &&
+    isIdentifier(node.arguments[0], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 3: .then(_, done) - done as second argument
+  if (
+    methodName === 'then' &&
+    node.arguments.length >= 2 &&
+    isIdentifier(node.arguments[1], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 4: .subscribe(_, done) - done as second argument (error position)
+  if (
+    methodName === 'subscribe' &&
+    node.arguments.length >= 2 &&
+    isIdentifier(node.arguments[1], doneParamName)
+  ) {
+    return true;
+  }
+
+  // Pattern 5: .subscribe({ error: done }) - done in error property
+  if (
+    methodName === 'subscribe' &&
+    node.arguments.length === 1 &&
+    node.arguments[0].type === 'ObjectExpression'
+  ) {
+    const errorProp = getProperty(node.arguments[0], 'error', context);
+    return errorProp != null && isIdentifier(errorProp.value, doneParamName);
+  }
+
+  return false;
+}
+
+/**
+ * Recursively searches for valid done assertion patterns.
+ */
+function containsValidDoneAssertion(
+  node: estree.Node,
+  doneParamName: string,
+  visitorKeys: SourceCode.VisitorKeys,
+  context: Rule.RuleContext,
+): boolean {
+  if (node.type === 'CallExpression') {
+    // Pattern 1: done(arg) - direct call with at least one argument
+    if (isIdentifier(node.callee, doneParamName) && node.arguments.length > 0) {
+      return true;
+    }
+
+    // Check method call patterns
+    if (isMethodCall(node) && isValidDoneMethodCallPattern(node, doneParamName, context)) {
+      return true;
+    }
+  }
+
+  // Recurse through children
+  for (const child of childrenOf(node, visitorKeys)) {
+    if (containsValidDoneAssertion(child, doneParamName, visitorKeys, context)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function checkAssertions(
   testCase: Mocha.TestCase,
   context: Rule.RuleContext,
@@ -73,6 +194,12 @@ function checkAssertions(
   visitedTSNodes: Map<ts.Node, boolean>,
 ) {
   const { node, callback } = testCase;
+
+  // Check for Mocha done(error) callback pattern used as assertion mechanism
+  if (hasDoneCallbackAssertion(callback, context)) {
+    return;
+  }
+
   const visitor = new TestCaseAssertionVisitor(context);
   const parserServices = context.sourceCode.parserServices;
   let hasAssertions = false;
