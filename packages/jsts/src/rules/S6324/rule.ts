@@ -24,6 +24,14 @@ import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const EXCEPTIONS = new Set(['\t', '\n']);
 
+/**
+ * Checks if the character is used as a boundary (min or max) in a character class range.
+ * For example, in [\x00-\x1f], both \x00 and \x1f are range boundaries.
+ */
+function isCharacterClassRangeBoundary(character: AST.Character): boolean {
+  return character.parent.type === 'CharacterClassRange';
+}
+
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: AST.Character) => {
@@ -34,7 +42,8 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         (isSameInterpreted(raw, value) ||
           raw.startsWith(String.raw`\x`) ||
           raw.startsWith(String.raw`\u`)) &&
-        !EXCEPTIONS.has(raw)
+        !EXCEPTIONS.has(raw) &&
+        !isCharacterClassRangeBoundary(character)
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',
