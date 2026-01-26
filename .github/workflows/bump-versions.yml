@@ -26,8 +26,8 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           snapshot_version="${VERSION}-SNAPSHOT"
-          # Update only root pom.xml to the new snapshot version
-          sed -i "s/<version>.*-SNAPSHOT<\/version>/<version>${snapshot_version}<\/version>/" pom.xml
+          # Update the revision property in root pom.xml to the new snapshot version
+          sed -i "s/<revision>.*-SNAPSHOT<\/revision>/<revision>${snapshot_version}<\/revision>/" pom.xml
       - uses: peter-evans/create-pull-request@v8
         with:
           author: ${{ github.actor }} <${{ github.actor }}>
