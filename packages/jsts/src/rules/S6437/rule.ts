@@ -21,6 +21,8 @@ import type estree from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,
+  getProperty,
+  getValueOfExpression,
   report,
   toSecondaryLocation,
   IssueLocation,
@@ -53,6 +55,12 @@ const secretSignatures: Record<string, [number]> = {
   'superagent.auth': [0],
 };
 
+// Dictionary with fully qualified names of functions, argument index containing
+// the options object, and property name(s) that hold the secret.
+const secretObjectSignatures: Record<string, { argIndex: number; propertyName: string }> = {
+  'express-session': { argIndex: 0, propertyName: 'secret' },
+};
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {},
@@ -74,9 +82,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function getSecondaryNode(expr: estree.Expression): IssueLocation[] {
-      // If it's an identifier that references a hardcoded string,
-      // report the original declaration
+    function getSecondaryLocations(expr: estree.Expression): IssueLocation[] {
       if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
         const nodeName = hardcodedVariables.get(expr.name);
         if (nodeName) {
@@ -84,6 +90,46 @@ export const rule: Rule.RuleModule = {
         }
       }
       return [];
+    }
+
+    function reportIssue(callExpression: estree.CallExpression, secretExpr: estree.Expression) {
+      report(
+        context,
+        {
+          message: 'Revoke and change this password, as it is compromised.',
+          loc: callExpression.callee.loc as estree.SourceLocation,
+        },
+        getSecondaryLocations(secretExpr),
+      );
+    }
+
+    function checkSecretArgument(callExpression: estree.CallExpression, fqn: string) {
+      secretSignatures[fqn].forEach(index => {
+        const arg = callExpression.arguments[index];
+        if (arg && arg.type !== 'SpreadElement' && isHardcodedString(arg)) {
+          reportIssue(callExpression, arg);
+        }
+      });
+    }
+
+    function checkSecretProperty(callExpression: estree.CallExpression, fqn: string) {
+      const { argIndex, propertyName } = secretObjectSignatures[fqn];
+      const arg = callExpression.arguments[argIndex];
+      if (!arg) {
+        return;
+      }
+      const objectExpr = getValueOfExpression(context, arg, 'ObjectExpression');
+      if (!objectExpr) {
+        return;
+      }
+      const secretProperty = getProperty(objectExpr, propertyName, context);
+      if (!secretProperty) {
+        return;
+      }
+      const secretValue = secretProperty.value as estree.Expression;
+      if (isHardcodedString(secretValue)) {
+        reportIssue(callExpression, secretValue);
+      }
     }
 
     return {
@@ -97,26 +143,16 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      CallExpression: (node: estree.Node) => {
-        const callExpression = node as estree.CallExpression;
-        const fqn = getFullyQualifiedName(context, callExpression);
-
-        if (fqn && secretSignatures.hasOwnProperty(fqn) && callExpression.arguments.length > 0) {
-          secretSignatures[fqn].forEach(index => {
-            const arg = callExpression.arguments[index];
-            if (arg && arg.type !== 'SpreadElement' && isHardcodedString(arg)) {
-              const secondaryLocations: IssueLocation[] = getSecondaryNode(arg);
-
-              report(
-                context,
-                {
-                  message: 'Revoke and change this password, as it is compromised.',
-                  loc: callExpression.callee.loc as estree.SourceLocation,
-                },
-                secondaryLocations,
-              );
-            }
-          });
+      CallExpression(node: estree.CallExpression) {
+        const fqn = getFullyQualifiedName(context, node);
+        if (!fqn) {
+          return;
+        }
+        if (node.arguments.length > 0 && fqn in secretSignatures) {
+          checkSecretArgument(node, fqn);
+        }
+        if (fqn in secretObjectSignatures) {
+          checkSecretProperty(node, fqn);
         }
       },
     };
