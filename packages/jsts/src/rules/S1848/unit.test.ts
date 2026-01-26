@@ -126,6 +126,70 @@ new AwsProvider(this, 'aws', {
 import { Notice } from 'obsidian';
 new Notice('Hello from Obsidian plugin!');`,
           },
+          {
+            // DOM attachment: document.querySelector argument
+            code: `new NewBranchForm(document.querySelector('.js-create-branch-form'));`,
+          },
+          {
+            // DOM attachment: document.getElementById argument
+            code: `new SketchLoader(document.getElementById('js-sketch-viewer'));`,
+          },
+          {
+            // DOM attachment: jQuery $() selector
+            code: `new IssuableForm($('.merge-request-form'));`,
+          },
+          {
+            // DOM attachment: property access on querySelector result
+            code: `new CommitsList(document.querySelector('.js-project-commits-show').dataset.commitsLimit);`,
+          },
+          {
+            // DOM attachment: getElementsByClassName
+            code: `new ElementHandler(document.getElementsByClassName('my-class'));`,
+          },
+          {
+            // DOM attachment: getElementsByTagName
+            code: `new TagHandler(document.getElementsByTagName('div'));`,
+          },
+          {
+            // DOM attachment: jQuery() selector
+            code: `new FormHandler(jQuery('#my-form'));`,
+          },
+          {
+            // DOM attachment: this.$() (Backbone/Marionette pattern)
+            code: `new SubView(this.$('.sub-element'));`,
+          },
+          {
+            // DOM attachment: selector nested in object argument
+            code: `new ComponentInit({ el: document.querySelector('.component') });`,
+          },
+          {
+            // DOM attachment: selector as second argument
+            code: `new Widget('widget-name', document.getElementById('container'));`,
+          },
+          {
+            // DOM attachment: variable initialized from DOM selection
+            code: `const element = document.querySelector('.container');
+new Widget(element);`,
+          },
+          {
+            // DOM attachment: variable with TypeScript type assertion
+            code: `const el = document.getElementById('app') as HTMLElement;
+new AppController(el);`,
+          },
+          {
+            // DOM attachment: variable from querySelector on custom document object
+            code: `let myDocument = getDocument();
+let eBody = myDocument.querySelector('body');
+new DragInstance(params, startEvent, eBody);`,
+          },
+          {
+            // DOM attachment: nested $() calls in object property values
+            code: `new Browser('browser', 'window', window, {titleElement: $('path_content'), valueElement: $('value_content')});`,
+          },
+          {
+            // DOM attachment: this.$() in object property (Backbone/Marionette SelectList pattern)
+            code: `new SelectList({ el: this.$('#groups-users'), width: '100%' });`,
+          },
         ],
         invalid: [
           {
