@@ -23,6 +23,7 @@ import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const EXCEPTIONS = new Set(['\t', '\n']);
+const LAST_CONTROL_CHAR = 0x1f;
 
 /**
  * Checks if the character is used as a boundary (min or max) in a character class range.
@@ -38,7 +39,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       const { value, raw } = character;
       if (
         value >= 0x00 &&
-        value <= 0x1f &&
+        value <= LAST_CONTROL_CHAR &&
         (isSameInterpreted(raw, value) ||
           raw.startsWith(String.raw`\x`) ||
           raw.startsWith(String.raw`\u`)) &&

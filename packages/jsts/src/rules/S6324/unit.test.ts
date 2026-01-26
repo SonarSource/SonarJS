@@ -18,6 +18,8 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
+const MESSAGE = 'Remove this control character.';
+
 describe('S6324', () => {
   it('S6324', () => {
     const ruleTester = new DefaultParserRuleTester();
@@ -27,19 +29,19 @@ describe('S6324', () => {
           code: `/0/`,
         },
         {
-          code: `/\\0/`,
+          code: String.raw`/\0/`,
         },
         {
-          code: `/\\x20/`,
+          code: String.raw`/\x20/`,
         },
         {
-          code: `/\\u0020/`,
+          code: String.raw`/\u0020/`,
         },
         {
-          code: `/\\u{001F}/`,
+          code: String.raw`/\u{001F}/`,
         },
         {
-          code: `/\\cA/`,
+          code: String.raw`/\cA/`,
         },
         {
           code: String.raw`new RegExp('\t')`,
@@ -87,10 +89,10 @@ describe('S6324', () => {
       ],
       invalid: [
         {
-          code: `/\\x00/`,
+          code: String.raw`/\x00/`,
           errors: [
             {
-              message: 'Remove this control character.',
+              message: MESSAGE,
               line: 1,
               endLine: 1,
               column: 2,
@@ -99,10 +101,10 @@ describe('S6324', () => {
           ],
         },
         {
-          code: `/\\u001F/`,
+          code: String.raw`/\u001F/`,
           errors: [
             {
-              message: 'Remove this control character.',
+              message: MESSAGE,
               line: 1,
               endLine: 1,
               column: 2,
@@ -111,10 +113,10 @@ describe('S6324', () => {
           ],
         },
         {
-          code: `/\\u{001F}/u`,
+          code: String.raw`/\u{001F}/u`,
           errors: [
             {
-              message: 'Remove this control character.',
+              message: MESSAGE,
               line: 1,
               endLine: 1,
               column: 2,
@@ -126,14 +128,14 @@ describe('S6324', () => {
           code: String.raw`var regex = new RegExp('\x1f\x1e')`,
           errors: [
             {
-              message: String.raw`Remove this control character.`,
+              message: MESSAGE,
               line: 1,
               endLine: 1,
               column: 25,
               endColumn: 29,
             },
             {
-              message: String.raw`Remove this control character.`,
+              message: MESSAGE,
               line: 1,
               endLine: 1,
               column: 29,
