@@ -68,6 +68,22 @@ describe('S6324', () => {
           // Control char range in new RegExp
           code: String.raw`new RegExp('[\\x00-\\x1f]')`,
         },
+        {
+          // CSS selector escaping pattern with range boundary
+          code: String.raw`/([\0-\x1f\x7f]|^-?\d)/g`,
+        },
+        {
+          // Negated ASCII range for diacritics/non-ASCII matching
+          code: String.raw`/[^\u0000-\u007E]/g`,
+        },
+        {
+          // JSON/string escaping pattern with control char range
+          code: String.raw`/[\x00-\x1f\\"]/g`,
+        },
+        {
+          // Git ref name validation with control char range
+          code: String.raw`/[\x00-\x20\x7F~^:?*]/g`,
+        },
       ],
       invalid: [
         {
@@ -146,6 +162,27 @@ describe('S6324', () => {
           // (only range boundaries should be excluded)
           code: String.raw`/[\x01-\x08\x0b\x0c]/`,
           errors: 2, // \x0b and \x0c are standalone, not range boundaries
+        },
+        {
+          // Standalone ANSI escape code (ESC char) should be flagged
+          code: String.raw`/\u001b\[\d+m/g`,
+          errors: 1,
+        },
+        {
+          // Standalone null character in regex should be flagged
+          code: String.raw`/\u0000/g`,
+          errors: 1,
+        },
+        {
+          // CSS whitespace alternation pattern - all standalone control chars flagged
+          // Note: EXCEPTIONS only match literal \t and \n, not unicode escapes like \u0009 or \u000a
+          code: String.raw`/\u0009|\u000a|\u000c|\u000d/`,
+          errors: 4,
+        },
+        {
+          // Vertical tab (VT) standalone should be flagged
+          code: String.raw`/\x0B/g`,
+          errors: 1,
         },
       ],
     });
