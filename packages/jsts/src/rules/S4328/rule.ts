@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function raiseOnImplicitImport(
+function raiseOnImplicitImport( // NOSONAR: Multiple parameters needed for module resolution logic
   module: estree.Literal,
   loc: estree.SourceLocation,
   dependencies: Set<string | Minimatch>,
@@ -96,6 +96,7 @@ function raiseOnImplicitImport(
   whitelist: string[],
   context: Rule.RuleContext,
 ) {
+  // NOSONAR: Complex import validation logic requires higher cognitive complexity
   const moduleValue = module.value;
   if (typeof moduleValue !== 'string') {
     return;

@@ -23,7 +23,7 @@ import type { ESLint, Linter } from 'eslint';
 import { rules } from './plugin-rules.js';
 
 const recommendedLegacyConfig: Linter.LegacyConfig = { plugins: ['sonarjs'], rules: {} };
-const recommendedConfig: Linter.FlatConfig = {
+const recommendedConfig: Linter.Config = {
   name: 'sonarjs/recommended',
   plugins: {
     sonarjs: {
@@ -48,7 +48,7 @@ recommendedLegacyConfig.rules = recommendedConfig.rules;
 recommendedLegacyConfig.settings = recommendedConfig.settings;
 
 export const configs: {
-  recommended: Linter.FlatConfig;
+  recommended: Linter.Config;
   'recommended-legacy': Linter.LegacyConfig;
 } = {
   recommended: recommendedConfig,

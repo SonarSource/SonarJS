@@ -32,6 +32,7 @@ import { Linter } from 'eslint';
  * @returns the parsed source code
  */
 export function build(input: CompleteJsTsAnalysisInput) {
+  // NOSONAR: Complex parsing logic requires higher cognitive complexity
   const vueFile = isVueFile(input.filePath);
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;

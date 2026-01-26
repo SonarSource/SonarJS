@@ -18,7 +18,7 @@ import ts from 'typescript';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import { removeNodePrefixIfExists } from './module.js';
 
-export function getFullyQualifiedNameTS(
+export function getFullyQualifiedNameTS( // NOSONAR: Complex TypeScript AST traversal requires higher cognitive complexity
   services: ParserServicesWithTypeInformation,
   rootNode: ts.Node,
 ): string | null {

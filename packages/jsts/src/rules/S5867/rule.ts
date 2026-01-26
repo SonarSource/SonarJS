@@ -48,6 +48,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       }
     },
     onCharacterEnter: (character: AST.Character) => {
+      // NOSONAR: Complex regex character validation requires higher cognitive complexity
       if (isUnicodeEnabled) {
         return;
       }

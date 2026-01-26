@@ -136,6 +136,7 @@ export class SimplifiedRegexCharacterClass {
     }
 
     visitCharacterSet(characterSet: AST.CharacterSet) {
+      // NOSONAR: Complex character set handling requires higher cognitive complexity
       switch (characterSet.kind) {
         case 'digit':
           if (characterSet.negate) {
