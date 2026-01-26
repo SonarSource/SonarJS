@@ -184,6 +184,18 @@ describe('S6324', () => {
           code: String.raw`/\x0B/g`,
           errors: 1,
         },
+        {
+          // Standalone null char in negated character class should be flagged
+          // (from ruling: ace/demo/static-highlighter/server.js)
+          code: String.raw`/[^#?\x00]*/`,
+          errors: 1,
+        },
+        {
+          // CRLF line ending detection pattern - standalone control chars flagged
+          // (from ruling: jquery/build/tasks/dist.js)
+          code: String.raw`/\x0d\x0a/`,
+          errors: 2,
+        },
       ],
     });
   });
