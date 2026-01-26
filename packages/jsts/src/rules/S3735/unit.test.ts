@@ -110,11 +110,67 @@ describe('S3735', () => {
             declare function executeCommand(): ThenableFn<void>;
             void executeCommand();
             `,
+        },        {
+          code: `
+            // Union with void: () => void | Promise<void>
+            type VoidOrPromiseFunction = () => void | Promise<void>;
+            const myFunction = async () => { return Promise.resolve(); };
+            const typedFunction: VoidOrPromiseFunction = myFunction;
+            void typedFunction();
+            `,
+        },
+        {
+          code: `
+            // Optional chaining: Promise<void> | undefined
+            interface SomeInterface {
+              someFunction(): Promise<void>;
+            }
+            const maybeUndefined: SomeInterface | undefined = undefined;
+            void maybeUndefined?.someFunction();
+            `,
+        },
+        {
+          code: `
+            // Union with undefined
+            const x: Promise<void> | undefined = Promise.resolve();
+            void x;
+            `,
+        },
+        {
+          code: `
+            // Union with null
+            const y: Promise<void> | null = null;
+            void y;
+            `,
+        },
+        {
+          code: `
+            // Union with void and undefined
+            const z: void | undefined | Promise<void> = undefined;
+            void z;
+            `,
         },
       ],
       invalid: [
         {
           code: `void 42;`,
+          errors: 1,
+        },
+        {
+          code: `
+            // Union with meaningful value (string)
+            const z: string | Promise<void> = "hello";
+            void z;
+            `,
+          errors: 1,
+        },
+        {
+          code: `
+            // Union with boolean (logical expressions)
+            declare const skipCheck: boolean;
+            declare const checkPromise: Promise<void>;
+            void (skipCheck || checkPromise);
+            `,
           errors: 1,
         },
       ],

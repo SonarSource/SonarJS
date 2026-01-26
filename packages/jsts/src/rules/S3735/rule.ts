@@ -22,7 +22,7 @@ import {
   generateMeta,
   isFunctionCall,
   isRequiredParserServices,
-  isThenable,
+  isThenableOrVoidUnion,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -67,7 +67,7 @@ function isIIFE(expr: estree.UnaryExpression) {
 function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) {
   const services = context.sourceCode.parserServices;
   if (isRequiredParserServices(services)) {
-    return isThenable(expr.argument, services);
+    return isThenableOrVoidUnion(expr.argument, services);
   } else {
     // If we don't have typescript types, we can't reason if it's a promise.
     // Therefore, if this is a function call, assume it is a promise.
