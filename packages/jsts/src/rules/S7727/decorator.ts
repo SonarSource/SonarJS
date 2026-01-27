@@ -46,6 +46,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
+      return;
       const node = (reportDescriptor as { node?: estree.Node }).node;
       if (!node) {
         context.report(reportDescriptor);

@@ -816,57 +816,55 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
+      - name: Get GitHub App token
+        id: secrets
+        if: github.event_name == 'pull_request'
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-jira token | GITHUB_TOKEN;
       - name: Run JS/TS Ruling
         id: ruling
         run: |
           npm run generate-meta
           npm run ruling
-      - name: Update ruling and notify
+      - name: Check for auto-update loop
+        id: loop-check
         if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
         run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
           LAST_COMMIT_MSG=$(git log -1 --format=%B)
           if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
             echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
           fi
-
-          # Sync ruling results (this modifies its/ruling/...)
+      - name: Sync ruling results
+        id: sync-ruling
+        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request' && steps.loop-check.outputs.skip != 'true'
+        run: |
           npm run ruling-sync
-
-          # Generate report comparing against master
           git fetch origin master
           node tools/ruling-report.js > ruling-report.md
+      - name: Push ruling changes
+        id: push-ruling
+        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request' && steps.loop-check.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+          commit-message: |
+            Update ruling results
 
-          # Stash changes before checkout
-          git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
-
-          # Checkout PR branch
-          git fetch origin "$HEAD_REF"
-          git checkout "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Pop the stashed changes
-          git stash pop
-
-          git add its/ruling/src/test/expected/jsts/
-
-          if git diff --staged --quiet; then
-            echo "No ruling changes to commit"
-            exit 0
-          fi
-
-          git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-          git push origin "$HEAD_REF"
-
-          # Build comment with marker for identification
+            🤖 Generated with GitHub Actions
+          branch: ${{ github.head_ref }}
+          base: ${{ github.head_ref }}
+          add-paths: its/ruling/src/test/expected/jsts/
+      - name: Comment on PR
+        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request' && steps.loop-check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
           MARKER="<!-- ruling-report -->"
           {
             echo "$MARKER"
@@ -875,9 +873,7 @@ jobs:
               echo ""
             fi
             echo "---"
-            echo "✅ **Ruling has been updated.** To re-run CI, either:"
-            echo "- Close and reopen this PR, or"
-            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+            echo "✅ **Ruling has been updated.** CI will run automatically."
           } > comment.md
 
           # Find existing ruling comment and update it, or create new one
