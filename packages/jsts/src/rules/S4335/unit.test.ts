@@ -204,6 +204,14 @@ interface HttpResourceRequestOptions {
             code: `type AlsoInvalid = number & {};`,
             errors: 1,
           },
+          {
+            // Type reference intersected with {} outside of union should be flagged
+            // This is genuinely redundant (unlike the LiteralUnion pattern in unions)
+            code: `
+interface SomeProps<T> { value: T; }
+type ExtendedProps<T> = SomeProps<T> & {};`,
+            errors: 1,
+          },
         ],
       },
     );
