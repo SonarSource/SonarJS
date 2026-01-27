@@ -110,9 +110,16 @@ jobs:
           JIRA_USER=$(echo "$VAULT_OUTPUT" | jq -r '.JIRA_USER')
           JIRA_TOKEN=$(echo "$VAULT_OUTPUT" | jq -r '.JIRA_TOKEN')
           # Use Jira REST API to add label
-          curl -s -X PUT \
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" -X PUT \
             -H "Content-Type: application/json" \
             -u "$JIRA_USER:$JIRA_TOKEN" \
             -d '{"update": {"labels": [{"add": "eslint-plugin"}]}}' \
-            "https://sonarsource.atlassian.net/rest/api/3/issue/$JIRA_KEY"
-          echo "Added 'eslint-plugin' label to $JIRA_KEY"
+            "https://sonarsource.atlassian.net/rest/api/3/issue/$JIRA_KEY")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Successfully added 'eslint-plugin' label to $JIRA_KEY"
+          else
+            echo "Failed to add label to $JIRA_KEY. HTTP status: $HTTP_CODE"
+            cat response.json
+            exit 1
+          fi
