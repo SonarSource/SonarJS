@@ -42,7 +42,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch }}
 
@@ -72,7 +72,7 @@ jobs:
         run: npm run grpc:build
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           # Dev: 011528275708, Prod: 718197818630 (Staging account has permission to push to Prod ECR)
           role-to-assume: arn:aws:iam::${{ inputs.environment == 'Prod' && '718197818630' || '011528275708' }}:role/${{ vars.CICD_ROLE }}
