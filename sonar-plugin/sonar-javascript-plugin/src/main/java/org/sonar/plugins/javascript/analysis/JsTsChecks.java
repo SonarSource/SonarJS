@@ -68,8 +68,8 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * not added to {@link #eslintKeyToRuleKey}, any issues they report are silently discarded.</p>
  *
  * @see CheckFactory SonarQube component that filters rules by quality profile
- * @see CustomRuleRepository Legacy API for external plugins to contribute rules
- * @see EslintHookRegistrar New API for data collection hooks (cannot raise issues)
+ * @see CustomRuleRepository API for external plugins to contribute rules (can raise issues)
+ * @see EslintHookRegistrar API for data collection hooks (cannot raise issues)
  */
 @ScannerSide
 @SonarLintSide
@@ -138,8 +138,8 @@ public class JsTsChecks {
    * Main constructor - builds the complete rule registry.
    *
    * @param checkFactory SonarQube-provided component with quality profile data
-   * @param customRuleRepositories External plugins' custom rules (legacy API, can raise issues)
-   * @param eslintHookRegistrars External plugins' hooks (new API, cannot raise issues)
+   * @param customRuleRepositories External plugins' custom rules (can raise issues)
+   * @param eslintHookRegistrars External plugins' data collection hooks (cannot raise issues)
    */
   public JsTsChecks(
     CheckFactory checkFactory,
@@ -219,7 +219,7 @@ public class JsTsChecks {
   }
 
   /**
-   * Registers custom rules from external plugins (legacy API).
+   * Registers custom rules from external plugins.
    *
    * <p>External plugins implement {@link CustomRuleRepository} to contribute their rules.
    * These go through the same CheckFactory filtering as built-in rules.</p>
