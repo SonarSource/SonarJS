@@ -162,6 +162,21 @@ describe('S6324', () => {
           code: String.raw`/\u001b\[\d+m/g`,
           errors: 1,
         },
+        {
+          // CRLF detection pattern - both flagged since hex escapes aren't excepted
+          code: String.raw`/\x0d\x0a/`,
+          errors: 2,
+        },
+        {
+          // Whitespace alternation pattern (like csslint.js) - unicode escapes not excepted
+          code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
+          errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
+        },
+        {
+          // Mixed ranges and standalone: only standalone chars flagged
+          code: String.raw`/[\x00-\x08\x0b\x0c]/`,
+          errors: 2, // \x0b and \x0c are standalone, \x00-\x08 is a range
+        },
       ],
     });
   });
