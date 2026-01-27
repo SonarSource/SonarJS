@@ -1,3 +1,19 @@
+## 2026-01-27, Version 3.0.6
+
+* [[JS-1143](https://sonarsource.atlassian.net/browse/JS-1143)] - feat(S6437): Add support for object-based signatures
+* [[JS-1128](https://sonarsource.atlassian.net/browse/JS-1128)] - Fix: Update crypto.verify in S6437
+* [[JS-1026](https://sonarsource.atlassian.net/browse/JS-1026)] - Fix S2137, S2424, S2703 to use globals npm package instead of internal deprecated list
+* [[JS-955](https://sonarsource.atlassian.net/browse/JS-955)] - Fix S1541: Support nullish coalescing operator
+* [[JS-926](https://sonarsource.atlassian.net/browse/JS-926)] - Fix rule S1444: Should only raise in Typescript files in eslint-plugin-sonarjs
+* [[JS-754](https://sonarsource.atlassian.net/browse/JS-754)] - S6418: Should handle ternary expression and obejct assignments
+* [[JS-638](https://sonarsource.atlassian.net/browse/JS-638)] - Fix S4721 (`os-command`) location error
+* [[JS-487](https://sonarsource.atlassian.net/browse/JS-487)] - Fix S6759: crash when using return outside of a function
+* [[JS-486](https://sonarsource.atlassian.net/browse/JS-486)] - Improve S2004 (`no-nested-functions`): ignore test functions
+* [[JS-485](https://sonarsource.atlassian.net/browse/JS-485)] - Fix rule S1135 (`todo-tag`): ignore use of todo on eslint pragma comments
+* [[JS-384](https://sonarsource.atlassian.net/browse/JS-384)] - S1854 Useless assignment false-positive when using variables in try/catch blocks
+* [[JS-106](https://sonarsource.atlassian.net/browse/JS-106)] - FP in S3801 when `throw` is in child functions
+* [[JS-90](https://sonarsource.atlassian.net/browse/JS-90)] - Fix FP S3801 (`no-inconsistent-returns`): Ignore switch handling all variants
+
 ## 2025-08-25, Version 3.0.5
 
 - [[JS-834](https://sonarsource.atlassian.net/browse/JS-834)] - Add missing tailwindCSS directive @theme to rule S4662
