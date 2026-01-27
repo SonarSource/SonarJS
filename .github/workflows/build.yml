@@ -822,63 +822,84 @@ jobs:
           npm run generate-meta
           npm run ruling
       - name: Update ruling and notify
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
+          RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
-          LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-            echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
-          fi
-
-          # Sync ruling results (this modifies its/ruling/...)
-          npm run ruling-sync
-
           # Generate report comparing against master
           git fetch origin master
           node tools/ruling-report.js > ruling-report.md
 
-          # Stash changes before checkout
-          git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
-
-          # Checkout PR branch
-          git fetch origin "$HEAD_REF"
-          git checkout "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Pop the stashed changes
-          git stash pop
-
-          git add its/ruling/src/test/expected/jsts/
-
-          if git diff --staged --quiet; then
-            echo "No ruling changes to commit"
-            exit 0
+          # Check if there are ruling differences
+          if [ -s ruling-report.md ]; then
+            HAS_DIFFERENCES=true
+          else
+            HAS_DIFFERENCES=false
           fi
 
-          git commit -m "Update ruling results
+          # Only auto-update ruling files when the ruling test failed
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+            # Check if last commit was already an auto-update (prevent infinite loop)
+            LAST_COMMIT_MSG=$(git log -1 --format=%B)
+            if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+              echo "Last commit was an auto-update, skipping to prevent infinite loop"
+              exit 0
+            fi
+
+            # Sync ruling results (this modifies its/ruling/...)
+            npm run ruling-sync
+
+            # Stash changes before checkout
+            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
+
+            # Checkout PR branch
+            git fetch origin "$HEAD_REF"
+            git checkout "$HEAD_REF"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Pop the stashed changes
+            git stash pop
+
+            git add its/ruling/src/test/expected/jsts/
+
+            if git diff --staged --quiet; then
+              echo "No ruling changes to commit"
+            else
+              git commit -m "Update ruling results
 
           🤖 Generated with GitHub Actions"
-          git push origin "$HEAD_REF"
+              git push origin "$HEAD_REF"
+            fi
+          fi
 
           # Build comment with marker for identification
           MARKER="<!-- ruling-report -->"
-          {
-            echo "$MARKER"
-            if [ -s ruling-report.md ]; then
+          if [ "$HAS_DIFFERENCES" = "true" ]; then
+            # Build comment with ruling changes
+            {
+              echo "$MARKER"
               cat ruling-report.md
               echo ""
-            fi
-            echo "---"
-            echo "✅ **Ruling has been updated.** To re-run CI, either:"
-            echo "- Close and reopen this PR, or"
-            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
-          } > comment.md
+              if [ "$RULING_FAILED" = "true" ]; then
+                echo "---"
+                echo "✅ **Ruling has been updated.** To re-run CI, either:"
+                echo "- Close and reopen this PR, or"
+                echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+              fi
+            } > comment.md
+          else
+            # Build comment for no changes
+            {
+              echo "$MARKER"
+              echo "## Ruling Report"
+              echo ""
+              echo "✅ **No changes to ruling expected issues in this PR**"
+            } > comment.md
+          fi
 
           # Find existing ruling comment and update it, or create new one
           EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
