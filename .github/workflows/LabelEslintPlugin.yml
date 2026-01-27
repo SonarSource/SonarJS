@@ -13,13 +13,73 @@ jobs:
     permissions:
       id-token: write
       pull-requests: read
+      contents: read
     # Only run for internal PRs (not forks) and not from bots
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.sender.type != 'Bot'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Fetch full history to access base branch
+
+      - name: Check if changes are only in external/decorated rules
+        id: check-rules
+        run: |
+          # Get list of changed rule directories
+          CHANGED_RULES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | \
+            grep -oE 'packages/jsts/src/rules/S[0-9]+' | sort -u || echo "")
+
+          if [ -z "$CHANGED_RULES" ]; then
+            echo "No rule directories changed"
+            echo "should_label=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Changed rule directories:"
+          echo "$CHANGED_RULES"
+
+          # Check if any changed rule is NOT external or decorated
+          # We check both HEAD and base branch to handle:
+          # - Deleted rules (check base)
+          # - Rules converted from original to external/decorated (check base)
+          # - New original rules (check HEAD)
+          SHOULD_LABEL="false"
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+
+          for RULE_DIR in $CHANGED_RULES; do
+            META_FILE="$RULE_DIR/meta.ts"
+
+            # Get implementation from HEAD (current PR state)
+            if [ -f "$META_FILE" ]; then
+              IMPL_HEAD=$(grep -oP "implementation\s*=\s*['\"]\\K[^'\"]*" "$META_FILE" || echo "original")
+            else
+              IMPL_HEAD=""
+            fi
+
+            # Get implementation from base branch (before PR changes)
+            IMPL_BASE=$(git show "origin/$BASE_REF:$META_FILE" 2>/dev/null | grep -oP "implementation\s*=\s*['\"]\\K[^'\"]*" || echo "original")
+
+            echo "Rule $RULE_DIR - HEAD: '${IMPL_HEAD:-deleted}', BASE: '$IMPL_BASE'"
+
+            # Label if EITHER HEAD or BASE has original implementation
+            if [ -n "$IMPL_HEAD" ] && [ "$IMPL_HEAD" != "external" ] && [ "$IMPL_HEAD" != "decorated" ]; then
+              SHOULD_LABEL="true"
+              echo "Found original rule implementation in HEAD for $RULE_DIR"
+            elif [ "$IMPL_BASE" != "external" ] && [ "$IMPL_BASE" != "decorated" ]; then
+              SHOULD_LABEL="true"
+              echo "Found original rule implementation in BASE for $RULE_DIR"
+            fi
+          done
+
+          echo "should_label=$SHOULD_LABEL" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Extract Jira key from PR title
         id: extract-jira-key
+        if: steps.check-rules.outputs.should_label == 'true'
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
           # Extract Jira key (e.g., JS-1234) from the beginning of the title
@@ -34,7 +94,7 @@ jobs:
           fi
 
       - id: secrets
-        if: steps.extract-jira-key.outputs.has_jira_key == 'true'
+        if: steps.check-rules.outputs.should_label == 'true' && steps.extract-jira-key.outputs.has_jira_key == 'true'
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
@@ -42,7 +102,7 @@ jobs:
             development/kv/data/jira token | JIRA_TOKEN;
 
       - name: Add eslint-plugin label
-        if: steps.extract-jira-key.outputs.has_jira_key == 'true'
+        if: steps.check-rules.outputs.should_label == 'true' && steps.extract-jira-key.outputs.has_jira_key == 'true'
         env:
           VAULT_OUTPUT: ${{ steps.secrets.outputs.vault }}
           JIRA_KEY: ${{ steps.extract-jira-key.outputs.jira_key }}
