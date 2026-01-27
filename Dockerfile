@@ -6,11 +6,10 @@ WORKDIR /app
 # Copy the bundled output from esbuild
 COPY ./bin/ ./bin/
 COPY package.json ./
-COPY packages/bridge/src/openrpc-server.json ./
 
-# Expose default port (adjust if needed)
-EXPOSE 3000
+# Expose gRPC port to match proxy service expectations
+EXPOSE 50051
 
-# Run the bundled server
-CMD ["node", "./bin/server.cjs", "3000", "0.0.0.0"]
+# Run the bundled server on port 50051
+CMD ["node", "./bin/grpc-server.cjs", "50051"]
 

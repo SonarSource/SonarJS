@@ -1,13 +1,4 @@
 {
-"paper.js:gulp/tasks/build.js": [
-40
-],
-"paper.js:gulp/tasks/docs.js": [
-31
-],
-"paper.js:gulp/tasks/publish.js": [
-92
-],
 "paper.js:gulp/typescript/typescript-definition-generator.js": [
 14,
 71,
@@ -16,14 +7,7 @@
 "paper.js:gulp/utils/error.js": [
 23
 ],
-"paper.js:src/core/Base.js": [
-326,
-421
-],
 "paper.js:src/core/PaperScript.js": [
 308
-],
-"paper.js:src/node/canvas.js": [
-60
 ]
 }

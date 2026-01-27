@@ -22,6 +22,7 @@ import { toUnixPath } from './helpers.js';
 const sourceBaseDir = path.join(import.meta.dirname, '..');
 const patterns = [
   'packages/*/tests/**/fixtures/**/*',
+  'packages/*/tests/**/fixtures-*/**/*',
   'packages/*/src/rules/**/*.fixture.*',
   'packages/*/src/rules/**/fixtures/**/*',
   'packages/*/src/rules/*/cb.options.json',

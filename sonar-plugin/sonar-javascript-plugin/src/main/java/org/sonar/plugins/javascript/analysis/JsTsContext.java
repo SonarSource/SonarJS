@@ -21,7 +21,6 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Stream.concat;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILE_SIZE_KB;
-import static org.sonar.plugins.javascript.JavaScriptPlugin.MAX_FILES_PROPERTY;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
 
@@ -131,13 +130,6 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   public long getMaxFileSizeProperty() {
     return getMaxFileSizeProperty(context.config());
-  }
-
-  public int getTypeCheckingLimit() {
-    return Math.max(
-      context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
-      0
-    );
   }
 
   public boolean skipAst(AnalysisConsumers consumers) {
