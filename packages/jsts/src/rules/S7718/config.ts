@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S7718/javascript
 
 import { ESLintConfiguration } from '../helpers/configs.js';
 
@@ -22,7 +22,7 @@ export const fields = [
   [
     {
       field: 'ignore',
-      default: ['^(e|ex|exception|err)$'],
+      default: [/^(e|ex)$/, /exception$/i, /err$/i, /^_/, /^\w\$\d+$/],
     },
   ],
 ] as const satisfies ESLintConfiguration;
