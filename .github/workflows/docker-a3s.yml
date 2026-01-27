@@ -74,7 +74,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::011528275708:role/${{ vars.CICD_ROLE }}
+          # Dev: 011528275708, Prod: 718197818630
+          role-to-assume: arn:aws:iam::${{ inputs.environment == 'Prod' && '718197818630' || '011528275708' }}:role/${{ vars.CICD_ROLE }}
           aws-region: eu-central-1
 
       - name: Login to Amazon ECR
