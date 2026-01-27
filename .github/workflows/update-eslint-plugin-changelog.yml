@@ -1,0 +1,36 @@
+name: Update ESLint Plugin Changelog
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The eslint-plugin-sonarjs version
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The eslint-plugin-sonarjs version
+        required: true
+        type: string
+
+jobs:
+  update-changelog:
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Update changelog
+        env:
+          VERSION: ${{ inputs.version }}
+        run: node tools/update-changelog.js "$VERSION"
+      - uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          author: ${{ github.actor }} <${{ github.actor }}>
+          commit-message: "Update eslint-plugin-sonarjs changelog for ${{ inputs.version }}"
+          title: "Update eslint-plugin-sonarjs changelog for ${{ inputs.version }}"
+          branch: bot/update-eslint-changelog
+          branch-suffix: timestamp
+          base: master
+          reviewers: ${{ github.actor }}
