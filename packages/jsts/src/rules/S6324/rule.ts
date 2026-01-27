@@ -24,17 +24,27 @@ import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const EXCEPTIONS = new Set(['\t', '\n']);
 
+const MAX_CONTROL_CHAR_CODE = 0x1f;
+
+/**
+ * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
+ */
+function isCharacterClassRangeBoundary(character: AST.Character): boolean {
+  return character.parent.type === 'CharacterClassRange';
+}
+
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: AST.Character) => {
       const { value, raw } = character;
       if (
         value >= 0x00 &&
-        value <= 0x1f &&
+        value <= MAX_CONTROL_CHAR_CODE &&
         (isSameInterpreted(raw, value) ||
           raw.startsWith(String.raw`\x`) ||
           raw.startsWith(String.raw`\u`)) &&
-        !EXCEPTIONS.has(raw)
+        !EXCEPTIONS.has(raw) &&
+        !isCharacterClassRangeBoundary(character)
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',
