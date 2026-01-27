@@ -24,6 +24,13 @@ import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const EXCEPTIONS = new Set(['\t', '\n']);
 
+/**
+ * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
+ */
+function isCharacterClassRangeBoundary(character: AST.Character): boolean {
+  return character.parent.type === 'CharacterClassRange';
+}
+
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: AST.Character) => {
@@ -34,7 +41,8 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         (isSameInterpreted(raw, value) ||
           raw.startsWith(String.raw`\x`) ||
           raw.startsWith(String.raw`\u`)) &&
-        !EXCEPTIONS.has(raw)
+        !EXCEPTIONS.has(raw) &&
+        !isCharacterClassRangeBoundary(character)
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',

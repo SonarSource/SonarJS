@@ -47,29 +47,21 @@ describe('S6324', () => {
         {
           code: String.raw`new RegExp('\n')`,
         },
-        // False positive: Control characters as character class range boundaries
-        // These should NOT raise issues because the control characters define intentional ranges
+        // Control characters as character class range boundaries are compliant
         {
-          // Control char range using hex escape syntax (\xNN)
-          code: String.raw`/[\x00-\x1f]/g`,
+          code: String.raw`/[\x00-\x1f]/g`, // hex escape range
         },
         {
-          // Control char range using unicode escape syntax (\uNNNN)
-          code: String.raw`/[\u0000-\u001f]/`,
+          code: String.raw`/[\u0000-\u001f]/`, // unicode escape range
         },
         {
-          // Multiple control character ranges only (simplified RFC 5322 pattern)
-          // Note: The full RFC 5322 pattern includes standalone \x0b and \x0c which would still be flagged
-          code: String.raw`/[\x01-\x08\x0e-\x1f]/`,
+          code: String.raw`/[\x01-\x08\x0e-\x1f]/`, // multiple control char ranges
         },
         {
-          // Negated character class with control char range boundary
-          // Matches non-ASCII characters by excluding ASCII range
-          code: String.raw`/[^\u0000-\u007F]/g`,
+          code: String.raw`/[^\u0000-\u007F]/g`, // negated character class
         },
         {
-          // Full ASCII range with control char as start boundary
-          code: String.raw`/[\x00-\x7F]/`,
+          code: String.raw`/[\x00-\x7F]/`, // full ASCII range
         },
       ],
       invalid: [
