@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta, getNodeParent, isRequiredParserServices } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -53,6 +53,9 @@ export const rule: Rule.RuleModule = {
                 .getTypeChecker()
                 .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
               if (isTypeWithoutMembers(tp)) {
+                if (isLiteralUnionPattern(intersection)) {
+                  continue;
+                }
                 context.report({
                   messageId: 'removeIntersection',
                   node: typeNode as unknown as estree.Node,
@@ -108,4 +111,34 @@ function isInterfaceDeclaration(
   declaration: ts.Declaration,
 ): declaration is ts.InterfaceDeclaration {
   return declaration.kind === ts.SyntaxKind.InterfaceDeclaration;
+}
+
+/**
+ * Detects the LiteralUnion pattern: `(X & {})` used within a union type to preserve
+ * IDE autocomplete for literal types while accepting any primitive value.
+ * Example: `'small' | 'medium' | 'large' | (string & {})`
+ */
+function isLiteralUnionPattern(intersection: TSESTree.TSIntersectionType): boolean {
+  if (intersection.types.length !== 2) {
+    return false;
+  }
+
+  const parent = getNodeParent(intersection as unknown as estree.Node);
+  if (!parent || (parent as TSESTree.Node).type !== 'TSUnionType') {
+    return false;
+  }
+
+  const otherType = intersection.types.find(
+    t => t.type !== 'TSTypeLiteral' || (t.members && t.members.length > 0),
+  );
+
+  if (!otherType) {
+    return false;
+  }
+
+  return (
+    otherType.type === 'TSStringKeyword' ||
+    otherType.type === 'TSNumberKeyword' ||
+    otherType.type === 'TSTypeReference'
+  );
 }
