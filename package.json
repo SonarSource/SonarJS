@@ -89,7 +89,7 @@
     "pretty-quick": "4.2.2",
     "rimraf": "6.1.2",
     "tsx": "4.21.0",
-    "type-fest": "5.4.1"
+    "type-fest": "5.4.2"
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "21.1.0",
