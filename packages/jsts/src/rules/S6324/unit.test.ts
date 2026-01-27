@@ -63,6 +63,16 @@ describe('S6324', () => {
         {
           code: String.raw`/[\x00-\x7F]/`, // full ASCII range
         },
+        // Real-world patterns from ruling: escaping control chars, string sanitization
+        {
+          code: String.raw`/[\x00-\x1f\\]/g`, // escape pattern (like prototype.js string.inspect)
+        },
+        {
+          code: String.raw`/[^\u0000-\u007E]/g`, // non-ASCII filter (like normalizeText patterns)
+        },
+        {
+          code: String.raw`/[\x00-\x20\x7F]/g`, // git ref sanitization (ASCII control + DEL)
+        },
       ],
       invalid: [
         {
@@ -141,6 +151,16 @@ describe('S6324', () => {
           // \x0b and \x0c are NOT range boundaries here
           code: String.raw`/[\x0b\x0c]/`,
           errors: 2,
+        },
+        {
+          // Standalone NULL byte replacement (like saxparser.js)
+          code: String.raw`str.replace(/\u0000/g, '')`,
+          errors: 1,
+        },
+        {
+          // ANSI escape sequence pattern (should flag \u001b)
+          code: String.raw`/\u001b\[\d+m/g`,
+          errors: 1,
         },
       ],
     });
