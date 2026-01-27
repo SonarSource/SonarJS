@@ -106,7 +106,7 @@
     "@babel/preset-flow": "7.27.1",
     "@babel/preset-react": "7.28.5",
     "@eslint-community/regexpp": "4.12.2",
-    "@grpc/grpc-js": "1.14.2",
+    "@grpc/grpc-js": "1.14.3",
     "@protobufjs/base64": "1.1.2",
     "@stylistic/eslint-plugin": "5.7.1",
     "@stylistic/stylelint-plugin": "5.0.1",
