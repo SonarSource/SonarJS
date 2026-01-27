@@ -55,67 +55,11 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       if (c !== String.raw`\p` && c !== String.raw`\P`) {
         return;
       }
-      let state:
-        | 'start'
-        | 'openingBracket'
-        | 'alpha'
-        | 'equal'
-        | 'alpha1'
-        | 'closingBracket'
-        | 'end' = 'start';
-      let offset = character.start + c.length;
-      let nextChar: string;
-      do {
-        nextChar = rawPattern[offset];
-        offset++;
-        switch (state) {
-          case 'start':
-            if (nextChar === '{') {
-              state = 'openingBracket';
-            } else {
-              state = 'end';
-            }
-            break;
-          case 'openingBracket':
-            if (/[a-zA-Z]/.test(nextChar)) {
-              state = 'alpha';
-            } else {
-              state = 'end';
-            }
-            break;
-          case 'alpha':
-            if (/[a-zA-Z]/.test(nextChar)) {
-              state = 'alpha';
-            } else if (nextChar === '=') {
-              state = 'equal';
-            } else if (nextChar === '}') {
-              state = 'closingBracket';
-            } else {
-              state = 'end';
-            }
-            break;
-          case 'equal':
-            if (/[a-zA-Z]/.test(nextChar)) {
-              state = 'alpha1';
-            } else {
-              state = 'end';
-            }
-            break;
-          case 'alpha1':
-            if (/[a-zA-Z]/.test(nextChar)) {
-              state = 'alpha1';
-            } else if (nextChar === '}') {
-              state = 'closingBracket';
-            } else {
-              state = 'end';
-            }
-            break;
-          case 'closingBracket':
-            state = 'end';
-            unicodeProperties.push({ character, offset: offset - c.length - 1 });
-            break;
-        }
-      } while (state !== 'end');
+
+      const result = parseUnicodeProperty(rawPattern, character.start + c.length);
+      if (result.isValid) {
+        unicodeProperties.push({ character, offset: result.offset! - c.length });
+      }
     },
     onRegExpLiteralLeave: (regexp: AST.RegExpLiteral) => {
       if (!isUnicodeEnabled && (unicodeProperties.length > 0 || unicodeCharacters.length > 0)) {
@@ -144,3 +88,74 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     },
   };
 }, generateMeta(meta));
+
+type UnicodePropertyState =
+  | 'start'
+  | 'openingBracket'
+  | 'alpha'
+  | 'equal'
+  | 'alpha1'
+  | 'closingBracket'
+  | 'end';
+
+function parseUnicodeProperty(
+  rawPattern: string,
+  startOffset: number,
+): { isValid: boolean; offset?: number } {
+  let state: UnicodePropertyState = 'start';
+  let offset = startOffset;
+  let nextChar: string;
+
+  do {
+    nextChar = rawPattern[offset];
+    offset++;
+    state = transitionState(state, nextChar);
+    if (state === 'closingBracket') {
+      return { isValid: true, offset };
+    }
+  } while (state !== 'end');
+
+  return { isValid: false };
+}
+
+function transitionState(state: UnicodePropertyState, nextChar: string): UnicodePropertyState {
+  switch (state) {
+    case 'start':
+      return nextChar === '{' ? 'openingBracket' : 'end';
+    case 'openingBracket':
+      return /[a-zA-Z]/.test(nextChar) ? 'alpha' : 'end';
+    case 'alpha':
+      return transitionFromAlpha(nextChar);
+    case 'equal':
+      return /[a-zA-Z]/.test(nextChar) ? 'alpha1' : 'end';
+    case 'alpha1':
+      return transitionFromAlpha1(nextChar);
+    case 'closingBracket':
+      return 'end';
+    default:
+      return 'end';
+  }
+}
+
+function transitionFromAlpha(nextChar: string): UnicodePropertyState {
+  if (/[a-zA-Z]/.test(nextChar)) {
+    return 'alpha';
+  }
+  if (nextChar === '=') {
+    return 'equal';
+  }
+  if (nextChar === '}') {
+    return 'closingBracket';
+  }
+  return 'end';
+}
+
+function transitionFromAlpha1(nextChar: string): UnicodePropertyState {
+  if (/[a-zA-Z]/.test(nextChar)) {
+    return 'alpha1';
+  }
+  if (nextChar === '}') {
+    return 'closingBracket';
+  }
+  return 'end';
+}

@@ -34,46 +34,71 @@ import { Linter } from 'eslint';
 export function build(input: CompleteJsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
 
-  let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
-    const options: Linter.ParserOptions = {
-      // enable logs for @typescript-eslint
-      // debugLevel: true,
-      filePath: input.filePath,
-      parser: vueFile ? parsersMap.typescript : undefined,
-    };
-    if (!vueFile) {
-      options.programs = input.programId && [getProgramById(input.programId)];
-      options.project = input.tsConfigs;
-    }
-    try {
-      debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
-      return parse(input.fileContent, parser, buildParserOptions(options, false));
-    } catch (error) {
-      debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
-      if (input.language === 'ts') {
-        throw error;
-      }
+    const result = tryParseWithTypeScript(input, vueFile);
+    if (result) {
+      return result;
     }
   }
 
-  let moduleError;
-  parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
+  return tryParseWithJavaScript(input, vueFile);
+}
+
+function tryParseWithTypeScript(input: CompleteJsTsAnalysisInput, vueFile: boolean) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
+  const options: Linter.ParserOptions = {
+    // enable logs for @typescript-eslint
+    // debugLevel: true,
+    filePath: input.filePath,
+    parser: vueFile ? parsersMap.typescript : undefined,
+  };
+
+  if (!vueFile) {
+    options.programs = input.programId && [getProgramById(input.programId)];
+    options.project = input.tsConfigs;
+  }
+
+  try {
+    debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
+    return parse(input.fileContent, parser, buildParserOptions(options, false));
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
+    if (input.language === 'ts') {
+      throw error;
+    }
+    return null;
+  }
+}
+
+function tryParseWithJavaScript(input: CompleteJsTsAnalysisInput, vueFile: boolean) {
+  const moduleResult = tryParseAsModule(input, vueFile);
+  if (moduleResult.success) {
+    return moduleResult.sourceCode!;
+  }
+
+  return tryParseAsScript(input, moduleResult.error);
+}
+
+function tryParseAsModule(input: CompleteJsTsAnalysisInput, vueFile: boolean) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
-    return parse(
+    const sourceCode = parse(
       input.fileContent,
       parser,
       buildParserOptions({ parser: vueFile ? parsersMap.javascript : undefined }, true),
     );
+    return { success: true, sourceCode, error: null };
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
     if (vueFile) {
       throw error;
     }
-    moduleError = error;
+    return { success: false, sourceCode: null, error };
   }
+}
 
+function tryParseAsScript(input: CompleteJsTsAnalysisInput, moduleError: any) {
   try {
     debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
     return parse(

@@ -31,6 +31,15 @@ const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
 };
 
+interface ImportCheckOptions {
+  dependencies: Set<string | Minimatch>;
+  filename: string;
+  host: ts.ModuleResolutionHost | undefined;
+  options: ts.CompilerOptions | undefined;
+  whitelist: string[];
+  context: Rule.RuleContext;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
@@ -39,11 +48,23 @@ export const rule: Rule.RuleModule = {
 
     const whitelist = (context.options as FromSchema<typeof meta.schema>)[0]?.whitelist || [];
     const program = context.sourceCode.parserServices?.program;
-    let options: ts.CompilerOptions, host: ts.ModuleResolutionHost;
+    let options: ts.CompilerOptions | undefined;
+    let host: ts.ModuleResolutionHost | undefined;
     if (program) {
-      options = program?.getCompilerOptions();
-      host = ts.createCompilerHost(options);
+      const compilerOptions = program.getCompilerOptions();
+      options = compilerOptions;
+      host = ts.createCompilerHost(compilerOptions);
     }
+
+    const checkOptions: ImportCheckOptions = {
+      dependencies,
+      filename: context.filename,
+      host,
+      options,
+      whitelist,
+      context,
+    };
+
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -55,32 +76,14 @@ export const rule: Rule.RuleModule = {
           const [argument] = call.arguments;
           if (argument.type === 'Literal') {
             const requireToken = call.callee;
-            raiseOnImplicitImport(
-              argument,
-              requireToken.loc!,
-              dependencies,
-              context.filename,
-              host,
-              options,
-              whitelist,
-              context,
-            );
+            raiseOnImplicitImport(argument, requireToken.loc!, checkOptions);
           }
         }
       },
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
         const importToken = context.sourceCode.getFirstToken(node);
-        raiseOnImplicitImport(
-          module,
-          importToken!.loc,
-          dependencies,
-          context.filename,
-          host,
-          options,
-          whitelist,
-          context,
-        );
+        raiseOnImplicitImport(module, importToken!.loc, checkOptions);
       },
     };
   },
@@ -89,12 +92,7 @@ export const rule: Rule.RuleModule = {
 function raiseOnImplicitImport(
   module: estree.Literal,
   loc: estree.SourceLocation,
-  dependencies: Set<string | Minimatch>,
-  filename: string,
-  host: ts.ModuleResolutionHost | undefined,
-  options: ts.CompilerOptions | undefined,
-  whitelist: string[],
-  context: Rule.RuleContext,
+  opts: ImportCheckOptions,
 ) {
   const moduleValue = module.value;
   if (typeof moduleValue !== 'string') {
@@ -105,46 +103,72 @@ function raiseOnImplicitImport(
   // Bundlers like Vite use these for transformations (e.g., '?react' for SVG-to-React)
   const moduleName = moduleValue.split('?')[0].split('#')[0];
 
-  if (ts.isExternalModuleNameRelative(moduleName)) {
-    return;
-  }
-
-  if (['node:', 'data:', 'file:'].some(prefix => moduleName.startsWith(prefix))) {
+  if (shouldSkipModule(moduleName, opts)) {
     return;
   }
 
   const packageName = getPackageName(moduleName);
-  if (whitelist.includes(packageName)) {
+  if (isKnownDependency(packageName, moduleName, opts)) {
     return;
   }
 
-  if (builtins.includes(packageName)) {
+  if (canResolveTypeScriptModule(moduleName, opts)) {
     return;
   }
 
-  for (const dependency of dependencies) {
-    if (typeof dependency === 'string') {
-      if (dependency === packageName) {
-        return;
-      }
-    } else if (dependency.match(moduleName)) {
-      //dependencies are globs for workspaces
-      return;
-    }
-  }
-
-  if (host && options) {
-    // check if Typescript can resolve path aliases and 'baseDir'-based import
-    const resolved = ts.resolveModuleName(moduleName, filename, options, host);
-    if (resolved?.resolvedModule && !resolved.resolvedModule.isExternalLibraryImport) {
-      return;
-    }
-  }
-
-  context.report({
+  opts.context.report({
     messageId: 'removeOrAddDependency',
     loc,
   });
+}
+
+function shouldSkipModule(moduleName: string, opts: ImportCheckOptions): boolean {
+  if (ts.isExternalModuleNameRelative(moduleName)) {
+    return true;
+  }
+
+  if (['node:', 'data:', 'file:'].some(prefix => moduleName.startsWith(prefix))) {
+    return true;
+  }
+
+  const packageName = getPackageName(moduleName);
+  if (opts.whitelist.includes(packageName)) {
+    return true;
+  }
+
+  if (builtins.includes(packageName)) {
+    return true;
+  }
+
+  return false;
+}
+
+function isKnownDependency(
+  packageName: string,
+  moduleName: string,
+  opts: ImportCheckOptions,
+): boolean {
+  for (const dependency of opts.dependencies) {
+    if (typeof dependency === 'string') {
+      if (dependency === packageName) {
+        return true;
+      }
+    } else if (dependency.match(moduleName)) {
+      //dependencies are globs for workspaces
+      return true;
+    }
+  }
+  return false;
+}
+
+function canResolveTypeScriptModule(moduleName: string, opts: ImportCheckOptions): boolean {
+  if (!opts.host || !opts.options) {
+    return false;
+  }
+
+  // check if Typescript can resolve path aliases and 'baseDir'-based import
+  const resolved = ts.resolveModuleName(moduleName, opts.filename, opts.options, opts.host);
+  return !!(resolved?.resolvedModule && !resolved.resolvedModule.isExternalLibraryImport);
 }
 
 function getPackageName(name: string) {

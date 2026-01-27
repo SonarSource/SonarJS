@@ -24,116 +24,149 @@ export function getFullyQualifiedNameTS(
 ): string | null {
   const result: string[] = [];
   let node: ts.Node | undefined = rootNode;
+
+  const returnResult = () => {
+    result.reverse();
+    return removeNodePrefixIfExists(result.join('.'));
+  };
+
   while (node) {
-    switch (node.kind) {
-      case ts.SyntaxKind.CallExpression: {
-        const callExpressionNode = node as ts.CallExpression;
-        if (isRequireCall(callExpressionNode)) {
-          node = callExpressionNode.arguments.at(0);
-        } else {
-          node = callExpressionNode.expression;
-        }
-        break;
-      }
-      case ts.SyntaxKind.FunctionDeclaration: {
-        const functionDeclarationNode = node as ts.FunctionDeclaration;
-        const name = functionDeclarationNode.name?.text;
-        if (!name) {
-          return null;
-        }
-        result.push(name);
-        node = functionDeclarationNode.parent;
-        break;
-      }
-      case ts.SyntaxKind.PropertyAccessExpression: {
-        const propertyAccessExpression = node as ts.PropertyAccessExpression;
-        const rhsFQN = propertyAccessExpression.name.text;
-        if (!rhsFQN) {
-          return null;
-        }
-        result.push(rhsFQN);
-        node = propertyAccessExpression.expression;
-        break;
-      }
-      case ts.SyntaxKind.ImportSpecifier: {
-        const importSpecifier = node as ts.ImportSpecifier;
-        const identifierName = importSpecifier.propertyName?.text ?? importSpecifier.name.text;
-        if (!identifierName) {
-          return null;
-        }
-        result.push(identifierName);
-        node = importSpecifier.parent;
-        break;
-      }
-      case ts.SyntaxKind.ImportDeclaration: {
-        node = (node as ts.ImportDeclaration).moduleSpecifier;
-        break;
-      }
-      case ts.SyntaxKind.SourceFile: {
-        // Don't generate fqn for local files
-        return null;
-      }
-      case ts.SyntaxKind.BindingElement: {
-        const bindingElement = node as ts.BindingElement;
-        let identifier;
-        if (bindingElement.propertyName && 'text' in bindingElement.propertyName) {
-          identifier = bindingElement.propertyName.text;
-        } else if ('text' in bindingElement.name) {
-          identifier = bindingElement.name.text;
-        }
-        if (!identifier) {
-          return null;
-        }
-        result.push(identifier);
-        node = node.parent;
-        break;
-      }
-      case ts.SyntaxKind.VariableDeclaration: {
-        const variableDeclaration = node as ts.VariableDeclaration;
-        if (variableDeclaration.initializer) {
-          node = variableDeclaration.initializer;
-          break;
-        } else {
-          return null;
-        }
-      }
-      case ts.SyntaxKind.Identifier: {
-        const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
-        const declaration = identifierSymbol?.declarations?.at(0);
-        // Handle: no symbol info, compiler module, or self-referential declaration (e.g., `module` in CommonJS)
-        if (isCompilerModule(identifierSymbol) || !declaration || declaration === node) {
-          result.push((node as ts.Identifier).text);
-          return returnResult();
-        } else {
-          node = declaration;
-          break;
-        }
-      }
-      case ts.SyntaxKind.StringLiteral: {
-        result.push((node as ts.StringLiteral).text);
-        return returnResult();
-      }
-      case ts.SyntaxKind.ImportClause: // Fallthrough
-      case ts.SyntaxKind.ObjectBindingPattern: // Fallthrough
-      case ts.SyntaxKind.Block: // Fallthrough
-      case ts.SyntaxKind.ExpressionStatement: // Fallthrough
-      case ts.SyntaxKind.NamedImports: // Fallthrough
-      case ts.SyntaxKind.ModuleBlock: {
-        node = node.parent;
-        break;
-      }
-      default: {
-        return null;
-      }
+    const handled = handleNode(node, result, services, returnResult);
+    if (handled.shouldReturn) {
+      return handled.result;
     }
+    node = handled.nextNode;
   }
 
   return null;
+}
 
-  function returnResult() {
-    result.reverse();
-    return removeNodePrefixIfExists(result.join('.'));
+type NodeHandleResult = {
+  shouldReturn: boolean;
+  result: string | null;
+  nextNode: ts.Node | undefined;
+};
+
+function handleNode(
+  node: ts.Node,
+  result: string[],
+  services: ParserServicesWithTypeInformation,
+  returnResult: () => string | null,
+): NodeHandleResult {
+  switch (node.kind) {
+    case ts.SyntaxKind.CallExpression:
+      return handleCallExpression(node as ts.CallExpression);
+    case ts.SyntaxKind.FunctionDeclaration:
+      return handleFunctionDeclaration(node as ts.FunctionDeclaration, result);
+    case ts.SyntaxKind.PropertyAccessExpression:
+      return handlePropertyAccessExpression(node as ts.PropertyAccessExpression, result);
+    case ts.SyntaxKind.ImportSpecifier:
+      return handleImportSpecifier(node as ts.ImportSpecifier, result);
+    case ts.SyntaxKind.ImportDeclaration:
+      return {
+        shouldReturn: false,
+        result: null,
+        nextNode: (node as ts.ImportDeclaration).moduleSpecifier,
+      };
+    case ts.SyntaxKind.SourceFile:
+      // Don't generate fqn for local files
+      return { shouldReturn: true, result: null, nextNode: undefined };
+    case ts.SyntaxKind.BindingElement:
+      return handleBindingElement(node as ts.BindingElement, result);
+    case ts.SyntaxKind.VariableDeclaration:
+      return handleVariableDeclaration(node as ts.VariableDeclaration);
+    case ts.SyntaxKind.Identifier:
+      return handleIdentifier(node as ts.Identifier, result, services, returnResult);
+    case ts.SyntaxKind.StringLiteral:
+      result.push((node as ts.StringLiteral).text);
+      return { shouldReturn: true, result: returnResult(), nextNode: undefined };
+    case ts.SyntaxKind.ImportClause:
+    case ts.SyntaxKind.ObjectBindingPattern:
+    case ts.SyntaxKind.Block:
+    case ts.SyntaxKind.ExpressionStatement:
+    case ts.SyntaxKind.NamedImports:
+    case ts.SyntaxKind.ModuleBlock:
+      return { shouldReturn: false, result: null, nextNode: node.parent };
+    default:
+      return { shouldReturn: true, result: null, nextNode: undefined };
   }
+}
+
+function handleCallExpression(node: ts.CallExpression): NodeHandleResult {
+  if (isRequireCall(node)) {
+    return { shouldReturn: false, result: null, nextNode: node.arguments.at(0) };
+  }
+  return { shouldReturn: false, result: null, nextNode: node.expression };
+}
+
+function handleFunctionDeclaration(
+  node: ts.FunctionDeclaration,
+  result: string[],
+): NodeHandleResult {
+  const name = node.name?.text;
+  if (!name) {
+    return { shouldReturn: true, result: null, nextNode: undefined };
+  }
+  result.push(name);
+  return { shouldReturn: false, result: null, nextNode: node.parent };
+}
+
+function handlePropertyAccessExpression(
+  node: ts.PropertyAccessExpression,
+  result: string[],
+): NodeHandleResult {
+  const rhsFQN = node.name.text;
+  if (!rhsFQN) {
+    return { shouldReturn: true, result: null, nextNode: undefined };
+  }
+  result.push(rhsFQN);
+  return { shouldReturn: false, result: null, nextNode: node.expression };
+}
+
+function handleImportSpecifier(node: ts.ImportSpecifier, result: string[]): NodeHandleResult {
+  const identifierName = node.propertyName?.text ?? node.name.text;
+  if (!identifierName) {
+    return { shouldReturn: true, result: null, nextNode: undefined };
+  }
+  result.push(identifierName);
+  return { shouldReturn: false, result: null, nextNode: node.parent };
+}
+
+function handleBindingElement(node: ts.BindingElement, result: string[]): NodeHandleResult {
+  let identifier;
+  if (node.propertyName && 'text' in node.propertyName) {
+    identifier = node.propertyName.text;
+  } else if ('text' in node.name) {
+    identifier = node.name.text;
+  }
+  if (!identifier) {
+    return { shouldReturn: true, result: null, nextNode: undefined };
+  }
+  result.push(identifier);
+  return { shouldReturn: false, result: null, nextNode: node.parent };
+}
+
+function handleVariableDeclaration(node: ts.VariableDeclaration): NodeHandleResult {
+  if (node.initializer) {
+    return { shouldReturn: false, result: null, nextNode: node.initializer };
+  }
+  return { shouldReturn: true, result: null, nextNode: undefined };
+}
+
+function handleIdentifier(
+  node: ts.Identifier,
+  result: string[],
+  services: ParserServicesWithTypeInformation,
+  returnResult: () => string | null,
+): NodeHandleResult {
+  const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
+  const declaration = identifierSymbol?.declarations?.at(0);
+  // Handle: no symbol info, compiler module, or self-referential declaration (e.g., `module` in CommonJS)
+  if (isCompilerModule(identifierSymbol) || !declaration || declaration === node) {
+    result.push(node.text);
+    return { shouldReturn: true, result: returnResult(), nextNode: undefined };
+  }
+  return { shouldReturn: false, result: null, nextNode: declaration };
 }
 
 function isRequireCall(callExpression: ts.CallExpression) {

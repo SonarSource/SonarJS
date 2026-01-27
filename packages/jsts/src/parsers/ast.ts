@@ -80,7 +80,10 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
   let shape: any;
-  switch (node.type) {
+  switch (
+    // NOSONAR S1479 - This switch handles all AST node types and must be exhaustive for complete protobuf serialization
+    node.type
+  ) {
     case 'Program':
       shape = visitProgram(node);
       break;
@@ -482,6 +485,7 @@ function visitUpdateExpression(node: TSESTree.UpdateExpression) {
 }
 
 function visitUnaryExpression(node: TSESTree.UnaryExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     operator: node.operator,
     argument: visitNode(node.argument),
@@ -544,6 +548,7 @@ function visitAssignmentPattern(node: TSESTree.AssignmentPattern) {
 }
 
 function visitRestElement(node: TSESTree.RestElement) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     argument: visitNode(node.argument),
   };
@@ -557,12 +562,14 @@ function visitArrayPattern(node: TSESTree.ArrayPattern) {
 }
 
 function visitObjectPattern(node: TSESTree.ObjectPattern) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     properties: node.properties.map(visitNode),
   };
 }
 
 function visitPrivateIdentifier(node: TSESTree.PrivateIdentifier) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     name: node.name,
   };
@@ -638,12 +645,14 @@ function visitClassExpression(node: TSESTree.ClassExpression) {
 }
 
 function visitClassBody(node: TSESTree.ClassBody) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     body: node.body.map(visitNode),
   };
 }
 
 function visitStaticBlock(node: TSESTree.StaticBlock) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     body: node.body.map(visitNode),
   };
@@ -669,6 +678,7 @@ function visitMethodDefinition(node: TSESTree.MethodDefinition) {
 }
 
 function visitChainExpression(node: TSESTree.ChainExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     expression: visitNode(node.expression),
   };
@@ -683,6 +693,7 @@ function visitCallExpression(node: TSESTree.CallExpression) {
 }
 
 function visitBinaryExpression(node: TSESTree.BinaryExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     operator: node.operator,
     left: visitNode(node.left),
@@ -691,12 +702,14 @@ function visitBinaryExpression(node: TSESTree.BinaryExpression) {
 }
 
 function visitAwaitExpression(node: TSESTree.AwaitExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     argument: visitNode(node.argument),
   };
 }
 
 function visitAssignmentExpression(node: TSESTree.AssignmentExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     operator: node.operator,
     left: visitNode(node.left),
@@ -715,6 +728,7 @@ function visitArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression) {
 }
 
 function visitArrayExpression(node: TSESTree.ArrayExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   // When an entry is empty, it is represented as null in the array.
   return {
     elements: node.elements.map(visitArrayElement),
@@ -730,6 +744,7 @@ function visitArrayElement(
 }
 
 function visitClassDeclaration(node: TSESTree.ClassDeclaration) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     id: visitNode(node.id),
     superClass: visitNode(node.superClass),
@@ -790,6 +805,7 @@ function visitImportNamespaceSpecifier(node: TSESTree.ImportNamespaceSpecifier) 
 }
 
 function visitImportDefaultSpecifier(node: TSESTree.ImportDefaultSpecifier) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     local: visitNode(node.local),
   };
@@ -858,6 +874,7 @@ function visitCatchClause(node: TSESTree.CatchClause) {
 }
 
 function visitThrowStatement(node: TSESTree.ThrowStatement) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     argument: visitNode(node.argument),
   };
@@ -878,6 +895,7 @@ function visitSwitchCase(node: TSESTree.SwitchCase) {
 }
 
 function visitIfStatement(node: TSESTree.IfStatement) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     test: visitNode(node.test),
     consequent: visitNode(node.consequent),
@@ -892,6 +910,7 @@ function visitContinueStatement(node: TSESTree.ContinueStatement) {
 }
 
 function visitBreakStatement(node: TSESTree.BreakStatement) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     label: visitNode(node.label),
   };
@@ -905,6 +924,7 @@ function visitLabeledStatement(node: TSESTree.LabeledStatement) {
 }
 
 function visitReturnStatement(node: TSESTree.ReturnStatement) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     argument: visitNode(node.argument),
   };
@@ -947,6 +967,7 @@ function visitTemplateElement(node: TSESTree.TemplateElement) {
 }
 
 function visitFunctionExpression(node: TSESTree.FunctionExpression) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     id: visitNode(node.id),
     body: visitNode(node.body),
@@ -965,6 +986,7 @@ function visitTSImportEqualsDeclaration(node: TSESTree.TSImportEqualsDeclaration
 }
 
 function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     left: visitNode(node.left),
     right: visitNode(node.right),
@@ -972,12 +994,14 @@ function visitTSQualifiedName(node: TSESTree.TSQualifiedName) {
 }
 
 function visitTSExternalModuleReference(node: TSESTree.TSExternalModuleReference) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     expression: visitNode(node.expression),
   };
 }
 
 function visitTSModuleBlock(node: TSESTree.TSModuleBlock) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   return {
     body: node.body.map(visitNode),
   };
@@ -1092,6 +1116,7 @@ function visitJSXAttribute(node: TSESTree.JSXAttribute) {
   };
 }
 function visitJSXIdentifier(node: TSESTree.JSXIdentifier) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   /*
    * export interface JSXIdentifier extends BaseNode {
    *   type: AST_NODE_TYPES.JSXIdentifier;
@@ -1129,6 +1154,7 @@ function visitJSXNamespacedName(node: TSESTree.JSXNamespacedName) {
   };
 }
 function visitJSXSpreadAttribute(node: TSESTree.JSXSpreadAttribute) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   /*
    * export interface JSXSpreadAttribute extends BaseNode {
    *   type: AST_NODE_TYPES.JSXSpreadAttribute;
@@ -1140,6 +1166,7 @@ function visitJSXSpreadAttribute(node: TSESTree.JSXSpreadAttribute) {
   };
 }
 function visitJSXExpressionContainer(node: TSESTree.JSXExpressionContainer) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   /*
    * export interface JSXExpressionContainer extends BaseNode {
    *   type: AST_NODE_TYPES.JSXExpressionContainer;
@@ -1151,6 +1178,7 @@ function visitJSXExpressionContainer(node: TSESTree.JSXExpressionContainer) {
   };
 }
 function visitJSXSpreadChild(node: TSESTree.JSXSpreadChild) {
+  // NOSONAR S4144 - Type-specific visitor for protobuf serialization
   /*
    * export interface JSXSpreadChild extends BaseNode {
    *   type: AST_NODE_TYPES.JSXSpreadChild;

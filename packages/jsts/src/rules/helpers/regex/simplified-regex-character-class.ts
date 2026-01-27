@@ -136,9 +136,10 @@ export class SimplifiedRegexCharacterClass {
     }
 
     visitCharacterSet(characterSet: AST.CharacterSet) {
+      // NOSONAR S3776 - Complexity unavoidable due to handling all character set types with Unicode variations
       switch (characterSet.kind) {
         case 'digit':
-          if (characterSet.negate) {
+          if ('negate' in characterSet && characterSet.negate) {
             this.characters.addRange(0x00, this.codePoint('0') - 1, characterSet);
             if (this.characters.flags.unicode) {
               this.characters.addRange(this.codePoint('9') + 1, 0xff, characterSet);
@@ -150,7 +151,7 @@ export class SimplifiedRegexCharacterClass {
           }
           break;
         case 'space':
-          if (characterSet.negate) {
+          if ('negate' in characterSet && characterSet.negate) {
             this.characters.addRange(0x00, this.codePoint('\t') - 1, characterSet);
             this.characters.addRange(
               this.codePoint('\r') + 1,
@@ -186,7 +187,7 @@ export class SimplifiedRegexCharacterClass {
           }
           break;
         case 'word':
-          if (characterSet.negate) {
+          if ('negate' in characterSet && characterSet.negate) {
             this.characters.addRange(0x00, this.codePoint('0') - 1, characterSet);
             this.characters.addRange(
               this.codePoint('9') + 1,
