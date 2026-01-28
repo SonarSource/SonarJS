@@ -91,8 +91,54 @@ describe('S4335', () => {
         }
         
         let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
- 
+
         `,
+          },
+          // False positive tests: LiteralUnion pattern for autocomplete preservation
+          {
+            // Pattern: (string & {}) in union with string literal types
+            // This is a documented TypeScript idiom that preserves IDE autocomplete
+            // for the literal types while still accepting any string value.
+            code: `type Size = 'small' | 'medium' | 'large' | (string & {});`,
+          },
+          {
+            // Pattern: (number & {}) in union with number literal types
+            // Similar to the string pattern, this preserves autocomplete
+            // for specific numeric values while accepting any number.
+            code: `type Spacing = 0 | 4 | 8 | 16 | 32 | (number & {});`,
+          },
+          {
+            // Pattern: (string & {}) with keyof expression in union
+            // Allows specific known keys to have autocomplete while accepting any string.
+            code: `
+interface ThemeColors {
+  primary: string;
+  secondary: string;
+  error: string;
+}
+
+type ColorKey = keyof ThemeColors | (string & {});`,
+          },
+          {
+            // Pattern: Generic LiteralUnion type using (U & {})
+            // This is the canonical "LiteralUnion" pattern documented in TypeScript
+            // community resources. See: https://github.com/Microsoft/TypeScript/issues/29729
+            code: `
+export type LiteralUnion<T extends U, U> = T | (U & {});
+
+// Usage: autocomplete suggests 'small' | 'medium' | 'large' but accepts any string
+type Size = LiteralUnion<'small' | 'medium' | 'large', string>;`,
+          },
+          {
+            // Real-world example from Angular: RequestCache | (string & {})
+            // Used in HTTP request options to allow known cache modes with autocomplete
+            // while accepting custom string values.
+            code: `
+interface HttpResourceRequestOptions {
+  cache?: RequestCache | (string & {});
+  credentials?: RequestCredentials | (string & {});
+  priority?: RequestPriority | (string & {});
+}`,
           },
         ],
         invalid: [
@@ -145,6 +191,25 @@ describe('S4335', () => {
         interface Empty {}
         function withEmptyInterface(x: { a: string } & Empty) {}
         `,
+            errors: 1,
+          },
+          {
+            // (string & {}) outside of a union should still be flagged
+            // The LiteralUnion exception only applies when used within a union type
+            code: `type Invalid = string & {};`,
+            errors: 1,
+          },
+          {
+            // (number & {}) outside of a union should still be flagged
+            code: `type AlsoInvalid = number & {};`,
+            errors: 1,
+          },
+          {
+            // Type reference intersected with {} outside of union should be flagged
+            // This is genuinely redundant (unlike the LiteralUnion pattern in unions)
+            code: `
+interface SomeProps<T> { value: T; }
+type ExtendedProps<T> = SomeProps<T> & {};`,
             errors: 1,
           },
         ],
