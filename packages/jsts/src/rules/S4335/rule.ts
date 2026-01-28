@@ -20,7 +20,12 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, getNodeParent, isRequiredParserServices } from '../helpers/index.js';
+import {
+  generateMeta,
+  getNodeParent,
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -32,41 +37,52 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
-    if (isRequiredParserServices(services)) {
-      return {
-        TSIntersectionType: (node: estree.Node) => {
-          const intersection = node as unknown as TSESTree.TSIntersectionType;
-          const anyOrNever = intersection.types.find(typeNode =>
-            ['TSAnyKeyword', 'TSNeverKeyword'].includes(typeNode.type),
-          );
-          if (anyOrNever) {
-            context.report({
-              messageId: 'simplifyIntersection',
-              data: {
-                type: anyOrNever.type === 'TSAnyKeyword' ? 'any' : 'never',
-              },
-              node,
-            });
-          } else {
-            for (const typeNode of intersection.types) {
-              const tp: ts.Type = services.program
-                .getTypeChecker()
-                .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
-              if (isTypeWithoutMembers(tp)) {
-                if (isLiteralUnionPattern(intersection)) {
-                  continue;
-                }
-                context.report({
-                  messageId: 'removeIntersection',
-                  node: typeNode as unknown as estree.Node,
-                });
-              }
-            }
-          }
-        },
-      };
+    if (!isRequiredParserServices(services)) {
+      return {};
     }
-    return {};
+
+    function checkIntersectionType(node: estree.Node) {
+      const intersection = node as unknown as TSESTree.TSIntersectionType;
+      const anyOrNever = intersection.types.find(typeNode =>
+        ['TSAnyKeyword', 'TSNeverKeyword'].includes(typeNode.type),
+      );
+      if (anyOrNever) {
+        context.report({
+          messageId: 'simplifyIntersection',
+          data: {
+            type: anyOrNever.type === 'TSAnyKeyword' ? 'any' : 'never',
+          },
+          node,
+        });
+        return;
+      }
+      checkTypesWithoutMembers(intersection, services);
+    }
+
+    function checkTypesWithoutMembers(
+      intersection: TSESTree.TSIntersectionType,
+      parserServices: RequiredParserServices,
+    ) {
+      for (const typeNode of intersection.types) {
+        const tp: ts.Type = parserServices.program
+          .getTypeChecker()
+          .getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(typeNode));
+        if (!isTypeWithoutMembers(tp)) {
+          continue;
+        }
+        if (isLiteralUnionPattern(intersection)) {
+          continue;
+        }
+        context.report({
+          messageId: 'removeIntersection',
+          node: typeNode as unknown as estree.Node,
+        });
+      }
+    }
+
+    return {
+      TSIntersectionType: checkIntersectionType,
+    };
   },
 };
 
