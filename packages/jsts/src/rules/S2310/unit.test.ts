@@ -18,9 +18,10 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-describe('S2310', () => {
-  it('S2310', () => {
-    const ruleTester = new DefaultParserRuleTester();
+const ruleTester = new DefaultParserRuleTester();
+
+describe('S2310 - valid patterns', () => {
+  it('should allow valid patterns', () => {
     ruleTester.run('Loop counter should not be updated inside loop', rule, {
       valid: [
         {
@@ -123,11 +124,20 @@ describe('S2310', () => {
       `,
         },
       ],
+      invalid: [],
+    });
+  });
+});
+
+describe('S2310 - invalid patterns', () => {
+  it('should detect invalid patterns', () => {
+    ruleTester.run('Loop counter should not be updated inside loop', rule, {
+      valid: [],
       invalid: [
         {
-          code: `  
+          code: `
         for (var i = 0, j = 2; i < 5; i++) {
-          i = 5;      // Noncompliant 
+          i = 5;      // Noncompliant
           j = 5;      // compliant, not in update section
         }
       `,
@@ -136,7 +146,7 @@ describe('S2310', () => {
               line: 3,
               column: 11,
               endColumn: 12,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
             },
           ],
           settings: { sonarRuntime: true },
@@ -187,7 +197,7 @@ describe('S2310', () => {
           errors: [
             {
               line: 5,
-              message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"x\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
             },
           ],
           settings: { sonarRuntime: true },
@@ -262,17 +272,17 @@ describe('S2310', () => {
             {
               line: 4,
               column: 40,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
             },
             {
               line: 5,
               column: 13,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
             },
             {
               line: 5,
               column: 13,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
             },
           ],
           settings: { sonarRuntime: true },
