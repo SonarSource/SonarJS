@@ -22,7 +22,26 @@ export const fields = [
   [
     {
       field: 'ignore',
-      default: [/^(e|ex)$/, /exception$/i, /err$/i, /^_/, /^\w\$\d+$/, /^cause$/, /^reason$/],
+      description: 'Regex patterns for catch parameter names to ignore (comma-separated)',
+      items: { type: 'string' },
+      default: [
+        '^(e|ex)$',
+        '[eE][xX][cC][eE][pP][tT][iI][oO][nN]$',
+        '[eE][rR][rR]$',
+        '^_',
+        '^\\w\\$\\d+$',
+        '^[cC][aA][uU][sS][eE]$',
+        '^[rR][eE][aA][sS][oO][nN]$',
+      ],
+      customDefault: [
+        '^(e|ex)$',
+        '[eE][xX][cC][eE][pP][tT][iI][oO][nN]$',
+        '[eE][rR][rR]$',
+        '^_',
+        '^\\\\w\\\\$\\\\d+$',
+        '^[cC][aA][uU][sS][eE]$',
+        '^[rR][eE][aA][sS][oO][nN]$',
+      ],
     },
   ],
 ] as const satisfies ESLintConfiguration;

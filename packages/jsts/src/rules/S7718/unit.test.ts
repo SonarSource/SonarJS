@@ -25,7 +25,15 @@ describe('S7718', () => {
     // Default options from config.ts - matches patterns that should NOT raise issues
     const defaultOptions = [
       {
-        ignore: [/^(e|ex)$/, /exception$/i, /err$/i, /^_/, /^\w\$\d+$/, /^cause$/, /^reason$/],
+        ignore: [
+          '^(e|ex)$',
+          '[eE][xX][cC][eE][pP][tT][iI][oO][nN]$',
+          '[eE][rR][rR]$',
+          '^_',
+          '^\\w\\$\\d+$',
+          '^[cC][aA][uU][sS][eE]$',
+          '^[rR][eE][aA][sS][oO][nN]$',
+        ],
       },
     ];
 
