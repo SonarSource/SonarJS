@@ -890,6 +890,10 @@ jobs:
 
           🤖 Generated with GitHub Actions"
               git push origin "$HEAD_REF"
+
+              # Trigger CI on the updated branch using workflow_dispatch
+              # GitHub Apps can't trigger pull_request events, but can trigger workflow_dispatch
+              gh workflow run build.yml --ref "$HEAD_REF"
             fi
           fi
 
@@ -903,7 +907,7 @@ jobs:
               echo ""
               if [ "$RULING_FAILED" = "true" ]; then
                 echo "---"
-                echo "✅ **Ruling has been updated.** Please close and reopen the PR to trigger CI."
+                echo "✅ **Ruling has been updated.** CI has been triggered."
               fi
             } > comment.md
           else
