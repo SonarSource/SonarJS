@@ -18,7 +18,7 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-const { getProp, getLiteralPropValue } = pkg;
+const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact, generateMeta } from '../helpers/index.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
@@ -34,6 +34,7 @@ import * as meta from './generated-meta.js';
  *    - role="slider" with complete aria-value* attributes
  *    - role="radio" with aria-checked
  *    - role="separator" with children (since <hr> is void)
+ *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
  * already filtered out by isHtmlElement. HTML elements with role="group" remain
@@ -93,7 +94,8 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
-    isSeparatorWithChildren(role, node)
+    isSeparatorWithChildren(role, node) ||
+    isImgRoleWithValidPattern(elementName, role, attributes, node)
   );
 }
 
@@ -132,6 +134,50 @@ function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']
 
 function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement): boolean {
   return role === 'separator' && hasChildren(node);
+}
+
+/**
+ * Checks if the element has role="img" in a valid pattern.
+ *
+ * <img> is a void element that cannot contain children and uses src attribute (not CSS).
+ * Therefore, role="img" is valid on div/span when:
+ * - The element has children (emoji, icons, fallback content)
+ * - The element uses CSS backgroundImage for image display
+ */
+function isImgRoleWithValidPattern(
+  elementName: string | null,
+  role: string,
+  attributes: JSXOpeningElement['attributes'],
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  if (role !== 'img' || (elementName !== 'div' && elementName !== 'span')) {
+    return false;
+  }
+
+  // Check for children (emoji, icons, fallback content)
+  if (hasChildren(node)) {
+    return true;
+  }
+
+  // Check for CSS backgroundImage in style prop
+  return hasBackgroundImageStyle(attributes);
+}
+
+/**
+ * Checks if the element has a style prop containing backgroundImage.
+ */
+function hasBackgroundImageStyle(attributes: JSXOpeningElement['attributes']): boolean {
+  const styleProp = getProp(attributes, 'style');
+  if (!styleProp) {
+    return false;
+  }
+  // Use getPropValue to extract object expressions (getLiteralPropValue returns null for objects)
+  const styleValue = getPropValue(styleProp);
+  // Check object-style prop (style={{ backgroundImage: ... }})
+  if (styleValue && typeof styleValue === 'object' && 'backgroundImage' in styleValue) {
+    return true;
+  }
+  return false;
 }
 
 /**
