@@ -174,7 +174,10 @@ export const rule: Rule.RuleModule = {
 function isCallbackArgument(
   node: (ArrowFunctionExpression | FunctionExpression) & Rule.NodeParentExtension,
 ) {
-  return node.parent.type === 'CallExpression' && node.parent.arguments.includes(node);
+  return (
+    (node.parent.type === 'CallExpression' && node.parent.arguments.includes(node)) ||
+    node.parent.type === 'JSXExpressionContainer'
+  );
 }
 
 /**
