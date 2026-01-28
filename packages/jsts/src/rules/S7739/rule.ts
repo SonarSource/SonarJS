@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7739/javascript
 
 import type { Rule } from 'eslint';
-import type { AssignmentExpression, CallExpression, MemberExpression, Node } from 'estree';
+import type { AssignmentExpression, CallExpression, Node } from 'estree';
 import { rules } from '../external/unicorn.js';
 import {
   generateMeta,
@@ -151,53 +151,65 @@ function getAncestorsWithParent(node: Node): Node[] {
 }
 
 /**
+ * Checks if an ancestor is a function declaration named 'Promise' or 'Deferred'.
+ */
+function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
+  return (
+    ancestor.type === 'FunctionDeclaration' &&
+    ancestor.id !== null &&
+    isIdentifier(ancestor.id, 'Promise', 'Deferred')
+  );
+}
+
+/**
+ * Checks if an ancestor is a function expression/arrow assigned to 'Promise' or 'Deferred'.
+ */
+function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
+  if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+  const funcParent = (ancestor as Node & { parent?: Node }).parent;
+  if (!funcParent) {
+    return false;
+  }
+  // const Promise = function() { ... } or const Promise = () => { ... }
+  if (
+    funcParent.type === 'VariableDeclarator' &&
+    funcParent.id.type === 'Identifier' &&
+    isIdentifier(funcParent.id, 'Promise', 'Deferred')
+  ) {
+    return true;
+  }
+  // Promise = function() { ... } or Promise = () => { ... }
+  return (
+    funcParent.type === 'AssignmentExpression' &&
+    funcParent.left.type === 'Identifier' &&
+    isIdentifier(funcParent.left, 'Promise', 'Deferred')
+  );
+}
+
+/**
+ * Checks if an ancestor is a class named 'Promise' or 'Deferred'.
+ */
+function isPromiseOrDeferredClass(ancestor: Node): boolean {
+  return (
+    (ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression') &&
+    ancestor.id !== null &&
+    isIdentifier(ancestor.id, 'Promise', 'Deferred')
+  );
+}
+
+/**
  * Checks if 'then' is defined inside a class or function named 'Promise' or 'Deferred'.
  */
 function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-
-  for (const ancestor of ancestors) {
-    // Check for function declaration: function Promise() { } or function Deferred() { }
-    if (
-      ancestor.type === 'FunctionDeclaration' &&
-      ancestor.id &&
-      isIdentifier(ancestor.id, 'Promise', 'Deferred')
-    ) {
-      return true;
-    }
-
-    // Check for function expression or arrow function assigned to Promise or Deferred
-    if (ancestor.type === 'FunctionExpression' || ancestor.type === 'ArrowFunctionExpression') {
-      const funcParent = (ancestor as Node & { parent?: Node }).parent;
-      // const Promise = function() { ... } or const Promise = () => { ... }
-      if (
-        funcParent?.type === 'VariableDeclarator' &&
-        funcParent.id.type === 'Identifier' &&
-        isIdentifier(funcParent.id, 'Promise', 'Deferred')
-      ) {
-        return true;
-      }
-      // Promise = function() { ... } or Promise = () => { ... }
-      if (
-        funcParent?.type === 'AssignmentExpression' &&
-        funcParent.left.type === 'Identifier' &&
-        isIdentifier(funcParent.left, 'Promise', 'Deferred')
-      ) {
-        return true;
-      }
-    }
-
-    // Check for class declaration or class expression: class Promise { } or class Deferred { }
-    if (
-      (ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression') &&
-      ancestor.id &&
-      isIdentifier(ancestor.id, 'Promise', 'Deferred')
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  return ancestors.some(
+    ancestor =>
+      isPromiseOrDeferredFunctionDeclaration(ancestor) ||
+      isPromiseOrDeferredFunctionExpression(ancestor) ||
+      isPromiseOrDeferredClass(ancestor),
+  );
 }
 
 /**
@@ -212,8 +224,7 @@ function isPrototypeThenAssignment(node: Node): boolean {
     return false;
   }
 
-  const parent = ancestors[0]; // MemberExpression (Deferred.prototype.then)
-  const grandparent = ancestors[1]; // AssignmentExpression
+  const [parent, grandparent] = ancestors; // parent: MemberExpression, grandparent: AssignmentExpression
 
   // Check that we're in an assignment context
   if (grandparent?.type !== 'AssignmentExpression') {
@@ -225,17 +236,16 @@ function isPrototypeThenAssignment(node: Node): boolean {
     return false;
   }
 
-  const memberExpr = parent as MemberExpression;
-
   // Check if the reported node is the 'then' property
   if (!isIdentifier(node, 'then')) {
     return false;
   }
 
   // Check if object is X.prototype (where X is any identifier or member expression)
+  const parentObject = parent.object;
   if (
-    memberExpr.object.type === 'MemberExpression' &&
-    isIdentifier((memberExpr.object as MemberExpression).property, 'prototype')
+    parentObject.type === 'MemberExpression' &&
+    isIdentifier(parentObject.property, 'prototype')
   ) {
     return true;
   }
@@ -244,40 +254,54 @@ function isPrototypeThenAssignment(node: Node): boolean {
 }
 
 /**
+ * Extracts the property name from a Property node's key.
+ */
+function getPropertyKeyName(prop: Node & { type: 'Property'; key: Node }): string | null {
+  const { key } = prop;
+  if (key.type === 'Identifier') {
+    return key.name;
+  }
+  if (key.type === 'Literal' && typeof key.value === 'string') {
+    return key.value;
+  }
+  return null;
+}
+
+/**
+ * Collects all property names from an ObjectExpression.
+ */
+function collectPropertyNames(objectExpr: Node & { type: 'ObjectExpression' }): Set<string> {
+  const propertyNames = new Set<string>();
+  for (const prop of objectExpr.properties) {
+    if (prop.type === 'Property') {
+      const name = getPropertyKeyName(prop);
+      if (name !== null) {
+        propertyNames.add(name);
+      }
+    }
+  }
+  return propertyNames;
+}
+
+/**
+ * Checks if a set of property names indicates a thenable implementation.
+ */
+function hasCompleteThenable(propertyNames: Set<string>): boolean {
+  return propertyNames.has('then') && (propertyNames.has('catch') || propertyNames.has('finally'));
+}
+
+/**
  * Checks if the object containing 'then' also defines 'catch' or 'finally' methods,
  * indicating an intentional thenable implementation.
  */
 function hasSiblingThenableMethods(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-
-  // Find the containing object expression
-  for (const ancestor of ancestors) {
-    if (ancestor.type === 'ObjectExpression') {
-      const propertyNames = new Set<string>();
-
-      for (const prop of ancestor.properties) {
-        if (prop.type === 'Property') {
-          if (prop.key.type === 'Identifier') {
-            propertyNames.add(prop.key.name);
-          } else if (prop.key.type === 'Literal' && typeof prop.key.value === 'string') {
-            propertyNames.add(prop.key.value);
-          }
-        }
-      }
-
-      // Check if object has both 'then' and ('catch' or 'finally')
-      if (
-        propertyNames.has('then') &&
-        (propertyNames.has('catch') || propertyNames.has('finally'))
-      ) {
-        return true;
-      }
-
-      break; // Only check the immediate containing object
-    }
+  const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
   }
-
-  return false;
+  const propertyNames = collectPropertyNames(objectExpr);
+  return hasCompleteThenable(propertyNames);
 }
 
 /**

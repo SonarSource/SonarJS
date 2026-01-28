@@ -19,16 +19,20 @@ import { join } from 'node:path/posix';
 import { DefaultParserRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
+const TEST_FILENAME = 'filename.js';
+const NO_THENABLE_OBJECT_ERROR = 'no-thenable-object';
+
 describe('S7739', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup going up the tree
   const ruleTester = new DefaultParserRuleTester();
+  const testFilePath = join(dirname, TEST_FILENAME);
   it('S7739 reports when no validation library is a dependency', () => {
     ruleTester.run('S7739 reports when no validation library is a dependency', rule, {
       valid: [
         {
           code: `const obj = { foo: 'bar' };`,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 1: Prototype extension with then method
         // This is a custom Promise-like implementation that extends Promise.prototype
@@ -52,7 +56,7 @@ describe('S7739', () => {
             return this;
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 2: RHS delegation with bind
         // This pattern makes an object awaitable by delegating to a real Promise's then method.
@@ -62,7 +66,7 @@ describe('S7739', () => {
           const result = { data: 'some data' };
           result.then = promise.then.bind(promise);
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 3: RHS delegation directly to another object's then
         // Similar to jQuery's readyList pattern
@@ -72,7 +76,7 @@ describe('S7739', () => {
           const result = {};
           result.then = readyList.then;
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 4: Deferred class with then method
         // This is a Deferred pattern implementation (like jQuery.Deferred)
@@ -92,7 +96,7 @@ describe('S7739', () => {
             return this;
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 5: Class/function named "Promise" with then method
         // This is a Promise polyfill/implementation
@@ -110,7 +114,7 @@ describe('S7739', () => {
             return this;
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 5b: Function expression assigned to Promise
         {
@@ -122,7 +126,7 @@ describe('S7739', () => {
             };
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 5c: Arrow function assigned to Deferred
         {
@@ -133,7 +137,7 @@ describe('S7739', () => {
             };
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
@@ -158,7 +162,7 @@ describe('S7739', () => {
             }
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 6b: Object with then AND finally methods
         // Having both then and finally methods also indicates an intentional thenable implementation.
@@ -176,7 +180,7 @@ describe('S7739', () => {
             }
           };
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
         // False Positive Pattern 7: Arrow function delegating to promise.then()
         // This is the ant-design pattern where an arrow function wraps a Promise delegation.
@@ -186,14 +190,14 @@ describe('S7739', () => {
           const result = () => {};
           result.then = (filled, rejected) => closePromise.then(filled, rejected);
         `,
-          filename: join(dirname, 'filename.js'),
+          filename: testFilePath,
         },
       ],
       invalid: [
         {
           code: `const schema = { then: function() { return this; } };`,
-          filename: join(dirname, 'filename.js'),
-          errors: [{ messageId: 'no-thenable-object' }],
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
         // True Positive: Tween completion callback - not proper thenable protocol semantics
         // This is like paper.js Tween.then which stores a callback but doesn't return a Promise
@@ -207,8 +211,8 @@ describe('S7739', () => {
             }
           };
         `,
-          filename: join(dirname, 'filename.js'),
-          errors: [{ messageId: 'no-thenable-object' }],
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
         // True Positive: Combinator pattern - 'then' used for sequencing, not Promise protocol
         {
@@ -219,8 +223,8 @@ describe('S7739', () => {
             }
           };
         `,
-          filename: join(dirname, 'filename.js'),
-          errors: [{ messageId: 'no-thenable-object' }],
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
         // True Positive: Object property named 'then' as a data value (not function for thenable)
         {
@@ -231,8 +235,8 @@ describe('S7739', () => {
             'do': 1
           };
         `,
-          filename: join(dirname, 'filename.js'),
-          errors: [{ messageId: 'no-thenable-object' }],
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
       ],
     });
