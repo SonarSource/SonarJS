@@ -22,13 +22,11 @@ import { fileURLToPath } from 'node:url';
  * This script updates the changelog for the eslint plugin located in
  * packages/jsts/src/rules/CHANGELOG.md
  *
- * Just run the script with the new version that needs to be added
+ * It is automatically run as part of the release_eslint_plugin.yml workflow,
+ * which creates a PR with the updated changelog after publishing.
  *
- * node tools/update-changelog.js 3.0.0
- *
- * This is not yet automatized in the CI but should be added to the
- * eslint-plugin-sonarjs release action. Until then, we need to run
- * this manually
+ * To run manually:
+ *   node tools/update-changelog.js 3.0.0
  */
 
 const version = process.argv[2];
@@ -43,13 +41,13 @@ const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
 
 const startDate = changelog.match(/^## (\d+-\d+-\d+)/)[1];
 
+const jql = `(project = ESLINTJS AND fixversion = ${version}) OR (project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}')`;
 const response = await fetch(
-  encodeURI(
-    `https://sonarsource.atlassian.net/rest/api/2/search?jql=(project = ESLINTJS AND fixversion = ${version}) OR (project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}') `,
-  ),
+  `https://sonarsource.atlassian.net/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=key,summary`,
 );
 if (!response.ok) {
-  throw new Error(`Response status: ${response.status}`);
+  const errorText = await response.text();
+  throw new Error(`Response status: ${response.status} - ${errorText}`);
 }
 
 const json = await response.json();

@@ -60,3 +60,13 @@ jobs:
           jfrog config use repox
           jfrog rt bpr --status it-passed $PACKAGE $RELEASE_TAG sonarsource-npm-public-builds
           jfrog rt bpr --status released $PACKAGE $RELEASE_TAG sonarsource-npm-public-releases
+
+  update_changelog:
+    name: Update Changelog
+    needs: publish
+    uses: ./.github/workflows/update-eslint-plugin-changelog.yml
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      version: ${{ github.event.inputs.release_version }}
