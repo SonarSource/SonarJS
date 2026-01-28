@@ -83,6 +83,46 @@ describe('S7718', () => {
         { code: `promise.then(res => res, error => console.log(error));`, options: defaultOptions },
         { code: `promise.then(res => res, e$3 => console.log(e$3));`, options: defaultOptions },
         { code: `promise.then(res => res, _err => null);`, options: defaultOptions },
+        // ES2022 Error.cause convention - 'cause' is semantically meaningful
+        // when catching an error to wrap it with a new Error using the cause property
+        {
+          code: `function loadChunk(chunkPath) {
+  try {
+    const chunkModules = require(chunkPath);
+    return chunkModules;
+  } catch (cause) {
+    const error = new Error(\`Failed to load chunk \${chunkPath}\`, { cause });
+    error.name = 'ChunkLoadError';
+    throw error;
+  }
+}`,
+          options: defaultOptions,
+        },
+        // Promise/A+ specification uses 'reason' as the standard term for rejection values
+        {
+          code: `promise.catch((reason) => {
+  console.log('Rejection reason:', reason.message);
+});`,
+          options: defaultOptions,
+        },
+        // 'reason' in Promise .then() rejection handler (second parameter)
+        {
+          code: `promise.then(
+  (result) => console.log(result),
+  (reason) => console.log('Rejected with:', reason)
+);`,
+          options: defaultOptions,
+        },
+        // 'reason' in try/catch is also valid (Promise/A+ standard term)
+        {
+          code: `try { foo(); } catch (reason) { console.log(reason); }`,
+          options: defaultOptions,
+        },
+        // 'cause' in simple try/catch
+        {
+          code: `try { foo(); } catch (cause) { console.log(cause); }`,
+          options: defaultOptions,
+        },
       ],
       invalid: [
         // Non-compliant names that should still raise issues
@@ -151,13 +191,6 @@ describe('S7718', () => {
           output: `try { foo(); } catch (error) { console.log(error); }`,
           options: defaultOptions,
           errors: [{ message: /The catch parameter `response` should be named `error`/ }],
-        },
-        // 'reason' - common in promise rejection handlers (from ruling analysis)
-        {
-          code: `promise.then(res => res, reason => console.log(reason));`,
-          output: `promise.then(res => res, error => console.log(error));`,
-          options: defaultOptions,
-          errors: [{ message: /The catch parameter `reason` should be named `error`/ }],
         },
         // Promise .catch() handler non-compliant names
         {
