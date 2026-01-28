@@ -297,6 +297,41 @@ function tempt8(name: string, ofAge: boolean) {
   }
 })`,
         },
+        {
+          // JSX attribute with boolean parameter (arrow function)
+          code: `
+<ToggleButton
+  onActiveChange={(isActive) => {
+    if (isActive) {
+      setActiveKey(key);
+    } else if (activeKey === key) {
+      setActiveKey(null);
+    }
+  }}
+/>`,
+        },
+        {
+          // JSX attribute with function expression
+          code: `
+<Component
+  onChange={function(isEnabled: boolean) {
+    if (isEnabled) {
+      enable();
+    } else {
+      disable();
+    }
+  }}
+/>`,
+        },
+        {
+          // JSX children with inline function
+          code: `
+<Container>
+  {(isVisible) => {
+    return isVisible ? <Content /> : <Placeholder />;
+  }}
+</Container>`,
+        },
       ],
     });
 
