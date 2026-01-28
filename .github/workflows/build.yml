@@ -816,6 +816,13 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
+      - name: Get GitHub App token
+        id: secrets
+        if: github.event_name == 'pull_request'
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-jira token | GITHUB_TOKEN;
       - name: Run JS/TS Ruling
         id: ruling
         run: |
@@ -824,24 +831,15 @@ jobs:
       - name: Update ruling and notify
         if: always() && github.event_name == 'pull_request'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
-          # Generate report comparing against master
           git fetch origin master
-          node tools/ruling-report.js > ruling-report.md
-
-          # Check if there are ruling differences
-          if [ -s ruling-report.md ]; then
-            HAS_DIFFERENCES=true
-          else
-            HAS_DIFFERENCES=false
-          fi
 
           # Only auto-update ruling files when the ruling test failed
-          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+          if [ "$RULING_FAILED" = "true" ]; then
             # Check if last commit was already an auto-update (prevent infinite loop)
             LAST_COMMIT_MSG=$(git log -1 --format=%B)
             if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
@@ -851,15 +849,34 @@ jobs:
 
             # Sync ruling results (this modifies its/ruling/...)
             npm run ruling-sync
+          fi
+
+          # Generate report comparing against master (after sync, so we see actual differences)
+          node tools/ruling-report.js > ruling-report.md
+
+          # Check if there are ruling differences
+          if [ -s ruling-report.md ]; then
+            HAS_DIFFERENCES=true
+          else
+            HAS_DIFFERENCES=false
+          fi
+
+          # Push changes if ruling failed and there are differences
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
 
             # Stash changes before checkout
             git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
 
+            # Setup GitHub App token for push authentication (triggers CI)
+            git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
             # Checkout PR branch
             git fetch origin "$HEAD_REF"
             git checkout "$HEAD_REF"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Configure git identity for the GitHub App (triggers CI, unlike github-actions[bot])
+            git config user.name "hashicorp-vault-sonar-prod[bot]"
+            git config user.email "111297361+hashicorp-vault-sonar-prod[bot]@users.noreply.github.com"
 
             # Pop the stashed changes
             git stash pop
@@ -886,9 +903,7 @@ jobs:
               echo ""
               if [ "$RULING_FAILED" = "true" ]; then
                 echo "---"
-                echo "✅ **Ruling has been updated.** To re-run CI, either:"
-                echo "- Close and reopen this PR, or"
-                echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+                echo "✅ **Ruling has been updated.** Please close and reopen the PR to trigger CI."
               fi
             } > comment.md
           else
