@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.analysis;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Stream.concat;
-import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEFAULT_MAX_FILE_SIZE_KB;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSCONFIG_PATHS_ALIAS;
