@@ -176,6 +176,27 @@ describe('S7718', () => {
           options: defaultOptions,
           errors: [{ message: /The catch parameter `badName` should be named `error`/ }],
         },
+        // 'resp' - common abbreviation of response (from ruling analysis)
+        {
+          code: `promise.catch(resp => console.log(resp));`,
+          output: `promise.catch(error => console.log(error));`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `resp` should be named `error`/ }],
+        },
+        // 'rejected' - common promise rejection handler name (from ruling analysis)
+        {
+          code: `promise.then(filled => filled, rejected => console.log(rejected));`,
+          output: `promise.then(filled => filled, error => console.log(error));`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `rejected` should be named `error`/ }],
+        },
+        // 'value' - generic name used in catch (from ruling analysis - jquery deferred.js)
+        {
+          code: `try { foo(); } catch (value) { reject(value); }`,
+          output: `try { foo(); } catch (error) { reject(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `value` should be named `error`/ }],
+        },
       ],
     });
   });
