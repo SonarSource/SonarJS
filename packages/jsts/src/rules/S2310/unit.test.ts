@@ -33,6 +33,78 @@ describe('S2310', () => {
       }
       `,
         },
+        // False positive scenario: for-of loop iterator variable reassignment is safe
+        // The iterator protocol controls loop progression, not the variable
+        {
+          code: `
+      // for-of loop with iterator variable reassignment to refresh object reference
+      function processItems(items, updates) {
+        const results = [];
+
+        for (let item of items) {
+          // Get updated version of item if available
+          const updated = updates.get(item.id);
+          if (updated) {
+            item = updated; // Compliant: Reassignment is safe in for-of loop
+          }
+          results.push(item);
+        }
+
+        return results;
+      }
+      `,
+        },
+        // False positive scenario: for-in loop iterator variable reassignment is safe
+        {
+          code: `
+      // for-in loop with key transformation via reassignment
+      function processObjectKeys(obj) {
+        const results = [];
+
+        for (let key in obj) {
+          // Normalize key by removing prefix
+          if (key.startsWith('_')) {
+            key = key.slice(1); // Compliant: Reassignment is safe in for-in loop
+          }
+          results.push(key);
+        }
+
+        return results;
+      }
+      `,
+        },
+        // False positive scenario: for-of loop with value transformation
+        // Real-world pattern from Angular compiler (Peachy issue)
+        {
+          code: `
+      // for-of loop with trait transformation via method call
+      function resolveTraits(traits) {
+        for (let trait of traits) {
+          if (trait.state === 'pending') {
+            // Transform trait to resolved state
+            trait = trait.toResolved(null, []); // Compliant: Safe reassignment in for-of
+          }
+          console.log(trait.state);
+        }
+      }
+      `,
+        },
+        // for-of loop with simple iterator variable reassignment (from Jira ticket example 1/2)
+        // Real-world pattern from vscode: updating profile reference during iteration
+        {
+          code: `
+      function updateProfiles(allProfiles, updated) {
+        const profiles = [];
+        for (let profile of allProfiles) {
+          if (!profile.isDefault) {
+            profile = updated.find(p => profile.id === p.id) || profile;
+          }
+          profiles.push(profile);
+        }
+        return profiles;
+      }
+      `,
+        },
       ],
       invalid: [
         {
@@ -135,45 +207,6 @@ describe('S2310', () => {
         },
         {
           code: `
-      function foo_of_loop(obj) {
-        for (var prop1 of obj) {
-          prop1 = 1      // Noncompliant
-        }
-
-        for (let prop2 of obj) {
-          prop2 = 1      // Noncompliant
-        }
-
-        let prop3;
-        for (prop3 of obj) {
-          prop3 = 1      // Noncompliant
-        }
-
-      }
-      `,
-          errors: 3,
-        },
-        {
-          code: `
-      function foo_in_loop(obj) {
-        for (var value1 in obj) {
-          value1 = 1      // Noncompliant
-        }
-
-        for (const value2 in obj) {
-          value2 = 1      // Noncompliant
-        }
-
-        let value3;
-        for (value3 in obj) {
-          value3 = 1      // Noncompliant
-        }
-      }
-      `,
-          errors: 3,
-        },
-        {
-          code: `
       function description_sample_code() {
         var names = [ "Jack", "Jim", "", "John" ];
         for (var i = 0; i < names.length; i++) {
@@ -197,30 +230,6 @@ describe('S2310', () => {
       }
       `,
           errors: [{ message: 'Remove this assignment of "i".', line: 6 }],
-        },
-        {
-          code: `
-      function same_counter_in_nested_loop(obj1, obj2) {
-        for (var i in obj1) {
-          for (i of obj2) {      // Noncompliant
-            foo(i);
-          }
-        }
-      }
-      `,
-          errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
-        },
-        {
-          code: `
-      function assigned_several_times(obj) {
-        for (var value in obj) {
-          value = 1;      // Noncompliant
-          value = 1;      // Noncompliant
-        }
-      }
-
-      `,
-          errors: 2,
         },
         {
           code: `
