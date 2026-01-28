@@ -47,7 +47,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+      if (!('node' in reportDescriptor)) {
+        return;
+      }
+      const { node } = reportDescriptor as Rule.ReportDescriptor & {
+        node: TSESTree.JSXOpeningElement;
+      };
 
       // Wrap the opening element in a JSXElement structure for isHtmlElement
       const jsxElement = {
