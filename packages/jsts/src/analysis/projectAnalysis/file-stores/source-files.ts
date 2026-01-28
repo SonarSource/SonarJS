@@ -167,7 +167,7 @@ export class SourceFileStore implements FileStore {
     store: keyof typeof SourceFileStore.prototype.store,
     file: JsTsAnalysisInput,
   ) {
-    file.filePath = toUnixPath(file.filePath);
+    file.filePath = toUnixPath(file.filePath, true);
     this.store[store].filenames!.push(file.filePath);
     this.store[store].files![file.filePath] = file;
   }
