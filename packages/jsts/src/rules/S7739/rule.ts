@@ -59,6 +59,7 @@ function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): bo
  * Covers patterns like:
  * - result.then = promise.then.bind(promise)
  * - result.then = readyList.then
+ * - result.then = (arg1, arg2) => promise.then(arg1, arg2)
  *
  * The reported node is the 'then' identifier, so we need to find the
  * AssignmentExpression in the ancestor chain (grandparent for MemberExpression case).
@@ -91,7 +92,42 @@ function isDelegatingToPromiseThen(node: Node): boolean {
     return true;
   }
 
+  // Check for arrow function delegating to X.then(): (args) => promise.then(args)
+  if (isArrowFunctionDelegatingToThen(rhs)) {
+    return true;
+  }
+
   return false;
+}
+
+/**
+ * Checks if a node is an arrow function whose body calls X.then().
+ * Covers patterns like: (arg1, arg2) => promise.then(arg1, arg2)
+ */
+function isArrowFunctionDelegatingToThen(node: Node): boolean {
+  if (node.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+
+  const body = node.body;
+
+  // Check for concise body: (args) => promise.then(args)
+  if (body.type === 'CallExpression' && isCallToThenMethod(body)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if a CallExpression is calling a .then() method on some object.
+ */
+function isCallToThenMethod(call: CallExpression): boolean {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    !call.callee.computed &&
+    isIdentifier(call.callee.property, 'then')
+  );
 }
 
 /**

@@ -178,6 +178,16 @@ describe('S7739', () => {
         `,
           filename: join(dirname, 'filename.js'),
         },
+        // False Positive Pattern 7: Arrow function delegating to promise.then()
+        // This is the ant-design pattern where an arrow function wraps a Promise delegation.
+        {
+          code: `
+          const closePromise = new Promise(resolve => resolve(true));
+          const result = () => {};
+          result.then = (filled, rejected) => closePromise.then(filled, rejected);
+        `,
+          filename: join(dirname, 'filename.js'),
+        },
       ],
       invalid: [
         {
