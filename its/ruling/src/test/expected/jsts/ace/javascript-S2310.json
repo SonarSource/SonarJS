@@ -1,17 +1,9 @@
 {
-"ace:demo/kitchen-sink/doclist.js": [
-85,
-87
-],
 "ace:lib/ace/mode/html/saxparser.js": [
 820
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-3345,
-8059,
-8900,
-8948,
-9077
+3345
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 623
@@ -42,9 +34,6 @@
 67,
 72,
 72
-],
-"ace:src/mode/text.js": [
-323
 ],
 "ace:src/mode/text_highlight_rules.js": [
 165

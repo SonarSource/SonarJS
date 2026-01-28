@@ -18,9 +18,10 @@ import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-teste
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-describe('S2310', () => {
-  it('S2310', () => {
-    const ruleTester = new DefaultParserRuleTester();
+const ruleTester = new DefaultParserRuleTester();
+
+describe('S2310 - valid patterns', () => {
+  it('should allow valid patterns', () => {
     ruleTester.run('Loop counter should not be updated inside loop', rule, {
       valid: [
         {
@@ -33,12 +34,110 @@ describe('S2310', () => {
       }
       `,
         },
+        // False positive scenario: for-of loop iterator variable reassignment is safe
+        // The iterator protocol controls loop progression, not the variable
+        {
+          code: `
+      // for-of loop with iterator variable reassignment to refresh object reference
+      function processItems(items, updates) {
+        const results = [];
+
+        for (let item of items) {
+          // Get updated version of item if available
+          const updated = updates.get(item.id);
+          if (updated) {
+            item = updated; // Compliant: Reassignment is safe in for-of loop
+          }
+          results.push(item);
+        }
+
+        return results;
+      }
+      `,
+        },
+        // False positive scenario: for-in loop iterator variable reassignment is safe
+        {
+          code: `
+      // for-in loop with key transformation via reassignment
+      function processObjectKeys(obj) {
+        const results = [];
+
+        for (let key in obj) {
+          // Normalize key by removing prefix
+          if (key.startsWith('_')) {
+            key = key.slice(1); // Compliant: Reassignment is safe in for-in loop
+          }
+          results.push(key);
+        }
+
+        return results;
+      }
+      `,
+        },
+        // False positive scenario: for-of loop with value transformation
+        // Real-world pattern from Angular compiler (Peachy issue)
+        {
+          code: `
+      // for-of loop with trait transformation via method call
+      function resolveTraits(traits) {
+        for (let trait of traits) {
+          if (trait.state === 'pending') {
+            // Transform trait to resolved state
+            trait = trait.toResolved(null, []); // Compliant: Safe reassignment in for-of
+          }
+          console.log(trait.state);
+        }
+      }
+      `,
+        },
+        // for-of loop with simple iterator variable reassignment (from Jira ticket example 1/2)
+        // Real-world pattern from vscode: updating profile reference during iteration
+        {
+          code: `
+      function updateProfiles(allProfiles, updated) {
+        const profiles = [];
+        for (let profile of allProfiles) {
+          if (!profile.isDefault) {
+            profile = updated.find(p => profile.id === p.id) || profile;
+          }
+          profiles.push(profile);
+        }
+        return profiles;
+      }
+      `,
+        },
+        // for-in loop with key-to-value reassignment pattern (from ruling data - jshint.js pattern)
+        // Common pattern: using the key to access the value and reassign the iterator variable
+        {
+          code: `
+      // Real-world pattern from jshint: iterating tokens and transforming key to value
+      function processTokens(tokens) {
+        for (var t in tokens) {
+          if (tokens.hasOwnProperty(t)) {
+            t = tokens[t]; // Compliant: key-to-value reassignment in for-in is safe
+            if (t.id) {
+              console.log(t.id);
+            }
+          }
+        }
+      }
+      `,
+        },
       ],
+      invalid: [],
+    });
+  });
+});
+
+describe('S2310 - invalid patterns', () => {
+  it('should detect invalid patterns', () => {
+    ruleTester.run('Loop counter should not be updated inside loop', rule, {
+      valid: [],
       invalid: [
         {
-          code: `  
+          code: `
         for (var i = 0, j = 2; i < 5; i++) {
-          i = 5;      // Noncompliant 
+          i = 5;      // Noncompliant
           j = 5;      // compliant, not in update section
         }
       `,
@@ -47,7 +146,7 @@ describe('S2310', () => {
               line: 3,
               column: 11,
               endColumn: 12,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
             },
           ],
           settings: { sonarRuntime: true },
@@ -98,7 +197,7 @@ describe('S2310', () => {
           errors: [
             {
               line: 5,
-              message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"x\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
             },
           ],
           settings: { sonarRuntime: true },
@@ -135,45 +234,6 @@ describe('S2310', () => {
         },
         {
           code: `
-      function foo_of_loop(obj) {
-        for (var prop1 of obj) {
-          prop1 = 1      // Noncompliant
-        }
-
-        for (let prop2 of obj) {
-          prop2 = 1      // Noncompliant
-        }
-
-        let prop3;
-        for (prop3 of obj) {
-          prop3 = 1      // Noncompliant
-        }
-
-      }
-      `,
-          errors: 3,
-        },
-        {
-          code: `
-      function foo_in_loop(obj) {
-        for (var value1 in obj) {
-          value1 = 1      // Noncompliant
-        }
-
-        for (const value2 in obj) {
-          value2 = 1      // Noncompliant
-        }
-
-        let value3;
-        for (value3 in obj) {
-          value3 = 1      // Noncompliant
-        }
-      }
-      `,
-          errors: 3,
-        },
-        {
-          code: `
       function description_sample_code() {
         var names = [ "Jack", "Jim", "", "John" ];
         for (var i = 0; i < names.length; i++) {
@@ -200,30 +260,6 @@ describe('S2310', () => {
         },
         {
           code: `
-      function same_counter_in_nested_loop(obj1, obj2) {
-        for (var i in obj1) {
-          for (i of obj2) {      // Noncompliant
-            foo(i);
-          }
-        }
-      }
-      `,
-          errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
-        },
-        {
-          code: `
-      function assigned_several_times(obj) {
-        for (var value in obj) {
-          value = 1;      // Noncompliant
-          value = 1;      // Noncompliant
-        }
-      }
-
-      `,
-          errors: 2,
-        },
-        {
-          code: `
       function used_several_times(obj) {
         for (var i = 0; i < 10; i++) {
           for (var j = 0; j < 10; j++, i++) {  // Noncompliant
@@ -236,17 +272,17 @@ describe('S2310', () => {
             {
               line: 4,
               column: 40,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
             },
             {
               line: 5,
               column: 13,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":32,"line":3,"endColumn":33,"endLine":3}]}`,
             },
             {
               line: 5,
               column: 13,
-              message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
+              message: String.raw`{"message":"Remove this assignment of \"i\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
             },
           ],
           settings: { sonarRuntime: true },

@@ -4,7 +4,6 @@
 2781
 ],
 "p5.js:lib/addons/p5.sound.js": [
-402,
 1381,
 1381,
 2826,
@@ -12,8 +11,5 @@
 ],
 "p5.js:src/typography/p5.Font.js": [
 757
-],
-"p5.js:src/webgl/text.js": [
-439
 ]
 }
