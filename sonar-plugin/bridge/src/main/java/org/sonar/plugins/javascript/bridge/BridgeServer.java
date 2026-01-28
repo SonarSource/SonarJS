@@ -72,7 +72,7 @@ public interface BridgeServer extends Startable {
     String rulesWorkdir
   ) {}
 
-  void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
+  void analyzeProject(GrpcProjectAnalysisHandler handler, ProjectAnalysisRequest request);
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,

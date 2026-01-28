@@ -14,29 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
 
 /**
- * Express.js middleware for handling error while serving requests.
+ * Handles errors and converts them to the appropriate response format.
  *
- * The purpose of this middleware is to catch any error occurring within
- * the different layers of the bridge to centralize and customize error
- * information that is sent back.
- *
- * The fourth parameter is necessary to identify this as an error middleware.
- * @see https://expressjs.com/en/guide/error-handling.html
+ * This function is used to transform caught exceptions into a format
+ * suitable for returning to the Java plugin.
  */
-export function errorMiddleware(
-  err: any,
-  _request: express.Request,
-  response: express.Response,
-  _next: express.NextFunction,
-) {
-  response.json(handleError(err));
-}
-
 export function handleError(err: any) {
   const { code, message, stack } = err;
   switch (code) {

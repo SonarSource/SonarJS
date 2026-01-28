@@ -34,7 +34,10 @@ export async function healthCheckHandler(
 
   info(`Health check request for service: "${serviceName}"`);
 
-  const isKnownService = serviceName === '' || serviceName === 'analyzer.LanguageAnalyzerService';
+  const isKnownService =
+    serviceName === '' ||
+    serviceName === 'analyzer.LanguageAnalyzerService' ||
+    serviceName === 'bridge.BridgeService';
 
   if (!isKnownService) {
     info(`Unknown service requested: "${serviceName}"`);

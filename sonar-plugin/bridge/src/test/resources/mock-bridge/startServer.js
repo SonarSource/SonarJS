@@ -1,125 +1,80 @@
 #!/usr/bin/env node
 const path = require('node:path');
 const fs = require('node:fs');
-const http = require('node:http');
+const {
+  createMockGrpcServer,
+  createDefaultBridgeHandlers,
+  getFakeJsTsAnalysisResponse,
+} = require('./grpc-helper.cjs');
+
 const port = process.argv[2];
 const host = process.argv[3];
 
 console.log(`debugMemory: ${process.argv[4]}`);
 console.log(`nodeTimeout: ${process.argv[5]}`);
 
-const requestHandler = (request, response) => {
-  let data = '';
-  request.on('upgrade', (request, socket) => {
-    socket.destroy();
-  });
-  request.on('data', chunk => (data += chunk));
-  request.on('end', () => {
-    console.log(data);
+let server;
 
-    if (request.url === '/status' || request.url === '/new-tsconfig') {
-      response.writeHead(200, { 'Content-Type': 'text/plain' });
-      response.end('OK');
-    } else if (request.url === '/tsconfig-files') {
-      response.end("{files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
-    } else if (request.url === '/init-linter') {
-      response.end('OK');
-    } else if (request.url === '/load-rule-bundles') {
-      response.end('OK');
-    } else if (request.url === '/close') {
-      response.end();
-      server.close();
-    } else if (request.url === '/create-program' && data.includes('invalid')) {
-      response.end("{ error: 'failed to create program'}");
-    } else if (request.url === '/create-program') {
-      response.end(
-        "{programId: '42', projectReferences: [], files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}",
-      );
-    } else if (request.url === '/delete-program') {
-      response.end('OK');
-    } else if (request.url === '/create-tsconfig-file') {
-      response.end('{"filename":"/path/to/tsconfig.json"}');
-    } else if (['/analyze-css', '/analyze-yaml', '/analyze-html'].includes(request.url)) {
-      // objects are created to have test coverage
-      response.end(`{ issues: [{line:0, column:0, endLine:0, endColumn:0,
-        quickFixes: [
-          {
-            edits: [{
-              loc: {}}]}]}],
-        highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}],
-        metrics: {}, highlightedSymbols: [{}], cpdTokens: [{}] }`);
-    } else if (request.url === '/get-telemetry') {
-      response.end('{"dependencies": [{"name": "pkg1", "version": "1.0.0"}]}');
-    } else if (request.url === '/analyze-project') {
-      data = JSON.parse(data);
-      const skipAst = data.configuration.skipAst;
-      const files = {};
-      Object.keys(data.files).forEach(key => {
-        files[key] = getFakeAnalysisResponse(skipAst);
-      });
-      response.end(
-        JSON.stringify({
-          files,
-          meta: {},
-        }),
-      );
-    } else if (request.url === '/ws') {
-      response.end();
-    } else {
-      // /analyze-with-program
-      // /analyze-js
-      // /analyze-ts
-      // objects are created to have test coverage
-      data = JSON.parse(data);
-      response.end(JSON.stringify(getFakeAnalysisResponse(data.skipAst)));
-    }
+// Create custom bridge handlers with close functionality
+const bridgeHandlers = createDefaultBridgeHandlers({
+  onClose: () => {
+    server.forceShutdown();
+  },
+});
+
+// Customize the initLinter handler to log the full request as JSON
+bridgeHandlers.initLinter = (call, callback) => {
+  const request = call.request;
+  const logData = JSON.stringify({
+    rules: (request.rules || []).map(r => ({
+      key: r.key,
+      fileTypeTargets: r.fileTypeTargets,
+      configurations: r.configurations,
+      analysisModes: r.analysisModes,
+      blacklistedExtensions: r.blacklistedExtensions,
+      language: r.language,
+    })),
+    environments: request.environments || [],
+    globals: request.globals || [],
+    baseDir: request.baseDir || '',
+    sonarlint: request.sonarlint || false,
+    bundles: request.bundles || [],
   });
+  console.log(logData);
+  callback(null, { success: true });
 };
 
-function getFakeAnalysisResponse(skipAst) {
-  const res = {
-    issues: [
-      {
-        line: 0,
-        column: 0,
-        endLine: 0,
-        endColumn: 0,
-        quickFixes: [
-          {
-            edits: [
-              {
-                loc: {},
-              },
-            ],
-          },
-        ],
+// Customize analyzeProject to match HTTP test expectations
+bridgeHandlers.analyzeProject = call => {
+  const request = call.request;
+  const files = request.files || {};
+  const skipAst = request.configuration?.skipAst || false;
+
+  // Send a file result for each file
+  Object.keys(files).forEach(filePath => {
+    call.write({
+      fileResult: {
+        filename: filePath,
+        analysis: getFakeJsTsAnalysisResponse(skipAst),
       },
-    ],
-    highlights: [{ location: { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 } }],
-    metrics: {},
-    highlightedSymbols: [{}],
-    cpdTokens: [{}],
-  };
+    });
+  });
 
-  if (!skipAst) {
-    // the clear version of serialized.proto.base64 is `packages/jsts/tests/parsers/fixtures/ast/base.js`
-    // it was generated by writing to a file the serialized data in the test `packages/jsts/tests/parsers/ast.test.ts`
-    res.ast = fs
-      .readFileSync(path.join(__dirname, '..', 'files', 'serialized.proto'))
-      .toString('base64');
-  }
-  return res;
-}
+  // Send final meta with empty warnings
+  call.write({
+    meta: { warnings: [] },
+  });
 
-const server = http.createServer(requestHandler);
-server.keepAliveTimeout = 100; // this is used so server disconnects faster
+  call.end();
+};
 
-server.listen(port, host, err => {
-  if (err) {
-    return console.log('something bad happened', err);
-  }
-
-  console.log(`server is listening on ${host} ${port}`);
+server = createMockGrpcServer({
+  port,
+  host,
+  bridgeHandlers,
+  onClose: () => {
+    server.forceShutdown();
+  },
 });
 
 process.on('exit', () => {

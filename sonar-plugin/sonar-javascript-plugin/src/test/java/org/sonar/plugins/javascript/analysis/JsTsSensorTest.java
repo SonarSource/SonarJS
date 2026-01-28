@@ -18,7 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -27,9 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -83,17 +80,15 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.analysis.JsTsSensor.AnalyzeProjectHandler;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.EslintRule;
-import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
+import org.sonar.plugins.javascript.bridge.GrpcProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
@@ -129,8 +124,6 @@ class JsTsSensorTest {
   private String nodeExceptionMessage =
     "Error while running Node.js. A supported version of Node.js is required for running the analysis of JS/TS files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via 'sonar.nodejs.executable' property. Alternatively, you can exclude JS/TS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/";
 
-  private JSWebSocketClient webSocketClient;
-
   @TempDir
   Path tempDir;
 
@@ -165,27 +158,10 @@ class JsTsSensorTest {
       )
     );
     inputFile = createInputFile(context);
-    webSocketClient = new JSWebSocketClient(new URI("ws://localhost:9001/"));
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
-  }
-
-  private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
-    List<String> queue = new ArrayList<>();
-    for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
-      String key = entry.getKey();
-      BridgeServer.AnalysisResponseDTO value = entry.getValue();
-      JsonObject json = GSON.toJsonTree(value).getAsJsonObject();
-      json.addProperty("filename", key);
-      json.addProperty("messageType", "fileResult");
-      queue.add(GSON.toJson(json));
-    }
-    JsonObject json = GSON.toJsonTree(response.meta()).getAsJsonObject();
-    json.addProperty("messageType", "meta");
-    queue.add(GSON.toJson(json));
-    return queue;
   }
 
   @Test
@@ -329,34 +305,6 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_ignore_ws_messages_not_related_to_project_analysis() {
-    executeSensorMockingEvents(() -> {
-      webSocketClient.onMessage("{messageType: 'unrelated_event'}");
-      for (var message : getWSMessages(createProjectResponse(List.of(inputFile)))) {
-        webSocketClient.onMessage(message);
-      }
-    });
-  }
-
-  @Test
-  void should_end_analysis_error_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onError(new IOException("Abnormal termination"));
-      })
-    ).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  void should_end_analysis_close_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onClose(1006, "Abnormal close event", true);
-      })
-    ).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
   void should_handle_warnings() {
     var warningMessage = "warning message";
     var expectedResponse = new BridgeServer.ProjectAnalysisOutputDTO(
@@ -369,7 +317,9 @@ class JsTsSensorTest {
 
   @Test
   void should_explode_if_no_response_from_project_analysis() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(GrpcProjectAnalysisHandler.class), any());
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -463,10 +413,7 @@ class JsTsSensorTest {
   @Test
   void should_send_skipAst_flag_when_there_are_no_consumers() {
     assertThat(
-      executeSensorAndCaptureHandler(createSensor(), context)
-        .getRequest()
-        .getConfiguration()
-        .skipAst()
+      executeSensorAndCaptureRequest(createSensor(), context).getConfiguration().skipAst()
     ).isTrue();
   }
 
@@ -474,8 +421,7 @@ class JsTsSensorTest {
   void should_send_skipAst_flag_when_consumer_is_disabled() {
     JsAnalysisConsumer disabled = createConsumer(false);
     assertThat(
-      executeSensorAndCaptureHandler(createSensorWithConsumer(disabled), context)
-        .getRequest()
+      executeSensorAndCaptureRequest(createSensorWithConsumer(disabled), context)
         .getConfiguration()
         .skipAst()
     ).isTrue();
@@ -484,8 +430,7 @@ class JsTsSensorTest {
   @Test
   void should_not_send_the_skipAst_flag_when_there_are_consumers() {
     assertThat(
-      executeSensorAndCaptureHandler(createSensorWithConsumer(), context)
-        .getRequest()
+      executeSensorAndCaptureRequest(createSensorWithConsumer(), context)
         .getConfiguration()
         .skipAst()
     ).isFalse();
@@ -494,8 +439,7 @@ class JsTsSensorTest {
   @Test
   void should_not_send_content() {
     assertThat(
-      executeSensorAndCaptureHandler(createSensor(), context)
-        .getRequest()
+      executeSensorAndCaptureRequest(createSensor(), context)
         .getFiles()
         .get(inputFile.absolutePath())
         .fileContent()
@@ -506,8 +450,7 @@ class JsTsSensorTest {
   void should_send_content_on_sonarlint() throws Exception {
     setSonarLintRuntime(context);
     assertThat(
-      executeSensorAndCaptureHandler(createSensor(), context)
-        .getRequest()
+      executeSensorAndCaptureRequest(createSensor(), context)
         .getFiles()
         .get(inputFile.absolutePath())
         .fileContent()
@@ -528,8 +471,7 @@ class JsTsSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     assertThat(
-      executeSensorAndCaptureHandler(createSensor(), context)
-        .getRequest()
+      executeSensorAndCaptureRequest(createSensor(), context)
         .getFiles()
         .get(inputFile.absolutePath())
         .fileContent()
@@ -571,7 +513,9 @@ class JsTsSensorTest {
 
   @Test
   void should_fail_fast() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(GrpcProjectAnalysisHandler.class), any());
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -610,44 +554,6 @@ class JsTsSensorTest {
     createSensor().execute(context);
     assertThat(logTester.logs(Level.INFO)).contains(
       "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-    );
-  }
-
-  @Test
-  void stop_analysis_if_cancelled() {
-    var expectedResponse = createProjectResponse(List.of(inputFile));
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
-
-    executeSensorMockingEvents(() -> {
-      var messages = getWSMessages(expectedResponse);
-      context.setCancelled(true);
-      spyClient.onMessage(messages.get(0));
-      Mockito.verify(spyClient).send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
-      spyClient.onMessage("{messageType: 'cancelled'}");
-    });
-    assertThat(logTester.logs(Level.INFO)).contains(
-      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-    );
-  }
-
-  @Test
-  void handle_errors_gracefully_during_analyze_project() {
-    var jsError = "{\"code\":\"GENERAL_ERROR\",\"message\":\"Fake error message\"}";
-    var message = String.format("{messageType: 'error', error: %s}", jsError);
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
-
-    var exception = catchThrowable(() ->
-      executeSensorMockingEvents(() -> {
-        spyClient.onMessage(message);
-      })
-    );
-    assertThat(exception)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis of JS/TS files failed");
-    assertThat(exception.getCause().getMessage()).isEqualTo(
-      String.format("java.lang.RuntimeException: Received error from bridge: %s", jsError)
     );
   }
 
@@ -1189,15 +1095,26 @@ class JsTsSensorTest {
     );
   }
 
-  private AnalyzeProjectHandler executeSensorAndCaptureHandler(
+  private BridgeServer.ProjectAnalysisRequest executeSensorAndCaptureRequest(
     JsTsSensor sensor,
     SensorContextTester ctx
   ) {
-    ArgumentCaptor<AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
-      AnalyzeProjectHandler.class
+    ArgumentCaptor<BridgeServer.ProjectAnalysisRequest> captor = ArgumentCaptor.forClass(
+      BridgeServer.ProjectAnalysisRequest.class
     );
+    // Mock analyzeProject to capture the request and complete the handler
+    doAnswer(invocation -> {
+      GrpcProjectAnalysisHandler handler = invocation.getArgument(0);
+      handler.getFuture().complete(null);
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(GrpcProjectAnalysisHandler.class), any());
     sensor.execute(ctx);
-    verify(bridgeServerMock).analyzeProject(captor.capture());
+    verify(bridgeServerMock).analyzeProject(
+      any(GrpcProjectAnalysisHandler.class),
+      captor.capture()
+    );
     return captor.getValue();
   }
 
@@ -1215,30 +1132,30 @@ class JsTsSensorTest {
     JsTsSensor sensor,
     BridgeServer.ProjectAnalysisOutputDTO expectedResponse
   ) {
-    executeSensorMockingEvents(sensor, () -> {
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
-      }
-    });
-  }
-
-  private void executeSensorMockingEvents(Runnable events) {
-    executeSensorMockingEvents(createSensor(), events);
-  }
-
-  private void executeSensorMockingEvents(JsTsSensor sensor, Runnable events) {
+    // Mock the gRPC analyzeProject call to populate the handler with expected response
     doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
-      handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      events.run();
-      return handler.getFuture().join();
+      GrpcProjectAnalysisHandler handler = invocation.getArgument(0);
+      // Simulate gRPC streaming responses using internal accessors
+      for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : expectedResponse
+        .files()
+        .entrySet()) {
+        String filename = entry.getKey();
+        BridgeServer.AnalysisResponseDTO analysisResponse = entry.getValue();
+        // Add file result directly to handler's internal state
+        // The handler stores AnalysisResponse objects, so convert from DTO
+        handler
+          .getFileResultsInternal()
+          .put(filename, BridgeServer.AnalysisResponse.fromDTO(analysisResponse));
+      }
+      // Add warnings
+      handler.getWarningsInternal().addAll(expectedResponse.meta().warnings());
+      // Complete the future
+      handler.getFuture().complete(null);
+      return null;
     })
       .when(bridgeServerMock)
-      .analyzeProject(any());
+      .analyzeProject(any(GrpcProjectAnalysisHandler.class), any());
     sensor.execute(context);
-    assertThat(webSocketClient.getMessageHandlers()).isEmpty();
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {

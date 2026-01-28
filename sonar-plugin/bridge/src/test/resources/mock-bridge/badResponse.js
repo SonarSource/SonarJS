@@ -1,28 +1,54 @@
 #!/usr/bin/env node
+/**
+ * Mock gRPC server that returns bad/invalid responses.
+ * Used to test error handling when the bridge returns unexpected data.
+ */
+const { grpc, createMockGrpcServer, createDefaultBridgeHandlers } = require('./grpc-helper.cjs');
 
-const http = require('http');
 const port = process.argv[2];
 const host = process.argv[3];
 
-const requestHandler = (request, response) => {
-  if (request.url === '/status') {
-    response.writeHead(200, { 'Content-Type': 'text/plain' });
-    response.end('OK');
-  } else if (request.url === '/close') {
-    response.end();
-    server.close();
-  } else {
-    response.end('Invalid response');
-  }
+let server;
+
+// Create handlers that return invalid responses for analysis methods
+const bridgeHandlers = createDefaultBridgeHandlers({
+  onClose: () => {
+    server.forceShutdown();
+  },
+});
+
+// Override analysis handlers to return an error via gRPC
+bridgeHandlers.analyzeJsTs = (call, callback) => {
+  // Return a gRPC INTERNAL error to simulate a bad response
+  callback({
+    code: grpc.status.INTERNAL,
+    message: 'Invalid response',
+  });
 };
 
-const server = http.createServer(requestHandler);
-server.keepAliveTimeout = 100; // this is used so server disconnects faster
+bridgeHandlers.analyzeCss = (call, callback) => {
+  callback({
+    code: grpc.status.INTERNAL,
+    message: 'Invalid response',
+  });
+};
 
-server.listen(port, host, err => {
-  if (err) {
-    return console.log('something bad happened', err);
-  }
+bridgeHandlers.analyzeYaml = (call, callback) => {
+  callback({
+    code: grpc.status.INTERNAL,
+    message: 'Invalid response',
+  });
+};
 
-  console.log(`server is listening on ${host} ${port}`);
+bridgeHandlers.analyzeHtml = (call, callback) => {
+  callback({
+    code: grpc.status.INTERNAL,
+    message: 'Invalid response',
+  });
+};
+
+server = createMockGrpcServer({
+  port,
+  host,
+  bridgeHandlers,
 });

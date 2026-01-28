@@ -21,17 +21,10 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import io.grpc.StatusRuntimeException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -44,12 +37,22 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeCssRequest;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeCssResponse;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeHtmlRequest;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeHtmlResponse;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeJsTsRequest;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeJsTsResponse;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeYamlRequest;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzeYamlResponse;
+import org.sonar.plugins.javascript.bridge.grpc.InitLinterRequest;
+import org.sonar.plugins.javascript.bridge.grpc.InitLinterResponse;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -69,6 +72,10 @@ public class BridgeServerImpl implements BridgeServer {
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
+  private static final String TIMEOUT_ERROR_MESSAGE =
+    "The bridge server is unresponsive. It might be because you don't have enough memory, " +
+    "so please go see the troubleshooting section: " +
+    "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis";
   public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
   /**
    * The default timeout to shut down server if no request is received
@@ -81,7 +88,6 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
-  private static final Gson GSON = new Gson();
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -100,9 +106,8 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
-  private final Http http;
+  private BridgeGrpcClient grpcClient;
   private Long latestOKIsAliveTimestamp;
-  private JSWebSocketClient client;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -133,28 +138,6 @@ public class BridgeServerImpl implements BridgeServer {
     TempFolder tempFolder,
     EmbeddedNode embeddedNode
   ) {
-    this(
-      nodeCommandBuilder,
-      timeoutSeconds,
-      bundle,
-      rulesBundles,
-      deprecationWarning,
-      tempFolder,
-      embeddedNode,
-      Http.getJdkHttpClient()
-    );
-  }
-
-  public BridgeServerImpl(
-    NodeCommandBuilder nodeCommandBuilder,
-    int timeoutSeconds,
-    Bundle bundle,
-    RulesBundles rulesBundles,
-    NodeDeprecationWarning deprecationWarning,
-    TempFolder tempFolder,
-    EmbeddedNode embeddedNode,
-    Http http
-  ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -164,7 +147,6 @@ public class BridgeServerImpl implements BridgeServer {
     this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
-    this.http = http;
   }
 
   void heartbeat() {
@@ -236,7 +218,9 @@ public class BridgeServerImpl implements BridgeServer {
     nodeCommand = initNodeCommand(serverConfig, scriptFile);
     nodeCommand.start();
 
-    if (!waitServerToStart(timeoutSeconds * 1000)) {
+    // Create gRPC client and wait for server to be ready
+    grpcClient = new BridgeGrpcClient(hostAddress, port, timeoutSeconds);
+    if (!grpcClient.waitForReady(timeoutSeconds * 1000L)) {
       status = Status.FAILED;
       throw new NodeCommandException(
         "Failed to start the bridge server (" + timeoutSeconds + "s timeout)"
@@ -246,26 +230,12 @@ public class BridgeServerImpl implements BridgeServer {
     }
     long duration = System.currentTimeMillis() - start;
     LOG.debug("Bridge server started on port {} in {} ms", port, duration);
-    establishWebSocketConnection();
 
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
 
-  void establishWebSocketConnection() {
-    if (client != null && client.isOpen()) {
-      LOG.debug("WebSocket connection already established");
-      return;
-    }
-    try {
-      this.client = new JSWebSocketClient(wsUrl());
-      this.client.connectBlocking();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    }
-  }
-
   boolean waitServerToStart(int timeoutMs) {
+    // This method is now only used for existing node process case
     int sleepStep = 100;
     long start = System.currentTimeMillis();
     try {
@@ -340,9 +310,15 @@ public class BridgeServerImpl implements BridgeServer {
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
     if (providedPort != 0) {
       port = providedPort;
-      serverHasStarted();
-      LOG.info("Using existing Node.js process on port {}", port);
-      establishWebSocketConnection();
+      grpcClient = new BridgeGrpcClient(hostAddress, port, timeoutSeconds);
+      if (grpcClient.waitForReady(timeoutSeconds * 1000L)) {
+        serverHasStarted();
+        LOG.info("Using existing Node.js process on port {}", port);
+      } else {
+        throw new NodeCommandException(
+          "Failed to connect to existing Node.js process on port " + port
+        );
+      }
     }
     workdir = serverConfig.workDirAbsolutePath();
     Files.createDirectories(temporaryDeployLocation.resolve("package"));
@@ -372,102 +348,96 @@ public class BridgeServerImpl implements BridgeServer {
     String baseDir,
     boolean sonarlint
   ) {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(
-      rules,
-      environments,
-      globals,
-      baseDir,
-      sonarlint,
-      deployedBundles.stream().map(Path::toString).toList(),
-      workdir
+    org.sonar.plugins.javascript.bridge.grpc.InitLinterRequest grpcRequest =
+      BridgeRequestConverter.toInitLinterRequest(
+        rules,
+        environments,
+        globals,
+        baseDir,
+        sonarlint,
+        deployedBundles.stream().map(Path::toString).toList(),
+        workdir
+      );
+    org.sonar.plugins.javascript.bridge.grpc.InitLinterResponse response = grpcClient.initLinter(
+      grpcRequest
     );
-    String request = GSON.toJson(initLinterRequest);
-
-    String response = textResponse(request(request, "init-linter"));
-    if (!"OK".equals(response)) {
-      throw new IllegalStateException("Failed to initialize linter");
+    if (!response.getSuccess()) {
+      throw new IllegalStateException("Failed to initialize linter: " + response.getError());
     }
-  }
-
-  private static String textResponse(BridgeResponse response) {
-    BufferedReader bufferedReader = new BufferedReader(response.reader());
-    return bufferedReader.lines().collect(Collectors.joining());
   }
 
   @Override
   public AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-jsts"), request.filePath());
+    try {
+      AnalyzeJsTsRequest grpcRequest = BridgeRequestConverter.toAnalyzeJsTsRequest(request);
+      AnalyzeJsTsResponse grpcResponse = grpcClient.analyzeJsTs(grpcRequest);
+      return BridgeResponseConverter.fromAnalyzeJsTsResponse(grpcResponse);
+    } catch (StatusRuntimeException e) {
+      throw handleGrpcException(e);
+    }
   }
 
   @Override
   public AnalysisResponse analyzeCss(CssAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-css"), request.filePath());
+    try {
+      AnalyzeCssRequest grpcRequest = BridgeRequestConverter.toAnalyzeCssRequest(request);
+      AnalyzeCssResponse grpcResponse = grpcClient.analyzeCss(grpcRequest);
+      return BridgeResponseConverter.fromAnalyzeCssResponse(grpcResponse);
+    } catch (StatusRuntimeException e) {
+      throw handleGrpcException(e);
+    }
   }
 
   @Override
   public AnalysisResponse analyzeYaml(JsAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-yaml"), request.filePath());
+    try {
+      AnalyzeYamlRequest grpcRequest = BridgeRequestConverter.toAnalyzeYamlRequest(request);
+      AnalyzeYamlResponse grpcResponse = grpcClient.analyzeYaml(grpcRequest);
+      return BridgeResponseConverter.fromAnalyzeYamlResponse(grpcResponse);
+    } catch (StatusRuntimeException e) {
+      throw handleGrpcException(e);
+    }
   }
 
   @Override
   public AnalysisResponse analyzeHtml(JsAnalysisRequest request) {
-    var json = GSON.toJson(request);
-    return response(request(json, "analyze-html"), request.filePath());
+    try {
+      AnalyzeHtmlRequest grpcRequest = BridgeRequestConverter.toAnalyzeHtmlRequest(request);
+      AnalyzeHtmlResponse grpcResponse = grpcClient.analyzeHtml(grpcRequest);
+      return BridgeResponseConverter.fromAnalyzeHtmlResponse(grpcResponse);
+    } catch (StatusRuntimeException e) {
+      throw handleGrpcException(e);
+    }
+  }
+
+  private IllegalStateException handleGrpcException(StatusRuntimeException e) {
+    if (e.getStatus().getCode() == io.grpc.Status.Code.DEADLINE_EXCEEDED) {
+      return new IllegalStateException(TIMEOUT_ERROR_MESSAGE);
+    }
+    return new IllegalStateException("gRPC call failed: " + e.getMessage(), e);
   }
 
   @Override
-  public void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler) {
-    this.client.registerHandler(handler);
-    var request = handler.getRequest();
-    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
-    request.setRulesWorkdir(workdir);
-    this.client.send(GSON.toJson(Map.of("type", "on-analyze-project", "data", request)));
-    handler.getFuture().join();
-  }
-
-  private BridgeResponse request(String json, String endpoint) {
-    try {
-      var response = http.post(json, url(endpoint), timeoutSeconds);
-      InputStreamReader reader = new InputStreamReader(
-        new ByteArrayInputStream(response.body()),
-        StandardCharsets.UTF_8
-      );
-      return new BridgeServer.BridgeResponse(reader);
-    } catch (IOException e) {
-      throw new IllegalStateException(
-        "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: " +
-          "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
-        e
-      );
-    }
-  }
-
-  private static AnalysisResponse response(BridgeResponse result, String filePath) {
-    try {
-      return AnalysisResponse.fromDTO(GSON.fromJson(result.reader(), AnalysisResponseDTO.class));
-    } catch (JsonSyntaxException e) {
-      String msg =
-        "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
-      LOG.error(msg, e);
-      throw new IllegalStateException("Failed to parse response", e);
-    }
+  public void analyzeProject(GrpcProjectAnalysisHandler handler, ProjectAnalysisRequest request) {
+    AnalyzeProjectRequest grpcRequest = BridgeRequestConverter.toAnalyzeProjectRequest(
+      request,
+      deployedBundles.stream().map(Path::toString).toList(),
+      workdir
+    );
+    grpcClient.analyzeProject(grpcRequest, handler);
   }
 
   public boolean isAlive() {
-    if (nodeCommand == null && status != Status.STARTED) {
+    if (grpcClient == null && status != BridgeServerImpl.Status.STARTED) {
       return false;
     }
     try {
-      String res = http.get(url("status"));
-      var result = "OK".equals(res);
+      var result = grpcClient != null && grpcClient.isHealthy();
       if (result) {
         latestOKIsAliveTimestamp = System.currentTimeMillis();
       }
       return result;
-    } catch (IOException e) {
+    } catch (Exception e) {
       return false;
     }
   }
@@ -495,8 +465,16 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void clean() {
     heartbeatService.shutdownNow();
-    if (nodeCommand != null && isAlive()) {
-      request("", "close");
+    if (grpcClient != null) {
+      try {
+        grpcClient.requestClose();
+      } catch (Exception e) {
+        LOG.debug("Error requesting bridge shutdown: {}", e.getMessage());
+      }
+      grpcClient.close();
+      grpcClient = null;
+    }
+    if (nodeCommand != null) {
       nodeCommand.waitFor();
       nodeCommand = null;
     }
@@ -528,22 +506,6 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void stop() {
     clean();
-  }
-
-  private URI wsUrl() {
-    try {
-      return new URI("ws", null, hostAddress, port, "/ws", null, null);
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
-    }
-  }
-
-  private URI url(String endpoint) {
-    try {
-      return new URI("http", null, hostAddress, port, "/" + endpoint, null, null);
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("Invalid URI: " + e.getMessage(), e);
-    }
   }
 
   int nodeAlreadyRunningPort() {

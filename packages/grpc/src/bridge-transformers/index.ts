@@ -14,4 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './error-handler.js';
+export { transformInitLinterRequest, type InitLinterInput } from './init-linter.js';
+
+export { transformAnalyzeJsTsRequest, transformAnalyzeJsTsResponse } from './analyze-jsts.js';
+
+export { transformAnalyzeCssRequest, transformAnalyzeCssResponse } from './analyze-css.js';
+
+export {
+  transformAnalyzeYamlRequest,
+  transformAnalyzeYamlResponse,
+  transformAnalyzeHtmlRequest,
+  transformAnalyzeHtmlResponse,
+} from './analyze-embedded.js';
+
+export {
+  transformAnalyzeProjectRequest,
+  transformFileResult,
+  transformError,
+} from './analyze-project.js';
+
+export { transformProjectConfiguration } from './configuration.js';

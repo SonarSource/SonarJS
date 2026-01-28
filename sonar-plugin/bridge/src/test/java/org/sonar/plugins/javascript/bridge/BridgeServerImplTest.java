@@ -42,11 +42,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -71,6 +73,7 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
+@Timeout(value = 10, unit = TimeUnit.SECONDS)
 class BridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
