@@ -892,9 +892,8 @@ jobs:
           🤖 Generated with GitHub Actions"
               git push origin "$HEAD_REF"
 
-              # Trigger CI on the updated branch using workflow_dispatch
-              # Use default GITHUB_TOKEN which has actions:write permission
-              GITHUB_TOKEN="${{ github.token }}" gh workflow run build.yml --ref "$HEAD_REF"
+              # Trigger CI re-run using GitHub App token
+              gh run rerun ${{ github.run_id }} --failed
             fi
           fi
 
