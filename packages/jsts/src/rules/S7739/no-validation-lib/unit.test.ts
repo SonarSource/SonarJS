@@ -112,6 +112,29 @@ describe('S7739', () => {
         `,
           filename: join(dirname, 'filename.js'),
         },
+        // False Positive Pattern 5b: Function expression assigned to Promise
+        {
+          code: `
+          const Promise = function(executor) {
+            this.state = 'pending';
+            this.then = function(onFulfilled) {
+              this.onFulfilled = onFulfilled;
+            };
+          };
+        `,
+          filename: join(dirname, 'filename.js'),
+        },
+        // False Positive Pattern 5c: Arrow function assigned to Deferred
+        {
+          code: `
+          const Deferred = () => {
+            return {
+              then: function(callback) { this.callback = callback; }
+            };
+          };
+        `,
+          filename: join(dirname, 'filename.js'),
+        },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
         {
