@@ -892,8 +892,8 @@ jobs:
               git push origin "$HEAD_REF"
 
               # Trigger CI on the updated branch using workflow_dispatch
-              # GitHub Apps can't trigger pull_request events, but can trigger workflow_dispatch
-              gh workflow run build.yml --ref "$HEAD_REF"
+              # Use default GITHUB_TOKEN which has actions:write permission
+              GITHUB_TOKEN="${{ github.token }}" gh workflow run build.yml --ref "$HEAD_REF"
             fi
           fi
 
