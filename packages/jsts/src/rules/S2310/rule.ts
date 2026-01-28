@@ -18,13 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getParent,
   getVariableFromName,
   report,
-  resolveIdentifiers,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
@@ -72,28 +70,12 @@ export const rule: Rule.RuleModule = {
           checkLoop(forLoop.update, collectCountersFor, node);
         }
       },
-      'ForInStatement > BlockStatement, ForOfStatement > BlockStatement': (node: estree.Node) => {
-        const { left } = getParent(context, node) as estree.ForOfStatement | estree.ForInStatement;
-        checkLoop(left, collectCountersForX, node);
-      },
+      // Note: for-of and for-in loops are not checked because reassigning
+      // the iterator variable does not affect loop iteration (the iterator
+      // protocol controls progression, not the variable value)
     };
   },
 };
-
-function collectCountersForX(
-  updateExpression: estree.Pattern | estree.VariableDeclaration,
-  counters: estree.Identifier[],
-) {
-  if (updateExpression.type === 'VariableDeclaration') {
-    for (const decl of updateExpression.declarations) {
-      collectCountersForX(decl.id, counters);
-    }
-  } else {
-    for (const id of resolveIdentifiers(updateExpression as TSESTree.Node, true)) {
-      counters.push(id);
-    }
-  }
-}
 
 function collectCountersFor(updateExpression: estree.Expression, counters: estree.Identifier[]) {
   let counter: estree.Node | null | undefined = undefined;
