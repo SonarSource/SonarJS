@@ -808,6 +808,7 @@ jobs:
       id-token: write
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - &checkout_with_submodules
         name: Checkout source code
