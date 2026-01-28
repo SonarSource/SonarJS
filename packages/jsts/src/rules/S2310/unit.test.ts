@@ -105,6 +105,23 @@ describe('S2310', () => {
       }
       `,
         },
+        // for-in loop with key-to-value reassignment pattern (from ruling data - jshint.js pattern)
+        // Common pattern: using the key to access the value and reassign the iterator variable
+        {
+          code: `
+      // Real-world pattern from jshint: iterating tokens and transforming key to value
+      function processTokens(tokens) {
+        for (var t in tokens) {
+          if (tokens.hasOwnProperty(t)) {
+            t = tokens[t]; // Compliant: key-to-value reassignment in for-in is safe
+            if (t.id) {
+              console.log(t.id);
+            }
+          }
+        }
+      }
+      `,
+        },
       ],
       invalid: [
         {
