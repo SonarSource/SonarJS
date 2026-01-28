@@ -808,7 +808,6 @@ jobs:
       id-token: write
       contents: write
       pull-requests: write
-      actions: write
     steps:
       - &checkout_with_submodules
         name: Checkout source code
@@ -892,8 +891,6 @@ jobs:
           🤖 Generated with GitHub Actions"
               git push origin "$HEAD_REF"
 
-              # Trigger CI re-run using GitHub App token
-              gh run rerun ${{ github.run_id }} --failed
             fi
           fi
 
@@ -907,7 +904,7 @@ jobs:
               echo ""
               if [ "$RULING_FAILED" = "true" ]; then
                 echo "---"
-                echo "✅ **Ruling has been updated.** CI has been triggered."
+                echo "✅ **Ruling has been updated.** Push an empty commit to re-run CI: \`git commit --allow-empty -m 'Trigger CI' && git push\`"
               fi
             } > comment.md
           else
