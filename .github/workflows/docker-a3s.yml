@@ -1,4 +1,4 @@
-name: Build A3S Docker Image
+name: Build A3S Docker Image (AWS)
 
 on:
   workflow_dispatch:
