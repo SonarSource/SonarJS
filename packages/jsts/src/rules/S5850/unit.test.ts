@@ -68,6 +68,85 @@ describe('S5850', () => {
         {
           code: `/|/`,
         },
+        // Complementary anchor patterns (two alternatives: ^first|second$)
+        // These are valid trimming idioms that should NOT be flagged
+        {
+          // Whitespace trimming - standard idiom
+          code: `/^\\s+|\\s+$/g`,
+        },
+        {
+          // Hyphen trimming - slug normalization
+          code: `/^-+|-+$/g`,
+        },
+        {
+          // Quote removal - unquoting strings
+          code: `/^['"]|['"]$/g`,
+        },
+        {
+          // Underscore trimming - identifier normalization
+          code: `/^_+|_+$/g`,
+        },
+        {
+          // Slash trimming - path normalization
+          code: `/^\\/|\\/$/g`,
+        },
+        {
+          // Multiple slashes - path normalization
+          code: `/^\\/+|\\/+$/g`,
+        },
+        {
+          // Double quote trimming
+          code: `/^"|"$/g`,
+        },
+        {
+          // Brace trimming
+          code: `/^\\{|\\}$/g`,
+        },
+        {
+          // Single space trimming
+          code: `/^ | $/g`,
+        },
+        {
+          // Whitespace with character class
+          code: `/^[\\s]+|[\\s]+$/g`,
+        },
+        {
+          // Whitespace with non-breaking space
+          code: `/^[\\s\\xA0]+|[\\s\\xA0]+$/g`,
+        },
+        // Asymmetric complementary anchor patterns (different start/end patterns)
+        {
+          // Protocol stripping at start, extension at end
+          code: `/^http:\\/\\/|\\.html$/`,
+        },
+        {
+          // Asymmetric quote cleanup - single at start, double at end
+          code: `/^'|"+$/`,
+        },
+        {
+          // BOM at start, null at end
+          code: `/^\\uFEFF|\\0$/`,
+        },
+        {
+          // Currency formatting - $ symbol at start, USD at end
+          code: `/^\\$|USD$/`,
+        },
+        {
+          // Validation patterns - digits at start OR keyword at end
+          code: `/^\\d+|me$/`,
+        },
+        {
+          // Validation patterns - digits at start OR 'all' at end
+          code: `/^\\d+|all$/`,
+        },
+        {
+          // Mixed boundary markers - hash/slash at start, whitespace at end
+          code: `/^[#\\/]|\\s+$/g`,
+        },
+        {
+          // Attribute test - 'off' at start, 'false' at end
+          code: `/^off|false$/`,
+        },
       ],
       invalid: [
         {
@@ -97,6 +176,17 @@ describe('S5850', () => {
         },
         {
           code: `/(a|b)|c$/`,
+          errors: 1,
+        },
+        // Two alternatives but NOT complementary anchors - should still be flagged
+        {
+          // Only start anchor, no end anchor on second alternative
+          code: `/^a|b/`,
+          errors: 1,
+        },
+        {
+          // Only end anchor, no start anchor on first alternative
+          code: `/a|b$/`,
           errors: 1,
         },
       ],
