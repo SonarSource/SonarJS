@@ -25,7 +25,15 @@ describe('S7718', () => {
     // Default options from config.ts - matches patterns that should NOT raise issues
     const defaultOptions = [
       {
-        ignore: [/^(e|ex)$/, /exception$/i, /err$/i, /^_/, /^\w\$\d+$/],
+        ignore: [
+          '^(e|ex)$',
+          '[eE][xX][cC][eE][pP][tT][iI][oO][nN]$',
+          '[eE][rR][rR]$',
+          '^_',
+          String.raw`^\w\$\d+$`,
+          '^[cC][aA][uU][sS][eE]$',
+          '^[rR][eE][aA][sS][oO][nN]$',
+        ],
       },
     ];
 
@@ -83,6 +91,16 @@ describe('S7718', () => {
         { code: `promise.then(res => res, error => console.log(error));`, options: defaultOptions },
         { code: `promise.then(res => res, e$3 => console.log(e$3));`, options: defaultOptions },
         { code: `promise.then(res => res, _err => null);`, options: defaultOptions },
+        // ES2022 Error.cause convention - 'cause' is semantically meaningful
+        // when wrapping errors with a new Error using the cause property
+        {
+          code: `try { foo(); } catch (cause) { throw new Error('msg', { cause }); }`,
+          options: defaultOptions,
+        },
+        // Promise/A+ spec uses 'reason' as standard term for rejection values
+        { code: `try { foo(); } catch (reason) { console.log(reason); }`, options: defaultOptions },
+        { code: `promise.catch(reason => handleRejection(reason));`, options: defaultOptions },
+        { code: `promise.then(ok, reason => handleRejection(reason));`, options: defaultOptions },
       ],
       invalid: [
         // Non-compliant names that should still raise issues
@@ -152,13 +170,6 @@ describe('S7718', () => {
           options: defaultOptions,
           errors: [{ message: /The catch parameter `response` should be named `error`/ }],
         },
-        // 'reason' - common in promise rejection handlers (from ruling analysis)
-        {
-          code: `promise.then(res => res, reason => console.log(reason));`,
-          output: `promise.then(res => res, error => console.log(error));`,
-          options: defaultOptions,
-          errors: [{ message: /The catch parameter `reason` should be named `error`/ }],
-        },
         // Promise .catch() handler non-compliant names
         {
           code: `promise.catch(badName => console.log(badName));`,
@@ -172,6 +183,27 @@ describe('S7718', () => {
           output: `promise.then(res => res, error => console.log(error));`,
           options: defaultOptions,
           errors: [{ message: /The catch parameter `badName` should be named `error`/ }],
+        },
+        // 'resp' - common abbreviation of response (from ruling analysis)
+        {
+          code: `promise.catch(resp => console.log(resp));`,
+          output: `promise.catch(error => console.log(error));`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `resp` should be named `error`/ }],
+        },
+        // 'rejected' - common promise rejection handler name (from ruling analysis)
+        {
+          code: `promise.then(filled => filled, rejected => console.log(rejected));`,
+          output: `promise.then(filled => filled, error => console.log(error));`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `rejected` should be named `error`/ }],
+        },
+        // 'value' - generic name used in catch (from ruling analysis - jquery deferred.js)
+        {
+          code: `try { foo(); } catch (value) { reject(value); }`,
+          output: `try { foo(); } catch (error) { reject(error); }`,
+          options: defaultOptions,
+          errors: [{ message: /The catch parameter `value` should be named `error`/ }],
         },
       ],
     });
