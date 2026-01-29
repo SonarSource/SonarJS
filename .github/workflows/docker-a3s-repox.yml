@@ -1,0 +1,93 @@
+name: Build A3S Docker Image (Repox)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        type: string
+        default: master
+
+env:
+  DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
+  DOCKER_IMAGE: "sonarsource/a3s-analysis-javascript"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  get_build_number:
+    runs-on: github-ubuntu-latest-s
+    name: Get build number
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
+    steps:
+      - uses: SonarSource/ci-github-actions/get-build-number@master
+        id: get-build-number
+
+  build_and_publish:
+    name: Build and publish Docker image
+    runs-on: github-ubuntu-latest-m
+    needs: get_build_number
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+
+      - name: Access vault secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release access_token | ARTIFACTORY_DEPLOY_PASSWORD;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release username | ARTIFACTORY_DEPLOY_USERNAME;
+
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build bundle for Docker
+        run: npm run grpc:build
+
+      - name: Docker login to Repox registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}
+          username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}/${{ env.DOCKER_IMAGE }}:${{ env.BUILD_NUMBER }}
