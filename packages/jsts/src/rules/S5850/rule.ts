@@ -31,8 +31,20 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onPatternEnter: (pattern: AST.Pattern) => {
       const { alternatives } = pattern;
+      if (alternatives.length < 2) {
+        return;
+      }
+      // Complementary anchor pattern: exactly 2 alternatives where first starts with ^
+      // and second ends with $. This is a valid "match at start OR end" idiom used for
+      // trimming (e.g., /^\s+|\s+$/g) and should not be flagged.
       if (
-        alternatives.length > 1 &&
+        alternatives.length === 2 &&
+        isAnchored(alternatives[0], Position.BEGINNING) &&
+        isAnchored(alternatives[1], Position.END)
+      ) {
+        return;
+      }
+      if (
         (anchoredAt(alternatives, Position.BEGINNING) || anchoredAt(alternatives, Position.END)) &&
         notAnchoredElseWhere(alternatives)
       ) {
