@@ -147,6 +147,27 @@ describe('S5850', () => {
           // Attribute test - 'off' at start, 'false' at end
           code: `/^off|false$/`,
         },
+        // Additional patterns from ruling analysis
+        {
+          // Table block matching - empty/whitespace at start OR equals at end
+          code: `/^\\s*|={3,}\\s*$/`,
+        },
+        {
+          // Whitespace trimming with optional stars
+          code: `/^\\s*|\\s*$/g`,
+        },
+        {
+          // Git ref parsing - SHA at start OR ref: at end
+          code: `/^([a-f0-9]{40})|(?:ref: (refs\\/.*))$/m`,
+        },
+        {
+          // Double caret (redundant but valid) - tag at start OR close at end
+          code: `/^^<\\/?[a-z](?:[\\w.:-]*\\w)?|\\/?>$/i`,
+        },
+        {
+          // Complex rtrim with capturing group - whitespace or escaped chars
+          code: `new RegExp("^" + whitespace + "+|((?:^|[^\\\\\\\\])(?:\\\\\\\\.)*)" + whitespace + "+$", "g")`,
+        },
       ],
       invalid: [
         {
@@ -187,6 +208,32 @@ describe('S5850', () => {
         {
           // Only end anchor, no start anchor on first alternative
           code: `/a|b$/`,
+          errors: 1,
+        },
+        // Additional invalid patterns from ruling analysis
+        {
+          // 3 alternatives with middle unanchored - user status check
+          code: `/^active|warn-[1-4]|locked$/`,
+          errors: 1,
+        },
+        {
+          // 3 alternatives with middle unanchored - path exclusion
+          code: `/^index|examples\\/|ptore2e\\//`,
+          errors: 1,
+        },
+        {
+          // Line matching with 3 effective alternatives
+          code: `/.+(?:\\r\\n?|\\n)|.*$/g`,
+          errors: 1,
+        },
+        {
+          // Mouse event pattern - click not anchored
+          code: `/^(?:mouse|pointer|contextmenu|drag|drop)|click/`,
+          errors: 1,
+        },
+        {
+          // Multiple patterns with only last anchored
+          code: `/\\s\\S| \\t|\\t |\\s$/`,
           errors: 1,
         },
       ],
