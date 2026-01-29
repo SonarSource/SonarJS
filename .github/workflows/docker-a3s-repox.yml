@@ -1,9 +1,6 @@
 name: Build A3S Docker Image (Repox)
 
 on:
-  push:
-    branches:
-      - docker-a3s-repox-workflow  # Temporary: for testing, remove before merge
   workflow_dispatch:
     inputs:
       branch:
