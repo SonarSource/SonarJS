@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { resolve } from 'node:path';
 import { isAbsolute as isUnixAbsolute, parse as parsePosix } from 'node:path/posix';
 import {
   isAbsolute as isWinAbsolute,
@@ -55,12 +56,15 @@ const isWindows = process.platform === 'win32';
  * - On Windows: all absolute paths are resolved with win32 to add drive letter
  * - On Linux: paths are only converted (slashes), no resolution needed
  * @param filePath the path to convert
+ * @param forceAbsolute returned path should be absolute
  * @returns the converted path
  */
-export function toUnixPath(filePath: string) {
+export function toUnixPath(filePath: string, forceAbsolute = false) {
   if (isWindows && isAbsolutePath(filePath)) {
     // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
+  } else if (forceAbsolute) {
+    filePath = resolve(filePath);
   }
   return filePath.replaceAll(/[\\/]+/g, '/');
 }
@@ -83,5 +87,5 @@ export function isAbsolutePath(path: string) {
   if (/^[a-zA-Z]:/.test(path)) {
     return true;
   }
-  return isUnixAbsolute(path) || isWinAbsolute(path.replaceAll(/[\\/]+/g, '\\'));
+  return isUnixAbsolute(path) || isWinAbsolute(path);
 }
