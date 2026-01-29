@@ -410,6 +410,35 @@ describe('gRPC server', () => {
     expect(issues[0].message).toContain('indexOf');
   });
 
+  it('should analyze TypeScript file with relative paths with type-checker dependent rule', async () => {
+    // S4619 ("in" should not be used on arrays) requires type checking
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: 'src/in-operator.ts',
+          content:
+            'const arr: string[] = ["a", "b", "c"];\nif ("b" in arr) { console.log("found"); }\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S4619' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+    const issues = response.issues || [];
+
+    expect(issues.length).toBe(1);
+    expect(issues[0].rule?.repo).toBe('typescript');
+    expect(issues[0].rule?.rule).toBe('S4619');
+    expect(issues[0].message).toContain('indexOf');
+  });
+
   it('should analyze JavaScript file with type-checker dependent rule', async () => {
     // S4619 ("in" should not be used on arrays) requires type checking
     const request: analyzer.IAnalyzeRequest = {
