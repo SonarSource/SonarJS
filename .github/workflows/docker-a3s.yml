@@ -8,14 +8,10 @@ on:
         required: true
         type: string
         default: master
-      environment:
-        description: 'Target environment'
-        required: true
-        type: choice
-        options:
-          - Dev
-          - Prod
-        default: Dev
+
+env:
+  DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
+  DOCKER_IMAGE: "a3s/analysis/javascript"
 
 jobs:
   get_build_number:
@@ -34,7 +30,6 @@ jobs:
     name: Build and publish Docker image
     runs-on: github-ubuntu-latest-m
     needs: get_build_number
-    environment: ${{ inputs.environment == 'Prod' && 'Prod' || 'Dev5' }}
     permissions:
       id-token: write
       contents: read
@@ -59,6 +54,8 @@ jobs:
         with:
           secrets: |
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release access_token | ARTIFACTORY_DEPLOY_PASSWORD;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release username | ARTIFACTORY_DEPLOY_USERNAME;
 
       - name: Configure npm registry
         run: |
@@ -71,29 +68,26 @@ jobs:
       - name: Build bundle for Docker
         run: npm run grpc:build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
+      - name: Docker login to Repox registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
         with:
-          # Dev: 011528275708, Prod: 718197818630 (Staging account has permission to push to Prod ECR)
-          role-to-assume: arn:aws:iam::${{ inputs.environment == 'Prod' && '718197818630' || '011528275708' }}:role/${{ vars.CICD_ROLE }}
-          aws-region: eu-central-1
+          registry: ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}
+          username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          # SharedServices Dev: 982534363626, SharedServices Prod: 514420625451
-          registries: ${{ inputs.environment == 'Prod' && '514420625451' || '982534363626' }}
+      - name: Setup Docker image
+        shell: bash
+        id: docker-image-setup
+        run: |
+          DOCKER_IMAGE_BUILD_NUMBER="${DOCKER_REPOX_BUILDS_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+          echo "docker-image=${DOCKER_IMAGE_BUILD_NUMBER}" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          platforms: linux/arm64
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/a3s/analysis/javascript:${{ env.BUILD_NUMBER }}
+        shell: bash
+        env:
+          DOCKER_IMAGE_BUILD_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image }}
+        run: |
+          docker buildx build --platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}" --push .
