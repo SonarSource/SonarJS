@@ -58,7 +58,7 @@ function getHeapSize() {
   return Math.floor(v8.getHeapStatistics().heap_size_limit / MB);
 }
 
-export function logMemoryError(err: any) {
+export function logMemoryError(err: unknown) {
   if (err?.code === 'ERR_WORKER_OUT_OF_MEMORY') {
     error(
       `The analysis will stop due to the Node.js process running out of memory (heap size limit ${getHeapSize()} MB)`,
