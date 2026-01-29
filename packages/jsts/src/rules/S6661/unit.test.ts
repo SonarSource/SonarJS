@@ -29,6 +29,28 @@ describe('S6661', () => {
         {
           code: `Object.assign(foo, bar);`,
         },
+        {
+          // False positive scenario (JS-1155): Aliased Object.assign should NOT be flagged
+          // This is a common pattern in bundled/minified code (e.g., React Native) where
+          // Object.assign is aliased to a local variable. The rule should only flag explicit
+          // Object.assign() member expressions, not identifier calls.
+          // Pattern from: simple-examples.json
+          code: `
+var assign = Object.assign;
+const props = { configurable: true, enumerable: true, writable: true };
+const result = assign({}, props, { value: console.log });`,
+        },
+        {
+          // False positive scenario (JS-1155): Custom assign function (not Object.assign)
+          // This pattern appears in React Native bundles where a custom assign
+          // function is used, not the built-in Object.assign.
+          code: `
+function assign(target, ...sources) {
+  return Object.assign(target, ...sources);
+}
+const props = { configurable: true, enumerable: true, writable: true };
+const result = assign({}, props, { value: console.log });`,
+        },
       ],
       invalid: [
         {
@@ -54,23 +76,6 @@ describe('S6661', () => {
               endLine: 1,
               column: 11,
               endColumn: 24,
-            },
-          ],
-        },
-        {
-          code: `
-var assign = Object.assign;
-const b = assign({}, foo, bar);`,
-          output: `
-var assign = Object.assign;
-const b = { ...foo, ...bar};`,
-          errors: [
-            {
-              messageId: 'useSpreadMessage',
-              line: 3,
-              endLine: 3,
-              column: 11,
-              endColumn: 17,
             },
           ],
         },

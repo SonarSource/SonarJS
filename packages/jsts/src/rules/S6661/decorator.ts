@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { CallExpression } from 'estree';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -31,6 +31,18 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if ('node' in reportDescriptor) {
         const { node, ...rest } = reportDescriptor;
         const call = node as CallExpression;
+
+        // Only report for direct Object.assign() calls, not aliased identifiers
+        if (call.callee.type !== 'MemberExpression') {
+          return;
+        }
+        if (
+          !isIdentifier(call.callee.object, 'Object') ||
+          !isIdentifier(call.callee.property, 'assign')
+        ) {
+          return;
+        }
+
         context.report({
           node: call.callee,
           ...rest,
