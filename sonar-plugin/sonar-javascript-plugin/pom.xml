@@ -254,6 +254,14 @@
         <configuration>
           <minimizeJar>true</minimizeJar>
           <createDependencyReducedPom>false</createDependencyReducedPom>
+          <filters>
+            <filter>
+              <artifact>org.sonarsource.javascript:api</artifact>
+              <includes>
+                <include>org/sonar/plugins/javascript/api/**</include>
+              </includes>
+            </filter>
+          </filters>
         </configuration>
         <executions>
           <execution>
