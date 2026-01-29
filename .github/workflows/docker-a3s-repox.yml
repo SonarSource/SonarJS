@@ -1,6 +1,9 @@
 name: Build A3S Docker Image (Repox)
 
 on:
+  push:
+    branches:
+      - docker-a3s-repox-workflow  # Temporary: for testing, remove before merge
   workflow_dispatch:
     inputs:
       branch:
@@ -43,7 +46,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.ref }}
 
       - uses: jdx/mise-action@v3.6.1
         with:
