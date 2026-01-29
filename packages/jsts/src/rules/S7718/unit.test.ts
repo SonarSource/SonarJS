@@ -30,7 +30,7 @@ describe('S7718', () => {
           '[eE][xX][cC][eE][pP][tT][iI][oO][nN]$',
           '[eE][rR][rR]$',
           '^_',
-          '^\\w\\$\\d+$',
+          String.raw`^\w\$\d+$`,
           '^[cC][aA][uU][sS][eE]$',
           '^[rR][eE][aA][sS][oO][nN]$',
         ],
