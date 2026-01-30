@@ -69,9 +69,29 @@ export function getReactVersion(context: Rule.RuleContext): string | null {
   for (const packageJson of getManifests(dir, context.cwd, fs)) {
     const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
     if (reactVersion) {
-      // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
-      return minVersion(reactVersion)?.version ?? null;
+      const parsed = parseReactVersion(reactVersion);
+      if (parsed) {
+        return parsed;
+      }
+      // Continue searching in parent package.json files if parsing fails
     }
   }
   return null;
+}
+
+/**
+ * Parses a React version string and returns a valid semver version.
+ * Exported for testing purposes.
+ *
+ * @param reactVersion Version string from package.json (e.g., "^18.0.0", "19.0", "catalog:frontend")
+ * @returns Valid semver version string or null if parsing fails
+ */
+export function parseReactVersion(reactVersion: string): string | null {
+  try {
+    // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
+    return minVersion(reactVersion)?.version ?? null;
+  } catch {
+    // Handle non-semver strings like pnpm catalog references (e.g., "catalog:frontend")
+    return null;
+  }
 }
