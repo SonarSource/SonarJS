@@ -180,6 +180,40 @@ ReactDOM.render(<div></div>, container);
       ],
     });
 
+    // JS-1192: Test that pnpm catalog references (e.g., "catalog:frontend") don't crash the rule
+    const filenamePnpmCatalog = path.join(fixtures, 'pnpm-catalog/file.js');
+
+    ruleTester.run('pnpm catalog reference', rule, {
+      valid: [
+        {
+          // When React version cannot be determined (pnpm catalog), non-deprecated code should pass
+          code: `
+import React from 'react';
+const element = <div>Hello</div>;
+`,
+          filename: filenamePnpmCatalog,
+        },
+      ],
+      invalid: [
+        {
+          // When React version cannot be determined, the rule should still work
+          // (falls back to detecting all deprecations)
+          code: `
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+ReactDOM.render(<div></div>, container);
+`,
+          filename: filenamePnpmCatalog,
+          errors: [
+            {
+              message: 'ReactDOM.render is deprecated since React 18.0.0, use createRoot instead',
+            },
+          ],
+        },
+      ],
+    });
+
     shouldRaiseAllIssues(path.join(fixtures, 'noreact1/file.js'));
     shouldRaiseAllIssues(path.join(fixtures, 'noreact2/file.js'));
 
