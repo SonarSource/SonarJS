@@ -75,6 +75,36 @@ describe('S6324', () => {
         {
           code: String.raw`/[\x00-\x20\x7F]/g`, // git ref sanitization (ASCII control + DEL)
         },
+        // Mixed ranges and standalone chars in character class: intentional character set construction
+        // (Fixes false positives for YAML, CSS, asciify patterns)
+        {
+          // Standalone chars (\x0b, \x0c) alongside ranges (\x00-\x08) should not flag
+          // because the presence of ranges indicates intentional character set construction
+          code: String.raw`/[\x00-\x08\x0b\x0c]/`,
+        },
+        {
+          // Control char escaping pattern from Jest's escapeControlCharacters
+          // Ranges with standalone chars to match specific control characters
+          code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g`,
+        },
+        {
+          // YAML non-printable character pattern
+          // Combines ranges with excluded chars (tab, newline, carriage return are allowed)
+          code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g`,
+        },
+        {
+          // Asciify pattern: escape control chars plus high bytes
+          code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\uffff]/g`,
+        },
+        {
+          // Git ref name sanitization: control chars, space, and special chars
+          // Range plus standalone DEL character
+          code: String.raw`/[\x00-\x20\x7F~^:?*\[\]\\|""<>]/g`,
+        },
+        {
+          // Unicode variation with mixed ranges and standalone
+          code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g`,
+        },
       ],
       invalid: [
         {
@@ -173,11 +203,6 @@ describe('S6324', () => {
           // Whitespace alternation pattern (like csslint.js) - unicode escapes not excepted
           code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
           errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
-        },
-        {
-          // Mixed ranges and standalone: only standalone chars flagged
-          code: String.raw`/[\x00-\x08\x0b\x0c]/`,
-          errors: 2, // \x0b and \x0c are standalone, \x00-\x08 is a range
         },
       ],
     });
