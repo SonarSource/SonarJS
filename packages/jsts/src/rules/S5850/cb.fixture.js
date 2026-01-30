@@ -44,6 +44,16 @@ let valid = [
   {
     regex: /|/,
   },
+  // Complementary anchor patterns - valid trimming idioms
+  {
+    regex: /^\s+|\s+$/g, // Whitespace trimming
+  },
+  {
+    regex: /^\/|\/$/g, // Slash trimming
+  },
+  {
+    regex: /^\d+|me$/, // Validation pattern
+  },
 ];
 
 
@@ -80,6 +90,17 @@ let invalid = [
   {
     regex: /(a|b)|c$/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
     //      ^^^^^^^^
+    errors: 1,
+  },
+  // Two alternatives but NOT complementary anchors - should still be flagged
+  {
+    regex: /^a|b/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
+    //      ^^^^
+    errors: 1,
+  },
+  {
+    regex: /a|b$/,   // Noncompliant {{Group parts of the regex together to make the intended operator precedence explicit.}}
+    //      ^^^^
     errors: 1,
   },
 ];
