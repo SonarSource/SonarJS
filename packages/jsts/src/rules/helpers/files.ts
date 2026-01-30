@@ -14,8 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { resolve } from 'node:path';
-import { isAbsolute as isUnixAbsolute, parse as parsePosix } from 'node:path/posix';
+import {
+  isAbsolute as isUnixAbsolute,
+  parse as parsePosix,
+  resolve as resolvePosix,
+} from 'node:path/posix';
 import {
   isAbsolute as isWinAbsolute,
   parse as parseWin32,
@@ -34,16 +37,16 @@ import {
  *
  * @see tsconfig/options.ts for runtime branding of objects via Symbol properties
  */
-declare const UnixPathBrand: unique symbol;
-declare const AbsoluteUnixPathBrand: unique symbol;
+declare const NormalizedPathBrand: unique symbol;
+declare const NormalizedAbsolutePathBrand: unique symbol;
 
-export type UnixPath = string & { readonly [UnixPathBrand]: never };
-export type AbsoluteUnixPath = UnixPath & { readonly [AbsoluteUnixPathBrand]: never };
+export type NormalizedPath = string & { readonly [NormalizedPathBrand]: never };
+export type NormalizedAbsolutePath = string & { readonly [NormalizedAbsolutePathBrand]: never };
 
 /**
  * Root path constant for Unix filesystem
  */
-export const ROOT_PATH = '/' as AbsoluteUnixPath;
+export const ROOT_PATH = '/' as NormalizedAbsolutePath;
 
 /**
  * Byte Order Marker
@@ -81,27 +84,38 @@ const isWindows = process.platform === 'win32';
  * @param filePath the path to normalize
  * @returns the normalized path as a branded UnixPath type
  */
-export function normalizePath(filePath: string): UnixPath {
+export function normalizePath(filePath: string): NormalizedPath {
   if (isWindows && isAbsolutePath(filePath)) {
     // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
   }
-  return filePath.replaceAll(/[\\/]+/g, '/') as UnixPath;
+  return toUnixPath(filePath) as NormalizedPath;
 }
 
 /**
  * Normalizes a path to an absolute Unix format.
  * Guarantees the returned path is absolute.
  * @param filePath the path to normalize
+ * @param baseDir base directory to resolve relative paths against
  * @returns the normalized path as a branded AbsoluteUnixPath type
  */
-export function normalizeToAbsolutePath(filePath: string): AbsoluteUnixPath {
+export function normalizeToAbsolutePath(
+  filePath: string,
+  baseDir = ROOT_PATH,
+): NormalizedAbsolutePath {
+  filePath = toUnixPath(filePath);
   if (!isAbsolutePath(filePath)) {
-    filePath = resolve(filePath);
-  } else if (isWindows) {
+    filePath = resolvePosix(baseDir, filePath);
+  }
+  if (isWindows) {
+    // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
   }
-  return filePath.replaceAll(/[\\/]+/g, '/') as AbsoluteUnixPath;
+  return toUnixPath(filePath) as NormalizedAbsolutePath;
+}
+
+export function toUnixPath(filePath: string) {
+  return filePath.replaceAll(/[\\/]+/g, '/');
 }
 
 function isParseResultRoot(result: { root: string; base: string; dir: string }) {

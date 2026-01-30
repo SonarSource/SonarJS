@@ -17,13 +17,15 @@
 import { readFile } from '../../../../shared/src/helpers/files.js';
 import { CompleteEmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
 import { CompleteJsTsAnalysisInput, JsTsAnalysisInput } from '../../../src/analysis/analysis.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
 
-type allOptional = Partial<JsTsAnalysisInput>;
+type TestJsTsInput = Omit<Partial<JsTsAnalysisInput>, 'filePath'> & { filePath?: string };
 
-export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysisInput> {
+export async function jsTsInput(input: TestJsTsInput): Promise<CompleteJsTsAnalysisInput> {
+  const filePath = normalizeToAbsolutePath(input.filePath!);
   return {
-    filePath: input.filePath!,
-    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
+    filePath,
+    fileContent: input.fileContent ?? (await readFile(filePath)),
     fileType: input.fileType ?? 'MAIN',
     program: input.program,
     tsConfigs: input.tsConfigs ?? [],
@@ -34,9 +36,10 @@ export async function jsTsInput(input: allOptional): Promise<CompleteJsTsAnalysi
   };
 }
 
-export async function embeddedInput(input: allOptional): Promise<CompleteEmbeddedAnalysisInput> {
+export async function embeddedInput(input: TestJsTsInput): Promise<CompleteEmbeddedAnalysisInput> {
+  const filePath = normalizeToAbsolutePath(input.filePath!);
   return {
-    filePath: input.filePath!,
-    fileContent: input.fileContent ?? (await readFile(input.filePath!)),
+    filePath,
+    fileContent: input.fileContent ?? (await readFile(filePath)),
   };
 }

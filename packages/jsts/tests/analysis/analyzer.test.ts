@@ -21,7 +21,7 @@ import { expect } from 'expect';
 import {
   normalizePath,
   normalizeToAbsolutePath,
-  type AbsoluteUnixPath,
+  type NormalizedAbsolutePath,
 } from '../../src/rules/helpers/index.js';
 import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
@@ -916,7 +916,7 @@ describe('await analyzeJSTS', () => {
                 return {
                   CallExpression(node) {
                     const packageJsons = getManifests(
-                      path.posix.dirname(normalizePath(context.filename)) as AbsoluteUnixPath,
+                      path.posix.dirname(normalizePath(context.filename)) as NormalizedAbsolutePath,
                       normalizeToAbsolutePath(baseDir),
                     );
                     expect(packageJsons).toBeDefined();

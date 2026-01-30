@@ -19,7 +19,11 @@ import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
-import { readFile, normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import {
+  readFile,
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 
@@ -27,11 +31,11 @@ export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call l
 
 type SourceFilesData = {
   files: JsTsFiles | undefined;
-  filenames: string[] | undefined;
+  filenames: NormalizedAbsolutePath[] | undefined;
 };
 
 export class SourceFileStore implements FileStore {
-  private baseDir: string | undefined = undefined;
+  private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private newFiles: JsTsAnalysisInput[] = [];
   private readonly ignoredPaths = new Set<string>();
   private readonly store: {
@@ -48,7 +52,7 @@ export class SourceFileStore implements FileStore {
     },
   };
 
-  async isInitialized(baseDir: string, inputFiles?: JsTsFiles) {
+  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: JsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
     if (isSonarLint()) {
       await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
@@ -95,7 +99,7 @@ export class SourceFileStore implements FileStore {
     return this.store.request.filenames!;
   }
 
-  dirtyCachesIfNeeded(currentBaseDir: string) {
+  dirtyCachesIfNeeded(currentBaseDir: NormalizedAbsolutePath) {
     if (currentBaseDir !== this.baseDir) {
       this.clearCache();
     }
@@ -107,12 +111,12 @@ export class SourceFileStore implements FileStore {
     this.ignoredPaths.clear();
   }
 
-  setup(baseDir: string) {
+  setup(baseDir: NormalizedAbsolutePath) {
     this.baseDir = baseDir;
     this.newFiles = [];
   }
 
-  async processFile(filename: string) {
+  async processFile(filename: NormalizedAbsolutePath) {
     if (isAnalyzableFile(filename) && !this.anyParentIsIgnored(filename)) {
       const fileContent = await this.getFileContent(filename);
       const fileType = filterPathAndGetFileType(filename);
@@ -124,14 +128,14 @@ export class SourceFileStore implements FileStore {
     }
   }
 
-  processDirectory(dir: string) {
+  processDirectory(dir: NormalizedAbsolutePath) {
     if (this.anyParentIsIgnored(dir) || !filterPathAndGetFileType(dir)) {
       this.ignoredPaths.add(dir);
     }
   }
 
   // we check if we already have the contents in the HTTP request before reading FS
-  async getFileContent(filePath: string) {
+  async getFileContent(filePath: NormalizedAbsolutePath) {
     return this.store.request.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
@@ -177,7 +181,7 @@ export class SourceFileStore implements FileStore {
     this.store[store].filenames = [];
   }
 
-  private anyParentIsIgnored(filePath: string) {
+  private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {
     return this.ignoredPaths.has(dirname(filePath));
   }
 }

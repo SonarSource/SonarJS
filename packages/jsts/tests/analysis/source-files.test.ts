@@ -22,7 +22,7 @@ import {
   sourceFileStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
-import { normalizePath } from '../../../shared/src/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/source-files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures-source-files');
@@ -38,14 +38,14 @@ describe('files', () => {
   });
 
   it('should return the files', async () => {
-    const baseDir = join(fixtures, 'paths');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'paths'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
   });
 
   it('should properly classify files as MAIN or TEST', async () => {
-    const baseDir = join(fixtures, 'paths');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'paths'));
     const file1 = normalizePath(join(baseDir, 'file.ts'));
     const file2 = normalizePath(join(baseDir, 'subfolder', 'index.ts'));
     setGlobalConfiguration({

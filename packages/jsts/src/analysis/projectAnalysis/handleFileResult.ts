@@ -16,10 +16,11 @@
  */
 import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 export function handleFileResult(
   result: FileResult,
-  filename: string,
+  filename: NormalizedAbsolutePath,
   results: ProjectAnalysisOutput,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {

@@ -33,6 +33,7 @@ import {
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
@@ -49,7 +50,7 @@ import {
 export async function analyzeWithIncrementalProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
+  pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
@@ -93,14 +94,14 @@ export async function analyzeWithIncrementalProgram(
  * Returns program options from default compiler options if no tsconfig contains the file.
  */
 function programOptionsFromClosestTsconfig(
-  file: string,
+  file: NormalizedAbsolutePath,
   results: ProjectAnalysisOutput,
   foundProgramOptions: ProgramOptions[],
-  pendingFiles: Set<string>,
+  pendingFiles: Set<NormalizedAbsolutePath>,
 ): ProgramOptions | undefined {
-  const processedTsConfigs = new Set<string>();
+  const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
-  let tsconfig: string | undefined;
+  let tsconfig: NormalizedAbsolutePath | undefined;
   while (
     (tsconfig = pickBestMatchTsConfig(
       tsConfigStore.getTsConfigs().filter(tsconfig => !processedTsConfigs.has(tsconfig)),
@@ -143,8 +144,8 @@ function programOptionsFromClosestTsconfig(
 }
 
 // TODO(JS-1139): Optimize by only checking tsconfigs in ancestor directories
-function pickBestMatchTsConfig(tsconfigs: string[], file: string) {
-  let bestTsConfig: string | undefined = undefined;
+function pickBestMatchTsConfig(tsconfigs: NormalizedAbsolutePath[], file: NormalizedAbsolutePath) {
+  let bestTsConfig: NormalizedAbsolutePath | undefined = undefined;
   for (const tsconfig of tsconfigs) {
     const tsconfigDir = dirname(tsconfig);
     if (

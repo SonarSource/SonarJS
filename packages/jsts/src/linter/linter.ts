@@ -26,7 +26,7 @@ import * as internalRules from '../rules/rules.js';
 import {
   normalizePath,
   normalizeToAbsolutePath,
-  type AbsoluteUnixPath,
+  type NormalizedAbsolutePath,
 } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
@@ -260,7 +260,7 @@ export class Linter {
       const normalizedFilePath = normalizeToAbsolutePath(filePath);
       const normalizedBaseDir = normalizeToAbsolutePath(Linter.baseDir);
       const dependencies = getDependencies(
-        dirname(normalizedFilePath) as AbsoluteUnixPath,
+        dirname(normalizedFilePath) as NormalizedAbsolutePath,
         normalizedBaseDir,
       );
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
@@ -352,7 +352,7 @@ function createLinterConfigKey(
   const normalizedPath = normalizeToAbsolutePath(filePath);
   const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
   const packageJsonDirName = getClosestPackageJSONDir(
-    dirname(normalizedPath) as AbsoluteUnixPath,
+    dirname(normalizedPath) as NormalizedAbsolutePath,
     normalizedBaseDir,
   );
   return `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;

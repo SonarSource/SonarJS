@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from '../helpers/files.js';
-import { Configuration } from '../helpers/configuration.js';
+import { type NormalizedAbsolutePath, readFile } from '../helpers/files.js';
+import { RawConfiguration } from '../helpers/configuration.js';
 
 /**
  * An analysis input
@@ -27,10 +27,10 @@ import { Configuration } from '../helpers/configuration.js';
  * @param fileContent the content of the file to analyze
  */
 export interface AnalysisInput {
-  filePath: string;
+  filePath: NormalizedAbsolutePath;
   fileContent?: string;
   sonarlint?: boolean;
-  configuration?: Configuration;
+  configuration?: RawConfiguration;
 }
 
 /**

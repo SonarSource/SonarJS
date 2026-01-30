@@ -16,6 +16,7 @@
  */
 import { FileType, readFile } from '../../../../shared/src/helpers/files.js';
 import { build } from '../../../src/builders/build.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
 
 export async function parseTypeScriptSourceFile(
   filePath: string,
@@ -23,8 +24,16 @@ export async function parseTypeScriptSourceFile(
   fileType: FileType = 'MAIN',
   sonarlint = false,
 ) {
-  const fileContent = await readFile(filePath);
-  return build({ fileContent, filePath, tsConfigs, fileType, language: 'ts', sonarlint });
+  const normalizedFilePath = normalizeToAbsolutePath(filePath);
+  const fileContent = await readFile(normalizedFilePath);
+  return build({
+    fileContent,
+    filePath: normalizedFilePath,
+    tsConfigs,
+    fileType,
+    language: 'ts',
+    sonarlint,
+  });
 }
 
 export async function parseJavaScriptSourceFile(
@@ -34,10 +43,11 @@ export async function parseJavaScriptSourceFile(
   sonarlint = false,
   allowTsParserJsFiles = true,
 ) {
-  const fileContent = await readFile(filePath);
+  const normalizedFilePath = normalizeToAbsolutePath(filePath);
+  const fileContent = await readFile(normalizedFilePath);
   return build({
     fileContent,
-    filePath,
+    filePath: normalizedFilePath,
     tsConfigs,
     fileType,
     language: 'js',

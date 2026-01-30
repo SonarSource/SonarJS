@@ -15,8 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
-import { join, extname } from 'node:path/posix';
-import { isAbsolutePath, normalizePath } from './files.js';
+import { extname } from 'node:path/posix';
+import {
+  type NormalizedAbsolutePath,
+  isAbsolutePath,
+  normalizePath,
+  normalizeToAbsolutePath,
+} from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
 
@@ -40,7 +45,11 @@ type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
  */
 type FsEvents = { [key: string]: FsEventType };
 
-export type Configuration = {
+/**
+ * Raw configuration as received from the analysis request (e.g., ProjectAnalysisInput).
+ * All path fields are strings because they haven't been validated or normalized yet.
+ */
+export type RawConfiguration = {
   baseDir?: string;
   canAccessFileSystem?: boolean;
   sonarlint?: boolean;
@@ -59,18 +68,45 @@ export type Configuration = {
   cssSuffixes?: string[] /* sonar.css.file.suffixes */;
   tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
   jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  normalizedJsTsExclusions?: Minimatch[];
   sources?: string[] /* sonar.sources property, absolute or relative path to baseDir to look for files. we are based on baseDir */;
   inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. */;
-  normalizedInclusions?: Minimatch[];
   exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. */;
-  normalizedExclusions?: Minimatch[];
   tests?: string[] /* sonar.tests property, absolute or relative path to baseDir to look for test files */;
   testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. */;
-  normalizedTestInclusions?: Minimatch[];
   testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
-  normalizedTestExclusions?: Minimatch[];
   detectBundles?: boolean /* sonar.javascript.detectBundles property: whether files looking like bundled code should be ignored  */;
+};
+
+/**
+ * Sanitized configuration after validation and normalization.
+ * Path fields use branded types (NormalizedAbsolutePath) and glob patterns are compiled to Minimatch instances.
+ */
+export type Configuration = {
+  baseDir?: NormalizedAbsolutePath;
+  canAccessFileSystem?: boolean;
+  sonarlint?: boolean;
+  clearDependenciesCache?: boolean;
+  clearTsConfigCache?: boolean;
+  fsEvents?: FsEvents;
+  allowTsParserJsFiles?: boolean;
+  analysisMode?: AnalysisMode;
+  skipAst?: boolean;
+  ignoreHeaderComments?: boolean;
+  maxFileSize?: number;
+  environments?: string[];
+  globals?: string[];
+  tsSuffixes?: string[];
+  jsSuffixes?: string[];
+  cssSuffixes?: string[];
+  tsConfigPaths?: NormalizedAbsolutePath[];
+  jsTsExclusions?: Minimatch[];
+  sources?: NormalizedAbsolutePath[];
+  inclusions?: Minimatch[];
+  exclusions?: Minimatch[];
+  tests?: NormalizedAbsolutePath[];
+  testInclusions?: Minimatch[];
+  testExclusions?: Minimatch[];
+  detectBundles?: boolean;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -84,32 +120,45 @@ const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration = {};
 
-export function setGlobalConfiguration(config?: Configuration) {
+export function setGlobalConfiguration(config?: RawConfiguration) {
   if (!config) {
     return;
   }
-  configuration = { ...config };
   if (!config.baseDir) {
     throw new Error('baseDir is required');
   } else if (!isAbsolutePath(config.baseDir)) {
     throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
   }
-  configuration.baseDir = normalizePath(config.baseDir);
-  setSourcesPaths(configuration.sources);
-  setTestPaths(configuration.tests);
-  setJsTsExclusions(configuration.jsTsExclusions);
-  setExclusions(configuration.exclusions);
-  setInclusions(configuration.inclusions);
-  setTestExclusions(configuration.testExclusions);
-  setTestInclusions(configuration.testInclusions);
-  setTsConfigPaths(configuration.tsConfigPaths);
-}
-
-export function getBaseDir() {
-  if (!configuration.baseDir) {
-    throw new Error('baseDir is not set');
-  }
-  return configuration.baseDir;
+  configuration = {
+    baseDir: normalizeToAbsolutePath(config.baseDir),
+    canAccessFileSystem: config.canAccessFileSystem,
+    sonarlint: config.sonarlint,
+    clearDependenciesCache: config.clearDependenciesCache,
+    clearTsConfigCache: config.clearTsConfigCache,
+    fsEvents: config.fsEvents,
+    allowTsParserJsFiles: config.allowTsParserJsFiles,
+    analysisMode: config.analysisMode,
+    skipAst: config.skipAst,
+    ignoreHeaderComments: config.ignoreHeaderComments,
+    maxFileSize: config.maxFileSize,
+    environments: config.environments,
+    globals: config.globals,
+    tsSuffixes: config.tsSuffixes,
+    jsSuffixes: config.jsSuffixes,
+    cssSuffixes: config.cssSuffixes,
+    tsConfigPaths: toAbsolutePaths(config.tsConfigPaths),
+    jsTsExclusions: normalizeGlobs(
+      (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+    ),
+    sources: toAbsolutePaths(config.sources),
+    inclusions: normalizeGlobs(config.inclusions),
+    exclusions: normalizeGlobs(config.exclusions),
+    tests: toAbsolutePaths(config.tests),
+    testInclusions: normalizeGlobs(config.testInclusions),
+    testExclusions: normalizeGlobs(config.testExclusions),
+    detectBundles: config.detectBundles,
+  };
+  debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
 }
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
@@ -117,14 +166,6 @@ const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
 
 function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
-}
-
-export function getTsConfigPaths() {
-  return configuration.tsConfigPaths ?? [];
-}
-
-export function setTsConfigPaths(tsconfigs: string[] | undefined) {
-  configuration.tsConfigPaths = toAbsolutePaths(tsconfigs);
 }
 
 function tsExtensions() {
@@ -151,121 +192,24 @@ export function isTsFile(filePath: string, contents: string) {
   );
 }
 
-export function isHtmlFile(filePath: string) {
+export function isHtmlFile(filePath: NormalizedAbsolutePath) {
   return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isYamlFile(filePath: string) {
+export function isYamlFile(filePath: NormalizedAbsolutePath) {
   return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isJsTsFile(filePath: string) {
+export function isJsTsFile(filePath: NormalizedAbsolutePath) {
   return jsTsExtensions().includes(extname(filePath).toLowerCase());
 }
 
-export function isCssFile(filePath: string) {
+export function isCssFile(filePath: NormalizedAbsolutePath) {
   return cssExtensions().includes(extname(filePath).toLowerCase());
 }
 
-export function isAnalyzableFile(filePath: string) {
+export function isAnalyzableFile(filePath: NormalizedAbsolutePath) {
   return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
-}
-
-export function getEnvironments() {
-  return configuration.environments ?? DEFAULT_ENVIRONMENTS;
-}
-
-export function isSonarLint() {
-  return !!configuration.sonarlint;
-}
-
-export function canAccessFileSystem() {
-  return configuration.canAccessFileSystem !== false;
-}
-
-export function getGlobals() {
-  return configuration.globals ?? DEFAULT_GLOBALS;
-}
-
-function setTestPaths(testPaths: string[] | undefined) {
-  configuration.tests = toAbsolutePaths(testPaths);
-}
-
-export function getTestPaths() {
-  return configuration.tests;
-}
-
-function setSourcesPaths(sourcesPaths: string[] | undefined) {
-  configuration.sources = toAbsolutePaths(sourcesPaths);
-}
-
-export function getSourcesPaths() {
-  return configuration.sources?.length ? configuration.sources : [getBaseDir()];
-}
-
-function setJsTsExclusions(jsTsExclusions: string[] | undefined) {
-  configuration.normalizedJsTsExclusions = normalizeGlobs(
-    (jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
-  );
-  debug(
-    `Setting js/ts exclusions to ${configuration.normalizedJsTsExclusions.map(mini => mini.pattern)}`,
-  );
-}
-
-export function getJsTsExclusions() {
-  return configuration.normalizedJsTsExclusions;
-}
-
-function setExclusions(exclusions: string[] | undefined) {
-  configuration.normalizedExclusions = normalizeGlobs(exclusions);
-}
-
-export function getExclusions() {
-  return configuration.normalizedExclusions || [];
-}
-
-function setInclusions(inclusions: string[] | undefined) {
-  configuration.normalizedInclusions = normalizeGlobs(inclusions);
-}
-
-export function getInclusions() {
-  return configuration.normalizedInclusions;
-}
-
-function setTestExclusions(testExclusions: string[] | undefined) {
-  configuration.normalizedTestExclusions = normalizeGlobs(testExclusions);
-}
-
-export function getTestExclusions() {
-  return configuration.normalizedTestExclusions;
-}
-
-function setTestInclusions(testInclusions: string[] | undefined) {
-  configuration.normalizedTestInclusions = normalizeGlobs(testInclusions);
-}
-
-export function getTestInclusions() {
-  return configuration.normalizedTestInclusions;
-}
-
-export function getFsEvents() {
-  return configuration.fsEvents ?? {};
-}
-
-export function getMaxFileSize() {
-  return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
-}
-
-export function setClearTsConfigCache(value: boolean) {
-  configuration.clearTsConfigCache = value;
-}
-
-export function shouldClearTsConfigCache() {
-  return configuration.clearTsConfigCache;
-}
-
-export function shouldDetectBundles() {
-  return configuration.detectBundles !== false;
 }
 
 export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
@@ -274,10 +218,85 @@ export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath'
   ignoreHeaderComments: configuration.ignoreHeaderComments,
   clearDependenciesCache: configuration.clearDependenciesCache,
   skipAst: configuration.skipAst,
-  sonarlint: isSonarLint(),
+  sonarlint: configuration.sonarlint,
 });
 
 const DEFAULT_MAX_FILE_SIZE_KB = 4000;
+
+export function getBaseDir(): NormalizedAbsolutePath {
+  if (!configuration.baseDir) {
+    throw new Error('baseDir is not set');
+  }
+  return configuration.baseDir;
+}
+
+export function getTsConfigPaths(): NormalizedAbsolutePath[] {
+  return configuration.tsConfigPaths ?? [];
+}
+
+export function getTestPaths(): NormalizedAbsolutePath[] | undefined {
+  return configuration.tests;
+}
+
+export function getSourcesPaths(): NormalizedAbsolutePath[] {
+  return configuration.sources ?? [];
+}
+
+export function getJsTsExclusions(): Minimatch[] | undefined {
+  return configuration.jsTsExclusions;
+}
+
+export function getExclusions(): Minimatch[] | undefined {
+  return configuration.exclusions;
+}
+
+export function getInclusions(): Minimatch[] | undefined {
+  return configuration.inclusions;
+}
+
+export function getTestExclusions(): Minimatch[] | undefined {
+  return configuration.testExclusions;
+}
+
+export function getTestInclusions(): Minimatch[] | undefined {
+  return configuration.testInclusions;
+}
+
+export function getFsEvents(): { [key: string]: FsEventType } {
+  return configuration.fsEvents ?? {};
+}
+
+export function getMaxFileSize(): number {
+  return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
+}
+
+export function shouldClearTsConfigCache(): boolean {
+  return configuration.clearTsConfigCache ?? false;
+}
+
+export function setClearTsConfigCache(value: boolean) {
+  configuration.clearTsConfigCache = value;
+}
+
+export function shouldDetectBundles(): boolean {
+  return configuration.detectBundles ?? false;
+}
+
+export function isSonarLint(): boolean {
+  return configuration.sonarlint ?? false;
+}
+
+export function canAccessFileSystem(): boolean {
+  return configuration.canAccessFileSystem ?? false;
+}
+
+export function getEnvironments(): string[] {
+  return configuration.environments ?? DEFAULT_ENVIRONMENTS;
+}
+
+export function getGlobals(): string[] {
+  return configuration.globals ?? DEFAULT_GLOBALS;
+}
 
 const DEFAULT_EXCLUSIONS = [
   '**/*.d.ts',
@@ -340,13 +359,5 @@ function normalizeGlobs(globs: string[] | undefined) {
 }
 
 function toAbsolutePaths(paths: string[] | undefined) {
-  return (paths || []).map(path => toAbsolutePathFromBase(path));
-}
-
-function toAbsolutePathFromBase(path: string) {
-  const normalized = normalizePath(path.trim());
-  if (!isAbsolutePath(normalized)) {
-    return join(getBaseDir(), normalized);
-  }
-  return normalized;
+  return (paths || []).map(path => normalizeToAbsolutePath(path, getBaseDir()));
 }

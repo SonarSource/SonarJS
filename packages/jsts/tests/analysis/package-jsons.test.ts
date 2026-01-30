@@ -22,10 +22,7 @@ import {
   packageJsonStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
-import {
-  normalizeToAbsolutePath,
-  type AbsoluteUnixPath,
-} from '../../../shared/src/helpers/files.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/package-jsons.js';
 import {
@@ -41,9 +38,6 @@ const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
 
 const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
-/** Helper to cast path.join results to AbsoluteUnixPath for tests */
-const absPath = (p: string) => p as AbsoluteUnixPath;
-
 describe('files', () => {
   beforeEach(() => {
     packageJsonStore.clearCache();
@@ -53,7 +47,7 @@ describe('files', () => {
   });
 
   it('should return the package.json files', async () => {
-    const baseDir = join(fixtures, 'dependencies');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     const path = join(fixtures, 'dependencies', 'package.json');
@@ -72,7 +66,7 @@ describe('files', () => {
   });
 
   it('should fill the package.json cache used for rules', async () => {
-    const baseDir = join(fixtures, 'dependencies');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     expect(packageJsonsInParentsCache.has(baseDir)).toEqual(true);
@@ -82,20 +76,20 @@ describe('files', () => {
 
     //dependencies cache is filled on demand
     expect(dependenciesCache.size).toEqual(0);
-    getDependencies(absPath(baseDir), absPath(baseDir));
+    getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
-    expect(dependenciesCache.has(absPath(baseDir))).toEqual(true);
+    expect(dependenciesCache.has(baseDir)).toEqual(true);
   });
 
   it('should ignore malformed package.json files', async ({ mock }) => {
     mock.method(console, 'debug');
     const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
-    const baseDir = join(fixtures, 'package-json-malformed');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'package-json-malformed'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     const filePath = join(baseDir, 'package.json');
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
-    getDependencies(absPath(baseDir), absPath(baseDir));
+    getDependencies(baseDir, baseDir);
     expect(
       consoleLogMock.calls
         .map(call => call.arguments[0])
@@ -104,12 +98,12 @@ describe('files', () => {
   });
 
   it('should clear the package.json cache', async () => {
-    const baseDir = join(fixtures, 'dependencies');
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     setGlobalConfiguration({ baseDir });
     await initFileStores(baseDir);
     expect(await packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
-    getDependencies(absPath(baseDir), absPath(baseDir));
+    getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
 
     packageJsonStore.dirtyCachesIfNeeded(baseDir);

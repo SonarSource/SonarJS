@@ -22,14 +22,15 @@ import type {
 import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
-import type { Configuration } from '../../../../shared/src/helpers/configuration.js';
+import type { RawConfiguration } from '../../../../shared/src/helpers/configuration.js';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
 };
 
 export type ProjectAnalysisOutput = {
-  files: { [key: string]: FileResult };
+  files: { [key: NormalizedAbsolutePath]: FileResult };
   meta: ProjectAnalysisMeta;
 };
 
@@ -48,12 +49,12 @@ type ParsingError = {
   };
 };
 
-export type JsTsFiles = { [key: string]: JsTsAnalysisInput };
+export type JsTsFiles = { [key: NormalizedAbsolutePath]: JsTsAnalysisInput };
 
 export type ProjectAnalysisInput = {
   files?: JsTsFiles;
   rules: RuleConfig[];
-  configuration?: Configuration;
-  bundles?: string[];
-  rulesWorkdir?: string;
+  configuration?: RawConfiguration;
+  bundles?: NormalizedAbsolutePath[];
+  rulesWorkdir?: NormalizedAbsolutePath;
 };

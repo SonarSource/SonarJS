@@ -25,21 +25,22 @@ import {
   fieldsForJsTsAnalysisInput,
 } from '../../../../shared/src/helpers/configuration.js';
 import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { FileResult, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import ts from 'typescript';
+import { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
  * This is the common entry point for all analysis paths (with program, without program, with cache).
  */
 export async function analyzeFile(
-  fileName: string,
-  file: JsTsFiles[string],
+  fileName: NormalizedAbsolutePath,
+  file: JsTsAnalysisInput,
   program: ts.Program | undefined,
   results: ProjectAnalysisOutput,
-  pendingFiles: Set<string> | undefined,
+  pendingFiles: Set<NormalizedAbsolutePath> | undefined,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
@@ -73,7 +74,7 @@ async function analyzeInput(input: JsTsAnalysisInput): Promise<FileResult> {
   }
 }
 
-function getAnalyzerForFile(filename: string) {
+function getAnalyzerForFile(filename: NormalizedAbsolutePath) {
   if (isHtmlFile(filename)) {
     return analyzeHTML;
   } else if (isYamlFile(filename)) {

@@ -20,7 +20,7 @@ import { describe, it, Mock } from 'node:test';
 import { expect } from 'expect';
 import { AnalysisInput } from '../../src/types/analysis.js';
 import { join } from 'node:path/posix';
-import { normalizePath, readFile } from '../../src/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath, readFile } from '../../src/helpers/files.js';
 import fs from 'node:fs';
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
@@ -29,55 +29,55 @@ const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
 describe('filter.ts', () => {
   describe('accept', () => {
     it('should accept JS/TS file when all filters pass with bundle detection enabled', () => {
-      const result = accept('file.js', 'content');
+      const result = accept(normalizeToAbsolutePath('file.js'), 'content');
 
       expect(result).toBe(true);
     });
 
     it('should accept JS/TS file when bundle detection is disabled', () => {
       setGlobalConfiguration({ baseDir, detectBundles: false });
-      const result = accept('/project/file.js', BUNDLE_CONTENTS);
+      const result = accept(normalizeToAbsolutePath('/project/file.js'), BUNDLE_CONTENTS);
 
       expect(result).toBe(true);
     });
 
     it('should reject JS/TS file when it fails bundle filter', () => {
       setGlobalConfiguration({ baseDir });
-      const result = accept('/project/file.js', BUNDLE_CONTENTS);
+      const result = accept(normalizeToAbsolutePath('/project/file.js'), BUNDLE_CONTENTS);
 
       expect(result).toBe(false);
     });
 
     it('should reject JS/TS file when it fails minified filter', () => {
       setGlobalConfiguration({ baseDir });
-      const result = accept('/project/file.min.js', 'contents');
+      const result = accept(normalizeToAbsolutePath('/project/file.min.js'), 'contents');
 
       expect(result).toBe(false);
     });
 
     it('should reject JS/TS file when it fails size filter', () => {
       setGlobalConfiguration({ baseDir, maxFileSize: 0 });
-      const result = accept('/project/file.js', 'content');
+      const result = accept(normalizeToAbsolutePath('/project/file.js'), 'content');
 
       expect(result).toBe(false);
     });
 
     it('should accept CSS file when all filters pass', () => {
       setGlobalConfiguration({ baseDir });
-      const result = accept('/project/file.css', '{}');
+      const result = accept(normalizeToAbsolutePath('/project/file.css'), '{}');
 
       expect(result).toBe(true);
     });
 
     it('should reject CSS file when it fails minified filter', () => {
       setGlobalConfiguration({ baseDir, detectBundles: false });
-      const result = accept('file.min.css', 'content');
+      const result = accept(normalizeToAbsolutePath('file.min.css'), 'content');
 
       expect(result).toBe(false);
     });
 
     it('should accept file that is neither JS/TS nor CSS', () => {
-      const result = accept('file.txt', 'content');
+      const result = accept(normalizeToAbsolutePath('file.txt'), 'content');
 
       expect(result).toBe(true);
     });
@@ -86,7 +86,7 @@ describe('filter.ts', () => {
   describe('shouldIgnoreFile', () => {
     it('should ignore file when it is excluded by JS/TS exclusions', async () => {
       setGlobalConfiguration({ baseDir, jsTsExclusions: ['file.js'] });
-      const file: AnalysisInput = { filePath: join(baseDir, 'file.js') };
+      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
       const result = await shouldIgnoreFile(file);
 
       expect(result).toBe(true);
@@ -95,7 +95,7 @@ describe('filter.ts', () => {
     it('should ignore file when it does not pass accept checks', async () => {
       setGlobalConfiguration({ baseDir });
       const file: AnalysisInput = {
-        filePath: join(baseDir, 'file.min.js'),
+        filePath: normalizeToAbsolutePath(join(baseDir, 'file.min.js')),
         fileContent: 'content',
       };
       const result = await shouldIgnoreFile(file);
@@ -105,7 +105,7 @@ describe('filter.ts', () => {
 
     it('should not ignore file when it passes all checks', async () => {
       setGlobalConfiguration({ baseDir });
-      const file: AnalysisInput = { filePath: join(baseDir, 'file.js') };
+      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
       const result = await shouldIgnoreFile(file);
 
       expect(result).toBe(false);
@@ -113,7 +113,7 @@ describe('filter.ts', () => {
 
     it('should read file content when not provided', async ({ mock }) => {
       setGlobalConfiguration({ baseDir });
-      const file: AnalysisInput = { filePath: join(baseDir, 'file.js') };
+      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
       const content = await readFile(file.filePath);
       fs.promises.readFile = mock.fn(fs.promises.readFile);
       const result = await shouldIgnoreFile(file);
@@ -128,7 +128,7 @@ describe('filter.ts', () => {
       fs.promises.readFile = mock.fn(fs.promises.readFile);
 
       const file: AnalysisInput = {
-        filePath: join(baseDir, 'file.js'),
+        filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')),
         fileContent: 'provided content',
       };
 

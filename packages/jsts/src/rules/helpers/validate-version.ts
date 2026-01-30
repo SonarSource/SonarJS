@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as semver from 'semver';
-import type { AbsoluteUnixPath } from './files.js';
 import { getManifests } from './package-jsons/all-in-parent-dirs.js';
 
 /**
@@ -28,10 +27,8 @@ type MinimumVersions = {
 /**
  * Checks if context where the filename is located supports the provided
  * minimum versions.
- *
- * @param dirname normalized absolute path to the directory
  */
-export function isSupported(dirname: AbsoluteUnixPath, minVersions: MinimumVersions): boolean {
+export function isSupported(dirname: string, minVersions: MinimumVersions): boolean {
   validateVersions(minVersions);
   return isSupportedNodeVersion(dirname, minVersions.node);
 }
@@ -54,7 +51,7 @@ function validateVersions(versions: MinimumVersions) {
  * @param requiredVersion
  * @returns
  */
-function isSupportedNodeVersion(dirname: AbsoluteUnixPath, requiredVersion?: string): boolean {
+function isSupportedNodeVersion(dirname: string, requiredVersion?: string): boolean {
   if (!requiredVersion) {
     return true;
   }

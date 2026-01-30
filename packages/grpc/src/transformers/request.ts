@@ -20,7 +20,12 @@ import type {
   JsTsFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
-import type { FileType } from '../../../shared/src/helpers/files.js';
+import {
+  type FileType,
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+  ROOT_PATH,
+} from '../../../shared/src/helpers/files.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
 import { ruleMetaMap } from './rule-metadata.js';
@@ -91,6 +96,7 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
 
   for (const sourceFile of sourceFiles) {
     const relativePath = sourceFile.relativePath ?? '';
+    const normalizedPath: NormalizedAbsolutePath = normalizeToAbsolutePath(relativePath);
     let fileType: FileType = 'MAIN';
 
     if (sourceFile.fileScope !== null && sourceFile.fileScope !== undefined) {
@@ -99,8 +105,8 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
       // TODO: Infer file scope from context when not explicitly provided by the caller
     }
 
-    files[relativePath] = {
-      filePath: relativePath,
+    files[normalizedPath] = {
+      filePath: normalizedPath,
       fileContent: sourceFile.content ?? '',
       fileType,
     };
@@ -419,7 +425,7 @@ export function transformRequestToProjectInput(
     rules: transformActiveRules(activeRules),
     configuration: {
       // baseDir is irrelevant since we don't access the filesystem
-      baseDir: '/',
+      baseDir: ROOT_PATH,
       // gRPC requests contain all file contents inline - no filesystem access needed
       canAccessFileSystem: false,
     },

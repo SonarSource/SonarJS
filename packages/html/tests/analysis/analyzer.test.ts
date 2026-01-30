@@ -21,6 +21,7 @@ import { expect } from 'expect';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from '../../src/parser/parse.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
@@ -41,7 +42,7 @@ describe('analyzeHTML', () => {
     const {
       issues: [issue],
     } = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'file.html') }),
+      await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'file.html')) }),
       parseHTML,
     );
     expect(issue).toEqual(
@@ -69,7 +70,9 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'quickfix.html')),
+      }),
       parseHTML,
     );
 
@@ -104,7 +107,9 @@ describe('analyzeHTML', () => {
       ],
     });
     const { issues } = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'enforce-trailing-comma.html')),
+      }),
       parseHTML,
     );
     expect(issues).toHaveLength(2);
@@ -140,7 +145,9 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'secondary.html')),
+      }),
       parseHTML,
     );
     const {
@@ -172,7 +179,7 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
+      await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'regex.html')) }),
       parseHTML,
     );
     const {

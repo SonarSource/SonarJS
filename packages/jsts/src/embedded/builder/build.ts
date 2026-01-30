@@ -20,6 +20,7 @@ import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { CompleteEmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
 import { ParseResult } from '../../parsers/parse.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: string;
@@ -55,7 +56,7 @@ export function build(
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
     const jsTsAnalysisInput = {
-      filePath: '',
+      filePath: '' as NormalizedAbsolutePath,
       fileContent: code,
       fileType: 'MAIN',
       language: 'js',

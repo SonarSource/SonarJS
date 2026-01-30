@@ -17,7 +17,10 @@
 import ts from 'typescript';
 import { basename, join } from 'node:path/posix';
 import { warn } from '../../../../shared/src/helpers/logging.js';
-import { normalizePath } from '../../../../shared/src/helpers/files.js';
+import {
+  type NormalizedAbsolutePath,
+  normalizePath,
+} from '../../../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 
 /**
@@ -32,7 +35,7 @@ export function isRootNodeModules(file: string) {
 
 /**
  * Determines if this is the last tsconfig.json check that TypeScript will perform
- * (i.e., tsconfig.json in root node_modules directory)
+ * (i.e., tsconfig.json in the root node_modules directory)
  */
 export function isLastTsConfigCheck(file: string) {
   return basename(file) === 'tsconfig.json' && isRootNodeModules(file);
@@ -50,10 +53,12 @@ export function sanitizeProgramReferences(program: ts.Program): string[] {
  * Sanitize project references by resolving directories to tsconfig.json paths
  * Warns about and filters out missing references
  */
-export function sanitizeReferences(references: readonly ts.ProjectReference[]): string[] {
-  const sanitized: string[] = [];
+export function sanitizeReferences(
+  references: readonly ts.ProjectReference[],
+): NormalizedAbsolutePath[] {
+  const sanitized: NormalizedAbsolutePath[] = [];
   for (const reference of references) {
-    const sanitizedPath = addTsConfigIfDirectory(reference.path);
+    const sanitizedPath = addTsConfigIfDirectory(reference.path as NormalizedAbsolutePath);
     if (sanitizedPath) {
       sanitized.push(sanitizedPath);
     } else {
@@ -69,10 +74,10 @@ export function sanitizeReferences(references: readonly ts.ProjectReference[]): 
  *
  * @param tsConfig
  */
-function addTsConfigIfDirectory(tsConfig: string) {
+function addTsConfigIfDirectory(tsConfig: NormalizedAbsolutePath) {
   try {
     if (fs.lstatSync(tsConfig).isDirectory()) {
-      return join(tsConfig, 'tsconfig.json');
+      return join(tsConfig, 'tsconfig.json') as NormalizedAbsolutePath;
     }
 
     return tsConfig;

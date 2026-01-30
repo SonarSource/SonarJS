@@ -15,15 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsFiles } from '../projectAnalysis.js';
+import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
 
 export abstract class FileStore {
-  abstract isInitialized(baseDir: string, inputFiles?: JsTsFiles): Promise<boolean>;
+  abstract isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: JsTsFiles): Promise<boolean>;
 
-  abstract setup(baseDir: string): void;
+  abstract setup(baseDir: NormalizedAbsolutePath): void;
 
-  abstract processFile(filename: string): Promise<void>;
+  abstract processFile(filename: NormalizedAbsolutePath): Promise<void>;
 
-  abstract postProcess(baseDir: string): Promise<void>;
+  abstract postProcess(baseDir: NormalizedAbsolutePath): Promise<void>;
 
-  abstract processDirectory?(dir: string): void;
+  abstract processDirectory?(dir: NormalizedAbsolutePath): void;
 }

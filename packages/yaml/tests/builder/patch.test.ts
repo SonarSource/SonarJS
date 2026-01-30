@@ -22,12 +22,14 @@ import { CompleteJsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.j
 import { build as buildJsTs } from '../../../jsts/src/builders/build.js';
 import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
 import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 
 describe('patchSourceCode', () => {
   it('should patch source code', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'patch', 'source-code.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'patch', 'source-code.yaml'),
+    );
     const text = await readFile(filePath);
     const [patchedSourceCode] = build(
       {
@@ -61,12 +63,12 @@ describe('patchSourceCode', () => {
     it(`should patch ast ${property}`, async () => {
       const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
-      let filePath = `${fixture}.yaml`;
+      let filePath = normalizeToAbsolutePath(`${fixture}.yaml`);
       let fileContent = await readFile(filePath);
       const [patchedSourceCode] = build({ filePath, fileContent }, parseAwsFromYaml);
       const patchedNodes = patchedSourceCode.sourceCode.ast[property];
 
-      filePath = `${fixture}.js`;
+      filePath = normalizeToAbsolutePath(`${fixture}.js`);
       fileContent = await readFile(filePath);
       const input: CompleteJsTsAnalysisInput = {
         filePath,
@@ -84,7 +86,7 @@ describe('patchSourceCode', () => {
   it('should patch parsing errors', async () => {
     const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', 'parsing-error');
 
-    let filePath = `${fixture}.yaml`;
+    let filePath = normalizeToAbsolutePath(`${fixture}.yaml`);
     let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
@@ -93,7 +95,7 @@ describe('patchSourceCode', () => {
       patchedParsingError = error;
     }
 
-    filePath = `${fixture}.js`;
+    filePath = normalizeToAbsolutePath(`${fixture}.js`);
     fileContent = await readFile(filePath);
     const input: CompleteJsTsAnalysisInput = {
       filePath,

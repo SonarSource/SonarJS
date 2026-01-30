@@ -19,6 +19,7 @@ import { dirname, join, parse } from 'node:path/posix';
 import { FileType, normalizePath } from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
+import { normalizeToAbsolutePath } from '../../../../src/rules/helpers/index.js';
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module
@@ -36,8 +37,9 @@ function parseForESLint(
       'tsconfig.cb.json',
     ),
   ];
+  const normalizedFilePath = normalizeToAbsolutePath(filePath);
   const { sourceCode } = build({
-    filePath,
+    filePath: normalizedFilePath,
     fileContent,
     fileType,
     tsConfigs,

@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { build } from '../../../../../src/builders/build.js';
+import { normalizeToAbsolutePath } from '../../../../../src/rules/helpers/index.js';
 import type estree from 'estree';
 
 export interface Comment {
@@ -34,7 +35,7 @@ export interface Comment {
 export function extractComments(fileContent: string, filePath: string): Comment[] {
   const { sourceCode: parsed } = build({
     fileContent,
-    filePath,
+    filePath: normalizeToAbsolutePath(filePath),
     fileType: 'MAIN',
     tsConfigs: [],
     language: 'js',

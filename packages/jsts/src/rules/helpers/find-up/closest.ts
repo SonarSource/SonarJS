@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { isRoot, type File, type UnixPath } from '../files.js';
+import { isRoot, type File } from '../files.js';
 import { ComputedCache } from '../cache.js';
 import { Filesystem, MinimatchCache } from './find-minimatch.js';
 import fs from 'node:fs';
@@ -26,7 +26,7 @@ export const closestPatternCache = new ComputedCache(
     const matcher = new Minimatch(pattern);
     const readDir = MinimatchCache.get(matcher, filesystem);
     return new ComputedCache((topDir: string) => {
-      const newCache = new ComputedCache((from: UnixPath): File | undefined => {
+      const newCache = new ComputedCache((from: string): File | undefined => {
         if (from === '.') {
           // handle path.dirname returning "." in windows
           return undefined;
@@ -37,7 +37,7 @@ export const closestPatternCache = new ComputedCache(
           return matchingFiles[0];
         }
         if (!isRoot(from) && from !== topDir) {
-          const parent = dirname(from) as UnixPath;
+          const parent = dirname(from);
 
           return newCache.get(parent);
         }

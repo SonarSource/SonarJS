@@ -20,7 +20,7 @@ import { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js
 import { simulateFromInputFiles } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { FileStore } from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
-import { normalizePath } from '../../src/rules/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
@@ -54,9 +54,18 @@ describe('simulateFromInputFiles', () => {
     // Arrange
     const mockStore = new MockFileStore();
     const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/components/Button.tsx', fileType: 'MAIN' },
-      file2: { filePath: '/project/src/utils/helper.ts', fileType: 'MAIN' },
-      file3: { filePath: '/project/tests/Button.test.tsx', fileType: 'TEST' },
+      [normalizeToAbsolutePath('/project/src/components/Button.tsx')]: {
+        filePath: normalizeToAbsolutePath('/project/src/components/Button.tsx'),
+        fileType: 'MAIN',
+      },
+      [normalizeToAbsolutePath('/project/src/utils/helper.ts')]: {
+        filePath: normalizeToAbsolutePath('/project/src/utils/helper.ts'),
+        fileType: 'MAIN',
+      },
+      [normalizeToAbsolutePath('/project/tests/Button.test.tsx')]: {
+        filePath: normalizeToAbsolutePath('/project/tests/Button.test.tsx'),
+        fileType: 'TEST',
+      },
     };
     const baseDir = normalizePath('/project');
     const pendingStores = [mockStore];
@@ -100,7 +109,10 @@ describe('simulateFromInputFiles', () => {
 
     const mockStore = new MockStoreWithoutProcessDirectory();
     const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/test.js', fileType: 'MAIN' },
+      [normalizeToAbsolutePath('/project/src/test.js')]: {
+        filePath: normalizeToAbsolutePath('/project/src/test.js'),
+        fileType: 'MAIN',
+      },
     };
     const baseDir = normalizePath('/project');
 
@@ -130,7 +142,10 @@ describe('simulateFromInputFiles', () => {
     const mockStore1 = new MockFileStore();
     const mockStore2 = new MockFileStore();
     const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/app.js', fileType: 'MAIN' },
+      [normalizeToAbsolutePath('/project/src/app.js')]: {
+        filePath: normalizeToAbsolutePath('/project/src/app.js'),
+        fileType: 'MAIN',
+      },
     };
     const baseDir = normalizePath('/project');
 

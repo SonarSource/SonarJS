@@ -18,7 +18,7 @@ import path from 'node:path';
 import {
   isSupported,
   normalizeToAbsolutePath,
-  type AbsoluteUnixPath,
+  type NormalizedAbsolutePath,
 } from '../../src/rules/helpers/index.js';
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
@@ -26,7 +26,7 @@ import { expect } from 'expect';
 import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
 
 /** Helper to cast path.join results to AbsoluteUnixPath for tests */
-const absPath = (p: string) => p as AbsoluteUnixPath;
+const absPath = (p: string) => p as NormalizedAbsolutePath;
 
 describe('initialize package.json files', () => {
   const baseDir = absPath(
@@ -107,7 +107,7 @@ describe('initialize package.json files', () => {
 });
 
 describe('isSupported()', () => {
-  let baseDir: AbsoluteUnixPath;
+  let baseDir: NormalizedAbsolutePath;
   beforeEach(() => {
     baseDir = absPath(
       path.posix.join(

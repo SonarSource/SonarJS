@@ -22,13 +22,12 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { normalizePath } from '../../src/rules/helpers/index.js';
-import {
-  setGlobalConfiguration,
-  setTsConfigPaths,
-} from '../../../shared/src/helpers/configuration.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 
-const fixtures = join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs');
+const fixtures = normalizeToAbsolutePath(
+  join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs'),
+);
 
 describe('tsconfigs', () => {
   beforeEach(() => {
@@ -45,12 +44,11 @@ describe('tsconfigs', () => {
   it('should validate the provided TSconfig files', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
-    setTsConfigPaths(
-      tsConfigStore
-        .getTsConfigs()
-        .map(tsconfig => relative(fixtures, tsconfig))
-        .concat('fake_dir/tsconfig.json'),
-    );
+    const tsConfigPaths = tsConfigStore
+      .getTsConfigs()
+      .map(tsconfig => relative(fixtures, tsconfig))
+      .concat('fake_dir/tsconfig.json');
+    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths });
     tsConfigStore.clearCache();
     await initFileStores(fixtures);
     // Should find at least the provided tsconfigs (excluding the fake one)
@@ -61,7 +59,7 @@ describe('tsconfigs', () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     const foundTsconfigs = tsConfigStore.getTsConfigs();
-    setTsConfigPaths(foundTsconfigs);
+    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: foundTsconfigs });
     tsConfigStore.clearCache();
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
@@ -71,7 +69,8 @@ describe('tsconfigs', () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    setTsConfigPaths([relative(fixtures, tsConfigStore.getTsConfigs()[0])]);
+    const tsConfigPaths = [relative(fixtures, tsConfigStore.getTsConfigs()[0])];
+    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths });
     tsConfigStore.clearCache();
     await initFileStores(fixtures);
     expect(tsConfigStore.getTsConfigs().length).toEqual(1);

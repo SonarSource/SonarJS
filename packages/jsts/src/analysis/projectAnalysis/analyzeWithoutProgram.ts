@@ -22,6 +22,7 @@ import { ProgressReport } from '../../../../shared/src/helpers/progress-report.j
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * Analyzes files without type-checking.
@@ -33,7 +34,7 @@ import { analyzeFile } from './analyzeFile.js';
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithoutProgram(
-  filenames: Set<string>,
+  filenames: Set<NormalizedAbsolutePath>,
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   progressReport: ProgressReport,

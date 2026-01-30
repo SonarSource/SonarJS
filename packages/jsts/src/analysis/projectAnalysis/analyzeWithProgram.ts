@@ -24,6 +24,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
 import {
   createProgramOptions,
@@ -51,12 +52,12 @@ import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
 export async function analyzeWithProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
+  pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const foundProgramOptions: ProgramOptions[] = [];
-  const processedTSConfigs: Set<string> = new Set();
+  const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
 
   // Process tsconfigs, discovering project references as we go.
@@ -115,12 +116,14 @@ export async function analyzeWithProgram(
 async function analyzeFilesFromEntryPoint(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
+  pendingFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  const rootNames: NormalizedAbsolutePath[] = Array.from(pendingFiles).filter(file =>
+    isJsTsFile(file),
+  );
   if (rootNames.length === 0) {
     return;
   }
@@ -156,11 +159,11 @@ async function analyzeFilesFromEntryPoint(
 
 async function analyzeFilesFromTsConfig(
   files: JsTsFiles,
-  tsconfig: string,
+  tsconfig: NormalizedAbsolutePath,
   results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
+  pendingFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
-  processedTSConfigs: Set<string>,
+  processedTSConfigs: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
@@ -189,14 +192,17 @@ async function analyzeFilesFromTsConfig(
   programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
   const tsProgram = createStandardProgram(programOptions);
 
+  // TypeScript normalizes file paths internally, so we can safely cast them
   const filesToAnalyze = tsProgram
     .getSourceFiles()
-    .map(sf => sf.fileName)
+    .map(sf => sf.fileName as NormalizedAbsolutePath)
     .filter(fileName => files[fileName] && pendingFiles.has(fileName));
 
   for (const reference of sanitizeProgramReferences(tsProgram)) {
-    if (!processedTSConfigs.has(reference)) {
-      tsConfigStore.addDiscoveredTsConfig(reference);
+    // sanitizeProgramReferences returns NormalizedAbsolutePath[] via sanitizeReferences
+    const normalizedReference = reference as NormalizedAbsolutePath;
+    if (!processedTSConfigs.has(normalizedReference)) {
+      tsConfigStore.addDiscoveredTsConfig(normalizedReference);
     }
   }
 

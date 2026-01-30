@@ -17,20 +17,25 @@
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
+import {
+  getBaseDir,
+  getMaxFileSize,
+  isCssFile,
+  isJsTsFile,
+  shouldDetectBundles,
+} from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
-import { normalizePath } from '../../../../jsts/src/rules/helpers/index.js';
-import { readFile } from '../files.js';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath, readFile } from '../files.js';
 import { AnalysisInput } from '../../types/analysis.js';
 
 /**
  * Determines whether a given file should be accepted for further processing based on its content.
  *
- * @param {string} filePath - The path of the file to be checked.
+ * @param {NormalizedAbsolutePath} filePath - The path of the file to be checked.
  * @param {string} fileContent - The content of the file to be checked.
  * @return {boolean} Returns true if the file meets the acceptance criteria, otherwise false.
  */
-export function accept(filePath: string, fileContent: string): boolean {
+export function accept(filePath: NormalizedAbsolutePath, fileContent: string): boolean {
   if (isJsTsFile(filePath)) {
     return (
       (!shouldDetectBundles() || filterBundle(filePath, fileContent)) &&
@@ -56,7 +61,7 @@ export function accept(filePath: string, fileContent: string): boolean {
  * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
  */
 export async function shouldIgnoreFile(file: AnalysisInput): Promise<boolean> {
-  const filename = normalizePath(file.filePath);
+  const filename = normalizeToAbsolutePath(file.filePath, getBaseDir());
   file.filePath = filename;
   file.fileContent = file.fileContent ?? (await readFile(filename));
   if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {

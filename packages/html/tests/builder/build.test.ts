@@ -20,11 +20,12 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseHTML } from '../../src/parser/parse.js';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
   it('should build source codes from an HTML file', async () => {
-    const filePath = join(fixturesPath, 'multiple.html');
+    const filePath = normalizeToAbsolutePath(join(fixturesPath, 'multiple.html'));
     const sourceCodes = build(await embeddedInput({ filePath }), parseHTML);
     expect(sourceCodes).toHaveLength(2);
     expect(sourceCodes[0].sourceCode.ast.loc.start).toEqual({ line: 4, column: 8 });

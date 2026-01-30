@@ -18,12 +18,12 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import type { Filesystem } from '../../../src/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in-parent-dirs.js';
-import type { UnixPath } from '../../../src/rules/helpers/files.js';
+import type { NormalizedPath } from '../../../src/rules/helpers/files.js';
 import Path from 'node:path/posix';
 import { beforeEach, describe, it } from 'node:test';
 
 /** Helper to cast string literals to UnixPath for tests */
-const path = (p: string) => p as UnixPath;
+const path = (p: string) => p as NormalizedPath;
 
 describe('findUp', () => {
   beforeEach(() => patternInParentsCache.clear());

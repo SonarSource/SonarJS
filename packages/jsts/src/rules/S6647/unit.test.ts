@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path/posix';
 import { expect } from 'expect';
-import { normalizePath } from '../helpers/index.js';
+import { toUnixPath } from '../helpers/index.js';
 
 const ruleTester = new RuleTester({
   parser,
@@ -54,7 +54,7 @@ describe('S6647', () => {
     // 'no-useless-constructor' from 'typescript-eslint'
     // https://github.com/SonarSource/SonarJS/pull/4473
     const problemFile = join(
-      dirname(normalizePath(fileURLToPath(import.meta.url))),
+      dirname(toUnixPath(fileURLToPath(import.meta.url))),
       'fixtures',
       'problemCode.js',
     );

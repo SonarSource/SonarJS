@@ -16,12 +16,12 @@
  */
 import { rule } from './index.js';
 import path from 'node:path/posix';
-import { normalizePath } from '../helpers/index.js';
+import { toUnixPath } from '../helpers/index.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const dirname = import.meta.dirname;
-const fixtures = path.join(normalizePath(dirname), 'fixtures');
+const fixtures = path.join(toUnixPath(dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree

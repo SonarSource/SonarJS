@@ -19,7 +19,7 @@ import { dirname } from 'node:path/posix';
 import { readFile } from 'node:fs/promises';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import type { File } from '../../../rules/helpers/files.js';
+import type { File, NormalizedAbsolutePath } from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
@@ -30,11 +30,14 @@ export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
 
 export class PackageJsonStore implements FileStore {
-  private readonly packageJsons: Map<string, File> = new Map();
-  private baseDir: string | undefined = undefined;
-  private readonly dirnameToParent: Map<string, string | undefined> = new Map();
+  private readonly packageJsons: Map<NormalizedAbsolutePath, File> = new Map();
+  private baseDir: NormalizedAbsolutePath | undefined = undefined;
+  private readonly dirnameToParent: Map<
+    NormalizedAbsolutePath,
+    NormalizedAbsolutePath | undefined
+  > = new Map();
 
-  async isInitialized(baseDir: string) {
+  async isInitialized(baseDir: NormalizedAbsolutePath) {
     this.dirtyCachesIfNeeded(baseDir);
     return this.baseDir !== undefined;
   }
@@ -46,7 +49,7 @@ export class PackageJsonStore implements FileStore {
     return this.packageJsons;
   }
 
-  dirtyCachesIfNeeded(currentBaseDir: string) {
+  dirtyCachesIfNeeded(currentBaseDir: NormalizedAbsolutePath) {
     if (currentBaseDir !== this.baseDir) {
       this.clearCache();
       return;
@@ -68,28 +71,30 @@ export class PackageJsonStore implements FileStore {
     clearDependenciesCache();
   }
 
-  setup(baseDir: string) {
+  setup(baseDir: NormalizedAbsolutePath) {
     this.baseDir = baseDir;
     this.dirnameToParent.set(baseDir, undefined);
   }
 
-  async processFile(filename: string) {
+  async processFile(filename: NormalizedAbsolutePath) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
     if (isPackageJson(filename)) {
       try {
         const content = await readFile(filename, 'utf-8');
-        this.packageJsons.set(dirname(filename), { content, path: filename });
+        this.packageJsons.set(dirname(filename) as NormalizedAbsolutePath, {
+          content,
+          path: filename,
+        });
       } catch (e) {
         warn(`Error reading package.json ${filename}: ${e}`);
       }
     }
   }
 
-  processDirectory(dir: string) {
-    const parent = dirname(dir);
-    this.dirnameToParent.set(dir, parent);
+  processDirectory(dir: NormalizedAbsolutePath) {
+    this.dirnameToParent.set(dir, dirname(dir) as NormalizedAbsolutePath);
   }
 
   async postProcess() {

@@ -19,7 +19,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { analyzeCSS } from '../../src/analysis/analyzer.js';
 import { CssAnalysisInput } from '../../src/analysis/analysis.js';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { RuleConfig } from '../../src/linter/config.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
@@ -124,7 +124,7 @@ ${character}
 ${character}
 ${character}${character}${character}.foo {`,
             rules,
-            filePath: path.resolve('foo.css'),
+            filePath: normalizeToAbsolutePath('foo.css'),
           };
 
           await expect(analyzeCSS(analysisInput))
@@ -158,5 +158,10 @@ async function input(
   fileContent?: string,
   rules: RuleConfig[] = [],
 ): Promise<CssAnalysisInput> {
-  return { filePath, fileContent: fileContent || (await readFile(filePath)), rules };
+  const normalizedPath = normalizeToAbsolutePath(filePath);
+  return {
+    filePath: normalizedPath,
+    fileContent: fileContent || (await readFile(normalizedPath)),
+    rules,
+  };
 }

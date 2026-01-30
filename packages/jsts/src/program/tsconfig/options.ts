@@ -23,6 +23,7 @@ import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { canAccessFileSystem } from '../../../../shared/src/helpers/configuration.js';
 import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
+import { normalizeToAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created
@@ -87,14 +88,16 @@ const defaultParseConfigHost: CustomParseConfigHost = {
     if (canAccessFileSystem()) {
       return ts.sys.fileExists(path);
     } else {
-      return sourceFileStore.getFoundFilenames().includes(path);
+      const normalizedPath = normalizeToAbsolutePath(path);
+      return sourceFileStore.getFoundFilenames().includes(normalizedPath);
     }
   },
   readFile(path: string): string | undefined {
     if (canAccessFileSystem()) {
       return ts.sys.readFile(path);
     } else {
-      return sourceFileStore.getFoundFiles()[path]?.fileContent;
+      const normalizedPath = normalizeToAbsolutePath(path);
+      return sourceFileStore.getFoundFiles()[normalizedPath]?.fileContent;
     }
   },
   missingTsConfig: () => false,
