@@ -23,7 +23,11 @@ import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
-import { toUnixPath } from '../rules/helpers/index.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type AbsoluteUnixPath,
+} from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import { ParseResult } from '../parsers/parse.js';
@@ -205,7 +209,7 @@ export class Linter {
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
       },
-      files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
+      files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
@@ -253,7 +257,12 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const dependencies = getDependencies(dirname(filePath), Linter.baseDir);
+      const normalizedFilePath = normalizeToAbsolutePath(filePath);
+      const normalizedBaseDir = normalizeToAbsolutePath(Linter.baseDir);
+      const dependencies = getDependencies(
+        dirname(normalizedFilePath) as AbsoluteUnixPath,
+        normalizedBaseDir,
+      );
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           fileTypeTargets,
@@ -273,7 +282,7 @@ export class Linter {
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !(blacklistedExtensions || []).includes(extname(toUnixPath(filePath))) &&
+          !(blacklistedExtensions || []).includes(extname(normalizePath(filePath))) &&
           satisfiesRequiredDependency
         );
       });
@@ -340,6 +349,11 @@ function createLinterConfigKey(
   analysisMode: AnalysisMode,
 ) {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
-  const packageJsonDirName = getClosestPackageJSONDir(dirname(filePath), baseDir);
-  return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
+  const normalizedPath = normalizeToAbsolutePath(filePath);
+  const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
+  const packageJsonDirName = getClosestPackageJSONDir(
+    dirname(normalizedPath) as AbsoluteUnixPath,
+    normalizedBaseDir,
+  );
+  return `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
 }

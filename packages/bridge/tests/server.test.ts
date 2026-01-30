@@ -24,7 +24,7 @@ import { expect } from 'expect';
 import assert from 'node:assert';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 import { join } from 'node:path/posix';
-import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { normalizePath } from '../../shared/src/helpers/files.js';
 import { BridgeRequest } from '../src/request.js';
 import { Worker } from 'node:worker_threads';
 
@@ -73,7 +73,7 @@ describe('server', () => {
     for (const worker of [await createWorker(workerPath), undefined]) {
       await t.test(worker ? 'with worker' : 'without worker', async () => {
         const fixtures = join(import.meta.dirname, 'fixtures', 'router');
-        const filePath = toUnixPath(join(fixtures, 'file.ts'));
+        const filePath = normalizePath(join(fixtures, 'file.ts'));
 
         const { response, messages } = await testWSWithTypedRequest(worker, {
           type: 'on-analyze-project',

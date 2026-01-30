@@ -22,7 +22,7 @@ import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
-import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { normalizePath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
@@ -50,7 +50,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-project requests', async () => {
-    const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
+    const filePath = normalizePath(path.join(fixtures, 'file.ts'));
     const payload: ProjectAnalysisInput = {
       rules: [
         {

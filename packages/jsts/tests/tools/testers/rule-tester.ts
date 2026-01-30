@@ -20,7 +20,7 @@ import path from 'node:path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
 import merge from 'lodash.merge';
-import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { normalizePath } from '../../../../shared/src/helpers/files.js';
 
 type Tests = {
   valid: ESLintRuleTester.ValidTestCase[];
@@ -50,12 +50,12 @@ const tsParserLanguageOptions: Linter.LanguageOptions = {
 
 const typeCheckingLanguageOptions: Linter.LanguageOptions = {
   parserOptions: {
-    project: path.join(toUnixPath(import.meta.dirname), 'fixtures', 'tsconfig.json'),
+    project: path.join(normalizePath(import.meta.dirname), 'fixtures', 'tsconfig.json'),
   },
 } as const;
 
 const placeHolderFilePath = path.join(
-  toUnixPath(import.meta.dirname),
+  normalizePath(import.meta.dirname),
   'fixtures',
   'placeholder.tsx',
 );

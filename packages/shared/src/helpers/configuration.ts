@@ -16,7 +16,7 @@
  */
 import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
 import { join, extname } from 'node:path/posix';
-import { isAbsolutePath, toUnixPath } from './files.js';
+import { isAbsolutePath, normalizePath } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
 
@@ -124,7 +124,7 @@ export function getTsConfigPaths() {
 }
 
 export function setTsConfigPaths(tsconfigs: string[] | undefined) {
-  configuration.tsConfigPaths = normalizePaths(tsconfigs);
+  configuration.tsConfigPaths = toAbsolutePaths(tsconfigs);
 }
 
 function tsExtensions() {
@@ -188,7 +188,7 @@ export function getGlobals() {
 }
 
 function setTestPaths(testPaths: string[] | undefined) {
-  configuration.tests = normalizePaths(testPaths);
+  configuration.tests = toAbsolutePaths(testPaths);
 }
 
 export function getTestPaths() {
@@ -196,7 +196,7 @@ export function getTestPaths() {
 }
 
 function setSourcesPaths(sourcesPaths: string[] | undefined) {
-  configuration.sources = normalizePaths(sourcesPaths);
+  configuration.sources = toAbsolutePaths(sourcesPaths);
 }
 
 export function getSourcesPaths() {
@@ -334,17 +334,17 @@ const DEFAULT_GLOBALS = [
 ];
 
 function normalizeGlobs(globs: string[] | undefined) {
-  return normalizePaths(globs).map(
-    pattern => new Minimatch(toUnixPath(pattern), { nocase: true, matchBase: true, dot: true }),
+  return toAbsolutePaths(globs).map(
+    pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
 }
 
-function normalizePaths(paths: string[] | undefined) {
-  return (paths || []).map(path => normalizePath(path));
+function toAbsolutePaths(paths: string[] | undefined) {
+  return (paths || []).map(path => toAbsolutePathFromBase(path));
 }
 
-function normalizePath(path: string) {
-  const normalized = toUnixPath(path.trim());
+function toAbsolutePathFromBase(path: string) {
+  const normalized = normalizePath(path.trim());
   if (!isAbsolutePath(normalized)) {
     return join(getBaseDir(), normalized);
   }

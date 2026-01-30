@@ -16,7 +16,7 @@
  */
 import { fileURLToPath } from 'node:url';
 import { dirname, join, parse } from 'node:path/posix';
-import { FileType, toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { FileType, normalizePath } from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
 /**
@@ -31,7 +31,7 @@ function parseForESLint(
   const { filePath } = options;
   const tsConfigs = [
     join(
-      dirname(toUnixPath(fileURLToPath(import.meta.url))),
+      dirname(normalizePath(fileURLToPath(import.meta.url))),
       '../../../../src/rules',
       'tsconfig.cb.json',
     ),

@@ -18,7 +18,11 @@ import path from 'node:path/posix';
 import { Linter as ESLintLinter } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type AbsoluteUnixPath,
+} from '../../src/rules/helpers/index.js';
 import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
@@ -31,7 +35,7 @@ import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-paren
 import { createProgramOptions } from '../../src/program/tsconfig/options.js';
 import { createStandardProgram } from '../../src/program/factory.js';
 
-const currentPath = toUnixPath(import.meta.dirname);
+const currentPath = normalizePath(import.meta.dirname);
 const fixtures = path.join(currentPath, 'fixtures-analyzer');
 
 describe('await analyzeJSTS', () => {
@@ -409,9 +413,9 @@ describe('await analyzeJSTS', () => {
     const nodeProgramOptions = createProgramOptions(nodeTsConfig);
     const nodeProgram = createStandardProgram(nodeProgramOptions);
     const nodeFiles = nodeProgram.getSourceFiles().map(file => file.fileName);
-    expect(nodeFiles).toContain(toUnixPath(nodeDependencyPath));
-    expect(nodeFiles).not.toContain(toUnixPath(nodenextDependencyPath));
-    expect(nodeFiles).not.toContain(toUnixPath(classicDependencyPath));
+    expect(nodeFiles).toContain(normalizePath(nodeDependencyPath));
+    expect(nodeFiles).not.toContain(normalizePath(nodenextDependencyPath));
+    expect(nodeFiles).not.toContain(normalizePath(classicDependencyPath));
     const {
       issues: [nodeIssue],
     } = await analyzeJSTS(await jsTsInput({ filePath, program: nodeProgram, language }));
@@ -425,9 +429,9 @@ describe('await analyzeJSTS', () => {
     const nodenextProgramOptions = createProgramOptions(nodenextTsConfig);
     const nodenextProgram = createStandardProgram(nodenextProgramOptions);
     const nodenextFiles = nodenextProgram.getSourceFiles().map(file => file.fileName);
-    expect(nodenextFiles).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(nodenextFiles).toContain(toUnixPath(nodenextDependencyPath));
-    expect(nodenextFiles).not.toContain(toUnixPath(classicDependencyPath));
+    expect(nodenextFiles).not.toContain(normalizePath(nodeDependencyPath));
+    expect(nodenextFiles).toContain(normalizePath(nodenextDependencyPath));
+    expect(nodenextFiles).not.toContain(normalizePath(classicDependencyPath));
     const {
       issues: [nodenextIssue],
     } = await analyzeJSTS(await jsTsInput({ filePath, program: nodenextProgram, language }));
@@ -441,9 +445,9 @@ describe('await analyzeJSTS', () => {
     const classicProgramOptions = createProgramOptions(classicTsConfig);
     const classicProgram = createStandardProgram(classicProgramOptions);
     const classicFiles = classicProgram.getSourceFiles().map(file => file.fileName);
-    expect(classicFiles).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(classicFiles).not.toContain(toUnixPath(nodenextDependencyPath));
-    expect(classicFiles).toContain(toUnixPath(classicDependencyPath));
+    expect(classicFiles).not.toContain(normalizePath(nodeDependencyPath));
+    expect(classicFiles).not.toContain(normalizePath(nodenextDependencyPath));
+    expect(classicFiles).toContain(normalizePath(classicDependencyPath));
     const {
       issues: [classicIssue],
     } = await analyzeJSTS(await jsTsInput({ filePath, program: classicProgram, language }));
@@ -912,8 +916,8 @@ describe('await analyzeJSTS', () => {
                 return {
                   CallExpression(node) {
                     const packageJsons = getManifests(
-                      path.posix.dirname(toUnixPath(context.filename)),
-                      baseDir,
+                      path.posix.dirname(normalizePath(context.filename)) as AbsoluteUnixPath,
+                      normalizeToAbsolutePath(baseDir),
                     );
                     expect(packageJsons).toBeDefined();
                     expect(packageJsons[0].name).toEqual('test-module');

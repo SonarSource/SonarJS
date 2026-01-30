@@ -28,12 +28,13 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
-  toUnixPath,
+  normalizeToAbsolutePath,
+  type AbsoluteUnixPath,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { dirname } from 'node:path';
-import { getDependencies } from '../helpers/package-jsons/dependencies.js';
+import { dirname } from 'node:path/posix';
+import { getDependenciesFromContext } from '../helpers/package-jsons/dependencies.js';
 import { getManifests } from '../helpers/package-jsons/all-in-parent-dirs.js';
 
 export const rule: Rule.RuleModule = {
@@ -43,7 +44,9 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context) {
-    const dependencies = getDependencies(dirname(context.filename), context.cwd);
+    const dir = dirname(normalizeToAbsolutePath(context.filename)) as AbsoluteUnixPath;
+    const topDir = context.cwd ? normalizeToAbsolutePath(context.cwd) : undefined;
+    const dependencies = getDependenciesFromContext(context);
     switch (true) {
       case dependencies.has('jasmine'):
         return jasmineListener();
@@ -51,7 +54,7 @@ export const rule: Rule.RuleModule = {
         return jestListener();
       case dependencies.has('mocha'):
         return mochaListener();
-      case getManifests(dirname(toUnixPath(context.filename)), context.cwd).length > 0:
+      case getManifests(dir, topDir).length > 0:
         return nodejsListener();
       default:
         return {};

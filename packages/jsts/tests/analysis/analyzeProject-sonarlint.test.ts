@@ -20,7 +20,7 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   analyzeProject,
   cancelAnalysis,
@@ -36,7 +36,7 @@ import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalys
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 
-const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures-sonarlint'));
+const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarlint'));
 
 const rules: RuleConfig[] = [
   {
@@ -55,7 +55,7 @@ describe('SonarLint tsconfig change detection', () => {
 
   beforeEach(async () => {
     // Create temp directory
-    tempDir = toUnixPath(await mkdtemp(join(tmpdir(), 'sonarlint-test-')));
+    tempDir = normalizePath(await mkdtemp(join(tmpdir(), 'sonarlint-test-')));
     filePath = join(tempDir, 'file.ts');
     tsconfigPath = join(tempDir, 'tsconfig.json');
 

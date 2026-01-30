@@ -22,13 +22,13 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   setGlobalConfiguration,
   setTsConfigPaths,
 } from '../../../shared/src/helpers/configuration.js';
 
-const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures-tsconfigs');
+const fixtures = join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs');
 
 describe('tsconfigs', () => {
   beforeEach(() => {

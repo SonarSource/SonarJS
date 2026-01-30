@@ -24,7 +24,7 @@ import {
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
-import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { normalizePath } from '../../../../../shared/src/helpers/files.js';
 import { clearTsConfigContentCache } from '../../../program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../../../program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../../../program/cache/programCache.js';
@@ -88,7 +88,7 @@ export class TsConfigStore implements FileStore {
     }
     for (const fileEvent of Object.entries(getFsEvents())) {
       const [filename] = fileEvent;
-      const normalizedFilename = toUnixPath(filename);
+      const normalizedFilename = normalizePath(filename);
       if (
         this.getTsConfigs().includes(normalizedFilename) ||
         (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(normalizedFilename)) ||

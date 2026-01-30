@@ -18,10 +18,10 @@ import path from 'node:path/posix';
 import { extractExpectations } from './framework.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile, toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { readFile, normalizePath } from '../../../../../shared/src/helpers/files.js';
 
 describe('Comment-based Testing Framework', () => {
-  const baseDir = `${toUnixPath(import.meta.dirname)}/fixtures`;
+  const baseDir = `${normalizePath(import.meta.dirname)}/fixtures`;
 
   async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);

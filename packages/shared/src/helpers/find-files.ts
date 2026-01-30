@@ -16,7 +16,7 @@
  */
 import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { toUnixPath } from './files.js';
+import { normalizePath } from './files.js';
 import { join } from 'node:path/posix';
 import { isJsTsExcluded } from './filter/filter-path.js';
 
@@ -29,7 +29,7 @@ export async function findFiles(
   while (directories.length > 0) {
     const directory = directories.pop()!;
     for await (const file of await opendir(directory)) {
-      const filePath = join(toUnixPath(file.parentPath), file.name);
+      const filePath = join(normalizePath(file.parentPath), file.name);
       if (!isJsTsExcluded(filePath)) {
         if (file.isDirectory()) {
           directories.push(filePath);

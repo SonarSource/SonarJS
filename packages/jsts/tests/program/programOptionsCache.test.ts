@@ -17,7 +17,7 @@
 import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   getCachedProgramOptions,
   setCachedProgramOptions,
@@ -26,7 +26,7 @@ import {
 import { createProgramOptions } from '../../src/program/tsconfig/options.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = path.join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('programOptionsCache', () => {
   beforeEach(() => {

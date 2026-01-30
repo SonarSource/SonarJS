@@ -17,7 +17,7 @@
 import path from 'node:path/posix';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   isRootNodeModules,
   isLastTsConfigCheck,
@@ -27,7 +27,7 @@ import {
 import { createProgramOptions } from '../../src/program/tsconfig/options.js';
 import { createStandardProgram } from '../../src/program/factory.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = path.join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('tsconfig utils', () => {
   // Platform-specific root paths for testing

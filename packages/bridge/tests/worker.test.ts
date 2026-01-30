@@ -19,14 +19,14 @@ import { Worker } from 'node:worker_threads';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 import { ErrorCode } from '../../shared/src/errors/error.js';
-import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { normalizePath } from '../../shared/src/helpers/files.js';
 
 describe('worker', () => {
   let worker: Worker;
 
   before(() => {
     worker = new Worker(
-      path.join(toUnixPath(import.meta.dirname), '../../../lib/bridge/src/worker.js'),
+      path.join(normalizePath(import.meta.dirname), '../../../lib/bridge/src/worker.js'),
       {
         workerData: { context: {} },
       },

@@ -18,7 +18,7 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   createStandardProgram,
   createProgramFromSingleFile,
@@ -36,7 +36,7 @@ import {
 } from '../../src/program/cache/sourceFileCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = path.join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('factory', () => {
   beforeEach(() => {

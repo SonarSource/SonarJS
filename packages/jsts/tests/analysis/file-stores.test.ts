@@ -20,7 +20,7 @@ import { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js
 import { simulateFromInputFiles } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { FileStore } from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
-import { toUnixPath } from '../../src/rules/helpers/files.js';
+import { normalizePath } from '../../src/rules/helpers/files.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
@@ -58,7 +58,7 @@ describe('simulateFromInputFiles', () => {
       file2: { filePath: '/project/src/utils/helper.ts', fileType: 'MAIN' },
       file3: { filePath: '/project/tests/Button.test.tsx', fileType: 'TEST' },
     };
-    const baseDir = toUnixPath('/project');
+    const baseDir = normalizePath('/project');
     const pendingStores = [mockStore];
 
     // Act
@@ -67,16 +67,16 @@ describe('simulateFromInputFiles', () => {
     // Assert
     // Check that directories were processed (parent directories of input files)
     expect(mockStore.processedDirectories).toHaveLength(4);
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src/components'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src/utils'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/tests'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src/components'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src/utils'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/tests'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src'));
 
     // Check that all files were processed
     expect(mockStore.processedFiles).toHaveLength(3);
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/components/Button.tsx'));
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/utils/helper.ts'));
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/tests/Button.test.tsx'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/components/Button.tsx'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/utils/helper.ts'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/tests/Button.test.tsx'));
 
     // Verify the correct number of processed items
     expect(mockStore.processedFiles).toHaveLength(3);
@@ -102,20 +102,20 @@ describe('simulateFromInputFiles', () => {
     const inputFiles: JsTsFiles = {
       file1: { filePath: '/project/src/test.js', fileType: 'MAIN' },
     };
-    const baseDir = toUnixPath('/project');
+    const baseDir = normalizePath('/project');
 
     // Act & Assert - should not throw an error
     await expect(simulateFromInputFiles(inputFiles, baseDir, [mockStore])).resolves.not.toThrow();
 
     // Files should still be processed
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/test.js'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/test.js'));
   });
 
   it('should handle empty input files', async () => {
     // Arrange
     const mockStore = new MockFileStore();
     const inputFiles: JsTsFiles = {};
-    const baseDir = toUnixPath('/project');
+    const baseDir = normalizePath('/project');
 
     // Act
     await simulateFromInputFiles(inputFiles, baseDir, [mockStore]);
@@ -132,7 +132,7 @@ describe('simulateFromInputFiles', () => {
     const inputFiles: JsTsFiles = {
       file1: { filePath: '/project/src/app.js', fileType: 'MAIN' },
     };
-    const baseDir = toUnixPath('/project');
+    const baseDir = normalizePath('/project');
 
     // Act
     await simulateFromInputFiles(inputFiles, baseDir, [mockStore1, mockStore2]);
@@ -142,7 +142,7 @@ describe('simulateFromInputFiles', () => {
     expect(mockStore1.processedDirectories).toEqual(mockStore2.processedDirectories);
     expect(mockStore1.processedFiles).toEqual(mockStore2.processedFiles);
 
-    expect(mockStore1.processedFiles).toContain(toUnixPath('/project/src/app.js'));
-    expect(mockStore2.processedFiles).toContain(toUnixPath('/project/src/app.js'));
+    expect(mockStore1.processedFiles).toContain(normalizePath('/project/src/app.js'));
+    expect(mockStore2.processedFiles).toContain(normalizePath('/project/src/app.js'));
   });
 });

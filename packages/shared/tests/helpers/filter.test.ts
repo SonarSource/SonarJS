@@ -20,11 +20,11 @@ import { describe, it, Mock } from 'node:test';
 import { expect } from 'expect';
 import { AnalysisInput } from '../../src/types/analysis.js';
 import { join } from 'node:path/posix';
-import { toUnixPath, readFile } from '../../src/helpers/files.js';
+import { normalizePath, readFile } from '../../src/helpers/files.js';
 import fs from 'node:fs';
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
-const baseDir = join(toUnixPath(import.meta.dirname), 'fixtures');
+const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('filter.ts', () => {
   describe('accept', () => {

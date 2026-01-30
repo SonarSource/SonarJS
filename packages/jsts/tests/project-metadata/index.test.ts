@@ -15,42 +15,51 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
-import { isSupported, toUnixPath } from '../../src/rules/helpers/index.js';
+import {
+  isSupported,
+  normalizeToAbsolutePath,
+  type AbsoluteUnixPath,
+} from '../../src/rules/helpers/index.js';
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import { getManifests } from '../../src/rules/helpers/package-jsons/all-in-parent-dirs.js';
 
+/** Helper to cast path.join results to AbsoluteUnixPath for tests */
+const absPath = (p: string) => p as AbsoluteUnixPath;
+
 describe('initialize package.json files', () => {
-  const baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'package-json');
+  const baseDir = absPath(
+    path.posix.join(normalizeToAbsolutePath(import.meta.dirname), 'fixtures', 'package-json'),
+  );
 
   it('should find all package.json files', () => {
     const basePJList = getManifests(baseDir, baseDir, fs);
 
-    const moduleAPJList = getManifests(path.posix.join(baseDir, 'moduleA'), baseDir, fs);
+    const moduleAPJList = getManifests(absPath(path.posix.join(baseDir, 'moduleA')), baseDir, fs);
 
     const moduleAsubmoduleAPJList = getManifests(
-      path.posix.join(baseDir, 'moduleA', 'submoduleA'),
+      absPath(path.posix.join(baseDir, 'moduleA', 'submoduleA')),
       baseDir,
       fs,
     );
 
     const moduleAsubmoduleBPJList = getManifests(
-      path.posix.join(baseDir, 'moduleA', 'submoduleB'),
+      absPath(path.posix.join(baseDir, 'moduleA', 'submoduleB')),
       baseDir,
       fs,
     );
 
-    const moduleBPJList = getManifests(path.posix.join(baseDir, 'moduleB'), baseDir, fs);
+    const moduleBPJList = getManifests(absPath(path.posix.join(baseDir, 'moduleB')), baseDir, fs);
 
     const moduleBsubmoduleAPJList = getManifests(
-      path.posix.join(baseDir, 'moduleB', 'submoduleA'),
+      absPath(path.posix.join(baseDir, 'moduleB', 'submoduleA')),
       baseDir,
       fs,
     );
 
     const moduleBsubmoduleBPJList = getManifests(
-      path.posix.join(baseDir, 'moduleB', '.submoduleB'),
+      absPath(path.posix.join(baseDir, 'moduleB', '.submoduleB')),
       baseDir,
       fs,
     );
@@ -64,14 +73,23 @@ describe('initialize package.json files', () => {
     expect(moduleAsubmoduleBPJList).toHaveLength(3);
     expect(moduleAsubmoduleBPJList[0].name).toEqual('module-a-submodule-b');
     expect(moduleBPJList).toHaveLength(2);
-    expect(moduleBPJList[0].name).toEqual(toUnixPath('module-b'));
+    expect(moduleBPJList[0].name).toEqual('module-b');
     expect(moduleBsubmoduleAPJList).toHaveLength(3);
     expect(moduleBsubmoduleAPJList[0].name).toEqual('module-b-submodule-a');
     expect(moduleBsubmoduleBPJList).toHaveLength(3);
     expect(moduleBsubmoduleBPJList[0].name).toEqual('module-b-submodule-b');
 
     const fakeFilePJList = getManifests(
-      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'subfolder1', 'subfolder2', 'subfolder3'),
+      absPath(
+        path.posix.join(
+          baseDir,
+          'moduleB',
+          '.submoduleB',
+          'subfolder1',
+          'subfolder2',
+          'subfolder3',
+        ),
+      ),
       baseDir,
       fs,
     );
@@ -80,49 +98,45 @@ describe('initialize package.json files', () => {
   });
 
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
-    expect(
-      getManifests(
-        path.posix.join(baseDir, '..', 'another-module'),
-        path.posix.join(baseDir, '..'),
-        fs,
-      ),
-    ).toHaveLength(0);
+    const anotherModuleDir = absPath(path.posix.join(baseDir, '..', 'another-module'));
+    const parentDir = absPath(path.posix.join(baseDir, '..'));
+    expect(getManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
 
-    expect(
-      getManifests(
-        path.posix.join(baseDir, '..', 'another-module'),
-        path.posix.join(baseDir, '..'),
-        fs,
-      ),
-    ).toHaveLength(0);
+    expect(getManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
   });
 });
 
 describe('isSupported()', () => {
-  let baseDir;
+  let baseDir: AbsoluteUnixPath;
   beforeEach(() => {
-    baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'is-supported-node');
+    baseDir = absPath(
+      path.posix.join(
+        normalizeToAbsolutePath(import.meta.dirname),
+        'fixtures',
+        'is-supported-node',
+      ),
+    );
   });
 
   it('should throw an error when a version is invalid', () => {
-    expect(() => isSupported('index.js', { node: 'invalid' })).toThrow(
+    expect(() => isSupported(absPath('index.js'), { node: 'invalid' })).toThrow(
       'Invalid semver version: "invalid" for "node"',
     );
   });
 
   it('should return true when no minimum version is provided', () => {
-    expect(isSupported('index.js', {})).toBe(true);
+    expect(isSupported(absPath('index.js'), {})).toBe(true);
   });
 
   describe('#isSupportedNodeVersion()', () => {
     describe('when package.json#engine.node is defined', () => {
       describe('when there is a minimum version', () => {
         it('should return true when the project supports the feature', () => {
-          const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
+          const projectDir = absPath(path.posix.join(baseDir, 'with-node-with-minimum'));
           expect(isSupported(projectDir, { node: '4.0.0' })).toBe(true);
         });
         it('should return false when the project does not support the feature', () => {
-          const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
+          const projectDir = absPath(path.posix.join(baseDir, 'with-node-with-minimum'));
           expect(isSupported(projectDir, { node: '6.0.0' })).toBe(false);
         });
       });
@@ -130,21 +144,21 @@ describe('isSupported()', () => {
       // coverage
       describe('when there is no minimum version', () => {
         it('should return true', () => {
-          const projectDir = path.posix.join(baseDir, 'with-node-no-minimum');
+          const projectDir = absPath(path.posix.join(baseDir, 'with-node-no-minimum'));
           expect(isSupported(projectDir, { node: '5.0.0' })).toBe(true);
         });
       });
     });
     describe('when package.json#engine.node is undefined', () => {
       it('should return true', () => {
-        const projectDir = path.posix.join(baseDir, 'no-node');
+        const projectDir = absPath(path.posix.join(baseDir, 'no-node'));
         expect(isSupported(projectDir, { node: '6.0.0' })).toBe(true);
       });
     });
     describe('when no package.json is found', () => {
       // we simply don't load the package.json files
       it('should return true', () => {
-        const projectDir = path.posix.join(baseDir, 'no-node');
+        const projectDir = absPath(path.posix.join(baseDir, 'no-node'));
         expect(isSupported(projectDir, { node: '6.0.0' })).toBe(true);
       });
     });

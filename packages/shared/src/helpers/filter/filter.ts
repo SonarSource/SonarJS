@@ -19,7 +19,7 @@ import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
-import { toUnixPath } from '../../../../jsts/src/rules/helpers/index.js';
+import { normalizePath } from '../../../../jsts/src/rules/helpers/index.js';
 import { readFile } from '../files.js';
 import { AnalysisInput } from '../../types/analysis.js';
 
@@ -56,7 +56,7 @@ export function accept(filePath: string, fileContent: string): boolean {
  * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
  */
 export async function shouldIgnoreFile(file: AnalysisInput): Promise<boolean> {
-  const filename = toUnixPath(file.filePath);
+  const filename = normalizePath(file.filePath);
   file.filePath = filename;
   file.fileContent = file.fileContent ?? (await readFile(filename));
   if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {

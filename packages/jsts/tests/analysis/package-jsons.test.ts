@@ -22,7 +22,10 @@ import {
   packageJsonStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
-import { toUnixPath } from '../../../shared/src/helpers/files.js';
+import {
+  normalizeToAbsolutePath,
+  type AbsoluteUnixPath,
+} from '../../../shared/src/helpers/files.js';
 import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/package-jsons.js';
 import {
@@ -36,7 +39,10 @@ import { patternInParentsCache } from '../../src/rules/helpers/find-up/all-in-pa
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
 
-const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures-package-jsons'));
+const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
+
+/** Helper to cast path.join results to AbsoluteUnixPath for tests */
+const absPath = (p: string) => p as AbsoluteUnixPath;
 
 describe('files', () => {
   beforeEach(() => {
@@ -76,9 +82,9 @@ describe('files', () => {
 
     //dependencies cache is filled on demand
     expect(dependenciesCache.size).toEqual(0);
-    getDependencies(baseDir, baseDir);
+    getDependencies(absPath(baseDir), absPath(baseDir));
     expect(dependenciesCache.size).toEqual(1);
-    expect(dependenciesCache.has(baseDir)).toEqual(true);
+    expect(dependenciesCache.has(absPath(baseDir))).toEqual(true);
   });
 
   it('should ignore malformed package.json files', async ({ mock }) => {
@@ -89,7 +95,7 @@ describe('files', () => {
     await initFileStores(baseDir);
     const filePath = join(baseDir, 'package.json');
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
-    getDependencies(baseDir, baseDir);
+    getDependencies(absPath(baseDir), absPath(baseDir));
     expect(
       consoleLogMock.calls
         .map(call => call.arguments[0])
@@ -103,7 +109,7 @@ describe('files', () => {
     await initFileStores(baseDir);
     expect(await packageJsonStore.isInitialized(baseDir)).toEqual(true);
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
-    getDependencies(baseDir, baseDir);
+    getDependencies(absPath(baseDir), absPath(baseDir));
     expect(dependenciesCache.size).toEqual(1);
 
     packageJsonStore.dirtyCachesIfNeeded(baseDir);

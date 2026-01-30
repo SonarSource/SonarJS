@@ -17,7 +17,7 @@
 import ts from 'typescript';
 import { basename, join } from 'node:path/posix';
 import { warn } from '../../../../shared/src/helpers/logging.js';
-import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { normalizePath } from '../../../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 
 /**
@@ -25,8 +25,8 @@ import fs from 'node:fs';
  */
 export function isRootNodeModules(file: string) {
   const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
-  const normalizedFile = toUnixPath(file);
-  const topNodeModules = toUnixPath(join(root, 'node_modules'));
+  const normalizedFile = normalizePath(file);
+  const topNodeModules = normalizePath(join(root, 'node_modules'));
   return normalizedFile.startsWith(topNodeModules);
 }
 

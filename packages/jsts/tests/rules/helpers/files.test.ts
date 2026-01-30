@@ -16,7 +16,14 @@
  */
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
-import { stripBOM, toUnixPath, isRoot, isAbsolutePath } from '../../../src/rules/helpers/files.js';
+import {
+  stripBOM,
+  normalizePath,
+  normalizeToAbsolutePath,
+  isRoot,
+  isAbsolutePath,
+  ROOT_PATH,
+} from '../../../src/rules/helpers/files.js';
 
 describe('files', () => {
   describe('stripBOM', () => {
@@ -70,76 +77,105 @@ describe('files', () => {
     });
   });
 
-  describe('toUnixPath', () => {
+  describe('normalizePath', () => {
     test('should convert backslashes to forward slashes for relative paths', () => {
-      expect(toUnixPath('foo\\bar\\baz')).toEqual('foo/bar/baz');
+      expect(normalizePath('foo\\bar\\baz')).toEqual('foo/bar/baz');
     });
 
     test('should collapse multiple slashes for relative paths', () => {
-      expect(toUnixPath('foo//bar///baz')).toEqual('foo/bar/baz');
-      expect(toUnixPath('foo\\\\bar\\\\\\baz')).toEqual('foo/bar/baz');
+      expect(normalizePath('foo//bar///baz')).toEqual('foo/bar/baz');
+      expect(normalizePath('foo\\\\bar\\\\\\baz')).toEqual('foo/bar/baz');
     });
 
     test('should handle mixed slashes for relative paths', () => {
-      expect(toUnixPath('foo/bar\\baz')).toEqual('foo/bar/baz');
+      expect(normalizePath('foo/bar\\baz')).toEqual('foo/bar/baz');
     });
 
     test('should preserve relative path prefixes', () => {
-      expect(toUnixPath('./foo')).toEqual('./foo');
-      expect(toUnixPath('../foo')).toEqual('../foo');
-      expect(toUnixPath('.\\foo')).toEqual('./foo');
-      expect(toUnixPath('..\\foo')).toEqual('../foo');
-      expect(toUnixPath('./foo\\bar')).toEqual('./foo/bar');
-      expect(toUnixPath('..\\foo/bar')).toEqual('../foo/bar');
+      expect(normalizePath('./foo')).toEqual('./foo');
+      expect(normalizePath('../foo')).toEqual('../foo');
+      expect(normalizePath('.\\foo')).toEqual('./foo');
+      expect(normalizePath('..\\foo')).toEqual('../foo');
+      expect(normalizePath('./foo\\bar')).toEqual('./foo/bar');
+      expect(normalizePath('..\\foo/bar')).toEqual('../foo/bar');
     });
 
     test('should add drive letter for Unix absolute paths on Windows', () => {
       // On Windows, Unix-style paths like /foo are resolved to add the current drive
       if (process.platform === 'win32') {
-        expect(toUnixPath('/foo/bar')).toMatch(/^[A-Z]:\/foo\/bar$/);
+        expect(normalizePath('/foo/bar')).toMatch(/^[A-Z]:\/foo\/bar$/);
       } else {
         // On Linux, Unix-style paths are kept as-is
-        expect(toUnixPath('/foo/bar')).toEqual('/foo/bar');
+        expect(normalizePath('/foo/bar')).toEqual('/foo/bar');
       }
     });
 
     test('should handle Windows backslash paths', () => {
       if (process.platform === 'win32') {
         // On Windows, backslash paths are resolved to add drive letter
-        expect(toUnixPath('\\foo\\bar')).toMatch(/^[A-Z]:\/foo\/bar$/);
+        expect(normalizePath('\\foo\\bar')).toMatch(/^[A-Z]:\/foo\/bar$/);
       } else {
         // On Linux, just convert slashes
-        expect(toUnixPath('\\foo\\bar')).toEqual('/foo/bar');
+        expect(normalizePath('\\foo\\bar')).toEqual('/foo/bar');
       }
     });
 
     test('should handle paths with drive letter', () => {
       if (process.platform === 'win32') {
         // On Windows, drive letter is preserved and path is resolved
-        expect(toUnixPath('c:/foo/bar')).toEqual('c:/foo/bar');
-        expect(toUnixPath('C:\\foo\\bar')).toEqual('C:/foo/bar');
-        expect(toUnixPath('D:/bar')).toEqual('D:/bar');
-        expect(toUnixPath('D:\\')).toEqual('D:/');
+        expect(normalizePath('c:/foo/bar')).toEqual('c:/foo/bar');
+        expect(normalizePath('C:\\foo\\bar')).toEqual('C:/foo/bar');
+        expect(normalizePath('D:/bar')).toEqual('D:/bar');
+        expect(normalizePath('D:\\')).toEqual('D:/');
       } else {
         // On Linux, just convert slashes (drive letter becomes part of the path)
         // Analysis on a project using absolute windows paths will fail, this is not supported
-        expect(toUnixPath('c:/foo/bar')).toEqual('c:/foo/bar');
-        expect(toUnixPath('C:\\foo\\bar')).toEqual('C:/foo/bar');
-        expect(toUnixPath('D:/bar')).toEqual('D:/bar');
-        expect(toUnixPath('D:\\')).toEqual('D:/');
+        expect(normalizePath('c:/foo/bar')).toEqual('c:/foo/bar');
+        expect(normalizePath('C:\\foo\\bar')).toEqual('C:/foo/bar');
+        expect(normalizePath('D:/bar')).toEqual('D:/bar');
+        expect(normalizePath('D:\\')).toEqual('D:/');
       }
     });
 
     test('should handle drive letter only', () => {
       if (process.platform === 'win32') {
         // On Windows, drive letter is resolved to current directory on that drive
-        expect(toUnixPath('c:')).toMatch(/^c:\/.*$/);
-        expect(toUnixPath('D:')).toMatch(/^D:\/.*$/);
+        expect(normalizePath('c:')).toMatch(/^c:\/.*$/);
+        expect(normalizePath('D:')).toMatch(/^D:\/.*$/);
       } else {
         // On Linux, just convert (no resolution)
-        expect(toUnixPath('c:')).toEqual('c:');
-        expect(toUnixPath('D:')).toEqual('D:');
+        expect(normalizePath('c:')).toEqual('c:');
+        expect(normalizePath('D:')).toEqual('D:');
       }
+    });
+  });
+
+  describe('normalizeToAbsolutePath', () => {
+    test('should convert relative paths to absolute', () => {
+      const result = normalizeToAbsolutePath('foo/bar');
+      expect(isAbsolutePath(result)).toBe(true);
+      expect(result).toContain('foo/bar');
+    });
+
+    test('should preserve absolute paths', () => {
+      if (process.platform === 'win32') {
+        expect(normalizeToAbsolutePath('C:/foo/bar')).toEqual('C:/foo/bar');
+        expect(normalizeToAbsolutePath('C:\\foo\\bar')).toEqual('C:/foo/bar');
+      } else {
+        expect(normalizeToAbsolutePath('/foo/bar')).toEqual('/foo/bar');
+      }
+    });
+
+    test('should convert backslashes to forward slashes', () => {
+      const result = normalizeToAbsolutePath('foo\\bar');
+      expect(result).not.toContain('\\');
+      expect(result).toContain('foo/bar');
+    });
+  });
+
+  describe('ROOT_PATH', () => {
+    test('should be a forward slash', () => {
+      expect(ROOT_PATH).toEqual('/');
     });
   });
 

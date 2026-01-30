@@ -23,6 +23,29 @@ import {
 } from 'node:path/win32';
 
 /**
+ * Branded types for Unix-style paths (forward slashes, normalized).
+ *
+ * We use phantom branding here (declare const + type intersection) rather than
+ * runtime branding (like in tsconfig/options.ts with actual Symbol properties).
+ * This is because:
+ * - Paths are primitive strings, not objects that can hold extra properties
+ * - We only need compile-time safety, not runtime verification
+ * - No runtime overhead - branded paths are just regular strings at runtime
+ *
+ * @see tsconfig/options.ts for runtime branding of objects via Symbol properties
+ */
+declare const UnixPathBrand: unique symbol;
+declare const AbsoluteUnixPathBrand: unique symbol;
+
+export type UnixPath = string & { readonly [UnixPathBrand]: never };
+export type AbsoluteUnixPath = UnixPath & { readonly [AbsoluteUnixPathBrand]: never };
+
+/**
+ * Root path constant for Unix filesystem
+ */
+export const ROOT_PATH = '/' as AbsoluteUnixPath;
+
+/**
  * Byte Order Marker
  */
 const BOM_BYTE = 0xfeff;
@@ -49,24 +72,36 @@ export function stripBOM(str: string) {
 const isWindows = process.platform === 'win32';
 
 /**
- * Converts a path to Unix format.
+ * Normalizes a path to Unix format (forward slashes).
  * For absolute paths on Windows, resolves them to ensure they have a drive letter.
  * For relative paths, only converts slashes without resolving.
  * Cross-platform behavior:
  * - On Windows: all absolute paths are resolved with win32 to add drive letter
  * - On Linux: paths are only converted (slashes), no resolution needed
- * @param filePath the path to convert
- * @param forceAbsolute returned path should be absolute
- * @returns the converted path
+ * @param filePath the path to normalize
+ * @returns the normalized path as a branded UnixPath type
  */
-export function toUnixPath(filePath: string, forceAbsolute = false) {
+export function normalizePath(filePath: string): UnixPath {
   if (isWindows && isAbsolutePath(filePath)) {
     // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
-  } else if (forceAbsolute) {
-    filePath = resolve(filePath);
   }
-  return filePath.replaceAll(/[\\/]+/g, '/');
+  return filePath.replaceAll(/[\\/]+/g, '/') as UnixPath;
+}
+
+/**
+ * Normalizes a path to an absolute Unix format.
+ * Guarantees the returned path is absolute.
+ * @param filePath the path to normalize
+ * @returns the normalized path as a branded AbsoluteUnixPath type
+ */
+export function normalizeToAbsolutePath(filePath: string): AbsoluteUnixPath {
+  if (!isAbsolutePath(filePath)) {
+    filePath = resolve(filePath);
+  } else if (isWindows) {
+    filePath = resolveWin32(filePath);
+  }
+  return filePath.replaceAll(/[\\/]+/g, '/') as AbsoluteUnixPath;
 }
 
 function isParseResultRoot(result: { root: string; base: string; dir: string }) {

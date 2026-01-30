@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { File } from '../files.js';
+import type { File, UnixPath } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
@@ -37,16 +37,21 @@ export function fillPackageJsonCaches(
 
   // We depend on the order of the paths, from parent-to-child paths (guaranteed by the use of a Map in the package-json store)
   for (const [dir, parent] of dirnameToParent) {
+    const dirPath = dir as UnixPath;
+    const parentPath = parent as UnixPath | undefined;
     const currentPackageJson = packageJsons.get(dir);
-    closestCache.set(dir, currentPackageJson ?? (parent ? closestCache.get(parent) : undefined));
+    closestCache.set(
+      dirPath,
+      currentPackageJson ?? (parentPath ? closestCache.get(parentPath) : undefined),
+    );
     const allPackageJsons = [];
-    if (parent) {
-      allPackageJsons.push(...allPackageJsonsCache.get(dir));
+    if (parentPath) {
+      allPackageJsons.push(...allPackageJsonsCache.get(dirPath));
     }
     if (currentPackageJson) {
       allPackageJsons.push(currentPackageJson);
     }
-    allPackageJsonsCache.set(dir, allPackageJsons);
+    allPackageJsonsCache.set(dirPath, allPackageJsons);
   }
 }
 /**

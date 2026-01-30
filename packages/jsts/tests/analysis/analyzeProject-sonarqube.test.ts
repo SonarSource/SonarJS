@@ -18,7 +18,7 @@
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import {
   analyzeProject,
   cancelAnalysis,
@@ -35,7 +35,7 @@ import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalys
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 
-const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures-sonarqube'));
+const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
 
 const rules: RuleConfig[] = [
   {
@@ -312,7 +312,7 @@ describe('SonarQube project analysis', () => {
 
   it('should analyze without touching filesystem when canAccessFileSystem is false', async () => {
     const baseDir = '/path/does/not/exist';
-    const filePath = join(toUnixPath(baseDir), 'file.ts');
+    const filePath = join(normalizePath(baseDir), 'file.ts');
 
     const files: JsTsFiles = {
       [filePath]: {

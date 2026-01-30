@@ -18,14 +18,14 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/index.js';
 import { ProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { IncrementalCompilerHost } from '../../src/program/compilerHost.js';
 import { createProgramOptions, type ProgramOptions } from '../../src/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = path.join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('ProgramCacheManager', () => {
   let cacheManager: ProgramCacheManager;

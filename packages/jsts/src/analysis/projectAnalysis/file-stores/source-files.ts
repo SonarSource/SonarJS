@@ -19,7 +19,7 @@ import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers
 import { FileStore } from './store-type.js';
 import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
-import { readFile, toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 
@@ -167,7 +167,7 @@ export class SourceFileStore implements FileStore {
     store: keyof typeof SourceFileStore.prototype.store,
     file: JsTsAnalysisInput,
   ) {
-    file.filePath = toUnixPath(file.filePath, true);
+    file.filePath = normalizeToAbsolutePath(file.filePath);
     this.store[store].filenames!.push(file.filePath);
     this.store[store].files![file.filePath] = file;
   }

@@ -15,15 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { dirname } from 'node:path/posix';
-import { toUnixPath } from '../files.js';
+import { type AbsoluteUnixPath, ROOT_PATH } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { closestPatternCache } from '../find-up/closest.js';
 
-export function getClosestPackageJSONDir(dir: string, topDir?: string) {
+export function getClosestPackageJSONDir(dir: AbsoluteUnixPath, topDir?: AbsoluteUnixPath) {
   const closestPackageJSONDir = closestPatternCache
     .get(PACKAGE_JSON)
-    .get(topDir ? toUnixPath(topDir) : '/')
-    .get(toUnixPath(dir))?.path;
+    .get(topDir ?? ROOT_PATH)
+    .get(dir)?.path;
   if (closestPackageJSONDir) {
     return dirname(closestPackageJSONDir);
   }
