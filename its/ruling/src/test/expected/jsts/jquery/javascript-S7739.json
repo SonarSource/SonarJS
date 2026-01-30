@@ -1,11 +1,5 @@
 {
 "jquery:src/core/ready-no-deferred.js": [
 62
-],
-"jquery:src/core/ready.js": [
-55
-],
-"jquery:src/deferred.js": [
-102
 ]
 }
