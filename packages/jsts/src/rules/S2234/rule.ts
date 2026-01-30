@@ -46,16 +46,27 @@ export const rule: Rule.RuleModule = {
     const canResolveType = isRequiredParserServices(services);
 
     function checkArguments(functionCall: estree.CallExpression) {
+      // Extract argument names first (cheap operation)
+      const argumentNames = functionCall.arguments.map(arg => {
+        const argument = arg as TSESTree.Node;
+        return argument.type === 'Identifier' ? argument.name : undefined;
+      });
+
+      // Early exit: detecting swapped arguments requires at least 2 identifier arguments.
+      // Skip expensive type resolution if there aren't enough identifiers to check.
+      // This avoids a TypeScript performance issue where type inference for complex
+      // destructuring patterns with nested defaults can have exponential complexity.
+      const identifierCount = argumentNames.filter(name => name !== undefined).length;
+      if (identifierCount < 2) {
+        return;
+      }
+
       const resolvedFunction = resolveFunctionDeclaration(functionCall);
       if (!resolvedFunction) {
         return;
       }
 
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
-      const argumentNames = functionCall.arguments.map(arg => {
-        const argument = arg as TSESTree.Node;
-        return argument.type === 'Identifier' ? argument.name : undefined;
-      });
 
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {
         const argumentName = argumentNames[argumentIndex];
