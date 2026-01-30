@@ -27,6 +27,18 @@ import { generateMeta, isPresentationTable, getElementType } from '../helpers/in
 import * as meta from './generated-meta.js';
 import type { JSXOpeningElement } from 'estree-jsx';
 
+/**
+ * Detects reusable table wrapper components that receive children via props spread.
+ * Returns true if the table has no JSX children AND has a JSXSpreadAttribute.
+ */
+function isReusableWrapperComponent(tree: TSESTree.JSXElement): boolean {
+  const hasNoChildren = tree.children.length === 0;
+  const hasSpreadAttribute = (tree.openingElement as JSXOpeningElement).attributes.some(
+    attr => attr.type === 'JSXSpreadAttribute',
+  );
+  return hasNoChildren && hasSpreadAttribute;
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
@@ -64,6 +76,11 @@ export const rule: Rule.RuleModule = {
             'aria-hidden',
           );
           if (ariaHidden && getLiteralPropValue(ariaHidden) === true) {
+            return;
+          }
+          // Skip reusable wrapper components: tables with no children and spread props
+          // where table structure is provided via props.children at usage sites
+          if (isReusableWrapperComponent(tree)) {
             return;
           }
           if (!checkValidTable(tree)) {
