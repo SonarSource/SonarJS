@@ -1,10 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-818,
-818,
-818,
-818
-],
 "ace:demo/static-highlighter/server.js": [
 22
 ],
@@ -24,9 +18,5 @@
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 18689
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-1040,
-1040
 ]
 }
