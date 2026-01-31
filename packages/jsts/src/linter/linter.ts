@@ -46,10 +46,10 @@ interface InitializeParams {
   rules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
-  baseDir: string;
+  baseDir: NormalizedAbsolutePath;
   sonarlint?: boolean;
-  bundles?: string[];
-  rulesWorkdir?: string;
+  bundles?: NormalizedAbsolutePath[];
+  rulesWorkdir?: NormalizedAbsolutePath;
 }
 
 /**
@@ -99,10 +99,10 @@ export class Linter {
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for architecture, dbd...) */
-  private static rulesWorkdir?: string;
+  private static rulesWorkdir?: NormalizedAbsolutePath;
   /** whether we are running in sonarlint context */
   private static sonarlint: boolean;
-  private static baseDir: string;
+  private static baseDir: NormalizedAbsolutePath;
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -153,7 +153,7 @@ export class Linter {
     }
   }
 
-  private static async loadRulesFromBundle(ruleBundle: string) {
+  private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
     const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
     for (const rule of bundleRules) {
       Linter.rules[rule.ruleId] = rule.ruleModule;

@@ -23,7 +23,7 @@ import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
-import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { RawProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
@@ -51,7 +51,7 @@ describe('router', () => {
 
   it('should route /analyze-project requests', async () => {
     const filePath = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
-    const payload: ProjectAnalysisInput = {
+    const payload: RawProjectAnalysisInput = {
       rules: [
         {
           key: 'S4621',

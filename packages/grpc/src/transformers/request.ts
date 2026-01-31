@@ -24,7 +24,6 @@ import {
   type FileType,
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
-  ROOT_PATH,
 } from '../../../shared/src/helpers/files.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
@@ -420,14 +419,14 @@ export function transformRequestToProjectInput(
   const sourceFiles = request.sourceFiles || [];
   const activeRules = request.activeRules || [];
 
+  const filesToAnalyze = transformSourceFiles(sourceFiles);
+  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
+
   return {
-    files: transformSourceFiles(sourceFiles),
+    filesToAnalyze,
+    pendingFiles,
     rules: transformActiveRules(activeRules),
-    configuration: {
-      // baseDir is irrelevant since we don't access the filesystem
-      baseDir: ROOT_PATH,
-      // gRPC requests contain all file contents inline - no filesystem access needed
-      canAccessFileSystem: false,
-    },
+    bundles: [],
+    rulesWorkdir: undefined,
   };
 }

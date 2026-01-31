@@ -18,7 +18,9 @@ import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { normalizePath } from '../shared/src/helpers/files.js';
+import { getFilesToAnalyze } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import { normalizePath, NormalizedAbsolutePath } from '../shared/src/helpers/files.js';
+import { setGlobalConfiguration } from '../shared/src/helpers/configuration.js';
 import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
@@ -73,17 +75,22 @@ export async function testProject(projectName: string) {
   const expectedPath = join(expectedPathBase, name);
   const actualPath = join(actualPathBase, name);
 
-  const baseDir = join(jsTsProjectsPath, folder ?? name);
+  const baseDir = join(jsTsProjectsPath, folder ?? name) as NormalizedAbsolutePath;
+
+  setGlobalConfiguration({
+    baseDir,
+    canAccessFileSystem: true,
+    tests: testDir ? [testDir] : undefined,
+    exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
+  });
+
+  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir);
 
   const results = await analyzeProject({
     rules,
-    configuration: {
-      baseDir,
-      tests: testDir ? [testDir] : undefined,
-      exclusions: exclusions
-        ? DEFAULT_EXCLUSIONS.concat(exclusions.split(','))
-        : DEFAULT_EXCLUSIONS,
-    },
+    filesToAnalyze,
+    pendingFiles,
+    bundles: [],
   });
 
   await writeResults(baseDir, name, results, actualPath);

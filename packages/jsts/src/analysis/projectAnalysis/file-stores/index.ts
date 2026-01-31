@@ -18,7 +18,7 @@ import { dirname } from 'node:path/posix';
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import type { JsTsFiles } from '../projectAnalysis.js';
+import type { JsTsFiles, RawJsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
@@ -71,8 +71,33 @@ export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles
   }
 }
 
-export async function getFilesToAnalyze(baseDir: NormalizedAbsolutePath, inputFiles?: JsTsFiles) {
-  await initFileStores(baseDir, inputFiles);
+/**
+ * Sanitizes raw input files by normalizing their file paths.
+ */
+function sanitizeJsTsFiles(
+  inputFiles: RawJsTsFiles | undefined,
+  baseDir: NormalizedAbsolutePath,
+): JsTsFiles | undefined {
+  if (!inputFiles) {
+    return undefined;
+  }
+  const sanitized: JsTsFiles = {};
+  for (const [_key, value] of Object.entries(inputFiles)) {
+    const normalizedPath = normalizeToAbsolutePath(value.filePath, baseDir);
+    sanitized[normalizedPath] = {
+      ...value,
+      filePath: normalizedPath,
+    };
+  }
+  return sanitized;
+}
+
+export async function getFilesToAnalyze(
+  baseDir: NormalizedAbsolutePath,
+  inputFiles?: RawJsTsFiles,
+) {
+  const sanitizedInputFiles = sanitizeJsTsFiles(inputFiles, baseDir);
+  await initFileStores(baseDir, sanitizedInputFiles);
 
   if (sourceFileStore.getRequestFilesCount() > 0) {
     // if the request had input files, we use them

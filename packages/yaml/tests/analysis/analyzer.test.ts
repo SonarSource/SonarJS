@@ -24,9 +24,10 @@ import { APIError } from '../../../shared/src/errors/error.js';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('analyzeYAML', () => {
-  const fixturesPath = join(import.meta.dirname, 'fixtures');
+  const fixturesPath = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures'));
 
   it('should fail on uninitialized linter', async () => {
     await expect(

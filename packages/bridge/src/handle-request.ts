@@ -31,6 +31,35 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
+import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/configuration.js';
+import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../shared/src/helpers/files.js';
+
+/**
+ * Sanitizes a file path from raw input.
+ */
+function sanitizeFilePath<T extends { filePath: string }>(
+  input: T,
+  baseDir: NormalizedAbsolutePath,
+): Omit<T, 'filePath'> & { filePath: NormalizedAbsolutePath } {
+  return {
+    ...input,
+    filePath: normalizeToAbsolutePath(input.filePath, baseDir),
+  };
+}
+
+/**
+ * Sanitizes an array of paths.
+ */
+function sanitizePaths(
+  paths: string[] | undefined,
+  baseDir: NormalizedAbsolutePath,
+): NormalizedAbsolutePath[] {
+  return (paths ?? []).map(p => normalizeToAbsolutePath(p, baseDir));
+}
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -40,32 +69,70 @@ export async function handleRequest(
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        await Linter.initialize(request.data);
+        const { rules, environments, globals, baseDir, sonarlint, bundles, rulesWorkdir } =
+          request.data;
+        const sanitizedBaseDir = normalizeToAbsolutePath(baseDir);
+        await Linter.initialize({
+          rules,
+          environments,
+          globals,
+          baseDir: sanitizedBaseDir,
+          sonarlint,
+          bundles: sanitizePaths(bundles, sanitizedBaseDir),
+          rulesWorkdir: rulesWorkdir
+            ? normalizeToAbsolutePath(rulesWorkdir, sanitizedBaseDir)
+            : undefined,
+        });
         return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
-        const output = await analyzeJSTS(request.data);
+        setGlobalConfiguration(request.data.configuration);
+        const sanitizedInput = sanitizeFilePath(request.data, getBaseDir());
+        const output = await analyzeJSTS(sanitizedInput);
         return {
           type: 'success',
           result: output,
         };
       }
       case 'on-analyze-css': {
-        const output = await analyzeCSS(request.data);
+        setGlobalConfiguration(request.data.configuration);
+        const sanitizedInput = sanitizeFilePath(request.data, getBaseDir());
+        const output = await analyzeCSS(sanitizedInput);
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const output = await analyzeYAML(request.data);
+        setGlobalConfiguration(request.data.configuration);
+        const sanitizedInput = sanitizeFilePath(request.data, getBaseDir());
+        const output = await analyzeYAML(sanitizedInput);
         return { type: 'success', result: output };
       }
-
       case 'on-analyze-html': {
-        const output = await analyzeHTML(request.data);
+        setGlobalConfiguration(request.data.configuration);
+        const sanitizedInput = sanitizeFilePath(request.data, getBaseDir());
+        const output = await analyzeHTML(sanitizedInput);
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        const output = await analyzeProject(request.data, incrementalResultsChannel);
+        const { rules, files, configuration, bundles, rulesWorkdir } = request.data;
+
+        // 1. Sanitize configuration (sets global config including baseDir)
+        setGlobalConfiguration(configuration);
+        const baseDir = getBaseDir();
+
+        // 2. Get sanitized files via file store
+        const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, files);
+
+        // 3. Build sanitized input
+        const sanitizedInput = {
+          filesToAnalyze,
+          pendingFiles,
+          rules,
+          bundles: sanitizePaths(bundles, baseDir),
+          rulesWorkdir: rulesWorkdir ? normalizeToAbsolutePath(rulesWorkdir, baseDir) : undefined,
+        };
+
+        const output = await analyzeProject(sanitizedInput, incrementalResultsChannel);
         logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
       }

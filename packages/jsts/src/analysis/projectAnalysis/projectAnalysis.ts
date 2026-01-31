@@ -18,6 +18,7 @@ import type {
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
   JsTsAnalysisOutputWithAst,
+  RawJsTsAnalysisInput,
 } from '../analysis.js';
 import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
@@ -51,10 +52,28 @@ type ParsingError = {
 
 export type JsTsFiles = { [key: NormalizedAbsolutePath]: JsTsAnalysisInput };
 
-export type ProjectAnalysisInput = {
-  files?: JsTsFiles;
+export type RawJsTsFiles = { [key: string]: RawJsTsAnalysisInput };
+
+/**
+ * Raw project analysis input as received from JSON.
+ * Contains unsanitized paths and configuration.
+ */
+export type RawProjectAnalysisInput = {
+  files?: RawJsTsFiles;
   rules: RuleConfig[];
   configuration?: RawConfiguration;
-  bundles?: NormalizedAbsolutePath[];
+  bundles?: string[];
+  rulesWorkdir?: string;
+};
+
+/**
+ * Sanitized project analysis input.
+ * All paths are normalized, configuration is already set globally.
+ */
+export type ProjectAnalysisInput = {
+  filesToAnalyze: JsTsFiles;
+  pendingFiles: Set<NormalizedAbsolutePath>;
+  rules: RuleConfig[];
+  bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
 };

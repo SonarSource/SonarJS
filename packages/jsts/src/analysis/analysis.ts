@@ -16,7 +16,11 @@
  */
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { isJsFile, isTsFile, JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
-import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import {
+  AnalysisInput,
+  AnalysisOutput,
+  RawAnalysisInput,
+} from '../../../shared/src/types/analysis.js';
 import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
@@ -62,6 +66,23 @@ export type CompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'language' | 'fi
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
 export type FileStatus = 'SAME' | 'CHANGED' | 'ADDED';
+
+/**
+ * Raw JavaScript / TypeScript analysis input as received from JSON deserialization.
+ * Path fields are strings that haven't been validated or normalized yet.
+ */
+export interface RawJsTsAnalysisInput extends RawAnalysisInput {
+  fileType: FileType;
+  fileStatus?: FileStatus;
+  language?: JsTsLanguage;
+  analysisMode?: AnalysisMode;
+  ignoreHeaderComments?: boolean;
+  allowTsParserJsFiles?: boolean;
+  tsConfigs?: string[];
+  program?: Program;
+  skipAst?: boolean;
+  clearDependenciesCache?: boolean;
+}
 
 /**
  * A JavaScript / TypeScript analysis output

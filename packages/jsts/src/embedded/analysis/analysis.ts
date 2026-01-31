@@ -15,7 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Issue } from '../../linter/issues/issue.js';
-import { AnalysisInput, AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import {
+  AnalysisInput,
+  AnalysisOutput,
+  RawAnalysisInput,
+} from '../../../../shared/src/types/analysis.js';
+
+/**
+ * Raw analysis input of embedded code as received from JSON deserialization.
+ * Path fields are strings that haven't been validated or normalized yet.
+ */
+export interface RawEmbeddedAnalysisInput extends RawAnalysisInput {}
 
 /**
  * An analysis input of embedded code

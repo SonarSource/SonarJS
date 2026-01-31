@@ -20,13 +20,11 @@ import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.j
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import {
-  setGlobalConfiguration,
   isSonarLint,
   getGlobals,
   getEnvironments,
   getBaseDir,
 } from '../../../../shared/src/helpers/configuration.js';
-import { getFilesToAnalyze } from './file-stores/index.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -56,15 +54,14 @@ export async function analyzeProject(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   analysisStatus.cancelled = false;
-  const { rules, files, configuration = {}, bundles = [], rulesWorkdir } = input;
+  const { rules, filesToAnalyze, pendingFiles, bundles, rulesWorkdir } = input;
   const results: ProjectAnalysisOutput = {
     files: {},
     meta: {
       warnings: [],
     },
   };
-  setGlobalConfiguration(configuration);
-  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(getBaseDir(), files);
+  // Configuration already set globally by handle-request.ts
   setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
     rules,

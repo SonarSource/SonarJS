@@ -21,10 +21,10 @@ import { expect } from 'expect';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from '../../src/parser/parse.js';
-import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('analyzeHTML', () => {
-  const fixturesPath = join(import.meta.dirname, 'fixtures');
+  const fixturesPath = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures'));
 
   it('should analyze HTML file', async () => {
     await Linter.initialize({

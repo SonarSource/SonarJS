@@ -35,28 +35,51 @@ import { setGlobalConfiguration } from '../../../shared/src/helpers/configuratio
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import ts from 'typescript';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
-import type { JsTsFiles, FileResult } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import type {
+  JsTsFiles,
+  FileResult,
+  ProjectAnalysisInput,
+} from '../../src/analysis/projectAnalysis/projectAnalysis.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import type { FileType } from '../../../shared/src/helpers/files.js';
 
 /**
- * Helper function to create a properly typed JsTsFiles object
- * with NormalizedAbsolutePath keys and FileType values.
+ * Helper function to create a ProjectAnalysisInput with properly typed paths.
+ * Sets the global configuration and returns the input for analyzeProject.
  */
-function createJsTsFiles(
-  entries: Array<{ path: string; fileType: FileType; fileContent?: string }>,
-): JsTsFiles {
-  const files: JsTsFiles = {};
-  for (const entry of entries) {
-    const normalizedPath = normalizeToAbsolutePath(entry.path);
-    files[normalizedPath] = {
-      filePath: normalizedPath,
-      fileType: entry.fileType,
-      fileContent: entry.fileContent,
-    };
+function createProjectInput(
+  baseDir: string,
+  files: Array<{ path: string; fileType: FileType; fileContent?: string }>,
+  projectRules: RuleConfig[] = [],
+  configuration?: { canAccessFileSystem?: boolean },
+): ProjectAnalysisInput {
+  if (configuration) {
+    setGlobalConfiguration({ ...configuration, baseDir });
+  } else {
+    setGlobalConfiguration({ baseDir });
   }
-  return files;
+
+  const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
+  const filesToAnalyze: JsTsFiles = {};
+  const pendingFiles = new Set<NormalizedAbsolutePath>();
+
+  for (const file of files) {
+    const normalizedPath = normalizeToAbsolutePath(file.path, normalizedBaseDir);
+    filesToAnalyze[normalizedPath] = {
+      filePath: normalizedPath,
+      fileType: file.fileType,
+      fileContent: file.fileContent,
+    };
+    pendingFiles.add(normalizedPath);
+  }
+
+  return {
+    filesToAnalyze,
+    pendingFiles,
+    rules: projectRules,
+    bundles: [],
+  };
 }
 
 /**
@@ -97,17 +120,9 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     const fileResult = getFileResult(result, filePath);
     expect(fileResult).toBeDefined();
@@ -130,20 +145,16 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: mainFile, fileType: 'MAIN' },
-      { path: helperFile, fileType: 'MAIN' },
-    ]);
-
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      baseDir,
+      [
+        { path: mainFile, fileType: 'MAIN' },
+        { path: helperFile, fileType: 'MAIN' },
+      ],
       rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    );
+
+    const result = await analyzeProject(input);
 
     // Both files should be analyzed
     expect(getFileResult(result, mainFile)).toBeDefined();
@@ -161,15 +172,10 @@ describe('SonarQube project analysis', () => {
     const rootFile = join(baseDir, 'file.ts');
     const subFile = join(baseDir, 'subdir/file.ts');
 
-    setGlobalConfiguration({ baseDir });
-
     // Don't pass explicit files - let the system discover them from tsconfigs
-    const result = await analyzeProject({
-      rules,
-      configuration: {
-        baseDir,
-      },
-    });
+    const input = createProjectInput(baseDir, [], rules);
+
+    const result = await analyzeProject(input);
 
     // Both files should be analyzed despite backslash in tsconfig reference
     expect(Object.keys(result.files)).toEqual(expect.arrayContaining([rootFile, subFile]));
@@ -182,12 +188,9 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'nonexistent-reference');
     const filePath = join(baseDir, 'file.ts');
 
-    setGlobalConfiguration({ baseDir });
+    const input = createProjectInput(baseDir, [], rules);
 
-    const result = await analyzeProject({
-      rules,
-      configuration: { baseDir },
-    });
+    const result = await analyzeProject(input);
 
     // File should still be analyzed despite invalid reference
     expect(Object.keys(result.files)).toContain(filePath);
@@ -204,20 +207,16 @@ describe('SonarQube project analysis', () => {
     const frontendFile = join(baseDir, 'frontend/app.ts');
     const backendFile = join(baseDir, 'backend/server.ts');
 
-    const files = createJsTsFiles([
-      { path: frontendFile, fileType: 'MAIN' },
-      { path: backendFile, fileType: 'MAIN' },
-    ]);
-
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      baseDir,
+      [
+        { path: frontendFile, fileType: 'MAIN' },
+        { path: backendFile, fileType: 'MAIN' },
+      ],
       rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    );
+
+    const result = await analyzeProject(input);
 
     // Both files should be analyzed
     const frontendResult = getFileResult(result, frontendFile);
@@ -237,17 +236,9 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     expect(getFileResult(result, filePath)).toBeDefined();
 
@@ -263,17 +254,9 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    await analyzeProject(input);
 
     // SonarQube uses createStandardProgram which doesn't use the cache manager
     // (unlike SonarLint which uses createOrGetCachedProgramForFile)
@@ -290,18 +273,10 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    // sonarlint is not set, so it's SonarQube mode
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-        // sonarlint is not set, so it's SonarQube mode
-      },
-    });
+    await analyzeProject(input);
 
     // Should NOT use incremental/watch program logs
     expect(
@@ -316,20 +291,14 @@ describe('SonarQube project analysis', () => {
     const baseDir = '/path/does/not/exist';
     const filePath = join(normalizePath(baseDir), 'file.ts');
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir, canAccessFileSystem: false });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      baseDir,
+      [{ path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;;' }],
       rules,
-      files,
-      configuration: {
-        baseDir,
-        canAccessFileSystem: false,
-      },
-    });
+      { canAccessFileSystem: false },
+    );
+
+    const result = await analyzeProject(input);
 
     // File should be analyzed (result entry exists)
     expect(getFileResult(result, filePath)).toBeDefined();
@@ -338,15 +307,9 @@ describe('SonarQube project analysis', () => {
   it('should return empty result for empty project', async () => {
     const baseDir = join(fixtures, 'basic');
 
-    setGlobalConfiguration({ baseDir });
+    const input = createProjectInput(baseDir, [], rules);
 
-    const result = await analyzeProject({
-      rules,
-      files: {},
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     expect(result).toEqual({
       files: {},
@@ -360,22 +323,11 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const analysisPromise = analyzeProject(
-      {
-        rules,
-        files,
-        configuration: {
-          baseDir,
-        },
-      },
-      message => {
-        expect(message).toEqual({ messageType: 'cancelled' });
-      },
-    );
+    const analysisPromise = analyzeProject(input, message => {
+      expect(message).toEqual({ messageType: 'cancelled' });
+    });
     cancelAnalysis();
     await analysisPromise;
   });
@@ -383,12 +335,9 @@ describe('SonarQube project analysis', () => {
   it('should handle invalid tsconfig gracefully', async () => {
     const baseDir = join(fixtures, 'invalid-tsconfig');
 
-    setGlobalConfiguration({ baseDir });
+    const input = createProjectInput(baseDir, [], rules);
 
-    const result = await analyzeProject({
-      configuration: { baseDir },
-      rules,
-    });
+    const result = await analyzeProject(input);
 
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
@@ -400,12 +349,9 @@ describe('SonarQube project analysis', () => {
   it('should warn when extended tsconfig is missing', async () => {
     const baseDir = join(fixtures, 'missing-extends');
 
-    setGlobalConfiguration({ baseDir });
+    const input = createProjectInput(baseDir, [], rules);
 
-    const result = await analyzeProject({
-      configuration: { baseDir },
-      rules,
-    });
+    const result = await analyzeProject(input);
 
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
@@ -418,23 +364,12 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
-
-    setGlobalConfiguration({ baseDir });
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
     const receivedMessages: unknown[] = [];
-    await analyzeProject(
-      {
-        rules,
-        files,
-        configuration: {
-          baseDir,
-        },
-      },
-      message => {
-        receivedMessages.push(message);
-      },
-    );
+    await analyzeProject(input, message => {
+      receivedMessages.push(message);
+    });
 
     // Should receive incremental results for the file (messageType: 'fileResult')
     expect(receivedMessages.length).toBeGreaterThan(0);
@@ -458,20 +393,16 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: mainFile, fileType: 'MAIN' },
-      { path: helperFile, fileType: 'MAIN' },
-    ]);
-
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      baseDir,
+      [
+        { path: mainFile, fileType: 'MAIN' },
+        { path: helperFile, fileType: 'MAIN' },
+      ],
       rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    );
+
+    const result = await analyzeProject(input);
 
     // Both files should be analyzed
     expect(getFileResult(result, mainFile)).toBeDefined();
@@ -493,20 +424,16 @@ describe('SonarQube project analysis', () => {
     const includedFile = join(baseDir, 'included.ts');
     const excludedFile = join(baseDir, 'excluded.ts');
 
-    const files = createJsTsFiles([
-      { path: includedFile, fileType: 'MAIN' },
-      { path: excludedFile, fileType: 'MAIN' },
-    ]);
-
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      baseDir,
+      [
+        { path: includedFile, fileType: 'MAIN' },
+        { path: excludedFile, fileType: 'MAIN' },
+      ],
       rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    );
+
+    const result = await analyzeProject(input);
 
     // Both files should be analyzed successfully
     const includedResult = getFileResult(result, includedFile);
@@ -537,17 +464,9 @@ describe('SonarQube project analysis', () => {
       },
     ];
 
-    const files = createJsTsFiles([{ path: htmlFile, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: htmlFile, fileType: 'MAIN' }], htmlRules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
-      rules: htmlRules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     // HTML file should be analyzed
     expect(getFileResult(result, htmlFile)).toBeDefined();
@@ -567,17 +486,9 @@ describe('SonarQube project analysis', () => {
       },
     ];
 
-    const files = createJsTsFiles([{ path: yamlFile, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: yamlFile, fileType: 'MAIN' }], yamlRules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
-      rules: yamlRules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     // YAML file should be analyzed
     expect(getFileResult(result, yamlFile)).toBeDefined();
@@ -588,25 +499,21 @@ describe('SonarQube project analysis', () => {
     // Use fileContent for a non-existent path to test error handling
     const nonExistentFile = join(baseDir, 'does-not-exist.ts');
 
-    const files = createJsTsFiles([
-      {
-        path: nonExistentFile,
-        fileType: 'MAIN',
-        // Provide fileContent so the analysis can proceed without reading disk
-        fileContent: 'const x: number = 1;;',
-      },
-    ]);
-
-    setGlobalConfiguration({ baseDir });
+    // Provide fileContent so the analysis can proceed without reading disk
+    const input = createProjectInput(
+      baseDir,
+      [
+        {
+          path: nonExistentFile,
+          fileType: 'MAIN',
+          fileContent: 'const x: number = 1;;',
+        },
+      ],
+      rules,
+    );
 
     // Should not throw and handle the file even if path doesn't exist
-    const result = await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     // File entry should exist - file was analyzed from content
     const fileResult = getFileResult(result, nonExistentFile);
@@ -619,17 +526,9 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'parsing-error');
     const filePath = join(baseDir, 'file.js');
 
-    const files = createJsTsFiles([{ path: filePath, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, [{ path: filePath, fileType: 'MAIN' }], rules);
 
-    setGlobalConfiguration({ baseDir });
-
-    const result = await analyzeProject({
-      rules,
-      files,
-      configuration: {
-        baseDir,
-      },
-    });
+    const result = await analyzeProject(input);
 
     const fileResult = getFileResult(result, filePath);
     expect(fileResult).toBeDefined();

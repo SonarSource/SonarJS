@@ -34,30 +34,55 @@ import {
   sourceFileStore,
   tsConfigStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import {
+  setGlobalConfiguration,
+  type RawConfiguration,
+} from '../../../shared/src/helpers/configuration.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
-import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import type {
+  JsTsFiles,
+  ProjectAnalysisInput,
+} from '../../src/analysis/projectAnalysis/projectAnalysis.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
-import type { FileType } from '../../../shared/src/helpers/files.js';
+import type { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 
 /**
- * Helper function to create a properly typed JsTsFiles object
- * with NormalizedAbsolutePath keys and FileType values.
+ * Helper function to create a ProjectAnalysisInput with proper types.
+ * Sets the global configuration and converts file entries to the expected format.
  */
-function createJsTsFiles(
-  entries: Array<{ path: string; fileType: FileType; fileContent?: string }>,
-): JsTsFiles {
-  const files: JsTsFiles = {};
-  for (const entry of entries) {
-    const normalizedPath = normalizeToAbsolutePath(entry.path);
-    files[normalizedPath] = {
-      filePath: normalizedPath,
-      fileType: entry.fileType,
-      fileContent: entry.fileContent,
-    };
+function createProjectInput(
+  baseDir: string,
+  files: { [key: string]: Partial<JsTsAnalysisInput> },
+  rules: RuleConfig[] = [],
+  configuration?: RawConfiguration,
+): ProjectAnalysisInput {
+  if (configuration) {
+    setGlobalConfiguration({ ...configuration, baseDir });
+  } else {
+    setGlobalConfiguration({ baseDir });
   }
-  return files;
+
+  const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
+  const filesToAnalyze: JsTsFiles = {};
+  const pendingFiles = new Set<NormalizedAbsolutePath>();
+
+  for (const [path, file] of Object.entries(files)) {
+    const normalizedPath = normalizeToAbsolutePath(path, normalizedBaseDir);
+    filesToAnalyze[normalizedPath] = {
+      filePath: normalizedPath,
+      fileType: 'MAIN',
+      ...file,
+    } as JsTsAnalysisInput;
+    pendingFiles.add(normalizedPath);
+  }
+
+  return {
+    filesToAnalyze,
+    pendingFiles,
+    rules,
+    bundles: [],
+  };
 }
 
 /**
@@ -121,20 +146,14 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    const result1 = await analyzeProject({
+    const input1 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    const result1 = await analyzeProject(input1);
 
     expect(getFileResult(result1, filePath)).toBeDefined();
 
@@ -158,27 +177,20 @@ describe('SonarLint tsconfig change detection', () => {
     // Reset mocks
     consoleLogMock.calls.length = 0;
 
-    // Set fsEvents indicating tsconfig.json was modified
-    setGlobalConfiguration({
-      baseDir: tempDir,
-      sonarlint: true,
-      fsEvents: {
-        [tsconfigPath]: 'MODIFIED',
-      },
-    });
-
     // Step 5: Second analysis - should use default options since no tsconfig matches
-    const result2 = await analyzeProject({
+    const input2 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
+      {
         sonarlint: true,
         fsEvents: {
           [tsconfigPath]: 'MODIFIED',
         },
       },
-    });
+    );
+
+    const result2 = await analyzeProject(input2);
 
     expect(getFileResult(result2, filePath)).toBeDefined();
 
@@ -204,20 +216,14 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    await analyzeProject({
+    const input1 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input1);
 
     // Verify it used the tsconfig
     expect(
@@ -233,17 +239,19 @@ describe('SonarLint tsconfig change detection', () => {
     consoleLogMock.calls.length = 0;
 
     // Step 5: Second analysis - should use default options
-    await analyzeProject({
+    const input2 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
+      {
         sonarlint: true,
         fsEvents: {
           [tsconfigPath]: 'DELETED',
         },
       },
-    });
+    );
+
+    await analyzeProject(input2);
 
     // Verify it fell back to default options
     expect(
@@ -291,18 +299,14 @@ describe('SonarLint tsconfig change detection', () => {
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
     // Analyze file in dir1
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    await analyzeProject({
+    const input1 = createProjectInput(
+      tempDir,
+      { [file1]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files: createJsTsFiles([
-        { path: file1, fileType: 'MAIN', fileContent: 'const x: number = 1;' },
-      ]),
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input1);
 
     // Should use tsconfig from dir1 (longer path = more specific)
     expect(
@@ -314,16 +318,14 @@ describe('SonarLint tsconfig change detection', () => {
     // Now analyze file in dir2
     consoleLogMock.calls.length = 0;
 
-    await analyzeProject({
+    const input2 = createProjectInput(
+      tempDir,
+      { [file2]: { fileContent: 'const y: number = 2;' } },
       rules,
-      files: createJsTsFiles([
-        { path: file2, fileType: 'MAIN', fileContent: 'const y: number = 2;' },
-      ]),
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input2);
 
     // Should use tsconfig from dir2
     expect(
@@ -352,16 +354,14 @@ describe('SonarLint tsconfig change detection', () => {
     const modifiedContent = 'const x: number = 2; const y: string = "hello";';
 
     // Step 1: First analysis - should be a cache miss
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    await analyzeProject({
+    const input1 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: initialContent } },
       rules,
-      files: createJsTsFiles([{ path: filePath, fileType: 'MAIN', fileContent: initialContent }]),
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input1);
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -372,14 +372,14 @@ describe('SonarLint tsconfig change detection', () => {
     // Step 2: Second analysis with same content - should reuse program
     consoleLogMock.calls.length = 0;
 
-    await analyzeProject({
+    const input2 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: initialContent } },
       rules,
-      files: createJsTsFiles([{ path: filePath, fileType: 'MAIN', fileContent: initialContent }]),
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input2);
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -390,17 +390,19 @@ describe('SonarLint tsconfig change detection', () => {
     // Step 3: Third analysis with modified content - should recreate program
     consoleLogMock.calls.length = 0;
 
-    await analyzeProject({
+    const input3 = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: modifiedContent } },
       rules,
-      files: createJsTsFiles([{ path: filePath, fileType: 'MAIN', fileContent: modifiedContent }]),
-      configuration: {
-        baseDir: tempDir,
+      {
         sonarlint: true,
         fsEvents: {
           [filePath]: 'MODIFIED',
         },
       },
-    });
+    );
+
+    await analyzeProject(input3);
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -413,20 +415,14 @@ describe('SonarLint tsconfig change detection', () => {
     // Create a file with a parsing error (incomplete function)
     await writeFile(filePath, 'function f() {\n  return;\n');
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'function f() {\n  return;\n' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'function f() {\n  return;\n' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    const result = await analyzeProject(input);
 
     // Should have a parsing error (exact message may vary between parsers)
     const fileResult = getFileResult(result, filePath) as {
@@ -442,25 +438,16 @@ describe('SonarLint tsconfig change detection', () => {
   it('should cancel analysis', async () => {
     await writeFile(filePath, 'const x: number = 1;');
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    const analysisPromise = analyzeProject(
-      {
-        rules,
-        files,
-        configuration: {
-          baseDir: tempDir,
-          sonarlint: true,
-        },
-      },
-      message => {
-        expect(message).toEqual({ messageType: 'cancelled' });
-      },
+    const input = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
+      rules,
+      { sonarlint: true },
     );
+
+    const analysisPromise = analyzeProject(input, message => {
+      expect(message).toEqual({ messageType: 'cancelled' });
+    });
     cancelAnalysis();
     await analysisPromise;
   });
@@ -476,20 +463,14 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    await analyzeProject({
+    const input = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    await analyzeProject(input);
 
     // Should fall back to default options since tsconfig doesn't include .ts files
     expect(
@@ -544,20 +525,14 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    const files = createJsTsFiles([
-      { path: libFile, fileType: 'MAIN', fileContent: 'const lib: number = 1;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-
-    const result = await analyzeProject({
+    const input = createProjectInput(
+      tempDir,
+      { [libFile]: { fileContent: 'const lib: number = 1;' } },
       rules,
-      files,
-      configuration: {
-        baseDir: tempDir,
-        sonarlint: true,
-      },
-    });
+      { sonarlint: true },
+    );
+
+    const result = await analyzeProject(input);
 
     // File should be analyzed
     expect(getFileResult(result, libFile)).toBeDefined();
@@ -573,26 +548,17 @@ describe('SonarLint tsconfig change detection', () => {
   it('should stream results via incrementalResults callback', async () => {
     await writeFile(filePath, 'const x: number = 1;;');
 
-    const files = createJsTsFiles([
-      { path: filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;;' },
-    ]);
-
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+    const input = createProjectInput(
+      tempDir,
+      { [filePath]: { fileContent: 'const x: number = 1;;' } },
+      rules,
+      { sonarlint: true },
+    );
 
     const receivedMessages: unknown[] = [];
-    await analyzeProject(
-      {
-        rules,
-        files,
-        configuration: {
-          baseDir: tempDir,
-          sonarlint: true,
-        },
-      },
-      message => {
-        receivedMessages.push(message);
-      },
-    );
+    await analyzeProject(input, message => {
+      receivedMessages.push(message);
+    });
 
     // Should receive incremental results (messageType: 'fileResult')
     expect(receivedMessages.length).toBeGreaterThan(0);
@@ -621,16 +587,10 @@ describe('SonarLint tsconfig change detection', () => {
     const baseDir = join(fixtures, 'tsconfig-no-files');
     const tsFile = join(baseDir, 'file.ts');
 
-    setGlobalConfiguration({ baseDir, sonarlint: true });
-
     // Pass a file to analyze - this triggers tsconfig lookup which will fail
-    const files = createJsTsFiles([{ path: tsFile, fileType: 'MAIN' }]);
+    const input = createProjectInput(baseDir, { [tsFile]: {} }, rules, { sonarlint: true });
 
-    await analyzeProject({
-      configuration: { baseDir, sonarlint: true },
-      rules,
-      files,
-    });
+    await analyzeProject(input);
 
     const expectedPrefix = `Failed to parse tsconfig ${join(baseDir, 'tsconfig.json')}`;
     const errorMessages = consoleErrorMock.calls.map(call => call.arguments[0] as string);

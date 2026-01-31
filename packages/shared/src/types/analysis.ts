@@ -34,6 +34,17 @@ export interface AnalysisInput {
 }
 
 /**
+ * Raw analysis input as received from JSON deserialization.
+ * Path fields are strings that haven't been validated or normalized yet.
+ */
+export interface RawAnalysisInput {
+  filePath: string;
+  fileContent?: string;
+  sonarlint?: boolean;
+  configuration?: RawConfiguration;
+}
+
+/**
  * An analysis output
  *
  * A common interface for all kinds of analysis output.
