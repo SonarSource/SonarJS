@@ -28,13 +28,11 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
-  toUnixPath,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { dirname } from 'node:path';
-import { getDependencies } from '../helpers/package-jsons/dependencies.js';
-import { getManifests } from '../helpers/package-jsons/all-in-parent-dirs.js';
+import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
+import { getManifestsSanitizePaths } from '../helpers/package-jsons/all-in-parent-dirs.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -43,7 +41,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context) {
-    const dependencies = getDependencies(dirname(context.filename), context.cwd);
+    const dependencies = getDependenciesSanitizePaths(context);
     switch (true) {
       case dependencies.has('jasmine'):
         return jasmineListener();
@@ -51,7 +49,7 @@ export const rule: Rule.RuleModule = {
         return jestListener();
       case dependencies.has('mocha'):
         return mochaListener();
-      case getManifests(dirname(toUnixPath(context.filename)), context.cwd).length > 0:
+      case getManifestsSanitizePaths(context).length > 0:
         return nodejsListener();
       default:
         return {};

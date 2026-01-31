@@ -16,23 +16,30 @@
  */
 import { Filesystem } from '../find-up/find-minimatch.js';
 import type { PackageJson } from 'type-fest';
-import { stripBOM, toUnixPath } from '../files.js';
+import {
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+  ROOT_PATH,
+  stripBOM,
+} from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
+import type { Rule } from 'eslint';
+import { dirname } from 'node:path/posix';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
  * the module named `filename`, up to the passed working directory.
  */
 export const getManifests = (
-  dir: string,
-  topDir?: string,
+  dir: NormalizedAbsolutePath,
+  topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
   const files = patternInParentsCache
     .get(PACKAGE_JSON, fileSystem)
-    .get(topDir ? toUnixPath(topDir) : '/')
-    .get(toUnixPath(dir));
+    .get(topDir ?? ROOT_PATH)
+    .get(dir);
 
   return files.map(file => {
     const content = file.content;
@@ -45,4 +52,15 @@ export const getManifests = (
       return {};
     }
   });
+};
+
+export const getManifestsSanitizePaths = (
+  context: Rule.RuleContext,
+  fileSystem?: Filesystem,
+): Array<PackageJson> => {
+  return getManifests(
+    dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath,
+    normalizeToAbsolutePath(context.cwd),
+    fileSystem,
+  );
 };

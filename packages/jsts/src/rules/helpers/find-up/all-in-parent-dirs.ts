@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Filesystem, MinimatchCache } from './find-minimatch.js';
-import { isRoot, type File } from '../files.js';
+import { isRoot, type File, type NormalizedAbsolutePath } from '../files.js';
 import { ComputedCache } from '../cache.js';
 import fs from 'node:fs';
 import { dirname } from 'node:path/posix';
@@ -25,21 +25,23 @@ export const patternInParentsCache = new ComputedCache(
   (pattern: string, filesystem: Filesystem = fs) => {
     const matcher = new Minimatch(pattern);
     const readDir = MinimatchCache.get(matcher, filesystem);
-    return new ComputedCache((topDir: string) => {
-      const newCache = new ComputedCache<string, File[], null>((from: string): File[] => {
-        if (from === '.') {
-          // handle path.dirname returning "." in windows
-          return [];
-        }
+    return new ComputedCache((topDir: NormalizedAbsolutePath) => {
+      const newCache = new ComputedCache<NormalizedAbsolutePath, File[], null>(
+        (from: NormalizedAbsolutePath): File[] => {
+          if (from === '.') {
+            // handle path.dirname returning "." in windows
+            return [];
+          }
 
-        if (!isRoot(from) && from !== topDir) {
-          const parent = dirname(from);
+          if (!isRoot(from) && from !== topDir) {
+            const parent = dirname(from) as NormalizedAbsolutePath;
 
-          return [...readDir.get(from), ...newCache.get(parent)];
-        }
+            return [...readDir.get(from), ...newCache.get(parent)];
+          }
 
-        return [...readDir.get(from)];
-      });
+          return [...readDir.get(from)];
+        },
+      );
       return newCache;
     });
   },

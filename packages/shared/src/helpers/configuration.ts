@@ -43,7 +43,13 @@ type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
  * between two analysis requests, used to know if we need to clear
  * tsconfig.json cache or the mapping between input files and tsconfigs
  */
-type FsEvents = { [key: string]: FsEventType };
+type FsEventsRaw = { [key: string]: FsEventType };
+
+// Brand for the normalized FsEvents container - ensures we go through normalizeFsEvents()
+declare const FsEventsBrand: unique symbol;
+type FsEvents = { [key: NormalizedAbsolutePath]: FsEventType } & {
+  readonly [FsEventsBrand]: never;
+};
 
 /**
  * Raw configuration as received from the analysis request (e.g., ProjectAnalysisInput).
@@ -55,7 +61,7 @@ export type RawConfiguration = {
   sonarlint?: boolean;
   clearDependenciesCache?: boolean;
   clearTsConfigCache?: boolean;
-  fsEvents?: FsEvents;
+  fsEvents?: FsEventsRaw;
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
   skipAst?: boolean;
@@ -81,32 +87,32 @@ export type RawConfiguration = {
  * Sanitized configuration after validation and normalization.
  * Path fields use branded types (NormalizedAbsolutePath) and glob patterns are compiled to Minimatch instances.
  */
-export type Configuration = {
-  baseDir?: NormalizedAbsolutePath;
-  canAccessFileSystem?: boolean;
-  sonarlint?: boolean;
-  clearDependenciesCache?: boolean;
-  clearTsConfigCache?: boolean;
-  fsEvents?: FsEvents;
-  allowTsParserJsFiles?: boolean;
-  analysisMode?: AnalysisMode;
-  skipAst?: boolean;
-  ignoreHeaderComments?: boolean;
-  maxFileSize?: number;
-  environments?: string[];
-  globals?: string[];
-  tsSuffixes?: string[];
-  jsSuffixes?: string[];
-  cssSuffixes?: string[];
-  tsConfigPaths?: NormalizedAbsolutePath[];
-  jsTsExclusions?: Minimatch[];
-  sources?: NormalizedAbsolutePath[];
-  inclusions?: Minimatch[];
-  exclusions?: Minimatch[];
-  tests?: NormalizedAbsolutePath[];
-  testInclusions?: Minimatch[];
-  testExclusions?: Minimatch[];
-  detectBundles?: boolean;
+type Configuration = {
+  baseDir: NormalizedAbsolutePath;
+  canAccessFileSystem: boolean;
+  sonarlint: boolean;
+  clearDependenciesCache: boolean;
+  clearTsConfigCache: boolean;
+  fsEvents: FsEvents;
+  allowTsParserJsFiles: boolean;
+  analysisMode: AnalysisMode;
+  skipAst: boolean;
+  ignoreHeaderComments: boolean;
+  maxFileSize: number;
+  environments: string[];
+  globals: string[];
+  tsSuffixes: string[];
+  jsSuffixes: string[];
+  cssSuffixes: string[];
+  tsConfigPaths: NormalizedAbsolutePath[];
+  jsTsExclusions: Minimatch[];
+  sources: NormalizedAbsolutePath[];
+  inclusions: Minimatch[];
+  exclusions: Minimatch[];
+  tests: NormalizedAbsolutePath[];
+  testInclusions: Minimatch[];
+  testExclusions: Minimatch[];
+  detectBundles: boolean;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -115,10 +121,10 @@ const IGNORED_PATTERNS = ['.scannerwork'];
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
-
+const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
-let configuration: Configuration = {};
+let configuration: Configuration;
 
 export function setGlobalConfiguration(config?: RawConfiguration) {
   if (!config) {
@@ -131,21 +137,21 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
   }
   configuration = {
     baseDir: normalizeToAbsolutePath(config.baseDir),
-    canAccessFileSystem: config.canAccessFileSystem,
-    sonarlint: config.sonarlint,
-    clearDependenciesCache: config.clearDependenciesCache,
-    clearTsConfigCache: config.clearTsConfigCache,
-    fsEvents: config.fsEvents,
-    allowTsParserJsFiles: config.allowTsParserJsFiles,
-    analysisMode: config.analysisMode,
-    skipAst: config.skipAst,
-    ignoreHeaderComments: config.ignoreHeaderComments,
-    maxFileSize: config.maxFileSize,
-    environments: config.environments,
-    globals: config.globals,
-    tsSuffixes: config.tsSuffixes,
-    jsSuffixes: config.jsSuffixes,
-    cssSuffixes: config.cssSuffixes,
+    canAccessFileSystem: !!config.canAccessFileSystem,
+    sonarlint: !!config.sonarlint,
+    clearDependenciesCache: !!config.clearDependenciesCache,
+    clearTsConfigCache: !!config.clearTsConfigCache,
+    fsEvents: normalizeFsEvents(config.fsEvents),
+    allowTsParserJsFiles: !!config.allowTsParserJsFiles,
+    analysisMode: config.analysisMode ?? 'DEFAULT',
+    skipAst: !!config.skipAst,
+    ignoreHeaderComments: !!config.ignoreHeaderComments,
+    maxFileSize: config.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB,
+    environments: config.environments ?? DEFAULT_ENVIRONMENTS,
+    globals: config.globals ?? DEFAULT_GLOBALS,
+    tsSuffixes: config.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
+    jsSuffixes: config.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
+    cssSuffixes: config.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
     tsConfigPaths: toAbsolutePaths(config.tsConfigPaths),
     jsTsExclusions: normalizeGlobs(
       (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
@@ -156,9 +162,23 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
     tests: toAbsolutePaths(config.tests),
     testInclusions: normalizeGlobs(config.testInclusions),
     testExclusions: normalizeGlobs(config.testExclusions),
-    detectBundles: config.detectBundles,
+    detectBundles: !!config.detectBundles,
   };
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
+}
+
+function getConfiguration() {
+  if (!configuration) {
+    throw new Error('Global configuration is not set');
+  }
+  return configuration;
+}
+
+export function getBaseDir() {
+  if (!getConfiguration().baseDir) {
+    throw new Error('baseDir is not set');
+  }
+  return getConfiguration().baseDir;
 }
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
@@ -168,16 +188,25 @@ function jsTsExtensions() {
   return jsExtensions().concat(tsExtensions());
 }
 
+export function getTsConfigPaths() {
+  return getConfiguration().tsConfigPaths ?? [];
+}
 function tsExtensions() {
-  return configuration.tsSuffixes?.length ? configuration.tsSuffixes : DEFAULT_TS_EXTENSIONS;
+  return getConfiguration().tsSuffixes?.length
+    ? getConfiguration().tsSuffixes
+    : DEFAULT_TS_EXTENSIONS;
 }
 
 function jsExtensions() {
-  return configuration.jsSuffixes?.length ? configuration.jsSuffixes : DEFAULT_JS_EXTENSIONS;
+  return getConfiguration().jsSuffixes?.length
+    ? getConfiguration().jsSuffixes
+    : DEFAULT_JS_EXTENSIONS;
 }
 
 function cssExtensions() {
-  return configuration.cssSuffixes?.length ? configuration.cssSuffixes : DEFAULT_CSS_EXTENSIONS;
+  return getConfiguration().cssSuffixes?.length
+    ? getConfiguration().cssSuffixes
+    : DEFAULT_CSS_EXTENSIONS;
 }
 
 export function isJsFile(filePath: string) {
@@ -212,91 +241,78 @@ export function isAnalyzableFile(filePath: NormalizedAbsolutePath) {
   return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
 }
 
-export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
-  allowTsParserJsFiles: configuration.allowTsParserJsFiles,
-  analysisMode: configuration.analysisMode,
-  ignoreHeaderComments: configuration.ignoreHeaderComments,
-  clearDependenciesCache: configuration.clearDependenciesCache,
-  skipAst: configuration.skipAst,
-  sonarlint: configuration.sonarlint,
-});
-
-const DEFAULT_MAX_FILE_SIZE_KB = 4000;
-
-export function getBaseDir(): NormalizedAbsolutePath {
-  if (!configuration.baseDir) {
-    throw new Error('baseDir is not set');
-  }
-  return configuration.baseDir;
+export function getEnvironments() {
+  return getConfiguration().environments;
 }
 
-export function getTsConfigPaths(): NormalizedAbsolutePath[] {
-  return configuration.tsConfigPaths ?? [];
+export function isSonarLint() {
+  return getConfiguration().sonarlint;
 }
 
-export function getTestPaths(): NormalizedAbsolutePath[] | undefined {
-  return configuration.tests;
+export function canAccessFileSystem() {
+  return getConfiguration().canAccessFileSystem;
 }
 
-export function getSourcesPaths(): NormalizedAbsolutePath[] {
-  return configuration.sources ?? [];
+export function getGlobals() {
+  return getConfiguration().globals;
 }
 
-export function getJsTsExclusions(): Minimatch[] | undefined {
-  return configuration.jsTsExclusions;
+export function getTestPaths() {
+  return getConfiguration().tests;
 }
 
-export function getExclusions(): Minimatch[] | undefined {
-  return configuration.exclusions;
+export function getSourcesPaths() {
+  return getConfiguration().sources?.length ? getConfiguration().sources : [getBaseDir()];
 }
 
-export function getInclusions(): Minimatch[] | undefined {
-  return configuration.inclusions;
+export function getJsTsExclusions() {
+  return getConfiguration().jsTsExclusions;
 }
 
-export function getTestExclusions(): Minimatch[] | undefined {
-  return configuration.testExclusions;
+export function getExclusions() {
+  return getConfiguration().exclusions;
 }
 
-export function getTestInclusions(): Minimatch[] | undefined {
-  return configuration.testInclusions;
+export function getInclusions() {
+  return getConfiguration().inclusions;
 }
 
-export function getFsEvents(): { [key: string]: FsEventType } {
-  return configuration.fsEvents ?? {};
+export function getTestExclusions() {
+  return getConfiguration().testExclusions;
 }
 
-export function getMaxFileSize(): number {
-  return configuration.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB;
+export function getTestInclusions() {
+  return getConfiguration().testInclusions;
 }
 
-export function shouldClearTsConfigCache(): boolean {
-  return configuration.clearTsConfigCache ?? false;
+export function getFsEvents() {
+  return Object.entries(getConfiguration().fsEvents) as [NormalizedAbsolutePath, FsEventType][];
+}
+
+export function getMaxFileSize() {
+  return getConfiguration().maxFileSize;
 }
 
 export function setClearTsConfigCache(value: boolean) {
-  configuration.clearTsConfigCache = value;
+  getConfiguration().clearTsConfigCache = value;
 }
 
-export function shouldDetectBundles(): boolean {
-  return configuration.detectBundles ?? false;
+export function shouldClearTsConfigCache() {
+  return getConfiguration().clearTsConfigCache;
 }
 
-export function isSonarLint(): boolean {
-  return configuration.sonarlint ?? false;
+export function shouldDetectBundles() {
+  return getConfiguration().detectBundles;
 }
 
-export function canAccessFileSystem(): boolean {
-  return configuration.canAccessFileSystem ?? false;
-}
-
-export function getEnvironments(): string[] {
-  return configuration.environments ?? DEFAULT_ENVIRONMENTS;
-}
-
-export function getGlobals(): string[] {
-  return configuration.globals ?? DEFAULT_GLOBALS;
-}
+export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
+  allowTsParserJsFiles: getConfiguration().allowTsParserJsFiles,
+  analysisMode: getConfiguration().analysisMode,
+  ignoreHeaderComments: getConfiguration().ignoreHeaderComments,
+  clearDependenciesCache: getConfiguration().clearDependenciesCache,
+  skipAst: getConfiguration().skipAst,
+  sonarlint: isSonarLint(),
+});
 
 const DEFAULT_EXCLUSIONS = [
   '**/*.d.ts',
@@ -360,4 +376,20 @@ function normalizeGlobs(globs: string[] | undefined) {
 
 function toAbsolutePaths(paths: string[] | undefined) {
   return (paths || []).map(path => normalizeToAbsolutePath(path, getBaseDir()));
+}
+
+/**
+ * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
+ * This ensures type safety at compile time - you cannot assign FsEventsRaw directly to FsEvents.
+ */
+function normalizeFsEvents(raw: FsEventsRaw | undefined): FsEvents {
+  if (!raw) {
+    return {} as FsEvents;
+  }
+
+  const result: { [key: string]: FsEventType } = {};
+  for (const [key, value] of Object.entries(raw)) {
+    result[normalizeToAbsolutePath(key, getBaseDir())] = value;
+  }
+  return result as FsEvents;
 }

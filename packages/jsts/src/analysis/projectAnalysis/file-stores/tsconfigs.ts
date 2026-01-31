@@ -24,10 +24,7 @@ import {
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
-import {
-  type NormalizedAbsolutePath,
-  normalizeToAbsolutePath,
-} from '../../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
 import { clearTsConfigContentCache } from '../../../program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../../../program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../../../program/cache/programCache.js';
@@ -89,13 +86,11 @@ export class TsConfigStore implements FileStore {
       this.clearCache();
       return;
     }
-    for (const fileEvent of Object.entries(getFsEvents())) {
-      const [filename] = fileEvent;
-      const normalizedFilename = normalizeToAbsolutePath(filename);
+    for (const [filename] of getFsEvents()) {
       if (
-        this.getTsConfigs().includes(normalizedFilename) ||
-        (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(normalizedFilename)) ||
-        (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(normalizedFilename))
+        this.getTsConfigs().includes(filename) ||
+        (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(filename)) ||
+        (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(filename))
       ) {
         setClearTsConfigCache(true);
         break;

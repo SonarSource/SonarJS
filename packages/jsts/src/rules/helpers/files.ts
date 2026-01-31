@@ -54,7 +54,7 @@ export const ROOT_PATH = '/' as NormalizedAbsolutePath;
 const BOM_BYTE = 0xfeff;
 
 export type File = {
-  readonly path: string;
+  readonly path: NormalizedAbsolutePath;
   readonly content: Buffer | string;
 };
 
@@ -114,7 +114,7 @@ export function normalizeToAbsolutePath(
   return toUnixPath(filePath) as NormalizedAbsolutePath;
 }
 
-export function toUnixPath(filePath: string) {
+function toUnixPath(filePath: string) {
   return filePath.replaceAll(/[\\/]+/g, '/');
 }
 

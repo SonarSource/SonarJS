@@ -18,12 +18,12 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import type { Filesystem } from '../../../src/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in-parent-dirs.js';
-import type { NormalizedPath } from '../../../src/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../../src/rules/helpers/files.js';
 import Path from 'node:path/posix';
 import { beforeEach, describe, it } from 'node:test';
 
 /** Helper to cast string literals to UnixPath for tests */
-const path = (p: string) => p as NormalizedPath;
+const path = (p: string) => p as NormalizedAbsolutePath;
 
 describe('findUp', () => {
   beforeEach(() => patternInParentsCache.clear());
@@ -35,7 +35,7 @@ describe('findUp', () => {
     });
     console.log(filesystem.toJSON());
 
-    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get('/');
+    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get(path('/'));
 
     const filesystemReadFileSpy = mock.method(filesystem, 'readFileSync');
     const filesystemReaddirSpy = mock.method(filesystem, 'readdirSync');
@@ -82,15 +82,15 @@ describe('findUp', () => {
 
     const entriesUpToRoot = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/')
+      .get(path('/'))
       .get(path('/a/b/c'));
     const entriesUpToA = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/a')
+      .get(path('/a'))
       .get(path('/a/b/c'));
     const entriesUpToAB = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/a/b')
+      .get(path('/a/b'))
       .get(path('/a/b/c'));
 
     equal(entriesUpToRoot.length, 3);
@@ -113,15 +113,15 @@ describe('findUp', () => {
 
     const entriesUpToRoot = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/')
+      .get(path('/'))
       .get(path('/a/b/c'));
     const entriesUpToA = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/a')
+      .get(path('/a'))
       .get(path('/a/b/c'));
     const entriesUpToAB = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/a/b')
+      .get(path('/a/b'))
       .get(path('/a/b/c'));
 
     equal(entriesUpToRoot.length, 3);

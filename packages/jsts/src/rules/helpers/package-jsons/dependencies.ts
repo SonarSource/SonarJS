@@ -20,7 +20,7 @@ import { Minimatch } from 'minimatch';
 import fs from 'node:fs';
 import { dirname } from 'node:path/posix';
 import { minVersion } from 'semver';
-import { toUnixPath } from '../files.js';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath } from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
@@ -28,21 +28,23 @@ import { getManifests } from './all-in-parent-dirs.js';
 /**
  * Cache for the available dependencies by dirname. Exported for tests
  */
-export const dependenciesCache = new ComputedCache((dir: string, topDir: string | undefined) => {
-  const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
-  const result = new Set<string | Minimatch>();
+export const dependenciesCache = new ComputedCache(
+  (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
+    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+    const result = new Set<string | Minimatch>();
 
-  if (closestPackageJSONDirName) {
-    for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
-      const manifestDependencies = getDependenciesFromPackageJson(manifest);
+    if (closestPackageJSONDirName) {
+      for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
+        const manifestDependencies = getDependenciesFromPackageJson(manifest);
 
-      for (const dependency of manifestDependencies) {
-        result.add(dependency.name);
+        for (const dependency of manifestDependencies) {
+          result.add(dependency.name);
+        }
       }
     }
-  }
-  return result;
-});
+    return result;
+  },
+);
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
@@ -50,12 +52,19 @@ export const dependenciesCache = new ComputedCache((dir: string, topDir: string 
  * @param topDir working dir, will search up to that root
  * @returns Set with the dependency names
  */
-export function getDependencies(dir: string, topDir: string) {
+export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
   const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
   if (closestPackageJSONDirName) {
     return dependenciesCache.get(closestPackageJSONDirName, topDir);
   }
   return new Set<string | Minimatch>();
+}
+
+export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
+  return getDependencies(
+    dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath,
+    normalizeToAbsolutePath(context.cwd),
+  );
 }
 
 /**
@@ -65,8 +74,8 @@ export function getDependencies(dir: string, topDir: string) {
  * @returns React version string (coerced from range) or null if not found
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
-  const dir = dirname(toUnixPath(context.filename));
-  for (const packageJson of getManifests(dir, context.cwd, fs)) {
+  const dir = dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath;
+  for (const packageJson of getManifests(dir, normalizeToAbsolutePath(context.cwd), fs)) {
     const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
     if (reactVersion) {
       // Coerce version ranges (e.g., "^18.0.0") to valid semver versions

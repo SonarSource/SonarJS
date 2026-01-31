@@ -16,7 +16,7 @@
  */
 import { Minimatch } from 'minimatch';
 import { join, basename } from 'node:path/posix';
-import { type File } from '../files.js';
+import type { File, NormalizedAbsolutePath } from '../files.js';
 import fs from 'node:fs';
 import { ComputedCache } from '../cache.js';
 
@@ -32,14 +32,14 @@ export interface Filesystem {
 
 export const MinimatchCache = new ComputedCache<
   Minimatch,
-  ComputedCache<string, File[]>,
+  ComputedCache<NormalizedAbsolutePath, File[]>,
   Filesystem
 >((matcher: Minimatch, filesystem = fs) => {
-  return new ComputedCache((from: string) => {
+  return new ComputedCache((from: NormalizedAbsolutePath) => {
     const files: File[] = [];
     try {
       for (const entry of filesystem.readdirSync(from)) {
-        const fullEntryPath = join(from, entry.toString());
+        const fullEntryPath = join(from, entry.toString()) as NormalizedAbsolutePath;
         if (matcher.match(basename(fullEntryPath))) {
           let stats: Stats;
 
