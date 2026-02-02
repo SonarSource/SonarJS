@@ -80,7 +80,7 @@ type CancellationRequest = {
  * Raw linter initialization input as received from JSON deserialization.
  * Path fields are strings that haven't been validated or normalized yet.
  */
-export type RawInitLinterInput = {
+type RawInitLinterInput = {
   rules: RuleConfig[];
   environments: string[];
   globals: string[];

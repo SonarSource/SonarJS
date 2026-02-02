@@ -314,7 +314,7 @@ export function shouldDetectBundles() {
  * Fields from the global configuration that are used in JsTsAnalysisInput.
  * These are the configuration-controlled values (not static defaults).
  */
-export type JsTsConfigFields = {
+type JsTsConfigFields = {
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   ignoreHeaderComments: boolean;

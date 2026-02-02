@@ -92,14 +92,6 @@ export function createJsTsFiles(): JsTsFiles {
 }
 
 /**
- * Type-safe iteration helper for JsTsFiles.
- * Returns entries with properly typed keys as NormalizedAbsolutePath.
- */
-export function entriesOfJsTsFiles(files: JsTsFiles): [NormalizedAbsolutePath, StoredJsTsFile][] {
-  return Object.entries(files) as [NormalizedAbsolutePath, StoredJsTsFile][];
-}
-
-/**
  * Creates an empty branded FileResults object.
  */
 export function createFileResults(): FileResults {

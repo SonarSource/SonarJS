@@ -2,9 +2,18 @@
 <p>Duplicated string literals make the process of refactoring complex and error-prone, as any change would need to be propagated on all
 occurrences.</p>
 <h3>Exceptions</h3>
-<p>To prevent generating some false-positives, literals having less than 10 characters are excluded as well as literals matching <code>/^\w*$/</code>.
-String literals inside import/export statements and JSX attributes are also ignored. The same goes for statement-like string literals, e.g. <code>'use
-strict';</code>.</p>
+<p>To prevent generating some false-positives, literals having less than 10 characters are excluded as well as literals matching
+<code>/^\w*$/</code>.</p>
+<p>The following patterns are also excluded based on AST context rather than string content:</p>
+<ul>
+  <li> Import and export paths (e.g., <code>import x from 'path'</code>) </li>
+  <li> <code>require()</code> calls </li>
+  <li> JSX attributes </li>
+  <li> Type declarations and object properties </li>
+  <li> Standalone string statements like directives (e.g., <code>'use strict';</code>) </li>
+</ul>
+<p>The <code>ignoreStrings</code> parameter is additive to these built-in exceptions, allowing you to specify additional strings to ignore via
+comma-separated values.</p>
 <h2>How to fix it</h2>
 <p>Use constants to replace the duplicated string literals. Constants can be referenced from many places, but only need to be updated in a single
 place.</p>
