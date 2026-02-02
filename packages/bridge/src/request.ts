@@ -76,17 +76,23 @@ type CancellationRequest = {
   type: 'on-cancel-analysis';
 };
 
+/**
+ * Raw linter initialization input as received from JSON deserialization.
+ * Path fields are strings that haven't been validated or normalized yet.
+ */
+export type RawInitLinterInput = {
+  rules: RuleConfig[];
+  environments: string[];
+  globals: string[];
+  baseDir: string; // Raw string - sanitized in handle-request
+  sonarlint?: boolean;
+  bundles?: string[]; // Raw strings - sanitized in handle-request
+  rulesWorkdir?: string; // Raw string - sanitized in handle-request
+};
+
 type InitLinterRequest = {
   type: 'on-init-linter';
-  data: {
-    rules: RuleConfig[];
-    environments: string[];
-    globals: string[];
-    baseDir: string; // Raw string - sanitized in handle-request
-    sonarlint: boolean;
-    bundles: string[]; // Raw strings - sanitized in handle-request
-    rulesWorkdir: string; // Raw string - sanitized in handle-request
-  };
+  data: RawInitLinterInput;
 };
 
 type SerializedError = {

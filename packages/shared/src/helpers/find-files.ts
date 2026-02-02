@@ -16,20 +16,19 @@
  */
 import { opendir } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { normalizePath } from './files.js';
-import { join } from 'node:path/posix';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath, joinPaths } from './files.js';
 import { isJsTsExcluded } from './filter/filter-path.js';
 
 export async function findFiles(
   dir: string,
-  onEntry: (file: Dirent, filePath: string) => Promise<void>,
+  onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
 ) {
-  const directories = [dir];
+  const directories: NormalizedAbsolutePath[] = [normalizeToAbsolutePath(dir)];
 
   while (directories.length > 0) {
     const directory = directories.pop()!;
     for await (const file of await opendir(directory)) {
-      const filePath = join(normalizePath(file.parentPath), file.name);
+      const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
       if (!isJsTsExcluded(filePath)) {
         if (file.isDirectory()) {
           directories.push(filePath);

@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsFiles } from '../projectAnalysis.js';
+import { type JsTsFiles, type StoredJsTsFile, createJsTsFiles } from '../projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
 import { FileStore } from './store-type.js';
-import { JsTsAnalysisInput } from '../../analysis.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
 import {
   readFile,
@@ -36,7 +36,7 @@ type SourceFilesData = {
 
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
-  private newFiles: JsTsAnalysisInput[] = [];
+  private newFiles: StoredJsTsFile[] = [];
   private readonly ignoredPaths = new Set<string>();
   private readonly store: {
     found: SourceFilesData;
@@ -47,7 +47,7 @@ export class SourceFileStore implements FileStore {
       filenames: undefined,
     },
     request: {
-      files: {},
+      files: createJsTsFiles(),
       filenames: [],
     },
   };
@@ -123,7 +123,13 @@ export class SourceFileStore implements FileStore {
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
       if (fileType && accept(filename, fileContent)) {
-        this.newFiles.push({ fileType, filePath: filename, fileContent });
+        // Files discovered from filesystem (not from request) default to 'SAME' status
+        this.newFiles.push({
+          fileType,
+          filePath: filename,
+          fileContent,
+          fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+        });
       }
     }
   }
@@ -145,7 +151,7 @@ export class SourceFileStore implements FileStore {
 
   private async setFiles(
     store: keyof typeof SourceFileStore.prototype.store,
-    files: JsTsAnalysisInput[],
+    files: StoredJsTsFile[],
   ) {
     this.resetStore(store);
     for (const file of files) {
@@ -155,12 +161,12 @@ export class SourceFileStore implements FileStore {
 
   private async filterAndSetFiles(
     store: keyof typeof SourceFileStore.prototype.store,
-    files: JsTsAnalysisInput[],
+    files: StoredJsTsFile[],
   ) {
     this.resetStore(store);
     for (const file of files) {
       // We need to apply filters if the files come from the request
-      if (await shouldIgnoreFile(file)) {
+      if (await shouldIgnoreFile({ ...file, sonarlint: isSonarLint() })) {
         continue;
       }
       this.saveFileInStore(store, file);
@@ -169,15 +175,15 @@ export class SourceFileStore implements FileStore {
 
   private saveFileInStore(
     store: keyof typeof SourceFileStore.prototype.store,
-    file: JsTsAnalysisInput,
+    file: StoredJsTsFile,
   ) {
-    file.filePath = normalizeToAbsolutePath(file.filePath);
-    this.store[store].filenames!.push(file.filePath);
-    this.store[store].files![file.filePath] = file;
+    const filePath = normalizeToAbsolutePath(file.filePath);
+    this.store[store].filenames!.push(filePath);
+    this.store[store].files![filePath] = { ...file, filePath };
   }
 
   private resetStore(store: keyof typeof SourceFileStore.prototype.store) {
-    this.store[store].files = {};
+    this.store[store].files = createJsTsFiles();
     this.store[store].filenames = [];
   }
 

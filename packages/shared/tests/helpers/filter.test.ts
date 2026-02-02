@@ -14,14 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { accept, shouldIgnoreFile } from '../../src/helpers/filter/filter.js';
+import {
+  accept,
+  shouldIgnoreFile,
+  type ShouldIgnoreFileInput,
+} from '../../src/helpers/filter/filter.js';
 import { setGlobalConfiguration } from '../../src/helpers/configuration.js';
-import { describe, it, Mock } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { AnalysisInput } from '../../src/types/analysis.js';
 import { join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath, readFile } from '../../src/helpers/files.js';
-import fs from 'node:fs';
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
 const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
@@ -86,7 +88,9 @@ describe('filter.ts', () => {
   describe('shouldIgnoreFile', () => {
     it('should ignore file when it is excluded by JS/TS exclusions', async () => {
       setGlobalConfiguration({ baseDir, jsTsExclusions: ['file.js'] });
-      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
+      const filePath = normalizeToAbsolutePath(join(baseDir, 'file.js'));
+      const fileContent = await readFile(filePath);
+      const file: ShouldIgnoreFileInput = { filePath, fileContent, sonarlint: false };
       const result = await shouldIgnoreFile(file);
 
       expect(result).toBe(true);
@@ -94,9 +98,10 @@ describe('filter.ts', () => {
 
     it('should ignore file when it does not pass accept checks', async () => {
       setGlobalConfiguration({ baseDir });
-      const file: AnalysisInput = {
+      const file: ShouldIgnoreFileInput = {
         filePath: normalizeToAbsolutePath(join(baseDir, 'file.min.js')),
         fileContent: 'content',
+        sonarlint: false,
       };
       const result = await shouldIgnoreFile(file);
 
@@ -105,37 +110,26 @@ describe('filter.ts', () => {
 
     it('should not ignore file when it passes all checks', async () => {
       setGlobalConfiguration({ baseDir });
-      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
+      const filePath = normalizeToAbsolutePath(join(baseDir, 'file.js'));
+      const fileContent = await readFile(filePath);
+      const file: ShouldIgnoreFileInput = { filePath, fileContent, sonarlint: false };
       const result = await shouldIgnoreFile(file);
 
       expect(result).toBe(false);
     });
 
-    it('should read file content when not provided', async ({ mock }) => {
+    it('should use provided file content', async () => {
       setGlobalConfiguration({ baseDir });
-      const file: AnalysisInput = { filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')) };
-      const content = await readFile(file.filePath);
-      fs.promises.readFile = mock.fn(fs.promises.readFile);
-      const result = await shouldIgnoreFile(file);
 
-      expect(result).toBe(false);
-      expect(file.fileContent).toBe(content);
-      expect((fs.promises.readFile as Mock<typeof fs.promises.readFile>).mock.callCount()).toBe(1);
-    });
-
-    it('should use provided file content', async ({ mock }) => {
-      setGlobalConfiguration({ baseDir });
-      fs.promises.readFile = mock.fn(fs.promises.readFile);
-
-      const file: AnalysisInput = {
+      const file: ShouldIgnoreFileInput = {
         filePath: normalizeToAbsolutePath(join(baseDir, 'file.js')),
         fileContent: 'provided content',
+        sonarlint: false,
       };
 
       const result = await shouldIgnoreFile(file);
 
       expect(result).toBe(false);
-      expect((fs.promises.readFile as Mock<typeof fs.promises.readFile>).mock.callCount()).toBe(0);
     });
   });
 });

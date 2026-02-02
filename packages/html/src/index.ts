@@ -16,13 +16,19 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from './parser/parse.js';
-import { fillFileContent } from '../../shared/src/types/analysis.js';
 
 import type {
   EmbeddedAnalysisInput,
   EmbeddedAnalysisOutput,
 } from '../../jsts/src/embedded/analysis/analysis.js';
 
+/**
+ * Analyzes an HTML file for embedded JavaScript code.
+ * The input must be fully sanitized (all fields required) before calling this function.
+ *
+ * @param input the sanitized analysis input
+ * @returns the analysis output with issues found in embedded JS
+ */
 export async function analyzeHTML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(await fillFileContent(input), parseHTML);
+  return analyzeEmbedded(input, parseHTML);
 }

@@ -14,28 +14,29 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type NormalizedAbsolutePath, readFile } from '../helpers/files.js';
+import { type NormalizedAbsolutePath } from '../helpers/files.js';
 import { RawConfiguration } from '../helpers/configuration.js';
 
 /**
- * An analysis input
+ * A sanitized analysis input with all required fields populated.
  *
- * An analysis always operates on a file, be it from its path
- * or its content for any type of analysis.
+ * This is the internal type used after sanitization. All fields are required
+ * because sanitization fills in defaults and reads file content if needed.
  *
- * @param filePath the path of the file to analyze
+ * @param filePath the normalized absolute path of the file to analyze
  * @param fileContent the content of the file to analyze
+ * @param sonarlint whether analysis is running in SonarLint context
  */
 export interface AnalysisInput {
   filePath: NormalizedAbsolutePath;
-  fileContent?: string;
-  sonarlint?: boolean;
-  configuration?: RawConfiguration;
+  fileContent: string;
+  sonarlint: boolean;
 }
 
 /**
  * Raw analysis input as received from JSON deserialization.
  * Path fields are strings that haven't been validated or normalized yet.
+ * Fields are optional and will be filled with defaults during sanitization.
  */
 export interface RawAnalysisInput {
   filePath: string;
@@ -50,26 +51,3 @@ export interface RawAnalysisInput {
  * A common interface for all kinds of analysis output.
  */
 export interface AnalysisOutput {}
-
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
-export async function fillFileContent<T extends AnalysisInput>(
-  input: T,
-): Promise<Omit<T, 'fileContent'> & { fileContent: string }> {
-  if (!isCompleteAnalysisInput(input)) {
-    return {
-      ...input,
-      fileContent: await readFile(input.filePath),
-    };
-  }
-  return input;
-}
-
-function isCompleteAnalysisInput<T extends AnalysisInput>(
-  input: T,
-): input is T & { fileContent: string } {
-  return 'fileContent' in input;
-}

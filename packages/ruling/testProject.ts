@@ -19,7 +19,7 @@ import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { getFilesToAnalyze } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
-import { normalizePath, NormalizedAbsolutePath } from '../shared/src/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { setGlobalConfiguration } from '../shared/src/helpers/configuration.js';
 import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
@@ -75,7 +75,7 @@ export async function testProject(projectName: string) {
   const expectedPath = join(expectedPathBase, name);
   const actualPath = join(actualPathBase, name);
 
-  const baseDir = join(jsTsProjectsPath, folder ?? name) as NormalizedAbsolutePath;
+  const baseDir = normalizeToAbsolutePath(join(jsTsProjectsPath, folder ?? name));
 
   setGlobalConfiguration({
     baseDir,

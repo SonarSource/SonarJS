@@ -16,7 +16,40 @@
  */
 import { FileType, readFile } from '../../../../shared/src/helpers/files.js';
 import { build } from '../../../src/builders/build.js';
-import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../src/rules/helpers/index.js';
+import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../../src/analysis/analysis.js';
+
+/**
+ * Creates a complete JsTsAnalysisInput with all required fields.
+ * Uses JSTS_ANALYSIS_DEFAULTS and allows overrides for test-specific values.
+ */
+function createCompleteInput(
+  filePath: NormalizedAbsolutePath,
+  fileContent: string,
+  options: {
+    tsConfigs?: NormalizedAbsolutePath[];
+    fileType?: FileType;
+    language: 'js' | 'ts';
+    sonarlint?: boolean;
+    allowTsParserJsFiles?: boolean;
+  },
+): JsTsAnalysisInput {
+  return {
+    ...JSTS_ANALYSIS_DEFAULTS,
+    filePath,
+    fileContent,
+    language: options.language,
+    tsConfigs: options.tsConfigs ?? [],
+    ...(options.fileType !== undefined && { fileType: options.fileType }),
+    ...(options.sonarlint !== undefined && { sonarlint: options.sonarlint }),
+    ...(options.allowTsParserJsFiles !== undefined && {
+      allowTsParserJsFiles: options.allowTsParserJsFiles,
+    }),
+  };
+}
 
 export async function parseTypeScriptSourceFile(
   filePath: string,
@@ -26,14 +59,15 @@ export async function parseTypeScriptSourceFile(
 ) {
   const normalizedFilePath = normalizeToAbsolutePath(filePath);
   const fileContent = await readFile(normalizedFilePath);
-  return build({
-    fileContent,
-    filePath: normalizedFilePath,
-    tsConfigs,
-    fileType,
-    language: 'ts',
-    sonarlint,
-  });
+  const normalizedTsConfigs = tsConfigs.map(tc => normalizeToAbsolutePath(tc));
+  return build(
+    createCompleteInput(normalizedFilePath, fileContent, {
+      tsConfigs: normalizedTsConfigs,
+      fileType,
+      language: 'ts',
+      sonarlint,
+    }),
+  );
 }
 
 export async function parseJavaScriptSourceFile(
@@ -45,13 +79,14 @@ export async function parseJavaScriptSourceFile(
 ) {
   const normalizedFilePath = normalizeToAbsolutePath(filePath);
   const fileContent = await readFile(normalizedFilePath);
-  return build({
-    fileContent,
-    filePath: normalizedFilePath,
-    tsConfigs,
-    fileType,
-    language: 'js',
-    sonarlint,
-    allowTsParserJsFiles,
-  });
+  const normalizedTsConfigs = tsConfigs.map(tc => normalizeToAbsolutePath(tc));
+  return build(
+    createCompleteInput(normalizedFilePath, fileContent, {
+      tsConfigs: normalizedTsConfigs,
+      fileType,
+      language: 'js',
+      sonarlint,
+      allowTsParserJsFiles,
+    }),
+  );
 }

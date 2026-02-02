@@ -16,6 +16,7 @@
  */
 import { build } from '../../../../../src/builders/build.js';
 import { normalizeToAbsolutePath } from '../../../../../src/rules/helpers/index.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../../../src/analysis/analysis.js';
 import type estree from 'estree';
 
 export interface Comment {
@@ -34,11 +35,11 @@ export interface Comment {
  */
 export function extractComments(fileContent: string, filePath: string): Comment[] {
   const { sourceCode: parsed } = build({
+    ...JSTS_ANALYSIS_DEFAULTS,
     fileContent,
     filePath: normalizeToAbsolutePath(filePath),
-    fileType: 'MAIN',
-    tsConfigs: [],
     language: 'js',
+    tsConfigs: [],
   });
   let esTreeComments: estree.Comment[];
   if (parsed) {

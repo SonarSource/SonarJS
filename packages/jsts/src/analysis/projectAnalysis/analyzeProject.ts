@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis.js';
+import {
+  type ProjectAnalysisInput,
+  type ProjectAnalysisOutput,
+  createFileResults,
+} from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
@@ -56,7 +60,7 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, filesToAnalyze, pendingFiles, bundles, rulesWorkdir } = input;
   const results: ProjectAnalysisOutput = {
-    files: {},
+    files: createFileResults(),
     meta: {
       warnings: [],
     },

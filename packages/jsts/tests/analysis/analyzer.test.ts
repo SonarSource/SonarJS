@@ -108,7 +108,7 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(fixtures, 'vue_ts', 'file.vue');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
 
-    const tsConfigs = [path.join(fixtures, 'vue_ts', 'tsconfig.json')];
+    const tsConfigs = [normalizeToAbsolutePath(path.join(fixtures, 'vue_ts', 'tsconfig.json'))];
     const language = 'ts';
 
     const { issues } = await analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
@@ -287,7 +287,7 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(fixtures, 'tsconfig.ts');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
 
-    const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+    const tsConfigs = [normalizeToAbsolutePath(path.join(fixtures, 'tsconfig.json'))];
     const language = 'ts';
 
     const {
@@ -471,7 +471,7 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(fixtures, 'type.js');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
 
-    const tsConfigs = [path.join(fixtures, 'tsconfig.json')];
+    const tsConfigs = [normalizeToAbsolutePath(path.join(fixtures, 'tsconfig.json'))];
 
     const {
       issues: [issue],

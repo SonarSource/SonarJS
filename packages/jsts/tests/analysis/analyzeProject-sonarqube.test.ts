@@ -35,11 +35,12 @@ import { setGlobalConfiguration } from '../../../shared/src/helpers/configuratio
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import ts from 'typescript';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
-import type {
-  JsTsFiles,
-  FileResult,
-  ProjectAnalysisInput,
+import {
+  type FileResult,
+  type ProjectAnalysisInput,
+  createJsTsFiles,
 } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../src/analysis/analysis.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import type { FileType } from '../../../shared/src/helpers/files.js';
@@ -61,7 +62,7 @@ function createProjectInput(
   }
 
   const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-  const filesToAnalyze: JsTsFiles = {};
+  const filesToAnalyze = createJsTsFiles();
   const pendingFiles = new Set<NormalizedAbsolutePath>();
 
   for (const file of files) {
@@ -69,7 +70,8 @@ function createProjectInput(
     filesToAnalyze[normalizedPath] = {
       filePath: normalizedPath,
       fileType: file.fileType,
-      fileContent: file.fileContent,
+      fileContent: file.fileContent ?? '',
+      fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
     pendingFiles.add(normalizedPath);
   }

@@ -18,12 +18,29 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
-import { CompleteJsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
 import { build as buildJsTs } from '../../../jsts/src/builders/build.js';
 import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
 import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
 import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
+
+/**
+ * Creates a complete JsTsAnalysisInput for testing purposes.
+ * Uses JSTS_ANALYSIS_DEFAULTS and sets minimal test-specific fields.
+ */
+function createTestInput(
+  filePath: ReturnType<typeof normalizeToAbsolutePath>,
+  fileContent: string,
+): JsTsAnalysisInput {
+  return {
+    ...JSTS_ANALYSIS_DEFAULTS,
+    filePath,
+    fileContent,
+    language: 'js',
+    tsConfigs: [],
+  };
+}
 
 describe('patchSourceCode', () => {
   it('should patch source code', async () => {
@@ -35,6 +52,7 @@ describe('patchSourceCode', () => {
       {
         filePath,
         fileContent: text,
+        sonarlint: false,
       },
       parseAwsFromYaml,
     );
@@ -65,17 +83,15 @@ describe('patchSourceCode', () => {
 
       let filePath = normalizeToAbsolutePath(`${fixture}.yaml`);
       let fileContent = await readFile(filePath);
-      const [patchedSourceCode] = build({ filePath, fileContent }, parseAwsFromYaml);
+      const [patchedSourceCode] = build(
+        { filePath, fileContent, sonarlint: false },
+        parseAwsFromYaml,
+      );
       const patchedNodes = patchedSourceCode.sourceCode.ast[property];
 
       filePath = normalizeToAbsolutePath(`${fixture}.js`);
       fileContent = await readFile(filePath);
-      const input: CompleteJsTsAnalysisInput = {
-        filePath,
-        fileContent,
-        language: 'js',
-        fileType: 'MAIN',
-      };
+      const input = createTestInput(filePath, fileContent);
       const referenceSourceCode = buildJsTs(input);
       const referenceNodes = referenceSourceCode.sourceCode.ast[property];
 
@@ -90,19 +106,14 @@ describe('patchSourceCode', () => {
     let fileContent = await readFile(filePath);
     let patchedParsingError;
     try {
-      build({ filePath, fileContent }, parseAwsFromYaml);
+      build({ filePath, fileContent, sonarlint: false }, parseAwsFromYaml);
     } catch (error) {
       patchedParsingError = error;
     }
 
     filePath = normalizeToAbsolutePath(`${fixture}.js`);
     fileContent = await readFile(filePath);
-    const input: CompleteJsTsAnalysisInput = {
-      filePath,
-      fileContent,
-      language: 'js',
-      fileType: 'MAIN',
-    };
+    const input = createTestInput(filePath, fileContent);
     expect(() => buildJsTs(input)).toThrow(patchedParsingError);
   });
 

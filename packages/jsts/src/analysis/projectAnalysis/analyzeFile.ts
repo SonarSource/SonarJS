@@ -24,20 +24,23 @@ import {
   isYamlFile,
   fieldsForJsTsAnalysisInput,
 } from '../../../../shared/src/helpers/configuration.js';
+import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
 import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { FileResult, ProjectAnalysisOutput, StoredJsTsFile } from './projectAnalysis.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import ts from 'typescript';
 import { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
  * This is the common entry point for all analysis paths (with program, without program, with cache).
+ * Takes a StoredJsTsFile (minimal fields) and completes it into a full JsTsAnalysisInput.
  */
 export async function analyzeFile(
   fileName: NormalizedAbsolutePath,
-  file: JsTsAnalysisInput,
+  file: StoredJsTsFile,
   program: ts.Program | undefined,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath> | undefined,
@@ -46,11 +49,18 @@ export async function analyzeFile(
 ) {
   progressReport.nextFile(fileName);
 
-  // Build analysis input
+  // Build complete analysis input from stored file using global configuration
+  // fieldsForJsTsAnalysisInput() provides config-based values (analysisMode, skipAst, etc.)
+  // Per-file fields (filePath, fileContent, fileType, fileStatus) come from the stored file
   const input: JsTsAnalysisInput = {
-    ...file,
-    ...(program ? { program } : {}),
     ...fieldsForJsTsAnalysisInput(),
+    filePath: file.filePath,
+    fileContent: file.fileContent,
+    fileType: file.fileType,
+    fileStatus: file.fileStatus,
+    language: inferLanguageForProjectAnalysis(file.filePath, file.fileContent),
+    tsConfigs: [],
+    program,
   };
 
   // Analyze the file (with error handling)
@@ -63,23 +73,50 @@ export async function analyzeFile(
 }
 
 /**
+ * Infers the language (js or ts) from file path and content.
+ * For HTML/YAML embedded analysis, defaults to 'js' if language cannot be inferred.
+ */
+function inferLanguageForProjectAnalysis(
+  filePath: NormalizedAbsolutePath,
+  fileContent: string,
+): 'js' | 'ts' {
+  try {
+    return inferLanguage(undefined, filePath, fileContent);
+  } catch {
+    // Default to 'js' for HTML/YAML embedded analysis
+    return 'js';
+  }
+}
+
+/**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  */
 async function analyzeInput(input: JsTsAnalysisInput): Promise<FileResult> {
   try {
-    return await getAnalyzerForFile(input.filePath)(input);
+    return await getAnalyzerForFile(input);
   } catch (e) {
     return handleError(serializeError(e));
   }
 }
 
-function getAnalyzerForFile(filename: NormalizedAbsolutePath) {
+function getAnalyzerForFile(input: JsTsAnalysisInput): Promise<FileResult> {
+  const filename = input.filePath;
   if (isHtmlFile(filename)) {
-    return analyzeHTML;
+    const embeddedInput: EmbeddedAnalysisInput = {
+      filePath: input.filePath,
+      fileContent: input.fileContent,
+      sonarlint: input.sonarlint,
+    };
+    return analyzeHTML(embeddedInput);
   } else if (isYamlFile(filename)) {
-    return analyzeYAML;
+    const embeddedInput: EmbeddedAnalysisInput = {
+      filePath: input.filePath,
+      fileContent: input.fileContent,
+      sonarlint: input.sonarlint,
+    };
+    return analyzeYAML(embeddedInput);
   } else {
-    return analyzeJSTS;
+    return analyzeJSTS(input);
   }
 }

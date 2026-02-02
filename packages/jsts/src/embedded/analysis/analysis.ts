@@ -28,15 +28,12 @@ import {
 export interface RawEmbeddedAnalysisInput extends RawAnalysisInput {}
 
 /**
- * An analysis input of embedded code
+ * A sanitized analysis input of embedded code with all required fields populated.
  *
- * (currently empty but might change later on)
+ * This extends AnalysisInput which already has all required fields (filePath, fileContent, sonarlint).
+ * Additional embedded-specific fields can be added here in the future.
  */
 export interface EmbeddedAnalysisInput extends AnalysisInput {}
-
-export type CompleteEmbeddedAnalysisInput = Omit<EmbeddedAnalysisInput, 'fileContent'> & {
-  fileContent: string;
-};
 
 /**
  * A YAML analysis output

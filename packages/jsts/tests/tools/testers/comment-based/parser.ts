@@ -16,8 +16,13 @@
  */
 import { fileURLToPath } from 'node:url';
 import { dirname, join, parse } from 'node:path/posix';
-import { FileType, normalizePath } from '../../../../../shared/src/helpers/files.js';
+import {
+  FileType,
+  normalizePath,
+  type NormalizedAbsolutePath,
+} from '../../../../../shared/src/helpers/files.js';
 import { build } from '../../../../src/builders/build.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../../src/analysis/analysis.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
 import { normalizeToAbsolutePath } from '../../../../src/rules/helpers/index.js';
 /**
@@ -30,15 +35,18 @@ function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  const tsConfigs = [
-    join(
-      dirname(normalizePath(fileURLToPath(import.meta.url))),
-      '../../../../src/rules',
-      'tsconfig.cb.json',
+  const tsConfigs: NormalizedAbsolutePath[] = [
+    normalizeToAbsolutePath(
+      join(
+        dirname(normalizePath(fileURLToPath(import.meta.url))),
+        '../../../../src/rules',
+        'tsconfig.cb.json',
+      ),
     ),
   ];
   const normalizedFilePath = normalizeToAbsolutePath(filePath);
   const { sourceCode } = build({
+    ...JSTS_ANALYSIS_DEFAULTS,
     filePath: normalizedFilePath,
     fileContent,
     fileType,

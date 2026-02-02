@@ -17,16 +17,19 @@
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import {
-  getBaseDir,
-  getMaxFileSize,
-  isCssFile,
-  isJsTsFile,
-  shouldDetectBundles,
-} from '../configuration.js';
+import { getMaxFileSize, isCssFile, isJsTsFile, shouldDetectBundles } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
-import { type NormalizedAbsolutePath, normalizeToAbsolutePath, readFile } from '../files.js';
-import { AnalysisInput } from '../../types/analysis.js';
+import { type NormalizedAbsolutePath } from '../files.js';
+
+/**
+ * Minimal input required for shouldIgnoreFile.
+ * All fields are required since the input should be sanitized before calling this function.
+ */
+export interface ShouldIgnoreFileInput {
+  filePath: NormalizedAbsolutePath;
+  fileContent: string;
+  sonarlint: boolean;
+}
 
 /**
  * Determines whether a given file should be accepted for further processing based on its content.
@@ -57,14 +60,14 @@ export function accept(filePath: NormalizedAbsolutePath, fileContent: string): b
  *       new MinificationAssessor(),
  *       new BundleAssessor()
  *
- * @param {AnalysisInput} file - The file to analyze, including its filePath and optionally its fileContent.
+ * The input must be fully sanitized (all fields required) before calling this function.
+ *
+ * @param {ShouldIgnoreFileInput} file - The file to analyze with filePath and fileContent already populated.
  * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
  */
-export async function shouldIgnoreFile(file: AnalysisInput): Promise<boolean> {
-  const filename = normalizeToAbsolutePath(file.filePath, getBaseDir());
-  file.filePath = filename;
-  file.fileContent = file.fileContent ?? (await readFile(filename));
-  if (isJsTsExcluded(filename) || !accept(filename, file.fileContent)) {
+export async function shouldIgnoreFile(file: ShouldIgnoreFileInput): Promise<boolean> {
+  const { filePath, fileContent } = file;
+  if (isJsTsExcluded(filePath) || !accept(filePath, fileContent)) {
     return true;
   }
   return false;

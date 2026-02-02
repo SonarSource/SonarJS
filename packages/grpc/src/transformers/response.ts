@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { analyzer } from '../proto/language_analyzer.js';
-import type { ProjectAnalysisOutput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import {
+  type ProjectAnalysisOutput,
+  entriesOfFileResults,
+} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
 
 /**
@@ -134,7 +137,7 @@ export function transformProjectOutputToResponse(
     });
   }
 
-  for (const [filePath, fileResult] of Object.entries(output.files)) {
+  for (const [filePath, fileResult] of entriesOfFileResults(output.files)) {
     if ('error' in fileResult) {
       analysisProblems.push({
         type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_UNDEFINED,

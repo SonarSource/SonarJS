@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileType } from '../../../shared/src/helpers/files.js';
-import { isJsFile, isTsFile, JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
+import { FileType, type NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import {
   AnalysisInput,
   AnalysisOutput,
@@ -29,8 +29,10 @@ import { Issue } from '../linter/issues/issue.js';
 import type { Program } from 'typescript';
 
 /**
+ * A sanitized JavaScript / TypeScript analysis input with all required fields populated.
  *
- * A JavaScript / TypeScript analysis input
+ * This is the internal type used after sanitization. All fields are required
+ * because sanitization fills in defaults, reads file content, and infers language.
  *
  * On SonarLint and Vue projects, TSConfig-based analysis relies on an automatically
  * created TypeScript Program's instance by TypeScript ESLint parser, which leaves
@@ -40,39 +42,64 @@ import type { Program } from 'typescript';
  * instance based on a TSConfig to control the lifecycle of the main internal
  * data structure used by TypeScript ESLint parser for performance reasons.
  *
- * @param fileType the file type to select the proper linting configuration
+ * @param fileType the file type to select the proper linting configuration (MAIN or TEST)
+ * @param fileStatus the file status for incremental analysis (SAME, CHANGED, ADDED)
+ * @param language the file language ('js' or 'ts'), inferred from extension if not provided
+ * @param analysisMode the analysis mode (DEFAULT or SKIP_UNCHANGED)
  * @param ignoreHeaderComments a flag used by some rules to ignore header comments
- * @param tsConfigs a list of TSConfigs
- * @param language the file language ('js' or 'ts')
- * @param programId the identifier of a TypeScript Program's instance
+ * @param allowTsParserJsFiles whether to use TypeScript parser for JS files
+ * @param tsConfigs a list of normalized absolute paths to TSConfig files
+ * @param program an optional pre-created TypeScript Program instance
+ * @param skipAst whether to skip AST serialization in the output
+ * @param clearDependenciesCache whether to clear the dependencies cache before analysis
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
-  fileStatus?: FileStatus;
-  language?: JsTsLanguage;
-  analysisMode?: AnalysisMode;
-  ignoreHeaderComments?: boolean;
-  allowTsParserJsFiles?: boolean;
-  tsConfigs?: string[];
-  program?: Program;
-  skipAst?: boolean;
-  clearDependenciesCache?: boolean;
-}
-
-export type CompleteJsTsAnalysisInput = Omit<JsTsAnalysisInput, 'language' | 'fileContent'> & {
+  fileStatus: FileStatus;
   language: JsTsLanguage;
-  fileContent: string;
-};
+  analysisMode: AnalysisMode;
+  ignoreHeaderComments: boolean;
+  allowTsParserJsFiles: boolean;
+  tsConfigs: NormalizedAbsolutePath[];
+  program?: Program;
+  skipAst: boolean;
+  clearDependenciesCache: boolean;
+}
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
 export type FileStatus = 'SAME' | 'CHANGED' | 'ADDED';
 
 /**
+ * Default values for JsTsAnalysisInput fields.
+ * These are the canonical defaults used throughout the codebase when sanitizing raw inputs.
+ *
+ * - fileStatus: 'SAME' - assume file unchanged unless told otherwise
+ * - analysisMode: 'DEFAULT' - standard analysis mode
+ * - ignoreHeaderComments: true - matches sonar.javascript.ignoreHeaderComments default
+ * - allowTsParserJsFiles: true - enable TypeScript parser for better JS analysis
+ * - sonarlint: false - not running in SonarLint context by default
+ * - skipAst: true - skip AST serialization by default for performance
+ * - clearDependenciesCache: false - preserve cache by default
+ * - fileType: 'MAIN' - assume main source file unless told otherwise
+ */
+export const JSTS_ANALYSIS_DEFAULTS = {
+  fileStatus: 'SAME' as FileStatus,
+  analysisMode: 'DEFAULT' as AnalysisMode,
+  ignoreHeaderComments: true,
+  allowTsParserJsFiles: true,
+  sonarlint: false,
+  skipAst: true,
+  clearDependenciesCache: false,
+  fileType: 'MAIN' as FileType,
+} as const;
+
+/**
  * Raw JavaScript / TypeScript analysis input as received from JSON deserialization.
  * Path fields are strings that haven't been validated or normalized yet.
+ * All fields except filePath are optional and will be filled with defaults during sanitization.
  */
 export interface RawJsTsAnalysisInput extends RawAnalysisInput {
-  fileType: FileType;
+  fileType?: FileType;
   fileStatus?: FileStatus;
   language?: JsTsLanguage;
   analysisMode?: AnalysisMode;
@@ -97,34 +124,4 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
 
 export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
   ast: string; // Base64 encoded Protobuf binary representation
-}
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
-export function fillLanguage(
-  input: Omit<JsTsAnalysisInput, 'fileContent'> & { fileContent: string },
-): CompleteJsTsAnalysisInput {
-  if (isCompleteJsTsAnalysisInput(input)) {
-    return input;
-  }
-  if (isTsFile(input.filePath, input.fileContent)) {
-    return {
-      ...input,
-      language: 'ts',
-    };
-  } else if (isJsFile(input.filePath)) {
-    return {
-      ...input,
-      language: 'js',
-    };
-  }
-  throw new Error(`Unable to find language for file ${input.filePath}`);
-}
-
-function isCompleteJsTsAnalysisInput<T extends AnalysisInput>(
-  input: T,
-): input is T & { language: string } {
-  return 'language' in input;
 }

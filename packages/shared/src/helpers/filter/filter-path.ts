@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileType } from '../files.js';
+import { FileType, type NormalizedAbsolutePath } from '../files.js';
 import {
   getExclusions,
   getInclusions,
@@ -30,10 +30,10 @@ import { debug } from '../logging.js';
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
  * properties sonar.typescript.exclusions and sonar.javascript.exclusions wildcards.
  *
- * @param filePath The path of the file to be checked.
+ * @param filePath The path of the file to be checked (must be normalized absolute path).
  * @return Returns true if the file path matches any exclusion wildcard; otherwise, false.
  */
-export function isJsTsExcluded(filePath: string) {
+export function isJsTsExcluded(filePath: NormalizedAbsolutePath): boolean {
   if (getJsTsExclusions()?.some(exclusion => exclusion.match(filePath))) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
     return true;
@@ -49,11 +49,11 @@ export function isJsTsExcluded(filePath: string) {
  * In SQS this will never be executed, as the request already contains the list of files as
  * digested by the scanner engine. The only path filter that we need to run in SQS is isJsTsExcluded.
  *
- * @param {string} filePath - The file path to be evaluated.
+ * @param {NormalizedAbsolutePath} filePath - The file path to be evaluated (must be normalized absolute path).
  * @return {FileType | undefined} Returns 'MAIN' if the file belongs to the main sources,
  * 'TEST' if it belongs to the test sources, or undefined if it is excluded from analysis.
  */
-export function filterPathAndGetFileType(filePath: string): FileType | undefined {
+export function filterPathAndGetFileType(filePath: NormalizedAbsolutePath): FileType | undefined {
   if (fileIsTest(filePath)) {
     return 'TEST';
   }
@@ -64,7 +64,7 @@ export function filterPathAndGetFileType(filePath: string): FileType | undefined
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
-function fileIsTest(filePath: string): boolean {
+function fileIsTest(filePath: NormalizedAbsolutePath): boolean {
   const testPaths = getTestPaths();
   if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
     return false;
@@ -79,7 +79,7 @@ function fileIsTest(filePath: string): boolean {
   return true;
 }
 
-function fileIsMain(filePath: string): boolean {
+function fileIsMain(filePath: NormalizedAbsolutePath): boolean {
   if (
     !getSourcesPaths().some(
       sourcePath => filePath === sourcePath || filePath.startsWith(`${sourcePath}/`),

@@ -17,8 +17,9 @@
 import { patchParsingError, patchSourceCode } from './patch.js';
 import path from 'node:path';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
-import { CompleteEmbeddedAnalysisInput } from '../analysis/analysis.js';
+import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
+import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../analysis/analysis.js';
 import { ParseResult } from '../../parsers/parse.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
@@ -37,7 +38,7 @@ export type LanguageParser = (text: string) => EmbeddedJS[];
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function build(
-  input: CompleteEmbeddedAnalysisInput,
+  input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): ExtendedParseResult[] {
   const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);
@@ -55,12 +56,14 @@ export function build(
      * the file content is provided, which happens to be the case here since `code`
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
-    const jsTsAnalysisInput = {
+    const jsTsAnalysisInput: JsTsAnalysisInput = {
+      ...JSTS_ANALYSIS_DEFAULTS,
       filePath: '' as NormalizedAbsolutePath,
       fileContent: code,
-      fileType: 'MAIN',
       language: 'js',
-    } as const;
+      tsConfigs: [],
+      sonarlint: input.sonarlint,
+    };
     try {
       const parseResult = buildJsTs(jsTsAnalysisInput);
       extendedParseResults.push({

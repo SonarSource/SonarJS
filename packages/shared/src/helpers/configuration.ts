@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AnalysisMode, JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { JSTS_ANALYSIS_DEFAULTS, type AnalysisMode } from '../../../jsts/src/analysis/analysis.js';
 import { extname } from 'node:path/posix';
 import {
   type NormalizedAbsolutePath,
@@ -24,6 +24,7 @@ import {
 } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
+import { sanitizePaths } from './sanitize.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -144,25 +145,27 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
     clearDependenciesCache: !!config.clearDependenciesCache,
     clearTsConfigCache: !!config.clearTsConfigCache,
     fsEvents: normalizeFsEvents(config.fsEvents, baseDir),
-    allowTsParserJsFiles: !!config.allowTsParserJsFiles,
-    analysisMode: config.analysisMode ?? 'DEFAULT',
-    skipAst: !!config.skipAst,
-    ignoreHeaderComments: !!config.ignoreHeaderComments,
+    allowTsParserJsFiles:
+      config.allowTsParserJsFiles ?? JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
+    analysisMode: config.analysisMode ?? JSTS_ANALYSIS_DEFAULTS.analysisMode,
+    skipAst: config.skipAst ?? JSTS_ANALYSIS_DEFAULTS.skipAst,
+    ignoreHeaderComments:
+      config.ignoreHeaderComments ?? JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
     maxFileSize: config.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB,
     environments: config.environments ?? DEFAULT_ENVIRONMENTS,
     globals: config.globals ?? DEFAULT_GLOBALS,
     tsSuffixes: config.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
     jsSuffixes: config.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
     cssSuffixes: config.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
-    tsConfigPaths: toAbsolutePaths(config.tsConfigPaths, baseDir),
+    tsConfigPaths: sanitizePaths(config.tsConfigPaths, baseDir),
     jsTsExclusions: normalizeGlobs(
       (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
       baseDir,
     ),
-    sources: toAbsolutePaths(config.sources, baseDir),
+    sources: sanitizePaths(config.sources, baseDir),
     inclusions: normalizeGlobs(config.inclusions, baseDir),
     exclusions: normalizeGlobs(config.exclusions, baseDir),
-    tests: toAbsolutePaths(config.tests, baseDir),
+    tests: sanitizePaths(config.tests, baseDir),
     testInclusions: normalizeGlobs(config.testInclusions, baseDir),
     testExclusions: normalizeGlobs(config.testExclusions, baseDir),
     detectBundles: !!config.detectBundles,
@@ -212,11 +215,11 @@ function cssExtensions() {
     : DEFAULT_CSS_EXTENSIONS;
 }
 
-export function isJsFile(filePath: string) {
+export function isJsFile(filePath: NormalizedAbsolutePath): boolean {
   return jsExtensions().includes(extname(filePath).toLowerCase());
 }
 
-export function isTsFile(filePath: string, contents: string) {
+export function isTsFile(filePath: NormalizedAbsolutePath, contents: string): boolean {
   const extension = extname(filePath).toLowerCase();
   return (
     tsExtensions().includes(extension) ||
@@ -224,23 +227,23 @@ export function isTsFile(filePath: string, contents: string) {
   );
 }
 
-export function isHtmlFile(filePath: NormalizedAbsolutePath) {
+export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
   return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isYamlFile(filePath: NormalizedAbsolutePath) {
+export function isYamlFile(filePath: NormalizedAbsolutePath): boolean {
   return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isJsTsFile(filePath: NormalizedAbsolutePath) {
+export function isJsTsFile(filePath: NormalizedAbsolutePath): boolean {
   return jsTsExtensions().includes(extname(filePath).toLowerCase());
 }
 
-export function isCssFile(filePath: NormalizedAbsolutePath) {
+export function isCssFile(filePath: NormalizedAbsolutePath): boolean {
   return cssExtensions().includes(extname(filePath).toLowerCase());
 }
 
-export function isAnalyzableFile(filePath: NormalizedAbsolutePath) {
+export function isAnalyzableFile(filePath: NormalizedAbsolutePath): boolean {
   return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
 }
 
@@ -308,7 +311,28 @@ export function shouldDetectBundles() {
   return getConfiguration().detectBundles;
 }
 
-export const fieldsForJsTsAnalysisInput = (): Omit<JsTsAnalysisInput, 'filePath' | 'fileType'> => ({
+/**
+ * Fields from the global configuration that are used in JsTsAnalysisInput.
+ * These are the configuration-controlled values (not static defaults).
+ */
+export type JsTsConfigFields = {
+  allowTsParserJsFiles: boolean;
+  analysisMode: AnalysisMode;
+  ignoreHeaderComments: boolean;
+  clearDependenciesCache: boolean;
+  skipAst: boolean;
+  sonarlint: boolean;
+};
+
+/**
+ * Returns the configuration-based values for JsTsAnalysisInput fields.
+ * These values come from the global configuration set via setGlobalConfiguration().
+ *
+ * Note: This is different from JSTS_ANALYSIS_DEFAULTS which provides static defaults
+ * for missing fields during sanitization. This function returns the actual configured
+ * values which may differ from the defaults.
+ */
+export const fieldsForJsTsAnalysisInput = (): JsTsConfigFields => ({
   allowTsParserJsFiles: getConfiguration().allowTsParserJsFiles,
   analysisMode: getConfiguration().analysisMode,
   ignoreHeaderComments: getConfiguration().ignoreHeaderComments,
@@ -372,13 +396,9 @@ const DEFAULT_GLOBALS = [
 ];
 
 function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
-  return toAbsolutePaths(globs, baseDir).map(
+  return sanitizePaths(globs, baseDir).map(
     pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
-}
-
-function toAbsolutePaths(paths: string[] | undefined, baseDir: NormalizedAbsolutePath) {
-  return (paths || []).map(path => normalizeToAbsolutePath(path, baseDir));
 }
 
 /**

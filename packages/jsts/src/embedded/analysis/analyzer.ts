@@ -18,12 +18,11 @@ import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
 import { Issue } from '../../linter/issues/issue.js';
 import { Linter } from '../../linter/linter.js';
-import { CompleteEmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
+import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { shouldIgnoreFile } from '../../../../shared/src/helpers/filter/filter.js';
-import { setGlobalConfiguration } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -41,18 +40,18 @@ import { setGlobalConfiguration } from '../../../../shared/src/helpers/configura
  * then proceeds with linting each of them, aggregates, and returns the results.
  *
  * The analysis requires that global linter wrapper is initialized.
+ * The input must be fully sanitized (all fields required) before calling this function.
  *
- * @param input the analysis input
+ * @param input the sanitized analysis input (all fields required)
  * @param languageParser the parser for the language of the file containing the JS code
  * @returns the analysis output
  */
 export async function analyzeEmbedded(
-  input: CompleteEmbeddedAnalysisInput,
+  input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): Promise<EmbeddedAnalysisOutput> {
-  const { filePath, fileContent, configuration } = input;
-  setGlobalConfiguration(configuration);
-  if (await shouldIgnoreFile({ filePath, fileContent })) {
+  const { filePath, fileContent } = input;
+  if (await shouldIgnoreFile({ filePath, fileContent, sonarlint: input.sonarlint })) {
     return { issues: [], metrics: { ncloc: [] } };
   }
   debug(`Analyzing file "${input.filePath}"`);

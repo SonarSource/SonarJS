@@ -16,13 +16,19 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseAwsFromYaml } from './aws/parser.js';
-import { fillFileContent } from '../../shared/src/types/analysis.js';
 
 import type {
   EmbeddedAnalysisInput,
   EmbeddedAnalysisOutput,
 } from '../../jsts/src/embedded/analysis/analysis.js';
 
+/**
+ * Analyzes a YAML file for embedded JavaScript code.
+ * The input must be fully sanitized (all fields required) before calling this function.
+ *
+ * @param input the sanitized analysis input
+ * @returns the analysis output with issues found in embedded JS
+ */
 export async function analyzeYAML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(await fillFileContent(input), parseAwsFromYaml);
+  return analyzeEmbedded(input, parseAwsFromYaml);
 }

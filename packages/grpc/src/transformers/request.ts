@@ -15,10 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { analyzer } from '../proto/language_analyzer.js';
-import type {
-  ProjectAnalysisInput,
-  JsTsFiles,
+import {
+  type ProjectAnalysisInput,
+  type JsTsFiles,
+  createJsTsFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import {
   type FileType,
@@ -91,7 +93,7 @@ function parseParamValue(value: string, defaultValue: unknown) {
  * @returns Dictionary of files keyed by relative path
  */
 function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
-  const files: JsTsFiles = {};
+  const files = createJsTsFiles();
 
   for (const sourceFile of sourceFiles) {
     const relativePath = sourceFile.relativePath ?? '';
@@ -108,6 +110,7 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
       filePath: normalizedPath,
       fileContent: sourceFile.content ?? '',
       fileType,
+      fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
   }
 

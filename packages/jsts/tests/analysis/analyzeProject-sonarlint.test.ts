@@ -39,9 +39,9 @@ import {
   type RawConfiguration,
 } from '../../../shared/src/helpers/configuration.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
-import type {
-  JsTsFiles,
-  ProjectAnalysisInput,
+import {
+  type ProjectAnalysisInput,
+  createJsTsFiles,
 } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
@@ -64,7 +64,7 @@ function createProjectInput(
   }
 
   const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-  const filesToAnalyze: JsTsFiles = {};
+  const filesToAnalyze = createJsTsFiles();
   const pendingFiles = new Set<NormalizedAbsolutePath>();
 
   for (const [path, file] of Object.entries(files)) {

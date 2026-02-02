@@ -17,7 +17,7 @@
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import type { JsTsFiles, RawJsTsFiles } from '../projectAnalysis.js';
+import { type JsTsFiles, type RawJsTsFiles, createJsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
@@ -27,6 +27,7 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../rules/helpers/index.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../analysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
@@ -73,6 +74,7 @@ export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles
 
 /**
  * Sanitizes raw input files by normalizing their file paths.
+ * Converts RawJsTsFiles (from HTTP request) to JsTsFiles (StoredJsTsFile map).
  */
 function sanitizeJsTsFiles(
   inputFiles: RawJsTsFiles | undefined,
@@ -81,12 +83,14 @@ function sanitizeJsTsFiles(
   if (!inputFiles) {
     return undefined;
   }
-  const sanitized: JsTsFiles = {};
+  const sanitized = createJsTsFiles();
   for (const [_key, value] of Object.entries(inputFiles)) {
     const normalizedPath = normalizeToAbsolutePath(value.filePath, baseDir);
     sanitized[normalizedPath] = {
-      ...value,
       filePath: normalizedPath,
+      fileContent: value.fileContent ?? '',
+      fileType: value.fileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+      fileStatus: value.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
   }
   return sanitized;

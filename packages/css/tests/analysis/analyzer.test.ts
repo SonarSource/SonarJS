@@ -125,6 +125,7 @@ ${character}
 ${character}${character}${character}.foo {`,
             rules,
             filePath: normalizeToAbsolutePath('foo.css'),
+            sonarlint: false,
           };
 
           await expect(analyzeCSS(analysisInput))
@@ -163,5 +164,6 @@ async function input(
     filePath: normalizedPath,
     fileContent: fileContent || (await readFile(normalizedPath)),
     rules,
+    sonarlint: false,
   };
 }
