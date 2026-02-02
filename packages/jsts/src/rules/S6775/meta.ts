@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'default-props-match-prop-types';
-export const externalPlugin = 'react';
+export const externalRules = [
+  { externalPlugin: 'react', externalRule: 'default-props-match-prop-types' },
+];

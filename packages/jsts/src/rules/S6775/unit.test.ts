@@ -25,9 +25,7 @@ describe('S6775', () => {
     ruleTester.run('default-props-match-prop-types', rule, {
       valid: [
         {
-          // FP scenario: PropTypes spread from separate constant
-          // The analyzer cannot "unpack" the spread operator (...) to see that
-          // 'foo' is defined in SharedPropTypes. This should NOT raise an issue.
+          name: 'FP fix: PropTypes spread from separate constant',
           code: `
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -54,8 +52,7 @@ class MyComponent extends React.Component {
           `,
         },
         {
-          // FP scenario: PropTypes and defaultProps both defined as separate constants
-          // Pattern from HelpTrigger.jsx in the redash project (Peachy FPs)
+          name: 'FP fix: HelpTrigger pattern from Jira ticket',
           code: `
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -93,7 +90,7 @@ export function helpTriggerWithTypes(types) {
           `,
         },
         {
-          // Direct propTypes/defaultProps without spread (baseline compliant case)
+          name: 'baseline: direct propTypes/defaultProps without spread',
           code: `
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -116,7 +113,7 @@ class DirectComponent extends React.Component {
       ],
       invalid: [
         {
-          // True positive: defaultProp without corresponding propType
+          name: 'TP: defaultProp without corresponding propType',
           code: `
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -128,7 +125,7 @@ class MissingPropType extends React.Component {
 
   static defaultProps = {
     foo: 'default',
-    bar: 'missing', // bar is not in propTypes
+    bar: 'missing',
   };
 
   render() {
@@ -139,7 +136,7 @@ class MissingPropType extends React.Component {
           errors: 1,
         },
         {
-          // True positive: required prop should not have default
+          name: 'TP: required prop should not have default',
           code: `
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -156,6 +153,40 @@ class RequiredWithDefault extends React.Component {
   render() {
     return <span>{this.props.required}</span>;
   }
+}
+          `,
+          errors: 1,
+        },
+        {
+          name: 'TP: multi-component - should still report when prop not in same component',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+// ComponentA has 'foo' in its spread propTypes
+const SharedPropTypesA = {
+  foo: PropTypes.string,
+};
+
+class ComponentA extends React.Component {
+  static propTypes = {
+    ...SharedPropTypesA,
+  };
+  static defaultProps = {
+    foo: 'default',
+  };
+  render() { return <div />; }
+}
+
+// ComponentB does NOT have 'foo' defined - should raise issue
+class ComponentB extends React.Component {
+  static propTypes = {
+    bar: PropTypes.string,
+  };
+  static defaultProps = {
+    foo: 'should-raise-issue',
+  };
+  render() { return <div />; }
 }
           `,
           errors: 1,

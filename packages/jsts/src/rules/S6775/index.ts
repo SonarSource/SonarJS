@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/react.js';
-export const rule = rules['default-props-match-prop-types'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['default-props-match-prop-types']);
