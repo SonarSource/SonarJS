@@ -51,7 +51,7 @@ export async function analyzeEmbedded(
   languageParser: LanguageParser,
 ): Promise<EmbeddedAnalysisOutput> {
   const { filePath, fileContent } = input;
-  if (await shouldIgnoreFile({ filePath, fileContent, sonarlint: input.sonarlint })) {
+  if (await shouldIgnoreFile({ filePath, fileContent })) {
     return { issues: [], metrics: { ncloc: [] } };
   }
   debug(`Analyzing file "${input.filePath}"`);

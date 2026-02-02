@@ -51,7 +51,7 @@ export async function analyzeJSTS(
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
 
-  if (await shouldIgnoreFile({ filePath, fileContent, sonarlint: input.sonarlint })) {
+  if (await shouldIgnoreFile({ filePath, fileContent })) {
     return { issues: [] };
   }
   const parseResult = build(input);

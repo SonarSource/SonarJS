@@ -14,11 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsFiles } from '../projectAnalysis.js';
+import type { RawJsTsFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
 
 export abstract class FileStore {
-  abstract isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: JsTsFiles): Promise<boolean>;
+  abstract isInitialized(
+    baseDir: NormalizedAbsolutePath,
+    inputFiles?: RawJsTsFiles,
+  ): Promise<boolean>;
 
   abstract setup(baseDir: NormalizedAbsolutePath): void;
 

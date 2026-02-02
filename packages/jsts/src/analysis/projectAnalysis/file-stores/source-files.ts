@@ -14,7 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type JsTsFiles, type StoredJsTsFile, createJsTsFiles } from '../projectAnalysis.js';
+import {
+  type JsTsFiles,
+  type RawJsTsFiles,
+  type StoredJsTsFile,
+  createJsTsFiles,
+} from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
 import { FileStore } from './store-type.js';
@@ -52,14 +57,14 @@ export class SourceFileStore implements FileStore {
     },
   };
 
-  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: JsTsFiles) {
+  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: RawJsTsFiles) {
     this.dirtyCachesIfNeeded(baseDir);
     if (isSonarLint()) {
-      await this.filterAndSetFiles('request', Object.values(inputFiles || {}));
+      await this.sanitizeAndFilterRawFiles('request', inputFiles, baseDir);
     } else if (inputFiles) {
       //if we are in SQS, the files in the request will already contain all found files
       this.setup(baseDir);
-      await this.filterAndSetFiles('found', Object.values(inputFiles));
+      await this.sanitizeAndFilterRawFiles('found', inputFiles, baseDir);
       return true;
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
@@ -159,17 +164,33 @@ export class SourceFileStore implements FileStore {
     }
   }
 
-  private async filterAndSetFiles(
+  /**
+   * Sanitizes raw input files and filters them before storing.
+   * This handles the conversion from RawJsTsFiles (HTTP input) to StoredJsTsFile,
+   * applying path normalization, default values, and file filtering in one pass.
+   */
+  private async sanitizeAndFilterRawFiles(
     store: keyof typeof SourceFileStore.prototype.store,
-    files: StoredJsTsFile[],
+    rawFiles: RawJsTsFiles | undefined,
+    baseDir: NormalizedAbsolutePath,
   ) {
     this.resetStore(store);
-    for (const file of files) {
+    if (!rawFiles) {
+      return;
+    }
+    for (const rawFile of Object.values(rawFiles)) {
+      const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);
+      const fileContent = rawFile.fileContent ?? (await readFile(filePath));
       // We need to apply filters if the files come from the request
-      if (await shouldIgnoreFile({ ...file, sonarlint: isSonarLint() })) {
+      if (await shouldIgnoreFile({ filePath, fileContent })) {
         continue;
       }
-      this.saveFileInStore(store, file);
+      this.saveFileInStore(store, {
+        filePath,
+        fileContent,
+        fileType: rawFile.fileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+        fileStatus: rawFile.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      });
     }
   }
 
@@ -177,9 +198,9 @@ export class SourceFileStore implements FileStore {
     store: keyof typeof SourceFileStore.prototype.store,
     file: StoredJsTsFile,
   ) {
-    const filePath = normalizeToAbsolutePath(file.filePath);
-    this.store[store].filenames!.push(filePath);
-    this.store[store].files![filePath] = { ...file, filePath };
+    // file.filePath is already a NormalizedAbsolutePath from sanitization
+    this.store[store].filenames!.push(file.filePath);
+    this.store[store].files![file.filePath] = file;
   }
 
   private resetStore(store: keyof typeof SourceFileStore.prototype.store) {

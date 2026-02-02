@@ -122,7 +122,7 @@ const IGNORED_PATTERNS = ['.scannerwork'];
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
-const DEFAULT_MAX_FILE_SIZE_KB = 4000;
+const DEFAULT_MAX_FILE_SIZE_KB = 1000; // 1MB, matches Java default in JavaScriptPlugin.java
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 let configuration: Configuration;
@@ -140,7 +140,7 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
   const baseDir = normalizeToAbsolutePath(config.baseDir);
   configuration = {
     baseDir,
-    canAccessFileSystem: !!config.canAccessFileSystem,
+    canAccessFileSystem: config.canAccessFileSystem ?? true,
     sonarlint: !!config.sonarlint,
     clearDependenciesCache: !!config.clearDependenciesCache,
     clearTsConfigCache: !!config.clearTsConfigCache,
@@ -160,15 +160,14 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
     tsConfigPaths: sanitizePaths(config.tsConfigPaths, baseDir),
     jsTsExclusions: normalizeGlobs(
       (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
-      baseDir,
     ),
     sources: sanitizePaths(config.sources, baseDir),
-    inclusions: normalizeGlobs(config.inclusions, baseDir),
-    exclusions: normalizeGlobs(config.exclusions, baseDir),
+    inclusions: normalizeGlobs(config.inclusions),
+    exclusions: normalizeGlobs(config.exclusions),
     tests: sanitizePaths(config.tests, baseDir),
-    testInclusions: normalizeGlobs(config.testInclusions, baseDir),
-    testExclusions: normalizeGlobs(config.testExclusions, baseDir),
-    detectBundles: !!config.detectBundles,
+    testInclusions: normalizeGlobs(config.testInclusions),
+    testExclusions: normalizeGlobs(config.testExclusions),
+    detectBundles: config.detectBundles ?? true,
   };
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
 }
@@ -395,8 +394,8 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
-function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
-  return sanitizePaths(globs, baseDir).map(
+function normalizeGlobs(globs: string[] | undefined) {
+  return (globs ?? []).map(
     pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
 }

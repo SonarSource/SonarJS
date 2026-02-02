@@ -79,6 +79,7 @@ export async function testProject(projectName: string) {
 
   setGlobalConfiguration({
     baseDir,
+    maxFileSize: 4000,
     canAccessFileSystem: true,
     tests: testDir ? [testDir] : undefined,
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,

@@ -34,8 +34,8 @@ import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules, sonarlint } = input;
-  if (await shouldIgnoreFile({ filePath, fileContent, sonarlint })) {
+  const { filePath, fileContent, rules } = input;
+  if (await shouldIgnoreFile({ filePath, fileContent })) {
     return { issues: [] };
   }
   const config = createStylelintConfig(rules);

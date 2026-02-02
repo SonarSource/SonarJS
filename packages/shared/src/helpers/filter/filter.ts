@@ -25,10 +25,9 @@ import { type NormalizedAbsolutePath } from '../files.js';
  * Minimal input required for shouldIgnoreFile.
  * All fields are required since the input should be sanitized before calling this function.
  */
-export interface ShouldIgnoreFileInput {
+interface ShouldIgnoreFileInput {
   filePath: NormalizedAbsolutePath;
   fileContent: string;
-  sonarlint: boolean;
 }
 
 /**
