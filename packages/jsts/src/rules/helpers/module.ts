@@ -244,50 +244,36 @@ function checkFqnFromRequire(
   fqn: string[],
   visitedVars: Scope.Variable[],
 ) {
-  if (definition.type !== 'Variable') {
-    return null;
-  }
-
   const value = getUniqueWriteReference(variable);
-  if (!value) {
-    return null;
-  }
-
-  prependDestructuredPropertyName(definition, fqn);
-
-  const nodeToCheck = reduceTo('CallExpression', value, fqn);
-  const moduleName = getModuleNameFromRequire(nodeToCheck)?.value;
-
-  if (typeof moduleName === 'string') {
-    fqn.unshift(...moduleName.split('/'));
-    return fqn.join('.');
-  }
-
-  // Not a require() call - recurse to resolve the FQN
-  // e.g., `const conn = mysql.createConnection()` -> track `conn.query()` as `mysql.createConnection.query`
-  visitedVars.push(variable);
-  const nodeToResolve = nodeToCheck.type === 'CallExpression' ? nodeToCheck.callee : nodeToCheck;
-  return getFullyQualifiedNameRaw(context, nodeToResolve, fqn, variable.scope, visitedVars);
-}
-
-/**
- * For destructuring patterns like `const {Bucket} = require(...)` or `const {Bucket: foo} = require(...)`,
- * prepends the original property name to the FQN.
- */
-function prependDestructuredPropertyName(definition: Scope.Definition, fqn: string[]) {
-  if (definition.type !== 'Variable' || definition.node.id.type !== 'ObjectPattern') {
-    return;
-  }
-
-  for (const property of definition.node.id.properties) {
-    if (property.type === 'Property' && property.value === definition.name) {
-      const key = property.key;
-      if (key.type === 'Identifier') {
-        fqn.unshift(key.name);
+  // requires
+  if (definition.type === 'Variable' && value) {
+    // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
+    // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
+    if (definition.node.id.type === 'ObjectPattern') {
+      for (const property of definition.node.id.properties) {
+        if ((property as estree.Property).value === definition.name) {
+          fqn.unshift(((property as estree.Property).key as estree.Identifier).name);
+        }
       }
-      return;
+    }
+    const nodeToCheck = reduceTo('CallExpression', value, fqn);
+    const module = getModuleNameFromRequire(nodeToCheck)?.value;
+    if (typeof module === 'string') {
+      const importedQualifiers = module.split('/');
+      fqn.unshift(...importedQualifiers);
+      return fqn.join('.');
+    } else {
+      visitedVars.push(variable);
+      // Handle function call results, e.g., `const conn = mysql.createConnection()`
+      // When value is a CallExpression (not require), we need to get the FQN of the callee
+      // and append it to track return value usage like `conn.query()` -> `mysql.createConnection.query`
+      if (nodeToCheck.type === 'CallExpression') {
+        return getFullyQualifiedNameRaw(context, nodeToCheck.callee, fqn, variable.scope, visitedVars);
+      }
+      return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope, visitedVars);
     }
   }
+  return null;
 }
 
 /**
