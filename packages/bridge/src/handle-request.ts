@@ -44,8 +44,8 @@ import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 
 /**
  * Resolves the base directory for single-file analysis and sets global configuration.
- * Uses provided configuration if available, otherwise creates a minimal configuration
- * with baseDir derived from the file path (for standalone usage).
+ * Uses provided configuration if available, otherwise derives baseDir from the file path.
+ * When no configuration is provided, the default configuration is used (already initialized).
  */
 function resolveBaseDir(
   filePath: string,
@@ -55,10 +55,9 @@ function resolveBaseDir(
     setGlobalConfiguration(configuration);
     return getBaseDir();
   }
-  // Fallback for standalone usage: derive baseDir from filePath and set minimal config
-  const baseDir = dirnamePath(normalizeToAbsolutePath(filePath));
-  setGlobalConfiguration({ baseDir });
-  return baseDir;
+  // Fallback for standalone usage: derive baseDir from filePath
+  // Default configuration is already initialized with sensible defaults
+  return dirnamePath(normalizeToAbsolutePath(filePath));
 }
 
 export async function handleRequest(

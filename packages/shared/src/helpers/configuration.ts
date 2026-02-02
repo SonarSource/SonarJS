@@ -21,6 +21,7 @@ import {
   isAbsolutePath,
   normalizePath,
   normalizeToAbsolutePath,
+  ROOT_PATH,
 } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
@@ -125,6 +126,7 @@ const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_MAX_FILE_SIZE_KB = 1000; // 1MB, matches Java default in JavaScriptPlugin.java
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
+// configuration is initialized lazily after all constants are defined (see initDefaultConfiguration)
 let configuration: Configuration;
 
 export function setGlobalConfiguration(config?: RawConfiguration) {
@@ -172,10 +174,7 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
 }
 
-function getConfiguration() {
-  if (!configuration) {
-    throw new Error('Global configuration is not set');
-  }
+function getConfiguration(): Configuration {
   return configuration;
 }
 
@@ -399,6 +398,36 @@ function normalizeGlobs(globs: string[] | undefined) {
     pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
 }
+
+// Initialize default configuration now that all constants are defined.
+// This allows single-file analysis to work without explicit configuration.
+configuration = {
+  baseDir: ROOT_PATH,
+  canAccessFileSystem: true,
+  sonarlint: false,
+  clearDependenciesCache: false,
+  clearTsConfigCache: false,
+  fsEvents: {} as FsEvents,
+  allowTsParserJsFiles: JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
+  analysisMode: JSTS_ANALYSIS_DEFAULTS.analysisMode,
+  skipAst: JSTS_ANALYSIS_DEFAULTS.skipAst,
+  ignoreHeaderComments: JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
+  maxFileSize: DEFAULT_MAX_FILE_SIZE_KB,
+  environments: DEFAULT_ENVIRONMENTS,
+  globals: DEFAULT_GLOBALS,
+  tsSuffixes: DEFAULT_TS_EXTENSIONS,
+  jsSuffixes: DEFAULT_JS_EXTENSIONS,
+  cssSuffixes: DEFAULT_CSS_EXTENSIONS,
+  tsConfigPaths: [],
+  jsTsExclusions: normalizeGlobs(DEFAULT_EXCLUSIONS.concat(IGNORED_PATTERNS)),
+  sources: [],
+  inclusions: [],
+  exclusions: [],
+  tests: [],
+  testInclusions: [],
+  testExclusions: [],
+  detectBundles: true,
+};
 
 /**
  * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
