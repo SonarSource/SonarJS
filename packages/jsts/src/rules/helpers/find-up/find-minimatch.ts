@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Minimatch } from 'minimatch';
-import { join, basename } from 'node:path/posix';
-import type { File, NormalizedAbsolutePath } from '../files.js';
+import { basename } from 'node:path/posix';
+import { type File, type NormalizedAbsolutePath, joinPaths } from '../files.js';
 import fs from 'node:fs';
 import { ComputedCache } from '../cache.js';
 
@@ -39,7 +39,7 @@ export const MinimatchCache = new ComputedCache<
     const files: File[] = [];
     try {
       for (const entry of filesystem.readdirSync(from)) {
-        const fullEntryPath = join(from, entry.toString()) as NormalizedAbsolutePath;
+        const fullEntryPath = joinPaths(from, entry.toString());
         if (matcher.match(basename(fullEntryPath))) {
           let stats: Stats;
 

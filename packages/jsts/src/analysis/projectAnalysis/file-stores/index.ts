@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { dirname } from 'node:path/posix';
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
@@ -26,6 +25,7 @@ import {
   normalizeToAbsolutePath,
   isRoot,
   type NormalizedAbsolutePath,
+  dirnamePath,
 } from '../../../rules/helpers/index.js';
 
 export const sourceFileStore = new SourceFileStore();
@@ -125,16 +125,16 @@ export async function simulateFromInputFiles(
   for (const file of Object.values(inputFiles ?? {})) {
     const filename = normalizeToAbsolutePath(file.filePath);
     files.add(filename);
-    inputFilesPaths.add(dirname(filename) as NormalizedAbsolutePath);
+    inputFilesPaths.add(dirnamePath(filename));
   }
 
   const allPaths = new Set<NormalizedAbsolutePath>();
   // add all parent directories of input files up to the baseDir
   for (const path of inputFilesPaths) {
-    let currentPath: string = path;
+    let currentPath: NormalizedAbsolutePath = path;
     while (baseDir !== currentPath && !isRoot(currentPath)) {
-      allPaths.add(currentPath as NormalizedAbsolutePath);
-      currentPath = dirname(currentPath);
+      allPaths.add(currentPath);
+      currentPath = dirnamePath(currentPath);
     }
   }
 

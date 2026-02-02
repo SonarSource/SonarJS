@@ -23,6 +23,11 @@ import {
   isRoot,
   isAbsolutePath,
   ROOT_PATH,
+  dirnamePath,
+  joinPaths,
+  basenamePath,
+  type NormalizedAbsolutePath,
+  type NormalizedPath,
 } from '../../../src/rules/helpers/files.js';
 
 describe('files', () => {
@@ -171,11 +176,111 @@ describe('files', () => {
       expect(result).not.toContain('\\');
       expect(result).toContain('foo/bar');
     });
+
+    test('should resolve relative paths against baseDir', () => {
+      const baseDir = '/projects/myapp' as NormalizedAbsolutePath;
+      const result = normalizeToAbsolutePath('src/index.ts', baseDir);
+      if (process.platform === 'win32') {
+        // On Windows, resolveWin32 adds drive letter
+        expect(result).toMatch(/^[A-Z]:\/projects\/myapp\/src\/index\.ts$/);
+      } else {
+        expect(result).toEqual('/projects/myapp/src/index.ts');
+      }
+    });
+
+    test('should handle paths with special characters', () => {
+      const result = normalizeToAbsolutePath('foo bar/baz');
+      expect(result).toContain('foo bar/baz');
+    });
+
+    test('should be idempotent for already normalized absolute paths', () => {
+      if (process.platform === 'win32') {
+        const path = 'C:/foo/bar/baz.ts';
+        expect(normalizeToAbsolutePath(path)).toEqual(normalizeToAbsolutePath(path));
+      } else {
+        const path = '/foo/bar/baz.ts';
+        expect(normalizeToAbsolutePath(path)).toEqual('/foo/bar/baz.ts');
+        expect(normalizeToAbsolutePath(normalizeToAbsolutePath(path))).toEqual('/foo/bar/baz.ts');
+      }
+    });
   });
 
   describe('ROOT_PATH', () => {
     test('should be a forward slash', () => {
       expect(ROOT_PATH).toEqual('/');
+    });
+  });
+
+  describe('dirnamePath', () => {
+    test('should return parent directory of absolute path', () => {
+      const path = '/foo/bar/baz.ts' as NormalizedAbsolutePath;
+      expect(dirnamePath(path)).toEqual('/foo/bar');
+    });
+
+    test('should return root for top-level file', () => {
+      const path = '/file.ts' as NormalizedAbsolutePath;
+      expect(dirnamePath(path)).toEqual('/');
+    });
+
+    test('should handle Windows-style paths (normalized)', () => {
+      const path = 'C:/Users/foo/bar.ts' as NormalizedAbsolutePath;
+      expect(dirnamePath(path)).toEqual('C:/Users/foo');
+    });
+
+    test('should preserve branded type', () => {
+      const path = '/foo/bar/baz.ts' as NormalizedAbsolutePath;
+      const result: NormalizedAbsolutePath = dirnamePath(path);
+      expect(result).toEqual('/foo/bar');
+    });
+  });
+
+  describe('joinPaths', () => {
+    test('should join base path with segments', () => {
+      const base = '/foo' as NormalizedAbsolutePath;
+      expect(joinPaths(base, 'bar', 'baz.ts')).toEqual('/foo/bar/baz.ts');
+    });
+
+    test('should handle single segment', () => {
+      const base = '/foo' as NormalizedAbsolutePath;
+      expect(joinPaths(base, 'bar.ts')).toEqual('/foo/bar.ts');
+    });
+
+    test('should handle Windows-style base (normalized)', () => {
+      const base = 'C:/Users' as NormalizedAbsolutePath;
+      expect(joinPaths(base, 'foo', 'bar.ts')).toEqual('C:/Users/foo/bar.ts');
+    });
+
+    test('should preserve branded type', () => {
+      const base = '/foo' as NormalizedAbsolutePath;
+      const result: NormalizedAbsolutePath = joinPaths(base, 'bar');
+      expect(result).toEqual('/foo/bar');
+    });
+
+    test('should handle no additional segments', () => {
+      const base = '/foo' as NormalizedAbsolutePath;
+      expect(joinPaths(base)).toEqual('/foo');
+    });
+  });
+
+  describe('basenamePath', () => {
+    test('should return filename from path', () => {
+      const path = '/foo/bar/baz.ts' as NormalizedPath;
+      expect(basenamePath(path)).toEqual('baz.ts');
+    });
+
+    test('should handle path without extension', () => {
+      const path = '/foo/bar/baz' as NormalizedPath;
+      expect(basenamePath(path)).toEqual('baz');
+    });
+
+    test('should handle Windows-style path (normalized)', () => {
+      const path = 'C:/Users/foo/bar.ts' as NormalizedPath;
+      expect(basenamePath(path)).toEqual('bar.ts');
+    });
+
+    test('should return empty string for root', () => {
+      const path = '/' as NormalizedPath;
+      expect(basenamePath(path)).toEqual('');
     });
   });
 

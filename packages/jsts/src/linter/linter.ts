@@ -27,6 +27,7 @@ import {
   normalizePath,
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
+  dirnamePath,
 } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
@@ -36,7 +37,7 @@ import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
-import { extname, dirname } from 'node:path/posix';
+import { extname } from 'node:path/posix';
 import { defaultOptions } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
 import { getDependencies } from '../rules/helpers/package-jsons/dependencies.js';
@@ -258,11 +259,7 @@ export class Linter {
        * configurations: one per fileType/language/analysisMode combination.
        */
       const normalizedFilePath = normalizeToAbsolutePath(filePath);
-      const normalizedBaseDir = normalizeToAbsolutePath(Linter.baseDir);
-      const dependencies = getDependencies(
-        dirname(normalizedFilePath) as NormalizedAbsolutePath,
-        normalizedBaseDir,
-      );
+      const dependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           fileTypeTargets,
@@ -343,17 +340,13 @@ export class Linter {
 
 function createLinterConfigKey(
   filePath: string,
-  baseDir: string,
+  baseDir: NormalizedAbsolutePath,
   fileType: FileType,
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
-  const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-  const packageJsonDirName = getClosestPackageJSONDir(
-    dirname(normalizedPath) as NormalizedAbsolutePath,
-    normalizedBaseDir,
-  );
+  const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
   return `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
 }

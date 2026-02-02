@@ -20,6 +20,7 @@ import { warn } from '../../../../shared/src/helpers/logging.js';
 import {
   type NormalizedAbsolutePath,
   normalizePath,
+  joinPaths,
 } from '../../../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 
@@ -45,7 +46,7 @@ export function isLastTsConfigCheck(file: string) {
  * Sanitize project references by resolving directories to tsconfig.json paths
  * Warns about and filters out missing references
  */
-export function sanitizeProgramReferences(program: ts.Program): string[] {
+export function sanitizeProgramReferences(program: ts.Program): NormalizedAbsolutePath[] {
   return sanitizeReferences(program.getProjectReferences() ?? []);
 }
 
@@ -77,7 +78,7 @@ export function sanitizeReferences(
 function addTsConfigIfDirectory(tsConfig: NormalizedAbsolutePath) {
   try {
     if (fs.lstatSync(tsConfig).isDirectory()) {
-      return join(tsConfig, 'tsconfig.json') as NormalizedAbsolutePath;
+      return joinPaths(tsConfig, 'tsconfig.json');
     }
 
     return tsConfig;

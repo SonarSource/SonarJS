@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Filesystem, MinimatchCache } from './find-minimatch.js';
-import { isRoot, type File, type NormalizedAbsolutePath } from '../files.js';
+import { isRoot, type File, type NormalizedAbsolutePath, dirnamePath } from '../files.js';
 import { ComputedCache } from '../cache.js';
 import fs from 'node:fs';
-import { dirname } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 
 export const patternInParentsCache = new ComputedCache(
@@ -34,7 +33,7 @@ export const patternInParentsCache = new ComputedCache(
           }
 
           if (!isRoot(from) && from !== topDir) {
-            const parent = dirname(from) as NormalizedAbsolutePath;
+            const parent = dirnamePath(from);
 
             return [...readDir.get(from), ...newCache.get(parent)];
           }

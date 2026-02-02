@@ -135,13 +135,15 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
   } else if (!isAbsolutePath(config.baseDir)) {
     throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
   }
+  // Normalize baseDir first so it can be used by other normalization functions
+  const baseDir = normalizeToAbsolutePath(config.baseDir);
   configuration = {
-    baseDir: normalizeToAbsolutePath(config.baseDir),
+    baseDir,
     canAccessFileSystem: !!config.canAccessFileSystem,
     sonarlint: !!config.sonarlint,
     clearDependenciesCache: !!config.clearDependenciesCache,
     clearTsConfigCache: !!config.clearTsConfigCache,
-    fsEvents: normalizeFsEvents(config.fsEvents),
+    fsEvents: normalizeFsEvents(config.fsEvents, baseDir),
     allowTsParserJsFiles: !!config.allowTsParserJsFiles,
     analysisMode: config.analysisMode ?? 'DEFAULT',
     skipAst: !!config.skipAst,
@@ -152,16 +154,17 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
     tsSuffixes: config.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
     jsSuffixes: config.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
     cssSuffixes: config.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
-    tsConfigPaths: toAbsolutePaths(config.tsConfigPaths),
+    tsConfigPaths: toAbsolutePaths(config.tsConfigPaths, baseDir),
     jsTsExclusions: normalizeGlobs(
       (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+      baseDir,
     ),
-    sources: toAbsolutePaths(config.sources),
-    inclusions: normalizeGlobs(config.inclusions),
-    exclusions: normalizeGlobs(config.exclusions),
-    tests: toAbsolutePaths(config.tests),
-    testInclusions: normalizeGlobs(config.testInclusions),
-    testExclusions: normalizeGlobs(config.testExclusions),
+    sources: toAbsolutePaths(config.sources, baseDir),
+    inclusions: normalizeGlobs(config.inclusions, baseDir),
+    exclusions: normalizeGlobs(config.exclusions, baseDir),
+    tests: toAbsolutePaths(config.tests, baseDir),
+    testInclusions: normalizeGlobs(config.testInclusions, baseDir),
+    testExclusions: normalizeGlobs(config.testExclusions, baseDir),
     detectBundles: !!config.detectBundles,
   };
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
@@ -368,28 +371,31 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
-function normalizeGlobs(globs: string[] | undefined) {
-  return toAbsolutePaths(globs).map(
+function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
+  return toAbsolutePaths(globs, baseDir).map(
     pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
   );
 }
 
-function toAbsolutePaths(paths: string[] | undefined) {
-  return (paths || []).map(path => normalizeToAbsolutePath(path, getBaseDir()));
+function toAbsolutePaths(paths: string[] | undefined, baseDir: NormalizedAbsolutePath) {
+  return (paths || []).map(path => normalizeToAbsolutePath(path, baseDir));
 }
 
 /**
  * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
  * This ensures type safety at compile time - you cannot assign FsEventsRaw directly to FsEvents.
  */
-function normalizeFsEvents(raw: FsEventsRaw | undefined): FsEvents {
+function normalizeFsEvents(
+  raw: FsEventsRaw | undefined,
+  baseDir: NormalizedAbsolutePath,
+): FsEvents {
   if (!raw) {
     return {} as FsEvents;
   }
 
   const result: { [key: string]: FsEventType } = {};
   for (const [key, value] of Object.entries(raw)) {
-    result[normalizeToAbsolutePath(key, getBaseDir())] = value;
+    result[normalizeToAbsolutePath(key, baseDir)] = value;
   }
   return result as FsEvents;
 }

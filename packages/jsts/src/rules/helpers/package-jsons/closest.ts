@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { dirname } from 'node:path/posix';
-import { type NormalizedAbsolutePath, ROOT_PATH } from '../files.js';
+import { type NormalizedAbsolutePath, ROOT_PATH, dirnamePath } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { closestPatternCache } from '../find-up/closest.js';
 
@@ -28,6 +27,6 @@ export function getClosestPackageJSONDir(
     .get(topDir ?? ROOT_PATH)
     .get(dir)?.path;
   if (closestPackageJSONDir) {
-    return dirname(closestPackageJSONDir) as NormalizedAbsolutePath;
+    return dirnamePath(closestPackageJSONDir);
   }
 }

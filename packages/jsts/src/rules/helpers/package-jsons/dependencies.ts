@@ -18,9 +18,8 @@ import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
 import { Minimatch } from 'minimatch';
 import fs from 'node:fs';
-import { dirname } from 'node:path/posix';
 import { minVersion } from 'semver';
-import { type NormalizedAbsolutePath, normalizeToAbsolutePath } from '../files.js';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
@@ -62,7 +61,7 @@ export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedA
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
   return getDependencies(
-    dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath,
+    dirnamePath(normalizeToAbsolutePath(context.filename)),
     normalizeToAbsolutePath(context.cwd),
   );
 }
@@ -74,7 +73,7 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
  * @returns React version string (coerced from range) or null if not found
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
-  const dir = dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath;
+  const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
   for (const packageJson of getManifests(dir, normalizeToAbsolutePath(context.cwd), fs)) {
     const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
     if (reactVersion) {

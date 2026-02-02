@@ -21,11 +21,11 @@ import {
   normalizeToAbsolutePath,
   ROOT_PATH,
   stripBOM,
+  dirnamePath,
 } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
-import { dirname } from 'node:path/posix';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -59,7 +59,7 @@ export const getManifestsSanitizePaths = (
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
   return getManifests(
-    dirname(normalizeToAbsolutePath(context.filename)) as NormalizedAbsolutePath,
+    dirnamePath(normalizeToAbsolutePath(context.filename)),
     normalizeToAbsolutePath(context.cwd),
     fileSystem,
   );

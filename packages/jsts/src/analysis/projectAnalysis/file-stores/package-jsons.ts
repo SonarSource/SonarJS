@@ -15,11 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { getFsEvents } from '../../../../../shared/src/helpers/configuration.js';
-import { dirname } from 'node:path/posix';
 import { readFile } from 'node:fs/promises';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
 import { FileStore } from './store-type.js';
-import type { File, NormalizedAbsolutePath } from '../../../rules/helpers/files.js';
+import {
+  type File,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../../../rules/helpers/files.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
@@ -82,7 +85,7 @@ export class PackageJsonStore implements FileStore {
     if (isPackageJson(filename)) {
       try {
         const content = await readFile(filename, 'utf-8');
-        this.packageJsons.set(dirname(filename) as NormalizedAbsolutePath, {
+        this.packageJsons.set(dirnamePath(filename), {
           content,
           path: filename,
         });
@@ -93,7 +96,7 @@ export class PackageJsonStore implements FileStore {
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
-    this.dirnameToParent.set(dir, dirname(dir) as NormalizedAbsolutePath);
+    this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
   async postProcess() {

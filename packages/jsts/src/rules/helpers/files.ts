@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import {
+  basename as basenamePosix,
+  dirname as dirnamePosix,
   isAbsolute as isUnixAbsolute,
+  join as joinPosix,
   parse as parsePosix,
   resolve as resolvePosix,
 } from 'node:path/posix';
@@ -137,4 +140,37 @@ export function isAbsolutePath(path: string) {
     return true;
   }
   return isUnixAbsolute(path) || isWinAbsolute(path);
+}
+
+/**
+ * Type-safe dirname that preserves the NormalizedAbsolutePath brand.
+ * The dirname of an absolute path is always absolute.
+ * @param filePath the absolute path to get the directory of
+ * @returns the parent directory as a branded NormalizedAbsolutePath
+ */
+export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
+  return dirnamePosix(filePath) as NormalizedAbsolutePath;
+}
+
+/**
+ * Type-safe path join that preserves the NormalizedAbsolutePath brand.
+ * Joins path segments using posix separators.
+ * @param base the base absolute path
+ * @param segments additional path segments to join
+ * @returns the joined path as a branded NormalizedAbsolutePath
+ */
+export function joinPaths(
+  base: NormalizedAbsolutePath,
+  ...segments: string[]
+): NormalizedAbsolutePath {
+  return joinPosix(base, ...segments) as NormalizedAbsolutePath;
+}
+
+/**
+ * Type-safe basename that extracts the filename from a path.
+ * @param filePath the path to extract the basename from
+ * @returns the filename (last segment of the path)
+ */
+export function basenamePath(filePath: NormalizedPath): string {
+  return basenamePosix(filePath);
 }

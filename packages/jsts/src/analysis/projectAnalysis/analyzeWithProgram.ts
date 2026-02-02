@@ -199,10 +199,8 @@ async function analyzeFilesFromTsConfig(
     .filter(fileName => files[fileName] && pendingFiles.has(fileName));
 
   for (const reference of sanitizeProgramReferences(tsProgram)) {
-    // sanitizeProgramReferences returns NormalizedAbsolutePath[] via sanitizeReferences
-    const normalizedReference = reference as NormalizedAbsolutePath;
-    if (!processedTSConfigs.has(normalizedReference)) {
-      tsConfigStore.addDiscoveredTsConfig(normalizedReference);
+    if (!processedTSConfigs.has(reference)) {
+      tsConfigStore.addDiscoveredTsConfig(reference);
     }
   }
 
