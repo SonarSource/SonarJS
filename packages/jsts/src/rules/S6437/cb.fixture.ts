@@ -129,3 +129,13 @@ const sessionSecret = 'beautiful dog';
 //                    ^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
   session({ secret: sessionSecret }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^
+
+import ldap from 'ldapjs';
+const client = ldap.createClient({ url: 'ldap://localhost:389' });
+  client.bind('cn=admin,dc=example,dc=org', 'hardcodedPassword123'); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^
+client.bind('cn=admin,dc=example,dc=org', process.env.LDAP_PASSWORD);
+const ldapPassword = 'secret';
+//                   ^^^^^^^^ > {{Hardcoded value assigned here}}
+  client.bind('cn=admin,dc=example,dc=org', ldapPassword); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^
