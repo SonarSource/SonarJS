@@ -30,7 +30,7 @@ const sqlQuerySignatures = [
   'mysql2.createConnection.query',
   'mysql2.createPool.query',
   'mysql2.createPoolCluster.query',
-  'sequelize.query',
+  'sequelize.Sequelize.query', // Sequelize is typically destructured: const { Sequelize } = require('sequelize')
   'sqlite3.Database.run',
   'sqlite3.Database.get',
   'sqlite3.Database.all',

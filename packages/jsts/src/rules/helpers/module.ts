@@ -264,6 +264,12 @@ function checkFqnFromRequire(
       return fqn.join('.');
     } else {
       visitedVars.push(variable);
+      // Handle function call results, e.g., `const conn = mysql.createConnection()`
+      // When value is a CallExpression (not require), we need to get the FQN of the callee
+      // and append it to track return value usage like `conn.query()` -> `mysql.createConnection.query`
+      if (nodeToCheck.type === 'CallExpression') {
+        return getFullyQualifiedNameRaw(context, nodeToCheck.callee, fqn, variable.scope, visitedVars);
+      }
       return getFullyQualifiedNameRaw(context, nodeToCheck, fqn, variable.scope, visitedVars);
     }
   }
