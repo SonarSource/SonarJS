@@ -33,7 +33,7 @@ import {
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/configuration.js';
 import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
-import { normalizeToAbsolutePath, dirnamePath } from '../../shared/src/helpers/files.js';
+import { normalizeToAbsolutePath, dirnamePath, ROOT_PATH } from '../../shared/src/helpers/files.js';
 import {
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
@@ -71,7 +71,7 @@ export async function handleRequest(
       case 'on-init-linter': {
         const { rules, environments, globals, baseDir, sonarlint, bundles, rulesWorkdir } =
           request.data;
-        const sanitizedBaseDir = normalizeToAbsolutePath(baseDir);
+        const sanitizedBaseDir = baseDir ? normalizeToAbsolutePath(baseDir) : ROOT_PATH;
         await Linter.initialize({
           rules,
           environments,
