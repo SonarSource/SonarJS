@@ -143,7 +143,7 @@
     "protobufjs": "7.5.4",
     "scslre": "0.3.0",
     "semver": "7.7.3",
-    "stylelint": "17.0.0",
+    "stylelint": "17.1.0",
     "stylelint-config-html": "1.1.0",
     "ts-api-utils": "2.4.0",
     "typescript": "5.9.3",
