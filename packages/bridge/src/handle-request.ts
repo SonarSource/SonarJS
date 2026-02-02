@@ -33,12 +33,33 @@ import {
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/configuration.js';
 import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
-import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { normalizeToAbsolutePath, dirnamePath } from '../../shared/src/helpers/files.js';
 import {
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
   sanitizePaths,
 } from '../../shared/src/helpers/sanitize.js';
+import type { RawConfiguration } from '../../shared/src/helpers/configuration.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
+
+/**
+ * Resolves the base directory for single-file analysis and sets global configuration.
+ * Uses provided configuration if available, otherwise creates a minimal configuration
+ * with baseDir derived from the file path (for standalone usage).
+ */
+function resolveBaseDir(
+  filePath: string,
+  configuration?: RawConfiguration,
+): NormalizedAbsolutePath {
+  if (configuration) {
+    setGlobalConfiguration(configuration);
+    return getBaseDir();
+  }
+  // Fallback for standalone usage: derive baseDir from filePath and set minimal config
+  const baseDir = dirnamePath(normalizeToAbsolutePath(filePath));
+  setGlobalConfiguration({ baseDir });
+  return baseDir;
+}
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -65,34 +86,27 @@ export async function handleRequest(
         return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
-        setGlobalConfiguration(request.data.configuration);
-        const baseDir = getBaseDir();
+        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
         const sanitizedInput = await sanitizeJsTsAnalysisInput(request.data, baseDir);
         const output = await analyzeJSTS(sanitizedInput);
-        return {
-          type: 'success',
-          result: output,
-        };
+        return { type: 'success', result: output };
       }
       case 'on-analyze-css': {
-        setGlobalConfiguration(request.data.configuration);
-        const baseInput = await sanitizeAnalysisInput(request.data, getBaseDir());
-        const sanitizedInput = {
-          ...baseInput,
-          rules: request.data.rules,
-        };
+        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
+        const baseInput = await sanitizeAnalysisInput(request.data, baseDir);
+        const sanitizedInput = { ...baseInput, rules: request.data.rules };
         const output = await analyzeCSS(sanitizedInput);
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        setGlobalConfiguration(request.data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, getBaseDir());
+        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
+        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
         const output = await analyzeYAML(sanitizedInput);
         return { type: 'success', result: output };
       }
       case 'on-analyze-html': {
-        setGlobalConfiguration(request.data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, getBaseDir());
+        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
+        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
         const output = await analyzeHTML(sanitizedInput);
         return { type: 'success', result: output };
       }
