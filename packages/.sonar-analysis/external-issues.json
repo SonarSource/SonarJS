@@ -1,0 +1,110 @@
+[
+  {
+    "rule": "typescript:S4325",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 65,
+    "message": "This assertion is unnecessary since it does not change the type of the expression.",
+    "textRange": {
+      "startLine": 65,
+      "endLine": 65,
+      "startOffset": 19,
+      "endOffset": 49
+    }
+  },
+  {
+    "rule": "typescript:S4325",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 96,
+    "message": "This assertion is unnecessary since it does not change the type of the expression.",
+    "textRange": {
+      "startLine": 96,
+      "endLine": 96,
+      "startOffset": 17,
+      "endOffset": 59
+    }
+  },
+  {
+    "rule": "typescript:S3776",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 108,
+    "message": "Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed.",
+    "textRange": {
+      "startLine": 108,
+      "endLine": 108,
+      "startOffset": 9,
+      "endOffset": 33
+    }
+  },
+  {
+    "rule": "typescript:S134",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 137,
+    "message": "Refactor this code to not nest more than 3 if/for/while/switch/try statements.",
+    "textRange": {
+      "startLine": 137,
+      "endLine": 137,
+      "startOffset": 8,
+      "endOffset": 10
+    }
+  },
+  {
+    "rule": "typescript:S4325",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 182,
+    "message": "This assertion is unnecessary since it does not change the type of the expression.",
+    "textRange": {
+      "startLine": 182,
+      "endLine": 182,
+      "startOffset": 18,
+      "endOffset": 89
+    }
+  },
+  {
+    "rule": "typescript:S4325",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 250,
+    "message": "This assertion is unnecessary since it does not change the type of the expression.",
+    "textRange": {
+      "startLine": 250,
+      "endLine": 250,
+      "startOffset": 18,
+      "endOffset": 89
+    }
+  },
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 274,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 274,
+      "endLine": 274,
+      "startOffset": 2,
+      "endOffset": 4
+    }
+  },
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 289,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 289,
+      "endLine": 289,
+      "startOffset": 2,
+      "endOffset": 4
+    }
+  },
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 331,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 331,
+      "endLine": 331,
+      "startOffset": 4,
+      "endOffset": 6
+    }
+  }
+]
