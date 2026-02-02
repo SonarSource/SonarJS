@@ -110,6 +110,94 @@ class DirectComponent extends React.Component {
 }
           `,
         },
+        {
+          name: 'baseline: external assignment without spread',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+class ExternalComponent extends React.Component {
+  render() {
+    return <span>{this.props.name}</span>;
+  }
+}
+
+ExternalComponent.propTypes = {
+  name: PropTypes.string,
+};
+
+ExternalComponent.defaultProps = {
+  name: 'default',
+};
+          `,
+        },
+        {
+          name: 'baseline: class component without static propTypes in class body',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+class NoStaticPropTypes extends React.Component {
+  static defaultProps = {
+    name: 'default',
+  };
+
+  render() {
+    return <span>{this.props.name}</span>;
+  }
+}
+
+NoStaticPropTypes.propTypes = {
+  name: PropTypes.string,
+};
+          `,
+        },
+        {
+          name: 'baseline: function component (no class body)',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+function FunctionComponent(props) {
+  return <span>{props.name}</span>;
+}
+
+FunctionComponent.propTypes = {
+  name: PropTypes.string,
+};
+
+FunctionComponent.defaultProps = {
+  name: 'default',
+};
+          `,
+        },
+        {
+          name: 'FP fix: external assignment with spread - should not report',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const SharedProps = {
+  shared: PropTypes.string,
+};
+
+class ComponentWithExternalAssignment extends React.Component {
+  render() {
+    return <span>{this.props.shared}</span>;
+  }
+}
+
+ComponentWithExternalAssignment.propTypes = {
+  ...SharedProps,
+  bar: PropTypes.string,
+};
+
+ComponentWithExternalAssignment.defaultProps = {
+  shared: 'valid',
+  bar: 'valid',
+};
+          `,
+        },
       ],
       invalid: [
         {

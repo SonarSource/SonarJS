@@ -62,7 +62,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      const node = descriptor.node as estree.Node;
+      const node = descriptor.node;
 
       // Find the component's propTypes declaration
       const propTypesValue = findPropTypesDeclaration(node, context);
@@ -93,7 +93,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  */
 function extractPropertyName(descriptor: Rule.ReportDescriptor): string | null {
   if ('data' in descriptor && descriptor.data && typeof descriptor.data === 'object') {
-    const data = descriptor.data as Record<string, unknown>;
+    const data = descriptor.data;
     if ('name' in data && typeof data.name === 'string') {
       return data.name;
     }
@@ -113,44 +113,105 @@ function findPropTypesDeclaration(
 
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const ancestor = ancestors[i];
-
-    // Pattern 1: Class component with static propTypes
-    if (ancestor.type === 'ClassBody') {
-      const propTypes = findStaticPropTypes(ancestor);
-      if (propTypes) {
-        return getUniqueWriteUsageOrNode(context, propTypes, true);
-      }
-    }
-
-    // Pattern 2: External assignment - Component.defaultProps = {...}
-    // We need to find Component.propTypes
-    if (ancestor.type === 'AssignmentExpression') {
-      const left = ancestor.left;
-      if (
-        left.type === 'MemberExpression' &&
-        left.object.type === 'Identifier' &&
-        left.property.type === 'Identifier' &&
-        left.property.name === 'defaultProps'
-      ) {
-        const componentName = left.object.name;
-        const propTypes = findExternalPropTypes(componentName, ancestors);
-        if (propTypes) {
-          return getUniqueWriteUsageOrNode(context, propTypes, true);
-        }
-      }
-    }
-
-    // Pattern 3: Reported node is inside a constant used as defaultProps
-    // e.g., const DefaultProps = { prop: value }; class uses static defaultProps = DefaultProps;
-    if (ancestor.type === 'VariableDeclarator' && ancestor.id.type === 'Identifier') {
-      const constantName = ancestor.id.name;
-      const propTypes = findPropTypesForDefaultPropsConstant(constantName, ancestors);
-      if (propTypes) {
-        return getUniqueWriteUsageOrNode(context, propTypes, true);
-      }
+    const propTypes = findPropTypesForAncestor(ancestor, ancestors, context);
+    if (propTypes) {
+      return propTypes;
     }
   }
 
+  return null;
+}
+
+/**
+ * Try to find propTypes based on the ancestor node type.
+ */
+function findPropTypesForAncestor(
+  ancestor: estree.Node,
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+): estree.Node | null {
+  // Pattern 1: Class component with static propTypes
+  if (ancestor.type === 'ClassBody') {
+    return findPropTypesFromClassBody(ancestor, context);
+  }
+
+  // Pattern 2: External assignment - Component.defaultProps = {...}
+  if (ancestor.type === 'AssignmentExpression') {
+    return findPropTypesFromAssignment(ancestor, ancestors, context);
+  }
+
+  // Pattern 3: Reported node is inside a constant used as defaultProps
+  if (ancestor.type === 'VariableDeclarator' && ancestor.id.type === 'Identifier') {
+    return findPropTypesFromVariableDeclarator(ancestor, ancestors, context);
+  }
+
+  return null;
+}
+
+/**
+ * Find propTypes from a class body.
+ */
+function findPropTypesFromClassBody(
+  classBody: estree.ClassBody,
+  context: Rule.RuleContext,
+): estree.Node | null {
+  const propTypes = findStaticPropTypes(classBody);
+  if (propTypes) {
+    return getUniqueWriteUsageOrNode(context, propTypes, true);
+  }
+  return null;
+}
+
+/**
+ * Find propTypes from an assignment expression (Component.defaultProps = {...}).
+ */
+function findPropTypesFromAssignment(
+  assignment: estree.AssignmentExpression,
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+): estree.Node | null {
+  const componentName = getDefaultPropsComponentName(assignment.left);
+  if (!componentName) {
+    return null;
+  }
+  const propTypes = findExternalPropTypes(componentName, ancestors);
+  if (propTypes) {
+    return getUniqueWriteUsageOrNode(context, propTypes, true);
+  }
+  return null;
+}
+
+/**
+ * Extract component name from a defaultProps assignment target.
+ */
+function getDefaultPropsComponentName(left: estree.Pattern): string | null {
+  if (
+    left.type === 'MemberExpression' &&
+    left.object.type === 'Identifier' &&
+    left.property.type === 'Identifier' &&
+    left.property.name === 'defaultProps'
+  ) {
+    return left.object.name;
+  }
+  return null;
+}
+
+/**
+ * Find propTypes from a variable declarator (constant used as defaultProps).
+ */
+function findPropTypesFromVariableDeclarator(
+  declarator: estree.VariableDeclarator,
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+): estree.Node | null {
+  if (declarator.id.type !== 'Identifier') {
+    return null;
+  }
+  const constantName = declarator.id.name;
+  const propTypes = findPropTypesForDefaultPropsConstant(constantName, ancestors);
+  if (propTypes) {
+    return getUniqueWriteUsageOrNode(context, propTypes, true);
+  }
   return null;
 }
 
@@ -179,7 +240,7 @@ function findExternalPropTypes(
   componentName: string,
   ancestors: estree.Node[],
 ): estree.Node | null {
-  const program = ancestors.find(n => n.type === 'Program') as estree.Program | undefined;
+  const program = ancestors.find((n): n is estree.Program => n.type === 'Program');
   if (!program) {
     return null;
   }
@@ -247,7 +308,7 @@ function findPropTypesForDefaultPropsConstant(
   constantName: string,
   ancestors: estree.Node[],
 ): estree.Node | null {
-  const program = ancestors.find(n => n.type === 'Program') as estree.Program | undefined;
+  const program = ancestors.find((n): n is estree.Program => n.type === 'Program');
   if (!program) {
     return null;
   }
@@ -271,10 +332,8 @@ function findPropTypesInStatement(
 ): estree.Node | null {
   // Check class declarations
   const classInfo = extractClassDeclaration(statement);
-  if (classInfo) {
-    if (classUsesDefaultPropsConstant(classInfo.body, defaultPropsConstantName)) {
-      return findStaticPropTypes(classInfo.body);
-    }
+  if (classInfo && classUsesDefaultPropsConstant(classInfo.body, defaultPropsConstantName)) {
+    return findStaticPropTypes(classInfo.body);
   }
 
   // Check for function declarations that return classes (factory pattern)
@@ -286,15 +345,17 @@ function findPropTypesInStatement(
   }
 
   // Check for exported functions
-  if (statement.type === 'ExportNamedDeclaration' && statement.declaration) {
-    if (statement.declaration.type === 'FunctionDeclaration' && statement.declaration.body) {
-      const propTypes = findPropTypesInFunctionBody(
-        statement.declaration.body,
-        defaultPropsConstantName,
-      );
-      if (propTypes) {
-        return propTypes;
-      }
+  if (
+    statement.type === 'ExportNamedDeclaration' &&
+    statement.declaration?.type === 'FunctionDeclaration' &&
+    statement.declaration.body
+  ) {
+    const propTypes = findPropTypesInFunctionBody(
+      statement.declaration.body,
+      defaultPropsConstantName,
+    );
+    if (propTypes) {
+      return propTypes;
     }
   }
 
@@ -328,13 +389,12 @@ function findPropTypesInFunctionBody(
   defaultPropsConstantName: string,
 ): estree.Node | null {
   for (const stmt of body.body) {
-    if (stmt.type === 'ReturnStatement' && stmt.argument) {
-      if (
-        stmt.argument.type === 'ClassExpression' &&
-        classUsesDefaultPropsConstant(stmt.argument.body, defaultPropsConstantName)
-      ) {
-        return findStaticPropTypes(stmt.argument.body);
-      }
+    if (
+      stmt.type === 'ReturnStatement' &&
+      stmt.argument?.type === 'ClassExpression' &&
+      classUsesDefaultPropsConstant(stmt.argument.body, defaultPropsConstantName)
+    ) {
+      return findStaticPropTypes(stmt.argument.body);
     }
   }
   return null;
