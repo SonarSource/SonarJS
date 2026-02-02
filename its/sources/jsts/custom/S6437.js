@@ -76,3 +76,10 @@ const tokenStr = 'token';
 jwt.verify(tokenStr, 'mySecretKey123');
 jwt.verify(tokenStr, process.env.JWT_SECRET);
 jwt.verify(tokenStr, jwtSecret);
+
+import ldap from 'ldapjs';
+const client = ldap.createClient({ url: 'ldap://localhost:389' });
+client.bind('cn=admin,dc=example,dc=org', 'hardcodedPassword123');
+client.bind('cn=admin,dc=example,dc=org', process.env.LDAP_PASSWORD);
+const ldapPassword = 'secret';
+client.bind('cn=admin,dc=example,dc=org', ldapPassword);
