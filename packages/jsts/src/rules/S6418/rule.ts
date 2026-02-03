@@ -135,6 +135,8 @@ function findKeySuspect(node: estree.Node): string | undefined {
     secretWordRegexps.some(pattern => pattern.test(node.value as string))
   ) {
     return node.value as string;
+  } else if (node.type === 'MemberExpression') {
+    return findKeySuspect(node.property);
   } else {
     return undefined;
   }
