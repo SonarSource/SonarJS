@@ -21,16 +21,16 @@ import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in
 import { type NormalizedAbsolutePath, joinPaths } from '../../../src/rules/helpers/files.js';
 import { beforeEach, describe, it } from 'node:test';
 
-// Use a fixed root path for tests to avoid platform differences (Windows adds drive letter)
-const ROOT = '/test-root' as NormalizedAbsolutePath;
+// Cast directly to avoid normalizeToAbsolutePath() which adds drive letter on Windows
+const ROOT = '/' as NormalizedAbsolutePath;
 
 describe('findUp', () => {
   beforeEach(() => patternInParentsCache.clear());
   it('only touches the filesystem when needed', ({ mock }) => {
     const filesystem = Volume.fromJSON({
-      '/test-root/a/b/c/d/foo.bar': '/test-root/a/b/c/d/foo.bar content',
-      '/test-root/a/b/c/foo.bar': '/test-root/a/b/c/foo.bar content',
-      '/test-root/a/foo.bar': '/test-root/a/foo.bar content',
+      '/a/b/c/d/foo.bar': '/a/b/c/d/foo.bar content',
+      '/a/b/c/foo.bar': '/a/b/c/foo.bar content',
+      '/a/foo.bar': '/a/foo.bar content',
     });
     console.log(filesystem.toJSON());
 
@@ -58,9 +58,9 @@ describe('findUp', () => {
     for (const entries of [abcEntries, abcEntries2, abcEntries3, abcEntries4]) {
       equal(entries.length, 2);
       equal(entries[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-      equal(entries[0].content.toString(), '/test-root/a/b/c/foo.bar content');
+      equal(entries[0].content.toString(), '/a/b/c/foo.bar content');
       equal(entries[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
-      equal(entries[1].content.toString(), '/test-root/a/foo.bar content');
+      equal(entries[1].content.toString(), '/a/foo.bar content');
     }
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
@@ -74,9 +74,9 @@ describe('findUp', () => {
 
   it('honors the threshold', () => {
     const filesystem = Volume.fromJSON({
-      '/test-root/a/b/c/foo.bar': '/test-root/a/b/c/foo.bar content',
-      '/test-root/a/foo.bar': '/test-root/a/foo.bar content',
-      '/test-root/foo.bar': '/test-root/foo.bar content',
+      '/a/b/c/foo.bar': '/a/b/c/foo.bar content',
+      '/a/foo.bar': '/a/foo.bar content',
+      '/foo.bar': '/foo.bar content',
     });
 
     const entriesUpToRoot = patternInParentsCache
@@ -105,9 +105,9 @@ describe('findUp', () => {
 
   it('honors the glob pattern', () => {
     const filesystem = Volume.fromJSON({
-      '/test-root/a/b/c/foo.bar': '/test-root/a/b/c/foo.bar content',
-      '/test-root/a/foo.x.bar': '/test-root/a/foo.bar content',
-      '/test-root/foo.y.bar': '/test-root/foo.bar content',
+      '/a/b/c/foo.bar': '/a/b/c/foo.bar content',
+      '/a/foo.x.bar': '/a/foo.bar content',
+      '/foo.y.bar': '/foo.bar content',
     });
 
     const entriesUpToRoot = patternInParentsCache

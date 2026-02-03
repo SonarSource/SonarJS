@@ -50,7 +50,7 @@ export function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(item => typeof item === 'string');
 }
 
-export function isFileStatus(value: unknown): value is FileStatus {
+function isFileStatus(value: unknown): value is FileStatus {
   return value === 'SAME' || value === 'CHANGED' || value === 'ADDED';
 }
 

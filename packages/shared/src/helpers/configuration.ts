@@ -19,7 +19,6 @@ import { extname } from 'node:path/posix';
 import {
   type NormalizedAbsolutePath,
   isAbsolutePath,
-  normalizePath,
   normalizeToAbsolutePath,
   ROOT_PATH,
 } from './files.js';
@@ -170,13 +169,14 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
       (isStringArray(config.jsTsExclusions) ? config.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
         IGNORED_PATTERNS,
       ),
+      baseDir,
     ),
     sources: sanitizePaths(config.sources, baseDir),
-    inclusions: normalizeGlobs(config.inclusions),
-    exclusions: normalizeGlobs(config.exclusions),
+    inclusions: normalizeGlobs(config.inclusions, baseDir),
+    exclusions: normalizeGlobs(config.exclusions, baseDir),
     tests: sanitizePaths(config.tests, baseDir),
-    testInclusions: normalizeGlobs(config.testInclusions),
-    testExclusions: normalizeGlobs(config.testExclusions),
+    testInclusions: normalizeGlobs(config.testInclusions, baseDir),
+    testExclusions: normalizeGlobs(config.testExclusions, baseDir),
     detectBundles: isBoolean(config.detectBundles) ? config.detectBundles : true,
   };
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
@@ -401,9 +401,14 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
-function normalizeGlobs(globs: string[] | undefined) {
+function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
   return (globs ?? []).map(
-    pattern => new Minimatch(normalizePath(pattern), { nocase: true, matchBase: true, dot: true }),
+    pattern =>
+      new Minimatch(normalizeToAbsolutePath(pattern.trim(), baseDir), {
+        nocase: true,
+        matchBase: true,
+        dot: true,
+      }),
   );
 }
 
@@ -427,7 +432,7 @@ configuration = {
   jsSuffixes: DEFAULT_JS_EXTENSIONS,
   cssSuffixes: DEFAULT_CSS_EXTENSIONS,
   tsConfigPaths: [],
-  jsTsExclusions: normalizeGlobs(DEFAULT_EXCLUSIONS.concat(IGNORED_PATTERNS)),
+  jsTsExclusions: normalizeGlobs(DEFAULT_EXCLUSIONS.concat(IGNORED_PATTERNS), ROOT_PATH),
   sources: [],
   inclusions: [],
   exclusions: [],
