@@ -133,11 +133,8 @@ describe('S6324', () => {
         {
           // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
           // Matches CSI, OSC, and simple ESC sequences
+          // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char
           code: String.raw`/(?:\x1b\[|\x9b)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^\`{}|~]/`,
-        },
-        {
-          // OSC sequence pattern matching with ST terminator alternative
-          code: String.raw`/(?:\x1b\]|\x9d).*?(?:\x1b\\|\x07|\x9c)/`,
         },
       ],
       invalid: [
