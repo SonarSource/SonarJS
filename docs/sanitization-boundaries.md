@@ -402,5 +402,4 @@ const parent = dirnamePath(filePath); // Returns NormalizedAbsolutePath
 ## Related Documentation
 
 - [Branded ProgramOptions](./branded-program-options.md) - Similar pattern for TypeScript program creation
-- [PR Context](../PR_CONTEXT.md) - Background on the branded types implementation
-- [Refactoring Plan](../PLAN.md) - Upcoming improvements to type safety
+- [TypeScript Program Creation Guide](./typescript-program-creation-guide.md) - How TypeScript programs are created and managed

@@ -30,9 +30,13 @@ describe('global configuration', () => {
     );
   });
   it('baseDir is mandatory', async () => {
-    expect(() => setGlobalConfiguration({})).toThrow(new Error('baseDir is required'));
+    expect(() => setGlobalConfiguration({})).toThrow(
+      new Error('baseDir is required and must be a string'),
+    );
   });
-  it('baseDir is mandatory', async () => {
-    expect(() => setGlobalConfiguration({})).toThrow(new Error('baseDir is required'));
+  it('baseDir must be a string', async () => {
+    expect(() => setGlobalConfiguration({ baseDir: 123 })).toThrow(
+      new Error('baseDir is required and must be a string'),
+    );
   });
 });

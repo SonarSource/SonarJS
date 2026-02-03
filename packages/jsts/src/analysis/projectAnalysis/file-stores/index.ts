@@ -17,9 +17,8 @@
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import { type RawJsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
-import type { FileStore } from './store-type.js';
+import type { FileStore, RawInputFiles } from './store-type.js';
 import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
 import {
   normalizeToAbsolutePath,
@@ -32,7 +31,7 @@ export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
 export const tsConfigStore = new TsConfigStore();
 
-export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles?: RawJsTsFiles) {
+export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles?: RawInputFiles) {
   const pendingStores: FileStore[] = [];
 
   for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
@@ -73,7 +72,7 @@ export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles
 
 export async function getFilesToAnalyze(
   baseDir: NormalizedAbsolutePath,
-  inputFiles?: RawJsTsFiles,
+  inputFiles?: RawInputFiles,
 ) {
   await initFileStores(baseDir, inputFiles);
 
@@ -93,7 +92,7 @@ export async function getFilesToAnalyze(
 }
 
 export async function simulateFromInputFiles(
-  inputFiles: RawJsTsFiles,
+  inputFiles: RawInputFiles,
   baseDir: NormalizedAbsolutePath,
   pendingStores: FileStore[],
 ) {
@@ -102,7 +101,7 @@ export async function simulateFromInputFiles(
   const files = new Set<NormalizedAbsolutePath>();
   for (const file of Object.values(inputFiles ?? {})) {
     // Normalize paths here for directory simulation purposes
-    const filename = normalizeToAbsolutePath(file.filePath, baseDir);
+    const filename = normalizeToAbsolutePath(file.filePath as string, baseDir);
     files.add(filename);
     inputFilesPaths.add(dirnamePath(filename));
   }

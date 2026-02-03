@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { type NormalizedAbsolutePath } from '../helpers/files.js';
-import { RawConfiguration } from '../helpers/configuration.js';
 
 /**
  * A sanitized analysis input with all required fields populated.
@@ -31,18 +30,6 @@ export interface AnalysisInput {
   filePath: NormalizedAbsolutePath;
   fileContent: string;
   sonarlint: boolean;
-}
-
-/**
- * Raw analysis input as received from JSON deserialization.
- * Path fields are strings that haven't been validated or normalized yet.
- * Fields are optional and will be filled with defaults during sanitization.
- */
-export interface RawAnalysisInput {
-  filePath: string;
-  fileContent?: string;
-  sonarlint?: boolean;
-  configuration?: RawConfiguration;
 }
 
 /**

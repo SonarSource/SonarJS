@@ -24,7 +24,15 @@ import {
 } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
-import { sanitizePaths, isBoolean, isNumber, isStringArray, isAnalysisMode } from './sanitize.js';
+import {
+  sanitizePaths,
+  isBoolean,
+  isNumber,
+  isString,
+  isStringArray,
+  isAnalysisMode,
+  isObject,
+} from './sanitize.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -38,13 +46,6 @@ import { sanitizePaths, isBoolean, isNumber, isStringArray, isAnalysisMode } fro
 export type JsTsLanguage = 'js' | 'ts';
 
 type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
-/** Data filled in file watcher FSListenerImpl.java
- *
- * Map entry {filePath => event} containing all the file events occurred
- * between two analysis requests, used to know if we need to clear
- * tsconfig.json cache or the mapping between input files and tsconfigs
- */
-type FsEventsRaw = { [key: string]: FsEventType };
 
 // Brand for the normalized FsEvents container - ensures we go through normalizeFsEvents()
 declare const FsEventsBrand: unique symbol;
@@ -53,40 +54,10 @@ type FsEvents = { [key: NormalizedAbsolutePath]: FsEventType } & {
 };
 
 /**
- * Raw configuration as received from the analysis request (e.g., ProjectAnalysisInput).
- * All path fields are strings because they haven't been validated or normalized yet.
- */
-export type RawConfiguration = {
-  baseDir?: string;
-  canAccessFileSystem?: boolean;
-  sonarlint?: boolean;
-  clearDependenciesCache?: boolean;
-  clearTsConfigCache?: boolean;
-  fsEvents?: FsEventsRaw;
-  allowTsParserJsFiles?: boolean;
-  analysisMode?: AnalysisMode;
-  skipAst?: boolean;
-  ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
-  maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
-  environments?: string[] /* sonar.javascript.environments */;
-  globals?: string[] /* sonar.javascript.globals */;
-  tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
-  jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
-  cssSuffixes?: string[] /* sonar.css.file.suffixes */;
-  tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
-  jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  sources?: string[] /* sonar.sources property, absolute or relative path to baseDir to look for files. we are based on baseDir */;
-  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. */;
-  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. */;
-  tests?: string[] /* sonar.tests property, absolute or relative path to baseDir to look for test files */;
-  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. */;
-  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
-  detectBundles?: boolean /* sonar.javascript.detectBundles property: whether files looking like bundled code should be ignored  */;
-};
-
-/**
  * Sanitized configuration after validation and normalization.
  * Path fields use branded types (NormalizedAbsolutePath) and glob patterns are compiled to Minimatch instances.
+ *
+ * Comments indicate the corresponding sonar.* property name where applicable.
  */
 type Configuration = {
   baseDir: NormalizedAbsolutePath;
@@ -94,26 +65,26 @@ type Configuration = {
   sonarlint: boolean;
   clearDependenciesCache: boolean;
   clearTsConfigCache: boolean;
-  fsEvents: FsEvents;
+  fsEvents: FsEvents /* Data filled in file watcher FSListenerImpl.java */;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   skipAst: boolean;
-  ignoreHeaderComments: boolean;
-  maxFileSize: number;
-  environments: string[];
-  globals: string[];
-  tsSuffixes: string[];
-  jsSuffixes: string[];
-  cssSuffixes: string[];
-  tsConfigPaths: NormalizedAbsolutePath[];
-  jsTsExclusions: Minimatch[];
-  sources: NormalizedAbsolutePath[];
-  inclusions: Minimatch[];
-  exclusions: Minimatch[];
-  tests: NormalizedAbsolutePath[];
-  testInclusions: Minimatch[];
-  testExclusions: Minimatch[];
-  detectBundles: boolean;
+  ignoreHeaderComments: boolean /* sonar.javascript.ignoreHeaderComments - True to not count file header comments in comment metrics */;
+  maxFileSize: number /* sonar.javascript.maxFileSize - Threshold for the maximum size of analyzed files (in kilobytes) */;
+  environments: string[] /* sonar.javascript.environments */;
+  globals: string[] /* sonar.javascript.globals */;
+  tsSuffixes: string[] /* sonar.typescript.file.suffixes */;
+  jsSuffixes: string[] /* sonar.javascript.file.suffixes */;
+  cssSuffixes: string[] /* sonar.css.file.suffixes */;
+  tsConfigPaths: NormalizedAbsolutePath[] /* sonar.typescript.tsconfigPath(s) */;
+  jsTsExclusions: Minimatch[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
+  sources: NormalizedAbsolutePath[] /* sonar.sources - absolute or relative path to baseDir to look for files */;
+  inclusions: Minimatch[] /* sonar.inclusions - WILDCARD to narrow down sonar.sources */;
+  exclusions: Minimatch[] /* sonar.exclusions - WILDCARD to narrow down sonar.sources */;
+  tests: NormalizedAbsolutePath[] /* sonar.tests - absolute or relative path to baseDir to look for test files */;
+  testInclusions: Minimatch[] /* sonar.test.inclusions - WILDCARD to narrow down sonar.tests */;
+  testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
+  detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -128,13 +99,17 @@ const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 // configuration is initialized lazily after all constants are defined (see initDefaultConfiguration)
 let configuration: Configuration;
 
-export function setGlobalConfiguration(config?: RawConfiguration) {
+export function setGlobalConfiguration(config?: unknown) {
   if (!config) {
     return;
   }
-  if (!config.baseDir) {
-    throw new Error('baseDir is required');
-  } else if (!isAbsolutePath(config.baseDir)) {
+  if (!isObject(config)) {
+    throw new Error('Invalid configuration: expected object');
+  }
+  if (!isString(config.baseDir)) {
+    throw new Error('baseDir is required and must be a string');
+  }
+  if (!isAbsolutePath(config.baseDir)) {
     throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
   }
   // Normalize baseDir first so it can be used by other normalization functions
@@ -401,8 +376,8 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
-function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
-  return (globs ?? []).map(
+function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
+  return (isStringArray(globs) ? globs : []).map(
     pattern =>
       new Minimatch(normalizeToAbsolutePath(pattern.trim(), baseDir), {
         nocase: true,
@@ -446,17 +421,20 @@ configuration = {
  * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
  * This ensures type safety at compile time - you cannot assign FsEventsRaw directly to FsEvents.
  */
-function normalizeFsEvents(
-  raw: FsEventsRaw | undefined,
-  baseDir: NormalizedAbsolutePath,
-): FsEvents {
-  if (!raw) {
+function normalizeFsEvents(raw: unknown, baseDir: NormalizedAbsolutePath): FsEvents {
+  if (!isObject(raw)) {
     return {} as FsEvents;
   }
 
   const result: { [key: string]: FsEventType } = {};
   for (const [key, value] of Object.entries(raw)) {
-    result[normalizeToAbsolutePath(key, baseDir)] = value;
+    if (isFsEventType(value)) {
+      result[normalizeToAbsolutePath(key, baseDir)] = value;
+    }
   }
   return result as FsEvents;
+}
+
+function isFsEventType(value: unknown): value is FsEventType {
+  return value === 'CREATED' || value === 'MODIFIED' || value === 'DELETED';
 }

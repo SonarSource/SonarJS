@@ -18,13 +18,8 @@ import type { AnalysisOutput } from '../../shared/src/types/analysis.js';
 import type {
   FileResult,
   ProjectAnalysisMeta,
-  RawProjectAnalysisInput,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { APIError, ErrorCode, ErrorData } from '../../shared/src/errors/error.js';
-import type { RawCssAnalysisInput } from '../../css/src/analysis/analysis.js';
-import type { RawJsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
-import type { RawEmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
 
 export type RequestResult =
   | {
@@ -54,45 +49,31 @@ export type BridgeRequest =
 
 type CssRequest = {
   type: 'on-analyze-css';
-  data: RawCssAnalysisInput;
+  data: unknown;
 };
 
 type EmbeddedRequest = {
   type: 'on-analyze-html' | 'on-analyze-yaml';
-  data: RawEmbeddedAnalysisInput;
+  data: unknown;
 };
 
 type JsTsRequest = {
   type: 'on-analyze-jsts';
-  data: RawJsTsAnalysisInput;
+  data: unknown;
 };
 
 type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
-  data: RawProjectAnalysisInput;
+  data: unknown;
 };
 
 type CancellationRequest = {
   type: 'on-cancel-analysis';
 };
 
-/**
- * Raw linter initialization input as received from JSON deserialization.
- * Path fields are strings that haven't been validated or normalized yet.
- */
-type RawInitLinterInput = {
-  rules: RuleConfig[];
-  environments: string[];
-  globals: string[];
-  baseDir: string; // Raw string - sanitized in handle-request
-  sonarlint?: boolean;
-  bundles?: string[]; // Raw strings - sanitized in handle-request
-  rulesWorkdir?: string; // Raw string - sanitized in handle-request
-};
-
 type InitLinterRequest = {
   type: 'on-init-linter';
-  data: RawInitLinterInput;
+  data: unknown;
 };
 
 type SerializedError = {

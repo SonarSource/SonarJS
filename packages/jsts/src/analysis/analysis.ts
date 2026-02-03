@@ -16,11 +16,7 @@
  */
 import { FileType, type NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
-import {
-  AnalysisInput,
-  AnalysisOutput,
-  RawAnalysisInput,
-} from '../../../shared/src/types/analysis.js';
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
@@ -92,24 +88,6 @@ export const JSTS_ANALYSIS_DEFAULTS = {
   clearDependenciesCache: false,
   fileType: 'MAIN' as FileType,
 } as const;
-
-/**
- * Raw JavaScript / TypeScript analysis input as received from JSON deserialization.
- * Path fields are strings that haven't been validated or normalized yet.
- * All fields except filePath are optional and will be filled with defaults during sanitization.
- */
-export interface RawJsTsAnalysisInput extends RawAnalysisInput {
-  fileType?: FileType;
-  fileStatus?: FileStatus;
-  language?: JsTsLanguage;
-  analysisMode?: AnalysisMode;
-  ignoreHeaderComments?: boolean;
-  allowTsParserJsFiles?: boolean;
-  tsConfigs?: string[];
-  program?: Program;
-  skipAst?: boolean;
-  clearDependenciesCache?: boolean;
-}
 
 /**
  * A JavaScript / TypeScript analysis output

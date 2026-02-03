@@ -14,15 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  type JsTsFiles,
-  type RawJsTsFiles,
-  type StoredJsTsFile,
-  createJsTsFiles,
-} from '../projectAnalysis.js';
+import { type JsTsFiles, type StoredJsTsFile, createJsTsFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
-import { FileStore } from './store-type.js';
+import { FileStore, type RawInputFiles } from './store-type.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
 import {
   readFile,
@@ -57,7 +52,7 @@ export class SourceFileStore implements FileStore {
     },
   };
 
-  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: RawJsTsFiles) {
+  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: RawInputFiles) {
     this.dirtyCachesIfNeeded(baseDir);
     if (isSonarLint()) {
       await this.sanitizeAndFilterRawFiles('request', inputFiles, baseDir);
@@ -166,12 +161,12 @@ export class SourceFileStore implements FileStore {
 
   /**
    * Sanitizes raw input files and filters them before storing.
-   * This handles the conversion from RawJsTsFiles (HTTP input) to StoredJsTsFile,
+   * This handles the conversion from RawInputFiles (HTTP input) to StoredJsTsFile,
    * applying path normalization, default values, and file filtering in one pass.
    */
   private async sanitizeAndFilterRawFiles(
     store: keyof typeof SourceFileStore.prototype.store,
-    rawFiles: RawJsTsFiles | undefined,
+    rawFiles: RawInputFiles | undefined,
     baseDir: NormalizedAbsolutePath,
   ) {
     this.resetStore(store);
@@ -179,8 +174,13 @@ export class SourceFileStore implements FileStore {
       return;
     }
     for (const rawFile of Object.values(rawFiles)) {
-      const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);
-      const fileContent = rawFile.fileContent ?? (await readFile(filePath));
+      const rawFilePath = rawFile.filePath as string;
+      const rawFileContent = rawFile.fileContent as string | undefined;
+      const rawFileType = rawFile.fileType as string | undefined;
+      const rawFileStatus = rawFile.fileStatus as string | undefined;
+
+      const filePath = normalizeToAbsolutePath(rawFilePath, baseDir);
+      const fileContent = rawFileContent ?? (await readFile(filePath));
       // We need to apply filters if the files come from the request
       if (await shouldIgnoreFile({ filePath, fileContent })) {
         continue;
@@ -188,8 +188,9 @@ export class SourceFileStore implements FileStore {
       this.saveFileInStore(store, {
         filePath,
         fileContent,
-        fileType: rawFile.fileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
-        fileStatus: rawFile.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+        fileType: (rawFileType as StoredJsTsFile['fileType']) ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+        fileStatus:
+          (rawFileStatus as StoredJsTsFile['fileStatus']) ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
       });
     }
   }

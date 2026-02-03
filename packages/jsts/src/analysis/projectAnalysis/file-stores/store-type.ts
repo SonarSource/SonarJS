@@ -14,13 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { RawJsTsFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
+
+/**
+ * Raw input files from HTTP request, keyed by arbitrary string.
+ * Values contain unvalidated file data that needs sanitization.
+ */
+export type RawInputFiles = Record<string, Record<string, unknown>>;
 
 export abstract class FileStore {
   abstract isInitialized(
     baseDir: NormalizedAbsolutePath,
-    inputFiles?: RawJsTsFiles,
+    inputFiles?: RawInputFiles,
   ): Promise<boolean>;
 
   abstract setup(baseDir: NormalizedAbsolutePath): void;
