@@ -38,7 +38,7 @@ const sqlQuerySignatures = new Set([
   'sqlite3.Database.exec',
   'better-sqlite3.exec',
   'better-sqlite3.prepare',
-];
+]);
 
 type Argument = estree.Expression | estree.SpreadElement;
 
