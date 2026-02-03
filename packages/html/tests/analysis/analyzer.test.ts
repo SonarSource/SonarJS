@@ -209,7 +209,7 @@ describe('analyzeHTML', () => {
     );
   });
 
-  it('should skip minified/bundled script tags but analyze normal scripts', async () => {
+  it('should skip minified script tags but analyze normal scripts', async () => {
     await Linter.initialize({
       baseDir: fixturesPath,
       rules: [
@@ -233,13 +233,13 @@ describe('analyzeHTML', () => {
       await embeddedInput({ filePath: join(fixturesPath, 'minified-bundle.html') }),
       parseHTML,
     );
-    // The minified bundle script (with S7739 violation for 'then') should be skipped
+    // The minified script (avg line length > 200, with S7739 violation for 'then') should be skipped
     // The normal script (with S3923 violation) should still be analyzed
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
         ruleId: 'S3923',
-        line: 15,
+        line: 12,
       }),
     );
   });
