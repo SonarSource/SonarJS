@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta, getFullyQualifiedName, isMemberWithProperty } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-const sqlQuerySignatures = [
+const sqlQuerySignatures = new Set([
   'pg.Client.query',
   'pg.Pool.query',
   'mysql.createConnection.query',
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression(node: estree.CallExpression) {
         const fqn = getFullyQualifiedName(context, node);
-        if (fqn && sqlQuerySignatures.includes(fqn) && isQuestionable(node.arguments[0])) {
+        if (fqn && sqlQuerySignatures.has(fqn) && isQuestionable(node.arguments[0])) {
           context.report({
             messageId: 'safeQuery',
             node: node.callee,
