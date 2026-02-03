@@ -135,7 +135,6 @@ import cookieSession from 'cookie-session';
 //^^^^^^^^^^^^^
   cookieSession({ keys: ['key1', 'key2'], name: 'session' }); // Noncompliant 2
 //^^^^^^^^^^^^^
-//^^^^^^^^^^^^^@+1
 cookieSession({ keys: [process.env.SESSION_KEY], name: 'session' });
 const cookieKey = 'hardcoded-key';
 //                ^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
