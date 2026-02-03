@@ -129,3 +129,12 @@ const sessionSecret = 'beautiful dog';
 //                    ^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
   session({ secret: sessionSecret }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^
+
+import cookieSession from 'cookie-session';
+  cookieSession({ keys: ['f6dc-5eba-13e5-9e29-b3f662e10b89'], name: 'session' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^
+cookieSession({ keys: [process.env.SESSION_KEY], name: 'session' });
+const cookieKey = 'hardcoded-key';
+//                ^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  cookieSession({ keys: [cookieKey] }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^
