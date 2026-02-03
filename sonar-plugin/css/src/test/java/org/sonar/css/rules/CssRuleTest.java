@@ -149,7 +149,7 @@ class CssRuleTest {
   void at_rule_unknown_default() {
     String optionsAsJson = GSON.toJson(new AtRuleNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo(
-      "[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"forward\",\"tailwind\",\"apply\",\"layer\",\"container\",\"theme\",\"utility\",\"custom-variant\",\"source\",\"plugin\",\"config\",\"reference\",\"variant\"]}]"
+      "[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"forward\",\"tailwind\",\"apply\",\"layer\",\"container\",\"theme\",\"utility\",\"custom-variant\",\"source\",\"plugin\",\"config\",\"reference\",\"variant\",\"/^@.*/\"]}]"
     );
   }
 
