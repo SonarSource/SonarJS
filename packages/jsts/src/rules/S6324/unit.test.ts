@@ -136,6 +136,11 @@ describe('S6324', () => {
           // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char
           code: String.raw`/(?:\x1b\[|\x9b)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^\`{}|~]/`,
         },
+        {
+          // ANSI CSI in non-capturing group (from GitHub Desktop actions-logs-ansii.ts)
+          // ESC in non-capturing group followed by [ should be exempted
+          code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
+        },
       ],
       invalid: [
         {
