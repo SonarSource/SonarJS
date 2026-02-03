@@ -51,6 +51,7 @@ const secretSignatures: Record<string, [number]> = {
   'jose.jwtVerify': [1],
   'jsonwebtoken.sign': [1],
   'jsonwebtoken.verify': [1],
+  'ldapjs.createClient.bind': [1],
   'node-jose.JWK.asKey': [0],
   'superagent.auth': [0],
 };
