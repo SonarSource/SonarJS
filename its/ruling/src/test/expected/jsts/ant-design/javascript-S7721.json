@@ -59,8 +59,5 @@
 "ant-design:components/upload/__tests__/uploadlist.test.js": [
 961,
 1054
-],
-"ant-design:site/theme/static/template.html": [
-50
 ]
 }
