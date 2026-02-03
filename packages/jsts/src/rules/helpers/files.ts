@@ -106,13 +106,11 @@ export function normalizeToAbsolutePath(
   filePath: string,
   baseDir = ROOT_PATH,
 ): NormalizedAbsolutePath {
-  filePath = toUnixPath(filePath);
-  if (!isAbsolutePath(filePath)) {
-    filePath = resolvePosix(baseDir, filePath);
-  }
-  if (isWindows) {
+  if (isAbsolutePath(filePath)) {
     // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
+  } else {
+    filePath = isWindows ? resolveWin32(baseDir, filePath) : resolvePosix(baseDir, filePath);
   }
   return toUnixPath(filePath) as NormalizedAbsolutePath;
 }

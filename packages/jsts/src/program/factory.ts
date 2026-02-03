@@ -24,6 +24,7 @@ import {
 import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -53,7 +54,7 @@ function createBuilderProgramWithHost(
  */
 function createBuilderProgramAndHost(
   programOptions: ProgramOptions,
-  baseDir: string,
+  baseDir: NormalizedAbsolutePath,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
 ) {
   const host = new IncrementalCompilerHost(programOptions.options, baseDir);
@@ -110,7 +111,12 @@ export function createProgramFromSingleFile(
   const sourceFile = ts.createSourceFile(fileName, contents, target, true);
 
   // Parse and brand through the centralized function (uses default parseConfigHost)
-  const programOptions = createProgramOptionsFromJson(compilerOptions, [fileName], process.cwd());
+  const normalizedFileName = normalizeToAbsolutePath(fileName);
+  const programOptions = createProgramOptionsFromJson(
+    compilerOptions,
+    [normalizedFileName],
+    process.cwd(),
+  );
 
   // Override with a custom host for the single file
   const compilerHost = ts.createCompilerHost(programOptions.options);
@@ -143,8 +149,8 @@ export function createProgramFromSingleFile(
  * @param getProgramOptions Getter for program options to use for the program
  */
 export function createOrGetCachedProgramForFile(
-  baseDir: string,
-  sourceFile: string,
+  baseDir: NormalizedAbsolutePath,
+  sourceFile: NormalizedAbsolutePath,
   getProgramOptions: () => ProgramOptions | undefined,
 ) {
   const cacheManager = getProgramCacheManager();

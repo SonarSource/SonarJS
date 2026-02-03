@@ -18,7 +18,7 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { normalizePath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 import {
   createProgramOptions,
   createProgramOptionsFromJson,
@@ -27,7 +27,7 @@ import {
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
 
-const fixtures = path.join(normalizePath(import.meta.dirname), 'fixtures');
+const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
 describe('createProgramOptions', () => {
   beforeEach(() => {
@@ -169,7 +169,7 @@ describe('createProgramOptions', () => {
 describe('createProgramOptionsFromJson', () => {
   it('should create program options from JSON', () => {
     const json = { target: 'ES2020', strict: true };
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson(json, rootNames, '/project');
 
@@ -181,7 +181,7 @@ describe('createProgramOptionsFromJson', () => {
 
   it('should resolve paths relative to baseDir', () => {
     const json = { outDir: './dist' };
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson(json, rootNames, '/project');
 
@@ -189,7 +189,7 @@ describe('createProgramOptionsFromJson', () => {
   });
 
   it('should handle empty options', () => {
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson({}, rootNames, '/project');
 

@@ -28,6 +28,7 @@ import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -101,7 +102,7 @@ export async function analyzeJSTS(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: string) {
+function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) {
   try {
     return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
   } catch {

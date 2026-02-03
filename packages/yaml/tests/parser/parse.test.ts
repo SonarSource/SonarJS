@@ -17,7 +17,7 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { parseYaml } from '../../src/parser/parse-yaml.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 
@@ -27,7 +27,9 @@ function noOpPicker(_key: any, _node: any, _ancestors: any) {
 
 describe('parseYaml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'embedded.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parse', 'embedded.yaml'),
+    );
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
@@ -49,7 +51,9 @@ describe('parseYaml', () => {
   });
 
   it('should return parsing errors', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'error.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parse', 'error.yaml'),
+    );
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {

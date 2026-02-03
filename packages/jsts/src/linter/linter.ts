@@ -240,7 +240,7 @@ export class Linter {
   }
 
   public static getRulesForFile(
-    filePath: string,
+    filePath: NormalizedAbsolutePath,
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
@@ -339,7 +339,7 @@ export class Linter {
 }
 
 function createLinterConfigKey(
-  filePath: string,
+  filePath: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
   fileType: FileType,
   language: JsTsLanguage,

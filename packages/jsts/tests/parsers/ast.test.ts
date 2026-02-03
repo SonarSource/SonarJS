@@ -20,7 +20,11 @@ import { Parser, parsersMap } from '../../src/parsers/eslint.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import {
+  readFile,
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { buildParserOptions } from '../../src/parsers/options.js';
 import {
@@ -48,7 +52,11 @@ const parseFunctions = [
   },
 ];
 
-async function parseSourceFile(filePath: string, parser: Parser, usingBabel = false) {
+async function parseSourceFile(
+  filePath: NormalizedAbsolutePath,
+  parser: Parser,
+  usingBabel = false,
+) {
   const fileContent = await readFile(filePath);
   const fileType = 'MAIN';
 
@@ -81,7 +89,9 @@ describe('ast', () => {
   describe('serializeInProtobuf()', () => {
     for (const { parser, usingBabel } of parseFunctions)
       test('should not lose information between serialize and deserializing JavaScript', async () => {
-        const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
+        const filePath = normalizeToAbsolutePath(
+          path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js'),
+        );
         const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
@@ -197,7 +207,11 @@ describe('ast', () => {
     expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(moduleReference.identifier.name).toEqual('foo');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSImportEquals nodes with TSQualifiedName module reference', async () => {
@@ -227,7 +241,11 @@ describe('ast', () => {
     expect(tSQualifiedName.left.tSQualifiedName.left.identifier.name).toEqual('a');
     expect(tSQualifiedName.left.tSQualifiedName.right.identifier.name).toEqual('b');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSImportEquals nodes with TSExternalModuleReference', async () => {
@@ -254,7 +272,11 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSImportEquals nodes with type TSExternalModuleReference', async () => {
@@ -281,7 +303,11 @@ describe('ast', () => {
       tSImportEqualsDeclaration.moduleReference.tSExternalModuleReference;
     expect(tSExternalModuleReference.expression.literal.valueString).toEqual('foo');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSModuleDeclaration nodes', async () => {
@@ -301,7 +327,11 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['VariableDeclarationType'],
     );
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSModuleDeclaration nodes, global kind', async () => {
@@ -321,7 +351,11 @@ describe('ast', () => {
     expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['VariableDeclarationType'],
     );
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support TSModuleDeclaration nodes, without body', async () => {
@@ -338,7 +372,11 @@ describe('ast', () => {
     expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
     expect(tSModuleDeclaration.id.literal.valueString).toEqual('Foo');
     expect(tSModuleDeclaration.body).toEqual(undefined);
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
   for (const { nodeType, code } of [
     { nodeType: 'TSTypeAliasDeclaration', code: `type A = { a: string };` },
@@ -353,7 +391,11 @@ describe('ast', () => {
       expect(protoMessage.program.body[0].type).toEqual(NODE_TYPE_ENUM.values[`${nodeType}Type`]);
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
-      checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+      checkAstIsProperlySerializedAndDeserialized(
+        ast as TSESTree.Program,
+        protoMessage,
+        normalizeToAbsolutePath('/foo.ts'),
+      );
     });
 
   test('should serialize TSEmptyBodyFunctionExpression node to empty object', async () => {
@@ -371,7 +413,11 @@ describe('ast', () => {
       NODE_TYPE_ENUM.values['TSEmptyBodyFunctionExpressionType'],
     );
     expect(methodDefinition.tSEmptyBodyFunctionExpression).toEqual({});
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should serialize TSAbstractMethodDefinition nodes to empty objects', async () => {
@@ -386,7 +432,11 @@ describe('ast', () => {
     let body = protoMessage.program.body[0].classDeclaration.body.classBody.body;
     expect(body[0].type).toEqual(NODE_TYPE_ENUM.values['TSAbstractMethodDefinitionType']);
     expect(body[0].tSAbstractMethodDefinition).toEqual({});
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.ts');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.ts'),
+    );
   });
 
   test('should support JSXElement nodes', async () => {
@@ -420,7 +470,11 @@ describe('ast', () => {
     expect(openingIdentifierName).toEqual('h1');
     expect(closingIdentifierName).toEqual('h1');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXFragment nodes', async () => {
@@ -453,7 +507,11 @@ describe('ast', () => {
     expect(h1Element.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('h1');
     expect(h2Element.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('h2');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXElement nodes with type arguments', async () => {
@@ -485,7 +543,11 @@ describe('ast', () => {
     expect(attributeNode.jSXAttribute.name.jSXIdentifier.name).toEqual('prop');
     expect(attributeNode.jSXAttribute.value.literal.valueString).toEqual('value');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXAttribute nodes', async () => {
@@ -509,7 +571,11 @@ describe('ast', () => {
     expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
     expect(attribute.value.literal.valueString).toEqual('test');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXAttribute with no value (boolean attribute)', async () => {
@@ -530,7 +596,11 @@ describe('ast', () => {
     expect(attribute.name.jSXIdentifier.name).toEqual('disabled');
     expect(attribute.value).toBeUndefined();
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXAttribute with JSXElement value', async () => {
@@ -556,7 +626,11 @@ describe('ast', () => {
         .name,
     ).toEqual('span');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXAttribute with JSXNamespacedName', async () => {
@@ -580,7 +654,11 @@ describe('ast', () => {
     expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
     expect(attribute.value.literal.valueString).toEqual('http://www.w3.org/1999/xlink');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXMemberExpression nodes', async () => {
@@ -602,7 +680,11 @@ describe('ast', () => {
     expect(memberExpression.property.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
     expect(memberExpression.property.jSXIdentifier.name).toEqual('Bar');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support deeply nested JSXMemberExpression', async () => {
@@ -631,7 +713,11 @@ describe('ast', () => {
     const fooIdentifier = barMember.object.jSXIdentifier;
     expect(fooIdentifier.name).toEqual('Foo');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXNamespacedName nodes', async () => {
@@ -653,7 +739,11 @@ describe('ast', () => {
     expect(namespacedName.name.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
     expect(namespacedName.name.jSXIdentifier.name).toEqual('bar');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXSpreadAttribute nodes', async () => {
@@ -676,7 +766,11 @@ describe('ast', () => {
     expect(spreadAttribute.argument.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(spreadAttribute.argument.identifier.name).toEqual('props');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXExpressionContainer nodes', async () => {
@@ -699,7 +793,11 @@ describe('ast', () => {
     expect(expressionContainer.expression.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(expressionContainer.expression.identifier.name).toEqual('value');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXSpreadChild nodes', async () => {
@@ -722,7 +820,11 @@ describe('ast', () => {
     expect(spreadChild.expression.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(spreadChild.expression.identifier.name).toEqual('children');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support JSXEmptyExpression nodes', async () => {
@@ -747,7 +849,11 @@ describe('ast', () => {
     );
     expect(expressionContainer.expression.jSXEmptyExpression).toEqual({});
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support mixed JSX children types', async () => {
@@ -787,7 +893,11 @@ describe('ast', () => {
     const spreadChild = spreadChildNode.jSXSpreadChild;
     expect(spreadChild.expression.identifier.name).toEqual('items');
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 
   test('should support self-closing JSXElement', async () => {
@@ -805,7 +915,11 @@ describe('ast', () => {
     expect(jsxElement.openingElement.jSXOpeningElement.selfClosing).toEqual(true);
     expect(jsxElement.children.length).toEqual(0);
 
-    checkAstIsProperlySerializedAndDeserialized(ast as TSESTree.Program, protoMessage, 'foo.tsx');
+    checkAstIsProperlySerializedAndDeserialized(
+      ast as TSESTree.Program,
+      protoMessage,
+      normalizeToAbsolutePath('/foo.tsx'),
+    );
   });
 });
 
@@ -855,7 +969,7 @@ function areDifferent(a: unknown, b: unknown) {
 function checkAstIsProperlySerializedAndDeserialized(
   ast: TSESTree.Program,
   expectedProtoMessage: VisitNodeReturnType,
-  fileName: string,
+  fileName: NormalizedAbsolutePath,
 ) {
   const serialized = serializeInProtobuf(ast, fileName);
   const deserializedProtoMessage = deserializeProtobuf(serialized);

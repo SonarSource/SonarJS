@@ -17,10 +17,11 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { getBaseDir, setGlobalConfiguration } from '../../src/helpers/configuration.js';
+import { ROOT_PATH } from '../../../jsts/src/rules/helpers/index.js';
 
 describe('global configuration', () => {
-  it('baseDir is mandatory', async () => {
-    expect(() => getBaseDir()).toThrow(new Error('baseDir is not set'));
+  it('default baseDir is root', async () => {
+    expect(getBaseDir()).toEqual(ROOT_PATH);
   });
   it('should fail setting a non-absolute baseDir', async () => {
     const baseDir = '../relative/path';

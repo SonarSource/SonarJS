@@ -21,6 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { debug } from '../../../shared/src/helpers/logging.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
@@ -28,7 +29,10 @@ const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 const unsupportedNodeTypes = new Map<string, number>();
 
-export function serializeInProtobuf(ast: TSESTree.Program, filePath: string): string {
+export function serializeInProtobuf(
+  ast: TSESTree.Program,
+  filePath: NormalizedAbsolutePath,
+): string {
   unsupportedNodeTypes.clear();
   const protobufAST = parseInProtobuf(ast);
   if (unsupportedNodeTypes.size > 0) {

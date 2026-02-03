@@ -17,6 +17,7 @@
 import { QuickFix } from '../quickfixes/quickfix.js';
 import { Location } from './location.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * A SonarQube-compatible source code issue
@@ -46,5 +47,5 @@ export interface Issue {
   secondaryLocations: Location[];
   quickFixes?: QuickFix[];
   ruleESLintKeys: Array<string>;
-  filePath: string;
+  filePath: NormalizedAbsolutePath;
 }

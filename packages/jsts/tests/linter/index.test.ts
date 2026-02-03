@@ -145,7 +145,9 @@ describe('Linter', () => {
         },
       ],
     });
-    expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual(
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual(
       expect.objectContaining({
         'sonarjs/S100': [
           'error',
@@ -161,7 +163,9 @@ describe('Linter', () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
     });
-    expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual({
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
     });
@@ -183,7 +187,9 @@ describe('Linter', () => {
       globals: [],
       sonarlint: true,
     });
-    expect(Linter.getRulesForFile('file.js', 'MAIN', 'DEFAULT', 'js')).toEqual({
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
       'sonarjs/S100': [
         'error',
         {

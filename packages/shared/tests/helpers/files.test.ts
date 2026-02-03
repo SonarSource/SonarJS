@@ -17,16 +17,20 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../src/helpers/files.js';
 
 describe('readFile', () => {
   it('should read a file', async () => {
-    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'file.js'));
+    const contents = await readFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures', 'file.js')),
+    );
     expect(contents).toBe('file();');
   });
 
   it('should remove any BOM header', async () => {
-    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'bom.js'));
+    const contents = await readFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures', 'bom.js')),
+    );
     expect(contents).toBe('bom();');
   });
 });

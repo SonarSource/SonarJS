@@ -15,10 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../logging.js';
+import type { NormalizedAbsolutePath } from '../../../../jsts/src/rules/helpers/index.js';
 
 const DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
-export function filterMinified(filePath: string, input: string) {
+export function filterMinified(filePath: NormalizedAbsolutePath, input: string) {
   const isMinified =
     hasMinifiedFilename(filePath) ||
     (isMinifiableFilename(filePath) && hasExcessiveAverageLineLength(input));

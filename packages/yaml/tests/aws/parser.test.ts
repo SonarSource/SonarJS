@@ -17,13 +17,15 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'valid.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parser', 'valid.yaml'),
+    );
     const fileContent = await readFile(filePath);
     const embedded = parseAwsFromYaml(fileContent);
     expect(embedded).toBeDefined();
@@ -39,7 +41,9 @@ describe('parseAwsFromYaml()', () => {
   });
 
   it('should extract the resource name', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'resource-names.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parser', 'resource-names.yaml'),
+    );
     const fileContent = await readFile(filePath);
     const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(fileContent);
     expect(firstEmbedded).toEqual(
@@ -59,7 +63,9 @@ describe('parseAwsFromYaml()', () => {
   });
 
   it('should fail parsing invalid YAML syntax', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'invalid.yaml');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parser', 'invalid.yaml'),
+    );
     const fileContent = await readFile(filePath);
     expect(() => parseAwsFromYaml(fileContent)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 7 }),

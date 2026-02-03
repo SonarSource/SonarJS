@@ -21,6 +21,7 @@ import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
@@ -36,7 +37,8 @@ describe('convertMessage', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    expect(convertMessage(sourceCode, message, 'foo.bar', 'js')).toEqual({
+    const testFilePath = normalizeToAbsolutePath('/foo.bar');
+    expect(convertMessage(sourceCode, message, testFilePath, 'js')).toEqual({
       ruleId,
       line: 1,
       column: 9,
@@ -61,12 +63,19 @@ describe('convertMessage', () => {
       ],
       secondaryLocations: [],
       ruleESLintKeys: ['no-extra-semi'],
-      filePath: 'foo.bar',
+      filePath: testFilePath,
       language: 'js',
     });
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    expect(convertMessage({} as SourceCode, {} as Linter.LintMessage, '', 'js')).toEqual(null);
+    expect(
+      convertMessage(
+        {} as SourceCode,
+        {} as Linter.LintMessage,
+        normalizeToAbsolutePath('/file.js'),
+        'js',
+      ),
+    ).toEqual(null);
   });
 });

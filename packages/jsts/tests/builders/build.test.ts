@@ -124,7 +124,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => build(analysisInput)).toThrow(new Error('Unexpected token (3:0)'));
 
-    const log = `DEBUG Failed to parse ${filePath} with typescript-eslint/parser: '}' expected.`;
+    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with typescript-eslint/parser: '}' expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
@@ -247,7 +247,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });
     expect(() => build(analysisInput)).toThrow(new Error('Expression expected.'));
 
-    const log = `DEBUG Failed to parse ${filePath} with vue-eslint-parser: Expression expected.`;
+    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );

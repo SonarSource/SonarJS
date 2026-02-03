@@ -17,14 +17,15 @@
 import { filterBundle } from '../../src/helpers/filter/filter-bundle.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { normalizeToAbsolutePath } from '../../src/helpers/files.js';
 
 describe('filter bundle', () => {
   it('should return true for a bundle file', () => {
     const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
-    expect(filterBundle('test.ts', BUNDLE_CONTENTS)).toBeFalsy();
+    expect(filterBundle(normalizeToAbsolutePath('/test.ts'), BUNDLE_CONTENTS)).toBeFalsy();
   });
   it('should return false for a non-bundled file', () => {
     const CONTENTS = 'contents';
-    expect(filterBundle('test.ts', CONTENTS)).toBeTruthy();
+    expect(filterBundle(normalizeToAbsolutePath('/test.ts'), CONTENTS)).toBeTruthy();
   });
 });

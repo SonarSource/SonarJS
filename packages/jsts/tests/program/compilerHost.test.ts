@@ -24,9 +24,10 @@ import {
   clearSourceFileContentCache,
   getCachedSourceFile,
 } from '../../src/program/cache/sourceFileCache.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 
 describe('IncrementalCompilerHost', () => {
-  const baseDir = '/project';
+  const baseDir = normalizeToAbsolutePath('/project');
   const compilerOptions: ts.CompilerOptions = { target: ts.ScriptTarget.ESNext };
 
   beforeEach(() => {
@@ -46,7 +47,7 @@ describe('IncrementalCompilerHost', () => {
     it('should return false when content is undefined', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      const result = host.updateFile('/project/src/index.ts', undefined);
+      const result = host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), undefined);
 
       expect(result).toBe(false);
     });
@@ -56,9 +57,9 @@ describe('IncrementalCompilerHost', () => {
       const content = 'const x = 1;';
 
       // First update
-      host.updateFile('/project/src/index.ts', content);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), content);
       // Second update with same content
-      const result = host.updateFile('/project/src/index.ts', content);
+      const result = host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), content);
 
       expect(result).toBe(false);
     });
@@ -66,8 +67,11 @@ describe('IncrementalCompilerHost', () => {
     it('should return true when content has changed', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      host.updateFile('/project/src/index.ts', 'const x = 1;');
-      const result = host.updateFile('/project/src/index.ts', 'const x = 2;');
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'const x = 1;');
+      const result = host.updateFile(
+        normalizeToAbsolutePath('/project/src/index.ts'),
+        'const x = 2;',
+      );
 
       expect(result).toBe(true);
     });
@@ -77,26 +81,26 @@ describe('IncrementalCompilerHost', () => {
       const cache = getSourceFileContentCache();
       const newContent = 'const y = 2;';
 
-      host.updateFile('/project/src/index.ts', newContent);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), newContent);
 
-      expect(cache.get('/project/src/index.ts')).toBe(newContent);
+      expect(cache.get(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(newContent);
     });
 
     it('should increment file version when content changes', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      expect(host.getFileVersion('/project/src/index.ts')).toBe('0');
+      expect(host.getFileVersion(normalizeToAbsolutePath('/project/src/index.ts'))).toBe('0');
 
-      host.updateFile('/project/src/index.ts', 'const x = 1;');
-      expect(host.getFileVersion('/project/src/index.ts')).toBe('1');
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'const x = 1;');
+      expect(host.getFileVersion(normalizeToAbsolutePath('/project/src/index.ts'))).toBe('1');
 
-      host.updateFile('/project/src/index.ts', 'const x = 2;');
-      expect(host.getFileVersion('/project/src/index.ts')).toBe('2');
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'const x = 2;');
+      expect(host.getFileVersion(normalizeToAbsolutePath('/project/src/index.ts'))).toBe('2');
     });
 
     it('should invalidate parsed source file cache when content changes', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
-      const fileName = '/project/src/index.ts';
+      const fileName = normalizeToAbsolutePath('/project/src/index.ts');
 
       // Get a source file to populate cache
       host.updateFile(fileName, 'const x = 1;');
@@ -117,7 +121,7 @@ describe('IncrementalCompilerHost', () => {
     it('should return "0" for files not yet updated', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      expect(host.getFileVersion('/project/src/new.ts')).toBe('0');
+      expect(host.getFileVersion(normalizeToAbsolutePath('/project/src/new.ts'))).toBe('0');
     });
   });
 
@@ -127,9 +131,9 @@ describe('IncrementalCompilerHost', () => {
       const cache = getSourceFileContentCache();
       const content = 'cached content';
 
-      cache.set('/project/src/index.ts', content);
+      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), content);
 
-      const result = host.readFile('/project/src/index.ts');
+      const result = host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
 
       expect(result).toBe(content);
 
@@ -142,10 +146,10 @@ describe('IncrementalCompilerHost', () => {
       const content = 'context content';
 
       setSourceFilesContext({
-        '/project/src/index.ts': { fileContent: content },
+        [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: content },
       });
 
-      const result = host.readFile('/project/src/index.ts');
+      const result = host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
 
       expect(result).toBe(content);
 
@@ -159,12 +163,12 @@ describe('IncrementalCompilerHost', () => {
       const content = 'context content';
 
       setSourceFilesContext({
-        '/project/src/index.ts': { fileContent: content },
+        [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: content },
       });
 
-      host.readFile('/project/src/index.ts');
+      host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
 
-      expect(cache.get('/project/src/index.ts')).toBe(content);
+      expect(cache.get(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(content);
     });
   });
 
@@ -173,9 +177,9 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
-      cache.set('/project/src/index.ts', 'content');
+      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
 
-      expect(host.fileExists('/project/src/index.ts')).toBe(true);
+      expect(host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(true);
 
       const calls = host.getTrackedFsCalls();
       expect(calls.some(c => c.op === 'fileExists-cache')).toBe(true);
@@ -185,10 +189,10 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
       setSourceFilesContext({
-        '/project/src/index.ts': { fileContent: 'content' },
+        [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: 'content' },
       });
 
-      expect(host.fileExists('/project/src/index.ts')).toBe(true);
+      expect(host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(true);
 
       const calls = host.getTrackedFsCalls();
       expect(calls.some(c => c.op === 'fileExists-context')).toBe(true);
@@ -201,11 +205,17 @@ describe('IncrementalCompilerHost', () => {
       const content = 'const x = 1;';
 
       // First call - creates and caches source file
-      host.updateFile('/project/src/index.ts', content);
-      const sf1 = host.getSourceFile('/project/src/index.ts', ts.ScriptTarget.ESNext);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), content);
+      const sf1 = host.getSourceFile(
+        normalizeToAbsolutePath('/project/src/index.ts'),
+        ts.ScriptTarget.ESNext,
+      );
 
       // Second call - should return cached
-      const sf2 = host.getSourceFile('/project/src/index.ts', ts.ScriptTarget.ESNext);
+      const sf2 = host.getSourceFile(
+        normalizeToAbsolutePath('/project/src/index.ts'),
+        ts.ScriptTarget.ESNext,
+      );
 
       expect(sf1).toBe(sf2);
     });
@@ -214,12 +224,15 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const content = 'const x = 1;';
 
-      host.updateFile('/project/src/index.ts', content);
-      const sf1 = host.getSourceFile('/project/src/index.ts', ts.ScriptTarget.ESNext);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), content);
+      const sf1 = host.getSourceFile(
+        normalizeToAbsolutePath('/project/src/index.ts'),
+        ts.ScriptTarget.ESNext,
+      );
 
       // Force new source file creation
       const sf2 = host.getSourceFile(
-        '/project/src/index.ts',
+        normalizeToAbsolutePath('/project/src/index.ts'),
         ts.ScriptTarget.ESNext,
         undefined,
         true,
@@ -231,9 +244,9 @@ describe('IncrementalCompilerHost', () => {
     it('should set version property on source file', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      host.updateFile('/project/src/index.ts', 'const x = 1;');
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'const x = 1;');
       const sf = host.getSourceFile(
-        '/project/src/index.ts',
+        normalizeToAbsolutePath('/project/src/index.ts'),
         ts.ScriptTarget.ESNext,
       ) as ts.SourceFile & { version?: string };
 
@@ -243,8 +256,11 @@ describe('IncrementalCompilerHost', () => {
     it('should parse source file with correct target', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      host.updateFile('/project/src/index.ts', 'const x = 1;');
-      const sf = host.getSourceFile('/project/src/index.ts', ts.ScriptTarget.ES2020);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'const x = 1;');
+      const sf = host.getSourceFile(
+        normalizeToAbsolutePath('/project/src/index.ts'),
+        ts.ScriptTarget.ES2020,
+      );
 
       expect(sf?.languageVersion).toBe(ts.ScriptTarget.ES2020);
     });
@@ -255,16 +271,17 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const content = 'const x = 1;';
 
-      host.updateFile('/project/src/index.ts', content);
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), content);
 
+      const filePath = normalizeToAbsolutePath('/project/src/index.ts');
       const sf = host.getSourceFileByPath(
-        '/project/src/index.ts',
-        '/project/src/index.ts' as ts.Path,
+        filePath,
+        filePath as unknown as ts.Path,
         ts.ScriptTarget.ESNext,
       );
 
       expect(sf).toBeDefined();
-      expect(sf?.fileName).toBe('/project/src/index.ts');
+      expect(sf?.fileName).toBe(normalizeToAbsolutePath('/project/src/index.ts'));
     });
   });
 
@@ -272,10 +289,10 @@ describe('IncrementalCompilerHost', () => {
     it('should return file version as hash', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      host.updateFile('/project/src/index.ts', 'content');
+      host.updateFile(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
 
       // createHash uses the data as fileName to get version
-      expect(host.createHash('/project/src/index.ts')).toBe('1');
+      expect(host.createHash(normalizeToAbsolutePath('/project/src/index.ts'))).toBe('1');
     });
   });
 
@@ -284,10 +301,10 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
-      cache.set('/project/src/index.ts', 'content');
+      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
 
-      host.readFile('/project/src/index.ts');
-      host.fileExists('/project/src/index.ts');
+      host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
+      host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'));
 
       const calls = host.getTrackedFsCalls();
       expect(calls.length).toBeGreaterThanOrEqual(2);
@@ -298,8 +315,8 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
-      cache.set('/project/src/index.ts', 'content');
-      host.readFile('/project/src/index.ts');
+      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
+      host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
 
       expect(host.getTrackedFsCalls().length).toBeGreaterThan(0);
 
@@ -321,7 +338,7 @@ describe('IncrementalCompilerHost', () => {
     it('should return canonical file name', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      const canonical = host.getCanonicalFileName('/Project/Src/Index.ts');
+      const canonical = host.getCanonicalFileName(normalizeToAbsolutePath('/Project/Src/Index.ts'));
 
       expect(canonical).toBeDefined();
     });
@@ -338,7 +355,7 @@ describe('IncrementalCompilerHost', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
       // Should not throw
-      host.writeFile('/project/dist/index.js', 'content', false);
+      host.writeFile(normalizeToAbsolutePath('/project/dist/index.js'), 'content', false);
     });
   });
 });

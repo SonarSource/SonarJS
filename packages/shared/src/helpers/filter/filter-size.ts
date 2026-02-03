@@ -15,8 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../logging.js';
+import type { NormalizedAbsolutePath } from '../../../../jsts/src/rules/helpers/index.js';
 
-export function filterSize(filePath: string, input: string, maxSize: number) {
+export function filterSize(filePath: NormalizedAbsolutePath, input: string, maxSize: number) {
   const exceedsLimit = getBytes(input) > maxSize * 1000;
   if (exceedsLimit) {
     debug(

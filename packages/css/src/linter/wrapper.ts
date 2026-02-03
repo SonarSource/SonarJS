@@ -16,6 +16,7 @@
  */
 import stylelint from 'stylelint';
 import { transform } from './issues/index.js';
+import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 /**
  * A wrapper of Stylelint linter
@@ -40,7 +41,7 @@ export class LinterWrapper {
    * @param options the linting options
    * @returns the found issues
    */
-  async lint(filePath: string, options: stylelint.LinterOptions) {
+  async lint(filePath: NormalizedAbsolutePath, options: stylelint.LinterOptions) {
     return stylelint
       .lint(options)
       .then(result => ({ issues: transform(result.results, filePath) }));

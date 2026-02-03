@@ -23,6 +23,7 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 interface FsCall {
   op: string;
@@ -47,7 +48,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   constructor(
     compilerOptions: ts.CompilerOptions,
-    private readonly baseDir: string,
+    private readonly baseDir: NormalizedAbsolutePath,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions, true);
   }
@@ -56,7 +57,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
    * Update a single file (for incremental updates on cache hit)
    * Returns true if the file content actually changed
    */
-  updateFile(filePath: string, content: string | undefined): boolean {
+  updateFile(filePath: NormalizedAbsolutePath, content: string | undefined): boolean {
     if (!content) {
       return false;
     }
