@@ -275,4 +275,54 @@ React.createClass({
 </table>
 
 
+{/* ============================================
+    False Positive Tests: Reusable Table Wrapper Components
+    These components receive children (including headers) via props.children at usage sites.
+    The table is intentionally incomplete at definition time.
+    See JS-1176 for details.
+   ============================================ */}
+
+{/* Pattern 1: Self-closing table with spread props - should NOT raise issue */}
+{/* This is a reusable wrapper component where children are provided via {...props} */}
+<table {...props} />
+
+{/* Pattern 2: Empty body table with spread props - should NOT raise issue */}
+{/* Another form of wrapper component where table structure is completed at usage sites */}
+<table className="my-table" {...props}></table>
+
+{/* Pattern 3: React.forwardRef pattern - common in component libraries like shadcn/ui */}
+{/* This wrapper component should NOT raise issue */}
+<div className="w-full overflow-auto">
+  <table
+    ref={ref}
+    className="w-full caption-bottom text-sm"
+    {...props}
+  />
+</div>
+
+{/* Pattern 4: Function component pattern with spread */}
+{/* This wrapper component should NOT raise issue */}
+<div className="relative w-full overflow-auto">
+  <table className={className} {...props} />
+</div>
+
+{/* Pattern 5: Spread with other attributes but no children - should NOT raise issue */}
+<table role="grid" data-slot="table" {...rest} />
+
+{/* ============================================
+    True Positive Tests: Tables that SHOULD still raise issues
+   ============================================ */}
+
+{/* Table with spread AND static children but no headers - SHOULD raise issue */}
+<table {...props}> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
+  <tbody>
+    <tr><td>Data without headers</td></tr>
+  </tbody>
+</table>
+
+{/* Table without spread and no headers - SHOULD raise issue (existing behavior) */}
+<table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
+  <tr><td>No headers here</td></tr>
+</table>
+
 </>
