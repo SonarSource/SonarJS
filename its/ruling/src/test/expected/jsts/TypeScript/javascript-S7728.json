@@ -1,7 +1,9 @@
 {
+"TypeScript:Jakefile.js": [
+1133
+],
 "TypeScript:lib/tsc.js": [
 124,
-247,
 574,
 908,
 3482,
@@ -24,12 +26,14 @@
 ],
 "TypeScript:lib/typingsInstaller.js": [
 134,
-257,
 584,
 918,
 3492,
 6302,
 6313
+],
+"TypeScript:scripts/link-hooks.js": [
+8
 ],
 "TypeScript:scripts/mocha-parallel.js": [
 63

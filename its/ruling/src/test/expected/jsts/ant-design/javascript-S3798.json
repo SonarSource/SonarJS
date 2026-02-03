@@ -55,6 +55,9 @@
 "ant-design:site/theme/index.js": [
 8
 ],
+"ant-design:site/theme/static/template.html": [
+28
+],
 "ant-design:site/theme/template/Color/ColorPatterns.jsx": [
 6
 ],
