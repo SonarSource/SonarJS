@@ -63,3 +63,9 @@ const objectWithStringKeys = {
   'auth-token': '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.=', // Noncompliant {{"auth-token" detected here, make sure this is not a hard-coded secret.}}
   'not-secret': 'some-value',
 }
+
+function memberExpressionAssignment(req, res, next) {
+  req.session.secret = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant {{"secret" detected here, make sure this is not a hard-coded secret.}}
+  req.session['token'] = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant {{"token" detected here, make sure this is not a hard-coded secret.}}
+  req.session.safe = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Compliant - property name doesn't match secret words
+}
