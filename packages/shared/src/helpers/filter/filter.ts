@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Minimatch } from 'minimatch';
-import { filterBundle, filterBundleCode } from './filter-bundle.js';
+import { filterBundle } from './filter-bundle.js';
 import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { isCssFile, isJsTsFile, type FileSuffixes } from '../configuration.js';
@@ -79,8 +79,14 @@ export function accept(
   return true;
 }
 
+/**
+ * Determines whether an embedded code snippet should be accepted for analysis.
+ * Only uses minification detection (average line length) - bundle detection is
+ * not applied to snippets as it can produce false positives on legitimate code
+ * patterns like IIFEs with comments.
+ */
 export function acceptSnippet(content: string): boolean {
-  return filterBundleCode(content) && !hasExcessiveAverageLineLength(content);
+  return !hasExcessiveAverageLineLength(content);
 }
 
 /**

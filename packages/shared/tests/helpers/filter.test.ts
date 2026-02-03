@@ -168,11 +168,6 @@ describe('filter.ts', () => {
       expect(acceptSnippet(code)).toBe(true);
     });
 
-    it('should reject bundled code snippet (jQuery-style)', () => {
-      const bundledCode = '/* jQuery JavaScript Library v1.4.3*/(function(';
-      expect(acceptSnippet(bundledCode)).toBe(false);
-    });
-
     it('should reject minified code snippet with excessive line length', () => {
       // Create a minified-looking code with very long line (>200 chars average)
       const minifiedCode = 'var a=' + 'x'.repeat(250) + ';';
@@ -184,9 +179,11 @@ describe('filter.ts', () => {
       expect(acceptSnippet(code)).toBe(true);
     });
 
-    it('should reject code with bundle comment pattern', () => {
+    it('should accept code with bundle-like comment pattern (bundle detection not applied to snippets)', () => {
+      // Bundle detection is not applied to snippets because it can produce false positives
+      // on legitimate code patterns like IIFEs with comments
       const bundledCode = '/*! My Library v1.0.0 */!function(e,t){"use strict";}';
-      expect(acceptSnippet(bundledCode)).toBe(false);
+      expect(acceptSnippet(bundledCode)).toBe(true);
     });
   });
 });
