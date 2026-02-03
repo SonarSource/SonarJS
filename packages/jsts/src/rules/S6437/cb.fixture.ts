@@ -135,6 +135,6 @@ import cookieSession from 'cookie-session';
 //^^^^^^^^^^^^^
 cookieSession({ keys: [process.env.SESSION_KEY], name: 'session' });
 const cookieKey = 'hardcoded-key';
-//                ^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+//                ^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
   cookieSession({ keys: [cookieKey] }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^^^
