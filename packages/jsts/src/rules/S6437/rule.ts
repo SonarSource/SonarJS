@@ -58,6 +58,7 @@ const secretSignatures: Record<string, [number]> = {
 // Dictionary with fully qualified names of functions, argument index containing
 // the options object, and property name(s) that hold the secret.
 const secretObjectSignatures: Record<string, { argIndex: number; propertyName: string }> = {
+  'cookie-session': { argIndex: 0, propertyName: 'keys' },
   'express-session': { argIndex: 0, propertyName: 'secret' },
 };
 
@@ -129,6 +130,12 @@ export const rule: Rule.RuleModule = {
       const secretValue = secretProperty.value as estree.Expression;
       if (isHardcodedString(secretValue)) {
         reportIssue(callExpression, secretValue);
+      } else if (secretValue.type === 'ArrayExpression') {
+        for (const element of secretValue.elements) {
+          if (element && element.type !== 'SpreadElement' && isHardcodedString(element)) {
+            reportIssue(callExpression, element);
+          }
+        }
       }
     }
 
