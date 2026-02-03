@@ -25,7 +25,7 @@ import {
 } from './files.js';
 import { Minimatch } from 'minimatch';
 import { debug } from './logging.js';
-import { sanitizePaths } from './sanitize.js';
+import { sanitizePaths, isBoolean, isNumber, isStringArray, isAnalysisMode } from './sanitize.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -142,26 +142,34 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
   const baseDir = normalizeToAbsolutePath(config.baseDir);
   configuration = {
     baseDir,
-    canAccessFileSystem: config.canAccessFileSystem ?? true,
-    sonarlint: !!config.sonarlint,
-    clearDependenciesCache: !!config.clearDependenciesCache,
-    clearTsConfigCache: !!config.clearTsConfigCache,
+    canAccessFileSystem: isBoolean(config.canAccessFileSystem) ? config.canAccessFileSystem : true,
+    sonarlint: isBoolean(config.sonarlint) ? config.sonarlint : false,
+    clearDependenciesCache: isBoolean(config.clearDependenciesCache)
+      ? config.clearDependenciesCache
+      : false,
+    clearTsConfigCache: isBoolean(config.clearTsConfigCache) ? config.clearTsConfigCache : false,
     fsEvents: normalizeFsEvents(config.fsEvents, baseDir),
-    allowTsParserJsFiles:
-      config.allowTsParserJsFiles ?? JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
-    analysisMode: config.analysisMode ?? JSTS_ANALYSIS_DEFAULTS.analysisMode,
-    skipAst: config.skipAst ?? JSTS_ANALYSIS_DEFAULTS.skipAst,
-    ignoreHeaderComments:
-      config.ignoreHeaderComments ?? JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
-    maxFileSize: config.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB,
-    environments: config.environments ?? DEFAULT_ENVIRONMENTS,
-    globals: config.globals ?? DEFAULT_GLOBALS,
-    tsSuffixes: config.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
-    jsSuffixes: config.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
-    cssSuffixes: config.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
+    allowTsParserJsFiles: isBoolean(config.allowTsParserJsFiles)
+      ? config.allowTsParserJsFiles
+      : JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
+    analysisMode: isAnalysisMode(config.analysisMode)
+      ? config.analysisMode
+      : JSTS_ANALYSIS_DEFAULTS.analysisMode,
+    skipAst: isBoolean(config.skipAst) ? config.skipAst : JSTS_ANALYSIS_DEFAULTS.skipAst,
+    ignoreHeaderComments: isBoolean(config.ignoreHeaderComments)
+      ? config.ignoreHeaderComments
+      : JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
+    maxFileSize: isNumber(config.maxFileSize) ? config.maxFileSize : DEFAULT_MAX_FILE_SIZE_KB,
+    environments: isStringArray(config.environments) ? config.environments : DEFAULT_ENVIRONMENTS,
+    globals: isStringArray(config.globals) ? config.globals : DEFAULT_GLOBALS,
+    tsSuffixes: isStringArray(config.tsSuffixes) ? config.tsSuffixes : DEFAULT_TS_EXTENSIONS,
+    jsSuffixes: isStringArray(config.jsSuffixes) ? config.jsSuffixes : DEFAULT_JS_EXTENSIONS,
+    cssSuffixes: isStringArray(config.cssSuffixes) ? config.cssSuffixes : DEFAULT_CSS_EXTENSIONS,
     tsConfigPaths: sanitizePaths(config.tsConfigPaths, baseDir),
     jsTsExclusions: normalizeGlobs(
-      (config.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+      (isStringArray(config.jsTsExclusions) ? config.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
+        IGNORED_PATTERNS,
+      ),
     ),
     sources: sanitizePaths(config.sources, baseDir),
     inclusions: normalizeGlobs(config.inclusions),
@@ -169,7 +177,7 @@ export function setGlobalConfiguration(config?: RawConfiguration) {
     tests: sanitizePaths(config.tests, baseDir),
     testInclusions: normalizeGlobs(config.testInclusions),
     testExclusions: normalizeGlobs(config.testExclusions),
-    detectBundles: config.detectBundles ?? true,
+    detectBundles: isBoolean(config.detectBundles) ? config.detectBundles : true,
   };
   debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
 }

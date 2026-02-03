@@ -26,8 +26,37 @@ import type { RawAnalysisInput, AnalysisInput } from '../types/analysis.js';
 import {
   type RawJsTsAnalysisInput,
   type JsTsAnalysisInput,
+  type FileStatus,
+  type AnalysisMode,
   JSTS_ANALYSIS_DEFAULTS,
 } from '../../../jsts/src/analysis/analysis.js';
+
+// Type guards for runtime validation of JSON-deserialized values
+// These ensure values from untrusted sources (JSON, protobuf) match expected types
+
+export function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+export function isBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
+}
+
+export function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && !Number.isNaN(value);
+}
+
+export function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
+
+export function isFileStatus(value: unknown): value is FileStatus {
+  return value === 'SAME' || value === 'CHANGED' || value === 'ADDED';
+}
+
+export function isAnalysisMode(value: unknown): value is AnalysisMode {
+  return value === 'DEFAULT' || value === 'SKIP_UNCHANGED';
+}
 
 /**
  * Sanitizes an array of paths to normalized absolute paths.
@@ -39,7 +68,10 @@ export function sanitizePaths(
   paths: string[] | undefined,
   baseDir: NormalizedAbsolutePath,
 ): NormalizedAbsolutePath[] {
-  return (paths ?? []).map(p => normalizeToAbsolutePath(p, baseDir));
+  if (!isStringArray(paths)) {
+    return [];
+  }
+  return paths.map(p => normalizeToAbsolutePath(p, baseDir));
 }
 
 /**
@@ -62,7 +94,7 @@ export async function sanitizeAnalysisInput(
   return {
     filePath,
     fileContent,
-    sonarlint: raw.sonarlint ?? JSTS_ANALYSIS_DEFAULTS.sonarlint,
+    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : JSTS_ANALYSIS_DEFAULTS.sonarlint,
   };
 }
 
@@ -118,20 +150,27 @@ export async function sanitizeJsTsAnalysisInput(
   const language = inferLanguage(raw.language, filePath, fileContent);
   const fileType = inferFileType(filePath, raw.fileType);
 
+  const defaults = JSTS_ANALYSIS_DEFAULTS;
+
   return {
     filePath,
     fileContent,
-    sonarlint: raw.sonarlint ?? JSTS_ANALYSIS_DEFAULTS.sonarlint,
+    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : defaults.sonarlint,
     fileType,
-    fileStatus: raw.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+    fileStatus: isFileStatus(raw.fileStatus) ? raw.fileStatus : defaults.fileStatus,
     language,
-    analysisMode: raw.analysisMode ?? JSTS_ANALYSIS_DEFAULTS.analysisMode,
-    ignoreHeaderComments: raw.ignoreHeaderComments ?? JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
-    allowTsParserJsFiles: raw.allowTsParserJsFiles ?? JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
+    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : defaults.analysisMode,
+    ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
+      ? raw.ignoreHeaderComments
+      : defaults.ignoreHeaderComments,
+    allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
+      ? raw.allowTsParserJsFiles
+      : defaults.allowTsParserJsFiles,
     tsConfigs: sanitizePaths(raw.tsConfigs, baseDir),
     program: raw.program,
-    skipAst: raw.skipAst ?? JSTS_ANALYSIS_DEFAULTS.skipAst,
-    clearDependenciesCache:
-      raw.clearDependenciesCache ?? JSTS_ANALYSIS_DEFAULTS.clearDependenciesCache,
+    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : defaults.skipAst,
+    clearDependenciesCache: isBoolean(raw.clearDependenciesCache)
+      ? raw.clearDependenciesCache
+      : defaults.clearDependenciesCache,
   };
 }

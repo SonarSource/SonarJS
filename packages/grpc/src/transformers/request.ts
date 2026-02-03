@@ -27,6 +27,7 @@ import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
 } from '../../../shared/src/helpers/files.js';
+import { isString } from '../../../shared/src/helpers/sanitize.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
 import { ruleMetaMap } from './rule-metadata.js';
@@ -96,7 +97,7 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
   const files = createJsTsFiles();
 
   for (const sourceFile of sourceFiles) {
-    const relativePath = sourceFile.relativePath ?? '';
+    const relativePath = isString(sourceFile.relativePath) ? sourceFile.relativePath : '';
     const normalizedPath: NormalizedAbsolutePath = normalizeToAbsolutePath(relativePath);
     let fileType: FileType = 'MAIN';
 
@@ -108,7 +109,7 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
 
     files[normalizedPath] = {
       filePath: normalizedPath,
-      fileContent: sourceFile.content ?? '',
+      fileContent: isString(sourceFile.content) ? sourceFile.content : '',
       fileType,
       fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
@@ -230,7 +231,7 @@ function buildPrimitiveConfiguration(
     // Fallback for Type B primitives without displayName.
     // This branch is not reached in production since SonarQube only exposes parameters
     // with displayName. It exists for testing purposes and non-SonarQube clients.
-    return parseParamValue(params[0].value ?? '', element.default);
+    return parseParamValue(isString(params[0].value) ? params[0].value : '', element.default);
   }
 }
 
@@ -285,7 +286,7 @@ function buildConfigurations(
   const paramsLookup = new Map<string, string>();
   for (const param of params) {
     if (param.key) {
-      paramsLookup.set(param.key, param.value ?? '');
+      paramsLookup.set(param.key, isString(param.value) ? param.value : '');
     }
   }
 
@@ -343,8 +344,8 @@ function buildConfigurations(
  * // ]
  */
 function transformActiveRule(activeRule: analyzer.IActiveRule): RuleConfig[] {
-  const repo = activeRule.ruleKey?.repo ?? '';
-  const ruleKey = activeRule.ruleKey?.rule ?? '';
+  const repo = isString(activeRule.ruleKey?.repo) ? activeRule.ruleKey.repo : '';
+  const ruleKey = isString(activeRule.ruleKey?.rule) ? activeRule.ruleKey.rule : '';
 
   if (repo !== 'javascript' && repo !== 'typescript') {
     console.warn(

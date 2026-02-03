@@ -35,6 +35,7 @@ import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/con
 import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { normalizeToAbsolutePath, dirnamePath, ROOT_PATH } from '../../shared/src/helpers/files.js';
 import {
+  isString,
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
   sanitizePaths,
@@ -70,7 +71,7 @@ export async function handleRequest(
       case 'on-init-linter': {
         const { rules, environments, globals, baseDir, sonarlint, bundles, rulesWorkdir } =
           request.data;
-        const sanitizedBaseDir = baseDir ? normalizeToAbsolutePath(baseDir) : ROOT_PATH;
+        const sanitizedBaseDir = isString(baseDir) ? normalizeToAbsolutePath(baseDir) : ROOT_PATH;
         await Linter.initialize({
           rules,
           environments,
@@ -78,7 +79,7 @@ export async function handleRequest(
           baseDir: sanitizedBaseDir,
           sonarlint,
           bundles: sanitizePaths(bundles, sanitizedBaseDir),
-          rulesWorkdir: rulesWorkdir
+          rulesWorkdir: isString(rulesWorkdir)
             ? normalizeToAbsolutePath(rulesWorkdir, sanitizedBaseDir)
             : undefined,
         });
