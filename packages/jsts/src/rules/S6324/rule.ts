@@ -33,6 +33,18 @@ function isCharacterClassRangeBoundary(character: AST.Character): boolean {
   return character.parent.type === 'CharacterClassRange';
 }
 
+/**
+ * Control characters inside character classes that contain ranges indicate intentional
+ * character set construction (e.g., [\x00-\x08\x0b\x0c] for YAML/CSS non-printables).
+ */
+function isInCharacterClassWithRanges(character: AST.Character): boolean {
+  const parent = character.parent;
+  if (parent.type !== 'CharacterClass') {
+    return false;
+  }
+  return parent.elements.some(element => element.type === 'CharacterClassRange');
+}
+
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter: (character: AST.Character) => {
@@ -44,7 +56,8 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
           raw.startsWith(String.raw`\x`) ||
           raw.startsWith(String.raw`\u`)) &&
         !EXCEPTIONS.has(raw) &&
-        !isCharacterClassRangeBoundary(character)
+        !isCharacterClassRangeBoundary(character) &&
+        !isInCharacterClassWithRanges(character)
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',
