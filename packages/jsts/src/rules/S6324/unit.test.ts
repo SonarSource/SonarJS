@@ -105,6 +105,40 @@ describe('S6324', () => {
           // Unicode variation with mixed ranges and standalone
           code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g`,
         },
+        // ANSI escape sequences - ESC followed by [ or ] should not be flagged
+        // CSI (Control Sequence Introducer) - ESC + [
+        {
+          // CSI sequence: ESC followed by [ indicates ANSI control sequence start
+          // Used for terminal colors, cursor control, etc.
+          code: String.raw`/\u001b\[\d+m/g`,
+        },
+        {
+          // CSI sequence with hex escape
+          code: String.raw`/\x1b\[\d+m/g`,
+        },
+        {
+          // CSI sequence for multiple parameters (like SGR - Select Graphic Rendition)
+          code: String.raw`/\u001b\[[\d;]+m/g`,
+        },
+        // OSC (Operating System Command) - ESC + ] ... BEL
+        {
+          // OSC sequence: ESC + ] starts OSC, BEL (\x07) terminates it
+          // Per xterm spec, BEL is valid only as OSC terminator
+          code: String.raw`/\x1b\].*?\x07/`,
+        },
+        {
+          // OSC sequence with unicode escapes
+          code: String.raw`/\u001b\].*?\u0007/`,
+        },
+        {
+          // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
+          // Matches CSI, OSC, and simple ESC sequences
+          code: String.raw`/(?:\x1b\[|\x9b)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^\`{}|~]/`,
+        },
+        {
+          // OSC sequence pattern matching with ST terminator alternative
+          code: String.raw`/(?:\x1b\]|\x9d).*?(?:\x1b\\|\x07|\x9c)/`,
+        },
       ],
       invalid: [
         {
@@ -190,11 +224,6 @@ describe('S6324', () => {
           errors: 1,
         },
         {
-          // ANSI escape sequence pattern (should flag \u001b)
-          code: String.raw`/\u001b\[\d+m/g`,
-          errors: 1,
-        },
-        {
           // CRLF detection pattern - both flagged since hex escapes aren't excepted
           code: String.raw`/\x0d\x0a/`,
           errors: 2,
@@ -203,6 +232,34 @@ describe('S6324', () => {
           // Whitespace alternation pattern (like csslint.js) - unicode escapes not excepted
           code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
           errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
+        },
+        // ANSI-related: Cases that should STILL be flagged
+        {
+          // ESC not followed by [ or ] should still be flagged
+          code: String.raw`/\x1b[a-z]/`,
+          errors: 1,
+        },
+        {
+          // BEL without OSC sequence should still be flagged
+          // BEL is only valid as OSC terminator (after ESC + ])
+          code: String.raw`/\x07foo/`,
+          errors: 1,
+        },
+        {
+          // BEL in CSI sequence is NOT valid - should be flagged
+          // BEL is only valid as OSC terminator, not CSI terminator
+          code: String.raw`/\x1b\[.*?\x07/`,
+          errors: 1, // Only BEL should be flagged; ESC + [ is valid CSI
+        },
+        {
+          // Standalone ESC without sequence introducer
+          code: String.raw`/\u001b/`,
+          errors: 1,
+        },
+        {
+          // ESC followed by something other than [ or ]
+          code: String.raw`/\x1b\(/`,
+          errors: 1,
         },
       ],
     });
