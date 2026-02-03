@@ -26,7 +26,7 @@ describe('transform', () => {
     const results = [
       {
         // source must match the normalized filePath for issues to be reported
-        source: filePath,
+        source: filePath as string,
         warnings: [
           {
             rule: 'some-rule',
