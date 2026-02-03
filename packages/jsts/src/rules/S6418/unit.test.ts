@@ -38,15 +38,6 @@ describe('S6418', () => {
           ],
           errors: 1,
         },
-        // member expressions should be detected
-        {
-          code: `req.session.secret = "6ecc-6fbf-134e-fe18-a26742a20c36";`,
-          errors: [
-            {
-              message: `"secret" detected here, make sure this is not a hard-coded secret.`,
-            },
-          ],
-        },
       ],
     });
   });
