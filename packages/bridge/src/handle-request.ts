@@ -113,6 +113,9 @@ export async function handleRequest(
         logHeapStatistics(workerData?.debugMemory);
         const { rules, files, configuration, bundles, rulesWorkdir } = request.data;
 
+        if (!configuration?.baseDir) {
+          throw 'baseDir is required';
+        }
         // 1. Sanitize configuration (sets global config including baseDir)
         setGlobalConfiguration(configuration);
         const baseDir = getBaseDir();

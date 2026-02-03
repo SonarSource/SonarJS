@@ -307,7 +307,9 @@ describe('buildSourceCodes()', () => {
 
 describe('composeSyntheticFilePath()', () => {
   it('should append the function name at the end of the filename, before the extension', () => {
-    const composedFilename = composeSyntheticFilePath('hello.yaml', 'there');
-    expect(composedFilename).toEqual('hello-there.yaml');
+    const inputPath = normalizeToAbsolutePath('/path/to/hello.yaml');
+    const composedFilename = composeSyntheticFilePath(inputPath, 'there');
+    // The function should preserve the directory and extension, only modifying the filename
+    expect(composedFilename).toEqual(normalizeToAbsolutePath('/path/to/hello-there.yaml'));
   });
 });

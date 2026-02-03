@@ -170,7 +170,7 @@ export class Linter {
    * considered during linting based on the file type.
    *
    * @param parseResult the ESLint source code
-   * @param filePath the path of the source file
+   * @param filePath the normalized absolute path of the source file
    * @param fileType the type of the source file
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
@@ -179,7 +179,7 @@ export class Linter {
    */
   static lint(
     { sourceCode, parserOptions, parser }: ParseResult,
-    filePath: string,
+    filePath: NormalizedAbsolutePath,
     fileType: FileType = 'MAIN',
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
