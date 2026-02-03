@@ -28,8 +28,7 @@ const COMMENT_OPERATOR_FUNCTION = new RegExp(
 let hasInfoBeenLogged = false;
 
 export function filterBundle(filePath: NormalizedAbsolutePath, input: string) {
-  const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
-  if (COMMENT_OPERATOR_FUNCTION.test(firstCharacters)) {
+  if (!filterBundleCode(input)) {
     debug(
       `File ${filePath} was excluded because it looks like a bundle. (Disable detection with sonar.javascript.detectBundles=false)`,
     );
@@ -42,4 +41,9 @@ export function filterBundle(filePath: NormalizedAbsolutePath, input: string) {
     return false;
   }
   return true;
+}
+
+export function filterBundleCode(input: string) {
+  const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
+  return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
 }

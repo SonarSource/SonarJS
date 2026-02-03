@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Test with minified bundle</title>
+  <meta charset="utf-8" />
+</head>
+
+<body>
+<script>
+/*! jQuery v3.5.1 | (c) JS Foundation and other contributors | jquery.org/license */
+!function(e,t){"use strict";var n={then:function(e){return e()}};n.then(function(){console.log("ready")})}(window);
+</script>
+<script>
+  // Normal script that should still be analyzed
+  if (foo()) bar(); else bar();
+</script>
+</body>
+</html>

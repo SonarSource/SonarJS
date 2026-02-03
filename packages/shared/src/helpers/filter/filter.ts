@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Minimatch } from 'minimatch';
-import { filterBundle } from './filter-bundle.js';
-import { filterMinified } from './filter-minified.js';
+import { filterBundle, filterBundleCode } from './filter-bundle.js';
+import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { isCssFile, isJsTsFile, type FileSuffixes } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
@@ -77,6 +77,10 @@ export function accept(
     return filterMinified(filePath, fileContent);
   }
   return true;
+}
+
+export function acceptSnippet(content: string): boolean {
+  return filterBundleCode(content) && !hasExcessiveAverageLineLength(content);
 }
 
 /**

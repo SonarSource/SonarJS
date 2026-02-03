@@ -22,6 +22,9 @@ import { build as buildJsTs } from '../../builders/build.js';
 import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../analysis/analysis.js';
 import { ParseResult } from '../../parsers/parse.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import { acceptSnippet } from '../../../../shared/src/helpers/filter/filter.js';
+import { debug } from '../../../../shared/src/helpers/logging.js';
+
 
 export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: NormalizedAbsolutePath;
@@ -45,6 +48,11 @@ export function build(
   const extendedParseResults: ExtendedParseResult[] = [];
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
+
+    if (!acceptSnippet(code)) {
+      debug(`Code snippet in ${input.filePath}:${embeddedJS.line} was skipped.`);
+      continue;
+    }
 
     let syntheticFilePath: NormalizedAbsolutePath = input.filePath;
     if (embeddedJS.extras.resourceName != null) {

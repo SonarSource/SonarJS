@@ -16,6 +16,7 @@
  */
 import {
   accept,
+  acceptSnippet,
   shouldIgnoreFile,
   type ShouldIgnoreFileParams,
 } from '../../src/helpers/filter/filter.js';
@@ -154,6 +155,38 @@ describe('filter.ts', () => {
       );
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('acceptSnippet', () => {
+    it('should accept normal code snippet', () => {
+      const code = `
+        function hello() {
+          console.log('Hello, world!');
+        }
+      `;
+      expect(acceptSnippet(code)).toBe(true);
+    });
+
+    it('should reject bundled code snippet (jQuery-style)', () => {
+      const bundledCode = '/* jQuery JavaScript Library v1.4.3*/(function(';
+      expect(acceptSnippet(bundledCode)).toBe(false);
+    });
+
+    it('should reject minified code snippet with excessive line length', () => {
+      // Create a minified-looking code with very long line (>200 chars average)
+      const minifiedCode = 'var a=' + 'x'.repeat(250) + ';';
+      expect(acceptSnippet(minifiedCode)).toBe(false);
+    });
+
+    it('should accept code that looks minified but has reasonable line lengths', () => {
+      const code = 'var a=1;var b=2;var c=3;\nvar d=4;var e=5;';
+      expect(acceptSnippet(code)).toBe(true);
+    });
+
+    it('should reject code with bundle comment pattern', () => {
+      const bundledCode = '/*! My Library v1.0.0 */!function(e,t){"use strict";}';
+      expect(acceptSnippet(bundledCode)).toBe(false);
     });
   });
 });

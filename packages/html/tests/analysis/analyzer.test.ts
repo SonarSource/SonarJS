@@ -208,4 +208,39 @@ describe('analyzeHTML', () => {
       }),
     );
   });
+
+  it('should skip minified/bundled script tags but analyze normal scripts', async () => {
+    await Linter.initialize({
+      baseDir: fixturesPath,
+      rules: [
+        {
+          key: 'S3923',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S7739',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const { issues } = await analyzeEmbedded(
+      await embeddedInput({ filePath: join(fixturesPath, 'minified-bundle.html') }),
+      parseHTML,
+    );
+    // The minified bundle script (with S7739 violation for 'then') should be skipped
+    // The normal script (with S3923 violation) should still be analyzed
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toEqual(
+      expect.objectContaining({
+        ruleId: 'S3923',
+        line: 15,
+      }),
+    );
+  });
 });
