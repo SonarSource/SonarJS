@@ -125,7 +125,7 @@ describe('router', () => {
     ]);
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
-    let data: any = { filePath, fileType, tsConfigs: [] };
+    let data: any = { filePath, fileType, tsConfigs: [], skipAst: false };
     let response = await request(server, '/analyze-jsts', 'POST', data);
     let {
       ast,
@@ -194,7 +194,7 @@ describe('router', () => {
       quickFixes: [],
       secondaryLocations: [],
       ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath: filePathWithLambda,
+      filePath: normalizeToAbsolutePath(filePathWithLambda),
     });
   });
 
@@ -226,7 +226,7 @@ describe('router', () => {
       quickFixes: [],
       secondaryLocations: [],
       ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath,
+      filePath: normalizeToAbsolutePath(filePath),
     });
   });
 

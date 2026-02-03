@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { patchParsingError, patchSourceCode } from './patch.js';
-import path from 'node:path';
+import path from 'node:path/posix';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
 import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
