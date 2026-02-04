@@ -20,7 +20,7 @@ import { buildParserOptions } from '../../src/parsers/options.js';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 
@@ -39,7 +39,9 @@ const parseFunctions = [
 
 describe('parseForESLint', () => {
   it(`Babel should fail parsing input with JSX without the React preset`, async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js'),
+    );
     const fileContent = await readFile(filePath);
     const fileType = 'MAIN';
 
@@ -54,7 +56,9 @@ describe('parseForESLint', () => {
 
   for (const { parser, usingBabel, errorMessage } of parseFunctions) {
     it(`should parse a valid input with ${parser.meta!.name}`, async () => {
-      const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
+      const filePath = normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js'),
+      );
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
@@ -79,7 +83,9 @@ describe('parseForESLint', () => {
     });
 
     it(`should fail parsing an invalid input with ${parser.meta!.name}`, async () => {
-      const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js');
+      const filePath = normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js'),
+      );
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 

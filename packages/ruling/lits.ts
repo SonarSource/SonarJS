@@ -16,7 +16,10 @@
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { ProjectAnalysisOutput } from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import {
+  type ProjectAnalysisOutput,
+  entriesOfFileResults,
+} from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
@@ -58,7 +61,7 @@ export async function writeResults(
  */
 function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
   const result: LitsFormattedResult = { S2260: { js: {}, ts: {} } }; // We already add parsing error rule
-  for (const [filename, analysisOutput] of Object.entries(results.files)) {
+  for (const [filename, analysisOutput] of entriesOfFileResults(results.files)) {
     const relativePath = filename.substring(projectPath.length + 1);
     const projectWithFilename = `${project}:${relativePath}`;
     if ('issues' in analysisOutput) {

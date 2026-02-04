@@ -21,6 +21,7 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../src/builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 
 describe('buildSourceCode', () => {
   it('should build JavaScript source code', async () => {
@@ -58,7 +59,9 @@ describe('buildSourceCode', () => {
 
   it('should build TypeScript source code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'file.ts');
-    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')];
+    const tsConfigs = [
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')),
+    ];
     const {
       ast: {
         body: [stmt],
@@ -70,7 +73,9 @@ describe('buildSourceCode', () => {
 
   it('should build TypeScript Vue.js source code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'ts.vue');
-    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')];
+    const tsConfigs = [
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')),
+    ];
     const {
       ast: {
         body: [stmt],
@@ -119,7 +124,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => build(analysisInput)).toThrow(new Error('Unexpected token (3:0)'));
 
-    const log = `DEBUG Failed to parse ${filePath} with typescript-eslint/parser: '}' expected.`;
+    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with typescript-eslint/parser: '}' expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
@@ -155,7 +160,11 @@ describe('buildSourceCode', () => {
 
   it('should build TypeScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'file.ts');
-    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const tsConfigs = [
+      normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json'),
+      ),
+    ];
 
     const {
       ast: {
@@ -167,14 +176,22 @@ describe('buildSourceCode', () => {
 
   it('should fail building malformed TypeScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'malformed.ts');
-    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const tsConfigs = [
+      normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json'),
+      ),
+    ];
     const analysisInput = await jsTsInput({ filePath, tsConfigs, language: 'ts' });
     expect(() => build(analysisInput)).toThrow(APIError.parsingError(`'}' expected.`, { line: 2 }));
   });
 
   it('should build TypeScript Vue.js code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'file.vue');
-    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const tsConfigs = [
+      normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json'),
+      ),
+    ];
     const sourceCode = build(await jsTsInput({ filePath, tsConfigs, language: 'ts' })).sourceCode;
 
     const {
@@ -230,7 +247,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });
     expect(() => build(analysisInput)).toThrow(new Error('Expression expected.'));
 
-    const log = `DEBUG Failed to parse ${filePath} with vue-eslint-parser: Expression expected.`;
+    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );

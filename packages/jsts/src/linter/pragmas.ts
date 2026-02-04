@@ -19,6 +19,7 @@ import type estree from 'estree';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
 
@@ -60,7 +61,7 @@ function getRuleId(ruleId: string | null) {
   return ruleId?.split('/').at(-1)!;
 }
 
-export function createOptions(filename: string): Linter.LintOptions & {
+export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOptions & {
   getRule: (ruleId: string) => string;
   patchDirectives: (disableDirectives: Directive[]) => void;
   patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;

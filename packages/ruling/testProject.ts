@@ -18,7 +18,9 @@ import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { toUnixPath } from '../shared/src/helpers/files.js';
+import { getFilesToAnalyze } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
+import { createConfiguration } from '../shared/src/helpers/configuration.js';
 import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
@@ -26,7 +28,7 @@ import * as metas from '../jsts/src/rules/metas.js';
 import { SonarMeta } from '../jsts/src/rules/helpers/index.js';
 import { symlink } from 'node:fs/promises';
 
-const currentPath = toUnixPath(import.meta.dirname);
+const currentPath = normalizePath(import.meta.dirname);
 
 const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, '..', 'sonarjs-ruling-sources');
@@ -50,7 +52,7 @@ type ProjectsData = {
 };
 
 export function projectName(projectFile: string) {
-  const filename = basename(toUnixPath(projectFile));
+  const filename = basename(normalizePath(projectFile));
   return filename.substring(0, filename.length - '.ruling.test.ts'.length);
 }
 
@@ -73,18 +75,27 @@ export async function testProject(projectName: string) {
   const expectedPath = join(expectedPathBase, name);
   const actualPath = join(actualPathBase, name);
 
-  const baseDir = join(jsTsProjectsPath, folder ?? name);
+  const baseDir = normalizeToAbsolutePath(join(jsTsProjectsPath, folder ?? name));
 
-  const results = await analyzeProject({
-    rules,
-    configuration: {
-      baseDir,
-      tests: testDir ? [testDir] : undefined,
-      exclusions: exclusions
-        ? DEFAULT_EXCLUSIONS.concat(exclusions.split(','))
-        : DEFAULT_EXCLUSIONS,
-    },
+  const configuration = createConfiguration({
+    baseDir,
+    maxFileSize: 4000,
+    canAccessFileSystem: true,
+    tests: testDir ? [testDir] : undefined,
+    exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
+
+  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
+
+  const results = await analyzeProject(
+    {
+      rules,
+      filesToAnalyze,
+      pendingFiles,
+      bundles: [],
+    },
+    configuration,
+  );
 
   await writeResults(baseDir, name, results, actualPath);
 

@@ -18,8 +18,11 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import type { Filesystem } from '../../../src/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../src/rules/helpers/find-up/all-in-parent-dirs.js';
-import Path from 'node:path/posix';
+import { type NormalizedAbsolutePath, joinPaths } from '../../../src/rules/helpers/files.js';
 import { beforeEach, describe, it } from 'node:test';
+
+// Cast directly to avoid normalizeToAbsolutePath() which adds drive letter on Windows
+const ROOT = '/' as NormalizedAbsolutePath;
 
 describe('findUp', () => {
   beforeEach(() => patternInParentsCache.clear());
@@ -31,39 +34,39 @@ describe('findUp', () => {
     });
     console.log(filesystem.toJSON());
 
-    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get('/');
+    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get(ROOT);
 
     const filesystemReadFileSpy = mock.method(filesystem, 'readFileSync');
     const filesystemReaddirSpy = mock.method(filesystem, 'readdirSync');
 
-    const abcEntries = findUp.get('/a/b/c');
-    const abcEntries2 = findUp.get('/a/b/c');
-    const abcEntries3 = findUp.get('/a/b/c');
-    const abcEntries4 = findUp.get('/a/b/c');
-    findUp.get('/a/b');
+    const abcEntries = findUp.get(joinPaths(ROOT, 'a', 'b', 'c'));
+    const abcEntries2 = findUp.get(joinPaths(ROOT, 'a', 'b', 'c'));
+    const abcEntries3 = findUp.get(joinPaths(ROOT, 'a', 'b', 'c'));
+    const abcEntries4 = findUp.get(joinPaths(ROOT, 'a', 'b', 'c'));
+    findUp.get(joinPaths(ROOT, 'a', 'b'));
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
 
     const filesystemReaddirSpyCallArgs = filesystemReaddirSpy.mock.calls;
 
-    equal(filesystemReaddirSpyCallArgs[0].arguments[0], Path.join('/', 'a', 'b', 'c'));
-    equal(filesystemReaddirSpyCallArgs[1].arguments[0], Path.join('/', 'a', 'b'));
-    equal(filesystemReaddirSpyCallArgs[2].arguments[0], Path.join('/', 'a'));
-    equal(filesystemReaddirSpyCallArgs[3].arguments[0], Path.join('/'));
+    equal(filesystemReaddirSpyCallArgs[0].arguments[0], joinPaths(ROOT, 'a', 'b', 'c'));
+    equal(filesystemReaddirSpyCallArgs[1].arguments[0], joinPaths(ROOT, 'a', 'b'));
+    equal(filesystemReaddirSpyCallArgs[2].arguments[0], joinPaths(ROOT, 'a'));
+    equal(filesystemReaddirSpyCallArgs[3].arguments[0], ROOT);
 
     for (const entries of [abcEntries, abcEntries2, abcEntries3, abcEntries4]) {
       equal(entries.length, 2);
-      equal(entries[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
+      equal(entries[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
       equal(entries[0].content.toString(), '/a/b/c/foo.bar content');
-      equal(entries[1].path, Path.join('/', 'a', 'foo.bar'));
+      equal(entries[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
       equal(entries[1].content.toString(), '/a/foo.bar content');
     }
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
 
-    findUp.get('/a/b/c/d');
+    findUp.get(joinPaths(ROOT, 'a', 'b', 'c', 'd'));
 
     equal(filesystemReadFileSpy.mock.calls.length, 3);
     equal(filesystemReaddirSpy.mock.calls.length, 5);
@@ -78,26 +81,26 @@ describe('findUp', () => {
 
     const entriesUpToRoot = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/')
-      .get('/a/b/c');
+      .get(ROOT)
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
     const entriesUpToA = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/a')
-      .get('/a/b/c');
+      .get(joinPaths(ROOT, 'a'))
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
     const entriesUpToAB = patternInParentsCache
       .get('foo.bar', filesystem as Filesystem)
-      .get('/a/b')
-      .get('/a/b/c');
+      .get(joinPaths(ROOT, 'a', 'b'))
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
 
     equal(entriesUpToRoot.length, 3);
-    equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToRoot[1].path, Path.join('/', 'a', 'foo.bar'));
-    equal(entriesUpToRoot[2].path, Path.join('/', 'foo.bar'));
+    equal(entriesUpToRoot[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToRoot[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
+    equal(entriesUpToRoot[2].path, joinPaths(ROOT, 'foo.bar'));
     equal(entriesUpToA.length, 2);
-    equal(entriesUpToA[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToA[1].path, Path.join('/', 'a', 'foo.bar'));
+    equal(entriesUpToA[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToA[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
     equal(entriesUpToAB.length, 1);
-    equal(entriesUpToAB[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToAB[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
   });
 
   it('honors the glob pattern', () => {
@@ -109,25 +112,25 @@ describe('findUp', () => {
 
     const entriesUpToRoot = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/')
-      .get('/a/b/c');
+      .get(ROOT)
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
     const entriesUpToA = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/a')
-      .get('/a/b/c');
+      .get(joinPaths(ROOT, 'a'))
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
     const entriesUpToAB = patternInParentsCache
       .get('foo.{*.,}bar', filesystem as Filesystem)
-      .get('/a/b')
-      .get('/a/b/c');
+      .get(joinPaths(ROOT, 'a', 'b'))
+      .get(joinPaths(ROOT, 'a', 'b', 'c'));
 
     equal(entriesUpToRoot.length, 3);
-    equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToRoot[1].path, Path.join('/', 'a', 'foo.x.bar'));
-    equal(entriesUpToRoot[2].path, Path.join('/', 'foo.y.bar'));
+    equal(entriesUpToRoot[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToRoot[1].path, joinPaths(ROOT, 'a', 'foo.x.bar'));
+    equal(entriesUpToRoot[2].path, joinPaths(ROOT, 'foo.y.bar'));
     equal(entriesUpToA.length, 2);
-    equal(entriesUpToA[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToA[1].path, Path.join('/', 'a', 'foo.x.bar'));
+    equal(entriesUpToA[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToA[1].path, joinPaths(ROOT, 'a', 'foo.x.bar'));
     equal(entriesUpToAB.length, 1);
-    equal(entriesUpToAB[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToAB[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
   });
 });

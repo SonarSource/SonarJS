@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug, info } from '../logging.js';
+import type { NormalizedAbsolutePath } from '../../../../jsts/src/rules/helpers/index.js';
 
 const READ_CHARACTERS_LIMIT = 2048;
 const COMMENT = String.raw`/\*.*\*/`;
@@ -26,7 +27,7 @@ const COMMENT_OPERATOR_FUNCTION = new RegExp(
 );
 let hasInfoBeenLogged = false;
 
-export function filterBundle(filePath: string, input: string) {
+export function filterBundle(filePath: NormalizedAbsolutePath, input: string) {
   const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
   if (COMMENT_OPERATOR_FUNCTION.test(firstCharacters)) {
     debug(

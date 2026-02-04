@@ -25,12 +25,12 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { dirname, join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
-import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
     const filePath = join(
-      dirname(toUnixPath(fileURLToPath(import.meta.url))),
+      dirname(normalizePath(fileURLToPath(import.meta.url))),
       'fixtures',
       'message.js',
     );
@@ -57,7 +57,7 @@ describe('transformMessages', () => {
           implementation: 'original',
         },
       },
-      filePath: 'foo.js',
+      filePath: normalizeToAbsolutePath('/foo.js'),
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -96,7 +96,7 @@ describe('transformMessages', () => {
           implementation: 'original',
         },
       },
-      filePath: 'foo.js',
+      filePath: normalizeToAbsolutePath('/foo.js'),
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -134,7 +134,7 @@ describe('transformMessages', () => {
           implementation: 'original',
         },
       },
-      filePath: 'foo.js',
+      filePath: normalizeToAbsolutePath('/foo.js'),
     }).issues;
     expect(issue).toEqual(
       expect.objectContaining({
@@ -186,7 +186,7 @@ describe('transformMessages', () => {
           implementation: 'original',
         },
       },
-      filePath: 'foo.js',
+      filePath: normalizeToAbsolutePath('/foo.js'),
     }).issues;
     expect(secondaryLocations).toEqual([
       {

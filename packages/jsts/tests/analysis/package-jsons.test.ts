@@ -22,8 +22,8 @@ import {
   packageJsonStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
-import { toUnixPath } from '../../../shared/src/helpers/files.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
+import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/package-jsons.js';
 import {
   dependenciesCache,
@@ -36,7 +36,7 @@ import { patternInParentsCache } from '../../src/rules/helpers/find-up/all-in-pa
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
 
-const fixtures = toUnixPath(join(import.meta.dirname, 'fixtures-package-jsons'));
+const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
 describe('files', () => {
   beforeEach(() => {
@@ -47,9 +47,9 @@ describe('files', () => {
   });
 
   it('should return the package.json files', async () => {
-    const baseDir = join(fixtures, 'dependencies');
-    setGlobalConfiguration({ baseDir });
-    await initFileStores(baseDir);
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
     const path = join(fixtures, 'dependencies', 'package.json');
     const content = await readFile(path, 'utf-8');
     expect(packageJsonStore.getPackageJsons()).toEqual(
@@ -66,9 +66,9 @@ describe('files', () => {
   });
 
   it('should fill the package.json cache used for rules', async () => {
-    const baseDir = join(fixtures, 'dependencies');
-    setGlobalConfiguration({ baseDir });
-    await initFileStores(baseDir);
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
     expect(packageJsonsInParentsCache.has(baseDir)).toEqual(true);
     expect(packageJsonsInParentsCache.size).toEqual(1);
     expect(closestPackageJsonCache.has(baseDir)).toEqual(true);
@@ -84,9 +84,9 @@ describe('files', () => {
   it('should ignore malformed package.json files', async ({ mock }) => {
     mock.method(console, 'debug');
     const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
-    const baseDir = join(fixtures, 'package-json-malformed');
-    setGlobalConfiguration({ baseDir });
-    await initFileStores(baseDir);
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'package-json-malformed'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
     const filePath = join(baseDir, 'package.json');
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
     getDependencies(baseDir, baseDir);
@@ -98,20 +98,23 @@ describe('files', () => {
   });
 
   it('should clear the package.json cache', async () => {
-    const baseDir = join(fixtures, 'dependencies');
-    setGlobalConfiguration({ baseDir });
-    await initFileStores(baseDir);
-    expect(await packageJsonStore.isInitialized(baseDir)).toEqual(true);
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    expect(await packageJsonStore.isInitialized(configuration)).toEqual(true);
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
     getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
 
-    packageJsonStore.dirtyCachesIfNeeded(baseDir);
+    packageJsonStore.dirtyCachesIfNeeded(configuration);
     expect(packageJsonStore.getPackageJsons().size).toEqual(1);
 
     // we create a file event
-    setGlobalConfiguration({ baseDir, fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' } });
-    packageJsonStore.dirtyCachesIfNeeded(baseDir);
+    configuration = createConfiguration({
+      baseDir,
+      fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' },
+    });
+    packageJsonStore.dirtyCachesIfNeeded(configuration);
     expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(dependenciesCache.size).toEqual(0);
   });

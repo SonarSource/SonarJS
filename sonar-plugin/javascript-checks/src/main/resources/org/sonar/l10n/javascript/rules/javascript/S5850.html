@@ -27,6 +27,13 @@ explicit.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 const regex = /(?:^a)|b|(?:c$)/;
 </pre>
+<h2>Exceptions</h2>
+<p>No issue will be raised for two-alternative patterns where the first alternative starts with <code>^</code> and the second ends with
+<code>$</code>. These are valid trimming idioms commonly used to match at the start OR end of strings.</p>
+<pre>
+const regex = /^\s+|\s+$/g; // Compliant by exception: matches whitespace at start or end
+const regex = /^foo|bar$/; // Compliant by exception: matches 'foo' at start or 'bar' at end
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

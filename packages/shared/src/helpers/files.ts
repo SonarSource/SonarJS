@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import { stripBOM } from '../../../jsts/src/rules/helpers/index.js';
+import { stripBOM, type NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
 export * from '../../../jsts/src/rules/helpers/index.js';
 
 /**
@@ -40,7 +40,7 @@ export type FileType = 'MAIN' | 'TEST';
  * @param filePath the path of a file
  * @returns Promise which resolves with the content of the file
  */
-export async function readFile(filePath: string) {
+export async function readFile(filePath: NormalizedAbsolutePath) {
   const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
 }

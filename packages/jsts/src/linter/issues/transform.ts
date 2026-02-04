@@ -21,7 +21,7 @@ import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import { SonarMeta } from '../../rules/helpers/index.js';
+import { SonarMeta, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * The result of linting a source code
@@ -68,7 +68,11 @@ export type LintingResult = {
 export function transformMessages(
   messages: Linter.LintMessage[],
   language: JsTsLanguage,
-  ctx: { sourceCode: SourceCode; ruleMetas: { [key: string]: SonarMeta }; filePath: string },
+  ctx: {
+    sourceCode: SourceCode;
+    ruleMetas: { [key: string]: SonarMeta };
+    filePath: NormalizedAbsolutePath;
+  },
 ): LintingResult {
   const issues: Issue[] = [];
 

@@ -19,6 +19,7 @@ import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 function getESLintKeys(sonarKey: string) {
   const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas];
@@ -53,7 +54,7 @@ function getESLintKeys(sonarKey: string) {
 export function convertMessage(
   source: SourceCode,
   message: Linter.LintMessage,
-  filePath: string,
+  filePath: NormalizedAbsolutePath,
   language: JsTsLanguage,
 ): Issue | null {
   /**

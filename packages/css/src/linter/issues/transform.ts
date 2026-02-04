@@ -17,6 +17,7 @@
 import stylelint from 'stylelint';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { Issue } from './issue.js';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Transforms Stylelint linting results into SonarQube issues
@@ -24,7 +25,10 @@ import { Issue } from './issue.js';
  * @param filePath the path of the linted file
  * @returns the transformed SonarQube issues
  */
-export function transform(results: stylelint.LintResult[], filePath: string): Issue[] {
+export function transform(
+  results: stylelint.LintResult[],
+  filePath: NormalizedAbsolutePath,
+): Issue[] {
   const issues: Issue[] = [];
   /**
    * There should be only one element in 'results' as we are analyzing

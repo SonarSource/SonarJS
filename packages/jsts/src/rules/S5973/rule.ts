@@ -26,8 +26,7 @@ import {
 } from '../helpers/index.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
-import { dirname } from 'node:path';
-import { getDependencies } from '../helpers/package-jsons/dependencies.js';
+import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -80,7 +79,7 @@ function hasJestRetry(context: Rule.RuleContext, node: estree.CallExpression, ha
 }
 
 function hasJestDependency(context: Rule.RuleContext) {
-  const dependencies = getDependencies(dirname(context.filename), context.cwd);
+  const dependencies = getDependenciesSanitizePaths(context);
   return dependencies.has('jest');
 }
 

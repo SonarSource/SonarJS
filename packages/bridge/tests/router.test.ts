@@ -22,8 +22,7 @@ import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
-import { toUnixPath } from '../../shared/src/helpers/files.js';
-import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
@@ -50,8 +49,8 @@ describe('router', () => {
   });
 
   it('should route /analyze-project requests', async () => {
-    const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
-    const payload: ProjectAnalysisInput = {
+    const filePath = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
+    const payload = {
       rules: [
         {
           key: 'S4621',
@@ -125,7 +124,7 @@ describe('router', () => {
     ]);
     let filePath = path.join(fixtures, 'file.js');
     let fileType = 'MAIN';
-    let data: any = { filePath, fileType, tsConfigs: [] };
+    let data: any = { filePath, fileType, tsConfigs: [], skipAst: false };
     let response = await request(server, '/analyze-jsts', 'POST', data);
     let {
       ast,
@@ -194,7 +193,7 @@ describe('router', () => {
       quickFixes: [],
       secondaryLocations: [],
       ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath: filePathWithLambda,
+      filePath: normalizeToAbsolutePath(filePathWithLambda),
     });
   });
 
@@ -226,12 +225,12 @@ describe('router', () => {
       quickFixes: [],
       secondaryLocations: [],
       ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath,
+      filePath: normalizeToAbsolutePath(filePath),
     });
   });
 
   it('should route /init-linter requests', async () => {
-    const data = { rules: [], environments: [], globals: [] };
+    const data = { rules: [], environments: [], globals: [], baseDir: fixtures };
     const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK');
   });
@@ -248,6 +247,6 @@ describe('router', () => {
 });
 
 function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
-  const config = { rules };
+  const config = { rules, baseDir: import.meta.dirname };
   return request(server, '/init-linter', 'POST', config);
 }

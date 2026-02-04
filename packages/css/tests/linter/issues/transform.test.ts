@@ -18,13 +18,15 @@ import stylelint from 'stylelint';
 import { transform } from '../../../src/linter/issues/index.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
+import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
-    const filePath = '/tmp/path';
+    const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [
       {
-        source: filePath,
+        // source must match the normalized filePath for issues to be reported
+        source: filePath as string,
         warnings: [
           {
             rule: 'some-rule',
@@ -51,7 +53,7 @@ describe('transform', () => {
   it('should not transform Stylelint results from a different file', ({ mock }) => {
     console.log = mock.fn(console.log);
 
-    const filePath = '/tmp/path';
+    const filePath = normalizeToAbsolutePath('/tmp/path');
     const source = '/some/fake/source';
     const results = [
       {

@@ -17,11 +17,12 @@
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
-import { fillFileContent } from '../../../shared/src/types/analysis.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
-import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import {
+  shouldIgnoreFile,
+  type ShouldIgnoreFileParams,
+} from '../../../shared/src/helpers/filter/filter.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -30,13 +31,18 @@ import { setGlobalConfiguration } from '../../../shared/src/helpers/configuratio
  * is to create a Stylelint configuration based on the rules from the active
  * quality profile and uses this configuration to linter the input file.
  *
- * @param input the CSS analysis input to analyze
+ * The input must be fully sanitized (all fields required) before calling this function.
+ *
+ * @param input the sanitized CSS analysis input to analyze
+ * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @returns a promise of the CSS analysis output
  */
-export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules, configuration } = await fillFileContent(input);
-  setGlobalConfiguration(configuration);
-  if (await shouldIgnoreFile({ filePath, fileContent })) {
+export async function analyzeCSS(
+  input: CssAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): Promise<CssAnalysisOutput> {
+  const { filePath, fileContent, rules } = input;
+  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [] };
   }
   const config = createStylelintConfig(rules);

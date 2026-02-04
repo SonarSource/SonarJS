@@ -1,6 +1,6 @@
 {
-  "title": "Hard-coded passwords are security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Credentials should not be hard-coded",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "BLOCKER"
@@ -12,6 +12,7 @@
     "func": "Constant/Issue",
     "constantCost": "30min"
   },
+  "quickfix": "infeasible",
   "tags": [
     "cwe"
   ],

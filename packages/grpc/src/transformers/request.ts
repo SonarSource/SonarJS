@@ -15,12 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { analyzer } from '../proto/language_analyzer.js';
-import type {
-  ProjectAnalysisInput,
-  JsTsFiles,
+import {
+  type ProjectAnalysisInput,
+  type JsTsFiles,
+  createJsTsFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
-import type { FileType } from '../../../shared/src/helpers/files.js';
+import {
+  type FileType,
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+} from '../../../shared/src/helpers/files.js';
+import { isString } from '../../../shared/src/helpers/sanitize.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
 import { ruleMetaMap } from './rule-metadata.js';
@@ -87,10 +94,11 @@ function parseParamValue(value: string, defaultValue: unknown) {
  * @returns Dictionary of files keyed by relative path
  */
 function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
-  const files: JsTsFiles = {};
+  const files = createJsTsFiles();
 
   for (const sourceFile of sourceFiles) {
-    const relativePath = sourceFile.relativePath ?? '';
+    const relativePath = isString(sourceFile.relativePath) ? sourceFile.relativePath : '';
+    const normalizedPath: NormalizedAbsolutePath = normalizeToAbsolutePath(relativePath);
     let fileType: FileType = 'MAIN';
 
     if (sourceFile.fileScope !== null && sourceFile.fileScope !== undefined) {
@@ -99,10 +107,11 @@ function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
       // TODO: Infer file scope from context when not explicitly provided by the caller
     }
 
-    files[relativePath] = {
-      filePath: relativePath,
-      fileContent: sourceFile.content ?? '',
+    files[normalizedPath] = {
+      filePath: normalizedPath,
+      fileContent: isString(sourceFile.content) ? sourceFile.content : '',
       fileType,
+      fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
   }
 
@@ -222,7 +231,7 @@ function buildPrimitiveConfiguration(
     // Fallback for Type B primitives without displayName.
     // This branch is not reached in production since SonarQube only exposes parameters
     // with displayName. It exists for testing purposes and non-SonarQube clients.
-    return parseParamValue(params[0].value ?? '', element.default);
+    return parseParamValue(isString(params[0].value) ? params[0].value : '', element.default);
   }
 }
 
@@ -277,7 +286,7 @@ function buildConfigurations(
   const paramsLookup = new Map<string, string>();
   for (const param of params) {
     if (param.key) {
-      paramsLookup.set(param.key, param.value ?? '');
+      paramsLookup.set(param.key, isString(param.value) ? param.value : '');
     }
   }
 
@@ -335,8 +344,8 @@ function buildConfigurations(
  * // ]
  */
 function transformActiveRule(activeRule: analyzer.IActiveRule): RuleConfig[] {
-  const repo = activeRule.ruleKey?.repo ?? '';
-  const ruleKey = activeRule.ruleKey?.rule ?? '';
+  const repo = isString(activeRule.ruleKey?.repo) ? activeRule.ruleKey.repo : '';
+  const ruleKey = isString(activeRule.ruleKey?.rule) ? activeRule.ruleKey.rule : '';
 
   if (repo !== 'javascript' && repo !== 'typescript') {
     console.warn(
@@ -414,14 +423,14 @@ export function transformRequestToProjectInput(
   const sourceFiles = request.sourceFiles || [];
   const activeRules = request.activeRules || [];
 
+  const filesToAnalyze = transformSourceFiles(sourceFiles);
+  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
+
   return {
-    files: transformSourceFiles(sourceFiles),
+    filesToAnalyze,
+    pendingFiles,
     rules: transformActiveRules(activeRules),
-    configuration: {
-      // baseDir is irrelevant since we don't access the filesystem
-      baseDir: '/',
-      // gRPC requests contain all file contents inline - no filesystem access needed
-      canAccessFileSystem: false,
-    },
+    bundles: [],
+    rulesWorkdir: undefined,
   };
 }

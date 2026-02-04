@@ -16,11 +16,18 @@
  */
 // Mock FileStore implementation
 import { describe, it } from 'node:test';
-import { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../src/analysis/analysis.js';
 import { simulateFromInputFiles } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
-import { FileStore } from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
-import { toUnixPath } from '../../src/rules/helpers/files.js';
+import {
+  FileStore,
+  type RawInputFiles,
+} from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
+import {
+  createConfiguration,
+  type Configuration,
+} from '../../../shared/src/helpers/configuration.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
@@ -28,11 +35,14 @@ class MockFileStore implements FileStore {
   public setupCalled = false;
   public postProcessCalled = false;
 
-  async isInitialized(_baseDir: string, _inputFiles?: JsTsFiles): Promise<boolean> {
+  async isInitialized(
+    _configuration: Configuration,
+    _inputFiles?: RawInputFiles,
+  ): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
 
-  setup(_baseDir: string): void {
+  setup(_configuration: Configuration): void {
     this.setupCalled = true;
   }
 
@@ -40,11 +50,11 @@ class MockFileStore implements FileStore {
     this.processedDirectories.push(dir);
   }
 
-  async processFile(filename: string): Promise<void> {
+  async processFile(filename: string, _configuration: Configuration): Promise<void> {
     this.processedFiles.push(filename);
   }
 
-  async postProcess(_baseDir: string): Promise<void> {
+  async postProcess(_configuration: Configuration): Promise<void> {
     this.postProcessCalled = true;
   }
 }
@@ -53,30 +63,48 @@ describe('simulateFromInputFiles', () => {
   it('should process directories and files correctly', async () => {
     // Arrange
     const mockStore = new MockFileStore();
-    const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/components/Button.tsx', fileType: 'MAIN' },
-      file2: { filePath: '/project/src/utils/helper.ts', fileType: 'MAIN' },
-      file3: { filePath: '/project/tests/Button.test.tsx', fileType: 'TEST' },
+    // RawInputFiles uses string paths that will be normalized by the function
+    const inputFiles: RawInputFiles = {
+      file1: {
+        filePath: '/project/src/components/Button.tsx',
+        fileType: 'MAIN',
+        fileContent: '',
+        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
+      file2: {
+        filePath: '/project/src/utils/helper.ts',
+        fileType: 'MAIN',
+        fileContent: '',
+        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
+      file3: {
+        filePath: '/project/tests/Button.test.tsx',
+        fileType: 'TEST',
+        fileContent: '',
+        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
     };
-    const baseDir = toUnixPath('/project');
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
     const pendingStores = [mockStore];
 
     // Act
-    await simulateFromInputFiles(inputFiles, baseDir, pendingStores);
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
 
     // Assert
     // Check that directories were processed (parent directories of input files)
     expect(mockStore.processedDirectories).toHaveLength(4);
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src/components'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src/utils'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/tests'));
-    expect(mockStore.processedDirectories).toContain(toUnixPath('/project/src'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src/components'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src/utils'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/tests'));
+    expect(mockStore.processedDirectories).toContain(normalizePath('/project/src'));
 
     // Check that all files were processed
     expect(mockStore.processedFiles).toHaveLength(3);
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/components/Button.tsx'));
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/utils/helper.ts'));
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/tests/Button.test.tsx'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/components/Button.tsx'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/utils/helper.ts'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/tests/Button.test.tsx'));
 
     // Verify the correct number of processed items
     expect(mockStore.processedFiles).toHaveLength(3);
@@ -87,38 +115,52 @@ describe('simulateFromInputFiles', () => {
     class MockStoreWithoutProcessDirectory implements FileStore {
       public processedFiles: string[] = [];
 
-      async isInitialized(): Promise<boolean> {
+      async isInitialized(
+        _configuration: Configuration,
+        _inputFiles?: RawInputFiles,
+      ): Promise<boolean> {
         return false;
       }
-      setup(): void {}
-      async processFile(filename: string): Promise<void> {
+      setup(_configuration: Configuration): void {}
+      async processFile(filename: string, _configuration: Configuration): Promise<void> {
         this.processedFiles.push(filename);
       }
-      async postProcess(): Promise<void> {}
+      async postProcess(_configuration: Configuration): Promise<void> {}
       // Note: processDirectory is optional, so we don't implement it
     }
 
     const mockStore = new MockStoreWithoutProcessDirectory();
-    const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/test.js', fileType: 'MAIN' },
+    const inputFiles: RawInputFiles = {
+      file1: {
+        filePath: '/project/src/test.js',
+        fileType: 'MAIN',
+        fileContent: '',
+        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
     };
-    const baseDir = toUnixPath('/project');
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
 
     // Act & Assert - should not throw an error
-    await expect(simulateFromInputFiles(inputFiles, baseDir, [mockStore])).resolves.not.toThrow();
+    await expect(
+      simulateFromInputFiles(inputFiles, configuration, [mockStore]),
+    ).resolves.not.toThrow();
 
     // Files should still be processed
-    expect(mockStore.processedFiles).toContain(toUnixPath('/project/src/test.js'));
+    expect(mockStore.processedFiles).toContain(normalizePath('/project/src/test.js'));
   });
 
   it('should handle empty input files', async () => {
     // Arrange
     const mockStore = new MockFileStore();
-    const inputFiles: JsTsFiles = {};
-    const baseDir = toUnixPath('/project');
+    const inputFiles: RawInputFiles = {};
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
 
     // Act
-    await simulateFromInputFiles(inputFiles, baseDir, [mockStore]);
+    await simulateFromInputFiles(inputFiles, configuration, [mockStore]);
 
     // Assert
     expect(mockStore.processedDirectories).toHaveLength(0);
@@ -129,20 +171,27 @@ describe('simulateFromInputFiles', () => {
     // Arrange
     const mockStore1 = new MockFileStore();
     const mockStore2 = new MockFileStore();
-    const inputFiles: JsTsFiles = {
-      file1: { filePath: '/project/src/app.js', fileType: 'MAIN' },
+    const inputFiles: RawInputFiles = {
+      file1: {
+        filePath: '/project/src/app.js',
+        fileType: 'MAIN',
+        fileContent: '',
+        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
     };
-    const baseDir = toUnixPath('/project');
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
 
     // Act
-    await simulateFromInputFiles(inputFiles, baseDir, [mockStore1, mockStore2]);
+    await simulateFromInputFiles(inputFiles, configuration, [mockStore1, mockStore2]);
 
     // Assert
     // Both stores should have processed the same directories and files
     expect(mockStore1.processedDirectories).toEqual(mockStore2.processedDirectories);
     expect(mockStore1.processedFiles).toEqual(mockStore2.processedFiles);
 
-    expect(mockStore1.processedFiles).toContain(toUnixPath('/project/src/app.js'));
-    expect(mockStore2.processedFiles).toContain(toUnixPath('/project/src/app.js'));
+    expect(mockStore1.processedFiles).toContain(normalizePath('/project/src/app.js'));
+    expect(mockStore2.processedFiles).toContain(normalizePath('/project/src/app.js'));
   });
 });

@@ -19,7 +19,9 @@ import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { type FileType, readFile } from '../../../shared/src/helpers/files.js';
 import { build } from '../../src/builders/build.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../src/analysis/analysis.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 
 const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -39,11 +41,20 @@ const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
 describe('ESLint-based parsers', () => {
   for (const { syntax, fixture, language } of cases) {
     test(`should parse ${syntax} syntax`, async () => {
-      const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
+      const filePath = normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'eslint', fixture),
+      );
       const fileContent = await readFile(filePath);
       const fileType: FileType = 'MAIN';
 
-      const input = { filePath, fileType, fileContent, language };
+      const input = {
+        ...JSTS_ANALYSIS_DEFAULTS,
+        filePath,
+        fileType,
+        fileContent,
+        language,
+        tsConfigs: [],
+      };
       const sourceCode = build(input).sourceCode;
 
       expect(sourceCode).toBeDefined();

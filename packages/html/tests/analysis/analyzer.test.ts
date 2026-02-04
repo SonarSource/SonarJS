@@ -21,9 +21,19 @@ import { expect } from 'expect';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from '../../src/parser/parse.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
+import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
+
+const defaultShouldIgnoreParams: ShouldIgnoreFileParams = {
+  jsTsExclusions: [],
+  detectBundles: false,
+  maxFileSize: 1000,
+  ...DEFAULT_FILE_SUFFIXES,
+};
 
 describe('analyzeHTML', () => {
-  const fixturesPath = join(import.meta.dirname, 'fixtures');
+  const fixturesPath = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures'));
 
   it('should analyze HTML file', async () => {
     await Linter.initialize({
@@ -41,8 +51,9 @@ describe('analyzeHTML', () => {
     const {
       issues: [issue],
     } = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'file.html') }),
+      await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'file.html')) }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
     expect(issue).toEqual(
       expect.objectContaining({
@@ -69,8 +80,11 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'quickfix.html')),
+      }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
 
     const {
@@ -104,8 +118,11 @@ describe('analyzeHTML', () => {
       ],
     });
     const { issues } = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'enforce-trailing-comma.html')),
+      }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -140,8 +157,11 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'secondary.html')),
+      }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
     const {
       issues: [
@@ -172,8 +192,9 @@ describe('analyzeHTML', () => {
       ],
     });
     const result = await analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
+      await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'regex.html')) }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
     const {
       issues: [issue],

@@ -31,6 +31,16 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
+import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import type { RawInputFiles } from '../../jsts/src/analysis/projectAnalysis/file-stores/store-type.js';
+import {
+  sanitizeAnalysisInput,
+  sanitizeJsTsAnalysisInput,
+  sanitizeCssAnalysisInput,
+  sanitizeInitLinterInput,
+  sanitizeProjectAnalysisInput,
+} from '../../shared/src/helpers/sanitize.js';
+import { getShouldIgnoreParams } from '../../shared/src/helpers/configuration.js';
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -40,38 +50,65 @@ export async function handleRequest(
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        await Linter.initialize(request.data);
+        const sanitizedInput = sanitizeInitLinterInput(request.data);
+        await Linter.initialize(sanitizedInput);
         return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
-        const output = await analyzeJSTS(request.data);
-        return {
-          type: 'success',
-          result: output,
-        };
+        const { input, configuration } = await sanitizeJsTsAnalysisInput(request.data);
+        const output = await analyzeJSTS(input, getShouldIgnoreParams(configuration));
+        return { type: 'success', result: output };
       }
       case 'on-analyze-css': {
-        const output = await analyzeCSS(request.data);
+        const { input, configuration } = await sanitizeCssAnalysisInput(request.data);
+        const output = await analyzeCSS(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const output = await analyzeYAML(request.data);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeYAML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
-
       case 'on-analyze-html': {
-        const output = await analyzeHTML(request.data);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeHTML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        const output = await analyzeProject(request.data, incrementalResultsChannel);
+        const sanitizedInput = sanitizeProjectAnalysisInput(request.data);
+
+        // Get sanitized files via file store
+        const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(
+          sanitizedInput.configuration,
+          sanitizedInput.rawFiles as RawInputFiles | undefined,
+        );
+
+        const output = await analyzeProject(
+          {
+            filesToAnalyze,
+            pendingFiles,
+            rules: sanitizedInput.rules,
+            bundles: sanitizedInput.bundles,
+            rulesWorkdir: sanitizedInput.rulesWorkdir,
+          },
+          sanitizedInput.configuration,
+          incrementalResultsChannel,
+        );
         logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
       }
       case 'on-cancel-analysis': {
         cancelAnalysis();
         return { type: 'success', result: 'OK' };
+      }
+      default: {
+        // Handle unknown request types (e.g., from malformed WebSocket messages)
+        const unknownType = (request as { type: unknown }).type;
+        return {
+          type: 'failure',
+          error: serializeError(new Error(`Unknown request type: ${unknownType}`)),
+        };
       }
     }
   } catch (err) {

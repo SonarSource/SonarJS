@@ -14,51 +14,58 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from '../helpers/files.js';
-import { Configuration } from '../helpers/configuration.js';
+import { type NormalizedAbsolutePath } from '../helpers/files.js';
 
 /**
- * An analysis input
+ * A sanitized analysis input with all required fields populated.
  *
- * An analysis always operates on a file, be it from its path
- * or its content for any type of analysis.
+ * This is the internal type used after sanitization. All fields are required
+ * because sanitization fills in defaults and reads file content if needed.
  *
- * @param filePath the path of the file to analyze
+ * @param filePath the normalized absolute path of the file to analyze
  * @param fileContent the content of the file to analyze
+ * @param sonarlint whether analysis is running in SonarLint context
  */
 export interface AnalysisInput {
-  filePath: string;
-  fileContent?: string;
-  sonarlint?: boolean;
-  configuration?: Configuration;
+  filePath: NormalizedAbsolutePath;
+  fileContent: string;
+  sonarlint: boolean;
+}
+
+/**
+ * Base issue interface with common fields for all issue types.
+ *
+ * This provides the minimal structure that all analysis issues must have.
+ * Specific analyzers (JS/TS, CSS, etc.) extend this with additional fields.
+ *
+ * @param ruleId the rule key that reported the issue
+ * @param line the issue starting line (1-based)
+ * @param column the issue starting column (0-based)
+ * @param message the issue message describing the problem
+ */
+export interface BaseIssue {
+  ruleId: string;
+  line: number;
+  column: number;
+  message: string;
 }
 
 /**
  * An analysis output
  *
  * A common interface for all kinds of analysis output.
+ * Generic parameter I allows specifying a more specific issue type.
+ *
+ * @template I the issue type, must extend BaseIssue
  */
-export interface AnalysisOutput {}
+export interface AnalysisOutput<I extends BaseIssue = BaseIssue> {
+  issues: I[];
+}
 
 /**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
+ * A sanitized analysis input of embedded code with all required fields populated.
+ *
+ * This extends AnalysisInput which already has all required fields (filePath, fileContent, sonarlint).
+ * Additional embedded-specific fields can be added here in the future.
  */
-export async function fillFileContent<T extends AnalysisInput>(
-  input: T,
-): Promise<Omit<T, 'fileContent'> & { fileContent: string }> {
-  if (!isCompleteAnalysisInput(input)) {
-    return {
-      ...input,
-      fileContent: await readFile(input.filePath),
-    };
-  }
-  return input;
-}
-
-function isCompleteAnalysisInput<T extends AnalysisInput>(
-  input: T,
-): input is T & { fileContent: string } {
-  return 'fileContent' in input;
-}
+export interface EmbeddedAnalysisInput extends AnalysisInput {}

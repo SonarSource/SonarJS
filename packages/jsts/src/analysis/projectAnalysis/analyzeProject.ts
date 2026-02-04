@@ -14,19 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis.js';
+import {
+  type ProjectAnalysisInput,
+  type ProjectAnalysisOutput,
+  createFileResults,
+} from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import {
-  setGlobalConfiguration,
-  isSonarLint,
-  getGlobals,
-  getEnvironments,
-  getBaseDir,
+  type Configuration,
+  getJsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
-import { getFilesToAnalyze } from './file-stores/index.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -48,41 +48,46 @@ export function isAnalysisCancelled() {
  * Analyzes a JavaScript / TypeScript project in a single run
  *
  * @param input the JavaScript / TypeScript project to analyze
+ * @param configuration the configuration instance with analysis settings
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(
   input: ProjectAnalysisInput,
+  configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   analysisStatus.cancelled = false;
-  const { rules, files, configuration = {}, bundles = [], rulesWorkdir } = input;
+  const { rules, filesToAnalyze, pendingFiles, bundles, rulesWorkdir } = input;
   const results: ProjectAnalysisOutput = {
-    files: {},
+    files: createFileResults(),
     meta: {
       warnings: [],
     },
   };
-  setGlobalConfiguration(configuration);
-  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(getBaseDir(), files);
+  const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
+  const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
     rules,
-    environments: getEnvironments(),
-    globals: getGlobals(),
-    sonarlint: isSonarLint(),
+    environments,
+    globals,
+    sonarlint,
     bundles,
-    baseDir: getBaseDir(),
+    baseDir,
     rulesWorkdir,
   });
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (isSonarLint()) {
+    if (sonarlint) {
       await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
         pendingFiles,
         progressReport,
+        baseDir,
+        canAccessFileSystem,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     } else {
@@ -91,6 +96,9 @@ export async function analyzeProject(
         results,
         pendingFiles,
         progressReport,
+        baseDir,
+        canAccessFileSystem,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     }
@@ -103,6 +111,8 @@ export async function analyzeProject(
         filesToAnalyze,
         results,
         progressReport,
+        baseDir,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     }

@@ -17,6 +17,8 @@
 import { QuickFix } from '../quickfixes/quickfix.js';
 import { Location } from './location.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import { BaseIssue } from '../../../../shared/src/types/analysis.js';
 
 /**
  * A SonarQube-compatible source code issue
@@ -34,17 +36,13 @@ import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
  * @param secondaryLocations the issue secondary locations
  * @param quickFixes the issue quick fixes
  */
-export interface Issue {
-  ruleId: string;
-  line: number;
+export interface Issue extends BaseIssue {
   language: JsTsLanguage;
-  column: number;
   endLine?: number;
   endColumn?: number;
-  message: string;
   cost?: number;
   secondaryLocations: Location[];
   quickFixes?: QuickFix[];
   ruleESLintKeys: Array<string>;
-  filePath: string;
+  filePath: NormalizedAbsolutePath;
 }

@@ -22,13 +22,12 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
-import {
-  setGlobalConfiguration,
-  setTsConfigPaths,
-} from '../../../shared/src/helpers/configuration.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 
-const fixtures = join(toUnixPath(import.meta.dirname), 'fixtures-tsconfigs');
+const fixtures = normalizeToAbsolutePath(
+  join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs'),
+);
 
 describe('tsconfigs', () => {
   beforeEach(() => {
@@ -37,51 +36,54 @@ describe('tsconfigs', () => {
   });
 
   it('should return the TSconfig files via lookup', async () => {
-    setGlobalConfiguration({ baseDir: fixtures });
-    await initFileStores(fixtures);
+    const configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
   });
 
   it('should validate the provided TSconfig files', async () => {
-    setGlobalConfiguration({ baseDir: fixtures });
-    await initFileStores(fixtures);
-    setTsConfigPaths(
-      tsConfigStore
-        .getTsConfigs()
-        .map(tsconfig => relative(fixtures, tsconfig))
-        .concat('fake_dir/tsconfig.json'),
-    );
+    let configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
+    const tsConfigPaths = tsConfigStore
+      .getTsConfigs()
+      .map(tsconfig => relative(fixtures, tsconfig))
+      .concat('fake_dir/tsconfig.json');
+    configuration = createConfiguration({ baseDir: fixtures, tsConfigPaths });
     tsConfigStore.clearCache();
-    await initFileStores(fixtures);
+    await initFileStores(configuration);
     // Should find at least the provided tsconfigs (excluding the fake one)
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
   });
 
   it('should work with absolute paths', async () => {
-    setGlobalConfiguration({ baseDir: fixtures });
-    await initFileStores(fixtures);
+    let configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
     const foundTsconfigs = tsConfigStore.getTsConfigs();
-    setTsConfigPaths(foundTsconfigs);
+    configuration = createConfiguration({ baseDir: fixtures, tsConfigPaths: foundTsconfigs });
     tsConfigStore.clearCache();
-    await initFileStores(fixtures);
+    await initFileStores(configuration);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
   });
 
   it('should prioritize provided paths over lookup', async () => {
-    setGlobalConfiguration({ baseDir: fixtures });
-    await initFileStores(fixtures);
+    let configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
-    setTsConfigPaths([relative(fixtures, tsConfigStore.getTsConfigs()[0])]);
+    const tsConfigPaths = [relative(fixtures, tsConfigStore.getTsConfigs()[0])];
+    configuration = createConfiguration({ baseDir: fixtures, tsConfigPaths });
     tsConfigStore.clearCache();
-    await initFileStores(fixtures);
+    await initFileStores(configuration);
     expect(tsConfigStore.getTsConfigs().length).toEqual(1);
   });
 
   it('should log when no tsconfigs are found with the provided property', async ({ mock }) => {
     mock.method(console, 'error');
 
-    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: ['tsconfig.fake.json'] });
-    await initFileStores(fixtures);
+    const configuration = createConfiguration({
+      baseDir: fixtures,
+      tsConfigPaths: ['tsconfig.fake.json'],
+    });
+    await initFileStores(configuration);
     // Should fall back to lookup when provided paths don't exist
     expect(tsConfigStore.getTsConfigs().length).toBeGreaterThanOrEqual(3);
 

@@ -15,14 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { patchParsingError, patchSourceCode } from './patch.js';
-import path from 'node:path';
+import path from 'node:path/posix';
 import { EmbeddedJS } from '../analysis/embedded-js.js';
-import { CompleteEmbeddedAnalysisInput } from '../analysis/analysis.js';
+import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
+import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../analysis/analysis.js';
 import { ParseResult } from '../../parsers/parse.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 export type ExtendedParseResult = ParseResult & {
-  syntheticFilePath: string;
+  syntheticFilePath: NormalizedAbsolutePath;
 };
 export type LanguageParser = (text: string) => EmbeddedJS[];
 
@@ -36,7 +38,7 @@ export type LanguageParser = (text: string) => EmbeddedJS[];
  * we don't even consider any parsing errors in the remaining snippets for simplicity.
  */
 export function build(
-  input: CompleteEmbeddedAnalysisInput,
+  input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): ExtendedParseResult[] {
   const embeddedJSs: EmbeddedJS[] = languageParser(input.fileContent);
@@ -44,7 +46,7 @@ export function build(
   for (const embeddedJS of embeddedJSs) {
     const { code } = embeddedJS;
 
-    let syntheticFilePath: string = input.filePath;
+    let syntheticFilePath: NormalizedAbsolutePath = input.filePath;
     if (embeddedJS.extras.resourceName != null) {
       syntheticFilePath = composeSyntheticFilePath(input.filePath, embeddedJS.extras.resourceName);
     }
@@ -54,12 +56,14 @@ export function build(
      * the file content is provided, which happens to be the case here since `code`
      * denotes an embedded JavaScript snippet extracted from the YAML file.
      */
-    const jsTsAnalysisInput = {
-      filePath: '',
+    const jsTsAnalysisInput: JsTsAnalysisInput = {
+      ...JSTS_ANALYSIS_DEFAULTS,
+      filePath: '' as NormalizedAbsolutePath,
       fileContent: code,
-      fileType: 'MAIN',
       language: 'js',
-    } as const;
+      tsConfigs: [],
+      sonarlint: input.sonarlint,
+    };
     try {
       const parseResult = buildJsTs(jsTsAnalysisInput);
       extendedParseResults.push({
@@ -79,12 +83,19 @@ export function build(
  * Returns the filename composed as following:
  *
  * {filepath-without-extension}-{resourceName}{filepath-extension}
+ *
+ * Since the input filePath is already normalized (NormalizedAbsolutePath),
+ * and we only modify the filename portion using posix path operations,
+ * the result is also a valid NormalizedAbsolutePath.
  */
-export function composeSyntheticFilePath(filePath: string, resourceName: string): string {
+export function composeSyntheticFilePath(
+  filePath: NormalizedAbsolutePath,
+  resourceName: string,
+): NormalizedAbsolutePath {
   const { dir, name, ext } = path.parse(filePath);
   return path.format({
     dir,
     name: `${name}-${resourceName}`,
     ext,
-  });
+  }) as NormalizedAbsolutePath;
 }

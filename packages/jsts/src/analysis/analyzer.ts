@@ -16,12 +16,7 @@
  */
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
-import {
-  fillLanguage,
-  JsTsAnalysisInput,
-  JsTsAnalysisOutput,
-  JsTsAnalysisOutputWithAst,
-} from './analysis.js';
+import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
@@ -31,10 +26,12 @@ import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
-import { fillFileContent } from '../../../shared/src/types/analysis.js';
-import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import {
+  shouldIgnoreFile,
+  type ShouldIgnoreFileParams,
+} from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -47,24 +44,25 @@ import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js'
  * analysis performance data.
  *
  * The analysis requires that global linter wrapper is initialized.
+ * The input must be fully sanitized (all fields required) before calling this function.
  *
- * @param input the JavaScript / TypeScript analysis input to analyze
+ * @param input the sanitized JavaScript / TypeScript analysis input to analyze
+ * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @returns the JavaScript / TypeScript analysis output
  */
 export async function analyzeJSTS(
   input: JsTsAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
   debug(`Analyzing file "${input.filePath}"`);
-  const completeInput = fillLanguage(await fillFileContent(input));
-  const { filePath, fileContent, fileType, analysisMode, fileStatus, language, configuration } =
-    completeInput;
-  setGlobalConfiguration(configuration);
-  if (await shouldIgnoreFile({ filePath, fileContent })) {
+  const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
+
+  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [] };
   }
-  const parseResult = build(completeInput);
+  const parseResult = build(input);
   try {
-    if (completeInput.clearDependenciesCache) {
+    if (input.clearDependenciesCache) {
       debug('Clearing dependencies cache');
       clearDependenciesCache();
     }
@@ -109,7 +107,7 @@ export async function analyzeJSTS(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: string) {
+function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) {
   try {
     return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
   } catch {
@@ -148,7 +146,7 @@ function computeExtendedMetrics(
     return {
       highlightedSymbols,
       highlights: getSyntaxHighlighting(sourceCode).highlights,
-      metrics: computeMetrics(sourceCode, !!ignoreHeaderComments, cognitiveComplexity),
+      metrics: computeMetrics(sourceCode, ignoreHeaderComments, cognitiveComplexity),
       cpdTokens: getCpdTokens(sourceCode).cpdTokens,
     };
   } else {

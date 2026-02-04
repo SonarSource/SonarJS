@@ -40,6 +40,4 @@ export interface CssAnalysisInput extends AnalysisInput {
  *
  * @param issues
  */
-export interface CssAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
-}
+export interface CssAnalysisOutput extends AnalysisOutput<Issue> {}

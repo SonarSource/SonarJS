@@ -14,25 +14,31 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { dirname } from 'node:path/posix';
 import { SourceFileStore } from './source-files.js';
 import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
-import type { JsTsFiles } from '../projectAnalysis.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
-import type { FileStore } from './store-type.js';
-import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
-import { toUnixPath, isRoot } from '../../../rules/helpers/index.js';
+import type { FileStore, RawInputFiles } from './store-type.js';
+
+export type { RawInputFiles } from './store-type.js';
+import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
+import {
+  normalizeToAbsolutePath,
+  isRoot,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../../../rules/helpers/index.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
 export const tsConfigStore = new TsConfigStore();
 
-export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
+export async function initFileStores(configuration: Configuration, inputFiles?: RawInputFiles) {
+  const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
   for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
-    if (!(await store.isInitialized(baseDir, inputFiles))) {
+    if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
   }
@@ -42,31 +48,31 @@ export async function initFileStores(baseDir: string, inputFiles?: JsTsFiles) {
   }
 
   for (const store of pendingStores) {
-    store.setup(baseDir);
+    store.setup(configuration);
   }
 
-  if (canAccessFileSystem()) {
-    await findFiles(baseDir, async (file, filePath) => {
+  if (canAccessFileSystem) {
+    await findFiles(baseDir, jsTsExclusions, async (file, filePath) => {
       for (const store of pendingStores) {
         if (file.isFile()) {
-          await store.processFile(filePath);
+          await store.processFile(filePath, configuration);
         }
         if (file.isDirectory()) {
-          store.processDirectory?.(filePath);
+          store.processDirectory?.(filePath, configuration);
         }
       }
     });
   } else if (inputFiles) {
-    await simulateFromInputFiles(inputFiles, baseDir, pendingStores);
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
 
   for (const store of pendingStores) {
-    await store.postProcess(baseDir);
+    await store.postProcess(configuration);
   }
 }
 
-export async function getFilesToAnalyze(baseDir: string, inputFiles?: JsTsFiles) {
-  await initFileStores(baseDir, inputFiles);
+export async function getFilesToAnalyze(configuration: Configuration, inputFiles?: RawInputFiles) {
+  await initFileStores(configuration, inputFiles);
 
   if (sourceFileStore.getRequestFilesCount() > 0) {
     // if the request had input files, we use them
@@ -84,38 +90,40 @@ export async function getFilesToAnalyze(baseDir: string, inputFiles?: JsTsFiles)
 }
 
 export async function simulateFromInputFiles(
-  inputFiles: JsTsFiles,
-  baseDir: string,
+  inputFiles: RawInputFiles,
+  configuration: Configuration,
   pendingStores: FileStore[],
 ) {
+  const { baseDir } = configuration;
   // simulate file system traversal from baseDir to each given input file
-  const inputFilesPaths = new Set<string>();
-  const files = new Set<string>();
+  const inputFilesPaths = new Set<NormalizedAbsolutePath>();
+  const files = new Set<NormalizedAbsolutePath>();
   for (const file of Object.values(inputFiles ?? {})) {
-    const filename = toUnixPath(file.filePath);
+    // Normalize paths here for directory simulation purposes
+    const filename = normalizeToAbsolutePath(file.filePath as string, baseDir);
     files.add(filename);
-    inputFilesPaths.add(dirname(filename));
+    inputFilesPaths.add(dirnamePath(filename));
   }
 
-  const allPaths = new Set<string>();
+  const allPaths = new Set<NormalizedAbsolutePath>();
   // add all parent directories of input files up to the baseDir
   for (const path of inputFilesPaths) {
-    let currentPath = path;
+    let currentPath: NormalizedAbsolutePath = path;
     while (baseDir !== currentPath && !isRoot(currentPath)) {
       allPaths.add(currentPath);
-      currentPath = dirname(currentPath);
+      currentPath = dirnamePath(currentPath);
     }
   }
 
   for (const store of pendingStores) {
     if (store.processDirectory) {
       for (const filePath of allPaths) {
-        store.processDirectory(filePath);
+        store.processDirectory(filePath, configuration);
       }
     }
     //files need to be processed after as ignored files logic depends on ignored paths being ingested
     for (const filename of files) {
-      await store.processFile(filename);
+      await store.processFile(filename, configuration);
     }
   }
 }

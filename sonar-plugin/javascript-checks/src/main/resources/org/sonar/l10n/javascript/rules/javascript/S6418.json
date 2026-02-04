@@ -1,6 +1,6 @@
 {
-  "title": "Hard-coded secrets are security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Secrets should not be hard-coded",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "BLOCKER"
@@ -12,6 +12,7 @@
     "func": "Constant/Issue",
     "constantCost": "30min"
   },
+  "quickfix": "infeasible",
   "tags": [
     "cwe"
   ],
@@ -45,7 +46,6 @@
       "6.4.1"
     ]
   },
-  "quickfix": "infeasible",
   "compatibleLanguages": [
     "js",
     "ts"

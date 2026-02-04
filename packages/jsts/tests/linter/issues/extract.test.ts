@@ -23,6 +23,7 @@ import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
 } from '../../../src/linter/issues/extract.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {
@@ -37,7 +38,7 @@ describe('extract', () => {
         }),
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
     ];
@@ -60,7 +61,7 @@ describe('extract', () => {
         message: '42',
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
     ];
@@ -76,7 +77,7 @@ describe('extract', () => {
         message: 'nan',
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
     ];
@@ -99,7 +100,7 @@ describe('extract', () => {
         }),
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
       {
@@ -109,7 +110,7 @@ describe('extract', () => {
         message: 'non-extract-message',
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
       {
@@ -119,7 +120,7 @@ describe('extract', () => {
         message: '42',
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
     ];
@@ -133,7 +134,7 @@ describe('extract', () => {
         message: 'non-extract-message',
         secondaryLocations: [],
         ruleESLintKeys: [],
-        filePath: 'foo.js',
+        filePath: normalizeToAbsolutePath('/foo.js'),
         language: 'js',
       },
     ]);

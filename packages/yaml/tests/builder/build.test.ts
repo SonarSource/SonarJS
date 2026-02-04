@@ -22,6 +22,7 @@ import { build, composeSyntheticFilePath } from '../../../jsts/src/embedded/buil
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures', 'build');
@@ -289,12 +290,16 @@ describe('buildSourceCodes()', () => {
 
   it('should compose a synthetic file path', async () => {
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
+    const normalizedFilePath = normalizeToAbsolutePath(filePath);
     const [firstExtendedSourceCode, secondExtendedSourceCode] = build(
       await embeddedInput({ filePath }),
       parseAwsFromYaml,
     );
-    const firstFunctionName = composeSyntheticFilePath(filePath, 'SomeLambdaFunction');
-    const secondFunctionName = composeSyntheticFilePath(filePath, 'SomeServerlessFunction');
+    const firstFunctionName = composeSyntheticFilePath(normalizedFilePath, 'SomeLambdaFunction');
+    const secondFunctionName = composeSyntheticFilePath(
+      normalizedFilePath,
+      'SomeServerlessFunction',
+    );
     expect(firstExtendedSourceCode.syntheticFilePath).toEqual(firstFunctionName);
     expect(secondExtendedSourceCode.syntheticFilePath).toEqual(secondFunctionName);
   });
@@ -302,7 +307,9 @@ describe('buildSourceCodes()', () => {
 
 describe('composeSyntheticFilePath()', () => {
   it('should append the function name at the end of the filename, before the extension', () => {
-    const composedFilename = composeSyntheticFilePath('hello.yaml', 'there');
-    expect(composedFilename).toEqual('hello-there.yaml');
+    const inputPath = normalizeToAbsolutePath('/path/to/hello.yaml');
+    const composedFilename = composeSyntheticFilePath(inputPath, 'there');
+    // The function should preserve the directory and extension, only modifying the filename
+    expect(composedFilename).toEqual(normalizeToAbsolutePath('/path/to/hello-there.yaml'));
   });
 });

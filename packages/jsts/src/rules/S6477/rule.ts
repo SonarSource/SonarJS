@@ -17,12 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6477/javascript
 
 import type { Rule } from 'eslint';
-import { dirname } from 'node:path';
 import { rules } from '../external/react.js';
 import { generateMeta } from '../helpers/index.js';
 import { decorate } from './decorator.js';
 import * as meta from './generated-meta.js';
-import { getDependencies } from '../helpers/package-jsons/dependencies.js';
+import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 
 const decoratedJsxKey = decorate(rules['jsx-key']);
 
@@ -33,7 +32,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const dependencies = getDependencies(dirname(context.filename), context.cwd);
+    const dependencies = getDependenciesSanitizePaths(context);
     if (!dependencies.has('react')) {
       return {};
     }

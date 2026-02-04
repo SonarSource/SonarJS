@@ -16,6 +16,7 @@
  */
 import * as semver from 'semver';
 import { getManifests } from './package-jsons/all-in-parent-dirs.js';
+import type { NormalizedAbsolutePath } from './files.js';
 
 /**
  * Minimum version per reference
@@ -28,7 +29,10 @@ type MinimumVersions = {
  * Checks if context where the filename is located supports the provided
  * minimum versions.
  */
-export function isSupported(dirname: string, minVersions: MinimumVersions): boolean {
+export function isSupported(
+  dirname: NormalizedAbsolutePath,
+  minVersions: MinimumVersions,
+): boolean {
   validateVersions(minVersions);
   return isSupportedNodeVersion(dirname, minVersions.node);
 }
@@ -47,11 +51,14 @@ function validateVersions(versions: MinimumVersions) {
 /**
  * Check if the feature is supported by the minimum Node.js version of the project.
  *
- * @param filename
+ * @param dirname
  * @param requiredVersion
  * @returns
  */
-function isSupportedNodeVersion(dirname: string, requiredVersion?: string): boolean {
+function isSupportedNodeVersion(
+  dirname: NormalizedAbsolutePath,
+  requiredVersion?: string,
+): boolean {
   if (!requiredVersion) {
     return true;
   }

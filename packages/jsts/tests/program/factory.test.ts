@@ -18,7 +18,7 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 import {
   createStandardProgram,
   createProgramFromSingleFile,
@@ -36,7 +36,7 @@ import {
 } from '../../src/program/cache/sourceFileCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
 describe('factory', () => {
   beforeEach(() => {
@@ -48,7 +48,7 @@ describe('factory', () => {
   describe('createStandardProgram', () => {
     it('should create a TypeScript program from program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
 
@@ -58,7 +58,7 @@ describe('factory', () => {
 
     it('should include files specified in tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
       const fileNames = program.getSourceFiles().map(sf => sf.fileName);
@@ -68,7 +68,7 @@ describe('factory', () => {
 
     it('should apply compiler options from tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_found.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
       const options = program.getCompilerOptions();
@@ -134,7 +134,7 @@ describe('factory', () => {
 
   describe('createOrGetCachedProgramForFile', () => {
     it('should create new program on cache miss', () => {
-      const sourceFile = path.join(fixtures, 'file.ts');
+      const sourceFile = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
       setSourceFilesContext({
@@ -142,7 +142,7 @@ describe('factory', () => {
       });
 
       const program = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       expect(program).toBeDefined();
@@ -152,7 +152,7 @@ describe('factory', () => {
     });
 
     it('should return cached program on cache hit', () => {
-      const sourceFile = path.join(fixtures, 'file.ts');
+      const sourceFile = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
       setSourceFilesContext({
@@ -160,11 +160,11 @@ describe('factory', () => {
       });
 
       const program1 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       const program2 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Should be the same program instance (cache hit)
@@ -176,7 +176,7 @@ describe('factory', () => {
     });
 
     it('should return undefined when getProgramOptions returns undefined', () => {
-      const sourceFile = '/project/src/index.ts';
+      const sourceFile = normalizeToAbsolutePath('/project/src/index.ts');
 
       const program = createOrGetCachedProgramForFile(fixtures, sourceFile, () => undefined);
 
@@ -184,7 +184,7 @@ describe('factory', () => {
     });
 
     it('should update program when file content changes', () => {
-      const sourceFile = path.join(fixtures, 'file.ts');
+      const sourceFile = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
       // First request with initial content
@@ -193,7 +193,7 @@ describe('factory', () => {
       });
 
       const program1 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Update file content
@@ -202,7 +202,7 @@ describe('factory', () => {
       });
 
       const program2 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Program should be different (recreated due to content change)
@@ -217,7 +217,7 @@ describe('factory', () => {
   describe('createProgramOptionsFromJson', () => {
     it('should create program options from JSON compiler options', () => {
       const json = { target: 'ES2020', strict: true };
-      const rootNames = ['/project/src/index.ts'];
+      const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
       const options = createProgramOptionsFromJson(json, rootNames, '/project');
 
@@ -229,7 +229,7 @@ describe('factory', () => {
 
     it('should resolve relative paths in options', () => {
       const json = { outDir: './dist', rootDir: './src' };
-      const rootNames = ['/project/src/index.ts'];
+      const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
       const options = createProgramOptionsFromJson(json, rootNames, '/project');
 

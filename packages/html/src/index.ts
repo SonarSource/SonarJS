@@ -16,13 +16,22 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from './parser/parse.js';
-import { fillFileContent } from '../../shared/src/types/analysis.js';
 
-import type {
-  EmbeddedAnalysisInput,
-  EmbeddedAnalysisOutput,
-} from '../../jsts/src/embedded/analysis/analysis.js';
+import type { EmbeddedAnalysisInput } from '../../shared/src/types/analysis.js';
+import type { EmbeddedAnalysisOutput } from '../../jsts/src/embedded/analysis/analysis.js';
+import type { ShouldIgnoreFileParams } from '../../shared/src/helpers/filter/filter.js';
 
-export async function analyzeHTML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(await fillFileContent(input), parseHTML);
+/**
+ * Analyzes an HTML file for embedded JavaScript code.
+ * The input must be fully sanitized (all fields required) before calling this function.
+ *
+ * @param input the sanitized analysis input
+ * @param shouldIgnoreParams configuration parameters for file filtering
+ * @returns the analysis output with issues found in embedded JS
+ */
+export async function analyzeHTML(
+  input: EmbeddedAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): Promise<EmbeddedAnalysisOutput> {
+  return analyzeEmbedded(input, parseHTML, shouldIgnoreParams);
 }

@@ -15,16 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug, error, info } from '../../../../../shared/src/helpers/logging.js';
-import {
-  getFsEvents,
-  getTsConfigPaths,
-  setClearTsConfigCache,
-  shouldClearTsConfigCache,
-} from '../../../../../shared/src/helpers/configuration.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import { FileStore } from './store-type.js';
-import { toUnixPath } from '../../../../../shared/src/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
+import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
 import { clearTsConfigContentCache } from '../../../program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../../../program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../../../program/cache/programCache.js';
@@ -32,21 +27,24 @@ import { getProgramCacheManager } from '../../../program/cache/programCache.js';
 const TSCONFIG_JSON = 'tsconfig.json';
 
 type ProvidedTsConfig = {
-  path: string;
+  path: NormalizedAbsolutePath;
   pattern: Minimatch;
 };
 
 export class TsConfigStore implements FileStore {
   // tsconfig.json files in the project tree
-  private foundLookupTsConfigs: string[] = [];
+  private foundLookupTsConfigs: NormalizedAbsolutePath[] = [];
   // tsconfig.json files specified in sonar.typescript.tsconfigPaths
-  private foundPropertyTsConfigs: string[] = [];
+  private foundPropertyTsConfigs: NormalizedAbsolutePath[] = [];
   private providedPropertyTsConfigs: ProvidedTsConfig[] | undefined = undefined;
   private propertyTsConfigsHash: string | undefined = undefined;
-  private baseDir: string | undefined = undefined;
+  private baseDir: NormalizedAbsolutePath | undefined = undefined;
 
-  async isInitialized(baseDir: string) {
-    this.dirtyCachesIfNeeded(baseDir);
+  /**
+   * Checks if the store is initialized for the given base directory.
+   */
+  async isInitialized(configuration: Configuration) {
+    this.dirtyCachesIfNeeded(configuration);
     return this.baseDir !== undefined;
   }
 
@@ -67,7 +65,7 @@ export class TsConfigStore implements FileStore {
     return this.getTsConfigs() === this.foundLookupTsConfigs;
   }
 
-  addDiscoveredTsConfig(tsconfig: string) {
+  addDiscoveredTsConfig(tsconfig: NormalizedAbsolutePath) {
     // Add to the appropriate list based on the current mode
     if (this.usingPropertyTsConfigs() && !this.foundPropertyTsConfigs.includes(tsconfig)) {
       info(`Discovered referenced tsconfig: ${tsconfig}`);
@@ -78,27 +76,27 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  dirtyCachesIfNeeded(baseDir: string) {
+  dirtyCachesIfNeeded(configuration: Configuration) {
+    const { baseDir, tsConfigPaths, fsEvents, clearTsConfigCache } = configuration;
     if (
       this.baseDir !== baseDir ||
-      this.propertyTsConfigsHash !== this.getPropertyTsConfigsHash()
+      this.propertyTsConfigsHash !== this.computeTsConfigsHash(tsConfigPaths)
     ) {
       this.clearCache();
       return;
     }
-    for (const fileEvent of Object.entries(getFsEvents())) {
-      const [filename] = fileEvent;
-      const normalizedFilename = toUnixPath(filename);
+    let shouldClear = clearTsConfigCache;
+    for (const filename of fsEvents) {
       if (
-        this.getTsConfigs().includes(normalizedFilename) ||
-        (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(normalizedFilename)) ||
-        (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(normalizedFilename))
+        this.getTsConfigs().includes(filename) ||
+        (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(filename)) ||
+        (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(filename))
       ) {
-        setClearTsConfigCache(true);
+        shouldClear = true;
         break;
       }
     }
-    if (shouldClearTsConfigCache()) {
+    if (shouldClear) {
       this.clearCache();
     }
   }
@@ -114,27 +112,35 @@ export class TsConfigStore implements FileStore {
     getProgramCacheManager().clear();
   }
 
-  setup(baseDir: string) {
+  /**
+   * Sets up the store for processing files.
+   */
+  setup(configuration: Configuration) {
+    const { baseDir, tsConfigPaths } = configuration;
     this.baseDir = baseDir;
-    if (this.getPropertyTsConfigsHash() !== this.propertyTsConfigsHash) {
-      this.propertyTsConfigsHash = this.getPropertyTsConfigsHash();
-      this.providedPropertyTsConfigs = getTsConfigPaths().map(tsConfig => {
+    const newHash = this.computeTsConfigsHash(tsConfigPaths);
+    if (newHash !== this.propertyTsConfigsHash) {
+      this.propertyTsConfigsHash = newHash;
+      this.providedPropertyTsConfigs = tsConfigPaths.map(tsConfig => {
         return {
           path: tsConfig,
           pattern: new Minimatch(tsConfig, { nocase: true, matchBase: true, dot: true }),
         };
       });
       if (this.providedPropertyTsConfigs.length) {
-        info(`Resolving provided TSConfig files using '${getTsConfigPaths().join(',')}'`);
+        info(`Resolving provided TSConfig files using '${tsConfigPaths.join(',')}'`);
       }
     }
   }
 
-  getPropertyTsConfigsHash() {
-    return getTsConfigPaths().join(',');
+  /**
+   * Computes a hash string from the tsConfigPaths array for cache invalidation.
+   */
+  private computeTsConfigsHash(tsConfigPaths: NormalizedAbsolutePath[]) {
+    return tsConfigPaths.join(',');
   }
 
-  async processFile(filename: string) {
+  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
     if (this.filenameMatchesProvidedTsConfig(filename)) {
       this.foundPropertyTsConfigs.push(filename);
     }
@@ -143,22 +149,24 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  filenameMatchesTsConfig(filename: string) {
+  filenameMatchesTsConfig(filename: NormalizedAbsolutePath) {
     return basename(filename) === TSCONFIG_JSON;
   }
 
-  filenameMatchesProvidedTsConfig(filename: string) {
+  filenameMatchesProvidedTsConfig(filename: NormalizedAbsolutePath) {
     return this.providedPropertyTsConfigs?.some(
       providedTsConfig =>
         providedTsConfig.path === filename || providedTsConfig.pattern.match(filename),
     );
   }
 
-  async postProcess() {
-    if (getTsConfigPaths().length && !this.foundPropertyTsConfigs.length) {
-      error(
-        `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
-      );
+  /**
+   * Performs post-processing after all files have been processed.
+   */
+  async postProcess(configuration: Configuration) {
+    const { tsConfigPaths } = configuration;
+    if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
+      error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);
     }
     info(
       `Found ${this.getTsConfigs().length} tsconfig.json file(s): [${this.getTsConfigs().join(', ')}]`,

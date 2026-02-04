@@ -18,7 +18,7 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 import {
   createProgramOptions,
   createProgramOptionsFromJson,
@@ -27,7 +27,7 @@ import {
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
 describe('createProgramOptions', () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe('createProgramOptions', () => {
     it('should parse tsconfig and return program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-      const result = createProgramOptions(tsConfig);
+      const result = createProgramOptions(tsConfig, undefined, true);
 
       expect(result).toBeDefined();
       expect(result.rootNames).toBeDefined();
@@ -50,7 +50,7 @@ describe('createProgramOptions', () => {
     it('should include files from tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-      const result = createProgramOptions(tsConfig);
+      const result = createProgramOptions(tsConfig, undefined, true);
 
       expect(result.rootNames).toContain(path.join(fixtures, 'file.ts'));
     });
@@ -58,7 +58,7 @@ describe('createProgramOptions', () => {
     it('should apply compiler options from tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_found.json');
 
-      const { options, missingTsConfig } = createProgramOptions(tsConfig);
+      const { options, missingTsConfig } = createProgramOptions(tsConfig, undefined, true);
 
       expect(missingTsConfig).toBe(false);
       expect(options).toBeDefined();
@@ -69,7 +69,7 @@ describe('createProgramOptions', () => {
     it('should include Vue files', () => {
       const tsConfig = path.join(fixtures, 'vue', 'tsconfig.json');
 
-      const result = createProgramOptions(tsConfig);
+      const result = createProgramOptions(tsConfig, undefined, true);
 
       expect(result.rootNames).toContain(path.join(fixtures, 'vue', 'file.vue'));
     });
@@ -77,7 +77,7 @@ describe('createProgramOptions', () => {
 
   describe('tsconfig with provided contents', () => {
     it('should parse provided tsconfig contents', () => {
-      const result = createProgramOptions('tsconfig.json', '{ "files": ["/foo/file.ts"] }');
+      const result = createProgramOptions('tsconfig.json', '{ "files": ["/foo/file.ts"] }', true);
 
       expect(result).toMatchObject({
         rootNames: ['/foo/file.ts'],
@@ -89,6 +89,7 @@ describe('createProgramOptions', () => {
       const result = createProgramOptions(
         'tsconfig.json',
         '{ "files": [], "references": [{ "path": "foo" }] }',
+        true,
       );
 
       expect(result).toMatchObject({
@@ -102,19 +103,19 @@ describe('createProgramOptions', () => {
     it('should throw on syntactically incorrect tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.syntax.json');
 
-      expect(() => createProgramOptions(tsConfig)).toThrow();
+      expect(() => createProgramOptions(tsConfig, undefined, true)).toThrow();
     });
 
     it('should throw on semantically incorrect tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.semantic.json');
 
-      expect(() => createProgramOptions(tsConfig)).toThrow(
+      expect(() => createProgramOptions(tsConfig, undefined, true)).toThrow(
         /^Unknown compiler option 'targetSomething'./,
       );
     });
 
     it('should throw on empty files list', () => {
-      expect(() => createProgramOptions('tsconfig.json', '{ "files": [] }')).toThrow(
+      expect(() => createProgramOptions('tsconfig.json', '{ "files": [] }', true)).toThrow(
         `The 'files' list in config file 'tsconfig.json' is empty.`,
       );
     });
@@ -124,7 +125,7 @@ describe('createProgramOptions', () => {
     it('should still create options when extended tsconfig does not exist', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-      const result = createProgramOptions(tsConfig);
+      const result = createProgramOptions(tsConfig, undefined, true);
 
       expect(result).toBeDefined();
       expect(result.rootNames).toContain(path.join(fixtures, 'file.ts'));
@@ -134,7 +135,7 @@ describe('createProgramOptions', () => {
     it('should generate compilerOptions on missing extended tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       expect(programOptions.options).toEqual({
         configFilePath: path.join(fixtures, 'tsconfig_missing.json'),
@@ -149,15 +150,15 @@ describe('createProgramOptions', () => {
     it('should cache program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
 
-      const result1 = createProgramOptions(tsConfig);
-      const result2 = createProgramOptions(tsConfig);
+      const result1 = createProgramOptions(tsConfig, undefined, true);
+      const result2 = createProgramOptions(tsConfig, undefined, true);
 
       expect(result1).toBe(result2);
     });
 
     it('should use different cache entries for different tsconfig contents', () => {
-      const result1 = createProgramOptions('tsconfig.json', '{ "files": ["/a.ts"] }');
-      const result2 = createProgramOptions('tsconfig.json', '{ "files": ["/b.ts"] }');
+      const result1 = createProgramOptions('tsconfig.json', '{ "files": ["/a.ts"] }', true);
+      const result2 = createProgramOptions('tsconfig.json', '{ "files": ["/b.ts"] }', true);
 
       expect(result1).not.toBe(result2);
       expect(result1.rootNames).toEqual(['/a.ts']);
@@ -169,7 +170,7 @@ describe('createProgramOptions', () => {
 describe('createProgramOptionsFromJson', () => {
   it('should create program options from JSON', () => {
     const json = { target: 'ES2020', strict: true };
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson(json, rootNames, '/project');
 
@@ -181,7 +182,7 @@ describe('createProgramOptionsFromJson', () => {
 
   it('should resolve paths relative to baseDir', () => {
     const json = { outDir: './dist' };
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson(json, rootNames, '/project');
 
@@ -189,7 +190,7 @@ describe('createProgramOptionsFromJson', () => {
   });
 
   it('should handle empty options', () => {
-    const rootNames = ['/project/src/index.ts'];
+    const rootNames = [normalizeToAbsolutePath('/project/src/index.ts')];
 
     const result = createProgramOptionsFromJson({}, rootNames, '/project');
 

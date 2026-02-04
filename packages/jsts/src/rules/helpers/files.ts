@@ -14,8 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { resolve } from 'node:path';
-import { isAbsolute as isUnixAbsolute, parse as parsePosix } from 'node:path/posix';
+import {
+  basename as basenamePosix,
+  dirname as dirnamePosix,
+  isAbsolute as isUnixAbsolute,
+  join as joinPosix,
+  parse as parsePosix,
+  resolve as resolvePosix,
+} from 'node:path/posix';
 import {
   isAbsolute as isWinAbsolute,
   parse as parseWin32,
@@ -23,12 +29,35 @@ import {
 } from 'node:path/win32';
 
 /**
+ * Branded types for Unix-style paths (forward slashes, normalized).
+ *
+ * We use phantom branding here (declare const + type intersection) rather than
+ * runtime branding (like in tsconfig/options.ts with actual Symbol properties).
+ * This is because:
+ * - Paths are primitive strings, not objects that can hold extra properties
+ * - We only need compile-time safety, not runtime verification
+ * - No runtime overhead - branded paths are just regular strings at runtime
+ *
+ * @see tsconfig/options.ts for runtime branding of objects via Symbol properties
+ */
+declare const NormalizedPathBrand: unique symbol;
+declare const NormalizedAbsolutePathBrand: unique symbol;
+
+export type NormalizedPath = string & { readonly [NormalizedPathBrand]: never };
+export type NormalizedAbsolutePath = string & { readonly [NormalizedAbsolutePathBrand]: never };
+
+/**
+ * Root path constant for Unix filesystem
+ */
+export const ROOT_PATH = '/' as NormalizedAbsolutePath;
+
+/**
  * Byte Order Marker
  */
 const BOM_BYTE = 0xfeff;
 
 export type File = {
-  readonly path: string;
+  readonly path: NormalizedAbsolutePath;
   readonly content: Buffer | string;
 };
 
@@ -49,23 +78,44 @@ export function stripBOM(str: string) {
 const isWindows = process.platform === 'win32';
 
 /**
- * Converts a path to Unix format.
+ * Normalizes a path to Unix format (forward slashes).
  * For absolute paths on Windows, resolves them to ensure they have a drive letter.
  * For relative paths, only converts slashes without resolving.
  * Cross-platform behavior:
  * - On Windows: all absolute paths are resolved with win32 to add drive letter
  * - On Linux: paths are only converted (slashes), no resolution needed
- * @param filePath the path to convert
- * @param forceAbsolute returned path should be absolute
- * @returns the converted path
+ * @param filePath the path to normalize
+ * @returns the normalized path as a branded UnixPath type
  */
-export function toUnixPath(filePath: string, forceAbsolute = false) {
+export function normalizePath(filePath: string): NormalizedPath {
   if (isWindows && isAbsolutePath(filePath)) {
     // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
-  } else if (forceAbsolute) {
-    filePath = resolve(filePath);
   }
+  return toUnixPath(filePath) as NormalizedPath;
+}
+
+/**
+ * Normalizes a path to an absolute Unix format.
+ * Guarantees the returned path is absolute.
+ * @param filePath the path to normalize
+ * @param baseDir base directory to resolve relative paths against
+ * @returns the normalized path as a branded AbsoluteUnixPath type
+ */
+export function normalizeToAbsolutePath(
+  filePath: string,
+  baseDir = ROOT_PATH,
+): NormalizedAbsolutePath {
+  if (isAbsolutePath(filePath)) {
+    // On Windows, resolve to add drive letter if missing
+    filePath = resolveWin32(filePath);
+  } else {
+    filePath = isWindows ? resolveWin32(baseDir, filePath) : resolvePosix(baseDir, filePath);
+  }
+  return toUnixPath(filePath) as NormalizedAbsolutePath;
+}
+
+function toUnixPath(filePath: string) {
   return filePath.replaceAll(/[\\/]+/g, '/');
 }
 
@@ -88,4 +138,37 @@ export function isAbsolutePath(path: string) {
     return true;
   }
   return isUnixAbsolute(path) || isWinAbsolute(path);
+}
+
+/**
+ * Type-safe dirname that preserves the NormalizedAbsolutePath brand.
+ * The dirname of an absolute path is always absolute.
+ * @param filePath the absolute path to get the directory of
+ * @returns the parent directory as a branded NormalizedAbsolutePath
+ */
+export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
+  return dirnamePosix(filePath) as NormalizedAbsolutePath;
+}
+
+/**
+ * Type-safe path join that preserves the NormalizedAbsolutePath brand.
+ * Joins path segments using posix separators.
+ * @param base the base absolute path
+ * @param segments additional path segments to join
+ * @returns the joined path as a branded NormalizedAbsolutePath
+ */
+export function joinPaths(
+  base: NormalizedAbsolutePath,
+  ...segments: string[]
+): NormalizedAbsolutePath {
+  return joinPosix(base, ...segments) as NormalizedAbsolutePath;
+}
+
+/**
+ * Type-safe basename that extracts the filename from a path.
+ * @param filePath the path to extract the basename from
+ * @returns the filename (last segment of the path)
+ */
+export function basenamePath(filePath: NormalizedPath): string {
+  return basenamePosix(filePath);
 }

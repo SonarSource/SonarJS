@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { File } from '../files.js';
+import type { File, NormalizedAbsolutePath } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
@@ -23,14 +23,14 @@ import { basename } from 'node:path/posix';
 
 export const PACKAGE_JSON = 'package.json';
 
-export function isPackageJson(path: string) {
+export function isPackageJson(path: NormalizedAbsolutePath) {
   return basename(path).toLowerCase() === PACKAGE_JSON;
 }
 
 export function fillPackageJsonCaches(
-  packageJsons: Map<string, File>,
-  dirnameToParent: Map<string, string | undefined>,
-  topDir: string,
+  packageJsons: Map<NormalizedAbsolutePath, File>,
+  dirnameToParent: Map<NormalizedAbsolutePath, NormalizedAbsolutePath | undefined>,
+  topDir: NormalizedAbsolutePath,
 ) {
   const closestCache = closestPatternCache.get(PACKAGE_JSON).get(topDir);
   const allPackageJsonsCache = patternInParentsCache.get(PACKAGE_JSON).get(topDir);

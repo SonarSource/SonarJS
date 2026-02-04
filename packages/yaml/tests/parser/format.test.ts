@@ -19,14 +19,14 @@ import path from 'node:path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/yaml/format.js';
-import { readFile } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('isSupportedFormat', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');
 
   for (const format of SUPPORTED_STRING_FORMATS) {
     test('should support the string format %o', async () => {
-      const filePath = path.join(fixtures, `${format}.yaml`);
+      const filePath = normalizeToAbsolutePath(path.join(fixtures, `${format}.yaml`));
       const fileContents = await readFile(filePath);
       const tokens = new yaml.Parser().parse(fileContents);
       const [doc] = new yaml.Composer().compose(tokens);
@@ -40,7 +40,7 @@ describe('isSupportedFormat', () => {
   }
 
   test('should not support an unsupported string format', async () => {
-    const filePath = path.join(fixtures, 'unsupported.yaml');
+    const filePath = normalizeToAbsolutePath(path.join(fixtures, 'unsupported.yaml'));
     const fileContents = await readFile(filePath);
     const tokens = new yaml.Parser().parse(fileContents);
     const [doc] = new yaml.Composer().compose(tokens);

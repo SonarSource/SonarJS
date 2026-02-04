@@ -23,7 +23,12 @@ import { FileType } from '../../../shared/src/helpers/files.js';
 import { LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
-import { toUnixPath } from '../rules/helpers/index.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import { ParseResult } from '../parsers/parse.js';
@@ -32,7 +37,7 @@ import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
-import { extname, dirname } from 'node:path/posix';
+import { extname } from 'node:path/posix';
 import { defaultOptions } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
 import { getDependencies } from '../rules/helpers/package-jsons/dependencies.js';
@@ -42,10 +47,10 @@ interface InitializeParams {
   rules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
-  baseDir: string;
+  baseDir: NormalizedAbsolutePath;
   sonarlint?: boolean;
-  bundles?: string[];
-  rulesWorkdir?: string;
+  bundles?: NormalizedAbsolutePath[];
+  rulesWorkdir?: NormalizedAbsolutePath;
 }
 
 /**
@@ -95,10 +100,10 @@ export class Linter {
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for architecture, dbd...) */
-  private static rulesWorkdir?: string;
+  private static rulesWorkdir?: NormalizedAbsolutePath;
   /** whether we are running in sonarlint context */
   private static sonarlint: boolean;
-  private static baseDir: string;
+  private static baseDir: NormalizedAbsolutePath;
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -149,7 +154,7 @@ export class Linter {
     }
   }
 
-  private static async loadRulesFromBundle(ruleBundle: string) {
+  private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
     const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
     for (const rule of bundleRules) {
       Linter.rules[rule.ruleId] = rule.ruleModule;
@@ -165,7 +170,7 @@ export class Linter {
    * considered during linting based on the file type.
    *
    * @param parseResult the ESLint source code
-   * @param filePath the path of the source file
+   * @param filePath the normalized absolute path of the source file
    * @param fileType the type of the source file
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
@@ -174,7 +179,7 @@ export class Linter {
    */
   static lint(
     { sourceCode, parserOptions, parser }: ParseResult,
-    filePath: string,
+    filePath: NormalizedAbsolutePath,
     fileType: FileType = 'MAIN',
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
@@ -205,7 +210,7 @@ export class Linter {
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
       },
-      files: [`**/*${path.posix.extname(toUnixPath(filePath))}`],
+      files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
@@ -235,7 +240,7 @@ export class Linter {
   }
 
   public static getRulesForFile(
-    filePath: string,
+    filePath: NormalizedAbsolutePath,
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
@@ -253,7 +258,8 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const dependencies = getDependencies(dirname(filePath), Linter.baseDir);
+      const normalizedFilePath = normalizeToAbsolutePath(filePath);
+      const dependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
           fileTypeTargets,
@@ -273,7 +279,7 @@ export class Linter {
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !(blacklistedExtensions || []).includes(extname(toUnixPath(filePath))) &&
+          !(blacklistedExtensions || []).includes(extname(normalizePath(filePath))) &&
           satisfiesRequiredDependency
         );
       });
@@ -333,13 +339,14 @@ export class Linter {
 }
 
 function createLinterConfigKey(
-  filePath: string,
-  baseDir: string,
+  filePath: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath,
   fileType: FileType,
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
 ) {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
-  const packageJsonDirName = getClosestPackageJSONDir(dirname(filePath), baseDir);
-  return `${fileType}-${language}-${analysisMode}-${extname(toUnixPath(filePath))}-${packageJsonDirName}`;
+  const normalizedPath = normalizeToAbsolutePath(filePath);
+  const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
+  return `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
 }

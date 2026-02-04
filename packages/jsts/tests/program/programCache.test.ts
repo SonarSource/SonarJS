@@ -18,14 +18,14 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { toUnixPath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 import { ProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { IncrementalCompilerHost } from '../../src/program/compilerHost.js';
 import { createProgramOptions, type ProgramOptions } from '../../src/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
 
-const fixtures = path.join(toUnixPath(import.meta.dirname), 'fixtures');
+const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
 describe('ProgramCacheManager', () => {
   let cacheManager: ProgramCacheManager;
@@ -51,7 +51,11 @@ describe('ProgramCacheManager', () => {
 
   describe('storeProgram', () => {
     it('should store a program in cache', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, program, host);
@@ -64,7 +68,11 @@ describe('ProgramCacheManager', () => {
 
     it('should evict oldest entry when cache is full', () => {
       const smallCacheManager = new ProgramCacheManager(2);
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
 
       // Store 3 programs (max is 2)
       for (let i = 0; i < 3; i++) {
@@ -80,7 +88,11 @@ describe('ProgramCacheManager', () => {
 
   describe('findProgramForFile', () => {
     it('should find a cached program containing the file', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, program, host);
@@ -94,7 +106,11 @@ describe('ProgramCacheManager', () => {
     });
 
     it('should return undefined for file not in any cached program', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, program, host);
@@ -105,7 +121,11 @@ describe('ProgramCacheManager', () => {
     });
 
     it('should update hit count and lastUsedAt on cache hit', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, program, host);
@@ -131,7 +151,11 @@ describe('ProgramCacheManager', () => {
 
   describe('updateProgramInCache', () => {
     it('should update program for existing cache key', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program: oldProgram, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, oldProgram, host);
@@ -150,7 +174,11 @@ describe('ProgramCacheManager', () => {
     });
 
     it('should do nothing for non-existent cache key', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program } = createBuilderProgram(programOptions);
 
       // Should not throw
@@ -172,10 +200,18 @@ describe('ProgramCacheManager', () => {
     });
 
     it('should return correct stats for populated cache', () => {
-      const programOptions1 = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions1 = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program: program1, host: host1 } = createBuilderProgram(programOptions1);
 
-      const programOptions2 = createProgramOptions(path.join(fixtures, 'tsconfig_found.json'));
+      const programOptions2 = createProgramOptions(
+        path.join(fixtures, 'tsconfig_found.json'),
+        undefined,
+        true,
+      );
       const { program: program2, host: host2 } = createBuilderProgram(programOptions2);
 
       cacheManager.storeProgram(programOptions1, program1, host1);
@@ -190,7 +226,11 @@ describe('ProgramCacheManager', () => {
 
   describe('clear', () => {
     it('should clear all cached programs', () => {
-      const programOptions = createProgramOptions(path.join(fixtures, 'tsconfig.json'));
+      const programOptions = createProgramOptions(
+        path.join(fixtures, 'tsconfig.json'),
+        undefined,
+        true,
+      );
       const { program, host } = createBuilderProgram(programOptions);
 
       cacheManager.storeProgram(programOptions, program, host);

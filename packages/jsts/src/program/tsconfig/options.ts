@@ -21,8 +21,8 @@ import { basename, dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
-import { canAccessFileSystem } from '../../../../shared/src/helpers/configuration.js';
 import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created
@@ -60,49 +60,56 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
 };
 
 /**
- * Default ParseConfigHost that uses TypeScript's file system APIs directly.
- * No caching or special handling - suitable for simple single-file analysis.
+ * Creates a ParseConfigHost that uses either TypeScript's file system APIs
+ * or the sourceFileStore based on the canAccessFileSystem parameter.
+ *
+ * @param canAccessFileSystem - Whether file system access is available
+ * @returns A CustomParseConfigHost configured for the appropriate access mode
  */
-const defaultParseConfigHost: CustomParseConfigHost = {
-  useCaseSensitiveFileNames: true,
-  readDirectory(
-    rootDir: string,
-    extensions: readonly string[],
-    excludes: readonly string[] | undefined,
-    includes: readonly string[],
-    depth?: number,
-  ): readonly string[] {
-    if (canAccessFileSystem()) {
-      return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
-    } else {
-      return sourceFileStore
-        .getFoundFilenames()
-        .filter(f => {
-          return dirname(f) === rootDir && extensions.some(ext => f.endsWith(ext));
-        })
-        .map(f => basename(f));
-    }
-  },
-  fileExists(path: string): boolean {
-    if (canAccessFileSystem()) {
-      return ts.sys.fileExists(path);
-    } else {
-      return sourceFileStore.getFoundFilenames().includes(path);
-    }
-  },
-  readFile(path: string): string | undefined {
-    if (canAccessFileSystem()) {
-      return ts.sys.readFile(path);
-    } else {
-      return sourceFileStore.getFoundFiles()[path]?.fileContent;
-    }
-  },
-  missingTsConfig: () => false,
-};
+function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseConfigHost {
+  return {
+    useCaseSensitiveFileNames: true,
+    readDirectory(
+      rootDir: string,
+      extensions: readonly string[],
+      excludes: readonly string[] | undefined,
+      includes: readonly string[],
+      depth?: number,
+    ): readonly string[] {
+      if (canAccessFileSystem) {
+        return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
+      } else {
+        return sourceFileStore
+          .getFoundFilenames()
+          .filter(f => {
+            return dirname(f) === rootDir && extensions.some(ext => f.endsWith(ext));
+          })
+          .map(f => basename(f));
+      }
+    },
+    fileExists(path: string): boolean {
+      if (canAccessFileSystem) {
+        return ts.sys.fileExists(path);
+      } else {
+        const normalizedPath = normalizeToAbsolutePath(path);
+        return sourceFileStore.getFoundFilenames().includes(normalizedPath);
+      }
+    },
+    readFile(path: string): string | undefined {
+      if (canAccessFileSystem) {
+        return ts.sys.readFile(path);
+      } else {
+        const normalizedPath = normalizeToAbsolutePath(path);
+        return sourceFileStore.getFoundFiles()[normalizedPath]?.fileContent;
+      }
+    },
+    missingTsConfig: () => false,
+  };
+}
 
 export function createProgramOptionsFromJson(
   json: any,
-  rootNames: string[],
+  rootNames: NormalizedAbsolutePath[],
   baseDir: string,
 ): ProgramOptions {
   return {
@@ -120,9 +127,15 @@ export function createProgramOptionsFromJson(
  *
  * @param tsConfig TSConfig to parse
  * @param tsconfigContents TSConfig contents that we want to provide to TSConfig
+ * @param canAccessFileSystem Whether file system access is available.
+ *        Callers should pass the result of canAccessFileSystem() from shared/src/helpers/configuration.js
  * @returns the resolved TSConfig files
  */
-export function createProgramOptions(tsConfig: string, tsconfigContents?: string): ProgramOptions {
+export function createProgramOptions(
+  tsConfig: string,
+  tsconfigContents: string | undefined,
+  canAccessFileSystem: boolean,
+): ProgramOptions {
   // Check cache first
   const cached = getCachedProgramOptions(tsConfig, tsconfigContents);
   if (cached) {
@@ -131,18 +144,19 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
 
   let missingTsConfig = false;
   const tsconfigContentCache = getTsConfigContentCache();
+  const baseParseConfigHost = createBaseParseConfigHost(canAccessFileSystem);
 
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
     useCaseSensitiveFileNames: true,
-    readDirectory: defaultParseConfigHost.readDirectory,
+    readDirectory: baseParseConfigHost.readDirectory,
     fileExists: file => {
       // When TypeScript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
       if (tsconfigContentCache.has(file) || isLastTsConfigCheck(file)) {
         return true;
       }
-      return defaultParseConfigHost.fileExists(file);
+      return baseParseConfigHost.fileExists(file);
     },
     readFile: file => {
       // 1. Check if we have specific content provided for this file
@@ -157,8 +171,8 @@ export function createProgramOptions(tsConfig: string, tsconfigContents?: string
         return cachedTsConfig.contents;
       }
 
-      // 3. Read from filesystem or sourceFileStore (depending on canAccessFileSystem())
-      const fileContents = defaultParseConfigHost.readFile(file);
+      // 3. Read from filesystem or sourceFileStore (depending on canAccessFileSystem)
+      const fileContents = baseParseConfigHost.readFile(file);
 
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
