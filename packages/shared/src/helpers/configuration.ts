@@ -41,14 +41,6 @@ import { type FilterPathParams } from './filter/filter-path.js';
  */
 export type JsTsLanguage = 'js' | 'ts';
 
-type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
-
-// Brand for the normalized FsEvents container - ensures we go through normalizeFsEvents()
-declare const FsEventsBrand: unique symbol;
-type FsEvents = { [key: NormalizedAbsolutePath]: FsEventType } & {
-  readonly [FsEventsBrand]: never;
-};
-
 /**
  * Sanitized configuration after validation and normalization.
  * Path fields use branded types (NormalizedAbsolutePath), and glob patterns are compiled to Minimatch instances.
@@ -61,7 +53,7 @@ export type Configuration = {
   sonarlint: boolean;
   clearDependenciesCache: boolean;
   clearTsConfigCache: boolean;
-  fsEvents: FsEvents /* Data filled in file watcher FSListenerImpl.java */;
+  fsEvents: NormalizedAbsolutePath[] /* Data filled in file watcher FSListenerImpl.java */;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   skipAst: boolean;
@@ -295,25 +287,17 @@ function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
 }
 
 /**
- * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
- * This ensures type safety at compile time - you cannot assign FsEventsRaw directly to FsEvents.
+ * Extracts and normalizes file paths from raw fsEvents object.
+ * The event types (CREATED, MODIFIED, DELETED) are not used - only the paths matter.
  */
-function normalizeFsEvents(raw: unknown, baseDir: NormalizedAbsolutePath): FsEvents {
+function normalizeFsEvents(
+  raw: unknown,
+  baseDir: NormalizedAbsolutePath,
+): NormalizedAbsolutePath[] {
   if (!isObject(raw)) {
-    return {} as FsEvents;
+    return [];
   }
-
-  const result: { [key: string]: FsEventType } = {};
-  for (const [key, value] of Object.entries(raw)) {
-    if (isFsEventType(value)) {
-      result[normalizeToAbsolutePath(key, baseDir)] = value;
-    }
-  }
-  return result as FsEvents;
-}
-
-function isFsEventType(value: unknown): value is FsEventType {
-  return value === 'CREATED' || value === 'MODIFIED' || value === 'DELETED';
+  return Object.keys(raw).map(key => normalizeToAbsolutePath(key, baseDir));
 }
 
 /**

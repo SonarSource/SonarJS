@@ -173,9 +173,15 @@ export function inferLanguage(
   jsSuffixes?: string[],
   tsSuffixes?: string[],
 ): JsTsLanguage {
-  if (explicit) return explicit;
-  if (isTsFile(filePath, fileContent, tsSuffixes)) return 'ts';
-  if (isJsFile(filePath, jsSuffixes)) return 'js';
+  if (explicit) {
+    return explicit;
+  }
+  if (isTsFile(filePath, fileContent, tsSuffixes)) {
+    return 'ts';
+  }
+  if (isJsFile(filePath, jsSuffixes)) {
+    return 'js';
+  }
   throw new Error(`Unable to infer language for file ${filePath}`);
 }
 
@@ -192,7 +198,9 @@ function inferFileType(
   configuration: Configuration,
   explicit?: FileType,
 ): FileType {
-  if (explicit) return explicit;
+  if (explicit) {
+    return explicit;
+  }
   return (
     filterPathAndGetFileType(filePath, {
       sourcesPaths: configuration.sources.length ? configuration.sources : [configuration.baseDir],
@@ -288,16 +296,16 @@ export async function sanitizeJsTsAnalysisInput(raw: unknown): Promise<Sanitized
  * language (string), analysisModes (array), blacklistedExtensions? (string[])
  */
 function isJsTsRuleConfig(value: unknown): boolean {
-  if (!isObject(value)) return false;
-  if (!isString(value.key)) return false;
-  if (!Array.isArray(value.configurations)) return false;
-  if (!Array.isArray(value.fileTypeTargets)) return false;
-  if (!isString(value.language)) return false;
-  if (!Array.isArray(value.analysisModes)) return false;
-  // blacklistedExtensions is optional
-  if (value.blacklistedExtensions !== undefined && !isStringArray(value.blacklistedExtensions))
-    return false;
-  return true;
+  return (
+    isObject(value) &&
+    isString(value.key) &&
+    Array.isArray(value.configurations) &&
+    Array.isArray(value.fileTypeTargets) &&
+    isString(value.language) &&
+    Array.isArray(value.analysisModes) &&
+    // blacklistedExtensions is optional
+    (value.blacklistedExtensions === undefined || isStringArray(value.blacklistedExtensions))
+  );
 }
 
 /**
@@ -312,10 +320,7 @@ function isJsTsRuleConfigArray(value: unknown): boolean {
  * CssRuleConfig has: key (string), configurations (any[])
  */
 function isCssRuleConfig(value: unknown): boolean {
-  if (!isObject(value)) return false;
-  if (!isString(value.key)) return false;
-  if (!Array.isArray(value.configurations)) return false;
-  return true;
+  return isObject(value) && isString(value.key) && Array.isArray(value.configurations);
 }
 
 /**

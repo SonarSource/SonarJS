@@ -53,14 +53,12 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
 
   if (canAccessFileSystem) {
     await findFiles(baseDir, jsTsExclusions, async (file, filePath) => {
-      // filePath is already normalized and absolute (derived from baseDir)
-      const normalizedFilePath = filePath as NormalizedAbsolutePath;
       for (const store of pendingStores) {
         if (file.isFile()) {
-          await store.processFile(normalizedFilePath, configuration);
+          await store.processFile(filePath, configuration);
         }
         if (file.isDirectory()) {
-          store.processDirectory?.(normalizedFilePath);
+          store.processDirectory?.(filePath, configuration);
         }
       }
     });
@@ -120,7 +118,7 @@ export async function simulateFromInputFiles(
   for (const store of pendingStores) {
     if (store.processDirectory) {
       for (const filePath of allPaths) {
-        store.processDirectory(filePath);
+        store.processDirectory(filePath, configuration);
       }
     }
     //files need to be processed after as ignored files logic depends on ignored paths being ingested

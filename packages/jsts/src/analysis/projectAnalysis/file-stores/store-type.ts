@@ -54,5 +54,5 @@ export abstract class FileStore {
    */
   abstract postProcess(configuration: Configuration): Promise<void>;
 
-  abstract processDirectory?(dir: NormalizedAbsolutePath): void;
+  abstract processDirectory?(dir: NormalizedAbsolutePath, configuration: Configuration): void;
 }

@@ -58,8 +58,8 @@ export class PackageJsonStore implements FileStore {
       this.clearCache();
       return;
     }
-    for (const filename of Object.keys(fsEvents)) {
-      if (isPackageJson(filename as NormalizedAbsolutePath)) {
+    for (const filename of fsEvents) {
+      if (isPackageJson(filename)) {
         this.clearCache();
         return;
       }
@@ -79,7 +79,7 @@ export class PackageJsonStore implements FileStore {
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 
-  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+  async processFile(filename: NormalizedAbsolutePath) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
@@ -100,7 +100,7 @@ export class PackageJsonStore implements FileStore {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess(_configuration: Configuration) {
+  async postProcess() {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }

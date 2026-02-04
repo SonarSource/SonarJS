@@ -24,7 +24,7 @@ import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
  * All fields are optional and will be filled with sensible defaults.
  */
 type TestJsTsInput = {
-  filePath?: string;
+  filePath: string;
   fileContent?: string;
   fileType?: 'MAIN' | 'TEST';
   fileStatus?: 'SAME' | 'CHANGED' | 'ADDED';
@@ -44,7 +44,7 @@ type TestJsTsInput = {
  * Uses JSTS_ANALYSIS_DEFAULTS and allows overrides for test-specific values.
  */
 export async function jsTsInput(input: TestJsTsInput): Promise<JsTsAnalysisInput> {
-  const filePath = normalizeToAbsolutePath(input.filePath!);
+  const filePath = normalizeToAbsolutePath(input.filePath);
   return {
     ...JSTS_ANALYSIS_DEFAULTS,
     filePath,
@@ -74,7 +74,7 @@ export async function jsTsInput(input: TestJsTsInput): Promise<JsTsAnalysisInput
  * Creates a complete EmbeddedAnalysisInput for testing.
  */
 export async function embeddedInput(input: TestJsTsInput): Promise<EmbeddedAnalysisInput> {
-  const filePath = normalizeToAbsolutePath(input.filePath!);
+  const filePath = normalizeToAbsolutePath(input.filePath);
   return {
     filePath,
     fileContent: input.fileContent ?? (await readFile(filePath)),

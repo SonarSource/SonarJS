@@ -43,7 +43,6 @@ export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private newFiles: StoredJsTsFile[] = [];
   private readonly ignoredPaths = new Set<string>();
-  private configuration: Configuration | undefined = undefined;
   private readonly store: {
     found: SourceFilesData;
     request: SourceFilesData;
@@ -124,14 +123,13 @@ export class SourceFileStore implements FileStore {
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
     this.newFiles = [];
-    this.configuration = configuration;
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
     const shouldIgnoreParams = getShouldIgnoreParams(configuration);
     if (isAnalyzableFile(filename, shouldIgnoreParams) && !this.anyParentIsIgnored(filename)) {
       const fileContent = await this.getFileContent(filename);
-      const fileType = filterPathAndGetFileType(filename, getFilterPathParams(this.configuration!));
+      const fileType = filterPathAndGetFileType(filename, getFilterPathParams(configuration));
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
       if (fileType && accept(filename, fileContent, shouldIgnoreParams)) {
@@ -146,8 +144,8 @@ export class SourceFileStore implements FileStore {
     }
   }
 
-  processDirectory(dir: NormalizedAbsolutePath) {
-    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(this.configuration!));
+  processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
+    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(configuration!));
     if (this.anyParentIsIgnored(dir) || isExcludedPath) {
       this.ignoredPaths.add(dir);
     }

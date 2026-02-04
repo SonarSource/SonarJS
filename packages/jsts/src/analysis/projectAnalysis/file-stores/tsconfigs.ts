@@ -86,13 +86,11 @@ export class TsConfigStore implements FileStore {
       return;
     }
     let shouldClear = clearTsConfigCache;
-    for (const filename of Object.keys(fsEvents)) {
+    for (const filename of fsEvents) {
       if (
-        this.getTsConfigs().includes(filename as NormalizedAbsolutePath) ||
-        (this.usingLookupTsConfigs() &&
-          this.filenameMatchesTsConfig(filename as NormalizedAbsolutePath)) ||
-        (this.usingPropertyTsConfigs() &&
-          this.filenameMatchesProvidedTsConfig(filename as NormalizedAbsolutePath))
+        this.getTsConfigs().includes(filename) ||
+        (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(filename)) ||
+        (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(filename))
       ) {
         shouldClear = true;
         break;
