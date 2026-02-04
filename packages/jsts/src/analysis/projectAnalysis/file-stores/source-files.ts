@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type JsTsFiles, type JsTsFile, createJsTsFiles } from '../projectAnalysis.js';
+import { type JsTsFiles, createJsTsFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import {
   isAnalyzableFile,
@@ -24,7 +24,11 @@ import {
 } from '../../../../../shared/src/helpers/configuration.js';
 import { FileStore } from './store-type.js';
 import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
-import { readFile, type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import {
+  readFile,
+  DirectoryIndex,
+  type NormalizedAbsolutePath,
+} from '../../../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 
@@ -32,9 +36,9 @@ export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call l
 
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
-  private newFiles: JsTsFile[] = [];
   private readonly ignoredPaths = new Set<string>();
   private files: JsTsFiles | undefined = undefined;
+  private readonly directoryIndex = new DirectoryIndex();
 
   /**
    * Checks if the file store is initialized for the given base directory.
@@ -45,6 +49,7 @@ export class SourceFileStore implements FileStore {
     if (inputFiles) {
       this.setup(configuration);
       this.files = inputFiles;
+      this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
       return true;
     }
     return this.files !== undefined;
@@ -57,6 +62,15 @@ export class SourceFileStore implements FileStore {
     return this.files;
   }
 
+  /**
+   * Gets all filenames in a directory (O(1) lookup).
+   * @param dir the directory to look up
+   * @returns array of filenames (not full paths) in the directory
+   */
+  getFilesInDirectory(dir: NormalizedAbsolutePath): string[] {
+    return this.directoryIndex.getFilesInDirectory(dir);
+  }
+
   dirtyCachesIfNeeded(currentBaseDir: NormalizedAbsolutePath) {
     if (currentBaseDir !== this.baseDir) {
       this.clearCache();
@@ -66,11 +80,12 @@ export class SourceFileStore implements FileStore {
   clearCache() {
     this.files = undefined;
     this.ignoredPaths.clear();
+    this.directoryIndex.clear();
   }
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
-    this.newFiles = [];
+    this.files = createJsTsFiles();
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
@@ -82,12 +97,13 @@ export class SourceFileStore implements FileStore {
       // called while walking the project tree
       if (fileType && accept(filename, fileContent, shouldIgnoreParams)) {
         // Files discovered from filesystem (not from request) default to 'SAME' status
-        this.newFiles.push({
+        this.files![filename] = {
           fileType,
           filePath: filename,
           fileContent,
           fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-        });
+        };
+        this.directoryIndex.addFile(filename);
       }
     }
   }
@@ -105,10 +121,7 @@ export class SourceFileStore implements FileStore {
   }
 
   async postProcess(_configuration: Configuration) {
-    this.files = createJsTsFiles();
-    for (const file of this.newFiles) {
-      this.files[file.filePath] = file;
-    }
+    // No-op: files are added directly in processFile()
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {
