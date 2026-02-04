@@ -25,6 +25,15 @@ import { Linter } from '../../../jsts/src/linter/linter.js';
 import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
+import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
+
+const defaultShouldIgnoreParams: ShouldIgnoreFileParams = {
+  jsTsExclusions: [],
+  detectBundles: false,
+  maxFileSize: 1000,
+  ...DEFAULT_FILE_SUFFIXES,
+};
 
 describe('analyzeYAML', () => {
   const fixturesPath = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures'));
@@ -35,6 +44,7 @@ describe('analyzeYAML', () => {
         await analyzeEmbedded(
           await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
           parseAwsFromYaml,
+          defaultShouldIgnoreParams,
         ),
     ).rejects.toThrow(APIError.linterError('Linter does not exist. Did you call /init-linter?'));
   });
@@ -57,6 +67,7 @@ describe('analyzeYAML', () => {
     } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     expect(issue).toEqual(
       expect.objectContaining({
@@ -83,9 +94,9 @@ describe('analyzeYAML', () => {
       ],
     });
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
-    expect(async () => await analyzeEmbedded(analysisInput, parseAwsFromYaml)).rejects.toThrow(
-      APIError.parsingError('Map keys must be unique', { line: 2 }),
-    );
+    expect(
+      async () => await analyzeEmbedded(analysisInput, parseAwsFromYaml, defaultShouldIgnoreParams),
+    ).rejects.toThrow(APIError.parsingError('Map keys must be unique', { line: 2 }));
   });
 
   it('should not break when using a rule with a quickfix', async () => {
@@ -104,6 +115,7 @@ describe('analyzeYAML', () => {
     const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     const {
       issues: [{ quickFixes }],
@@ -138,6 +150,7 @@ describe('analyzeYAML', () => {
     const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'enforce-trailing-comma.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -174,6 +187,7 @@ describe('analyzeYAML', () => {
     const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     const {
       issues: [
@@ -206,6 +220,7 @@ describe('analyzeYAML', () => {
     const result = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     const {
       issues: [issue],
@@ -243,6 +258,7 @@ describe('analyzeYAML', () => {
     const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'outside.yaml') }),
       parseAwsFromYaml,
+      defaultShouldIgnoreParams,
     );
     expect(issues).toHaveLength(0);
   });
@@ -276,6 +292,10 @@ describe('analyzeYAML', () => {
         },
       ],
     });
-    await analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
+    await analyzeEmbedded(
+      await embeddedInput({ filePath }),
+      parseAwsFromYaml,
+      defaultShouldIgnoreParams,
+    );
   });
 });

@@ -23,7 +23,6 @@ import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
-import { RawProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
@@ -51,7 +50,7 @@ describe('router', () => {
 
   it('should route /analyze-project requests', async () => {
     const filePath = normalizeToAbsolutePath(path.join(fixtures, 'file.ts'));
-    const payload: RawProjectAnalysisInput = {
+    const payload = {
       rules: [
         {
           key: 'S4621',
@@ -231,7 +230,7 @@ describe('router', () => {
   });
 
   it('should route /init-linter requests', async () => {
-    const data = { rules: [], environments: [], globals: [] };
+    const data = { rules: [], environments: [], globals: [], baseDir: fixtures };
     const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK');
   });
@@ -248,6 +247,6 @@ describe('router', () => {
 });
 
 function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
-  const config = { rules };
+  const config = { rules, baseDir: import.meta.dirname };
   return request(server, '/init-linter', 'POST', config);
 }

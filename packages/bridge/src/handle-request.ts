@@ -31,35 +31,16 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
-import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/configuration.js';
 import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
-import { normalizeToAbsolutePath, dirnamePath, ROOT_PATH } from '../../shared/src/helpers/files.js';
+import type { RawInputFiles } from '../../jsts/src/analysis/projectAnalysis/file-stores/store-type.js';
 import {
-  isString,
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
-  sanitizePaths,
+  sanitizeCssAnalysisInput,
+  sanitizeInitLinterInput,
+  sanitizeProjectAnalysisInput,
 } from '../../shared/src/helpers/sanitize.js';
-import type { RawConfiguration } from '../../shared/src/helpers/configuration.js';
-import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
-
-/**
- * Resolves the base directory for single-file analysis and sets global configuration.
- * Uses provided configuration if available, otherwise derives baseDir from the file path.
- * When no configuration is provided, the default configuration is used (already initialized).
- */
-function resolveBaseDir(
-  filePath: string,
-  configuration?: RawConfiguration,
-): NormalizedAbsolutePath {
-  if (configuration) {
-    setGlobalConfiguration(configuration);
-    return getBaseDir();
-  }
-  // Fallback for standalone usage: derive baseDir from filePath
-  // Default configuration is already initialized with sensible defaults
-  return dirnamePath(normalizeToAbsolutePath(filePath));
-}
+import { getShouldIgnoreParams } from '../../shared/src/helpers/configuration.js';
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -69,77 +50,65 @@ export async function handleRequest(
   try {
     switch (request.type) {
       case 'on-init-linter': {
-        const { rules, environments, globals, baseDir, sonarlint, bundles, rulesWorkdir } =
-          request.data;
-        const sanitizedBaseDir = isString(baseDir) ? normalizeToAbsolutePath(baseDir) : ROOT_PATH;
-        await Linter.initialize({
-          rules,
-          environments,
-          globals,
-          baseDir: sanitizedBaseDir,
-          sonarlint,
-          bundles: sanitizePaths(bundles, sanitizedBaseDir),
-          rulesWorkdir: isString(rulesWorkdir)
-            ? normalizeToAbsolutePath(rulesWorkdir, sanitizedBaseDir)
-            : undefined,
-        });
+        const sanitizedInput = sanitizeInitLinterInput(request.data);
+        await Linter.initialize(sanitizedInput);
         return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
-        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
-        const sanitizedInput = await sanitizeJsTsAnalysisInput(request.data, baseDir);
-        const output = await analyzeJSTS(sanitizedInput);
+        const { input, configuration } = await sanitizeJsTsAnalysisInput(request.data);
+        const output = await analyzeJSTS(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-css': {
-        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
-        const baseInput = await sanitizeAnalysisInput(request.data, baseDir);
-        const sanitizedInput = { ...baseInput, rules: request.data.rules };
-        const output = await analyzeCSS(sanitizedInput);
+        const { input, configuration } = await sanitizeCssAnalysisInput(request.data);
+        const output = await analyzeCSS(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
-        const output = await analyzeYAML(sanitizedInput);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeYAML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-html': {
-        const baseDir = resolveBaseDir(request.data.filePath, request.data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
-        const output = await analyzeHTML(sanitizedInput);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeHTML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        const { rules, files, configuration, bundles, rulesWorkdir } = request.data;
+        const sanitizedInput = sanitizeProjectAnalysisInput(request.data);
 
-        if (!configuration?.baseDir) {
-          throw 'baseDir is required';
-        }
-        // 1. Sanitize configuration (sets global config including baseDir)
-        setGlobalConfiguration(configuration);
-        const baseDir = getBaseDir();
+        // Get sanitized files via file store
+        const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(
+          sanitizedInput.configuration,
+          sanitizedInput.rawFiles as RawInputFiles | undefined,
+        );
 
-        // 2. Get sanitized files via file store
-        const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, files);
-
-        // 3. Build sanitized input
-        const sanitizedInput = {
-          filesToAnalyze,
-          pendingFiles,
-          rules,
-          bundles: sanitizePaths(bundles, baseDir),
-          rulesWorkdir: rulesWorkdir ? normalizeToAbsolutePath(rulesWorkdir, baseDir) : undefined,
-        };
-
-        const output = await analyzeProject(sanitizedInput, incrementalResultsChannel);
+        const output = await analyzeProject(
+          {
+            filesToAnalyze,
+            pendingFiles,
+            rules: sanitizedInput.rules,
+            bundles: sanitizedInput.bundles,
+            rulesWorkdir: sanitizedInput.rulesWorkdir,
+          },
+          sanitizedInput.configuration,
+          incrementalResultsChannel,
+        );
         logHeapStatistics(workerData?.debugMemory);
         return { type: 'success', result: output };
       }
       case 'on-cancel-analysis': {
         cancelAnalysis();
         return { type: 'success', result: 'OK' };
+      }
+      default: {
+        // Handle unknown request types (e.g., from malformed WebSocket messages)
+        const unknownType = (request as { type: unknown }).type;
+        return {
+          type: 'failure',
+          error: serializeError(new Error(`Unknown request type: ${unknownType}`)),
+        };
       }
     }
   } catch (err) {

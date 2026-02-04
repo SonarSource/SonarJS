@@ -20,7 +20,7 @@ import { expect } from 'expect';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
 import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
 import { build as buildJsTs } from '../../../jsts/src/builders/build.js';
-import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { type EmbeddedJS } from '../../../shared/src/types/embedded.js';
 import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
 import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';

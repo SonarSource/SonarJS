@@ -16,15 +16,19 @@
  */
 import { JSTS_ANALYSIS_DEFAULTS, type AnalysisMode } from '../../../jsts/src/analysis/analysis.js';
 import { extname } from 'node:path/posix';
-import {
-  type NormalizedAbsolutePath,
-  isAbsolutePath,
-  normalizeToAbsolutePath,
-  ROOT_PATH,
-} from './files.js';
+import { type NormalizedAbsolutePath, isAbsolutePath, normalizeToAbsolutePath } from './files.js';
 import { Minimatch } from 'minimatch';
-import { debug } from './logging.js';
-import { sanitizePaths, isBoolean, isNumber, isStringArray, isAnalysisMode } from './sanitize.js';
+import {
+  sanitizePaths,
+  isBoolean,
+  isNumber,
+  isString,
+  isStringArray,
+  isAnalysisMode,
+  isObject,
+} from './sanitize.js';
+import { type ShouldIgnoreFileParams } from './filter/filter.js';
+import { type FilterPathParams } from './filter/filter-path.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -38,13 +42,6 @@ import { sanitizePaths, isBoolean, isNumber, isStringArray, isAnalysisMode } fro
 export type JsTsLanguage = 'js' | 'ts';
 
 type FsEventType = 'CREATED' | 'MODIFIED' | 'DELETED';
-/** Data filled in file watcher FSListenerImpl.java
- *
- * Map entry {filePath => event} containing all the file events occurred
- * between two analysis requests, used to know if we need to clear
- * tsconfig.json cache or the mapping between input files and tsconfigs
- */
-type FsEventsRaw = { [key: string]: FsEventType };
 
 // Brand for the normalized FsEvents container - ensures we go through normalizeFsEvents()
 declare const FsEventsBrand: unique symbol;
@@ -53,67 +50,37 @@ type FsEvents = { [key: NormalizedAbsolutePath]: FsEventType } & {
 };
 
 /**
- * Raw configuration as received from the analysis request (e.g., ProjectAnalysisInput).
- * All path fields are strings because they haven't been validated or normalized yet.
- */
-export type RawConfiguration = {
-  baseDir?: string;
-  canAccessFileSystem?: boolean;
-  sonarlint?: boolean;
-  clearDependenciesCache?: boolean;
-  clearTsConfigCache?: boolean;
-  fsEvents?: FsEventsRaw;
-  allowTsParserJsFiles?: boolean;
-  analysisMode?: AnalysisMode;
-  skipAst?: boolean;
-  ignoreHeaderComments?: boolean /* sonar.javascript.ignoreHeaderComments True to not count file header comments in comment metrics */;
-  maxFileSize?: number /* sonar.javascript.maxFileSize Threshold for the maximum size of analyzed files (in kilobytes).  */;
-  environments?: string[] /* sonar.javascript.environments */;
-  globals?: string[] /* sonar.javascript.globals */;
-  tsSuffixes?: string[] /* sonar.typescript.file.suffixes */;
-  jsSuffixes?: string[] /* sonar.javascript.file.suffixes */;
-  cssSuffixes?: string[] /* sonar.css.file.suffixes */;
-  tsConfigPaths?: string[] /* sonar.typescript.tsconfigPath(s) */;
-  jsTsExclusions?: string[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
-  sources?: string[] /* sonar.sources property, absolute or relative path to baseDir to look for files. we are based on baseDir */;
-  inclusions?: string[] /* sonar.inclusions property, WILDCARD to narrow down sonar.sources. */;
-  exclusions?: string[] /* sonar.exclusions property, WILDCARD to narrow down sonar.sources. */;
-  tests?: string[] /* sonar.tests property, absolute or relative path to baseDir to look for test files */;
-  testInclusions?: string[] /* sonar.test.inclusions property, WILDCARD to narrow down sonar.tests. */;
-  testExclusions?: string[] /* sonar.test.exclusions property, WILDCARD to narrow down sonar.tests. */;
-  detectBundles?: boolean /* sonar.javascript.detectBundles property: whether files looking like bundled code should be ignored  */;
-};
-
-/**
  * Sanitized configuration after validation and normalization.
- * Path fields use branded types (NormalizedAbsolutePath) and glob patterns are compiled to Minimatch instances.
+ * Path fields use branded types (NormalizedAbsolutePath), and glob patterns are compiled to Minimatch instances.
+ *
+ * Comments indicate the corresponding sonar.* property name where applicable.
  */
-type Configuration = {
+export type Configuration = {
   baseDir: NormalizedAbsolutePath;
   canAccessFileSystem: boolean;
   sonarlint: boolean;
   clearDependenciesCache: boolean;
   clearTsConfigCache: boolean;
-  fsEvents: FsEvents;
+  fsEvents: FsEvents /* Data filled in file watcher FSListenerImpl.java */;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   skipAst: boolean;
-  ignoreHeaderComments: boolean;
-  maxFileSize: number;
-  environments: string[];
-  globals: string[];
-  tsSuffixes: string[];
-  jsSuffixes: string[];
-  cssSuffixes: string[];
-  tsConfigPaths: NormalizedAbsolutePath[];
-  jsTsExclusions: Minimatch[];
-  sources: NormalizedAbsolutePath[];
-  inclusions: Minimatch[];
-  exclusions: Minimatch[];
-  tests: NormalizedAbsolutePath[];
-  testInclusions: Minimatch[];
-  testExclusions: Minimatch[];
-  detectBundles: boolean;
+  ignoreHeaderComments: boolean /* sonar.javascript.ignoreHeaderComments - True to not count file header comments in comment metrics */;
+  maxFileSize: number /* sonar.javascript.maxFileSize - Threshold for the maximum size of analyzed files (in kilobytes) */;
+  environments: string[] /* sonar.javascript.environments */;
+  globals: string[] /* sonar.javascript.globals */;
+  tsSuffixes: string[] /* sonar.typescript.file.suffixes */;
+  jsSuffixes: string[] /* sonar.javascript.file.suffixes */;
+  cssSuffixes: string[] /* sonar.css.file.suffixes */;
+  tsConfigPaths: NormalizedAbsolutePath[] /* sonar.typescript.tsconfigPath(s) */;
+  jsTsExclusions: Minimatch[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
+  sources: NormalizedAbsolutePath[] /* sonar.sources - absolute or relative path to baseDir to look for files */;
+  inclusions: Minimatch[] /* sonar.inclusions - WILDCARD to narrow down sonar.sources */;
+  exclusions: Minimatch[] /* sonar.exclusions - WILDCARD to narrow down sonar.sources */;
+  tests: NormalizedAbsolutePath[] /* sonar.tests - absolute or relative path to baseDir to look for test files */;
+  testInclusions: Minimatch[] /* sonar.test.inclusions - WILDCARD to narrow down sonar.tests */;
+  testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
+  detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -124,228 +91,6 @@ const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_MAX_FILE_SIZE_KB = 1000; // 1MB, matches Java default in JavaScriptPlugin.java
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
-
-// configuration is initialized lazily after all constants are defined (see initDefaultConfiguration)
-let configuration: Configuration;
-
-export function setGlobalConfiguration(config?: RawConfiguration) {
-  if (!config) {
-    return;
-  }
-  if (!config.baseDir) {
-    throw new Error('baseDir is required');
-  } else if (!isAbsolutePath(config.baseDir)) {
-    throw new Error(`baseDir is not an absolute path: ${config.baseDir}`);
-  }
-  // Normalize baseDir first so it can be used by other normalization functions
-  const baseDir = normalizeToAbsolutePath(config.baseDir);
-  configuration = {
-    baseDir,
-    canAccessFileSystem: isBoolean(config.canAccessFileSystem) ? config.canAccessFileSystem : true,
-    sonarlint: isBoolean(config.sonarlint) ? config.sonarlint : false,
-    clearDependenciesCache: isBoolean(config.clearDependenciesCache)
-      ? config.clearDependenciesCache
-      : false,
-    clearTsConfigCache: isBoolean(config.clearTsConfigCache) ? config.clearTsConfigCache : false,
-    fsEvents: normalizeFsEvents(config.fsEvents, baseDir),
-    allowTsParserJsFiles: isBoolean(config.allowTsParserJsFiles)
-      ? config.allowTsParserJsFiles
-      : JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
-    analysisMode: isAnalysisMode(config.analysisMode)
-      ? config.analysisMode
-      : JSTS_ANALYSIS_DEFAULTS.analysisMode,
-    skipAst: isBoolean(config.skipAst) ? config.skipAst : JSTS_ANALYSIS_DEFAULTS.skipAst,
-    ignoreHeaderComments: isBoolean(config.ignoreHeaderComments)
-      ? config.ignoreHeaderComments
-      : JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
-    maxFileSize: isNumber(config.maxFileSize) ? config.maxFileSize : DEFAULT_MAX_FILE_SIZE_KB,
-    environments: isStringArray(config.environments) ? config.environments : DEFAULT_ENVIRONMENTS,
-    globals: isStringArray(config.globals) ? config.globals : DEFAULT_GLOBALS,
-    tsSuffixes: isStringArray(config.tsSuffixes) ? config.tsSuffixes : DEFAULT_TS_EXTENSIONS,
-    jsSuffixes: isStringArray(config.jsSuffixes) ? config.jsSuffixes : DEFAULT_JS_EXTENSIONS,
-    cssSuffixes: isStringArray(config.cssSuffixes) ? config.cssSuffixes : DEFAULT_CSS_EXTENSIONS,
-    tsConfigPaths: sanitizePaths(config.tsConfigPaths, baseDir),
-    jsTsExclusions: normalizeGlobs(
-      (isStringArray(config.jsTsExclusions) ? config.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
-        IGNORED_PATTERNS,
-      ),
-      baseDir,
-    ),
-    sources: sanitizePaths(config.sources, baseDir),
-    inclusions: normalizeGlobs(config.inclusions, baseDir),
-    exclusions: normalizeGlobs(config.exclusions, baseDir),
-    tests: sanitizePaths(config.tests, baseDir),
-    testInclusions: normalizeGlobs(config.testInclusions, baseDir),
-    testExclusions: normalizeGlobs(config.testExclusions, baseDir),
-    detectBundles: isBoolean(config.detectBundles) ? config.detectBundles : true,
-  };
-  debug(`Setting js/ts exclusions to ${configuration.jsTsExclusions?.map(mini => mini.pattern)}`);
-}
-
-function getConfiguration(): Configuration {
-  return configuration;
-}
-
-export function getBaseDir() {
-  if (!getConfiguration().baseDir) {
-    throw new Error('baseDir is not set');
-  }
-  return getConfiguration().baseDir;
-}
-
-const HTML_EXTENSIONS = new Set(['.html', '.htm']);
-const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
-
-function jsTsExtensions() {
-  return jsExtensions().concat(tsExtensions());
-}
-
-export function getTsConfigPaths() {
-  return getConfiguration().tsConfigPaths ?? [];
-}
-function tsExtensions() {
-  return getConfiguration().tsSuffixes?.length
-    ? getConfiguration().tsSuffixes
-    : DEFAULT_TS_EXTENSIONS;
-}
-
-function jsExtensions() {
-  return getConfiguration().jsSuffixes?.length
-    ? getConfiguration().jsSuffixes
-    : DEFAULT_JS_EXTENSIONS;
-}
-
-function cssExtensions() {
-  return getConfiguration().cssSuffixes?.length
-    ? getConfiguration().cssSuffixes
-    : DEFAULT_CSS_EXTENSIONS;
-}
-
-export function isJsFile(filePath: NormalizedAbsolutePath): boolean {
-  return jsExtensions().includes(extname(filePath).toLowerCase());
-}
-
-export function isTsFile(filePath: NormalizedAbsolutePath, contents: string): boolean {
-  const extension = extname(filePath).toLowerCase();
-  return (
-    tsExtensions().includes(extension) ||
-    (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
-  );
-}
-
-export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
-  return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
-}
-
-export function isYamlFile(filePath: NormalizedAbsolutePath): boolean {
-  return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
-}
-
-export function isJsTsFile(filePath: NormalizedAbsolutePath): boolean {
-  return jsTsExtensions().includes(extname(filePath).toLowerCase());
-}
-
-export function isCssFile(filePath: NormalizedAbsolutePath): boolean {
-  return cssExtensions().includes(extname(filePath).toLowerCase());
-}
-
-export function isAnalyzableFile(filePath: NormalizedAbsolutePath): boolean {
-  return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath);
-}
-
-export function getEnvironments() {
-  return getConfiguration().environments;
-}
-
-export function isSonarLint() {
-  return getConfiguration().sonarlint;
-}
-
-export function canAccessFileSystem() {
-  return getConfiguration().canAccessFileSystem;
-}
-
-export function getGlobals() {
-  return getConfiguration().globals;
-}
-
-export function getTestPaths() {
-  return getConfiguration().tests;
-}
-
-export function getSourcesPaths() {
-  return getConfiguration().sources?.length ? getConfiguration().sources : [getBaseDir()];
-}
-
-export function getJsTsExclusions() {
-  return getConfiguration().jsTsExclusions;
-}
-
-export function getExclusions() {
-  return getConfiguration().exclusions;
-}
-
-export function getInclusions() {
-  return getConfiguration().inclusions;
-}
-
-export function getTestExclusions() {
-  return getConfiguration().testExclusions;
-}
-
-export function getTestInclusions() {
-  return getConfiguration().testInclusions;
-}
-
-export function getFsEvents() {
-  return Object.entries(getConfiguration().fsEvents) as [NormalizedAbsolutePath, FsEventType][];
-}
-
-export function getMaxFileSize() {
-  return getConfiguration().maxFileSize;
-}
-
-export function setClearTsConfigCache(value: boolean) {
-  getConfiguration().clearTsConfigCache = value;
-}
-
-export function shouldClearTsConfigCache() {
-  return getConfiguration().clearTsConfigCache;
-}
-
-export function shouldDetectBundles() {
-  return getConfiguration().detectBundles;
-}
-
-/**
- * Fields from the global configuration that are used in JsTsAnalysisInput.
- * These are the configuration-controlled values (not static defaults).
- */
-type JsTsConfigFields = {
-  allowTsParserJsFiles: boolean;
-  analysisMode: AnalysisMode;
-  ignoreHeaderComments: boolean;
-  clearDependenciesCache: boolean;
-  skipAst: boolean;
-  sonarlint: boolean;
-};
-
-/**
- * Returns the configuration-based values for JsTsAnalysisInput fields.
- * These values come from the global configuration set via setGlobalConfiguration().
- *
- * Note: This is different from JSTS_ANALYSIS_DEFAULTS which provides static defaults
- * for missing fields during sanitization. This function returns the actual configured
- * values which may differ from the defaults.
- */
-export const fieldsForJsTsAnalysisInput = (): JsTsConfigFields => ({
-  allowTsParserJsFiles: getConfiguration().allowTsParserJsFiles,
-  analysisMode: getConfiguration().analysisMode,
-  ignoreHeaderComments: getConfiguration().ignoreHeaderComments,
-  clearDependenciesCache: getConfiguration().clearDependenciesCache,
-  skipAst: getConfiguration().skipAst,
-  sonarlint: isSonarLint(),
-});
 
 const DEFAULT_EXCLUSIONS = [
   '**/*.d.ts',
@@ -401,8 +146,145 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
-function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolutePath) {
-  return (globs ?? []).map(
+/**
+ * Creates a new Configuration instance from raw input.
+ * Validates and normalizes the input without mutating any global state.
+ *
+ * @param raw - Raw configuration object with baseDir required
+ * @returns A new, validated Configuration instance
+ * @throws Error if baseDir is missing, not a string, or not an absolute path
+ *
+ * @example
+ * ```typescript
+ * const config = createConfiguration({
+ *   baseDir: '/path/to/project',
+ *   sonarlint: true,
+ *   maxFileSize: 2000,
+ * });
+ * ```
+ */
+export function createConfiguration(raw: unknown): Configuration {
+  if (!isObject(raw)) {
+    throw new Error('Invalid configuration: expected object');
+  }
+  if (!isString(raw.baseDir)) {
+    throw new Error('baseDir is required and must be a string');
+  }
+  if (!isAbsolutePath(raw.baseDir)) {
+    throw new Error(`baseDir is not an absolute path: ${raw.baseDir}`);
+  }
+  // Normalize baseDir first so it can be used by other normalization functions
+  const baseDir = normalizeToAbsolutePath(raw.baseDir);
+  return {
+    baseDir,
+    canAccessFileSystem: isBoolean(raw.canAccessFileSystem) ? raw.canAccessFileSystem : true,
+    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : false,
+    clearDependenciesCache: isBoolean(raw.clearDependenciesCache)
+      ? raw.clearDependenciesCache
+      : false,
+    clearTsConfigCache: isBoolean(raw.clearTsConfigCache) ? raw.clearTsConfigCache : false,
+    fsEvents: normalizeFsEvents(raw.fsEvents, baseDir),
+    allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
+      ? raw.allowTsParserJsFiles
+      : JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
+    analysisMode: isAnalysisMode(raw.analysisMode)
+      ? raw.analysisMode
+      : JSTS_ANALYSIS_DEFAULTS.analysisMode,
+    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : JSTS_ANALYSIS_DEFAULTS.skipAst,
+    ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
+      ? raw.ignoreHeaderComments
+      : JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
+    maxFileSize: isNumber(raw.maxFileSize) ? raw.maxFileSize : DEFAULT_MAX_FILE_SIZE_KB,
+    environments: isStringArray(raw.environments) ? raw.environments : DEFAULT_ENVIRONMENTS,
+    globals: isStringArray(raw.globals) ? raw.globals : DEFAULT_GLOBALS,
+    tsSuffixes: isStringArray(raw.tsSuffixes) ? raw.tsSuffixes : DEFAULT_TS_EXTENSIONS,
+    jsSuffixes: isStringArray(raw.jsSuffixes) ? raw.jsSuffixes : DEFAULT_JS_EXTENSIONS,
+    cssSuffixes: isStringArray(raw.cssSuffixes) ? raw.cssSuffixes : DEFAULT_CSS_EXTENSIONS,
+    tsConfigPaths: sanitizePaths(raw.tsConfigPaths, baseDir),
+    jsTsExclusions: normalizeGlobs(
+      (isStringArray(raw.jsTsExclusions) ? raw.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
+        IGNORED_PATTERNS,
+      ),
+      baseDir,
+    ),
+    sources: sanitizePaths(raw.sources, baseDir),
+    inclusions: normalizeGlobs(raw.inclusions, baseDir),
+    exclusions: normalizeGlobs(raw.exclusions, baseDir),
+    tests: sanitizePaths(raw.tests, baseDir),
+    testInclusions: normalizeGlobs(raw.testInclusions, baseDir),
+    testExclusions: normalizeGlobs(raw.testExclusions, baseDir),
+    detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : true,
+  };
+}
+
+const HTML_EXTENSIONS = new Set(['.html', '.htm']);
+const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+
+/**
+ * File suffix configuration for determining file types.
+ */
+export type FileSuffixes = {
+  jsSuffixes: string[];
+  tsSuffixes: string[];
+  cssSuffixes: string[];
+};
+
+export const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
+  jsSuffixes: DEFAULT_JS_EXTENSIONS,
+  tsSuffixes: DEFAULT_TS_EXTENSIONS,
+  cssSuffixes: DEFAULT_CSS_EXTENSIONS,
+};
+
+export function isJsFile(
+  filePath: NormalizedAbsolutePath,
+  jsSuffixes: string[] = DEFAULT_JS_EXTENSIONS,
+): boolean {
+  return jsSuffixes.includes(extname(filePath).toLowerCase());
+}
+
+export function isTsFile(
+  filePath: NormalizedAbsolutePath,
+  contents: string,
+  tsSuffixes: string[] = DEFAULT_TS_EXTENSIONS,
+): boolean {
+  const extension = extname(filePath).toLowerCase();
+  return (
+    tsSuffixes.includes(extension) || (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
+  );
+}
+
+export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
+  return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
+}
+
+export function isYamlFile(filePath: NormalizedAbsolutePath): boolean {
+  return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
+}
+
+export function isJsTsFile(
+  filePath: NormalizedAbsolutePath,
+  suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
+): boolean {
+  const extension = extname(filePath).toLowerCase();
+  return suffixes.jsSuffixes.includes(extension) || suffixes.tsSuffixes.includes(extension);
+}
+
+export function isCssFile(
+  filePath: NormalizedAbsolutePath,
+  cssSuffixes: string[] = DEFAULT_CSS_EXTENSIONS,
+): boolean {
+  return cssSuffixes.includes(extname(filePath).toLowerCase());
+}
+
+export function isAnalyzableFile(
+  filePath: NormalizedAbsolutePath,
+  suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
+): boolean {
+  return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath, suffixes);
+}
+
+function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
+  return (isStringArray(globs) ? globs : []).map(
     pattern =>
       new Minimatch(normalizeToAbsolutePath(pattern.trim(), baseDir), {
         nocase: true,
@@ -412,51 +294,92 @@ function normalizeGlobs(globs: string[] | undefined, baseDir: NormalizedAbsolute
   );
 }
 
-// Initialize default configuration now that all constants are defined.
-// This allows single-file analysis to work without explicit configuration.
-configuration = {
-  baseDir: ROOT_PATH,
-  canAccessFileSystem: true,
-  sonarlint: false,
-  clearDependenciesCache: false,
-  clearTsConfigCache: false,
-  fsEvents: {} as FsEvents,
-  allowTsParserJsFiles: JSTS_ANALYSIS_DEFAULTS.allowTsParserJsFiles,
-  analysisMode: JSTS_ANALYSIS_DEFAULTS.analysisMode,
-  skipAst: JSTS_ANALYSIS_DEFAULTS.skipAst,
-  ignoreHeaderComments: JSTS_ANALYSIS_DEFAULTS.ignoreHeaderComments,
-  maxFileSize: DEFAULT_MAX_FILE_SIZE_KB,
-  environments: DEFAULT_ENVIRONMENTS,
-  globals: DEFAULT_GLOBALS,
-  tsSuffixes: DEFAULT_TS_EXTENSIONS,
-  jsSuffixes: DEFAULT_JS_EXTENSIONS,
-  cssSuffixes: DEFAULT_CSS_EXTENSIONS,
-  tsConfigPaths: [],
-  jsTsExclusions: normalizeGlobs(DEFAULT_EXCLUSIONS.concat(IGNORED_PATTERNS), ROOT_PATH),
-  sources: [],
-  inclusions: [],
-  exclusions: [],
-  tests: [],
-  testInclusions: [],
-  testExclusions: [],
-  detectBundles: true,
-};
-
 /**
  * Converts raw FsEvents (string keys) to branded FsEvents with normalized absolute path keys.
  * This ensures type safety at compile time - you cannot assign FsEventsRaw directly to FsEvents.
  */
-function normalizeFsEvents(
-  raw: FsEventsRaw | undefined,
-  baseDir: NormalizedAbsolutePath,
-): FsEvents {
-  if (!raw) {
+function normalizeFsEvents(raw: unknown, baseDir: NormalizedAbsolutePath): FsEvents {
+  if (!isObject(raw)) {
     return {} as FsEvents;
   }
 
   const result: { [key: string]: FsEventType } = {};
   for (const [key, value] of Object.entries(raw)) {
-    result[normalizeToAbsolutePath(key, baseDir)] = value;
+    if (isFsEventType(value)) {
+      result[normalizeToAbsolutePath(key, baseDir)] = value;
+    }
   }
   return result as FsEvents;
+}
+
+function isFsEventType(value: unknown): value is FsEventType {
+  return value === 'CREATED' || value === 'MODIFIED' || value === 'DELETED';
+}
+
+/**
+ * Extracts the parameters needed for shouldIgnoreFile from a Configuration.
+ *
+ * @param configuration - The Configuration instance
+ * @returns ShouldIgnoreFileParams containing jsTsExclusions, detectBundles, maxFileSize, and file suffixes
+ */
+export function getShouldIgnoreParams(configuration: Configuration): ShouldIgnoreFileParams {
+  return {
+    jsTsExclusions: configuration.jsTsExclusions,
+    detectBundles: configuration.detectBundles,
+    maxFileSize: configuration.maxFileSize,
+    jsSuffixes: configuration.jsSuffixes,
+    tsSuffixes: configuration.tsSuffixes,
+    cssSuffixes: configuration.cssSuffixes,
+  };
+}
+
+/**
+ * Extracts the parameters needed for filterPathAndGetFileType from a Configuration.
+ * If sources is empty, defaults sourcesPaths to [configuration.baseDir].
+ *
+ * @param configuration - The Configuration instance
+ * @returns FilterPathParams containing sourcesPaths, testPaths, inclusions, exclusions, testInclusions, testExclusions
+ */
+export function getFilterPathParams(configuration: Configuration): FilterPathParams {
+  return {
+    sourcesPaths:
+      configuration.sources.length > 0 ? configuration.sources : [configuration.baseDir],
+    testPaths: configuration.tests,
+    inclusions: configuration.inclusions,
+    exclusions: configuration.exclusions,
+    testInclusions: configuration.testInclusions,
+    testExclusions: configuration.testExclusions,
+  };
+}
+
+/**
+ * Configuration fields needed for JS/TS file analysis.
+ * Used by analyzeWithProgram, analyzeWithIncrementalProgram, analyzeWithoutProgram.
+ */
+export type JsTsConfigFields = {
+  allowTsParserJsFiles: boolean;
+  analysisMode: AnalysisMode;
+  ignoreHeaderComments: boolean;
+  clearDependenciesCache: boolean;
+  skipAst: boolean;
+  sonarlint: boolean;
+  shouldIgnoreParams: ShouldIgnoreFileParams;
+};
+
+/**
+ * Extracts the JS/TS configuration fields from a Configuration.
+ *
+ * @param configuration - The Configuration instance
+ * @returns JsTsConfigFields for JS/TS analysis functions
+ */
+export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFields {
+  return {
+    allowTsParserJsFiles: configuration.allowTsParserJsFiles,
+    analysisMode: configuration.analysisMode,
+    ignoreHeaderComments: configuration.ignoreHeaderComments,
+    clearDependenciesCache: configuration.clearDependenciesCache,
+    skipAst: configuration.skipAst,
+    sonarlint: configuration.sonarlint,
+    shouldIgnoreParams: getShouldIgnoreParams(configuration),
+  };
 }

@@ -20,11 +20,23 @@ import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
 
+/**
+ * An issue location for secondary locations in rules.
+ *
+ * Note: This is intentionally defined here (not imported from shared) to keep
+ * the rules folder self-contained for the eslint-plugin build.
+ *
+ * @param line the issue starting line
+ * @param column the issue starting column
+ * @param endLine the issue ending line
+ * @param endColumn the issue ending column
+ * @param message the issue message
+ */
 export interface IssueLocation {
-  column: number;
   line: number;
-  endColumn: number;
+  column: number;
   endLine: number;
+  endColumn: number;
   message?: string;
 }
 

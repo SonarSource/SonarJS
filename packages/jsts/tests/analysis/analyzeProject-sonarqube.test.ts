@@ -28,7 +28,7 @@ import {
   tsConfigStore,
   getFilesToAnalyze,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import ts from 'typescript';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
@@ -63,13 +63,15 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     const fileResult = result.files[normalizeToAbsolutePath(filePath)];
     expect(fileResult).toBeDefined();
@@ -92,14 +94,16 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [mainFile]: { filePath: mainFile, fileType: 'MAIN' },
       [helperFile]: { filePath: helperFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Both files should be analyzed
     expect(result.files[normalizeToAbsolutePath(mainFile)]).toBeDefined();
@@ -118,11 +122,13 @@ describe('SonarQube project analysis', () => {
     const subFile = join(baseDir, 'subdir/file.ts');
 
     // Don't pass explicit files - let the system discover them from tsconfigs
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir);
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Both files should be analyzed despite backslash in tsconfig reference
     expect(Object.keys(result.files)).toEqual(expect.arrayContaining([rootFile, subFile]));
@@ -135,11 +141,13 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'nonexistent-reference');
     const filePath = join(baseDir, 'file.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir);
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // File should still be analyzed despite invalid reference
     expect(Object.keys(result.files)).toContain(filePath);
@@ -156,14 +164,16 @@ describe('SonarQube project analysis', () => {
     const frontendFile = join(baseDir, 'frontend/app.ts');
     const backendFile = join(baseDir, 'backend/server.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [frontendFile]: { filePath: frontendFile, fileType: 'MAIN' },
       [backendFile]: { filePath: backendFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Both files should be analyzed
     const frontendResult = result.files[normalizeToAbsolutePath(frontendFile)];
@@ -183,13 +193,15 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
 
@@ -205,13 +217,12 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     // SonarQube uses createStandardProgram which doesn't use the cache manager
     // (unlike SonarLint which uses createOrGetCachedProgramForFile)
@@ -229,13 +240,12 @@ describe('SonarQube project analysis', () => {
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
     // sonarlint is not set, so it's SonarQube mode
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     // Should NOT use incremental/watch program logs
     expect(
@@ -250,13 +260,15 @@ describe('SonarQube project analysis', () => {
     const baseDir = '/path/does/not/exist';
     const filePath = join(normalizePath(baseDir), 'file.ts');
 
-    setGlobalConfiguration({ baseDir, canAccessFileSystem: false });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x: number = 1;;' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // File should be analyzed (result entry exists)
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
@@ -266,11 +278,13 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
 
     // Use canAccessFileSystem: false with no files to simulate an empty project
-    setGlobalConfiguration({ baseDir, canAccessFileSystem: false });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir);
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     expect(result).toEqual({
       files: {},
@@ -284,14 +298,14 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
     const analysisPromise = analyzeProject(
       { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
       message => {
         expect(message).toEqual({ messageType: 'cancelled' });
       },
@@ -303,11 +317,13 @@ describe('SonarQube project analysis', () => {
   it('should handle invalid tsconfig gracefully', async () => {
     const baseDir = join(fixtures, 'invalid-tsconfig');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir);
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
@@ -319,11 +335,13 @@ describe('SonarQube project analysis', () => {
   it('should warn when extended tsconfig is missing', async () => {
     const baseDir = join(fixtures, 'missing-extends');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir);
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
@@ -336,16 +354,19 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
     const receivedMessages: unknown[] = [];
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, message => {
-      receivedMessages.push(message);
-    });
+    await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+      message => {
+        receivedMessages.push(message);
+      },
+    );
 
     // Should receive incremental results for the file (messageType: 'fileResult')
     expect(receivedMessages.length).toBeGreaterThan(0);
@@ -369,14 +390,16 @@ describe('SonarQube project analysis', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [mainFile]: { filePath: mainFile, fileType: 'MAIN' },
       [helperFile]: { filePath: helperFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Both files should be analyzed
     expect(result.files[normalizeToAbsolutePath(mainFile)]).toBeDefined();
@@ -398,14 +421,16 @@ describe('SonarQube project analysis', () => {
     const includedFile = join(baseDir, 'included.ts');
     const excludedFile = join(baseDir, 'excluded.ts');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [includedFile]: { filePath: includedFile, fileType: 'MAIN' },
       [excludedFile]: { filePath: excludedFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Both files should be analyzed successfully
     const includedResult = result.files[normalizeToAbsolutePath(includedFile)];
@@ -436,18 +461,20 @@ describe('SonarQube project analysis', () => {
       },
     ];
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [htmlFile]: { filePath: htmlFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({
-      filesToAnalyze,
-      pendingFiles,
-      rules: htmlRules,
-      bundles: [],
-    });
+    const result = await analyzeProject(
+      {
+        filesToAnalyze,
+        pendingFiles,
+        rules: htmlRules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     // HTML file should be analyzed
     expect(result.files[normalizeToAbsolutePath(htmlFile)]).toBeDefined();
@@ -467,18 +494,20 @@ describe('SonarQube project analysis', () => {
       },
     ];
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [yamlFile]: { filePath: yamlFile, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({
-      filesToAnalyze,
-      pendingFiles,
-      rules: yamlRules,
-      bundles: [],
-    });
+    const result = await analyzeProject(
+      {
+        filesToAnalyze,
+        pendingFiles,
+        rules: yamlRules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     // YAML file should be analyzed
     expect(result.files[normalizeToAbsolutePath(yamlFile)]).toBeDefined();
@@ -490,9 +519,8 @@ describe('SonarQube project analysis', () => {
     const nonExistentFile = join(baseDir, 'does-not-exist.ts');
 
     // Provide fileContent so the analysis can proceed without reading disk
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [nonExistentFile]: {
         filePath: nonExistentFile,
         fileType: 'MAIN',
@@ -501,7 +529,10 @@ describe('SonarQube project analysis', () => {
     });
 
     // Should not throw and handle the file even if path doesn't exist
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // File entry should exist - file was analyzed from content
     const fileResult = result.files[normalizeToAbsolutePath(nonExistentFile)];
@@ -514,13 +545,15 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'parsing-error');
     const filePath = join(baseDir, 'file.js');
 
-    setGlobalConfiguration({ baseDir });
-    const normalizedBaseDir = normalizeToAbsolutePath(baseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(normalizedBaseDir, {
+    const configuration = createConfiguration({ baseDir });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileType: 'MAIN' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     const fileResult = result.files[normalizeToAbsolutePath(filePath)];
     expect(fileResult).toBeDefined();

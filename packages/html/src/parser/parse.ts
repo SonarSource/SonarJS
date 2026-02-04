@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as htmlparser from 'htmlparser2';
-import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { type EmbeddedJS } from '../../../shared/src/types/embedded.js';
 
 /**
  * References:

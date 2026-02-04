@@ -21,7 +21,7 @@ import {
   initFileStores,
   sourceFileStore,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-stores/source-files.js';
 
@@ -39,8 +39,8 @@ describe('files', () => {
 
   it('should return the files', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'paths'));
-    setGlobalConfiguration({ baseDir });
-    await initFileStores(baseDir);
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
     expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
   });
 
@@ -48,11 +48,11 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'paths'));
     const file1 = normalizePath(join(baseDir, 'file.ts'));
     const file2 = normalizePath(join(baseDir, 'subfolder', 'index.ts'));
-    setGlobalConfiguration({
+    const configuration = createConfiguration({
       baseDir,
       tests: ['subfolder'],
     });
-    await initFileStores(baseDir);
+    await initFileStores(configuration);
     expect(sourceFileStore.getFoundFiles()).toMatchObject({
       [file1]: {
         fileType: 'MAIN',

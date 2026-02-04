@@ -14,15 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  type JsTsFiles,
-  type RawJsTsFiles,
-  type StoredJsTsFile,
-  createJsTsFiles,
-} from '../projectAnalysis.js';
+import { type JsTsFiles, type StoredJsTsFile, createJsTsFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
-import { isAnalyzableFile, isSonarLint } from '../../../../../shared/src/helpers/configuration.js';
-import { FileStore } from './store-type.js';
+import {
+  isAnalyzableFile,
+  type Configuration,
+  getShouldIgnoreParams,
+  getFilterPathParams,
+} from '../../../../../shared/src/helpers/configuration.js';
+import { FileStore, type RawInputFiles } from './store-type.js';
 import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
 import {
   readFile,
@@ -43,6 +43,7 @@ export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private newFiles: StoredJsTsFile[] = [];
   private readonly ignoredPaths = new Set<string>();
+  private configuration: Configuration | undefined = undefined;
   private readonly store: {
     found: SourceFilesData;
     request: SourceFilesData;
@@ -57,14 +58,18 @@ export class SourceFileStore implements FileStore {
     },
   };
 
-  async isInitialized(baseDir: NormalizedAbsolutePath, inputFiles?: RawJsTsFiles) {
+  /**
+   * Checks if the file store is initialized for the given base directory.
+   */
+  async isInitialized(configuration: Configuration, inputFiles?: RawInputFiles) {
+    const { baseDir, sonarlint } = configuration;
     this.dirtyCachesIfNeeded(baseDir);
-    if (isSonarLint()) {
-      await this.sanitizeAndFilterRawFiles('request', inputFiles, baseDir);
+    if (sonarlint) {
+      await this.sanitizeAndFilterRawFiles('request', inputFiles, configuration);
     } else if (inputFiles) {
       //if we are in SQS, the files in the request will already contain all found files
-      this.setup(baseDir);
-      await this.sanitizeAndFilterRawFiles('found', inputFiles, baseDir);
+      this.setup(configuration);
+      await this.sanitizeAndFilterRawFiles('found', inputFiles, configuration);
       return true;
     }
     // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
@@ -116,18 +121,20 @@ export class SourceFileStore implements FileStore {
     this.ignoredPaths.clear();
   }
 
-  setup(baseDir: NormalizedAbsolutePath) {
-    this.baseDir = baseDir;
+  setup(configuration: Configuration) {
+    this.baseDir = configuration.baseDir;
     this.newFiles = [];
+    this.configuration = configuration;
   }
 
-  async processFile(filename: NormalizedAbsolutePath) {
-    if (isAnalyzableFile(filename) && !this.anyParentIsIgnored(filename)) {
+  async processFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
+    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+    if (isAnalyzableFile(filename, shouldIgnoreParams) && !this.anyParentIsIgnored(filename)) {
       const fileContent = await this.getFileContent(filename);
-      const fileType = filterPathAndGetFileType(filename);
+      const fileType = filterPathAndGetFileType(filename, getFilterPathParams(this.configuration!));
       // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
       // called while walking the project tree
-      if (fileType && accept(filename, fileContent)) {
+      if (fileType && accept(filename, fileContent, shouldIgnoreParams)) {
         // Files discovered from filesystem (not from request) default to 'SAME' status
         this.newFiles.push({
           fileType,
@@ -140,7 +147,8 @@ export class SourceFileStore implements FileStore {
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
-    if (this.anyParentIsIgnored(dir) || !filterPathAndGetFileType(dir)) {
+    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(this.configuration!));
+    if (this.anyParentIsIgnored(dir) || isExcludedPath) {
       this.ignoredPaths.add(dir);
     }
   }
@@ -150,7 +158,7 @@ export class SourceFileStore implements FileStore {
     return this.store.request.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
-  async postProcess() {
+  async postProcess(_configuration: Configuration) {
     await this.setFiles('found', this.newFiles);
   }
 
@@ -166,30 +174,38 @@ export class SourceFileStore implements FileStore {
 
   /**
    * Sanitizes raw input files and filters them before storing.
-   * This handles the conversion from RawJsTsFiles (HTTP input) to StoredJsTsFile,
+   * This handles the conversion from RawInputFiles (HTTP input) to StoredJsTsFile,
    * applying path normalization, default values, and file filtering in one pass.
    */
   private async sanitizeAndFilterRawFiles(
     store: keyof typeof SourceFileStore.prototype.store,
-    rawFiles: RawJsTsFiles | undefined,
-    baseDir: NormalizedAbsolutePath,
+    rawFiles: RawInputFiles | undefined,
+    configuration: Configuration,
   ) {
+    const { baseDir } = configuration;
+    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
     this.resetStore(store);
     if (!rawFiles) {
       return;
     }
     for (const rawFile of Object.values(rawFiles)) {
-      const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);
-      const fileContent = rawFile.fileContent ?? (await readFile(filePath));
+      const rawFilePath = rawFile.filePath as string;
+      const rawFileContent = rawFile.fileContent as string | undefined;
+      const rawFileType = rawFile.fileType as string | undefined;
+      const rawFileStatus = rawFile.fileStatus as string | undefined;
+
+      const filePath = normalizeToAbsolutePath(rawFilePath, baseDir);
+      const fileContent = rawFileContent ?? (await readFile(filePath));
       // We need to apply filters if the files come from the request
-      if (await shouldIgnoreFile({ filePath, fileContent })) {
+      if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
         continue;
       }
       this.saveFileInStore(store, {
         filePath,
         fileContent,
-        fileType: rawFile.fileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
-        fileStatus: rawFile.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+        fileType: (rawFileType as StoredJsTsFile['fileType']) ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+        fileStatus:
+          (rawFileStatus as StoredJsTsFile['fileStatus']) ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
       });
     }
   }

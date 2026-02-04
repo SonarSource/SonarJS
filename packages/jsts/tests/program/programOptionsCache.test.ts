@@ -42,7 +42,7 @@ describe('programOptionsCache', () => {
 
     it('should return cached options for cache hit', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const options = createProgramOptions(tsConfig);
+      const options = createProgramOptions(tsConfig, undefined, true);
 
       setCachedProgramOptions(tsConfig, options, 'custom');
       const result = getCachedProgramOptions(tsConfig, 'custom');
@@ -54,7 +54,7 @@ describe('programOptionsCache', () => {
   describe('setCachedProgramOptions', () => {
     it('should store options in cache', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const options = createProgramOptions(tsConfig);
+      const options = createProgramOptions(tsConfig, undefined, true);
 
       setCachedProgramOptions(tsConfig, options, 'custom');
 
@@ -63,12 +63,12 @@ describe('programOptionsCache', () => {
 
     it('should handle different cache keys for same tsconfig with different contents', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const options1 = createProgramOptions(tsConfig);
+      const options1 = createProgramOptions(tsConfig, undefined, true);
 
       clearProgramOptionsCache();
       clearTsConfigContentCache();
 
-      const options2 = createProgramOptions(tsConfig);
+      const options2 = createProgramOptions(tsConfig, undefined, true);
 
       setCachedProgramOptions(tsConfig, options1, 'content1');
       setCachedProgramOptions(tsConfig, options2, 'content2');
@@ -80,12 +80,12 @@ describe('programOptionsCache', () => {
     it('should overwrite existing cache entry', () => {
       const tsConfig1 = path.join(fixtures, 'tsconfig.json');
       const tsConfig2 = path.join(fixtures, 'tsconfig_found.json');
-      const options1 = createProgramOptions(tsConfig1);
+      const options1 = createProgramOptions(tsConfig1, undefined, true);
 
       clearProgramOptionsCache();
       clearTsConfigContentCache();
 
-      const options2 = createProgramOptions(tsConfig2);
+      const options2 = createProgramOptions(tsConfig2, undefined, true);
 
       setCachedProgramOptions('shared-key', options1);
       setCachedProgramOptions('shared-key', options2);
@@ -98,12 +98,12 @@ describe('programOptionsCache', () => {
     it('should clear all cached options', () => {
       const tsConfig1 = path.join(fixtures, 'tsconfig.json');
       const tsConfig2 = path.join(fixtures, 'tsconfig_found.json');
-      const options1 = createProgramOptions(tsConfig1);
+      const options1 = createProgramOptions(tsConfig1, undefined, true);
 
       clearProgramOptionsCache();
       clearTsConfigContentCache();
 
-      const options2 = createProgramOptions(tsConfig2);
+      const options2 = createProgramOptions(tsConfig2, undefined, true);
 
       setCachedProgramOptions('key1', options1);
       setCachedProgramOptions('key2', options2);

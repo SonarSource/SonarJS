@@ -48,7 +48,7 @@ describe('factory', () => {
   describe('createStandardProgram', () => {
     it('should create a TypeScript program from program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
 
@@ -58,7 +58,7 @@ describe('factory', () => {
 
     it('should include files specified in tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
       const fileNames = program.getSourceFiles().map(sf => sf.fileName);
@@ -68,7 +68,7 @@ describe('factory', () => {
 
     it('should apply compiler options from tsconfig', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_found.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
 
       const program = createStandardProgram(programOptions);
       const options = program.getCompilerOptions();
@@ -142,7 +142,7 @@ describe('factory', () => {
       });
 
       const program = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       expect(program).toBeDefined();
@@ -160,11 +160,11 @@ describe('factory', () => {
       });
 
       const program1 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       const program2 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Should be the same program instance (cache hit)
@@ -193,7 +193,7 @@ describe('factory', () => {
       });
 
       const program1 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Update file content
@@ -202,7 +202,7 @@ describe('factory', () => {
       });
 
       const program2 = createOrGetCachedProgramForFile(fixtures, sourceFile, () =>
-        createProgramOptions(tsConfig),
+        createProgramOptions(tsConfig, undefined, true),
       );
 
       // Program should be different (recreated due to content change)

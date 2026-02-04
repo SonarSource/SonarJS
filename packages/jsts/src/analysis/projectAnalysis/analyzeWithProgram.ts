@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
@@ -22,7 +22,7 @@ import ts from 'typescript';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
@@ -47,6 +47,9 @@ import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  * @param progressReport progress report to log analyzed files
+ * @param baseDir the base directory for the project
+ * @param canAccessFileSystem whether the analyzer can access the file system
+ * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithProgram(
@@ -54,6 +57,9 @@ export async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  canAccessFileSystem: boolean,
+  jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const foundProgramOptions: ProgramOptions[] = [];
@@ -84,6 +90,9 @@ export async function analyzeWithProgram(
       foundProgramOptions,
       processedTSConfigs,
       progressReport,
+      baseDir,
+      canAccessFileSystem,
+      jsTsConfigFields,
       incrementalResultsChannel,
     );
   }
@@ -94,6 +103,8 @@ export async function analyzeWithProgram(
     pendingFiles,
     foundProgramOptions,
     progressReport,
+    baseDir,
+    jsTsConfigFields,
     incrementalResultsChannel,
   );
 
@@ -119,10 +130,13 @@ async function analyzeFilesFromEntryPoint(
   pendingFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
   progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const rootNames: NormalizedAbsolutePath[] = Array.from(pendingFiles).filter(file =>
-    isJsTsFile(file),
+    isJsTsFile(file, { jsSuffixes, tsSuffixes, cssSuffixes }),
   );
   if (rootNames.length === 0) {
     return;
@@ -134,9 +148,9 @@ async function analyzeFilesFromEntryPoint(
 
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, getBaseDir());
+    : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
   programOptions.rootNames = rootNames;
-  programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
+  programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const tsProgram = createStandardProgram(programOptions);
 
@@ -148,6 +162,7 @@ async function analyzeFilesFromEntryPoint(
     await analyzeFile(
       fileName,
       files[fileName],
+      jsTsConfigFields,
       tsProgram,
       results,
       pendingFiles,
@@ -165,6 +180,9 @@ async function analyzeFilesFromTsConfig(
   foundProgramOptions: ProgramOptions[],
   processedTSConfigs: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  canAccessFileSystem: boolean,
+  jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   processedTSConfigs.add(tsconfig);
@@ -173,7 +191,7 @@ async function analyzeFilesFromTsConfig(
   // Parse tsconfig to get compiler options
   let programOptions;
   try {
-    programOptions = createProgramOptions(tsconfig);
+    programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
   } catch (e) {
     error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(
@@ -189,7 +207,7 @@ async function analyzeFilesFromTsConfig(
     warn(msg);
   }
 
-  programOptions.host = new IncrementalCompilerHost(programOptions.options, getBaseDir());
+  programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
   const tsProgram = createStandardProgram(programOptions);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
@@ -222,6 +240,7 @@ async function analyzeFilesFromTsConfig(
     await analyzeFile(
       fileName,
       files[fileName],
+      jsTsConfigFields,
       tsProgram,
       results,
       pendingFiles,

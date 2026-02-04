@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -45,6 +45,9 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  * @param progressReport progress report to log analyzed files
+ * @param baseDir the base directory for the project
+ * @param canAccessFileSystem whether the analyzer can access the file system
+ * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithIncrementalProgram(
@@ -52,9 +55,15 @@ export async function analyzeWithIncrementalProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  canAccessFileSystem: boolean,
+  jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const rootNames = Array.from(pendingFiles).filter(file => isJsTsFile(file));
+  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const rootNames = Array.from(pendingFiles).filter(file =>
+    isJsTsFile(file, { jsSuffixes, tsSuffixes, cssSuffixes }),
+  );
   if (rootNames.length === 0) {
     return;
   }
@@ -65,13 +74,21 @@ export async function analyzeWithIncrementalProgram(
       return;
     }
 
-    const program = createOrGetCachedProgramForFile(getBaseDir(), filename, () =>
-      programOptionsFromClosestTsconfig(filename, results, foundProgramOptions, pendingFiles),
+    const program = createOrGetCachedProgramForFile(baseDir, filename, () =>
+      programOptionsFromClosestTsconfig(
+        filename,
+        results,
+        foundProgramOptions,
+        pendingFiles,
+        baseDir,
+        canAccessFileSystem,
+      ),
     );
 
     await analyzeFile(
       filename,
       files[filename],
+      jsTsConfigFields,
       program,
       results,
       pendingFiles,
@@ -98,6 +115,8 @@ function programOptionsFromClosestTsconfig(
   results: ProjectAnalysisOutput,
   foundProgramOptions: ProgramOptions[],
   pendingFiles: Set<NormalizedAbsolutePath>,
+  baseDir: NormalizedAbsolutePath,
+  canAccessFileSystem: boolean,
 ): ProgramOptions | undefined {
   const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
@@ -110,7 +129,7 @@ function programOptionsFromClosestTsconfig(
   ) {
     processedTsConfigs.add(tsconfig);
     try {
-      const programOptions = createProgramOptions(tsconfig);
+      const programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
       if (programOptions.projectReferences?.length) {
         for (const reference of sanitizeReferences(programOptions.projectReferences)) {
           tsConfigStore.addDiscoveredTsConfig(reference);
@@ -137,7 +156,7 @@ function programOptionsFromClosestTsconfig(
     info('No tsconfig found for files, using default options');
     // Fallback: use default options if no tsconfig found
     // TODO(JS-1138): File order can affect program combinations - improve strategy
-    return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], getBaseDir());
+    return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], baseDir);
   } catch (e) {
     error(`Failed to generate program from merged config: ${e}`);
   }

@@ -14,11 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  AnalysisInput,
-  AnalysisOutput,
-  RawAnalysisInput,
-} from '../../../shared/src/types/analysis.js';
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { RuleConfig } from '../linter/config.js';
 import { Issue } from '../linter/issues/index.js';
 
@@ -35,16 +31,6 @@ export interface CssAnalysisInput extends AnalysisInput {
 }
 
 /**
- * Raw CSS analysis input as received from JSON deserialization.
- * Path fields are strings that haven't been validated or normalized yet.
- *
- * @param rules the rules from the active quality profile
- */
-export interface RawCssAnalysisInput extends RawAnalysisInput {
-  rules: RuleConfig[];
-}
-
-/**
  * A CSS analysis output
  *
  * Computing data analysis like metrics does nit realy makes
@@ -54,6 +40,4 @@ export interface RawCssAnalysisInput extends RawAnalysisInput {
  *
  * @param issues
  */
-export interface CssAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
-}
+export interface CssAnalysisOutput extends AnalysisOutput<Issue> {}

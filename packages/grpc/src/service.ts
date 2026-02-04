@@ -22,7 +22,7 @@ import {
 } from './transformers/index.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
-import { setGlobalConfiguration } from '../../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../../shared/src/helpers/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
 
 /**
@@ -39,16 +39,16 @@ export async function analyzeFileHandler(
       `Received Analyze request (${request.analysisId ?? 'no id'}) with ${request.sourceFiles?.length ?? 0} files`,
     );
 
-    // Set global configuration for gRPC context
+    // Create configuration for gRPC context
     // gRPC requests contain all file contents inline - no filesystem access needed
-    setGlobalConfiguration({
+    const configuration = createConfiguration({
       baseDir: ROOT_PATH,
       canAccessFileSystem: false,
     });
 
     const projectInput = transformRequestToProjectInput(request);
 
-    const projectOutput = await analyzeProject(projectInput);
+    const projectOutput = await analyzeProject(projectInput, configuration);
 
     const response = transformProjectOutputToResponse(projectOutput);
 

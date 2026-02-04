@@ -14,17 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  FileStatus,
-  JsTsAnalysisOutput,
-  JsTsAnalysisOutputWithAst,
-  RawJsTsAnalysisInput,
-} from '../analysis.js';
+import type { FileStatus, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from '../analysis.js';
 import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
-import type { RawConfiguration } from '../../../../shared/src/helpers/configuration.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+
+// Re-export for backward compatibility
+export { type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -105,20 +102,6 @@ export function createFileResults(): FileResults {
 export function entriesOfFileResults(files: FileResults): [NormalizedAbsolutePath, FileResult][] {
   return Object.entries(files) as [NormalizedAbsolutePath, FileResult][];
 }
-
-export type RawJsTsFiles = { [key: string]: RawJsTsAnalysisInput };
-
-/**
- * Raw project analysis input as received from JSON.
- * Contains unsanitized paths and configuration.
- */
-export type RawProjectAnalysisInput = {
-  files?: RawJsTsFiles;
-  rules: RuleConfig[];
-  configuration?: RawConfiguration;
-  bundles?: string[];
-  rulesWorkdir?: string;
-};
 
 /**
  * Sanitized project analysis input.
