@@ -14,24 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-/**
- * An issue location container
- *
- * It is used for quick fixes and secondary locations.
- *
- * @param line the issue starting line
- * @param column the issue starting column
- * @param endLine the issue ending line
- * @param endColumn the issue ending column
- * @param message the issue message
- */
-export interface Location {
-  line: number;
-  column: number;
-  endLine: number;
-  endColumn: number;
-  message?: string;
-}
+import type { IssueLocation } from '../../../jsts/src/rules/helpers/location.js';
+
+export type Location = IssueLocation;
 
 /**
  * A SonarLint quick fix

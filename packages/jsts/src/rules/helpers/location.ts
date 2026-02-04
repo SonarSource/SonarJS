@@ -17,12 +17,28 @@
 import type estree from 'estree';
 import type { AST, Rule } from 'eslint';
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import type { Location } from '../../../../shared/src/types/location.js';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
 
-// Type alias for backward compatibility - IssueLocation is identical to Location
-export type IssueLocation = Location;
+/**
+ * An issue location for secondary locations in rules.
+ *
+ * Note: This is intentionally defined here (not imported from shared) to keep
+ * the rules folder self-contained for the eslint-plugin build.
+ *
+ * @param line the issue starting line
+ * @param column the issue starting column
+ * @param endLine the issue ending line
+ * @param endColumn the issue ending column
+ * @param message the issue message
+ */
+export interface IssueLocation {
+  line: number;
+  column: number;
+  endLine: number;
+  endColumn: number;
+  message?: string;
+}
 
 export interface EncodedMessage {
   message: string;
