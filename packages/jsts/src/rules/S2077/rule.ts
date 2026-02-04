@@ -18,7 +18,13 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName, isMemberWithProperty } from '../helpers/index.js';
+import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  generateMeta,
+  getFullyQualifiedNameTS,
+  isMemberWithProperty,
+  isRequiredParserServices,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const sqlQuerySignatures = new Set([
@@ -49,9 +55,14 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
     return {
       CallExpression(node: estree.CallExpression) {
-        const fqn = getFullyQualifiedName(context, node);
+        const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+        const fqn = getFullyQualifiedNameTS(services, tsNode);
         if (fqn && sqlQuerySignatures.has(fqn) && isQuestionable(node.arguments[0])) {
           context.report({
             messageId: 'safeQuery',
