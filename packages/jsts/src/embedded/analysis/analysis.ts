@@ -15,15 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Issue } from '../../linter/issues/issue.js';
-import { AnalysisInput, AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
 
-/**
- * A sanitized analysis input of embedded code with all required fields populated.
- *
- * This extends AnalysisInput which already has all required fields (filePath, fileContent, sonarlint).
- * Additional embedded-specific fields can be added here in the future.
- */
-export interface EmbeddedAnalysisInput extends AnalysisInput {}
+export { type EmbeddedAnalysisInput } from '../../../../shared/src/types/analysis.js';
 
 /**
  * A YAML analysis output
@@ -35,8 +29,7 @@ export interface EmbeddedAnalysisInput extends AnalysisInput {}
  *
  * @param issues the found issues
  */
-export interface EmbeddedAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
+export interface EmbeddedAnalysisOutput extends AnalysisOutput<Issue> {
   metrics: {
     ncloc: number[];
   };

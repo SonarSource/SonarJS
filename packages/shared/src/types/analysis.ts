@@ -33,8 +33,39 @@ export interface AnalysisInput {
 }
 
 /**
+ * Base issue interface with common fields for all issue types.
+ *
+ * This provides the minimal structure that all analysis issues must have.
+ * Specific analyzers (JS/TS, CSS, etc.) extend this with additional fields.
+ *
+ * @param ruleId the rule key that reported the issue
+ * @param line the issue starting line (1-based)
+ * @param column the issue starting column (0-based)
+ * @param message the issue message describing the problem
+ */
+export interface BaseIssue {
+  ruleId: string;
+  line: number;
+  column: number;
+  message: string;
+}
+
+/**
  * An analysis output
  *
  * A common interface for all kinds of analysis output.
+ * Generic parameter I allows specifying a more specific issue type.
+ *
+ * @template I the issue type, must extend BaseIssue
  */
-export interface AnalysisOutput {}
+export interface AnalysisOutput<I extends BaseIssue = BaseIssue> {
+  issues: I[];
+}
+
+/**
+ * A sanitized analysis input of embedded code with all required fields populated.
+ *
+ * This extends AnalysisInput which already has all required fields (filePath, fileContent, sonarlint).
+ * Additional embedded-specific fields can be added here in the future.
+ */
+export interface EmbeddedAnalysisInput extends AnalysisInput {}

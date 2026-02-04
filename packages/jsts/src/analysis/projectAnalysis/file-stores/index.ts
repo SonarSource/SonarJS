@@ -19,7 +19,9 @@ import { PackageJsonStore } from './package-jsons.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore, RawInputFiles } from './store-type.js';
-import { canAccessFileSystem } from '../../../../../shared/src/helpers/configuration.js';
+
+export type { RawInputFiles } from './store-type.js';
+import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
 import {
   normalizeToAbsolutePath,
   isRoot,
@@ -31,11 +33,12 @@ export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
 export const tsConfigStore = new TsConfigStore();
 
-export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles?: RawInputFiles) {
+export async function initFileStores(configuration: Configuration, inputFiles?: RawInputFiles) {
+  const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
   for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
-    if (!(await store.isInitialized(baseDir, inputFiles))) {
+    if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
   }
@@ -45,16 +48,16 @@ export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles
   }
 
   for (const store of pendingStores) {
-    store.setup(baseDir);
+    store.setup(configuration);
   }
 
-  if (canAccessFileSystem()) {
-    await findFiles(baseDir, async (file, filePath) => {
+  if (canAccessFileSystem) {
+    await findFiles(baseDir, jsTsExclusions, async (file, filePath) => {
       // filePath is already normalized and absolute (derived from baseDir)
       const normalizedFilePath = filePath as NormalizedAbsolutePath;
       for (const store of pendingStores) {
         if (file.isFile()) {
-          await store.processFile(normalizedFilePath);
+          await store.processFile(normalizedFilePath, configuration);
         }
         if (file.isDirectory()) {
           store.processDirectory?.(normalizedFilePath);
@@ -62,19 +65,16 @@ export async function initFileStores(baseDir: NormalizedAbsolutePath, inputFiles
       }
     });
   } else if (inputFiles) {
-    await simulateFromInputFiles(inputFiles, baseDir, pendingStores);
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
 
   for (const store of pendingStores) {
-    await store.postProcess(baseDir);
+    await store.postProcess(configuration);
   }
 }
 
-export async function getFilesToAnalyze(
-  baseDir: NormalizedAbsolutePath,
-  inputFiles?: RawInputFiles,
-) {
-  await initFileStores(baseDir, inputFiles);
+export async function getFilesToAnalyze(configuration: Configuration, inputFiles?: RawInputFiles) {
+  await initFileStores(configuration, inputFiles);
 
   if (sourceFileStore.getRequestFilesCount() > 0) {
     // if the request had input files, we use them
@@ -93,9 +93,10 @@ export async function getFilesToAnalyze(
 
 export async function simulateFromInputFiles(
   inputFiles: RawInputFiles,
-  baseDir: NormalizedAbsolutePath,
+  configuration: Configuration,
   pendingStores: FileStore[],
 ) {
+  const { baseDir } = configuration;
   // simulate file system traversal from baseDir to each given input file
   const inputFilesPaths = new Set<NormalizedAbsolutePath>();
   const files = new Set<NormalizedAbsolutePath>();
@@ -124,7 +125,7 @@ export async function simulateFromInputFiles(
     }
     //files need to be processed after as ignored files logic depends on ignored paths being ingested
     for (const filename of files) {
-      await store.processFile(filename);
+      await store.processFile(filename, configuration);
     }
   }
 }

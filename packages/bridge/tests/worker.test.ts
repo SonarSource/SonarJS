@@ -51,7 +51,10 @@ describe('worker', () => {
       }
     });
 
-    worker.postMessage({ type: 'on-init-linter', data: { rules: [] } });
+    worker.postMessage({
+      type: 'on-init-linter',
+      data: { rules: [], baseDir: import.meta.dirname },
+    });
     await promise;
   });
 
@@ -89,7 +92,7 @@ describe('worker', () => {
       try {
         expect(type).toEqual('failure');
         expect(error.code).toEqual(ErrorCode.Unexpected);
-        expect(error.message).toEqual('baseDir is required');
+        expect(error.message).toEqual('Invalid project analysis input: configuration is required');
         resolve();
       } catch (e) {
         reject(e);

@@ -17,16 +17,12 @@
 import type estree from 'estree';
 import type { AST, Rule } from 'eslint';
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { Location } from '../../../../shared/src/types/location.js';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
 
-export interface IssueLocation {
-  column: number;
-  line: number;
-  endColumn: number;
-  endLine: number;
-  message?: string;
-}
+// Type alias for backward compatibility - IssueLocation is identical to Location
+export type IssueLocation = Location;
 
 export interface EncodedMessage {
   message: string;

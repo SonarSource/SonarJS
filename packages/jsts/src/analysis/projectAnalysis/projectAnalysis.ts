@@ -20,6 +20,9 @@ import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
+// Re-export for backward compatibility
+export { type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
+
 export type ProjectAnalysisMeta = {
   warnings: string[];
 };

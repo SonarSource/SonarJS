@@ -22,7 +22,10 @@ import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.j
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
-import { shouldIgnoreFile } from '../../../../shared/src/helpers/filter/filter.js';
+import {
+  shouldIgnoreFile,
+  type ShouldIgnoreFileParams,
+} from '../../../../shared/src/helpers/filter/filter.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -43,15 +46,17 @@ import { shouldIgnoreFile } from '../../../../shared/src/helpers/filter/filter.j
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param input the sanitized analysis input (all fields required)
+ * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @param languageParser the parser for the language of the file containing the JS code
  * @returns the analysis output
  */
 export async function analyzeEmbedded(
   input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<EmbeddedAnalysisOutput> {
   const { filePath, fileContent } = input;
-  if (await shouldIgnoreFile({ filePath, fileContent })) {
+  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [], metrics: { ncloc: [] } };
   }
   debug(`Analyzing file "${input.filePath}"`);

@@ -75,7 +75,7 @@ describe('buildParserOptions', () => {
 
   it('should build parser options with TypeScript program', () => {
     const tsConfig = path.join(import.meta.dirname, 'fixtures', 'options', 'tsconfig.json');
-    const programOptions = createProgramOptions(tsConfig);
+    const programOptions = createProgramOptions(tsConfig, undefined, true);
     const program = createStandardProgram(programOptions);
 
     const filePath = '/tmp/dir';

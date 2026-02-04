@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
-import { getBaseDir, isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { debug, warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -31,6 +31,8 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
  * @param files the list of files objects containing the files input data.
  * @param results ProjectAnalysisOutput object where the analysis results are stored
  * @param progressReport progress report to log analyzed files
+ * @param baseDir the base directory for the project
+ * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithoutProgram(
@@ -38,14 +40,17 @@ export async function analyzeWithoutProgram(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   for (const filename of filenames) {
     if (isAnalysisCancelled()) {
       return;
     }
-    const relativePath = relative(getBaseDir(), filename);
-    if (isJsTsFile(filename)) {
+    const relativePath = relative(baseDir, filename);
+    if (isJsTsFile(filename, { jsSuffixes, tsSuffixes, cssSuffixes })) {
       warn(
         `JS/TS file analyzed without type-checking (not part of any tsconfig.json): ${relativePath}`,
       );
@@ -55,6 +60,7 @@ export async function analyzeWithoutProgram(
     await analyzeFile(
       filename,
       files[filename],
+      jsTsConfigFields,
       undefined,
       results,
       undefined,

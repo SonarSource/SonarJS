@@ -16,26 +16,22 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { getBaseDir, setGlobalConfiguration } from '../../src/helpers/configuration.js';
-import { ROOT_PATH } from '../../../jsts/src/rules/helpers/index.js';
+import { createConfiguration } from '../../src/helpers/configuration.js';
 
-describe('global configuration', () => {
-  it('default baseDir is root', async () => {
-    expect(getBaseDir()).toEqual(ROOT_PATH);
-  });
-  it('should fail setting a non-absolute baseDir', async () => {
+describe('createConfiguration', () => {
+  it('should fail with a non-absolute baseDir', async () => {
     const baseDir = '../relative/path';
-    expect(() => setGlobalConfiguration({ baseDir })).toThrow(
+    expect(() => createConfiguration({ baseDir })).toThrow(
       new Error(`baseDir is not an absolute path: ${baseDir}`),
     );
   });
   it('baseDir is mandatory', async () => {
-    expect(() => setGlobalConfiguration({})).toThrow(
+    expect(() => createConfiguration({})).toThrow(
       new Error('baseDir is required and must be a string'),
     );
   });
   it('baseDir must be a string', async () => {
-    expect(() => setGlobalConfiguration({ baseDir: 123 })).toThrow(
+    expect(() => createConfiguration({ baseDir: 123 })).toThrow(
       new Error('baseDir is required and must be a string'),
     );
   });

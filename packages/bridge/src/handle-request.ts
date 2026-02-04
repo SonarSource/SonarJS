@@ -31,10 +31,8 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
-import { setGlobalConfiguration, getBaseDir } from '../../shared/src/helpers/configuration.js';
 import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import type { RawInputFiles } from '../../jsts/src/analysis/projectAnalysis/file-stores/store-type.js';
-import { normalizeToAbsolutePath, dirnamePath } from '../../shared/src/helpers/files.js';
 import {
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
@@ -42,22 +40,7 @@ import {
   sanitizeInitLinterInput,
   sanitizeProjectAnalysisInput,
 } from '../../shared/src/helpers/sanitize.js';
-import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
-
-/**
- * Resolves the base directory for single-file analysis and sets global configuration.
- * Uses provided configuration if available, otherwise derives baseDir from the file path.
- * When no configuration is provided, the default configuration is used (already initialized).
- */
-function resolveBaseDir(filePath: string, configuration?: unknown): NormalizedAbsolutePath {
-  if (configuration) {
-    setGlobalConfiguration(configuration);
-    return getBaseDir();
-  }
-  // Fallback for standalone usage: derive baseDir from filePath
-  // Default configuration is already initialized with sensible defaults
-  return dirnamePath(normalizeToAbsolutePath(filePath));
-}
+import { getShouldIgnoreParams } from '../../shared/src/helpers/configuration.js';
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -72,31 +55,23 @@ export async function handleRequest(
         return { type: 'success', result: 'OK' };
       }
       case 'on-analyze-jsts': {
-        const data = request.data as Record<string, unknown>;
-        const baseDir = resolveBaseDir(data.filePath as string, data.configuration);
-        const sanitizedInput = await sanitizeJsTsAnalysisInput(request.data, baseDir);
-        const output = await analyzeJSTS(sanitizedInput);
+        const { input, configuration } = await sanitizeJsTsAnalysisInput(request.data);
+        const output = await analyzeJSTS(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-css': {
-        const data = request.data as Record<string, unknown>;
-        const baseDir = resolveBaseDir(data.filePath as string, data.configuration);
-        const sanitizedInput = await sanitizeCssAnalysisInput(request.data, baseDir);
-        const output = await analyzeCSS(sanitizedInput);
+        const { input, configuration } = await sanitizeCssAnalysisInput(request.data);
+        const output = await analyzeCSS(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
-        const data = request.data as Record<string, unknown>;
-        const baseDir = resolveBaseDir(data.filePath as string, data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
-        const output = await analyzeYAML(sanitizedInput);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeYAML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-html': {
-        const data = request.data as Record<string, unknown>;
-        const baseDir = resolveBaseDir(data.filePath as string, data.configuration);
-        const sanitizedInput = await sanitizeAnalysisInput(request.data, baseDir);
-        const output = await analyzeHTML(sanitizedInput);
+        const { input, configuration } = await sanitizeAnalysisInput(request.data);
+        const output = await analyzeHTML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
@@ -105,7 +80,7 @@ export async function handleRequest(
 
         // Get sanitized files via file store
         const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(
-          sanitizedInput.baseDir,
+          sanitizedInput.configuration,
           sanitizedInput.rawFiles as RawInputFiles | undefined,
         );
 
@@ -117,6 +92,7 @@ export async function handleRequest(
             bundles: sanitizedInput.bundles,
             rulesWorkdir: sanitizedInput.rulesWorkdir,
           },
+          sanitizedInput.configuration,
           incrementalResultsChannel,
         );
         logHeapStatistics(workerData?.debugMemory);

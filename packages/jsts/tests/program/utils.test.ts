@@ -101,7 +101,7 @@ describe('tsconfig utils', () => {
   describe('sanitizeProgramReferences', () => {
     it('should extract and sanitize references from program', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
       const program = createStandardProgram(programOptions);
 
       const references = sanitizeProgramReferences(program);
@@ -111,7 +111,7 @@ describe('tsconfig utils', () => {
 
     it('should skip missing references in program', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_missing_reference.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
       const program = createStandardProgram(programOptions);
 
       const references = sanitizeProgramReferences(program);
@@ -121,7 +121,7 @@ describe('tsconfig utils', () => {
 
     it('should return empty array for program without references', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_found.json');
-      const programOptions = createProgramOptions(tsConfig);
+      const programOptions = createProgramOptions(tsConfig, undefined, true);
       const program = createStandardProgram(programOptions);
 
       const references = sanitizeProgramReferences(program);

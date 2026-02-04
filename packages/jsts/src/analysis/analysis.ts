@@ -92,8 +92,7 @@ export const JSTS_ANALYSIS_DEFAULTS = {
 /**
  * A JavaScript / TypeScript analysis output
  */
-export interface JsTsAnalysisOutput extends AnalysisOutput {
-  issues: Issue[];
+export interface JsTsAnalysisOutput extends AnalysisOutput<Issue> {
   highlights?: SyntaxHighlight[];
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;

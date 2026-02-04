@@ -230,7 +230,7 @@ describe('router', () => {
   });
 
   it('should route /init-linter requests', async () => {
-    const data = { rules: [], environments: [], globals: [] };
+    const data = { rules: [], environments: [], globals: [], baseDir: fixtures };
     const response = await request(server, '/init-linter', 'POST', data);
     expect(response).toEqual('OK');
   });
@@ -247,6 +247,6 @@ describe('router', () => {
 });
 
 function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
-  const config = { rules };
+  const config = { rules, baseDir: import.meta.dirname };
   return request(server, '/init-linter', 'POST', config);
 }

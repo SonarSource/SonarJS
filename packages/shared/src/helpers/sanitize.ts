@@ -19,15 +19,17 @@ import {
   normalizeToAbsolutePath,
   readFile,
   FileType,
+  dirnamePath,
 } from './files.js';
 import {
   isJsFile,
   isTsFile,
-  setGlobalConfiguration,
-  getBaseDir,
+  createConfiguration,
   type JsTsLanguage,
+  type Configuration,
 } from './configuration.js';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
+
 import type { AnalysisInput } from '../types/analysis.js';
 import {
   type JsTsAnalysisInput,
@@ -87,6 +89,48 @@ export function sanitizePaths(
 }
 
 /**
+ * Sanitized single-file analysis input containing the normalized file path and configuration.
+ */
+interface SanitizedSingleFileInput {
+  filePath: NormalizedAbsolutePath;
+  configuration: Configuration;
+}
+
+/**
+ * Sanitizes and validates a single-file analysis request.
+ * - Validates that data is an object with a filePath string
+ * - Creates configuration from data.configuration if provided, otherwise derives from filePath
+ * - Normalizes the file path relative to the configuration's baseDir
+ *
+ * @param data the raw request data
+ * @returns the sanitized file path and configuration
+ */
+function sanitizeSingleFileAnalysisInput(data: unknown): SanitizedSingleFileInput {
+  if (!isObject(data)) {
+    throw new Error('Invalid request data: expected object');
+  }
+  if (!isString(data.filePath)) {
+    throw new Error('Invalid request data: filePath must be a string');
+  }
+
+  const configuration = data.configuration
+    ? createConfiguration(data.configuration)
+    : createConfiguration({ baseDir: dirnamePath(normalizeToAbsolutePath(data.filePath)) });
+
+  const filePath = normalizeToAbsolutePath(data.filePath, configuration.baseDir);
+
+  return { filePath, configuration };
+}
+
+/**
+ * Sanitized analysis input with configuration.
+ */
+export interface SanitizedAnalysisInput {
+  input: AnalysisInput;
+  configuration: Configuration;
+}
+
+/**
  * Sanitizes a raw analysis input into a complete, validated input.
  * - Validates that input is an object with required fields
  * - Normalizes file path
@@ -94,28 +138,21 @@ export function sanitizePaths(
  * - Sets defaults for optional fields
  *
  * @param raw the raw analysis input from JSON deserialization
- * @param baseDir the base directory to resolve relative paths against
- * @returns a promise of the sanitized analysis input with all fields required
+ * @returns a promise of the sanitized analysis input with configuration
  */
-export async function sanitizeAnalysisInput(
-  raw: unknown,
-  baseDir: NormalizedAbsolutePath,
-): Promise<AnalysisInput> {
-  if (!isObject(raw)) {
-    throw new Error('Invalid analysis input: expected object');
-  }
+export async function sanitizeAnalysisInput(raw: unknown): Promise<SanitizedAnalysisInput> {
+  const { filePath, configuration } = sanitizeSingleFileAnalysisInput(raw);
+  const rawObj = raw as Record<string, unknown>;
 
-  if (!isString(raw.filePath)) {
-    throw new Error('Invalid analysis input: filePath must be a string');
-  }
-
-  const filePath = normalizeToAbsolutePath(raw.filePath, baseDir);
-  const fileContent = isString(raw.fileContent) ? raw.fileContent : await readFile(filePath);
+  const fileContent = isString(rawObj.fileContent) ? rawObj.fileContent : await readFile(filePath);
 
   return {
-    filePath,
-    fileContent,
-    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : JSTS_ANALYSIS_DEFAULTS.sonarlint,
+    input: {
+      filePath,
+      fileContent,
+      sonarlint: isBoolean(rawObj.sonarlint) ? rawObj.sonarlint : JSTS_ANALYSIS_DEFAULTS.sonarlint,
+    },
+    configuration,
   };
 }
 
@@ -124,6 +161,8 @@ export async function sanitizeAnalysisInput(
  * @param explicit explicitly provided language, if any
  * @param filePath the normalized file path
  * @param fileContent the file content (needed for Vue files to detect TS)
+ * @param jsSuffixes configured JS file suffixes
+ * @param tsSuffixes configured TS file suffixes
  * @returns the inferred or explicit language
  * @throws Error if language cannot be inferred
  */
@@ -131,10 +170,12 @@ export function inferLanguage(
   explicit: JsTsLanguage | undefined,
   filePath: NormalizedAbsolutePath,
   fileContent: string,
+  jsSuffixes?: string[],
+  tsSuffixes?: string[],
 ): JsTsLanguage {
   if (explicit) return explicit;
-  if (isTsFile(filePath, fileContent)) return 'ts';
-  if (isJsFile(filePath)) return 'js';
+  if (isTsFile(filePath, fileContent, tsSuffixes)) return 'ts';
+  if (isJsFile(filePath, jsSuffixes)) return 'js';
   throw new Error(`Unable to infer language for file ${filePath}`);
 }
 
@@ -142,12 +183,34 @@ export function inferLanguage(
  * Infers the file type (MAIN or TEST) from the file path.
  * Uses the filter path logic to determine if a file is a test file.
  * @param filePath the normalized file path
+ * @param configuration the configuration containing path filtering parameters
  * @param explicit explicitly provided file type, if any
  * @returns the inferred or explicit file type, defaults to MAIN
  */
-function inferFileType(filePath: NormalizedAbsolutePath, explicit?: FileType): FileType {
+function inferFileType(
+  filePath: NormalizedAbsolutePath,
+  configuration: Configuration,
+  explicit?: FileType,
+): FileType {
   if (explicit) return explicit;
-  return filterPathAndGetFileType(filePath) ?? 'MAIN';
+  return (
+    filterPathAndGetFileType(filePath, {
+      sourcesPaths: configuration.sources.length ? configuration.sources : [configuration.baseDir],
+      testPaths: configuration.tests,
+      inclusions: configuration.inclusions,
+      exclusions: configuration.exclusions,
+      testInclusions: configuration.testInclusions,
+      testExclusions: configuration.testExclusions,
+    }) ?? 'MAIN'
+  );
+}
+
+/**
+ * Sanitized JS/TS analysis input with configuration.
+ */
+export interface SanitizedJsTsAnalysisInput {
+  input: JsTsAnalysisInput;
+  configuration: Configuration;
 }
 
 /**
@@ -160,61 +223,62 @@ function inferFileType(filePath: NormalizedAbsolutePath, explicit?: FileType): F
  * - Sets defaults for all optional fields using JSTS_ANALYSIS_DEFAULTS
  *
  * @param raw the raw JS/TS analysis input from JSON deserialization
- * @param baseDir the base directory to resolve relative paths against
- * @returns a promise of the sanitized JS/TS analysis input with all fields required
+ * @returns a promise of the sanitized JS/TS analysis input with configuration
  */
-export async function sanitizeJsTsAnalysisInput(
-  raw: unknown,
-  baseDir: NormalizedAbsolutePath,
-): Promise<JsTsAnalysisInput> {
-  if (!isObject(raw)) {
-    throw new Error('Invalid JS/TS analysis input: expected object');
-  }
+export async function sanitizeJsTsAnalysisInput(raw: unknown): Promise<SanitizedJsTsAnalysisInput> {
+  const { filePath, configuration } = sanitizeSingleFileAnalysisInput(raw);
+  const rawObj = raw as Record<string, unknown>;
 
-  if (!isString(raw.filePath)) {
-    throw new Error('Invalid JS/TS analysis input: filePath must be a string');
-  }
-
-  const filePath = normalizeToAbsolutePath(raw.filePath, baseDir);
-  const fileContent = isString(raw.fileContent) ? raw.fileContent : await readFile(filePath);
+  const fileContent = isString(rawObj.fileContent) ? rawObj.fileContent : await readFile(filePath);
 
   // Validate and extract language if provided
-  const rawLanguage = raw.language;
+  const rawLanguage = rawObj.language;
   const language = inferLanguage(
     rawLanguage === 'js' || rawLanguage === 'ts' ? rawLanguage : undefined,
     filePath,
     fileContent,
+    configuration.jsSuffixes,
+    configuration.tsSuffixes,
   );
 
   // Validate and extract fileType if provided
-  const rawFileType = raw.fileType;
+  const rawFileType = rawObj.fileType;
   const fileType = inferFileType(
     filePath,
+    configuration,
     rawFileType === 'MAIN' || rawFileType === 'TEST' ? rawFileType : undefined,
   );
 
   const defaults = JSTS_ANALYSIS_DEFAULTS;
 
   return {
-    filePath,
-    fileContent,
-    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : defaults.sonarlint,
-    fileType,
-    fileStatus: isFileStatus(raw.fileStatus) ? raw.fileStatus : defaults.fileStatus,
-    language,
-    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : defaults.analysisMode,
-    ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
-      ? raw.ignoreHeaderComments
-      : defaults.ignoreHeaderComments,
-    allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
-      ? raw.allowTsParserJsFiles
-      : defaults.allowTsParserJsFiles,
-    tsConfigs: sanitizePaths(isStringArray(raw.tsConfigs) ? raw.tsConfigs : undefined, baseDir),
-    program: raw.program as JsTsAnalysisInput['program'],
-    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : defaults.skipAst,
-    clearDependenciesCache: isBoolean(raw.clearDependenciesCache)
-      ? raw.clearDependenciesCache
-      : defaults.clearDependenciesCache,
+    input: {
+      filePath,
+      fileContent,
+      sonarlint: isBoolean(rawObj.sonarlint) ? rawObj.sonarlint : defaults.sonarlint,
+      fileType,
+      fileStatus: isFileStatus(rawObj.fileStatus) ? rawObj.fileStatus : defaults.fileStatus,
+      language,
+      analysisMode: isAnalysisMode(rawObj.analysisMode)
+        ? rawObj.analysisMode
+        : defaults.analysisMode,
+      ignoreHeaderComments: isBoolean(rawObj.ignoreHeaderComments)
+        ? rawObj.ignoreHeaderComments
+        : defaults.ignoreHeaderComments,
+      allowTsParserJsFiles: isBoolean(rawObj.allowTsParserJsFiles)
+        ? rawObj.allowTsParserJsFiles
+        : defaults.allowTsParserJsFiles,
+      tsConfigs: sanitizePaths(
+        isStringArray(rawObj.tsConfigs) ? rawObj.tsConfigs : undefined,
+        configuration.baseDir,
+      ),
+      program: rawObj.program as JsTsAnalysisInput['program'],
+      skipAst: isBoolean(rawObj.skipAst) ? rawObj.skipAst : defaults.skipAst,
+      clearDependenciesCache: isBoolean(rawObj.clearDependenciesCache)
+        ? rawObj.clearDependenciesCache
+        : defaults.clearDependenciesCache,
+    },
+    configuration,
   };
 }
 
@@ -223,7 +287,7 @@ export async function sanitizeJsTsAnalysisInput(
  * RuleConfig has: key (string), configurations (any[]), fileTypeTargets (array),
  * language (string), analysisModes (array), blacklistedExtensions? (string[])
  */
-export function isJsTsRuleConfig(value: unknown): boolean {
+function isJsTsRuleConfig(value: unknown): boolean {
   if (!isObject(value)) return false;
   if (!isString(value.key)) return false;
   if (!Array.isArray(value.configurations)) return false;
@@ -239,7 +303,7 @@ export function isJsTsRuleConfig(value: unknown): boolean {
 /**
  * Validates an array of JSTS RuleConfig objects.
  */
-export function isJsTsRuleConfigArray(value: unknown): boolean {
+function isJsTsRuleConfigArray(value: unknown): boolean {
   return Array.isArray(value) && value.every(isJsTsRuleConfig);
 }
 
@@ -247,7 +311,7 @@ export function isJsTsRuleConfigArray(value: unknown): boolean {
  * Validates a single CSS RuleConfig object.
  * CssRuleConfig has: key (string), configurations (any[])
  */
-export function isCssRuleConfig(value: unknown): boolean {
+function isCssRuleConfig(value: unknown): boolean {
   if (!isObject(value)) return false;
   if (!isString(value.key)) return false;
   if (!Array.isArray(value.configurations)) return false;
@@ -257,40 +321,31 @@ export function isCssRuleConfig(value: unknown): boolean {
 /**
  * Validates an array of CSS RuleConfig objects.
  */
-export function isCssRuleConfigArray(value: unknown): boolean {
+function isCssRuleConfigArray(value: unknown): boolean {
   return Array.isArray(value) && value.every(isCssRuleConfig);
 }
 
 /**
- * Sanitizes JSTS rules array - returns empty array if invalid.
+ * Sanitized CSS analysis input with configuration.
  */
-export function sanitizeJsTsRules(rules: unknown): unknown[] {
-  return isJsTsRuleConfigArray(rules) ? (rules as unknown[]) : [];
-}
-
-/**
- * Sanitizes CSS rules array - returns empty array if invalid.
- */
-export function sanitizeCssRules(rules: unknown): unknown[] {
-  return isCssRuleConfigArray(rules) ? (rules as unknown[]) : [];
+export interface SanitizedCssAnalysisInput {
+  input: CssAnalysisInput;
+  configuration: Configuration;
 }
 
 /**
  * Sanitizes CSS analysis input.
  */
-export async function sanitizeCssAnalysisInput(
-  raw: unknown,
-  baseDir: NormalizedAbsolutePath,
-): Promise<CssAnalysisInput> {
-  // First sanitize the base analysis input (filePath, fileContent, sonarlint)
-  const baseInput = await sanitizeAnalysisInput(raw, baseDir);
-
-  // Then validate and add CSS-specific fields
+export async function sanitizeCssAnalysisInput(raw: unknown): Promise<SanitizedCssAnalysisInput> {
+  const { input: baseInput, configuration } = await sanitizeAnalysisInput(raw);
   const rawObj = raw as Record<string, unknown>;
 
   return {
-    ...baseInput,
-    rules: isCssRuleConfigArray(rawObj.rules) ? (rawObj.rules as CssRuleConfig[]) : [],
+    input: {
+      ...baseInput,
+      rules: isCssRuleConfigArray(rawObj.rules) ? (rawObj.rules as CssRuleConfig[]) : [],
+    },
+    configuration,
   };
 }
 
@@ -343,11 +398,15 @@ export interface SanitizedProjectAnalysisInput {
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   rawFiles: unknown; // Files are sanitized by the file store
+  configuration: Configuration; // Ready-to-use Configuration instance
 }
 
 /**
  * Sanitizes project analysis request data.
  * Note: files are passed through to be sanitized by the file store.
+ *
+ * Returns a ready-to-use Configuration instance. The configuration is fully
+ * validated and normalized.
  */
 export function sanitizeProjectAnalysisInput(raw: unknown): SanitizedProjectAnalysisInput {
   if (!isObject(raw)) {
@@ -359,17 +418,17 @@ export function sanitizeProjectAnalysisInput(raw: unknown): SanitizedProjectAnal
     throw new Error('Invalid project analysis input: configuration is required');
   }
 
-  // Set global configuration (validates baseDir internally)
-  setGlobalConfiguration(raw.configuration);
-  const baseDir = getBaseDir();
+  // Create a fully validated Configuration instance
+  const configuration = createConfiguration(raw.configuration);
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
-    baseDir,
-    bundles: sanitizePaths(raw.bundles, baseDir),
+    baseDir: configuration.baseDir,
+    bundles: sanitizePaths(raw.bundles, configuration.baseDir),
     rulesWorkdir: isString(raw.rulesWorkdir)
-      ? normalizeToAbsolutePath(raw.rulesWorkdir, baseDir)
+      ? normalizeToAbsolutePath(raw.rulesWorkdir, configuration.baseDir)
       : undefined,
     rawFiles: raw.files, // Pass through for file store to sanitize
+    configuration, // Ready-to-use Configuration instance
   };
 }

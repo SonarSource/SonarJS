@@ -26,7 +26,10 @@ import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
-import { shouldIgnoreFile } from '../../../shared/src/helpers/filter/filter.js';
+import {
+  shouldIgnoreFile,
+  type ShouldIgnoreFileParams,
+} from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 
@@ -44,15 +47,17 @@ import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param input the sanitized JavaScript / TypeScript analysis input to analyze
+ * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @returns the JavaScript / TypeScript analysis output
  */
 export async function analyzeJSTS(
   input: JsTsAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
 
-  if (await shouldIgnoreFile({ filePath, fileContent })) {
+  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [] };
   }
   const parseResult = build(input);

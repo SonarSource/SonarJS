@@ -24,10 +24,8 @@ import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.j
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
 import {
-  isSonarLint,
-  getGlobals,
-  getEnvironments,
-  getBaseDir,
+  type Configuration,
+  getJsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -50,11 +48,13 @@ export function isAnalysisCancelled() {
  * Analyzes a JavaScript / TypeScript project in a single run
  *
  * @param input the JavaScript / TypeScript project to analyze
+ * @param configuration the configuration instance with analysis settings
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(
   input: ProjectAnalysisInput,
+  configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   analysisStatus.cancelled = false;
@@ -65,25 +65,29 @@ export async function analyzeProject(
       warnings: [],
     },
   };
-  // Configuration already set globally by handle-request.ts
+  const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
+  const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
     rules,
-    environments: getEnvironments(),
-    globals: getGlobals(),
-    sonarlint: isSonarLint(),
+    environments,
+    globals,
+    sonarlint,
     bundles,
-    baseDir: getBaseDir(),
+    baseDir,
     rulesWorkdir,
   });
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (isSonarLint()) {
+    if (sonarlint) {
       await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
         pendingFiles,
         progressReport,
+        baseDir,
+        canAccessFileSystem,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     } else {
@@ -92,6 +96,9 @@ export async function analyzeProject(
         results,
         pendingFiles,
         progressReport,
+        baseDir,
+        canAccessFileSystem,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     }
@@ -104,6 +111,8 @@ export async function analyzeProject(
         filesToAnalyze,
         results,
         progressReport,
+        baseDir,
+        jsTsConfigFields,
         incrementalResultsChannel,
       );
     }

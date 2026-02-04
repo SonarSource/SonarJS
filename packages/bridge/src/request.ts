@@ -18,13 +18,14 @@ import type { AnalysisOutput } from '../../shared/src/types/analysis.js';
 import type {
   FileResult,
   ProjectAnalysisMeta,
+  ProjectAnalysisOutput,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { APIError, ErrorCode, ErrorData } from '../../shared/src/errors/error.js';
 
 export type RequestResult =
   | {
       type: 'success';
-      result: string | AnalysisOutput;
+      result: string | AnalysisOutput | ProjectAnalysisOutput;
     }
   | {
       type: 'failure';

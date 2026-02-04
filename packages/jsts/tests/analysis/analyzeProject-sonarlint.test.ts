@@ -31,7 +31,7 @@ import {
   tsConfigStore,
   getFilesToAnalyze,
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
-import { setGlobalConfiguration } from '../../../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
@@ -87,13 +87,15 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    let configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'const x: number = 1;' },
     });
 
-    const result1 = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result1 = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     expect(result1.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
 
@@ -118,22 +120,25 @@ describe('SonarLint tsconfig change detection', () => {
     consoleLogMock.calls.length = 0;
 
     // Step 5: Second analysis - should use default options since no tsconfig matches
-    setGlobalConfiguration({
+    configuration = createConfiguration({
       baseDir: tempDir,
       sonarlint: true,
       fsEvents: { [tsconfigPath]: 'MODIFIED' },
     });
     const { filesToAnalyze: filesToAnalyze2, pendingFiles: pendingFiles2 } =
-      await getFilesToAnalyze(baseDir, {
+      await getFilesToAnalyze(configuration, {
         [filePath]: { filePath, fileContent: 'const x: number = 1;' },
       });
 
-    const result2 = await analyzeProject({
-      filesToAnalyze: filesToAnalyze2,
-      pendingFiles: pendingFiles2,
-      rules,
-      bundles: [],
-    });
+    const result2 = await analyzeProject(
+      {
+        filesToAnalyze: filesToAnalyze2,
+        pendingFiles: pendingFiles2,
+        rules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     expect(result2.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
 
@@ -159,13 +164,12 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    let configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'const x: number = 1;' },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     // Verify it used the tsconfig
     expect(
@@ -181,22 +185,25 @@ describe('SonarLint tsconfig change detection', () => {
     consoleLogMock.calls.length = 0;
 
     // Step 5: Second analysis - should use default options
-    setGlobalConfiguration({
+    configuration = createConfiguration({
       baseDir: tempDir,
       sonarlint: true,
       fsEvents: { [tsconfigPath]: 'DELETED' },
     });
     const { filesToAnalyze: filesToAnalyze2, pendingFiles: pendingFiles2 } =
-      await getFilesToAnalyze(baseDir, {
+      await getFilesToAnalyze(configuration, {
         [filePath]: { filePath, fileContent: 'const x: number = 1;' },
       });
 
-    await analyzeProject({
-      filesToAnalyze: filesToAnalyze2,
-      pendingFiles: pendingFiles2,
-      rules,
-      bundles: [],
-    });
+    await analyzeProject(
+      {
+        filesToAnalyze: filesToAnalyze2,
+        pendingFiles: pendingFiles2,
+        rules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     // Verify it fell back to default options
     expect(
@@ -244,13 +251,12 @@ describe('SonarLint tsconfig change detection', () => {
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
     // Analyze file in dir1
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [file1]: { filePath: file1, fileContent: 'const x: number = 1;' },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     // Should use tsconfig from dir1 (longer path = more specific)
     expect(
@@ -263,16 +269,19 @@ describe('SonarLint tsconfig change detection', () => {
     consoleLogMock.calls.length = 0;
 
     const { filesToAnalyze: filesToAnalyze2, pendingFiles: pendingFiles2 } =
-      await getFilesToAnalyze(baseDir, {
+      await getFilesToAnalyze(configuration, {
         [file2]: { filePath: file2, fileContent: 'const y: number = 2;' },
       });
 
-    await analyzeProject({
-      filesToAnalyze: filesToAnalyze2,
-      pendingFiles: pendingFiles2,
-      rules,
-      bundles: [],
-    });
+    await analyzeProject(
+      {
+        filesToAnalyze: filesToAnalyze2,
+        pendingFiles: pendingFiles2,
+        rules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     // Should use tsconfig from dir2
     expect(
@@ -301,13 +310,12 @@ describe('SonarLint tsconfig change detection', () => {
     const modifiedContent = 'const x: number = 2; const y: string = "hello";';
 
     // Step 1: First analysis - should be a cache miss
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    let configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: initialContent },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -318,16 +326,21 @@ describe('SonarLint tsconfig change detection', () => {
     // Step 2: Second analysis with same content - should reuse program
     consoleLogMock.calls.length = 0;
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
+    configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
     const { filesToAnalyze: filesToAnalyze2, pendingFiles: pendingFiles2 } =
-      await getFilesToAnalyze(baseDir, { [filePath]: { filePath, fileContent: initialContent } });
+      await getFilesToAnalyze(configuration, {
+        [filePath]: { filePath, fileContent: initialContent },
+      });
 
-    await analyzeProject({
-      filesToAnalyze: filesToAnalyze2,
-      pendingFiles: pendingFiles2,
-      rules,
-      bundles: [],
-    });
+    await analyzeProject(
+      {
+        filesToAnalyze: filesToAnalyze2,
+        pendingFiles: pendingFiles2,
+        rules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -338,20 +351,25 @@ describe('SonarLint tsconfig change detection', () => {
     // Step 3: Third analysis with modified content - should recreate program
     consoleLogMock.calls.length = 0;
 
-    setGlobalConfiguration({
+    configuration = createConfiguration({
       baseDir: tempDir,
       sonarlint: true,
       fsEvents: { [filePath]: 'MODIFIED' },
     });
     const { filesToAnalyze: filesToAnalyze3, pendingFiles: pendingFiles3 } =
-      await getFilesToAnalyze(baseDir, { [filePath]: { filePath, fileContent: modifiedContent } });
+      await getFilesToAnalyze(configuration, {
+        [filePath]: { filePath, fileContent: modifiedContent },
+      });
 
-    await analyzeProject({
-      filesToAnalyze: filesToAnalyze3,
-      pendingFiles: pendingFiles3,
-      rules,
-      bundles: [],
-    });
+    await analyzeProject(
+      {
+        filesToAnalyze: filesToAnalyze3,
+        pendingFiles: pendingFiles3,
+        rules,
+        bundles: [],
+      },
+      configuration,
+    );
 
     expect(
       consoleLogMock.calls.some(call =>
@@ -364,13 +382,15 @@ describe('SonarLint tsconfig change detection', () => {
     // Create a file with a parsing error (incomplete function)
     await writeFile(filePath, 'function f() {\n  return;\n');
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'function f() {\n  return;\n' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // Should have a parsing error (exact message may vary between parsers)
     const fileResult = result.files[normalizeToAbsolutePath(filePath)] as {
@@ -386,14 +406,14 @@ describe('SonarLint tsconfig change detection', () => {
   it('should cancel analysis', async () => {
     await writeFile(filePath, 'const x: number = 1;');
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'const x: number = 1;' },
     });
 
     const analysisPromise = analyzeProject(
       { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
       message => {
         expect(message).toEqual({ messageType: 'cancelled' });
       },
@@ -413,13 +433,12 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'const x: number = 1;' },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     // Should fall back to default options since tsconfig doesn't include .ts files
     expect(
@@ -474,13 +493,15 @@ describe('SonarLint tsconfig change detection', () => {
     console.log = mock.fn(console.log);
     const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [libFile]: { filePath: libFile, fileContent: 'const lib: number = 1;' },
     });
 
-    const result = await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    const result = await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+    );
 
     // File should be analyzed
     expect(result.files[normalizeToAbsolutePath(libFile)]).toBeDefined();
@@ -496,16 +517,19 @@ describe('SonarLint tsconfig change detection', () => {
   it('should stream results via incrementalResults callback', async () => {
     await writeFile(filePath, 'const x: number = 1;;');
 
-    setGlobalConfiguration({ baseDir: tempDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(tempDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: tempDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [filePath]: { filePath, fileContent: 'const x: number = 1;;' },
     });
 
     const receivedMessages: unknown[] = [];
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, message => {
-      receivedMessages.push(message);
-    });
+    await analyzeProject(
+      { filesToAnalyze, pendingFiles, rules, bundles: [] },
+      configuration,
+      message => {
+        receivedMessages.push(message);
+      },
+    );
 
     // Should receive incremental results (messageType: 'fileResult')
     expect(receivedMessages.length).toBeGreaterThan(0);
@@ -534,13 +558,12 @@ describe('SonarLint tsconfig change detection', () => {
     const testBaseDir = join(fixtures, 'tsconfig-no-files');
     const tsFile = join(testBaseDir, 'file.ts');
 
-    setGlobalConfiguration({ baseDir: testBaseDir, sonarlint: true });
-    const baseDir = normalizeToAbsolutePath(testBaseDir);
-    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(baseDir, {
+    const configuration = createConfiguration({ baseDir: testBaseDir, sonarlint: true });
+    const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration, {
       [tsFile]: { filePath: tsFile },
     });
 
-    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] });
+    await analyzeProject({ filesToAnalyze, pendingFiles, rules, bundles: [] }, configuration);
 
     const expectedPrefix = `Failed to parse tsconfig ${join(testBaseDir, 'tsconfig.json')}`;
     const errorMessages = consoleErrorMock.calls.map(call => call.arguments[0] as string);
