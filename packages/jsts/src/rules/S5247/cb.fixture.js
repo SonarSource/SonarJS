@@ -163,8 +163,8 @@ const swig = require('swig');
 
 swig.setDefaults({ autoescape: true }); // Compliant
 
-swig.setDefaults({ // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
-//^^^^^^^^^^^^^^
+  swig.setDefaults({ // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
+//^^^^^^^^^^^^^^^^
   autoescape: false
 //^^^^^^^^^^^^^^^^^<
 });
@@ -173,6 +173,6 @@ var swigOptions = {
   autoescape: false
 //^^^^^^^^^^^^^^^^^>
 };
-swig.setDefaults(swigOptions); // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
-//^^^^^^^^^^^^^^
+  swig.setDefaults(swigOptions); // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
+//^^^^^^^^^^^^^^^^
 
