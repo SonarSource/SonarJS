@@ -31,6 +31,8 @@ import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
+import { sourceFileStore } from './file-stores/index.js';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -58,7 +60,9 @@ export async function analyzeProject(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   analysisStatus.cancelled = false;
-  const { rules, filesToAnalyze, pendingFiles, bundles, rulesWorkdir } = input;
+  const { rules, bundles, rulesWorkdir } = input;
+  const filesToAnalyze = sourceFileStore.getFiles();
+  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
     meta: {

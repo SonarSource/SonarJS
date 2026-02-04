@@ -31,8 +31,6 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
-import { getFilesToAnalyze } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
-import type { RawInputFiles } from '../../jsts/src/analysis/projectAnalysis/file-stores/store-type.js';
 import {
   sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
@@ -76,18 +74,11 @@ export async function handleRequest(
       }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        const sanitizedInput = sanitizeProjectAnalysisInput(request.data);
-
-        // Get sanitized files via file store
-        const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(
-          sanitizedInput.configuration,
-          sanitizedInput.rawFiles as RawInputFiles | undefined,
-        );
+        // sanitizeProjectAnalysisInput initializes file stores internally
+        const sanitizedInput = await sanitizeProjectAnalysisInput(request.data);
 
         const output = await analyzeProject(
           {
-            filesToAnalyze,
-            pendingFiles,
             rules: sanitizedInput.rules,
             bundles: sanitizedInput.bundles,
             rulesWorkdir: sanitizedInput.rulesWorkdir,

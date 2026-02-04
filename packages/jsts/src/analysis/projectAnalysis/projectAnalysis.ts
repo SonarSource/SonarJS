@@ -63,7 +63,7 @@ type ParsingError = {
  * Contains the per-file fields needed for storage and analysis.
  * The remaining fields are filled from configuration when actually analyzing the file.
  */
-export type StoredJsTsFile = {
+export type JsTsFile = {
   filePath: NormalizedAbsolutePath;
   fileContent: string;
   fileType: FileType;
@@ -77,7 +77,7 @@ declare const JsTsFilesBrand: unique symbol;
  * Branded type for JS/TS files keyed by NormalizedAbsolutePath.
  * The brand ensures compile-time type safety when iterating over the object.
  */
-export type JsTsFiles = { [key: NormalizedAbsolutePath]: StoredJsTsFile } & {
+export type JsTsFiles = { [key: NormalizedAbsolutePath]: JsTsFile } & {
   readonly [JsTsFilesBrand]: never;
 };
 
@@ -106,10 +106,9 @@ export function entriesOfFileResults(files: FileResults): [NormalizedAbsolutePat
 /**
  * Sanitized project analysis input.
  * All paths are normalized, configuration is already set globally.
+ * Files are retrieved internally from the sourceFileStore.
  */
 export type ProjectAnalysisInput = {
-  filesToAnalyze: JsTsFiles;
-  pendingFiles: Set<NormalizedAbsolutePath>;
   rules: RuleConfig[];
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;

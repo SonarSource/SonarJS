@@ -79,8 +79,8 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
       if (canAccessFileSystem) {
         return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
       } else {
-        return sourceFileStore
-          .getFoundFilenames()
+        const files = sourceFileStore.getFiles();
+        return Object.keys(files)
           .filter(f => {
             return dirname(f) === rootDir && extensions.some(ext => f.endsWith(ext));
           })
@@ -92,7 +92,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.fileExists(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return sourceFileStore.getFoundFilenames().includes(normalizedPath);
+        return normalizedPath in sourceFileStore.getFiles();
       }
     },
     readFile(path: string): string | undefined {
@@ -100,7 +100,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.readFile(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return sourceFileStore.getFoundFiles()[normalizedPath]?.fileContent;
+        return sourceFileStore.getFiles()[normalizedPath]?.fileContent;
       }
     },
     missingTsConfig: () => false,

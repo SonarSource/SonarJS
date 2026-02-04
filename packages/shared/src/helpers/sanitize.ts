@@ -27,8 +27,10 @@ import {
   createConfiguration,
   type JsTsLanguage,
   type Configuration,
+  getFilterPathParams,
 } from './configuration.js';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
+import { initFileStores } from '../../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 
 import type { AnalysisInput } from '../types/analysis.js';
 import {
@@ -40,6 +42,12 @@ import {
 import type { CssAnalysisInput } from '../../../css/src/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
+import {
+  type JsTsFiles,
+  createJsTsFiles,
+} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { shouldIgnoreFile, type ShouldIgnoreFileParams } from './filter/filter.js';
+import { getShouldIgnoreParams } from './configuration.js';
 
 // Type guards for runtime validation of JSON-deserialized values
 // These ensure values from untrusted sources (JSON, protobuf) match expected types
@@ -66,6 +74,13 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 
 function isFileStatus(value: unknown): value is FileStatus {
   return value === 'SAME' || value === 'CHANGED' || value === 'ADDED';
+}
+
+/**
+ * Type guard to validate FileType values.
+ */
+function isFileType(value: unknown): value is FileType {
+  return value === 'MAIN' || value === 'TEST';
 }
 
 export function isAnalysisMode(value: unknown): value is AnalysisMode {
@@ -395,25 +410,26 @@ export function sanitizeInitLinterInput(raw: unknown): SanitizedInitLinterInput 
 }
 
 /**
- * Sanitized input for project analysis (before file store processing).
+ * Sanitized input for project analysis.
  */
 export interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
   baseDir: NormalizedAbsolutePath;
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
-  rawFiles: unknown; // Files are sanitized by the file store
   configuration: Configuration; // Ready-to-use Configuration instance
 }
 
 /**
- * Sanitizes project analysis request data.
- * Note: files are passed through to be sanitized by the file store.
+ * Sanitizes project analysis request data and initializes file stores.
  *
  * Returns a ready-to-use Configuration instance. The configuration is fully
- * validated and normalized.
+ * validated and normalized. File stores are initialized with the provided
+ * input files or by scanning the file system.
  */
-export function sanitizeProjectAnalysisInput(raw: unknown): SanitizedProjectAnalysisInput {
+export async function sanitizeProjectAnalysisInput(
+  raw: unknown,
+): Promise<SanitizedProjectAnalysisInput> {
   if (!isObject(raw)) {
     throw new Error('Invalid project analysis input: expected object');
   }
@@ -426,6 +442,13 @@ export function sanitizeProjectAnalysisInput(raw: unknown): SanitizedProjectAnal
   // Create a fully validated Configuration instance
   const configuration = createConfiguration(raw.configuration);
 
+  // Sanitize raw input files first (if provided), then initialize file stores
+  const inputFiles = isObject(raw.files)
+    ? await sanitizeRawInputFiles(raw.files, configuration)
+    : undefined;
+
+  await initFileStores(configuration, inputFiles);
+
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
     baseDir: configuration.baseDir,
@@ -433,7 +456,62 @@ export function sanitizeProjectAnalysisInput(raw: unknown): SanitizedProjectAnal
     rulesWorkdir: isString(raw.rulesWorkdir)
       ? normalizeToAbsolutePath(raw.rulesWorkdir, configuration.baseDir)
       : undefined,
-    rawFiles: raw.files, // Pass through for file store to sanitize
     configuration, // Ready-to-use Configuration instance
   };
+}
+
+/**
+ * Sanitizes raw input files and filters them before returning.
+ * This handles the conversion from raw input (HTTP/gRPC) to JsTsFiles,
+ * applying path normalization, default values, and file filtering in one pass.
+ *
+ * Files with invalid structure (missing or non-string filePath) are skipped with a warning.
+ *
+ * @param rawFiles - The raw input files from the request (Record<string, unknown>)
+ * @param configuration - The project configuration for path normalization and filtering
+ * @returns A promise of sanitized JsTsFiles ready to use
+ */
+export async function sanitizeRawInputFiles(
+  rawFiles: Record<string, unknown> | undefined,
+  configuration: Configuration,
+): Promise<JsTsFiles> {
+  const { baseDir } = configuration;
+  const shouldIgnoreParams: ShouldIgnoreFileParams = getShouldIgnoreParams(configuration);
+  const files = createJsTsFiles();
+
+  if (!rawFiles) {
+    return files;
+  }
+
+  for (const [key, rawFile] of Object.entries(rawFiles)) {
+    // Validate the raw file structure - must be an object with filePath string
+    if (!isObject(rawFile) || !isString(rawFile.filePath)) {
+      // Skip invalid entries - they're missing required filePath
+      console.warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
+      continue;
+    }
+    const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);
+
+    const fileContent = isString(rawFile.fileContent)
+      ? rawFile.fileContent
+      : await readFile(filePath);
+    const rawFileType = isFileType(rawFile.fileType)
+      ? rawFile.fileType
+      : filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
+    const rawFileStatus = isFileStatus(rawFile.fileStatus) ? rawFile.fileStatus : undefined;
+
+    // Apply filters to files from the request
+    if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
+      continue;
+    }
+
+    files[filePath] = {
+      filePath,
+      fileContent,
+      fileType: rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+      fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+    };
+  }
+
+  return files;
 }
