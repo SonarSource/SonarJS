@@ -155,3 +155,24 @@ function renderHello6() {
   var renderedM = Mustache.render(templateM, { name: inputName });
   document.getElementById('target').innerHTML = rendered;
 
+/**
+ * Swig cases
+*/
+
+const swig = require('swig');
+
+swig.setDefaults({ autoescape: true }); // Compliant
+
+  swig.setDefaults({ // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
+//^^^^^^^^^^^^^^^^
+  autoescape: false
+//^^^^^^^^^^^^^^^^^<
+});
+
+var swigOptions = {
+  autoescape: false
+//^^^^^^^^^^^^^^^^^>
+};
+  swig.setDefaults(swigOptions); // Noncompliant {{Make sure disabling auto-escaping feature is safe here.}}
+//^^^^^^^^^^^^^^^^
+
