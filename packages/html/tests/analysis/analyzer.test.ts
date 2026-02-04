@@ -232,6 +232,7 @@ describe('analyzeHTML', () => {
     const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'minified-bundle.html') }),
       parseHTML,
+      defaultShouldIgnoreParams,
     );
     // The minified script (avg line length > 200, with S7739 violation for 'then') should be skipped
     // The normal script (with S3923 violation) should still be analyzed
