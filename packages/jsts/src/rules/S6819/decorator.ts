@@ -21,7 +21,20 @@ import pkg from 'jsx-ast-utils-x';
 const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact, generateMeta } from '../helpers/index.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
+
+// ARIA table container roles that indicate a custom table widget
+const TABLE_CONTAINER_ROLES = new Set(['table', 'grid']);
+// ARIA table child roles that must be inside a container role
+const TABLE_CHILD_ROLES = new Set([
+  'row',
+  'rowgroup',
+  'cell',
+  'gridcell',
+  'columnheader',
+  'rowheader',
+]);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -35,6 +48,7 @@ import * as meta from './generated-meta.js';
  *    - role="radio" with aria-checked
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
+ *    - ARIA table roles (table, grid, row, etc.) when forming complete custom widget patterns
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
  * already filtered out by isHtmlElement. HTML elements with role="group" remain
@@ -100,7 +114,8 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
-    isImgRoleWithValidPattern(elementName, role, attributes, node)
+    isImgRoleWithValidPattern(elementName, role, attributes, node) ||
+    isCustomTableWidget(elementName, role, node)
   );
 }
 
@@ -204,4 +219,116 @@ function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
     return parent.children.length > 0;
   }
   return false;
+}
+
+/**
+ * Checks if the element is part of a custom table widget pattern.
+ *
+ * Custom table widgets use div/span elements with ARIA table roles because
+ * native table elements (<table>, <tr>, <td>) only work within <table> structures,
+ * but virtualized tables need div-based layouts for performance.
+ *
+ * A valid custom table widget requires both:
+ * - Container roles (table, grid) must have descendant child roles
+ * - Child roles (row, rowgroup, cell, etc.) must have ancestor container roles
+ */
+function isCustomTableWidget(
+  elementName: string | null,
+  role: string,
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  // Only applies to div/span elements
+  if (elementName !== 'div' && elementName !== 'span') {
+    return false;
+  }
+
+  // Check if this is a container role (table, grid)
+  if (TABLE_CONTAINER_ROLES.has(role)) {
+    return hasDescendantTableChildRole(node);
+  }
+
+  // Check if this is a child role (row, rowgroup, cell, etc.)
+  if (TABLE_CHILD_ROLES.has(role)) {
+    return hasAncestorTableContainerRole(node);
+  }
+
+  return false;
+}
+
+/**
+ * Checks if the element has any descendant with a TABLE_CHILD_ROLE.
+ */
+function hasDescendantTableChildRole(node: TSESTree.JSXOpeningElement): boolean {
+  const jsxElement = node.parent;
+  if (jsxElement?.type !== 'JSXElement') {
+    return false;
+  }
+  return hasTableChildRoleInSubtree(jsxElement);
+}
+
+/**
+ * Recursively searches the JSX subtree for elements with TABLE_CHILD_ROLES.
+ */
+function hasTableChildRoleInSubtree(node: TSESTree.JSXElement): boolean {
+  for (const child of node.children) {
+    if (child.type === 'JSXElement') {
+      const childRole = getJSXElementRole(child);
+      if (childRole && TABLE_CHILD_ROLES.has(childRole)) {
+        return true;
+      }
+      // Recursively search nested elements
+      if (hasTableChildRoleInSubtree(child)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Gets the role attribute value from a JSXElement.
+ */
+function getJSXElementRole(element: TSESTree.JSXElement): string | null {
+  const openingElement = element.openingElement;
+  const attributes = (openingElement as JSXOpeningElement).attributes;
+  const roleProp = getProp(attributes, 'role');
+  if (!roleProp) {
+    return null;
+  }
+  const roleValue = getLiteralPropValue(roleProp);
+  if (typeof roleValue !== 'string') {
+    return null;
+  }
+  return roleValue.toLowerCase();
+}
+
+/**
+ * Checks if any ancestor div/span has a TABLE_CONTAINER_ROLE.
+ */
+function hasAncestorTableContainerRole(node: TSESTree.JSXOpeningElement): boolean {
+  const ancestor = findFirstMatchingAncestor(node, (n): boolean => {
+    if (n.type !== 'JSXElement') {
+      return false;
+    }
+    const jsxElement = n as TSESTree.JSXElement;
+    const elementName = getJSXElementName(jsxElement);
+    // Only consider div/span as valid container elements
+    if (elementName !== 'div' && elementName !== 'span') {
+      return false;
+    }
+    const role = getJSXElementRole(jsxElement);
+    return role !== null && TABLE_CONTAINER_ROLES.has(role);
+  });
+  return ancestor !== undefined;
+}
+
+/**
+ * Gets the element name from a JSXElement.
+ */
+function getJSXElementName(element: TSESTree.JSXElement): string | null {
+  const name = element.openingElement.name;
+  if (name.type === 'JSXIdentifier') {
+    return name.name.toLowerCase();
+  }
+  return null;
 }

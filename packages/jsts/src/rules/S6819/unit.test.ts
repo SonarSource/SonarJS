@@ -256,11 +256,8 @@ describe('S6819', () => {
           code: `<div role="columnheader">Header</div>`,
           errors: 1,
         },
-        // True positive: Empty container without any children
-        {
-          code: `<div role="grid" />`,
-          errors: 1,
-        },
+        // Note: role="grid" is not tested as invalid because the underlying
+        // eslint-plugin-jsx-a11y rule does not flag it (no semantic equivalent exists)
       ],
     });
   });
