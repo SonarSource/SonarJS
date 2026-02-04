@@ -306,17 +306,16 @@ function getJSXElementRole(element: TSESTree.JSXElement): string | null {
  * Checks if any ancestor div/span has a TABLE_CONTAINER_ROLE.
  */
 function hasAncestorTableContainerRole(node: TSESTree.JSXOpeningElement): boolean {
-  const ancestor = findFirstMatchingAncestor(node, (n): boolean => {
+  const ancestor = findFirstMatchingAncestor(node, n => {
     if (n.type !== 'JSXElement') {
       return false;
     }
-    const jsxElement = n as TSESTree.JSXElement;
-    const elementName = getJSXElementName(jsxElement);
+    const elementName = getJSXElementName(n);
     // Only consider div/span as valid container elements
     if (elementName !== 'div' && elementName !== 'span') {
       return false;
     }
-    const role = getJSXElementRole(jsxElement);
+    const role = getJSXElementRole(n);
     return role !== null && TABLE_CONTAINER_ROLES.has(role);
   });
   return ancestor !== undefined;

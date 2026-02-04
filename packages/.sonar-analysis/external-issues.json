@@ -1,0 +1,14 @@
+[
+  {
+    "rule": "typescript:S4325",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6819/decorator.ts",
+    "line": 313,
+    "message": "This assertion is unnecessary since it does not change the type of the expression.",
+    "textRange": {
+      "startLine": 313,
+      "endLine": 313,
+      "startOffset": 23,
+      "endOffset": 47
+    }
+  }
+]
