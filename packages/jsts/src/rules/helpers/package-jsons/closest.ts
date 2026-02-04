@@ -29,4 +29,5 @@ export function getClosestPackageJSONDir(
   if (closestPackageJSONDir) {
     return dirnamePath(closestPackageJSONDir);
   }
+  return undefined;
 }

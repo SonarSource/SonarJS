@@ -145,7 +145,7 @@ export class SourceFileStore implements FileStore {
   }
 
   processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
-    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(configuration!));
+    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(configuration));
     if (this.anyParentIsIgnored(dir) || isExcludedPath) {
       this.ignoredPaths.add(dir);
     }
