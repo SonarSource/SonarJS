@@ -69,6 +69,9 @@ export const rule: Rule.RuleModule = {
         if (fqn === 'markdown-it') {
           checkSensitiveCall(context, callExpression, 0, 'html', true, MESSAGE);
         }
+        if (fqn === 'swig.setDefaults') {
+          checkSensitiveCall(context, callExpression, 0, 'autoescape', false, MESSAGE);
+        }
       },
       NewExpression: (node: estree.Node) => {
         const newExpression = node as estree.NewExpression;
