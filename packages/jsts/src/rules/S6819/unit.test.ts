@@ -150,4 +150,115 @@ describe('S6819', () => {
       ],
     });
   });
+
+  // Test for JS-1102: Custom table widgets with legitimate ARIA roles
+  // These tests verify that ARIA table roles (table, grid, row, rowgroup, cell, gridcell,
+  // columnheader, rowheader) are suppressed when container + child roles coexist on div/span.
+  // Native table elements (<table>, <tr>, <td>) only work within <table> structures,
+  // but virtualized tables use div-based layouts for performance.
+  it('should not flag ARIA table roles in complete custom widget patterns', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - custom table widgets', rule, {
+      valid: [
+        // Pattern 1: Complete custom table with container (table) + child roles
+        // role="table" on div is valid when it has descendant child roles
+        {
+          code: `
+            <div role="table" className="virtual-table">
+              <div role="rowgroup">
+                <div role="row">
+                  <div role="columnheader">Name</div>
+                  <div role="columnheader">Value</div>
+                </div>
+              </div>
+              <div role="rowgroup">
+                <div role="row">
+                  <div role="cell">Item 1</div>
+                  <div role="cell">100</div>
+                </div>
+              </div>
+            </div>
+          `,
+        },
+        // Pattern 2: Custom grid widget with container (grid) + child roles
+        // role="grid" on div is valid when it has descendant child roles
+        {
+          code: `
+            <div role="grid" className="rt-table">
+              <div role="row" className="rt-tr">
+                <div role="gridcell">Cell A1</div>
+                <div role="gridcell">Cell B1</div>
+              </div>
+              <div role="row" className="rt-tr">
+                <div role="gridcell">Cell A2</div>
+                <div role="gridcell">Cell B2</div>
+              </div>
+            </div>
+          `,
+        },
+        // Pattern 3: Table with row headers
+        // role="rowheader" is valid when inside a custom table structure
+        {
+          code: `
+            <div role="table">
+              <div role="row">
+                <div role="rowheader">Category</div>
+                <div role="cell">Value</div>
+              </div>
+            </div>
+          `,
+        },
+        // Pattern 4: Deeply nested custom table (React Table style)
+        // Virtualized tables use className="rt-*" patterns
+        {
+          code: `
+            <div role="table" className="rt-table">
+              <div role="rowgroup" className="rt-tbody">
+                <div role="row" className="rt-tr">
+                  <div role="cell" className="rt-td">Data</div>
+                </div>
+              </div>
+            </div>
+          `,
+        },
+        // Pattern 5: Span elements with table roles (less common but valid)
+        {
+          code: `
+            <span role="grid">
+              <span role="row">
+                <span role="gridcell">Cell</span>
+              </span>
+            </span>
+          `,
+        },
+      ],
+      invalid: [
+        // True positive: Orphan child role without container ancestor
+        // role="row" without ancestor role="table" or role="grid" is invalid
+        {
+          code: `<div role="row"><div role="cell">Data</div></div>`,
+          errors: 2, // Both row and cell are flagged as orphans
+        },
+        // True positive: Container role without proper child roles
+        // role="table" without descendant ARIA table child roles is invalid
+        {
+          code: `<div role="table"><div>hello</div></div>`,
+          errors: 1,
+        },
+        // True positive: Orphan rowgroup
+        {
+          code: `<div role="rowgroup"><div>content</div></div>`,
+          errors: 1,
+        },
+        // True positive: Orphan columnheader
+        {
+          code: `<div role="columnheader">Header</div>`,
+          errors: 1,
+        },
+        // Note: role="grid" is not tested as invalid because the underlying
+        // eslint-plugin-jsx-a11y rule does not flag it (no semantic equivalent exists)
+      ],
+    });
+  });
 });
