@@ -234,6 +234,92 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // From ruling data: splice with decrement pattern to maintain valid index
+        // Common pattern when removing items from arrays during iteration
+        {
+          code: `
+      function removeEmptyItems(items) {
+        for (let i = 0; i < items.length; i++) {
+          if (!items[i]) {
+            items.splice(i, 1);
+            i--; // Compliant: post-decrement after splice to maintain valid index
+          }
+        }
+        return items;
+      }
+      `,
+        },
+        // From ruling data: inline decrement in splice call
+        {
+          code: `
+      function cleanTokens(token) {
+        for (var i = 1; i < token.data.length; i++) {
+          if (!token.data[i].nodeName) {
+            token.data.splice(i--, 1); // Compliant: inline decrement in splice argument
+          }
+        }
+      }
+      `,
+        },
+        // From ruling data: pre-increment in while loop condition controlling outer for-loop counter
+        {
+          code: `
+      function moveLines(ranges, dir) {
+        for (var i = 0; i < ranges.length; i++) {
+          var first = ranges[i];
+          while (++i < ranges.length) { // Compliant: pre-increment in while condition
+            var sub = ranges[i];
+            if (sub.first > first.last + 1) break;
+          }
+          i--; // Compliant: adjust after while loop
+        }
+      }
+      `,
+        },
+        // From ruling data: post-increment in array access assignment
+        {
+          code: `
+      function replaceElement(arr, index, newNode, removeCount) {
+        arr[index++] = newNode; // Compliant: post-increment in array index
+        for (var j = index; j < arr.length; j++) {
+          arr[j] = arr[j + removeCount - 1];
+        }
+      }
+      `,
+        },
+        // From ruling data: surrogate pair processing - skip next char after high surrogate
+        {
+          code: `
+      function encodeSurrogatePairs(string) {
+        var result = '';
+        for (var i = 0; i < string.length; i++) {
+          var char = string.charCodeAt(i);
+          if (char >= 0xD800 && char <= 0xDBFF) {
+            var nextChar = string.charCodeAt(i + 1);
+            if (nextChar >= 0xDC00 && nextChar <= 0xDFFF) {
+              result += encodeHex((char - 0xD800) * 0x400 + nextChar - 0xDC00 + 0x10000);
+              i++; // Compliant: skip the low surrogate already processed
+              continue;
+            }
+          }
+          result += string[i];
+        }
+        return result;
+      }
+      `,
+        },
+        // From ruling data: processing coordinate pairs (x,y) from flat array
+        {
+          code: `
+      function drawPath(ctx, coords) {
+        for (var i = 0; i < coords.length; i++) {
+          var x = coords[i];
+          var y = coords[++i]; // Compliant: pre-increment to read y coordinate
+          ctx.lineTo(x, y);
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
