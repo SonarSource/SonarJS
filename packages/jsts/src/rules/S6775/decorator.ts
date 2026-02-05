@@ -260,18 +260,18 @@ function findExternalPropTypes(
 
   // Search for ComponentName.propTypes = {...}
   for (const statement of program.body) {
-    if (statement.type === 'ExpressionStatement') {
-      const expr = statement.expression;
-      if (
-        expr.type === 'AssignmentExpression' &&
-        expr.left.type === 'MemberExpression' &&
-        expr.left.object.type === 'Identifier' &&
-        expr.left.object.name === componentName &&
-        expr.left.property.type === 'Identifier' &&
-        expr.left.property.name === 'propTypes'
-      ) {
-        return expr.right;
-      }
+    if (statement.type !== 'ExpressionStatement') continue;
+
+    const expr = statement.expression;
+    if (
+      expr.type === 'AssignmentExpression' &&
+      expr.left.type === 'MemberExpression' &&
+      expr.left.object.type === 'Identifier' &&
+      expr.left.object.name === componentName &&
+      expr.left.property.type === 'Identifier' &&
+      expr.left.property.name === 'propTypes'
+    ) {
+      return expr.right;
     }
   }
 
@@ -281,9 +281,7 @@ function findExternalPropTypes(
     const classInfo = extractClassDeclaration(statement);
     if (classInfo && classInfo.id?.name === componentName) {
       const propTypes = findStaticPropTypes(classInfo.body);
-      if (propTypes) {
-        return propTypes;
-      }
+      if (propTypes) return propTypes;
     }
   }
 
@@ -301,18 +299,19 @@ function extractClassDeclaration(
     return { id: statement.id, body: statement.body };
   }
   /* istanbul ignore next - Export patterns handled in earlier search paths */
-  if (statement.type === 'ExportDefaultDeclaration') {
-    const decl = statement.declaration;
-    if (decl.type === 'ClassDeclaration' || decl.type === 'ClassExpression') {
-      return { id: decl.id ?? null, body: decl.body };
-    }
+  if (
+    statement.type === 'ExportDefaultDeclaration' &&
+    (statement.declaration.type === 'ClassDeclaration' ||
+      statement.declaration.type === 'ClassExpression')
+  ) {
+    return { id: statement.declaration.id ?? null, body: statement.declaration.body };
   }
   /* istanbul ignore next - Export patterns handled in earlier search paths */
-  if (statement.type === 'ExportNamedDeclaration' && statement.declaration) {
-    const decl = statement.declaration;
-    if (decl.type === 'ClassDeclaration') {
-      return { id: decl.id, body: decl.body };
-    }
+  if (
+    statement.type === 'ExportNamedDeclaration' &&
+    statement.declaration?.type === 'ClassDeclaration'
+  ) {
+    return { id: statement.declaration.id, body: statement.declaration.body };
   }
   /* istanbul ignore next */
   return null;
@@ -361,9 +360,7 @@ function findPropTypesInStatement(
   /* istanbul ignore next - Factory function pattern rare in practice */
   if (statement.type === 'FunctionDeclaration' && statement.body) {
     const propTypes = findPropTypesInFunctionBody(statement.body, defaultPropsConstantName);
-    if (propTypes) {
-      return propTypes;
-    }
+    if (propTypes) return propTypes;
   }
 
   // Check for exported functions
@@ -376,9 +373,7 @@ function findPropTypesInStatement(
       statement.declaration.body,
       defaultPropsConstantName,
     );
-    if (propTypes) {
-      return propTypes;
-    }
+    if (propTypes) return propTypes;
   }
 
   return null;
