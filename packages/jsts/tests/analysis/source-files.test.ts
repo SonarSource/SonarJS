@@ -32,16 +32,14 @@ describe('files', () => {
     sourceFileStore.clearCache();
   });
   it('should crash getting files before initializing', async () => {
-    expect(() => sourceFileStore.getFoundFilenames()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => sourceFileStore.getFoundFilesCount()).toThrow(new Error(UNINITIALIZED_ERROR));
-    expect(() => sourceFileStore.getFoundFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => sourceFileStore.getFiles()).toThrow(new Error(UNINITIALIZED_ERROR));
   });
 
   it('should return the files', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'paths'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
-    expect(sourceFileStore.getFoundFilesCount()).toEqual(2);
+    expect(Object.keys(sourceFileStore.getFiles()).length).toEqual(2);
   });
 
   it('should properly classify files as MAIN or TEST', async () => {
@@ -53,7 +51,7 @@ describe('files', () => {
       tests: ['subfolder'],
     });
     await initFileStores(configuration);
-    expect(sourceFileStore.getFoundFiles()).toMatchObject({
+    expect(sourceFileStore.getFiles()).toMatchObject({
       [file1]: {
         fileType: 'MAIN',
       },

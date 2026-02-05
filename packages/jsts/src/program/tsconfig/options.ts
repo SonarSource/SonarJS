@@ -17,7 +17,7 @@
 
 import ts from 'typescript';
 import { error } from '../../../../shared/src/helpers/logging.js';
-import { basename, dirname } from 'node:path/posix';
+import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
@@ -79,12 +79,9 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
       if (canAccessFileSystem) {
         return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
       } else {
-        return sourceFileStore
-          .getFoundFilenames()
-          .filter(f => {
-            return dirname(f) === rootDir && extensions.some(ext => f.endsWith(ext));
-          })
-          .map(f => basename(f));
+        const normalizedDir = normalizeToAbsolutePath(rootDir);
+        const entries = sourceFileStore.getFilesInDirectory(normalizedDir) ?? [];
+        return [...entries].filter(f => extensions.some(ext => f.endsWith(ext)));
       }
     },
     fileExists(path: string): boolean {
@@ -92,7 +89,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.fileExists(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return sourceFileStore.getFoundFilenames().includes(normalizedPath);
+        return normalizedPath in sourceFileStore.getFiles();
       }
     },
     readFile(path: string): string | undefined {
@@ -100,7 +97,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.readFile(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return sourceFileStore.getFoundFiles()[normalizedPath]?.fileContent;
+        return sourceFileStore.getFiles()[normalizedPath]?.fileContent;
       }
     },
     missingTsConfig: () => false,

@@ -26,7 +26,7 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
 import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { FileResult, ProjectAnalysisOutput, StoredJsTsFile } from './projectAnalysis.js';
+import { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import ts from 'typescript';
@@ -50,7 +50,7 @@ import { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/fi
  */
 export async function analyzeFile(
   fileName: NormalizedAbsolutePath,
-  file: StoredJsTsFile,
+  file: JsTsFile,
   configFields: JsTsConfigFields,
   program: ts.Program | undefined,
   results: ProjectAnalysisOutput,

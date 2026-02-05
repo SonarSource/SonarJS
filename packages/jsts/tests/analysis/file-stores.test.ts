@@ -16,18 +16,16 @@
  */
 // Mock FileStore implementation
 import { describe, it } from 'node:test';
-import { JSTS_ANALYSIS_DEFAULTS } from '../../src/analysis/analysis.js';
 import { simulateFromInputFiles } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
-import {
-  FileStore,
-  type RawInputFiles,
-} from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
+import { FileStore } from '../../src/analysis/projectAnalysis/file-stores/store-type.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 import {
   createConfiguration,
   type Configuration,
 } from '../../../shared/src/helpers/configuration.js';
+import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import { sanitizeRawInputFiles } from '../../../shared/src/helpers/sanitize.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
@@ -35,10 +33,7 @@ class MockFileStore implements FileStore {
   public setupCalled = false;
   public postProcessCalled = false;
 
-  async isInitialized(
-    _configuration: Configuration,
-    _inputFiles?: RawInputFiles,
-  ): Promise<boolean> {
+  async isInitialized(_configuration: Configuration, _inputFiles?: JsTsFiles): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
 
@@ -63,30 +58,21 @@ describe('simulateFromInputFiles', () => {
   it('should process directories and files correctly', async () => {
     // Arrange
     const mockStore = new MockFileStore();
-    // RawInputFiles uses string paths that will be normalized by the function
-    const inputFiles: RawInputFiles = {
-      file1: {
-        filePath: '/project/src/components/Button.tsx',
-        fileType: 'MAIN',
-        fileContent: '',
-        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      },
-      file2: {
-        filePath: '/project/src/utils/helper.ts',
-        fileType: 'MAIN',
-        fileContent: '',
-        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      },
-      file3: {
-        filePath: '/project/tests/Button.test.tsx',
-        fileType: 'TEST',
-        fileContent: '',
-        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      },
-    };
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
+    const inputFiles = await sanitizeRawInputFiles(
+      {
+        file1: {
+          filePath: '/project/src/components/Button.tsx',
+          fileType: 'MAIN',
+          fileContent: '',
+        },
+        file2: { filePath: '/project/src/utils/helper.ts', fileType: 'MAIN', fileContent: '' },
+        file3: { filePath: '/project/tests/Button.test.tsx', fileType: 'TEST', fileContent: '' },
+      },
+      configuration,
+    );
     const pendingStores = [mockStore];
 
     // Act
@@ -117,7 +103,7 @@ describe('simulateFromInputFiles', () => {
 
       async isInitialized(
         _configuration: Configuration,
-        _inputFiles?: RawInputFiles,
+        _inputFiles?: JsTsFiles,
       ): Promise<boolean> {
         return false;
       }
@@ -130,17 +116,13 @@ describe('simulateFromInputFiles', () => {
     }
 
     const mockStore = new MockStoreWithoutProcessDirectory();
-    const inputFiles: RawInputFiles = {
-      file1: {
-        filePath: '/project/src/test.js',
-        fileType: 'MAIN',
-        fileContent: '',
-        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      },
-    };
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
+    const inputFiles = await sanitizeRawInputFiles(
+      { file1: { filePath: '/project/src/test.js', fileType: 'MAIN', fileContent: '' } },
+      configuration,
+    );
 
     // Act & Assert - should not throw an error
     await expect(
@@ -154,10 +136,10 @@ describe('simulateFromInputFiles', () => {
   it('should handle empty input files', async () => {
     // Arrange
     const mockStore = new MockFileStore();
-    const inputFiles: RawInputFiles = {};
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
+    const inputFiles = await sanitizeRawInputFiles({}, configuration);
 
     // Act
     await simulateFromInputFiles(inputFiles, configuration, [mockStore]);
@@ -171,17 +153,13 @@ describe('simulateFromInputFiles', () => {
     // Arrange
     const mockStore1 = new MockFileStore();
     const mockStore2 = new MockFileStore();
-    const inputFiles: RawInputFiles = {
-      file1: {
-        filePath: '/project/src/app.js',
-        fileType: 'MAIN',
-        fileContent: '',
-        fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      },
-    };
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
+    const inputFiles = await sanitizeRawInputFiles(
+      { file1: { filePath: '/project/src/app.js', fileType: 'MAIN', fileContent: '' } },
+      configuration,
+    );
 
     // Act
     await simulateFromInputFiles(inputFiles, configuration, [mockStore1, mockStore2]);

@@ -15,18 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { analyzer } from '../proto/language_analyzer.js';
-import {
-  type ProjectAnalysisInput,
-  type JsTsFiles,
-  createJsTsFiles,
-} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import type { ProjectAnalysisInput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
-import {
-  type FileType,
-  type NormalizedAbsolutePath,
-  normalizeToAbsolutePath,
-} from '../../../shared/src/helpers/files.js';
+import type { FileType } from '../../../shared/src/helpers/files.js';
 import { isString } from '../../../shared/src/helpers/sanitize.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
@@ -80,35 +72,39 @@ function parseParamValue(value: string, defaultValue: unknown) {
 }
 
 /**
- * Transform source files from gRPC protobuf format to the internal JsTsFiles format.
+ * Transform source files from gRPC protobuf format to raw input format.
  *
  * The gRPC request contains an array of `ISourceFile` objects with `relativePath`, `content`,
- * and optionally `fileScope`. This function converts them into a dictionary keyed by relative
- * path, which is the format expected by the `analyzeProject` function.
+ * and optionally `fileScope`. This function converts them into a dictionary that can be
+ * passed to `sanitizeRawInputFiles` for validation and normalization.
  *
  * File scope handling:
  * - If fileScope is explicitly set in the request, use it (MAIN or TEST)
  * - Otherwise, default to 'MAIN' (context-based inference could be added in the future)
  *
  * @param sourceFiles - Array of source files from the gRPC request
- * @returns Dictionary of files keyed by relative path
+ * @returns Dictionary of files to be sanitized before use
  */
-function transformSourceFiles(sourceFiles: analyzer.ISourceFile[]): JsTsFiles {
-  const files = createJsTsFiles();
+export function transformSourceFilesToRawInputFiles(
+  sourceFiles: analyzer.ISourceFile[],
+): Record<string, Record<string, unknown>> {
+  const files: Record<string, Record<string, unknown>> = {};
 
   for (const sourceFile of sourceFiles) {
     const relativePath = isString(sourceFile.relativePath) ? sourceFile.relativePath : '';
-    const normalizedPath: NormalizedAbsolutePath = normalizeToAbsolutePath(relativePath);
     let fileType: FileType = 'MAIN';
 
     if (sourceFile.fileScope !== null && sourceFile.fileScope !== undefined) {
       fileType = sourceFile.fileScope === analyzer.FileScope.TEST ? 'TEST' : 'MAIN';
     } else {
-      // TODO: Infer file scope from context when not explicitly provided by the caller
+      /* TODO: Infer file scope from context when not explicitly provided by the caller
+       *   calling filterPathAndGetFileType(filename, getFilterPathParams(configuration)),
+       *   but we need configuration from the a3s context
+       * */
     }
 
-    files[normalizedPath] = {
-      filePath: normalizedPath,
+    files[relativePath] = {
+      filePath: relativePath,
       fileContent: isString(sourceFile.content) ? sourceFile.content : '',
       fileType,
       fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
@@ -407,9 +403,12 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): RuleConfig[]
  * **Transformation flow:**
  * ```
  * IAnalyzeRequest
- *   ├── sourceFiles[] ──→ transformSourceFiles() ──→ JsTsFiles (keyed by path)
+ *   ├── sourceFiles[] ──→ transformSourceFilesToRawInputFiles() ──→ sanitizeRawInputFiles() ──→ JsTsFiles
  *   └── activeRules[] ──→ transformActiveRules() ──→ RuleConfig[] (one per rule+language)
  * ```
+ *
+ * Note: The caller must call `initFileStores(configuration, rawFiles)` before calling
+ * `analyzeProject`. The `analyzeProject` function retrieves files from the file store internally.
  *
  * @param request - The gRPC AnalyzeRequest containing source files and active rules
  * @returns ProjectAnalysisInput ready to pass to analyzeProject()
@@ -420,15 +419,9 @@ export function transformRequestToProjectInput(
   request: analyzer.IAnalyzeRequest,
 ): ProjectAnalysisInput {
   // Handle empty/undefined arrays from proto3
-  const sourceFiles = request.sourceFiles || [];
   const activeRules = request.activeRules || [];
 
-  const filesToAnalyze = transformSourceFiles(sourceFiles);
-  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
-
   return {
-    filesToAnalyze,
-    pendingFiles,
     rules: transformActiveRules(activeRules),
     bundles: [],
     rulesWorkdir: undefined,

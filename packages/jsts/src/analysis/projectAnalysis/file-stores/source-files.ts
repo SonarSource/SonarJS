@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type JsTsFiles, type StoredJsTsFile, createJsTsFiles } from '../projectAnalysis.js';
+import { type JsTsFiles, createJsTsFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import {
   isAnalyzableFile,
@@ -22,11 +22,11 @@ import {
   getShouldIgnoreParams,
   getFilterPathParams,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { FileStore, type RawInputFiles } from './store-type.js';
-import { accept, shouldIgnoreFile } from '../../../../../shared/src/helpers/filter/filter.js';
+import { FileStore } from './store-type.js';
+import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
 import {
   readFile,
-  normalizeToAbsolutePath,
+  DirectoryIndex,
   type NormalizedAbsolutePath,
 } from '../../../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../../../../../shared/src/helpers/filter/filter-path.js';
@@ -34,78 +34,41 @@ import { dirname } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
-type SourceFilesData = {
-  files: JsTsFiles | undefined;
-  filenames: NormalizedAbsolutePath[] | undefined;
-};
-
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
-  private newFiles: StoredJsTsFile[] = [];
   private readonly ignoredPaths = new Set<string>();
-  private readonly store: {
-    found: SourceFilesData;
-    request: SourceFilesData;
-  } = {
-    found: {
-      files: undefined,
-      filenames: undefined,
-    },
-    request: {
-      files: createJsTsFiles(),
-      filenames: [],
-    },
-  };
+  private files: JsTsFiles | undefined = undefined;
+  private readonly directoryIndex = new DirectoryIndex();
 
   /**
    * Checks if the file store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration, inputFiles?: RawInputFiles) {
-    const { baseDir, sonarlint } = configuration;
+  async isInitialized(configuration: Configuration, inputFiles?: JsTsFiles) {
+    const { baseDir } = configuration;
     this.dirtyCachesIfNeeded(baseDir);
-    if (sonarlint) {
-      await this.sanitizeAndFilterRawFiles('request', inputFiles, configuration);
-    } else if (inputFiles) {
-      //if we are in SQS, the files in the request will already contain all found files
+    if (inputFiles) {
       this.setup(configuration);
-      await this.sanitizeAndFilterRawFiles('found', inputFiles, configuration);
+      this.files = inputFiles;
+      this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
       return true;
     }
-    // in sonarlint we just need the found file cache to know how many are there to enable or disable type-checking
-    return this.store.found.files !== undefined;
+    return this.files !== undefined;
   }
 
-  getFoundFiles() {
-    if (!this.store.found.files) {
+  getFiles() {
+    if (!this.files) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.store.found.files;
+    return this.files;
   }
 
-  getFoundFilenames() {
-    if (!this.store.found.filenames) {
-      throw new Error(UNINITIALIZED_ERROR);
-    }
-    return this.store.found.filenames;
-  }
-
-  getFoundFilesCount() {
-    if (!this.store.found.filenames) {
-      throw new Error(UNINITIALIZED_ERROR);
-    }
-    return this.store.found.filenames.length;
-  }
-
-  getRequestFilesCount() {
-    return this.store.request.filenames!.length;
-  }
-
-  getRequestFiles() {
-    return this.store.request.files!;
-  }
-
-  getRequestFilenames() {
-    return this.store.request.filenames!;
+  /**
+   * Gets all filenames in a directory (O(1) lookup).
+   * @param dir the directory to look up
+   * @returns array of filenames (not full paths) in the directory
+   */
+  getFilesInDirectory(dir: NormalizedAbsolutePath): Set<string> | undefined {
+    return this.directoryIndex.getFilesInDirectory(dir);
   }
 
   dirtyCachesIfNeeded(currentBaseDir: NormalizedAbsolutePath) {
@@ -115,14 +78,14 @@ export class SourceFileStore implements FileStore {
   }
 
   clearCache() {
-    this.store.found.files = undefined;
-    this.store.found.filenames = undefined;
+    this.files = undefined;
     this.ignoredPaths.clear();
+    this.directoryIndex.clear();
   }
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
-    this.newFiles = [];
+    this.files = createJsTsFiles();
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
@@ -134,12 +97,13 @@ export class SourceFileStore implements FileStore {
       // called while walking the project tree
       if (fileType && accept(filename, fileContent, shouldIgnoreParams)) {
         // Files discovered from filesystem (not from request) default to 'SAME' status
-        this.newFiles.push({
+        this.files![filename] = {
           fileType,
           filePath: filename,
           fileContent,
           fileStatus: JSTS_ANALYSIS_DEFAULTS.fileStatus,
-        });
+        };
+        this.directoryIndex.addFile(filename);
       }
     }
   }
@@ -151,75 +115,13 @@ export class SourceFileStore implements FileStore {
     }
   }
 
-  // we check if we already have the contents in the HTTP request before reading FS
+  // we check if we already have the contents in the files cache before reading FS
   async getFileContent(filePath: NormalizedAbsolutePath) {
-    return this.store.request.files?.[filePath]?.fileContent ?? (await readFile(filePath));
+    return this.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
   async postProcess(_configuration: Configuration) {
-    await this.setFiles('found', this.newFiles);
-  }
-
-  private async setFiles(
-    store: keyof typeof SourceFileStore.prototype.store,
-    files: StoredJsTsFile[],
-  ) {
-    this.resetStore(store);
-    for (const file of files) {
-      this.saveFileInStore(store, file);
-    }
-  }
-
-  /**
-   * Sanitizes raw input files and filters them before storing.
-   * This handles the conversion from RawInputFiles (HTTP input) to StoredJsTsFile,
-   * applying path normalization, default values, and file filtering in one pass.
-   */
-  private async sanitizeAndFilterRawFiles(
-    store: keyof typeof SourceFileStore.prototype.store,
-    rawFiles: RawInputFiles | undefined,
-    configuration: Configuration,
-  ) {
-    const { baseDir } = configuration;
-    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-    this.resetStore(store);
-    if (!rawFiles) {
-      return;
-    }
-    for (const rawFile of Object.values(rawFiles)) {
-      const rawFilePath = rawFile.filePath as string;
-      const rawFileContent = rawFile.fileContent as string | undefined;
-      const rawFileType = rawFile.fileType as string | undefined;
-      const rawFileStatus = rawFile.fileStatus as string | undefined;
-
-      const filePath = normalizeToAbsolutePath(rawFilePath, baseDir);
-      const fileContent = rawFileContent ?? (await readFile(filePath));
-      // We need to apply filters if the files come from the request
-      if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
-        continue;
-      }
-      this.saveFileInStore(store, {
-        filePath,
-        fileContent,
-        fileType: (rawFileType as StoredJsTsFile['fileType']) ?? JSTS_ANALYSIS_DEFAULTS.fileType,
-        fileStatus:
-          (rawFileStatus as StoredJsTsFile['fileStatus']) ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
-      });
-    }
-  }
-
-  private saveFileInStore(
-    store: keyof typeof SourceFileStore.prototype.store,
-    file: StoredJsTsFile,
-  ) {
-    // file.filePath is already a NormalizedAbsolutePath from sanitization
-    this.store[store].filenames!.push(file.filePath);
-    this.store[store].files![file.filePath] = file;
-  }
-
-  private resetStore(store: keyof typeof SourceFileStore.prototype.store) {
-    this.store[store].files = createJsTsFiles();
-    this.store[store].filenames = [];
+    // No-op: files are added directly in processFile()
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {

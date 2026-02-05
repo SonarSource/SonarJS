@@ -169,6 +169,6 @@ export function joinPaths(
  * @param filePath the path to extract the basename from
  * @returns the filename (last segment of the path)
  */
-export function basenamePath(filePath: NormalizedPath): string {
+export function basenamePath(filePath: NormalizedPath | NormalizedAbsolutePath): string {
   return basenamePosix(filePath);
 }

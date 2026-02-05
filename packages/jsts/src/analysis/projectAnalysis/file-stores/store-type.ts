@@ -16,24 +16,16 @@
  */
 import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
-
-/**
- * Raw input files from HTTP request, keyed by arbitrary string.
- * Values contain unvalidated file data that needs sanitization.
- */
-export type RawInputFiles = Record<string, Record<string, unknown>>;
+import type { JsTsFiles } from '../projectAnalysis.js';
 
 export abstract class FileStore {
   /**
    * Checks if the store is initialized for the given base directory.
    *
    * @param configuration - The project configuration
-   * @param inputFiles - Optional raw input files from the request
+   * @param inputFiles - Optional sanitized input files
    */
-  abstract isInitialized(
-    configuration: Configuration,
-    inputFiles?: RawInputFiles,
-  ): Promise<boolean>;
+  abstract isInitialized(configuration: Configuration, inputFiles?: JsTsFiles): Promise<boolean>;
 
   /**
    * Sets up the store for processing files.

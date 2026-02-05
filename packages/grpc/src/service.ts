@@ -18,12 +18,15 @@ import * as grpc from '@grpc/grpc-js';
 import type { analyzer } from './proto/language_analyzer.js';
 import {
   transformRequestToProjectInput,
+  transformSourceFilesToRawInputFiles,
   transformProjectOutputToResponse,
 } from './transformers/index.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
+import { initFileStores } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 import { createConfiguration } from '../../shared/src/helpers/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
+import { sanitizeRawInputFiles } from '../../shared/src/helpers/sanitize.js';
 
 /**
  * gRPC handler for the Analyze RPC
@@ -45,6 +48,11 @@ export async function analyzeFileHandler(
       baseDir: ROOT_PATH,
       canAccessFileSystem: false,
     });
+
+    // Transform, sanitize source files, and initialize file stores
+    const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
+    const inputFiles = await sanitizeRawInputFiles(rawFiles, configuration);
+    await initFileStores(configuration, inputFiles);
 
     const projectInput = transformRequestToProjectInput(request);
 

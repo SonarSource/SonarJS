@@ -18,7 +18,7 @@ import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { getFilesToAnalyze } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import { initFileStores } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { createConfiguration } from '../shared/src/helpers/configuration.js';
 import { compare, Result } from 'dir-compare';
@@ -85,13 +85,11 @@ export async function testProject(projectName: string) {
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 
-  const { filesToAnalyze, pendingFiles } = await getFilesToAnalyze(configuration);
+  await initFileStores(configuration);
 
   const results = await analyzeProject(
     {
       rules,
-      filesToAnalyze,
-      pendingFiles,
       bundles: [],
     },
     configuration,

@@ -15,7 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import { stripBOM, type NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import {
+  stripBOM,
+  dirnamePath,
+  basenamePath,
+  type NormalizedAbsolutePath,
+} from '../../../jsts/src/rules/helpers/index.js';
 export * from '../../../jsts/src/rules/helpers/index.js';
 
 /**
@@ -43,4 +48,52 @@ export type FileType = 'MAIN' | 'TEST';
 export async function readFile(filePath: NormalizedAbsolutePath) {
   const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
   return stripBOM(fileContent);
+}
+
+/**
+ * A data structure for efficient directory-to-files lookup.
+ * Supports both incremental building (via addFile) and batch building (via buildFromFiles).
+ */
+export class DirectoryIndex {
+  private index = new Map<NormalizedAbsolutePath, Set<string>>();
+
+  /**
+   * Adds a single file to the directory index.
+   * @param filePath the absolute path of the file to add
+   */
+  addFile(filePath: NormalizedAbsolutePath) {
+    const dir = dirnamePath(filePath);
+    let files = this.index.get(dir);
+    if (!files) {
+      files = new Set();
+      this.index.set(dir, files);
+    }
+    files.add(basenamePath(filePath));
+  }
+
+  /**
+   * Builds the index from a list of file paths.
+   * @param filePaths array of absolute file paths
+   */
+  buildFromFiles(filePaths: NormalizedAbsolutePath[]) {
+    for (const filePath of filePaths) {
+      this.addFile(filePath);
+    }
+  }
+
+  /**
+   * Gets all filenames in a directory.
+   * @param dir the directory to look up
+   * @returns array of filenames (not full paths) in the directory
+   */
+  getFilesInDirectory(dir: NormalizedAbsolutePath): Set<string> | undefined {
+    return this.index.get(dir);
+  }
+
+  /**
+   * Clears the directory index.
+   */
+  clear() {
+    this.index = new Map<NormalizedAbsolutePath, Set<string>>();
+  }
 }
