@@ -28,7 +28,7 @@ import org.sonar.css.CssRules;
 
 class CssRuleTest {
 
-  private static final int RULES_PROPERTIES_COUNT = 9;
+  private static final int RULES_PROPERTIES_COUNT = 10;
   private static final Gson GSON = new Gson();
 
   @Test
@@ -56,7 +56,8 @@ class CssRuleTest {
       PropertyNoUnknown.class,
       SelectorPseudoClassNoUnknown.class,
       SelectorPseudoElementNoUnknown.class,
-      SelectorTypeNoUnknown.class
+      SelectorTypeNoUnknown.class,
+      UnitNoUnknown.class
     );
 
     for (Class ruleClass : CssRules.getRuleClasses()) {
@@ -195,5 +196,21 @@ class CssRuleTest {
     assertThat(optionsAsJson).isEqualTo(
       "[true,{\"ignoreFontFamilies\":[\"Icon Font\",\"/icon$/\"]}]"
     );
+  }
+
+  @Test
+  void unit_no_unknown_default() {
+    String optionsAsJson = GSON.toJson(new UnitNoUnknown().stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo(
+      "[true,{\"ignoreFunctions\":[\"image-set\",\"spacer\",\"spacing\",\"size\",\"rem\",\"em\",\"fluid\"]}]"
+    );
+  }
+
+  @Test
+  void unit_no_unknown_custom() {
+    UnitNoUnknown instance = new UnitNoUnknown();
+    instance.ignoreFunctions = "spacer, /^my-/";
+    String optionsAsJson = GSON.toJson(instance.stylelintOptions());
+    assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreFunctions\":[\"spacer\",\"/^my-/\"]}]");
   }
 }
