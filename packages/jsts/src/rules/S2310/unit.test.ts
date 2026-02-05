@@ -123,6 +123,122 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // False positive scenario: Pre-increment (++i) for reading multi-element tuples from a flat array
+        // Intentional consumption of consecutive array elements where the loop counter
+        // is advanced to skip over already-consumed elements
+        {
+          code: `
+      function processOpcodes(opcodes: number[]): void {
+        for (let i = 0; i < opcodes.length; i++) {
+          const opcode = opcodes[i];
+          if (opcode < 0) {
+            console.log('simple:', opcode);
+          } else {
+            const param1 = opcodes[++i]; // Compliant: pre-increment skip-ahead
+            const param2 = opcodes[++i]; // Compliant: pre-increment skip-ahead
+            console.log('complex:', opcode, param1, param2);
+          }
+        }
+      }
+      `,
+        },
+        // False positive scenario: Post-increment (i++) for skipping escape characters in string parsing
+        // When an escape character is detected, the next character should be skipped
+        {
+          code: `
+      function containsSpace(value: string, escapeChar: string): boolean {
+        for (let i = 0; i < value.length; i++) {
+          const ch = value[i];
+          if (ch === escapeChar) {
+            i++; // Compliant: post-increment skip-ahead after escape char
+          } else if (ch === ' ') {
+            return true;
+          }
+        }
+        return false;
+      }
+      `,
+        },
+        // False positive scenario: Compound assignment (i += n) for batch skip-ahead
+        // When processing streamed output with multiple items, the counter is advanced
+        {
+          code: `
+      interface ViewModel {
+        outputs: { data: string }[];
+        streamCount: number;
+      }
+      function collectOutputText(viewModels: ViewModel[]): string[] {
+        const outputText: string[] = [];
+        for (let i = 0; i < viewModels.length; i++) {
+          const vm = viewModels[i];
+          const { streamCount } = vm;
+          if (streamCount > 1) {
+            i += streamCount - 1; // Compliant: compound assignment batch skip-ahead
+          }
+          outputText.push(vm.outputs[0]?.data ?? '');
+        }
+        return outputText;
+      }
+      `,
+        },
+        // False positive scenario: i += 2 to skip path entries for renamed/copied files
+        // When parsing git log output, renamed files have old/new paths on separate lines
+        {
+          code: `
+      interface FileChange { path: string; status: string; }
+      function isCopyOrRename(status: string): boolean {
+        return /^[RC]/.test(status);
+      }
+      function parseGitLogNumstat(lines: string[], files: FileChange[]): void {
+        let numStatIndex = 0;
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const match = /^(\\d+|-)\\t(\\d+|-)\\t/.exec(line);
+          if (match) {
+            if (isCopyOrRename(files[numStatIndex]?.status ?? '')) {
+              i += 2; // Compliant: skip old path and new path lines
+            }
+            numStatIndex++;
+          }
+        }
+      }
+      `,
+        },
+        // Additional: decrement patterns (i--, --i, i -= n) should also be compliant
+        {
+          code: `
+      function processReverse(items: string[]): void {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'skip') {
+            i--; // Compliant: post-decrement skip-back
+          }
+        }
+      }
+      `,
+        },
+        {
+          code: `
+      function processWithPreDecrement(items: string[]): void {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'multi') {
+            const prev = items[--i]; // Compliant: pre-decrement for consuming previous
+            console.log(prev);
+          }
+        }
+      }
+      `,
+        },
+        {
+          code: `
+      function processWithCompoundDecrement(items: string[], skipCount: number): void {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'batch') {
+            i -= skipCount; // Compliant: compound subtraction skip-back
+          }
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
@@ -202,27 +318,17 @@ describe('S2310 - invalid patterns', () => {
           ],
           settings: { sonarRuntime: true },
         },
+        // Simple assignments should still be flagged
         {
           code: `
       let i = 0, j = 0, k = 0;
-      for (;; i++, --j) {
-        i++;  // Noncompliant
-        j++;  // Noncompliant
-      }
-
       for (;; ++i, j--, k++) {
-        i = 5; // Noncompliant
-        j = 5; // Noncompliant
-        k = 5; // Noncompliant
-      }
-
-      for (;; i+=2, j-=3, k*=5) {
-        i++;  // Noncompliant
-        j++;  // Noncompliant
-        k++;  // Noncompliant
+        i = 5; // Noncompliant: simple assignment
+        j = 5; // Noncompliant: simple assignment
+        k = 5; // Noncompliant: simple assignment
       }
       `,
-          errors: 8,
+          errors: 3,
         },
         {
           code: `
