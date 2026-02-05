@@ -67,7 +67,7 @@ export class SourceFileStore implements FileStore {
    * @param dir the directory to look up
    * @returns array of filenames (not full paths) in the directory
    */
-  getFilesInDirectory(dir: NormalizedAbsolutePath): string[] {
+  getFilesInDirectory(dir: NormalizedAbsolutePath): Set<string> | undefined {
     return this.directoryIndex.getFilesInDirectory(dir);
   }
 

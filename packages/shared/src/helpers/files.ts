@@ -63,10 +63,12 @@ export class DirectoryIndex {
    */
   addFile(filePath: NormalizedAbsolutePath) {
     const dir = dirnamePath(filePath);
-    if (!this.index.has(dir)) {
-      this.index.set(dir, new Set());
+    let files = this.index.get(dir);
+    if (!files) {
+      files = new Set();
+      this.index.set(dir, files);
     }
-    this.index.get(dir)!.add(basenamePath(filePath));
+    files.add(basenamePath(filePath));
   }
 
   /**
@@ -84,14 +86,14 @@ export class DirectoryIndex {
    * @param dir the directory to look up
    * @returns array of filenames (not full paths) in the directory
    */
-  getFilesInDirectory(dir: NormalizedAbsolutePath): string[] {
-    return [...(this.index.get(dir) ?? [])];
+  getFilesInDirectory(dir: NormalizedAbsolutePath): Set<string> | undefined {
+    return this.index.get(dir);
   }
 
   /**
    * Clears the directory index.
    */
   clear() {
-    this.index.clear();
+    this.index = new Map<NormalizedAbsolutePath, Set<string>>();
   }
 }

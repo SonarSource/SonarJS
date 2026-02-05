@@ -80,9 +80,8 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
       } else {
         const normalizedDir = normalizeToAbsolutePath(rootDir);
-        return sourceFileStore
-          .getFilesInDirectory(normalizedDir)
-          .filter(f => extensions.some(ext => f.endsWith(ext)));
+        const entries = sourceFileStore.getFilesInDirectory(normalizedDir) ?? [];
+        return [...entries].filter(f => extensions.some(ext => f.endsWith(ext)));
       }
     },
     fileExists(path: string): boolean {
