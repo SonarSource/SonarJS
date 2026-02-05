@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   generateMeta,
+  getNodeParent,
   getParent,
   getVariableFromName,
   report,
@@ -50,6 +51,18 @@ export const rule: Rule.RuleModule = {
       }
       for (const ref of variable.references) {
         if (ref.isWrite() && isUsedInsideBody(ref.identifier, block)) {
+          // Allow UpdateExpression (i++, i--, ++i, --i) and compound assignments (i+=n, i-=n, etc.)
+          // Only report simple assignments (i = value) which indicate early-exit patterns
+          // Exception: modifications in nested for-loop update clauses should still be reported
+          const parent = getNodeParent(ref.identifier);
+          if (!isInNestedForLoopUpdate(ref.identifier, block)) {
+            if (parent?.type === 'UpdateExpression') {
+              continue;
+            }
+            if (parent?.type === 'AssignmentExpression' && parent.operator !== '=') {
+              continue;
+            }
+          }
           report(
             context,
             {
@@ -98,4 +111,30 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
 function isUsedInsideBody(id: estree.Identifier, loopBody: estree.Node) {
   const bodyRange = loopBody.range;
   return id.range && bodyRange && id.range[0] > bodyRange[0] && id.range[1] < bodyRange[1];
+}
+
+function isInNestedForLoopUpdate(id: estree.Identifier, outerLoopBody: estree.Node): boolean {
+  let node: estree.Node | undefined = id;
+  let parent = getNodeParent(node);
+  while (parent) {
+    // Stop if we've reached the outer loop body
+    if (parent === outerLoopBody) {
+      return false;
+    }
+    // Check if we're in a nested for-loop's update clause
+    if (parent.type === 'ForStatement' && parent.update) {
+      const updateRange = parent.update.range;
+      if (
+        updateRange &&
+        id.range &&
+        id.range[0] >= updateRange[0] &&
+        id.range[1] <= updateRange[1]
+      ) {
+        return true;
+      }
+    }
+    node = parent;
+    parent = getNodeParent(node);
+  }
+  return false;
 }

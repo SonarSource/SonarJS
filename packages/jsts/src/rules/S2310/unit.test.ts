@@ -128,7 +128,7 @@ describe('S2310 - valid patterns', () => {
         // is advanced to skip over already-consumed elements
         {
           code: `
-      function processOpcodes(opcodes: number[]): void {
+      function processOpcodes(opcodes) {
         for (let i = 0; i < opcodes.length; i++) {
           const opcode = opcodes[i];
           if (opcode < 0) {
@@ -146,7 +146,7 @@ describe('S2310 - valid patterns', () => {
         // When an escape character is detected, the next character should be skipped
         {
           code: `
-      function containsSpace(value: string, escapeChar: string): boolean {
+      function containsSpace(value, escapeChar) {
         for (let i = 0; i < value.length; i++) {
           const ch = value[i];
           if (ch === escapeChar) {
@@ -163,12 +163,8 @@ describe('S2310 - valid patterns', () => {
         // When processing streamed output with multiple items, the counter is advanced
         {
           code: `
-      interface ViewModel {
-        outputs: { data: string }[];
-        streamCount: number;
-      }
-      function collectOutputText(viewModels: ViewModel[]): string[] {
-        const outputText: string[] = [];
+      function collectOutputText(viewModels) {
+        const outputText = [];
         for (let i = 0; i < viewModels.length; i++) {
           const vm = viewModels[i];
           const { streamCount } = vm;
@@ -185,11 +181,10 @@ describe('S2310 - valid patterns', () => {
         // When parsing git log output, renamed files have old/new paths on separate lines
         {
           code: `
-      interface FileChange { path: string; status: string; }
-      function isCopyOrRename(status: string): boolean {
+      function isCopyOrRename(status) {
         return /^[RC]/.test(status);
       }
-      function parseGitLogNumstat(lines: string[], files: FileChange[]): void {
+      function parseGitLogNumstat(lines, files) {
         let numStatIndex = 0;
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
@@ -207,7 +202,7 @@ describe('S2310 - valid patterns', () => {
         // Additional: decrement patterns (i--, --i, i -= n) should also be compliant
         {
           code: `
-      function processReverse(items: string[]): void {
+      function processReverse(items) {
         for (let i = items.length - 1; i >= 0; i--) {
           if (items[i] === 'skip') {
             i--; // Compliant: post-decrement skip-back
@@ -218,7 +213,7 @@ describe('S2310 - valid patterns', () => {
         },
         {
           code: `
-      function processWithPreDecrement(items: string[]): void {
+      function processWithPreDecrement(items) {
         for (let i = items.length - 1; i >= 0; i--) {
           if (items[i] === 'multi') {
             const prev = items[--i]; // Compliant: pre-decrement for consuming previous
@@ -230,7 +225,7 @@ describe('S2310 - valid patterns', () => {
         },
         {
           code: `
-      function processWithCompoundDecrement(items: string[], skipCount: number): void {
+      function processWithCompoundDecrement(items, skipCount) {
         for (let i = items.length - 1; i >= 0; i--) {
           if (items[i] === 'batch') {
             i -= skipCount; // Compliant: compound subtraction skip-back
