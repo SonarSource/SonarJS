@@ -829,19 +829,10 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
-          # Generate report comparing against master
           git fetch origin master
-          node tools/ruling-report.js > ruling-report.md
 
-          # Check if there are ruling differences
-          if [ -s ruling-report.md ]; then
-            HAS_DIFFERENCES=true
-          else
-            HAS_DIFFERENCES=false
-          fi
-
-          # Only auto-update ruling files when the ruling test failed
-          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+          # If ruling failed, sync the actual results first to get the differences
+          if [ "$RULING_FAILED" = "true" ]; then
             # Check if last commit was already an auto-update (prevent infinite loop)
             LAST_COMMIT_MSG=$(git log -1 --format=%B)
             if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
@@ -851,7 +842,20 @@ jobs:
 
             # Sync ruling results (this modifies its/ruling/...)
             npm run ruling-sync
+          fi
 
+          # Generate report comparing against master (after sync if ruling failed)
+          node tools/ruling-report.js > ruling-report.md
+
+          # Check if there are ruling differences
+          if [ -s ruling-report.md ]; then
+            HAS_DIFFERENCES=true
+          else
+            HAS_DIFFERENCES=false
+          fi
+
+          # Commit and push the synced ruling files if there are differences
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
             git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
 

@@ -42,7 +42,7 @@ function hasMinifiedFilename(filename: string) {
   );
 }
 
-function hasExcessiveAverageLineLength(
+export function hasExcessiveAverageLineLength(
   input: string,
   size: number = DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD,
 ) {

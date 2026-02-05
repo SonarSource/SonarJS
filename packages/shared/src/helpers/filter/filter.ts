@@ -16,7 +16,7 @@
  */
 import { Minimatch } from 'minimatch';
 import { filterBundle } from './filter-bundle.js';
-import { filterMinified } from './filter-minified.js';
+import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { isCssFile, isJsTsFile, type FileSuffixes } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
@@ -77,6 +77,16 @@ export function accept(
     return filterMinified(filePath, fileContent);
   }
   return true;
+}
+
+/**
+ * Determines whether an embedded code snippet should be accepted for analysis.
+ * Only uses minification detection (average line length) - bundle detection is
+ * not applied to snippets as it can produce false positives on legitimate code
+ * patterns like IIFEs with comments.
+ */
+export function acceptSnippet(content: string): boolean {
+  return !hasExcessiveAverageLineLength(content);
 }
 
 /**
