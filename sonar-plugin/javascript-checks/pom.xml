@@ -38,7 +38,7 @@
 
   <build>
     <plugins>
-      <plugin>
+      <!--plugin>
         <groupId>org.sonarsource.rspec</groupId>
         <artifactId>rspec-maven-plugin</artifactId>
         <version>1.2.0.91</version>
@@ -68,14 +68,14 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.6.3</version>
         <executions>
-          <execution>
+          <!--execution>
             <id>Clean the Rule Data</id>
             <phase>clean</phase>
             <goals>
@@ -118,7 +118,7 @@
                 <argument>deploy-rule-data</argument>
               </arguments>
             </configuration>
-          </execution>
+          </execution-->
           <execution>
             <id>Generate the Java Check classes</id>
             <phase>generate-resources</phase>
