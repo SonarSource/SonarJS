@@ -18,8 +18,15 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName, isMemberWithProperty } from '../helpers/index.js';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getFullyQualifiedNameTS,
+  isMemberWithProperty,
+  isRequiredParserServices,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const sqlQuerySignatures = new Set([
   'pg.Client.query',
@@ -49,9 +56,17 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     return {
       CallExpression(node: estree.CallExpression) {
-        const fqn = getFullyQualifiedName(context, node.callee);
+        let fqn: string | null = null;
+        if (hasTypeInformation) {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+          fqn = getFullyQualifiedNameTS(services, tsNode);
+        } else {
+          fqn = getFullyQualifiedName(context, node.callee);
+        }
         if (fqn && sqlQuerySignatures.has(fqn) && isQuestionable(node.arguments[0])) {
           context.report({
             messageId: 'safeQuery',
