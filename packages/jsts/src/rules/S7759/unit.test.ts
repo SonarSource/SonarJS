@@ -66,6 +66,21 @@ describe('S7759', () => {
         {
           code: `var timestamp = Date.now();`,
         },
+
+        // Chained ternary polyfill (from TypeScript real-world usage)
+        {
+          code: `var timestamp = typeof performance !== "undefined" && performance.now ? function() { return performance.now(); } : Date.now ? Date.now : function() { return +(new Date()); };`,
+        },
+
+        // Class static property with ternary polyfill (from rxjs real-world usage)
+        {
+          code: `class Scheduler { static now = Date.now ? Date.now : () => +new Date(); }`,
+        },
+
+        // Export with Date.now polyfill (from qunit real-world usage)
+        {
+          code: `export const now = Date.now || function() { return new Date().getTime(); };`,
+        },
       ],
       invalid: [
         // Direct usage without polyfill pattern should still report
