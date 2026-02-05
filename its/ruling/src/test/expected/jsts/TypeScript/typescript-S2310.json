@@ -1,14 +1,5 @@
 {
-"TypeScript:src/compiler/binder.ts": [
-1145
-],
-"TypeScript:src/compiler/checker.ts": [
-2890
-],
 "TypeScript:src/compiler/program.ts": [
 292
-],
-"TypeScript:src/services/documentHighlights.ts": [
-583
 ]
 }

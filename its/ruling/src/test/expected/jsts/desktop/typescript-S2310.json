@@ -3,15 +3,6 @@
 449
 ],
 "desktop:app/src/lib/git/diff.ts": [
-302,
-306,
 324
-],
-"desktop:app/src/lib/git/log.ts": [
-258,
-263
-],
-"desktop:app/src/lib/status-parser.ts": [
-80
 ]
 }
