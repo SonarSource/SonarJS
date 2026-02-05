@@ -73,6 +73,9 @@ export const rule: Rule.RuleModule = {
         if (isLiteralUnionPattern(intersection)) {
           continue;
         }
+        if (isGenericTypePattern(intersection, typeNode)) {
+          continue;
+        }
         context.report({
           messageId: 'removeIntersection',
           node: typeNode as unknown as estree.Node,
@@ -157,4 +160,33 @@ function isLiteralUnionPattern(intersection: TSESTree.TSIntersectionType): boole
     otherType.type === 'TSNumberKeyword' ||
     otherType.type === 'TSTypeReference'
   );
+}
+
+/**
+ * Detects generic type patterns where `& {}` serves legitimate purposes:
+ * 1. Simplify/Prettify pattern: `{ [K in keyof T]: T[K] } & {}` - forces type flattening
+ * 2. Generic type reference with type arguments: `SomeType<T> & {}` - type normalization
+ *
+ * In these contexts, {} (non-nullish) intersection has semantic effects beyond members.
+ */
+function isGenericTypePattern(
+  intersection: TSESTree.TSIntersectionType,
+  emptyTypeNode: TSESTree.TypeNode,
+): boolean {
+  // Find the sibling type(s) that are not the empty type
+  const siblingTypes = intersection.types.filter(t => t !== emptyTypeNode);
+
+  for (const sibling of siblingTypes) {
+    // Pattern 1: Mapped type - { [K in keyof T]: T[K] } & {}
+    if (sibling.type === 'TSMappedType') {
+      return true;
+    }
+
+    // Pattern 2: Type reference with type arguments - SomeType<T> & {}
+    if (sibling.type === 'TSTypeReference' && sibling.typeArguments) {
+      return true;
+    }
+  }
+
+  return false;
 }
