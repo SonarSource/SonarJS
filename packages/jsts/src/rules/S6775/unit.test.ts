@@ -198,6 +198,112 @@ ComponentWithExternalAssignment.defaultProps = {
 };
           `,
         },
+        {
+          name: 'FP fix: external defaultProps with static propTypes in class',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const SharedPropTypes = {
+  shared: PropTypes.string,
+};
+
+class MixedPatternComponent extends React.Component {
+  static propTypes = {
+    ...SharedPropTypes,
+    local: PropTypes.string,
+  };
+
+  render() {
+    return <span>{this.props.shared} {this.props.local}</span>;
+  }
+}
+
+MixedPatternComponent.defaultProps = {
+  shared: 'default-shared',
+  local: 'default-local',
+};
+          `,
+        },
+        {
+          name: 'FP fix: named export class with spread propTypes',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const ExportedPropTypes = {
+  exported: PropTypes.string,
+};
+
+export class NamedExportComponent extends React.Component {
+  static propTypes = {
+    ...ExportedPropTypes,
+  };
+
+  static defaultProps = {
+    exported: 'default-value',
+  };
+
+  render() {
+    return <span>{this.props.exported}</span>;
+  }
+}
+          `,
+        },
+        {
+          name: 'FP fix: default export class with spread propTypes',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const DefaultExportPropTypes = {
+  prop: PropTypes.string,
+};
+
+export default class DefaultExportComponent extends React.Component {
+  static propTypes = {
+    ...DefaultExportPropTypes,
+  };
+
+  static defaultProps = {
+    prop: 'default-value',
+  };
+
+  render() {
+    return <span>{this.props.prop}</span>;
+  }
+}
+          `,
+        },
+        {
+          name: 'FP fix: function declaration returning class with constant defaultProps',
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const FactoryPropTypes = {
+  factory: PropTypes.string,
+};
+
+const FactoryDefaultProps = {
+  factory: 'default-factory',
+};
+
+function createComponent() {
+  return class FactoryComponent extends React.Component {
+    static propTypes = {
+      ...FactoryPropTypes,
+    };
+
+    static defaultProps = FactoryDefaultProps;
+
+    render() {
+      return <div>{this.props.factory}</div>;
+    }
+  };
+}
+          `,
+        },
       ],
       invalid: [
         {
