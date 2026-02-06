@@ -18,10 +18,34 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers/index.js';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getFullyQualifiedNameTS,
+  isMemberWithProperty,
+  isRequiredParserServices,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+import type { TSESTree } from '@typescript-eslint/utils';
 
-const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
+const sqlQuerySignatures = new Set([
+  'pg.Client.query',
+  'pg.Pool.query',
+  'mysql.createConnection.query',
+  'mysql.createPool.query',
+  'mysql.createPoolCluster.query',
+  'mysql2.createConnection.query',
+  'mysql2.createPool.query',
+  'mysql2.createPoolCluster.query',
+  'sequelize.Sequelize.query', // Sequelize is typically destructured: const { Sequelize } = require('sequelize')
+  'sqlite3.Database.run',
+  'sqlite3.Database.get',
+  'sqlite3.Database.all',
+  'sqlite3.Database.each',
+  'sqlite3.Database.exec',
+  'better-sqlite3.exec',
+  'better-sqlite3.prepare',
+]);
 
 type Argument = estree.Expression | estree.SpreadElement;
 
@@ -32,38 +56,21 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    let isDbModuleImported = false;
-
+    const services = context.sourceCode.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     return {
-      Program() {
-        // init flag for each file
-        isDbModuleImported = false;
-      },
-
-      ImportDeclaration(node: estree.Node) {
-        const { source } = node as estree.ImportDeclaration;
-        if (dbModules.includes(String(source.value))) {
-          isDbModuleImported = true;
+      CallExpression(node: estree.CallExpression) {
+        let fqn: string | null = null;
+        if (hasTypeInformation) {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+          fqn = getFullyQualifiedNameTS(services, tsNode);
+        } else {
+          fqn = getFullyQualifiedName(context, node.callee);
         }
-      },
-
-      CallExpression(node: estree.Node) {
-        const call = node as estree.CallExpression;
-        const { callee, arguments: args } = call;
-
-        if (isRequireModule(call, ...dbModules)) {
-          isDbModuleImported = true;
-          return;
-        }
-
-        if (
-          isDbModuleImported &&
-          isMemberWithProperty(callee, 'query') &&
-          isQuestionable(args[0])
-        ) {
+        if (fqn && sqlQuerySignatures.has(fqn) && isQuestionable(node.arguments[0])) {
           context.report({
             messageId: 'safeQuery',
-            node: callee,
+            node: node.callee,
           });
         }
       },
