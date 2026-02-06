@@ -320,6 +320,34 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // Nested loop: UpdateExpression on outer counter in nested loop body is compliant
+        {
+          code: `
+      function processMatrix(matrix) {
+        for (var i = 0; i < matrix.length; i++) {
+          for (var j = 0; j < matrix[i].length; j++) {
+            if (matrix[i][j] === 'skip') {
+              i++; // Compliant: intentional skip-ahead in nested loop body
+              break;
+            }
+          }
+        }
+      }
+      `,
+        },
+        // Nested loop: compound assignment on outer counter in nested loop body is compliant
+        {
+          code: `
+      function processBatches(items, batchSize) {
+        for (var i = 0; i < items.length; i++) {
+          for (var j = 0; j < batchSize && i + j < items.length; j++) {
+            process(items[i + j]);
+          }
+          i += batchSize - 1; // Compliant: compound assignment skip-ahead after nested loop
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
@@ -473,6 +501,29 @@ describe('S2310 - invalid patterns', () => {
             },
           ],
           settings: { sonarRuntime: true },
+        },
+        // Nested loop: outer counter in nested for-loop's update clause is flagged
+        // even with compound assignment operator
+        {
+          code: `
+      for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 5; j++, i += 2) {  // Noncompliant
+          console.log(i, j);
+        }
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 3 }],
+        },
+        // Nested loop: simple assignment to outer counter in nested loop body is flagged
+        {
+          code: `
+      for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 5; j++) {
+          i = j; // Noncompliant: simple assignment in nested loop body
+        }
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
         },
       ],
     });
