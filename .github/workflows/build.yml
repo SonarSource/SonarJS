@@ -672,6 +672,7 @@ jobs:
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2
+          cache_save: true
           mise_toml: |
             [tools]
             maven = "3.9"
