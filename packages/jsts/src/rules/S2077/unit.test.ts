@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
@@ -249,6 +249,29 @@ describe('S2077', () => {
       const conn = mysql.createConnection();
       conn.query(x.replace());`,
           errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S2077 with type information', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Formatting SQL queries is security-sensitive [TS]', rule, {
+      valid: [],
+      invalid: [
+        // mysql: ESM namespace import with concatenation
+        {
+          code: `import * as mysql from 'mysql';
+      const mycon = mysql.createConnection({ host, user, password, database });
+      mycon.connect(function(error) {
+        mycon.query('SELECT * FROM users WHERE id = ' + userinput, (err, res) => {}); // Noncompliant
+      });`,
+          errors: [
+            {
+              message: 'Make sure that executing SQL queries is safe here.',
+              line: 5,
+            },
+          ],
         },
       ],
     });

@@ -65,6 +65,10 @@ export function getFullyQualifiedNameTS(
         node = importSpecifier.parent;
         break;
       }
+      case ts.SyntaxKind.NamespaceImport: {
+        node = node.parent;
+        break;
+      }
       case ts.SyntaxKind.ImportDeclaration: {
         node = (node as ts.ImportDeclaration).moduleSpecifier;
         break;
