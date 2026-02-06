@@ -78,8 +78,11 @@ jobs:
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    outputs:
+      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
-      - uses: SonarSource/ci-github-actions/get-build-number@master
+      - id: build-number
+        uses: SonarSource/ci-github-actions/get-build-number@master
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
@@ -638,21 +641,68 @@ jobs:
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
+  plugin_qa_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'schedule'
+    container:
+      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+    permissions: *read_permissions
+    env:
+      # Pre-set build number to avoid cache miss in container.
+      # actions/cache doesn't work in Alpine containers (OS detection mismatch),
+      # so get-build-number would generate a new number instead of reusing the one
+      # from the get_build_number job.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - &alpine_install_deps
+        name: Install dependencies
+        run: apk add --no-cache bash curl util-linux
+      - name: Create non-root user
+        run: |
+          # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
+          # Use /github/home as home dir so Java's user.home matches where Maven cache lives.
+          adduser -D -H -h /github/home -s /bin/bash sonar
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
+      - &alpine_setup_maven
+        name: Setup Maven
+        uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          cache_save: true
+          mise_toml: |
+            [tools]
+            maven = "3.9"
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *orchestrator_cache
+      - name: Fix permissions for non-root user
+        run: |
+          # Ensure the sonar user can access all necessary directories after cache restores
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
+      - name: Run Plugin QA without Node
+        shell: bash
+        run: |
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-s
-    name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
+    name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    strategy:
-      matrix:
-        include:
-          - os: Ubuntu
-            sq-version: LATEST_RELEASE
-            artifact: multi
-#          - os: Alpine
-#            sq-version: LATEST_RELEASE
-#            artifact: linux-x64-musl
     steps:
       - *checkout
       - *mise_java_only
@@ -667,10 +717,10 @@ jobs:
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   # DEV tests run only on nightly schedule to avoid constant downloads
@@ -696,6 +746,37 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_fast_without_node_alpine:
+    runs-on: github-ubuntu-latest-m
+    name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'schedule'
+    container:
+      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+    permissions: *read_permissions
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - *alpine_install_deps
+      - *alpine_setup_maven
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA without Node
+        shell: bash
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
@@ -1013,6 +1094,8 @@ jobs:
       - plugin_qa_without_node
       - plugin_qa_fast_with_node
       - plugin_qa_fast_without_node
+      - plugin_qa_without_node_alpine
+      - plugin_qa_fast_without_node_alpine
       - plugin_qa_win
       - plugin_qa_sonarlint_win
       - plugin_qa_win_fast_with_node
