@@ -691,26 +691,21 @@ jobs:
       - name: Debug user switching
         shell: bash
         run: |
-          set -x
-          echo "=== Testing runuser ==="
-          runuser -u sonar -- id
-          echo "=== runuser id OK ==="
-          runuser -u sonar -- whoami
-          echo "=== runuser whoami OK ==="
-          runuser -u sonar -- env | head -10
-          echo "=== runuser env OK ==="
-          runuser -u sonar -- mvn --version
-          echo "=== runuser mvn OK ==="
+          echo "=== Testing setpriv ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- id
+          echo "=== setpriv id OK ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn --version
+          echo "=== setpriv mvn OK ==="
+          echo "=== All debug checks passed ==="
       - name: Run Plugin QA without Node
         shell: bash
         run: |
-          set -x
-          echo "Starting consumer-plugin build..."
-          runuser -u sonar -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
-          echo "Starting sonarlint tests..."
-          runuser -u sonar -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          echo "Starting plugin tests..."
-          runuser -u sonar -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
+          echo "=== consumer-plugin build OK ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          echo "=== sonarlint tests OK ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          echo "=== plugin tests OK ==="
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -833,20 +828,19 @@ jobs:
       - name: Debug user switching
         shell: bash
         run: |
-          set -x
-          echo "=== Testing runuser ==="
-          runuser -u sonar -- id
-          echo "=== runuser id OK ==="
-          runuser -u sonar -- mvn --version
-          echo "=== runuser mvn OK ==="
+          echo "=== Testing setpriv ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- id
+          echo "=== setpriv id OK ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn --version
+          echo "=== setpriv mvn OK ==="
+          echo "=== All debug checks passed ==="
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
-          set -x
-          echo "Starting plugins build..."
-          runuser -u sonar -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
-          echo "Starting fast tests..."
-          runuser -u sonar -- mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
+          echo "=== plugins build OK ==="
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          echo "=== fast tests OK ==="
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
