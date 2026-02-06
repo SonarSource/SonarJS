@@ -657,8 +657,9 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
-      - name: Install dependencies
-        run: apk add --no-cache bash curl github-cli util-linux
+      - &alpine_install_deps
+        name: Install dependencies
+        run: apk add --no-cache bash util-linux
       - name: Create non-root user
         run: |
           # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
@@ -666,7 +667,8 @@ jobs:
           adduser -D -H -h /github/home -s /bin/bash sonar
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
-      - name: Setup Maven
+      - &alpine_setup_maven
+        name: Setup Maven
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2
@@ -697,16 +699,10 @@ jobs:
 
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-s
-    name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
+    name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    strategy:
-      matrix:
-        include:
-          - os: Ubuntu
-            sq-version: LATEST_RELEASE
-            artifact: multi
     steps:
       - *checkout
       - *mise_java_only
@@ -721,10 +717,10 @@ jobs:
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=${{ matrix.sq-version }} -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: ${{ matrix.artifact }}
+          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   # DEV tests run only on nightly schedule to avoid constant downloads
@@ -764,22 +760,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
-      - name: Install dependencies
-        run: apk add --no-cache bash curl github-cli util-linux
-      - name: Create non-root user
-        run: |
-          # Use /github/home as home dir so Java's user.home matches where Maven cache lives.
-          adduser -D -H -h /github/home -s /bin/bash sonar
-          chown -R sonar:sonar "$GITHUB_WORKSPACE"
-          chown -R sonar:sonar /github/home
-      - name: Setup Maven
-        uses: jdx/mise-action@v3.6.1
-        with:
-          version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            maven = "3.9"
+      - *alpine_install_deps
+      - *alpine_setup_maven
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven
@@ -787,15 +769,11 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
-      - name: Fix permissions for non-root user
-        run: |
-          chown -R sonar:sonar "$GITHUB_WORKSPACE"
-          chown -R sonar:sonar /github/home
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
