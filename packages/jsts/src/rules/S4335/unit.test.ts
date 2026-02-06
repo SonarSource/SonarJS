@@ -140,6 +140,61 @@ interface HttpResourceRequestOptions {
   priority?: RequestPriority | (string & {});
 }`,
           },
+          // False positive tests: Generic type manipulation patterns with & {}
+          {
+            // Simplify/Prettify mapped type pattern: { [K in keyof T]: T[K] } & {}
+            // The & {} forces TypeScript to flatten/simplify complex type representations.
+            // This is a well-known TypeScript idiom used in libraries like Kibana.
+            // See: https://github.com/microsoft/TypeScript/issues/29729
+            code: `
+type Simplify<T> = { [KeyType in keyof T]: T[KeyType] } & {};
+
+interface ComplexType {
+  prop1: string;
+  nested: {
+    value: number;
+  };
+}
+
+type Simplified = Simplify<ComplexType>;`,
+          },
+          {
+            // Generic type reference with type arguments intersected with {}
+            // Used for type normalization in complex generic type expressions.
+            // Real-world example pattern from TanStack Router.
+            code: `
+interface SomeProps<T> { value: T; }
+type ExtendedProps<T> = SomeProps<T> & {};`,
+          },
+          {
+            // Generic type reference in interface property position
+            // Pattern from TanStack Router: params: ParamsReducer<TRouter, TFrom, TTo> & {}
+            code: `
+interface AnyRouter {
+  routes: unknown;
+}
+
+type ParamsReducer<TRouter extends AnyRouter, TFrom, TTo> = {
+  router: TRouter;
+  from: TFrom;
+  to: TTo;
+};
+
+interface MakeRequiredPathParams<TRouter extends AnyRouter, TFrom, TTo> {
+  params: ParamsReducer<TRouter, TFrom, TTo> & {};
+}`,
+          },
+          {
+            // Reversed order: {} & GenericType pattern
+            // Used for non-nullability constraints in generic type definitions.
+            // Real-world example from apollo-client DeepPartial.ts.
+            code: `
+type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T;
+
+type DeepPartialSet<T> = {} & Set<DeepPartial<T>>;
+type DeepPartialReadonlySet<T> = {} & ReadonlySet<DeepPartial<T>>;
+type DeepPartialMap<K, V> = {} & Map<DeepPartial<K>, DeepPartial<V>>;`,
+          },
         ],
         invalid: [
           {
@@ -202,14 +257,6 @@ interface HttpResourceRequestOptions {
           {
             // (number & {}) outside of a union should still be flagged
             code: `type AlsoInvalid = number & {};`,
-            errors: 1,
-          },
-          {
-            // Type reference intersected with {} outside of union should be flagged
-            // This is genuinely redundant (unlike the LiteralUnion pattern in unions)
-            code: `
-interface SomeProps<T> { value: T; }
-type ExtendedProps<T> = SomeProps<T> & {};`,
             errors: 1,
           },
         ],
