@@ -662,7 +662,14 @@ jobs:
     steps:
       - *checkout
       - name: Install dependencies
-        run: apk add --no-cache bash curl github-cli
+        run: apk add --no-cache bash curl github-cli su-exec shadow
+      - name: Create non-root user
+        run: |
+          # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
+          useradd -m -d /home/sonar -s /bin/bash sonar
+          # Give ownership of workspace, home, and orchestrator dirs
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
       - name: Setup Maven
         uses: jdx/mise-action@v3.6.1
         with:
@@ -676,11 +683,16 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *orchestrator_cache
+      - name: Fix permissions for non-root user
+        run: |
+          # Ensure the sonar user can access all necessary directories after cache restores
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
       - name: Run Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          su-exec sonar mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          su-exec sonar mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          su-exec sonar mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -693,6 +705,7 @@ jobs:
           echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME"
           echo "HOME=$HOME"
           echo "PWD=$PWD"
+          echo "USER=$(whoami)"
           echo "=== Looking for SonarQube logs ==="
           find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null | head -20
           echo "=== Looking for orchestrator dirs ==="
@@ -774,7 +787,12 @@ jobs:
     steps:
       - *checkout
       - name: Install dependencies
-        run: apk add --no-cache bash curl github-cli
+        run: apk add --no-cache bash curl github-cli su-exec shadow
+      - name: Create non-root user
+        run: |
+          useradd -m -d /home/sonar -s /bin/bash sonar
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
       - name: Setup Maven
         uses: jdx/mise-action@v3.6.1
         with:
@@ -790,10 +808,14 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+      - name: Fix permissions for non-root user
+        run: |
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
       - name: Run Fast Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          su-exec sonar mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          su-exec sonar mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -806,6 +828,7 @@ jobs:
           echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME"
           echo "HOME=$HOME"
           echo "PWD=$PWD"
+          echo "USER=$(whoami)"
           echo "=== Looking for SonarQube logs ==="
           find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null | head -20
           echo "=== Looking for orchestrator dirs ==="
