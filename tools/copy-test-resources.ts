@@ -54,3 +54,6 @@ globs.forEach(globPattern => {
   const files = globSync(globPattern, { dot: true });
   files.map(toUnixPath).forEach(copyFileIntoLib);
 });
+
+// Ensure coverage/js directory exists for test report output
+mkdirSync(path.join(sourceBaseDir, 'coverage', 'js'), { recursive: true });

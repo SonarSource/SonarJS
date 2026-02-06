@@ -6,7 +6,6 @@ bin/
 lib/
 node_modules/
 coverage/
-test-report.xml
 
 packages/jsts/src/rules/*/generated-meta.ts
 packages/grpc/src/proto/*.js
