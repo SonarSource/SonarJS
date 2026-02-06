@@ -645,7 +645,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    if: github.event_name == 'schedule'
     container:
       image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
     permissions: *read_permissions
@@ -672,7 +672,6 @@ jobs:
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2
-          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
             maven = "3.9"
@@ -752,7 +751,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    if: github.event_name == 'schedule'
     container:
       image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
     permissions: *read_permissions
