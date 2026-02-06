@@ -647,7 +647,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       # Pre-set build number to avoid cache miss in container.
@@ -754,7 +754,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
