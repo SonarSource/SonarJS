@@ -73,6 +73,9 @@ export const rule: Rule.RuleModule = {
         if (isLiteralUnionPattern(intersection)) {
           continue;
         }
+        if (isGenericTypePattern(intersection, typeNode, parserServices)) {
+          continue;
+        }
         context.report({
           messageId: 'removeIntersection',
           node: typeNode as unknown as estree.Node,
@@ -157,4 +160,44 @@ function isLiteralUnionPattern(intersection: TSESTree.TSIntersectionType): boole
     otherType.type === 'TSNumberKeyword' ||
     otherType.type === 'TSTypeReference'
   );
+}
+
+/**
+ * Detects generic type patterns where `& {}` serves a legitimate purpose:
+ * 1. Mapped type pattern: `{ [K in keyof T]: T[K] } & {}` - forces type flattening (Simplify/Prettify)
+ * 2. Generic type reference: `GenericType<T> & {}` where GenericType has type arguments
+ * 3. Type parameter reference: `T & {}` where T is a type parameter
+ *
+ * These patterns are used for type normalization and non-nullability constraints.
+ */
+function isGenericTypePattern(
+  intersection: TSESTree.TSIntersectionType,
+  emptyTypeNode: TSESTree.TypeNode,
+  parserServices: RequiredParserServices,
+): boolean {
+  const siblingTypes = intersection.types.filter(t => t !== emptyTypeNode);
+
+  return siblingTypes.some(siblingType => {
+    // Pattern 1: Mapped type (Simplify/Prettify pattern)
+    if (siblingType.type === 'TSMappedType') {
+      return true;
+    }
+
+    // Pattern 2: Generic type reference with type arguments
+    if (siblingType.type === 'TSTypeReference' && siblingType.typeArguments) {
+      return true;
+    }
+
+    // Pattern 3: Type parameter reference (e.g., T & {})
+    if (siblingType.type === 'TSTypeReference') {
+      const tp: ts.Type = parserServices.program
+        .getTypeChecker()
+        .getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(siblingType));
+      if (tp.isTypeParameter()) {
+        return true;
+      }
+    }
+
+    return false;
+  });
 }

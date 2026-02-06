@@ -195,6 +195,11 @@ type DeepPartialSet<T> = {} & Set<DeepPartial<T>>;
 type DeepPartialReadonlySet<T> = {} & ReadonlySet<DeepPartial<T>>;
 type DeepPartialMap<K, V> = {} & Map<DeepPartial<K>, DeepPartial<V>>;`,
           },
+          {
+            // Bare type parameter intersected with {}
+            // T & {} filters out null/undefined from T, a common generic constraint pattern.
+            code: `type NonNullish<T> = T & {};`,
+          },
         ],
         invalid: [
           {
