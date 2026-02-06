@@ -666,8 +666,8 @@ jobs:
       - name: Create non-root user
         run: |
           # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
-          adduser -D -h /home/sonar -s /bin/bash sonar
-          # Give ownership of workspace and home dirs
+          # Use /github/home as home dir so Java's user.home matches where Maven cache lives.
+          adduser -D -H -h /github/home -s /bin/bash sonar
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
       - name: Setup Maven
@@ -688,24 +688,12 @@ jobs:
           # Ensure the sonar user can access all necessary directories after cache restores
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
-      - name: Debug user switching
-        shell: bash
-        run: |
-          echo "=== Testing setpriv ==="
-          setpriv --reuid=sonar --regid=sonar --init-groups -- id
-          echo "=== setpriv id OK ==="
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn --version
-          echo "=== setpriv mvn OK ==="
-          echo "=== All debug checks passed ==="
       - name: Run Plugin QA without Node
         shell: bash
         run: |
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
-          echo "=== consumer-plugin build OK ==="
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          echo "=== sonarlint tests OK ==="
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          echo "=== plugin tests OK ==="
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -825,22 +813,11 @@ jobs:
         run: |
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
-      - name: Debug user switching
-        shell: bash
-        run: |
-          echo "=== Testing setpriv ==="
-          setpriv --reuid=sonar --regid=sonar --init-groups -- id
-          echo "=== setpriv id OK ==="
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn --version
-          echo "=== setpriv mvn OK ==="
-          echo "=== All debug checks passed ==="
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
-          echo "=== plugins build OK ==="
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
-          echo "=== fast tests OK ==="
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
