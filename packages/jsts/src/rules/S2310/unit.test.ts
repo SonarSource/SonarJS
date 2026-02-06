@@ -123,6 +123,231 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // False positive scenario: Pre-increment (++i) for reading multi-element tuples from a flat array
+        // Intentional consumption of consecutive array elements where the loop counter
+        // is advanced to skip over already-consumed elements
+        {
+          code: `
+      function processOpcodes(opcodes) {
+        for (let i = 0; i < opcodes.length; i++) {
+          const opcode = opcodes[i];
+          if (opcode < 0) {
+            console.log('simple:', opcode);
+          } else {
+            const param1 = opcodes[++i]; // Compliant: pre-increment skip-ahead
+            const param2 = opcodes[++i]; // Compliant: pre-increment skip-ahead
+            console.log('complex:', opcode, param1, param2);
+          }
+        }
+      }
+      `,
+        },
+        // False positive scenario: Post-increment (i++) for skipping escape characters in string parsing
+        // When an escape character is detected, the next character should be skipped
+        {
+          code: `
+      function containsSpace(value, escapeChar) {
+        for (let i = 0; i < value.length; i++) {
+          const ch = value[i];
+          if (ch === escapeChar) {
+            i++; // Compliant: post-increment skip-ahead after escape char
+          } else if (ch === ' ') {
+            return true;
+          }
+        }
+        return false;
+      }
+      `,
+        },
+        // False positive scenario: Compound assignment (i += n) for batch skip-ahead
+        // When processing streamed output with multiple items, the counter is advanced
+        {
+          code: `
+      function collectOutputText(viewModels) {
+        const outputText = [];
+        for (let i = 0; i < viewModels.length; i++) {
+          const vm = viewModels[i];
+          const { streamCount } = vm;
+          if (streamCount > 1) {
+            i += streamCount - 1; // Compliant: compound assignment batch skip-ahead
+          }
+          outputText.push(vm.outputs[0]?.data ?? '');
+        }
+        return outputText;
+      }
+      `,
+        },
+        // False positive scenario: i += 2 to skip path entries for renamed/copied files
+        // When parsing git log output, renamed files have old/new paths on separate lines
+        {
+          code: `
+      function isCopyOrRename(status) {
+        return /^[RC]/.test(status);
+      }
+      function parseGitLogNumstat(lines, files) {
+        let numStatIndex = 0;
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const match = /^(\\d+|-)\\t(\\d+|-)\\t/.exec(line);
+          if (match) {
+            if (isCopyOrRename(files[numStatIndex]?.status ?? '')) {
+              i += 2; // Compliant: skip old path and new path lines
+            }
+            numStatIndex++;
+          }
+        }
+      }
+      `,
+        },
+        // Additional: decrement patterns (i--, --i, i -= n) should also be compliant
+        {
+          code: `
+      function processReverse(items) {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'skip') {
+            i--; // Compliant: post-decrement skip-back
+          }
+        }
+      }
+      `,
+        },
+        {
+          code: `
+      function processWithPreDecrement(items) {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'multi') {
+            const prev = items[--i]; // Compliant: pre-decrement for consuming previous
+            console.log(prev);
+          }
+        }
+      }
+      `,
+        },
+        {
+          code: `
+      function processWithCompoundDecrement(items, skipCount) {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i] === 'batch') {
+            i -= skipCount; // Compliant: compound subtraction skip-back
+          }
+        }
+      }
+      `,
+        },
+        // From ruling data: splice with decrement pattern to maintain valid index
+        // Common pattern when removing items from arrays during iteration
+        {
+          code: `
+      function removeEmptyItems(items) {
+        for (let i = 0; i < items.length; i++) {
+          if (!items[i]) {
+            items.splice(i, 1);
+            i--; // Compliant: post-decrement after splice to maintain valid index
+          }
+        }
+        return items;
+      }
+      `,
+        },
+        // From ruling data: inline decrement in splice call
+        {
+          code: `
+      function cleanTokens(token) {
+        for (var i = 1; i < token.data.length; i++) {
+          if (!token.data[i].nodeName) {
+            token.data.splice(i--, 1); // Compliant: inline decrement in splice argument
+          }
+        }
+      }
+      `,
+        },
+        // From ruling data: pre-increment in while loop condition controlling outer for-loop counter
+        {
+          code: `
+      function moveLines(ranges, dir) {
+        for (var i = 0; i < ranges.length; i++) {
+          var first = ranges[i];
+          while (++i < ranges.length) { // Compliant: pre-increment in while condition
+            var sub = ranges[i];
+            if (sub.first > first.last + 1) break;
+          }
+          i--; // Compliant: adjust after while loop
+        }
+      }
+      `,
+        },
+        // From ruling data: post-increment in array access assignment
+        {
+          code: `
+      function replaceElement(arr, index, newNode, removeCount) {
+        arr[index++] = newNode; // Compliant: post-increment in array index
+        for (var j = index; j < arr.length; j++) {
+          arr[j] = arr[j + removeCount - 1];
+        }
+      }
+      `,
+        },
+        // From ruling data: surrogate pair processing - skip next char after high surrogate
+        {
+          code: `
+      function encodeSurrogatePairs(string) {
+        var result = '';
+        for (var i = 0; i < string.length; i++) {
+          var char = string.charCodeAt(i);
+          if (char >= 0xD800 && char <= 0xDBFF) {
+            var nextChar = string.charCodeAt(i + 1);
+            if (nextChar >= 0xDC00 && nextChar <= 0xDFFF) {
+              result += encodeHex((char - 0xD800) * 0x400 + nextChar - 0xDC00 + 0x10000);
+              i++; // Compliant: skip the low surrogate already processed
+              continue;
+            }
+          }
+          result += string[i];
+        }
+        return result;
+      }
+      `,
+        },
+        // From ruling data: processing coordinate pairs (x,y) from flat array
+        {
+          code: `
+      function drawPath(ctx, coords) {
+        for (var i = 0; i < coords.length; i++) {
+          var x = coords[i];
+          var y = coords[++i]; // Compliant: pre-increment to read y coordinate
+          ctx.lineTo(x, y);
+        }
+      }
+      `,
+        },
+        // Nested loop: UpdateExpression on outer counter in nested loop body is compliant
+        {
+          code: `
+      function processMatrix(matrix) {
+        for (var i = 0; i < matrix.length; i++) {
+          for (var j = 0; j < matrix[i].length; j++) {
+            if (matrix[i][j] === 'skip') {
+              i++; // Compliant: intentional skip-ahead in nested loop body
+              break;
+            }
+          }
+        }
+      }
+      `,
+        },
+        // Nested loop: compound assignment on outer counter in nested loop body is compliant
+        {
+          code: `
+      function processBatches(items, batchSize) {
+        for (var i = 0; i < items.length; i++) {
+          for (var j = 0; j < batchSize && i + j < items.length; j++) {
+            process(items[i + j]);
+          }
+          i += batchSize - 1; // Compliant: compound assignment skip-ahead after nested loop
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
@@ -202,27 +427,17 @@ describe('S2310 - invalid patterns', () => {
           ],
           settings: { sonarRuntime: true },
         },
+        // Simple assignments should still be flagged
         {
           code: `
       let i = 0, j = 0, k = 0;
-      for (;; i++, --j) {
-        i++;  // Noncompliant
-        j++;  // Noncompliant
-      }
-
       for (;; ++i, j--, k++) {
-        i = 5; // Noncompliant
-        j = 5; // Noncompliant
-        k = 5; // Noncompliant
-      }
-
-      for (;; i+=2, j-=3, k*=5) {
-        i++;  // Noncompliant
-        j++;  // Noncompliant
-        k++;  // Noncompliant
+        i = 5; // Noncompliant: simple assignment
+        j = 5; // Noncompliant: simple assignment
+        k = 5; // Noncompliant: simple assignment
       }
       `,
-          errors: 8,
+          errors: 3,
         },
         {
           code: `
@@ -286,6 +501,29 @@ describe('S2310 - invalid patterns', () => {
             },
           ],
           settings: { sonarRuntime: true },
+        },
+        // Nested loop: outer counter in nested for-loop's update clause is flagged
+        // even with compound assignment operator
+        {
+          code: `
+      for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 5; j++, i += 2) {  // Noncompliant
+          console.log(i, j);
+        }
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 3 }],
+        },
+        // Nested loop: simple assignment to outer counter in nested loop body is flagged
+        {
+          code: `
+      for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 5; j++) {
+          i = j; // Noncompliant: simple assignment in nested loop body
+        }
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
         },
       ],
     });

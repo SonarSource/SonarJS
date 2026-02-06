@@ -4,11 +4,5 @@
 ],
 "knockout:src/binding/expressionRewriting.js": [
 88
-],
-"knockout:src/subscribables/observableArray.js": [
-28
-],
-"knockout:src/utils.domNodeDisposal.js": [
-47
 ]
 }

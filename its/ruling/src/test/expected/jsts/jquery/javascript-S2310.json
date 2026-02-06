@@ -1,12 +1,5 @@
 {
 "jquery:src/callbacks.js": [
-76,
 83
-],
-"jquery:src/effects.js": [
-651
-],
-"jquery:src/selector.js": [
-1367
 ]
 }

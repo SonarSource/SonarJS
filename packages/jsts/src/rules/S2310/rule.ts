@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   generateMeta,
+  getNodeParent,
   getParent,
   getVariableFromName,
   report,
@@ -50,6 +51,9 @@ export const rule: Rule.RuleModule = {
       }
       for (const ref of variable.references) {
         if (ref.isWrite() && isUsedInsideBody(ref.identifier, block)) {
+          if (isIntentionalSkipAhead(ref.identifier, block)) {
+            continue;
+          }
           report(
             context,
             {
@@ -95,7 +99,52 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
   }
 }
 
+/**
+ * Checks if a loop counter modification is an intentional skip-ahead pattern
+ * (UpdateExpression or compound assignment) rather than a simple assignment.
+ * Modifications in nested for-loop update clauses are not considered skip-ahead.
+ */
+function isIntentionalSkipAhead(id: estree.Identifier, outerLoopBody: estree.Node): boolean {
+  if (isInNestedForLoopUpdate(id, outerLoopBody)) {
+    return false;
+  }
+  const parent = getNodeParent(id);
+  if (parent?.type === 'UpdateExpression') {
+    return true;
+  }
+  if (parent?.type === 'AssignmentExpression' && parent.operator !== '=') {
+    return true;
+  }
+  return false;
+}
+
 function isUsedInsideBody(id: estree.Identifier, loopBody: estree.Node) {
   const bodyRange = loopBody.range;
   return id.range && bodyRange && id.range[0] > bodyRange[0] && id.range[1] < bodyRange[1];
+}
+
+function isInNestedForLoopUpdate(id: estree.Identifier, outerLoopBody: estree.Node): boolean {
+  let node: estree.Node | undefined = id;
+  let parent = getNodeParent(node);
+  while (parent) {
+    // Stop if we've reached the outer loop body
+    if (parent === outerLoopBody) {
+      return false;
+    }
+    // Check if we're in a nested for-loop's update clause
+    if (parent.type === 'ForStatement' && parent.update) {
+      const updateRange = parent.update.range;
+      if (
+        updateRange &&
+        id.range &&
+        id.range[0] >= updateRange[0] &&
+        id.range[1] <= updateRange[1]
+      ) {
+        return true;
+      }
+    }
+    node = parent;
+    parent = getNodeParent(node);
+  }
+  return false;
 }
