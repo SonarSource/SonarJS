@@ -269,7 +269,7 @@ describe('S2077', () => {
           errors: [
             {
               message: 'Make sure that executing SQL queries is safe here.',
-              line: 5,
+              line: 4,
             },
           ],
         },
