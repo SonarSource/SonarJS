@@ -659,7 +659,7 @@ jobs:
       - *checkout
       - &alpine_install_deps
         name: Install dependencies
-        run: apk add --no-cache bash util-linux
+        run: apk add --no-cache bash curl util-linux
       - name: Create non-root user
         run: |
           # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
