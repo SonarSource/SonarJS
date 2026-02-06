@@ -67,8 +67,6 @@ class TypeScriptRuleTest {
 
     ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
-    System.out.println(Files.readString(Paths.get("target/differences")));
-
     assertThat(Files.readString(Paths.get("target/differences"))).isEmpty();
   }
 }
