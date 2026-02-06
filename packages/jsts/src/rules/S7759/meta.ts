@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7759/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'prefer-date-now';
-export const externalPlugin = 'unicorn';
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'prefer-date-now' }];
 export const quickFixMessage = 'Replace with Date.now()';

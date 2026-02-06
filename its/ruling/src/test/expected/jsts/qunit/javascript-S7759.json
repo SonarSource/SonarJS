@@ -2,11 +2,5 @@
 "qunit:reporter/diff.js": [
 62,
 618
-],
-"qunit:src/core/utilities.js": [
-7
-],
-"qunit:test/autostart.html": [
-16
 ]
 }
