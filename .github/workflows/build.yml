@@ -131,7 +131,7 @@ jobs:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
     needs: setup
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
@@ -217,7 +217,7 @@ jobs:
     runs-on: github-windows-latest-s
     name: Build SonarJS on Windows
     needs: [setup, populate_npm_cache_win]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -232,7 +232,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs: [setup, populate_npm_cache]
     name: Build ESLint Plugin
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -261,7 +261,6 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
-    if: false
     permissions: *read_permissions
     strategy:
       matrix:
@@ -296,7 +295,6 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Knip
     needs: [setup, populate_npm_cache]
-    if: false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -311,7 +309,6 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache]
-    if: false
     permissions: *read_permissions
     steps:
       - name: Check JS coverage cache
@@ -351,7 +348,6 @@ jobs:
     runs-on: github-windows-latest-s
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win]
-    if: false
     permissions: *read_permissions
     steps:
       - name: Cache JS test results marker (Windows)
@@ -393,7 +389,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - &checkout_with_tags
@@ -453,7 +449,7 @@ jobs:
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, build]
     permissions: *read_permissions
-    if: false
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         include:
@@ -504,7 +500,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
@@ -549,7 +545,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
@@ -575,7 +571,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -624,7 +620,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
-    if: false
+    if: github.event_name == 'schedule'
     permissions: *read_permissions
     steps:
       - *checkout
@@ -698,31 +694,12 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - name: Dump SonarQube server logs on failure
-        if: failure()
-        shell: bash
-        run: |
-          echo "=== Environment ==="
-          echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME"
-          echo "HOME=$HOME"
-          echo "PWD=$PWD"
-          echo "USER=$(whoami)"
-          echo "=== Looking for SonarQube logs ==="
-          find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null | head -20
-          echo "=== Looking for orchestrator dirs ==="
-          find / -maxdepth 5 -type d -name "sonarqube-*" 2>/dev/null | head -10
-          find / -maxdepth 5 -type d -name "orchestrator*" 2>/dev/null | head -10
-          echo "=== Dumping all SQ logs found ==="
-          for f in $(find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null); do
-            echo "--- $f ---"
-            tail -100 "$f"
-          done
 
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix:
@@ -755,7 +732,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
-    if: false
+    if: github.event_name == 'schedule'
     permissions: *read_permissions
     steps:
       - *checkout
@@ -823,31 +800,12 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - name: Dump SonarQube server logs on failure
-        if: failure()
-        shell: bash
-        run: |
-          echo "=== Environment ==="
-          echo "ORCHESTRATOR_HOME=$ORCHESTRATOR_HOME"
-          echo "HOME=$HOME"
-          echo "PWD=$PWD"
-          echo "USER=$(whoami)"
-          echo "=== Looking for SonarQube logs ==="
-          find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null | head -20
-          echo "=== Looking for orchestrator dirs ==="
-          find / -maxdepth 5 -type d -name "sonarqube-*" 2>/dev/null | head -10
-          find / -maxdepth 5 -type d -name "orchestrator*" 2>/dev/null | head -10
-          echo "=== Dumping all SQ logs found ==="
-          for f in $(find / -name "sonar.log" -o -name "web.log" -o -name "es.log" -o -name "ce.log" -o -name "nodb.log" 2>/dev/null); do
-            echo "--- $f ---"
-            tail -100 "$f"
-          done
 
   plugin_qa_win:
     runs-on: github-windows-latest-s
     name: QA on Windows (${{ matrix.group }})
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix:
@@ -887,7 +845,7 @@ jobs:
     runs-on: github-windows-latest-s
     name: QA SonarLint on Windows
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
@@ -906,7 +864,7 @@ jobs:
     runs-on: github-windows-latest-s
     name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix:
@@ -948,7 +906,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
       id-token: write
       contents: write
@@ -1065,7 +1023,7 @@ jobs:
     runs-on: github-ubuntu-latest-m
     name: Ruling Test
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout_with_submodules
@@ -1095,7 +1053,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: CSS Ruling
     needs: [setup, build]
-    if: false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout_with_submodules
@@ -1126,7 +1084,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
     needs: [analyze_primary, analyze_shadows]
-    if: false
+    if: github.event_name == 'schedule'
     permissions:
       id-token: write
       contents: read
@@ -1166,7 +1124,7 @@ jobs:
       - css_ruling
       - ruling
       - js_ts_ruling
-    if: false
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     steps:
       - *checkout
@@ -1180,7 +1138,6 @@ jobs:
     name: Releasability
     needs:
       - promote
-    if: false
     permissions:
       id-token: write
       statuses: write
