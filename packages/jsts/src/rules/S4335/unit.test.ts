@@ -200,6 +200,16 @@ type DeepPartialMap<K, V> = {} & Map<DeepPartial<K>, DeepPartial<V>>;`,
             // T & {} filters out null/undefined from T, a common generic constraint pattern.
             code: `type NonNullish<T> = T & {};`,
           },
+          {
+            // Generic type reference with & {} inside a function body
+            // Real-world pattern from ant-design: type alias using enclosing function's type parameter
+            code: `
+interface PickerProps<T> { value: T; }
+function generatePicker<DateType>() {
+  type InternalProps = PickerProps<DateType> & {};
+  return {} as InternalProps;
+}`,
+          },
         ],
         invalid: [
           {
