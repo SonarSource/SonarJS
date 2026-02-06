@@ -791,7 +791,8 @@ jobs:
         run: apk add --no-cache bash curl github-cli util-linux
       - name: Create non-root user
         run: |
-          adduser -D -h /home/sonar -s /bin/bash sonar
+          # Use /github/home as home dir so Java's user.home matches where Maven cache lives.
+          adduser -D -H -h /github/home -s /bin/bash sonar
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
       - name: Setup Maven
