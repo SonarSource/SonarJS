@@ -51,17 +51,8 @@ export const rule: Rule.RuleModule = {
       }
       for (const ref of variable.references) {
         if (ref.isWrite() && isUsedInsideBody(ref.identifier, block)) {
-          // Allow UpdateExpression (i++, i--, ++i, --i) and compound assignments (i+=n, i-=n, etc.)
-          // Only report simple assignments (i = value) which indicate early-exit patterns
-          // Exception: modifications in nested for-loop update clauses should still be reported
-          const parent = getNodeParent(ref.identifier);
-          if (!isInNestedForLoopUpdate(ref.identifier, block)) {
-            if (parent?.type === 'UpdateExpression') {
-              continue;
-            }
-            if (parent?.type === 'AssignmentExpression' && parent.operator !== '=') {
-              continue;
-            }
+          if (isIntentionalSkipAhead(ref.identifier, block)) {
+            continue;
           }
           report(
             context,
@@ -106,6 +97,25 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
   if (counter?.type === 'Identifier') {
     counters.push(counter);
   }
+}
+
+/**
+ * Checks if a loop counter modification is an intentional skip-ahead pattern
+ * (UpdateExpression or compound assignment) rather than a simple assignment.
+ * Modifications in nested for-loop update clauses are not considered skip-ahead.
+ */
+function isIntentionalSkipAhead(id: estree.Identifier, outerLoopBody: estree.Node): boolean {
+  if (isInNestedForLoopUpdate(id, outerLoopBody)) {
+    return false;
+  }
+  const parent = getNodeParent(id);
+  if (parent?.type === 'UpdateExpression') {
+    return true;
+  }
+  if (parent?.type === 'AssignmentExpression' && parent.operator !== '=') {
+    return true;
+  }
+  return false;
 }
 
 function isUsedInsideBody(id: estree.Identifier, loopBody: estree.Node) {
