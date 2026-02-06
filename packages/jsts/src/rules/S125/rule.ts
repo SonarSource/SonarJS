@@ -26,6 +26,10 @@ import path from 'node:path';
 
 const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
+// Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
+// or be an import/export with a string literal (side-effect imports have no punctuation)
+const CODE_CHAR_PATTERN = /[;{}()=<>]|\bimport\s+['"]|\bexport\s/;
+
 const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
 
 interface GroupComment {
@@ -113,36 +117,38 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isExpressionExclusion(statement: estree.Node, code: SourceCode) {
+function isExpressionExclusion(statement: estree.Node, value: string, program: AST.Program) {
   if (statement.type === 'ExpressionStatement') {
     const expression = statement.expression;
     if (
       expression.type === 'Identifier' ||
       expression.type === 'SequenceExpression' ||
       isUnaryPlusOrMinus(expression) ||
-      isExcludedLiteral(expression) ||
-      !code.getLastToken(statement, token => token.value === ';')
+      isExcludedLiteral(expression)
     ) {
       return true;
     }
+    // Only construct SourceCode when we need getLastToken
+    const code = new SourceCode(value, program);
+    return !code.getLastToken(statement, token => token.value === ';');
   }
   return false;
 }
 
-function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
+function isExclusion(parsedBody: Array<estree.Node>, value: string, program: AST.Program) {
   if (parsedBody.length === 1) {
     const singleStatement = parsedBody[0];
     return (
       EXCLUDED_STATEMENTS.has(singleStatement.type) ||
       isReturnThrowExclusion(singleStatement) ||
-      isExpressionExclusion(singleStatement, code)
+      isExpressionExclusion(singleStatement, value, program)
     );
   }
   return false;
 }
 
 function containsCode(value: string, context: Rule.RuleContext) {
-  if (!couldBeJsCode(value) || !context.languageOptions.parser) {
+  if (!CODE_CHAR_PATTERN.test(value) || !couldBeJsCode(value) || !context.languageOptions.parser) {
     return false;
   }
 
@@ -158,28 +164,32 @@ function containsCode(value: string, context: Rule.RuleContext) {
       context.languageOptions?.parserOptions?.parser ?? context.languageOptions?.parser;
     const result =
       'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
-    const parseResult = new SourceCode(value, result as AST.Program);
-    return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
+    const program = result as AST.Program;
+    return program.body.length > 0 && !isExclusion(program.body, value, program);
   } catch {
     return false;
   }
 }
 
 function couldBeJsCode(input: string): boolean {
-  return recognizer.extractCodeLines(input.split('\n')).length > 0;
+  return input.split('\n').some(line => recognizer.recognition(line) >= recognizer.threshold);
 }
 
 function injectMissingBraces(value: string) {
-  const openCurlyBraceNum = (value.match(/{/g) ?? []).length;
-  const closeCurlyBraceNum = (value.match(/}/g) ?? []).length;
-  const missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
-  if (missingBraces > 0) {
-    return value + '}'.repeat(missingBraces);
-  } else if (missingBraces < 0) {
-    return '{'.repeat(-missingBraces) + value;
-  } else {
-    return value;
+  let balance = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === '{') {
+      balance++;
+    } else if (value[i] === '}') {
+      balance--;
+    }
   }
+  if (balance > 0) {
+    return value + '}'.repeat(balance);
+  } else if (balance < 0) {
+    return '{'.repeat(-balance) + value;
+  }
+  return value;
 }
 
 function getCommentLocation(nodes: TSESTree.Comment[]) {

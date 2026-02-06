@@ -17,22 +17,20 @@
 import Detector from '../Detector.js';
 
 export default class ContainsDetector extends Detector {
-  strings: (string | RegExp)[];
+  patterns: RegExp[];
 
   constructor(probability: number, ...strings: (string | RegExp)[]) {
     super(probability);
-    this.strings = strings;
+    this.patterns = strings.map(str =>
+      typeof str === 'string' ? new RegExp(escapeRegex(str), 'g') : str,
+    );
   }
 
   scan(line: string): number {
     const lineWithoutSpaces = line.replace(/\s+/, '');
     let matchers = 0;
-    for (const str of this.strings) {
-      let regex = str;
-      if (typeof str === 'string') {
-        regex = new RegExp(escapeRegex(str), 'g');
-      }
-      matchers += (lineWithoutSpaces.match(regex) ?? []).length;
+    for (const pattern of this.patterns) {
+      matchers += (lineWithoutSpaces.match(pattern) ?? []).length;
     }
     return matchers;
   }
