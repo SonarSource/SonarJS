@@ -55,12 +55,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
 
       // Return with argument is always flagged (could override return value)
-      if ((node as TSESTree.ReturnStatement).argument !== null) {
+      if (node.argument !== null) {
         context.report(reportDescriptor);
         return;
       }
 
-      if (isGuardReturnInFinally(node as TSESTree.ReturnStatement)) {
+      if (isGuardReturnInFinally(node)) {
         // Suppress the report - this is a valid guard pattern
         return;
       }
