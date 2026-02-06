@@ -1,0 +1,50 @@
+[
+  {
+    "rule": "typescript:S121",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 263,
+    "message": "Expected { after 'if' condition.",
+    "textRange": {
+      "startLine": 263,
+      "endLine": 263,
+      "startOffset": 50,
+      "endOffset": 59
+    }
+  },
+  {
+    "rule": "typescript:S121",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 284,
+    "message": "Expected { after 'if' condition.",
+    "textRange": {
+      "startLine": 284,
+      "endLine": 284,
+      "startOffset": 21,
+      "endOffset": 38
+    }
+  },
+  {
+    "rule": "typescript:S121",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 363,
+    "message": "Expected { after 'if' condition.",
+    "textRange": {
+      "startLine": 363,
+      "endLine": 363,
+      "startOffset": 19,
+      "endOffset": 36
+    }
+  },
+  {
+    "rule": "typescript:S121",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 376,
+    "message": "Expected { after 'if' condition.",
+    "textRange": {
+      "startLine": 376,
+      "endLine": 376,
+      "startOffset": 19,
+      "endOffset": 36
+    }
+  }
+]

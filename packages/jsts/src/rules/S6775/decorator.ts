@@ -260,7 +260,9 @@ function findExternalPropTypes(
 
   // Search for ComponentName.propTypes = {...}
   for (const statement of program.body) {
-    if (statement.type !== 'ExpressionStatement') continue;
+    if (statement.type !== 'ExpressionStatement') {
+      continue;
+    }
 
     const expr = statement.expression;
     if (
@@ -281,7 +283,9 @@ function findExternalPropTypes(
     const classInfo = extractClassDeclaration(statement);
     if (classInfo && classInfo.id?.name === componentName) {
       const propTypes = findStaticPropTypes(classInfo.body);
-      if (propTypes) return propTypes;
+      if (propTypes) {
+        return propTypes;
+      }
     }
   }
 
@@ -360,7 +364,9 @@ function findPropTypesInStatement(
   /* istanbul ignore next - Factory function pattern rare in practice */
   if (statement.type === 'FunctionDeclaration' && statement.body) {
     const propTypes = findPropTypesInFunctionBody(statement.body, defaultPropsConstantName);
-    if (propTypes) return propTypes;
+    if (propTypes) {
+      return propTypes;
+    }
   }
 
   // Check for exported functions
@@ -373,7 +379,9 @@ function findPropTypesInStatement(
       statement.declaration.body,
       defaultPropsConstantName,
     );
-    if (propTypes) return propTypes;
+    if (propTypes) {
+      return propTypes;
+    }
   }
 
   return null;
