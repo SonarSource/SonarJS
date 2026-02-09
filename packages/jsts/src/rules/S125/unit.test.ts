@@ -282,6 +282,18 @@ const a = 1;`,
           ],
         },
         {
+          // closing braces before opening braces: "}...{"
+          code: `//   }
+// foo();
+// if (x) {`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
           code: `let x = /* let x = 42; */ 0;`,
           errors: [
             {

@@ -16,6 +16,8 @@
  */
 import Detector from '../Detector.js';
 
+const WHITESPACE = /\s/;
+
 export default class EndWithDetector extends Detector {
   endOfLines: string[];
 
@@ -32,14 +34,10 @@ export default class EndWithDetector extends Detector {
           return 1;
         }
       }
-      if (!isWhitespace(char) && char !== '*' && char !== '/') {
+      if (!WHITESPACE.test(char) && char !== '*' && char !== '/') {
         return 0;
       }
     }
     return 0;
   }
-}
-
-function isWhitespace(char: string): boolean {
-  return /\s/.test(char);
 }
