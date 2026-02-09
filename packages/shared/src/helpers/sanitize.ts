@@ -140,7 +140,7 @@ function sanitizeSingleFileAnalysisInput(data: unknown): SanitizedSingleFileInpu
 /**
  * Sanitized analysis input with configuration.
  */
-export interface SanitizedAnalysisInput {
+interface SanitizedAnalysisInput {
   input: AnalysisInput;
   configuration: Configuration;
 }
@@ -231,7 +231,7 @@ function inferFileType(
 /**
  * Sanitized JS/TS analysis input with configuration.
  */
-export interface SanitizedJsTsAnalysisInput {
+interface SanitizedJsTsAnalysisInput {
   input: JsTsAnalysisInput;
   configuration: Configuration;
 }
@@ -348,7 +348,7 @@ function isCssRuleConfigArray(value: unknown): boolean {
 /**
  * Sanitized CSS analysis input with configuration.
  */
-export interface SanitizedCssAnalysisInput {
+interface SanitizedCssAnalysisInput {
   input: CssAnalysisInput;
   configuration: Configuration;
 }
@@ -372,7 +372,7 @@ export async function sanitizeCssAnalysisInput(raw: unknown): Promise<SanitizedC
 /**
  * Sanitized input for Linter.initialize()
  */
-export interface SanitizedInitLinterInput {
+interface SanitizedInitLinterInput {
   rules: RuleConfig[];
   environments: string[];
   globals: string[];
@@ -412,7 +412,7 @@ export function sanitizeInitLinterInput(raw: unknown): SanitizedInitLinterInput 
 /**
  * Sanitized input for project analysis.
  */
-export interface SanitizedProjectAnalysisInput {
+interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
   baseDir: NormalizedAbsolutePath;
   bundles: NormalizedAbsolutePath[];

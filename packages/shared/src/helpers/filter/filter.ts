@@ -34,7 +34,7 @@ interface ShouldIgnoreFileInput {
 /**
  * Parameters for the accept function.
  */
-export interface AcceptParams extends FileSuffixes {
+interface AcceptParams extends FileSuffixes {
   /** Whether to detect and skip bundled files */
   detectBundles: boolean;
   /** Maximum file size in KB (0 means no limit) */
