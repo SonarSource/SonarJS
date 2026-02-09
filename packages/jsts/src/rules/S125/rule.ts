@@ -177,17 +177,21 @@ function couldBeJsCode(input: string): boolean {
 
 function injectMissingBraces(value: string) {
   let balance = 0;
+  let minBalance = 0;
   for (let i = 0; i < value.length; i++) {
     if (value[i] === '{') {
       balance++;
     } else if (value[i] === '}') {
       balance--;
+      if (balance < minBalance) {
+        minBalance = balance;
+      }
     }
   }
-  if (balance > 0) {
-    return value + '}'.repeat(balance);
-  } else if (balance < 0) {
-    return '{'.repeat(-balance) + value;
+  const openToAdd = -minBalance;
+  const closeToAdd = balance - minBalance;
+  if (openToAdd > 0 || closeToAdd > 0) {
+    return '{'.repeat(openToAdd) + value + '}'.repeat(closeToAdd);
   }
   return value;
 }
