@@ -108,4 +108,12 @@ function f(unknownValue) {
   new es.Domain(this, 'ExplicitlyNonCompliant', {tlsSecurityPolicy: es.TLSSecurityPolicy.TLS_1_2});
   new oss.CfnDomain(this, 'Example', {domainEndpointOptions: {tlsSecurityPolicy: 'Policy-Min-TLS-1-2-2019-07'}});
   new oss.Domain(this, 'Example', {tlsSecurityPolicy: oss.TLSSecurityPolicy.TLS_1_2});
+
+  // tls >= 1.2 with perfect forward secrecy
+  new es.CfnDomain(this, 'Example', {domainEndpointOptions: {tlsSecurityPolicy: 'Policy-Min-TLS-1-2-PFS-2023-10'}});
+  new es.Domain(this, 'ExplicitlyNonCompliant', {tlsSecurityPolicy: es.TLSSecurityPolicy.TLS_1_2_PFS});
+  new oss.CfnDomain(this, 'Example', {domainEndpointOptions: {tlsSecurityPolicy: 'Policy-Min-TLS-1-2-PFS-2023-10'}});
+  new oss.Domain(this, 'Example', {tlsSecurityPolicy: oss.TLSSecurityPolicy.TLS_1_2_PFS});
+
+
 }

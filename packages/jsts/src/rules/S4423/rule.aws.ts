@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       true,
       ['domainEndpointOptions', 'tlsSecurityPolicy'],
       {
-        primitives: { valid: ['Policy-Min-TLS-1-2-2019-07'] },
+        primitives: { valid: ['Policy-Min-TLS-1-2-2019-07', 'Policy-Min-TLS-1-2-PFS-2023-10'] },
       },
     ),
     'aws_cdk_lib.aws_opensearchservice.Domain': AwsCdkCheckArguments(
@@ -46,7 +46,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       true,
       'tlsSecurityPolicy',
       {
-        fqns: { valid: ['aws_cdk_lib.aws_opensearchservice.TLSSecurityPolicy.TLS_1_2'] },
+        fqns: {
+          valid: [
+            'aws_cdk_lib.aws_opensearchservice.TLSSecurityPolicy.TLS_1_2',
+            'aws_cdk_lib.aws_opensearchservice.TLSSecurityPolicy.TLS_1_2_PFS',
+          ],
+        },
       },
     ),
     'aws_cdk_lib.aws_opensearchservice.CfnDomain': AwsCdkCheckArguments(
@@ -54,7 +59,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       true,
       ['domainEndpointOptions', 'tlsSecurityPolicy'],
       {
-        primitives: { valid: ['Policy-Min-TLS-1-2-2019-07'] },
+        primitives: { valid: ['Policy-Min-TLS-1-2-2019-07', 'Policy-Min-TLS-1-2-PFS-2023-10'] },
       },
     ),
     'aws_cdk_lib.aws_elasticsearch.Domain': AwsCdkCheckArguments(
@@ -62,7 +67,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       true,
       'tlsSecurityPolicy',
       {
-        fqns: { valid: ['aws_cdk_lib.aws_elasticsearch.TLSSecurityPolicy.TLS_1_2'] },
+        fqns: {
+          valid: [
+            'aws_cdk_lib.aws_elasticsearch.TLSSecurityPolicy.TLS_1_2',
+            'aws_cdk_lib.aws_elasticsearch.TLSSecurityPolicy.TLS_1_2_PFS',
+          ],
+        },
       },
     ),
   },
