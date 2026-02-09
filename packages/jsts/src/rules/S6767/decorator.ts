@@ -88,15 +88,20 @@ function scanChildren(node: estree.Node): boolean {
   for (const key of Object.keys(node)) {
     if (key === 'parent') continue;
     const value = (node as unknown as Record<string, unknown>)[key];
-    if (isNode(value)) {
-      if (scanNode(value)) return true;
-    } else if (Array.isArray(value)) {
-      for (const item of value) {
-        if (isNode(item)) {
-          if (scanNode(item)) return true;
-        }
-      }
-    }
+    if (scanChildValue(value)) return true;
+  }
+  return false;
+}
+
+/**
+ * Scans a single child value which may be a node or an array of nodes.
+ */
+function scanChildValue(value: unknown): boolean {
+  if (isNode(value)) {
+    return scanNode(value);
+  }
+  if (Array.isArray(value)) {
+    return value.some(item => isNode(item) && scanNode(item));
   }
   return false;
 }
