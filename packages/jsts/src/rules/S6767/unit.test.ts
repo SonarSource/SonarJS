@@ -19,7 +19,7 @@ import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S6767', () => {
-  it('S6767', () => {
+  it('should not flag props used through indirect patterns', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Unused React typed props should be removed', rule, {
       valid: [
