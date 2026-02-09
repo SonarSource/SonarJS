@@ -62,10 +62,6 @@ function hasIndirectPropsUsage(context: Rule.RuleContext): boolean {
  */
 function scanNode(node: estree.Node): boolean {
   switch (node.type) {
-    case 'ExportNamedDeclaration':
-      return isExportedPropsDeclaration(node) || scanChildren(node);
-    case 'ExportDefaultDeclaration':
-      return isHocExport(node) || scanChildren(node);
     case 'CallExpression':
       return isForwardRefCall(node) || isPropsPassedToFunction(node) || scanChildren(node);
     case 'SpreadElement':
@@ -78,6 +74,8 @@ function scanNode(node: estree.Node): boolean {
       return isRestDestructuringOfProps(node) || scanChildren(node);
     case 'JSXExpressionContainer':
       return isPropsAsJsxAttributeValue(node) || scanChildren(node);
+    case 'MethodDefinition':
+      return isDerivedStateFromProps(node) || scanChildren(node);
     default:
       return scanChildren(node);
   }
@@ -108,37 +106,17 @@ function isNode(value: unknown): value is estree.Node {
 }
 
 /**
- * Pattern: Exported Interface/Type
- * `export interface FooProps { ... }` or `export type FooProps = { ... }`
- * When the props type is exported, it's a public API contract and external
- * consumers may use the props in ways the analyzer cannot track.
- */
-function isExportedPropsDeclaration(node: estree.ExportNamedDeclaration): boolean {
-  const decl = node.declaration;
-  if (!decl) return false;
-  // TSInterfaceDeclaration and TSTypeAliasDeclaration have `id.name`
-  const name = (decl as { id?: { name?: string } }).id?.name;
-  if (!name) return false;
-  return /props/i.test(name);
-}
-
-/**
- * Pattern: HOC Export
- * `export default someHOC(Component)` or `export default connect(mapState)(Component)`
- * When a component is exported via a higher-order component wrapper, the HOC
- * may inject or consume props that the analyzer cannot track.
- */
-function isHocExport(node: estree.ExportDefaultDeclaration): boolean {
-  return node.declaration.type === 'CallExpression';
-}
-
-/**
  * Pattern: Props passed to function
- * `someFunction(props)`, `someFunction(this.props)`, `super(props)`
+ * `someFunction(props)`, `someFunction(this.props)`
  * When the entire props object is passed to a function, any prop may be
  * consumed inside that function.
+ * Note: `super(props)` is excluded as it is standard React class component
+ * boilerplate that does not indicate indirect prop consumption.
  */
 function isPropsPassedToFunction(node: estree.CallExpression): boolean {
+  if (node.callee.type === 'Super') {
+    return false;
+  }
   return node.arguments.some(isPropsReference);
 }
 
@@ -198,6 +176,32 @@ function isForwardRefCall(node: estree.CallExpression): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * Pattern: getDerivedStateFromProps lifecycle method
+ * `static getDerivedStateFromProps(props, state) { return { ...props }; }`
+ * When a class component defines getDerivedStateFromProps with the full props
+ * object as a parameter (not destructured), it may capture all props into state.
+ * The upstream rule cannot track prop usage through state, so any prop reported
+ * as unused may actually be consumed via the state snapshot.
+ * If the first parameter is destructured (ObjectPattern), only specific props are
+ * used, so suppression is not needed.
+ */
+function isDerivedStateFromProps(node: estree.Node): boolean {
+  const method = node as estree.MethodDefinition;
+  if (
+    method.static !== true ||
+    method.key.type !== 'Identifier' ||
+    method.key.name !== 'getDerivedStateFromProps'
+  ) {
+    return false;
+  }
+  const fn = method.value;
+  if (fn.type === 'FunctionExpression' && fn.params.length > 0) {
+    return fn.params[0].type !== 'ObjectPattern';
+  }
+  return true;
 }
 
 /**

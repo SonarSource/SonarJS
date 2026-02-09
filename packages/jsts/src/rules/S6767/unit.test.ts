@@ -25,7 +25,6 @@ describe('S6767', () => {
       valid: [
         {
           // FP: Props passed to helper method
-          // The rule doesn't track prop usage through function calls
           code: `
             import * as React from 'react';
 
@@ -47,78 +46,11 @@ describe('S6767', () => {
           `,
         },
         {
-          // FP: Props passed to parent class via super(props)
-          // The rule can't track props consumed by the parent constructor
-          code: `
-            import * as React from 'react';
-
-            interface ThemeProps {
-              theme: string;
-              children: React.ReactNode;
-            }
-
-            export default class ThemeProvider extends React.Component<ThemeProps> {
-              constructor(props: ThemeProps) {
-                super(props);
-              }
-
-              render() {
-                return <div>{this.props.children}</div>;
-              }
-            }
-          `,
-        },
-        {
-          // FP: Props interface is exported (public API contract)
-          // Consumers may use the prop through HOC wrappers or styled-components
-          code: `
-            import * as React from 'react';
-
-            export interface ButtonProps {
-              label: string;
-              variant: 'primary' | 'secondary';
-              onClick?: () => void;
-            }
-
-            const Button: React.FC<ButtonProps> = (props) => {
-              const { label, onClick } = props;
-              return <button onClick={onClick}>{label}</button>;
-            };
-
-            export default Button;
-          `,
-        },
-        {
-          // FP: Component exported via HOC wrapper
-          // The HOC injects/consumes the styles prop
-          code: `
-            import * as React from 'react';
-
-            interface ButtonProps {
-              label: string;
-              styles: Record<string, string>;
-            }
-
-            declare function withTheme<P extends { styles?: Record<string, string> }>(
-              Component: React.ComponentType<P>
-            ): React.FC<Omit<P, 'styles'>>;
-
-            class Button extends React.Component<ButtonProps> {
-              render() {
-                return <button>{this.props.label}</button>;
-              }
-            }
-
-            export default withTheme(Button);
-          `,
-        },
-        {
           // FP: Props accessed via dynamic bracket notation
-          // The rule can't track computed property access as prop usage
           code: `
             import * as React from 'react';
 
-            export interface ConfigProviderProps {
+            interface ConfigProviderProps {
               prefixCls?: string;
               children?: React.ReactNode;
               input?: { autoComplete?: string };
@@ -147,7 +79,6 @@ describe('S6767', () => {
         },
         {
           // FP: Entire props object passed to context provider
-          // The rule doesn't track that passing props makes all properties available
           code: `
             import * as React from 'react';
 
@@ -173,7 +104,6 @@ describe('S6767', () => {
         },
         {
           // FP: Component wrapped in React.forwardRef
-          // The rule doesn't properly track props through forwardRef wrappers
           code: `
             import * as React from 'react';
 
@@ -201,7 +131,6 @@ describe('S6767', () => {
         },
         {
           // FP: Props spread in JSX via rest destructuring
-          // All remaining props are passed through to the child element
           code: `
             import * as React from 'react';
 
@@ -221,7 +150,6 @@ describe('S6767', () => {
         },
         {
           // FP: this.props spread directly in class component
-          // All props are forwarded to the child element
           code: `
             import * as React from 'react';
 
@@ -238,10 +166,77 @@ describe('S6767', () => {
             }
           `,
         },
+        {
+          // FP: Props stored in state via getDerivedStateFromProps lifecycle
+          // The static method captures the entire props object into state,
+          // and the component uses the state snapshot in render. The upstream
+          // rule cannot track prop usage through state.
+          code: `
+            import * as React from 'react';
+
+            interface SwitcherProps {
+              readOnly: boolean;
+              imageDiffType: string;
+              hideWhitespace: boolean;
+            }
+
+            interface SwitcherState {
+              propSnapshot: SwitcherProps;
+            }
+
+            export default class DiffSwitcher extends React.Component<SwitcherProps, SwitcherState> {
+              static getDerivedStateFromProps(props: SwitcherProps): Partial<SwitcherState> {
+                return { propSnapshot: props };
+              }
+              constructor(props: SwitcherProps) {
+                super(props);
+                this.state = { propSnapshot: props };
+              }
+              render() {
+                const { readOnly, imageDiffType } = this.state.propSnapshot;
+                return <div>{readOnly ? imageDiffType : 'editable'}</div>;
+              }
+            }
+          `,
+        },
+        {
+          // All props are used directly
+          code: `
+            import * as React from 'react';
+
+            interface GreetingProps {
+              name: string;
+              greeting: string;
+            }
+
+            class Greeting extends React.Component<GreetingProps> {
+              render() {
+                return <h1>{this.props.greeting}, {this.props.name}!</h1>;
+              }
+            }
+          `,
+        },
+        {
+          // Functional component with all props used
+          code: `
+            import * as React from 'react';
+
+            type BadgeProps = {
+              label: string;
+              count: number;
+            };
+
+            const Badge: React.FC<BadgeProps> = ({ label, count }) => {
+              return <span>{label}: {count}</span>;
+            };
+
+            export default Badge;
+          `,
+        },
       ],
       invalid: [
         {
-          // Truly unused prop - no indirect usage patterns present
+          // Truly unused prop in class component
           code: `
             import * as React from 'react';
 
@@ -256,6 +251,137 @@ describe('S6767', () => {
             }
           `,
           errors: 1,
+        },
+        {
+          // Unused prop in functional component
+          code: `
+            import * as React from 'react';
+
+            interface CardProps {
+              title: string;
+              subtitle: string;
+            }
+
+            const Card: React.FC<CardProps> = ({ title }) => {
+              return <div>{title}</div>;
+            };
+
+            export default Card;
+          `,
+          errors: 1,
+        },
+        {
+          // super(props) is standard boilerplate - should NOT suppress issues
+          code: `
+            import * as React from 'react';
+
+            interface ThemeProps {
+              theme: string;
+              children: React.ReactNode;
+            }
+
+            export default class ThemeProvider extends React.Component<ThemeProps> {
+              constructor(props: ThemeProps) {
+                super(props);
+              }
+
+              render() {
+                return <div>{this.props.children}</div>;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Exported Props interface alone should NOT suppress issues
+          code: `
+            import * as React from 'react';
+
+            export interface ButtonProps {
+              label: string;
+              variant: 'primary' | 'secondary';
+              onClick?: () => void;
+            }
+
+            const Button: React.FC<ButtonProps> = (props) => {
+              const { label, onClick } = props;
+              return <button onClick={onClick}>{label}</button>;
+            };
+
+            export default Button;
+          `,
+          errors: 1,
+        },
+        {
+          // HOC wrapper alone should NOT suppress issues
+          code: `
+            import * as React from 'react';
+
+            interface ButtonProps {
+              label: string;
+              styles: Record<string, string>;
+            }
+
+            declare function withTheme<P extends { styles?: Record<string, string> }>(
+              Component: React.ComponentType<P>
+            ): React.FC<Omit<P, 'styles'>>;
+
+            class Button extends React.Component<ButtonProps> {
+              render() {
+                return <button>{this.props.label}</button>;
+              }
+            }
+
+            export default withTheme(Button);
+          `,
+          errors: 1,
+        },
+        {
+          // getDerivedStateFromProps with destructured params should NOT suppress
+          code: `
+            import * as React from 'react';
+
+            interface ListProps {
+              filteredItems: string[];
+              filteredRenderItems: string[];
+              selectedKeys: string[];
+            }
+
+            class ListBody extends React.Component<ListProps> {
+              static getDerivedStateFromProps(
+                { filteredRenderItems }: ListProps,
+                { current }: { current: number },
+              ) {
+                return filteredRenderItems.length > current ? { current: 0 } : null;
+              }
+              render() {
+                return <ul>{this.props.filteredRenderItems.map(i => <li key={i}>{i}</li>)}</ul>;
+              }
+            }
+          `,
+          errors: 2,
+        },
+        {
+          // Redux connect should NOT suppress unused prop issues
+          code: `
+            import * as React from 'react';
+
+            interface ViewProps {
+              auth: { token: string };
+              dispatch: Function;
+            }
+
+            declare function connect(mapState: any): (comp: any) => any;
+
+            class View extends React.Component<ViewProps> {
+              render() {
+                return <div>Hello</div>;
+              }
+            }
+
+            export default connect((state: any) => ({ auth: state.auth }))(View);
+          `,
+          errors: 2,
         },
       ],
     });
