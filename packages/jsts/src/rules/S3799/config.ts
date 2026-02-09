@@ -14,7 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
-export const eslintId = 'no-empty-pattern';
-export const externalPlugin = 'eslint';
-export * from './config.js';
+// https://sonarsource.github.io/rspec/#/rspec/S3799/javascript
+
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'allowObjectPatternsAsParameters',
+      default: true,
+    },
+  ],
+] as const satisfies ESLintConfiguration;
