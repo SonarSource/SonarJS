@@ -39,7 +39,7 @@ class MyComponent extends React.Component {
     ...SharedPropTypes,
     bar: PropTypes.string,
   };
-git 
+
   static defaultProps = {
     foo: 'default-foo',
     bar: 'default-bar',

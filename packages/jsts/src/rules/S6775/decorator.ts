@@ -68,7 +68,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       // Find the component's propTypes declaration
       const propTypesValue = findPropTypesDeclaration(node, context);
-      /* istanbul ignore next - Defensive: Fall through when propTypes cannot be found */
+      /* istanbul ignore next - Defensive: Falls through when propTypes not found (React rule only reports when propTypes exists but prop is missing) */
       if (!propTypesValue) {
         // Can't find propTypes, pass through
         context.report(descriptor);
@@ -213,7 +213,7 @@ function findPropTypesFromVariableDeclarator(
   ancestors: estree.Node[],
   context: Rule.RuleContext,
 ): estree.Node | null {
-  /* istanbul ignore next */
+  /* istanbul ignore next - Defensive: Caller already filters for Identifier (line 149) */
   if (declarator.id.type !== 'Identifier') {
     return null;
   }
