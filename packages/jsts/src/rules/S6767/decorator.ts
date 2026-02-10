@@ -109,9 +109,8 @@ function isPropsSpread(node: estree.SpreadElement): boolean {
  * `<div {...props}>` or `<div {...this.props}>`
  */
 function isPropsJsxSpread(node: estree.Node): boolean {
-  // JSXSpreadAttribute has an `argument` property
-  const argument = (node as { argument?: estree.Node }).argument;
-  return argument != null && isPropsReference(argument);
+  const { argument } = node as unknown as { argument: estree.Node };
+  return isPropsReference(argument);
 }
 
 /**
@@ -189,9 +188,8 @@ function isDerivedStateFromProps(node: estree.Node): boolean {
  * to the consuming component.
  */
 function isPropsAsJsxAttributeValue(node: estree.Node): boolean {
-  // JSXExpressionContainer wraps the expression in a JSX attribute value
-  const expression = (node as { expression?: estree.Node }).expression;
-  return expression != null && isPropsReference(expression);
+  const { expression } = node as unknown as { expression: estree.Node };
+  return isPropsReference(expression);
 }
 
 /**
