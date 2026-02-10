@@ -18,6 +18,7 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import type { JSXExpressionContainer, JSXSpreadAttribute } from 'estree-jsx';
 import { childrenOf, generateMeta, interceptReportForReact } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
@@ -108,9 +109,8 @@ function isPropsSpread(node: estree.SpreadElement): boolean {
  * Pattern: Props spread in JSX
  * `<div {...props}>` or `<div {...this.props}>`
  */
-function isPropsJsxSpread(node: estree.Node): boolean {
-  const { argument } = node as unknown as { argument: estree.Node };
-  return isPropsReference(argument);
+function isPropsJsxSpread(node: JSXSpreadAttribute): boolean {
+  return isPropsReference(node.argument);
 }
 
 /**
@@ -187,9 +187,8 @@ function isDerivedStateFromProps(node: estree.Node): boolean {
  * When props object is passed as a JSX attribute value, all properties are available
  * to the consuming component.
  */
-function isPropsAsJsxAttributeValue(node: estree.Node): boolean {
-  const { expression } = node as unknown as { expression: estree.Node };
-  return isPropsReference(expression);
+function isPropsAsJsxAttributeValue(node: JSXExpressionContainer): boolean {
+  return isPropsReference(node.expression);
 }
 
 /**
