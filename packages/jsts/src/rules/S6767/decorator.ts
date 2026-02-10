@@ -16,9 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, interceptReportForReact } from '../helpers/index.js';
+import { childrenOf, generateMeta, interceptReportForReact } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -51,7 +51,7 @@ function hasIndirectPropsUsage(context: Rule.RuleContext): boolean {
   const sourceCode = context.sourceCode;
   let result = scanCache.get(sourceCode);
   if (result === undefined) {
-    result = scanNode(sourceCode.ast);
+    result = scanNode(sourceCode.ast, sourceCode.visitorKeys);
     scanCache.set(sourceCode, result);
   }
   return result;
@@ -60,58 +60,34 @@ function hasIndirectPropsUsage(context: Rule.RuleContext): boolean {
 /**
  * Recursively scans an AST node and its children for indirect props usage patterns.
  */
-function scanNode(node: estree.Node): boolean {
+function scanNode(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
   switch (node.type) {
     case 'CallExpression':
-      return isForwardRefCall(node) || isPropsPassedToFunction(node) || scanChildren(node);
+      return (
+        isForwardRefCall(node) || isPropsPassedToFunction(node) || scanChildren(node, visitorKeys)
+      );
     case 'SpreadElement':
-      return isPropsSpread(node) || scanChildren(node);
+      return isPropsSpread(node) || scanChildren(node, visitorKeys);
     case 'JSXSpreadAttribute':
-      return isPropsJsxSpread(node) || scanChildren(node);
+      return isPropsJsxSpread(node) || scanChildren(node, visitorKeys);
     case 'MemberExpression':
-      return isBracketPropsAccess(node) || scanChildren(node);
+      return isBracketPropsAccess(node) || scanChildren(node, visitorKeys);
     case 'VariableDeclarator':
-      return isRestDestructuringOfProps(node) || scanChildren(node);
+      return isRestDestructuringOfProps(node) || scanChildren(node, visitorKeys);
     case 'JSXExpressionContainer':
-      return isPropsAsJsxAttributeValue(node) || scanChildren(node);
+      return isPropsAsJsxAttributeValue(node) || scanChildren(node, visitorKeys);
     case 'MethodDefinition':
-      return isDerivedStateFromProps(node) || scanChildren(node);
+      return isDerivedStateFromProps(node) || scanChildren(node, visitorKeys);
     default:
-      return scanChildren(node);
+      return scanChildren(node, visitorKeys);
   }
 }
 
 /**
  * Scans all child nodes of the given node.
  */
-function scanChildren(node: estree.Node): boolean {
-  for (const key of Object.keys(node)) {
-    if (key === 'parent') {
-      continue;
-    }
-    const value = (node as unknown as Record<string, unknown>)[key];
-    if (scanChildValue(value)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Scans a single child value which may be a node or an array of nodes.
- */
-function scanChildValue(value: unknown): boolean {
-  if (isNode(value)) {
-    return scanNode(value);
-  }
-  if (Array.isArray(value)) {
-    return value.some(item => isNode(item) && scanNode(item));
-  }
-  return false;
-}
-
-function isNode(value: unknown): value is estree.Node {
-  return typeof value === 'object' && value !== null && 'type' in value;
+function scanChildren(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  return childrenOf(node, visitorKeys).some(child => scanNode(child, visitorKeys));
 }
 
 /**
