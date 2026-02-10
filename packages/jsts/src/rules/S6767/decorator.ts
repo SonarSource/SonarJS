@@ -16,6 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { JSXExpressionContainer, JSXSpreadAttribute } from 'estree-jsx';
@@ -33,6 +34,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
+      if ('node' in reportDescriptor && isInExportedType(reportDescriptor.node)) {
+        return;
+      }
       if (hasIndirectPropsUsage(context)) {
         return;
       }
@@ -209,6 +213,22 @@ function isPropsReference(node: estree.Node): boolean {
     node.property.name === 'props'
   ) {
     return true;
+  }
+  return false;
+}
+
+/**
+ * Checks if the reported prop node belongs to an exported type or interface.
+ * Exported prop types are public API contracts — consumers may use any declared
+ * property, so reporting them as unused is a false positive.
+ */
+function isInExportedType(node: estree.Node): boolean {
+  let current: TSESTree.Node | undefined = node as TSESTree.Node;
+  while (current) {
+    if (current.type === 'TSInterfaceDeclaration' || current.type === 'TSTypeAliasDeclaration') {
+      return current.parent?.type === 'ExportNamedDeclaration';
+    }
+    current = current.parent;
   }
   return false;
 }

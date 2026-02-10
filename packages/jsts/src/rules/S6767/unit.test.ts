@@ -233,6 +233,43 @@ describe('S6767', () => {
             export default Badge;
           `,
         },
+        {
+          // FP: Exported interface is a public contract — consumers may use any prop
+          code: `
+            import * as React from 'react';
+
+            export interface ButtonProps {
+              label: string;
+              variant: 'primary' | 'secondary';
+              onClick?: () => void;
+            }
+
+            const Button: React.FC<ButtonProps> = (props) => {
+              const { label, onClick } = props;
+              return <button onClick={onClick}>{label}</button>;
+            };
+
+            export default Button;
+          `,
+        },
+        {
+          // FP: Exported type alias is a public contract
+          code: `
+            import * as React from 'react';
+
+            export type LinkProps = {
+              href: string;
+              target?: string;
+              children: React.ReactNode;
+            };
+
+            const Link: React.FC<LinkProps> = ({ href, children }) => {
+              return <a href={href}>{children}</a>;
+            };
+
+            export default Link;
+          `,
+        },
       ],
       invalid: [
         {
@@ -289,26 +326,6 @@ describe('S6767', () => {
                 return <div>{this.props.children}</div>;
               }
             }
-          `,
-          errors: 1,
-        },
-        {
-          // Exported Props interface alone should NOT suppress issues
-          code: `
-            import * as React from 'react';
-
-            export interface ButtonProps {
-              label: string;
-              variant: 'primary' | 'secondary';
-              onClick?: () => void;
-            }
-
-            const Button: React.FC<ButtonProps> = (props) => {
-              const { label, onClick } = props;
-              return <button onClick={onClick}>{label}</button>;
-            };
-
-            export default Button;
           `,
           errors: 1,
         },
