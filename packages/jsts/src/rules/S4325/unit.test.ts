@@ -247,6 +247,17 @@ function getName(x?: string | Person) {
 }
 interface Person { name: string; }
           `,
+          output: `
+function getName(x?: string | Person) {
+  if (x) {
+    if (typeof x === 'string') {
+      return (x);
+    }
+  }
+  return 'NoName';
+}
+interface Person { name: string; }
+          `,
           errors: 1,
         },
         {
@@ -258,6 +269,13 @@ function greet(name?: string) {
   }
 }
           `,
+          output: `
+function greet(name?: string) {
+  if (name) {
+    console.log(name);
+  }
+}
+          `,
           errors: 1,
         },
         {
@@ -265,6 +283,10 @@ function greet(name?: string) {
           code: `
 const x: number = 42;
 const y = x as number;
+          `,
+          output: `
+const x: number = 42;
+const y = x;
           `,
           errors: 1,
         },
