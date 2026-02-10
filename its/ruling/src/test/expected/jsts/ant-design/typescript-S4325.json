@@ -1,7 +1,4 @@
 {
-"ant-design:components/affix/index.tsx": [
-274
-],
 "ant-design:components/alert/__tests__/index.test.tsx": [
 38,
 127,
@@ -30,9 +27,6 @@
 50,
 52
 ],
-"ant-design:components/avatar/avatar.tsx": [
-233
-],
 "ant-design:components/badge/__tests__/index.test.tsx": [
 67
 ],
@@ -50,28 +44,9 @@
 87,
 99
 ],
-"ant-design:components/button/button.tsx": [
-171
-],
-"ant-design:components/cascader/index.tsx": [
-82,
-279
-],
-"ant-design:components/config-provider/index.tsx": [
-203
-],
-"ant-design:components/date-picker/generatePicker/generateRangePicker.tsx": [
-47
-],
-"ant-design:components/date-picker/generatePicker/generateSinglePicker.tsx": [
-57
-],
 "ant-design:components/date-picker/util.ts": [
 28,
 55
-],
-"ant-design:components/descriptions/Cell.tsx": [
-35
 ],
 "ant-design:components/drawer/index.tsx": [
 204
@@ -92,7 +67,6 @@
 140,
 160,
 170,
-205,
 209
 ],
 "ant-design:components/input/__tests__/focus.test.tsx": [
@@ -125,15 +99,6 @@
 "ant-design:components/layout/Sider.tsx": [
 122
 ],
-"ant-design:components/mentions/index.tsx": [
-142
-],
-"ant-design:components/popconfirm/index.tsx": [
-152
-],
-"ant-design:components/popover/index.tsx": [
-37
-],
 "ant-design:components/slider/SliderTooltip.tsx": [
 15
 ],
@@ -160,10 +125,6 @@
 "ant-design:components/tag/index.tsx": [
 55
 ],
-"ant-design:components/time-picker/index.tsx": [
-72,
-74
-],
 "ant-design:components/transfer/__tests__/dropdown.test.tsx": [
 54,
 70,
@@ -178,30 +139,16 @@
 86
 ],
 "ant-design:components/typography/Base/index.tsx": [
-142,
 200
 ],
-"ant-design:components/typography/Text.tsx": [
-18
-],
 "ant-design:components/upload/Upload.tsx": [
-102,
-126,
-148
+102
 ],
 "ant-design:components/upload/utils.tsx": [
 57
 ],
 "ant-design:site/theme/template/IconDisplay/index.tsx": [
 87
-],
-"ant-design:site/theme/template/IconDisplay/themeIcons.tsx": [
-21,
-35,
-48
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-105
 ],
 "ant-design:site/theme/template/utils.tsx": [
 189
