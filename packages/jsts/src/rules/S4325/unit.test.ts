@@ -232,6 +232,24 @@ const x: number = 42;
 const y = (x as unknown) as string;
           `,
         },
+        {
+          // FP: Non-null assertion on a variable declared with explicit undefined union.
+          // The variable is declared as `T | undefined` and the non-null assertion
+          // is needed even when strictNullChecks is not enabled.
+          code: `
+class Store<T> {
+  private value: T | undefined;
+
+  set(val: T) {
+    this.value = val;
+  }
+
+  get(): T {
+    return this.value!;
+  }
+}
+          `,
+        },
       ],
       invalid: [
         {
@@ -287,6 +305,24 @@ const y = x as number;
           output: `
 const x: number = 42;
 const y = x;
+          `,
+          errors: 1,
+        },
+        {
+          // Truly unnecessary: generic function with non-generic return type.
+          // The function has a type parameter <T> but the return type is always
+          // `string`, so `as string` is genuinely redundant.
+          code: `
+function stringify<T>(value: T): string {
+  return String(value);
+}
+const result = stringify(42) as string;
+          `,
+          output: `
+function stringify<T>(value: T): string {
+  return String(value);
+}
+const result = stringify(42);
           `,
           errors: 1,
         },

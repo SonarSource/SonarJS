@@ -106,10 +106,12 @@ function shouldSuppressTypeAssertion(
 }
 
 /**
- * Checks whether a call expression invokes a generic function/method.
- * When the callee has type parameters, TypeScript infers the generic from
- * the assertion context, causing the upstream rule's reference-equality check
- * to see both types as the same object.
+ * Checks whether a call expression invokes a generic function/method whose
+ * return type depends on a type parameter.
+ *
+ * When the callee has type parameters that influence the return type, TypeScript
+ * infers the generic from the assertion context, causing the upstream rule's
+ * reference-equality check to see both types as the same object.
  *
  * Uses the signature's declaration to check for type parameters, since
  * getResolvedSignature() returns an instantiated signature where
@@ -127,21 +129,78 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
     return false;
   }
 
-  // Check the resolved signature's type parameters first
-  const typeParameters = signature.getTypeParameters();
-  if (typeParameters && typeParameters.length > 0) {
-    return true;
-  }
-
-  // Fallback: check the declaration's type parameters directly.
-  // getResolvedSignature() returns an instantiated signature where type parameters
-  // have been substituted, so getTypeParameters() may return undefined.
-  // The declaration still retains the original type parameter list.
   const declaration = signature.getDeclaration();
-  if (declaration?.typeParameters && declaration.typeParameters.length > 0) {
-    return true;
+  const hasDeclarationTypeParams =
+    declaration?.typeParameters != null && declaration.typeParameters.length > 0;
+  const hasSignatureTypeParams = (signature.getTypeParameters()?.length ?? 0) > 0;
+
+  if (!hasDeclarationTypeParams && !hasSignatureTypeParams) {
+    return false;
   }
 
+  // The callee has type parameters. Now check if the return type actually
+  // references a type parameter. If the return type is concrete (e.g., `string`),
+  // the generic doesn't cause the reference-equality FP and the assertion may
+  // genuinely be unnecessary.
+  // Only perform this check when we have both the explicit return type and type
+  // parameter names from the declaration, since we need to match names syntactically.
+  if (hasDeclarationTypeParams && declaration!.type) {
+    const typeParamNames = new Set(declaration!.typeParameters!.map(tp => tp.name.text));
+    if (!typeNodeReferencesAny(declaration!.type, typeParamNames)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Checks whether a type node references any of the given type parameter names.
+ * This walks the type node AST to find TypeReference nodes that match.
+ */
+function typeNodeReferencesAny(typeNode: ts.TypeNode, names: Set<string>): boolean {
+  if (ts.isTypeReferenceNode(typeNode)) {
+    if (ts.isIdentifier(typeNode.typeName) && names.has(typeNode.typeName.text)) {
+      return true;
+    }
+    // Check type arguments (e.g., Promise<T>)
+    if (typeNode.typeArguments) {
+      return typeNode.typeArguments.some(arg => typeNodeReferencesAny(arg, names));
+    }
+    return false;
+  }
+  if (ts.isUnionTypeNode(typeNode) || ts.isIntersectionTypeNode(typeNode)) {
+    return typeNode.types.some(t => typeNodeReferencesAny(t, names));
+  }
+  if (ts.isArrayTypeNode(typeNode)) {
+    return typeNodeReferencesAny(typeNode.elementType, names);
+  }
+  if (ts.isTupleTypeNode(typeNode)) {
+    return typeNode.elements.some(e => typeNodeReferencesAny(e, names));
+  }
+  if (ts.isParenthesizedTypeNode(typeNode)) {
+    return typeNodeReferencesAny(typeNode.type, names);
+  }
+  if (ts.isTypeOperatorNode(typeNode)) {
+    return typeNodeReferencesAny(typeNode.type, names);
+  }
+  if (ts.isConditionalTypeNode(typeNode)) {
+    return (
+      typeNodeReferencesAny(typeNode.checkType, names) ||
+      typeNodeReferencesAny(typeNode.extendsType, names) ||
+      typeNodeReferencesAny(typeNode.trueType, names) ||
+      typeNodeReferencesAny(typeNode.falseType, names)
+    );
+  }
+  if (ts.isMappedTypeNode(typeNode) && typeNode.type) {
+    return typeNodeReferencesAny(typeNode.type, names);
+  }
+  if (ts.isIndexedAccessTypeNode(typeNode)) {
+    return (
+      typeNodeReferencesAny(typeNode.objectType, names) ||
+      typeNodeReferencesAny(typeNode.indexType, names)
+    );
+  }
   return false;
 }
 
