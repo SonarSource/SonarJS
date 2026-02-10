@@ -40,21 +40,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-// Cache scan results per file to avoid re-scanning for each reported issue
-const scanCache = new WeakMap<Rule.RuleContext['sourceCode'], boolean>();
-
 /**
  * Checks whether the file contains any indirect props usage pattern that
  * the upstream rule cannot track, making unused-prop reports unreliable.
  */
 function hasIndirectPropsUsage(context: Rule.RuleContext): boolean {
-  const sourceCode = context.sourceCode;
-  let result = scanCache.get(sourceCode);
-  if (result === undefined) {
-    result = scanNode(sourceCode.ast, sourceCode.visitorKeys);
-    scanCache.set(sourceCode, result);
-  }
-  return result;
+  return scanNode(context.sourceCode.ast, context.sourceCode.visitorKeys);
 }
 
 /**
