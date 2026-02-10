@@ -130,8 +130,7 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
   }
 
   const declaration = signature.getDeclaration();
-  const hasDeclarationTypeParams =
-    declaration?.typeParameters != null && declaration.typeParameters.length > 0;
+  const hasDeclarationTypeParams = (declaration?.typeParameters?.length ?? 0) > 0;
   const hasSignatureTypeParams = (signature.getTypeParameters()?.length ?? 0) > 0;
 
   if (!hasDeclarationTypeParams && !hasSignatureTypeParams) {
@@ -144,9 +143,9 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
   // genuinely be unnecessary.
   // Only perform this check when we have both the explicit return type and type
   // parameter names from the declaration, since we need to match names syntactically.
-  if (hasDeclarationTypeParams && declaration!.type) {
-    const typeParamNames = new Set(declaration!.typeParameters!.map(tp => tp.name.text));
-    if (!typeNodeReferencesAny(declaration!.type, typeParamNames)) {
+  if (declaration?.typeParameters != null && declaration.type) {
+    const typeParamNames = new Set(declaration.typeParameters.map(tp => tp.name.text));
+    if (!typeNodeReferencesAny(declaration.type, typeParamNames)) {
       return false;
     }
   }
