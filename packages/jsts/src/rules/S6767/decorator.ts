@@ -86,9 +86,13 @@ function scanNode(node: estree.Node): boolean {
  */
 function scanChildren(node: estree.Node): boolean {
   for (const key of Object.keys(node)) {
-    if (key === 'parent') continue;
+    if (key === 'parent') {
+      continue;
+    }
     const value = (node as unknown as Record<string, unknown>)[key];
-    if (scanChildValue(value)) return true;
+    if (scanChildValue(value)) {
+      return true;
+    }
   }
   return false;
 }
@@ -158,7 +162,9 @@ function isBracketPropsAccess(node: estree.MemberExpression): boolean {
  * Rest elements capture all remaining props, making them available indirectly.
  */
 function isRestDestructuringOfProps(node: estree.VariableDeclarator): boolean {
-  if (node.id.type !== 'ObjectPattern' || !node.init) return false;
+  if (node.id.type !== 'ObjectPattern' || !node.init) {
+    return false;
+  }
   const hasRestElement = node.id.properties.some(p => p.type === 'RestElement');
   return hasRestElement && isPropsReference(node.init);
 }
