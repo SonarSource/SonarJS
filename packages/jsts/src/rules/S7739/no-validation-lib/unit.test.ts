@@ -192,6 +192,56 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 8: Conditional validation config {is, then} pattern
+        // Validation libraries use objects with {is, then, otherwise} structure.
+        // This covers cases where the library is wrapped or re-exported.
+        {
+          code: `
+          const internals = {
+            when(field, options) { return options; },
+          };
+          const schema = internals.when('leftOperand', {
+            is: 'someValue',
+            then: { type: 'string' },
+            otherwise: { type: 'number' },
+          });
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 8b: {is, then} config inside array (switch-case style)
+        // Joi's .conditional() uses switch arrays with {is, then} objects
+        {
+          code: `
+          const switchCases = [
+            {
+              is: 'info',
+              then: { type: 'allow' },
+            },
+            {
+              is: 'create',
+              then: { type: 'object', required: true },
+            },
+          ];
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 8c: {is, then} inside a chained call from a wrapper library
+        // Covers the Kibana pattern where Joi is wrapped in a local 'internals' module
+        {
+          code: `
+          function createValidator() {
+            return {
+              when(field, options) { return this; },
+              required() { return this; },
+            };
+          }
+          const nameSchema = createValidator().when('hasName', {
+            is: true,
+            then: (schema) => schema,
+          });
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
