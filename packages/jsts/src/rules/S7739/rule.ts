@@ -22,6 +22,8 @@ import { rules } from '../external/unicorn.js';
 import {
   generateMeta,
   getFullyQualifiedName,
+  getImportDeclarations,
+  getRequireCalls,
   interceptReport,
   isIdentifier,
 } from '../helpers/index.js';
@@ -37,16 +39,66 @@ const noThenable = rules['no-thenable'];
 const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 
 /**
- * Checks if a node is inside a call expression from one of the exception libraries
+ * Checks if any of the specified libraries are imported via ES imports or CommonJS require.
+ * Follows the pattern from Chai.isImported in helpers/chai.ts.
+ */
+function isLibraryImported(context: Rule.RuleContext, libraries: string[]): boolean {
+  return (
+    getRequireCalls(context).some(
+      r => r.arguments[0].type === 'Literal' && libraries.includes(r.arguments[0].value as string),
+    ) || getImportDeclarations(context).some(i => libraries.includes(i.source.value as string))
+  );
+}
+
+/**
+ * Walks up the callee chain of a CallExpression to find the root CallExpression.
+ * For `yup.string().when()`, the chain is:
+ *   CallExpression(.when) -> MemberExpression -> CallExpression(.string()) -> MemberExpression -> Identifier(yup)
+ * This returns the root CallExpression (yup.string()) whose FQN can be resolved.
+ */
+function getCallChainRoot(call: CallExpression): CallExpression {
+  let current: CallExpression = call;
+  while (
+    current.callee.type === 'MemberExpression' &&
+    current.callee.object.type === 'CallExpression'
+  ) {
+    current = current.callee.object;
+  }
+  return current;
+}
+
+/**
+ * Checks if a node is inside a call expression from one of the exception libraries.
+ * Tier 1: Direct FQN check on ancestor CallExpressions.
+ * Tier 2: If a validation library is imported, walk up the callee chain from
+ * ancestor CallExpressions to find a root whose FQN resolves to the library.
  */
 function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
 
+  // Tier 1: Direct FQN check
   for (const ancestor of ancestors) {
     if (ancestor.type === 'CallExpression') {
       const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
       if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
         return true;
+      }
+    }
+  }
+
+  // Tier 2: Chain-origin detection when a validation library is imported
+  if (!isLibraryImported(context, EXCEPTION_LIBRARIES)) {
+    return false;
+  }
+
+  for (const ancestor of ancestors) {
+    if (ancestor.type === 'CallExpression') {
+      const root = getCallChainRoot(ancestor as CallExpression);
+      if (root !== ancestor) {
+        const rootFqn = getFullyQualifiedName(context, root);
+        if (rootFqn && EXCEPTION_LIBRARIES.some(lib => rootFqn.startsWith(lib))) {
+          return true;
+        }
       }
     }
   }
@@ -305,6 +357,22 @@ function hasSiblingThenableMethods(node: Node): boolean {
 }
 
 /**
+ * Checks if 'then' is inside an object that also has an 'is' property,
+ * indicating a conditional validation config pattern (e.g., {is: ..., then: ...}).
+ * This pattern is used by validation libraries like Yup and Joi in their
+ * .when() and .conditional() methods.
+ */
+function isConditionalValidationConfig(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+  const propertyNames = collectPropertyNames(objectExpr);
+  return propertyNames.has('then') && propertyNames.has('is');
+}
+
+/**
  * Checks if the reported node represents an intentional thenable implementation
  * that should not be flagged.
  */
@@ -313,7 +381,8 @@ function isIntentionalThenableImplementation(node: Node): boolean {
     isDelegatingToPromiseThen(node) ||
     isInsidePromiseOrDeferredDefinition(node) ||
     isPrototypeThenAssignment(node) ||
-    hasSiblingThenableMethods(node)
+    hasSiblingThenableMethods(node) ||
+    isConditionalValidationConfig(node)
   );
 }
 
