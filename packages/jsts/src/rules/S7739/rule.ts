@@ -68,6 +68,42 @@ function getCallChainRoot(call: CallExpression): CallExpression {
 }
 
 /**
+ * Checks if any ancestor CallExpression has a FQN that starts with one of the exception libraries.
+ */
+function hasDirectFqnMatch(context: Rule.RuleContext, ancestors: Node[]): boolean {
+  for (const ancestor of ancestors) {
+    if (ancestor.type !== 'CallExpression') {
+      continue;
+    }
+    const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
+    if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if any ancestor CallExpression's callee chain root has a FQN matching an exception library.
+ */
+function hasChainOriginFqnMatch(context: Rule.RuleContext, ancestors: Node[]): boolean {
+  for (const ancestor of ancestors) {
+    if (ancestor.type !== 'CallExpression') {
+      continue;
+    }
+    const root = getCallChainRoot(ancestor as CallExpression);
+    if (root === ancestor) {
+      continue;
+    }
+    const rootFqn = getFullyQualifiedName(context, root);
+    if (rootFqn && EXCEPTION_LIBRARIES.some(lib => rootFqn.startsWith(lib))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Checks if a node is inside a call expression from one of the exception libraries.
  * Tier 1: Direct FQN check on ancestor CallExpressions.
  * Tier 2: If a validation library is imported, walk up the callee chain from
@@ -75,35 +111,10 @@ function getCallChainRoot(call: CallExpression): CallExpression {
  */
 function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
-
-  // Tier 1: Direct FQN check
-  for (const ancestor of ancestors) {
-    if (ancestor.type === 'CallExpression') {
-      const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
-      if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
-        return true;
-      }
-    }
-  }
-
-  // Tier 2: Chain-origin detection when a validation library is imported
-  if (!isLibraryImported(context, EXCEPTION_LIBRARIES)) {
-    return false;
-  }
-
-  for (const ancestor of ancestors) {
-    if (ancestor.type === 'CallExpression') {
-      const root = getCallChainRoot(ancestor as CallExpression);
-      if (root !== ancestor) {
-        const rootFqn = getFullyQualifiedName(context, root);
-        if (rootFqn && EXCEPTION_LIBRARIES.some(lib => rootFqn.startsWith(lib))) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
+  return (
+    hasDirectFqnMatch(context, ancestors) ||
+    (isLibraryImported(context, EXCEPTION_LIBRARIES) && hasChainOriginFqnMatch(context, ancestors))
+  );
 }
 
 /**
