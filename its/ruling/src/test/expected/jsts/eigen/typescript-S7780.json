@@ -1,18 +1,5 @@
 {
-"eigen:src/app/Scenes/Search/Search.tests.tsx": [
-677
-],
-"eigen:src/app/relay/RelayCache.tests.tsx": [
-9,
-21,
-53,
-59
-],
 "eigen:src/app/store/migration.tests.ts": [
 115
-],
-"eigen:src/app/utils/volleyClient.tests.ts": [
-34,
-51
 ]
 }

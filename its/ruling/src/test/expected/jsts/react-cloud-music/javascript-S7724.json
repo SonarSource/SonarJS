@@ -1,4 +1,7 @@
 {
+"react-cloud-music:src/api/lyric-parser.js": [
+9
+],
 "react-cloud-music:src/application/Player/index.jsx": [
 86
 ],
@@ -11,14 +14,23 @@
 "react-cloud-music:src/application/Search/index.jsx": [
 44
 ],
+"react-cloud-music:src/application/Singer/index.jsx": [
+51
+],
 "react-cloud-music:src/application/Singers/index.jsx": [
 29
+],
+"react-cloud-music:src/baseUI/header/index.jsx": [
+34
 ],
 "react-cloud-music:src/baseUI/music-note/index.jsx": [
 55
 ],
 "react-cloud-music:src/baseUI/progress-bar/index.jsx": [
 58
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+112
 ],
 "react-cloud-music:src/baseUI/search-box/index.jsx": [
 56,
