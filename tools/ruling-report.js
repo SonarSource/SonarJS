@@ -72,12 +72,13 @@ function getRulingChanges(filePath) {
   // Get current (staged/working) version
   const currentData = parseRulingJson(fullPath);
 
-  // Get master version
+  // Get master version (suppress stderr for new files)
   let masterData = {};
   try {
-    const masterContent = execSync(`git show ${BASE_REF}:${filePath}`, {
+    const masterContent = execSync(`git show ${BASE_REF}:${filePath} 2>/dev/null`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
     masterData = JSON.parse(masterContent);
   } catch {
@@ -222,41 +223,51 @@ function generateChangesSection(changes, maxSnippets = MAX_SNIPPETS) {
   return md;
 }
 
-function generateFullMarkdown(changes) {
-  if (changes.length === 0) {
-    return '';
+function generateFullChangesSection(changes) {
+  let md = '';
+
+  // Group by rule
+  const byRule = new Map();
+  for (const change of changes) {
+    if (!byRule.has(change.rule)) {
+      byRule.set(change.rule, []);
+    }
+    byRule.get(change.rule).push(change);
   }
 
-  const removed = changes.filter(c => c.type === 'removed');
-  const added = changes.filter(c => c.type === 'added');
+  for (const [rule, ruleChanges] of byRule) {
+    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    md += `**<a href="${rspecLink}" target="_blank">${rule}</a>**\n\n`;
 
-  let md = '## Ruling Report (Full)\n\n';
-
-  if (removed.length > 0) {
-    md += `### Code no longer flagged (${removed.length} issue${removed.length > 1 ? 's' : ''})\n\n`;
-    md += generateChangesSection(removed, null);
-  }
-
-  if (added.length > 0) {
-    md += `### New issues flagged (${added.length} issue${added.length > 1 ? 's' : ''})\n\n`;
-    md += generateChangesSection(added, null);
+    for (const change of ruleChanges) {
+      const fileLink = `${SOURCES_REPO_URL}/${change.project}/${change.filePath}#L${change.line}`;
+      md += `- <a href="${fileLink}" target="_blank">${change.project}/${change.filePath}:${change.line}</a>\n`;
+    }
+    md += '\n';
   }
 
   return md;
 }
 
-function createGist(content) {
-  try {
-    const result = execSync('gh gist create --public -f ruling-report.md -', {
-      input: content,
-      encoding: 'utf-8',
-      cwd: ROOT_DIR,
-    });
-    return result.trim();
-  } catch (error) {
-    console.error('Failed to create gist:', error.message);
-    return null;
+function generateCollapsibleFullReport(changes) {
+  const removed = changes.filter(c => c.type === 'removed');
+  const added = changes.filter(c => c.type === 'added');
+
+  let md = '\n<details>\n<summary>📋 View full report</summary>\n\n';
+
+  if (removed.length > 0) {
+    md += `#### Code no longer flagged (${removed.length})\n\n`;
+    md += generateFullChangesSection(removed);
   }
+
+  if (added.length > 0) {
+    md += `#### New issues flagged (${added.length})\n\n`;
+    md += generateFullChangesSection(added);
+  }
+
+  md += '</details>\n';
+
+  return md;
 }
 
 // Main
@@ -271,20 +282,11 @@ for (const file of changedFiles) {
   allChanges.push(...changes);
 }
 
-// Check if we need a gist for the full report
-const needsGist = allChanges.length > MAX_SNIPPETS;
-let gistUrl = null;
-
-if (needsGist) {
-  const fullMarkdown = generateFullMarkdown(allChanges);
-  gistUrl = createGist(fullMarkdown);
-}
-
 let markdown = generateMarkdown(allChanges);
 
-// Add gist link if created
-if (gistUrl) {
-  markdown += `\n📋 **<a href="${gistUrl}" target="_blank">View full report in gist</a>**\n`;
+// Add collapsible full report if truncated
+if (allChanges.length > MAX_SNIPPETS) {
+  markdown += generateCollapsibleFullReport(allChanges);
 }
 
 if (markdown) {
