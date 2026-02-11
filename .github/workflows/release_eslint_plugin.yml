@@ -66,7 +66,6 @@ jobs:
     needs: publish
     uses: ./.github/workflows/update-eslint-plugin-changelog.yml
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
     with:
