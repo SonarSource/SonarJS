@@ -133,16 +133,13 @@ function createSearchContext(
  * Main orchestrator that finds the component's propTypes declaration.
  * Tries each pattern (class body, external assignment, constant) in order.
  */
-function findComponentPropTypes(ctx: PropTypesSearchContext): estree.Node | null {
+function findComponentPropTypes(ctx: PropTypesSearchContext): estree.Node | undefined {
   for (let i = ctx.ancestors.length - 1; i >= 0; i--) {
     const result = findPropTypesForAncestor(ctx.ancestors[i], ctx);
     if (result) {
       return result;
     }
   }
-
-  /* istanbul ignore next - Defensive: No pattern matched (React rule only reports when propTypes exists) */
-  return null;
 }
 
 /**
