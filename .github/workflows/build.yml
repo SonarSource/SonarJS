@@ -179,6 +179,7 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/gh-action_cache@v1
@@ -193,6 +194,7 @@ jobs:
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.deployer-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -225,8 +227,15 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *config_maven
+      - id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
