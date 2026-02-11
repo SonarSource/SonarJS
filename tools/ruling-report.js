@@ -194,7 +194,7 @@ function generateChangesSection(changes) {
     if (snippetCount >= MAX_SNIPPETS) break;
 
     const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
-    md += `#### [${rule}](${rspecLink})\n\n`;
+    md += `#### <a href="${rspecLink}" target="_blank">${rule}</a>\n\n`;
 
     for (const change of ruleChanges) {
       if (snippetCount >= MAX_SNIPPETS) {
@@ -205,7 +205,7 @@ function generateChangesSection(changes) {
 
       const snippet = getSnippet(change.project, change.filePath, change.line);
       const fileLink = `${SOURCES_REPO_URL}/${change.project}/${change.filePath}#L${change.line}`;
-      md += `**[${change.project}/${change.filePath}:${change.line}](${fileLink})**\n`;
+      md += `**<a href="${fileLink}" target="_blank">${change.project}/${change.filePath}:${change.line}</a>**\n`;
       if (snippet) {
         const ext = change.filePath.split('.').pop();
         const lang =
