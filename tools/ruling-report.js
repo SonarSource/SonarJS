@@ -33,6 +33,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources/jsts/projects');
 const BASE_REF = 'origin/master';
+const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
+const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 
 function getChangedRulingFiles() {
   try {
@@ -70,12 +72,13 @@ function getRulingChanges(filePath) {
   // Get current (staged/working) version
   const currentData = parseRulingJson(fullPath);
 
-  // Get master version
+  // Get master version (suppress stderr for new files)
   let masterData = {};
   try {
-    const masterContent = execSync(`git show ${BASE_REF}:${filePath}`, {
+    const masterContent = execSync(`git show ${BASE_REF}:${filePath} 2>/dev/null`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
     masterData = JSON.parse(masterContent);
   } catch {
@@ -175,9 +178,10 @@ function generateMarkdown(changes) {
 
 const MAX_SNIPPETS = 10;
 
-function generateChangesSection(changes) {
+function generateChangesSection(changes, maxSnippets = MAX_SNIPPETS) {
   let md = '';
   let snippetCount = 0;
+  const unlimited = maxSnippets === null;
 
   // Group by rule
   const byRule = new Map();
@@ -189,19 +193,21 @@ function generateChangesSection(changes) {
   }
 
   for (const [rule, ruleChanges] of byRule) {
-    if (snippetCount >= MAX_SNIPPETS) break;
+    if (!unlimited && snippetCount >= maxSnippets) break;
 
-    md += `#### ${rule}\n\n`;
+    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    md += `#### <a href="${rspecLink}" target="_blank">${rule}</a>\n\n`;
 
     for (const change of ruleChanges) {
-      if (snippetCount >= MAX_SNIPPETS) {
+      if (!unlimited && snippetCount >= maxSnippets) {
         const remaining = changes.length - snippetCount;
-        md += `\n_...and ${remaining} more (see ruling JSON files for full list)_\n\n`;
+        md += `\n_...and ${remaining} more_\n\n`;
         break;
       }
 
       const snippet = getSnippet(change.project, change.filePath, change.line);
-      md += `**${change.project}/${change.filePath}:${change.line}**\n`;
+      const fileLink = `${SOURCES_REPO_URL}/${change.project}/${change.filePath}#L${change.line}`;
+      md += `**<a href="${fileLink}" target="_blank">${change.project}/${change.filePath}:${change.line}</a>**\n`;
       if (snippet) {
         const ext = change.filePath.split('.').pop();
         const lang =
@@ -213,6 +219,53 @@ function generateChangesSection(changes) {
       snippetCount++;
     }
   }
+
+  return md;
+}
+
+function generateFullChangesSection(changes) {
+  let md = '';
+
+  // Group by rule
+  const byRule = new Map();
+  for (const change of changes) {
+    if (!byRule.has(change.rule)) {
+      byRule.set(change.rule, []);
+    }
+    byRule.get(change.rule).push(change);
+  }
+
+  for (const [rule, ruleChanges] of byRule) {
+    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    md += `**<a href="${rspecLink}" target="_blank">${rule}</a>**\n\n`;
+
+    for (const change of ruleChanges) {
+      const fileLink = `${SOURCES_REPO_URL}/${change.project}/${change.filePath}#L${change.line}`;
+      md += `- <a href="${fileLink}" target="_blank">${change.project}/${change.filePath}:${change.line}</a>\n`;
+    }
+    md += '\n';
+  }
+
+  return md;
+}
+
+function generateCollapsibleFullReport(changes) {
+  const removed = changes.filter(c => c.type === 'removed');
+  const added = changes.filter(c => c.type === 'added');
+
+  let md = '\n<details>\n<summary>📋 View full report</summary>\n\n';
+
+  if (removed.length > 0) {
+    md += `#### Code no longer flagged (${removed.length})\n\n`;
+    md += generateFullChangesSection(removed);
+  }
+
+  if (added.length > 0) {
+    md += `#### New issues flagged (${added.length})\n\n`;
+    md += generateFullChangesSection(added);
+  }
+
+  md += '</details>\n';
 
   return md;
 }
@@ -229,7 +282,13 @@ for (const file of changedFiles) {
   allChanges.push(...changes);
 }
 
-const markdown = generateMarkdown(allChanges);
+let markdown = generateMarkdown(allChanges);
+
+// Add collapsible full report if truncated
+if (allChanges.length > MAX_SNIPPETS) {
+  markdown += generateCollapsibleFullReport(allChanges);
+}
+
 if (markdown) {
   console.log(markdown);
 }

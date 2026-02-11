@@ -1,0 +1,335 @@
+{
+"vuetify:packages/vuetify/src/components/VBottomSheet/VBottomSheet.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarMonthly.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendar.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarCategory.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/__tests__/VCalendarDaily.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-base.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-events.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/calendar-with-intervals.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/mouse.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/__tests__/times.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/times.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/__tests__/common.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/column.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/events.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/props.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/events.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox-multiple.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/__tests__/VDataFooter.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/__tests__/VDataIterator.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.date.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.month.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerDateTable.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerHeader.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerMonthTable.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerTitle.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerYears.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/__tests__/createNativeLocaleFormatter.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/__tests__/monthChange.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/__tests__/pad.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/eventHelpers.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/monthChange.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/pad.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/__tests__/VOtpInput.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/__tests__/VOverflowBtn.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VPicker/VPicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VPicker/__tests__/VPicker.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/__tests__/VSkeletonLoader.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/__tests__/VSparkline.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/core.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/math.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/path.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/__tests__/VSpeedDial.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepper.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperContent.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/__tests__/VStepperStep.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/SelectingTimes.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerClock.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerTitle.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeviewNode.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/util/__tests__/filterTreeItems.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
+2
+],
+"vuetify:packages/vuetify/src/directives/color/__tests__/color.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/directives/color/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/MobileRow.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/Row.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/RowGroup.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableHeader.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VEditDialog.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VSimpleTable.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VVirtualTable.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/__tests__/easing-patterns.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/__tests__/goto.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/util.ts": [
+2
+]
+}
