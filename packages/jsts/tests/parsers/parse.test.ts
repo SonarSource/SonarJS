@@ -97,4 +97,32 @@ describe('parseForESLint', () => {
       );
     });
   }
+
+  it('should parse module declarations with Babel parser', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'parse', 'module-declaration.js'),
+    );
+    const fileContent = await readFile(filePath);
+    const fileType = 'MAIN';
+
+    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
+    const options = buildParserOptions(input, true);
+    const sourceCode = parse(fileContent, parsersMap.javascript, options).sourceCode;
+
+    expect(sourceCode).toBeDefined();
+    expect(sourceCode.ast).toBeDefined();
+
+    const moduleDecl = sourceCode.ast.body.find(
+      (node: any) => node.type === 'ModuleDeclaration',
+    ) as any;
+    expect(moduleDecl).toBeDefined();
+    expect(moduleDecl.id.name).toBe('countModule');
+    expect(moduleDecl.body.type).toBe('ModuleBlock');
+    expect(moduleDecl.body.body.length).toBeGreaterThan(0);
+
+    const exportStatements = moduleDecl.body.body.filter(
+      (node: any) => node.type === 'ExportNamedDeclaration',
+    );
+    expect(exportStatements.length).toBe(2);
+  });
 });
