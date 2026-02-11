@@ -177,9 +177,10 @@ function generateMarkdown(changes) {
 
 const MAX_SNIPPETS = 10;
 
-function generateChangesSection(changes) {
+function generateChangesSection(changes, maxSnippets = MAX_SNIPPETS) {
   let md = '';
   let snippetCount = 0;
+  const unlimited = maxSnippets === null;
 
   // Group by rule
   const byRule = new Map();
@@ -191,15 +192,15 @@ function generateChangesSection(changes) {
   }
 
   for (const [rule, ruleChanges] of byRule) {
-    if (snippetCount >= MAX_SNIPPETS) break;
+    if (!unlimited && snippetCount >= maxSnippets) break;
 
     const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
     md += `#### <a href="${rspecLink}" target="_blank">${rule}</a>\n\n`;
 
     for (const change of ruleChanges) {
-      if (snippetCount >= MAX_SNIPPETS) {
+      if (!unlimited && snippetCount >= maxSnippets) {
         const remaining = changes.length - snippetCount;
-        md += `\n_...and ${remaining} more (see ruling JSON files for full list)_\n\n`;
+        md += `\n_...and ${remaining} more_\n\n`;
         break;
       }
 
@@ -221,6 +222,43 @@ function generateChangesSection(changes) {
   return md;
 }
 
+function generateFullMarkdown(changes) {
+  if (changes.length === 0) {
+    return '';
+  }
+
+  const removed = changes.filter(c => c.type === 'removed');
+  const added = changes.filter(c => c.type === 'added');
+
+  let md = '## Ruling Report (Full)\n\n';
+
+  if (removed.length > 0) {
+    md += `### Code no longer flagged (${removed.length} issue${removed.length > 1 ? 's' : ''})\n\n`;
+    md += generateChangesSection(removed, null);
+  }
+
+  if (added.length > 0) {
+    md += `### New issues flagged (${added.length} issue${added.length > 1 ? 's' : ''})\n\n`;
+    md += generateChangesSection(added, null);
+  }
+
+  return md;
+}
+
+function createGist(content) {
+  try {
+    const result = execSync('gh gist create --public -f ruling-report.md -', {
+      input: content,
+      encoding: 'utf-8',
+      cwd: ROOT_DIR,
+    });
+    return result.trim();
+  } catch (error) {
+    console.error('Failed to create gist:', error.message);
+    return null;
+  }
+}
+
 // Main
 const changedFiles = getChangedRulingFiles();
 if (changedFiles.length === 0) {
@@ -233,7 +271,22 @@ for (const file of changedFiles) {
   allChanges.push(...changes);
 }
 
-const markdown = generateMarkdown(allChanges);
+// Check if we need a gist for the full report
+const needsGist = allChanges.length > MAX_SNIPPETS;
+let gistUrl = null;
+
+if (needsGist) {
+  const fullMarkdown = generateFullMarkdown(allChanges);
+  gistUrl = createGist(fullMarkdown);
+}
+
+let markdown = generateMarkdown(allChanges);
+
+// Add gist link if created
+if (gistUrl) {
+  markdown += `\n📋 **<a href="${gistUrl}" target="_blank">View full report in gist</a>**\n`;
+}
+
 if (markdown) {
   console.log(markdown);
 }
