@@ -17,15 +17,9 @@ jobs:
   update-changelog:
     runs-on: github-ubuntu-latest-s
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
     steps:
-      - id: secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-jira token | GITHUB_TOKEN;
       - uses: actions/checkout@v6
       - name: Update changelog
         env:
@@ -33,7 +27,6 @@ jobs:
         run: node tools/update-changelog.js "$VERSION"
       - uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
         with:
-          token: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
           author: ${{ github.actor }} <${{ github.actor }}>
           commit-message: "Update eslint-plugin-sonarjs changelog for ${{ inputs.version }}"
           title: "Update eslint-plugin-sonarjs changelog for ${{ inputs.version }}"
