@@ -33,6 +33,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources/jsts/projects');
 const BASE_REF = 'origin/master';
+const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
+const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 
 function getChangedRulingFiles() {
   try {
@@ -191,7 +193,8 @@ function generateChangesSection(changes) {
   for (const [rule, ruleChanges] of byRule) {
     if (snippetCount >= MAX_SNIPPETS) break;
 
-    md += `#### ${rule}\n\n`;
+    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    md += `#### [${rule}](${rspecLink})\n\n`;
 
     for (const change of ruleChanges) {
       if (snippetCount >= MAX_SNIPPETS) {
@@ -201,7 +204,8 @@ function generateChangesSection(changes) {
       }
 
       const snippet = getSnippet(change.project, change.filePath, change.line);
-      md += `**${change.project}/${change.filePath}:${change.line}**\n`;
+      const fileLink = `${SOURCES_REPO_URL}/${change.project}/${change.filePath}#L${change.line}`;
+      md += `**[${change.project}/${change.filePath}:${change.line}](${fileLink})**\n`;
       if (snippet) {
         const ext = change.filePath.split('.').pop();
         const lang =
