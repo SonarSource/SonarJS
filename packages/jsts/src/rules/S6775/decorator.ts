@@ -135,34 +135,47 @@ function createSearchContext(
  */
 function findComponentPropTypes(ctx: PropTypesSearchContext): estree.Node | null {
   for (let i = ctx.ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ctx.ancestors[i];
-
-    // Pattern 1: Class component with static propTypes
-    if (ancestor.type === 'ClassBody') {
-      const propTypes = findStaticPropTypes(ancestor);
-      if (propTypes) {
-        return getUniqueWriteUsageOrNode(ctx.context, propTypes, true);
-      }
-    }
-
-    // Pattern 2: External assignment (Component.defaultProps = {...})
-    if (ancestor.type === 'AssignmentExpression') {
-      const result = findPropTypesForExternalAssignment(ancestor, ctx);
-      if (result) {
-        return result;
-      }
-    }
-
-    // Pattern 3: Constant used as defaultProps
-    if (ancestor.type === 'VariableDeclarator' && ancestor.id.type === 'Identifier') {
-      const result = findPropTypesForDefaultPropsConstant(ancestor.id.name, ctx);
-      if (result) {
-        return result;
-      }
+    const result = findPropTypesForAncestor(ctx.ancestors[i], ctx);
+    if (result) {
+      return result;
     }
   }
 
   /* istanbul ignore next - Defensive: No pattern matched (React rule only reports when propTypes exists) */
+  return null;
+}
+
+/**
+ * Try to find propTypes for a single ancestor node.
+ */
+function findPropTypesForAncestor(
+  ancestor: estree.Node,
+  ctx: PropTypesSearchContext,
+): estree.Node | null {
+  // Pattern 1: Class component with static propTypes
+  if (ancestor.type === 'ClassBody') {
+    const propTypes = findStaticPropTypes(ancestor);
+    if (propTypes) {
+      return getUniqueWriteUsageOrNode(ctx.context, propTypes, true);
+    }
+  }
+
+  // Pattern 2: External assignment (Component.defaultProps = {...})
+  if (ancestor.type === 'AssignmentExpression') {
+    const result = findPropTypesForExternalAssignment(ancestor, ctx);
+    if (result) {
+      return result;
+    }
+  }
+
+  // Pattern 3: Constant used as defaultProps
+  if (ancestor.type === 'VariableDeclarator' && ancestor.id.type === 'Identifier') {
+    const result = findPropTypesForDefaultPropsConstant(ancestor.id.name, ctx);
+    if (result) {
+      return result;
+    }
+  }
+
   return null;
 }
 

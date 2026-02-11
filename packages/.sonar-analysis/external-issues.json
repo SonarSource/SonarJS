@@ -1,0 +1,14 @@
+[
+  {
+    "rule": "typescript:S3776",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S6775/decorator.ts",
+    "line": 136,
+    "message": "Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.",
+    "textRange": {
+      "startLine": 136,
+      "endLine": 136,
+      "startOffset": 9,
+      "endOffset": 31
+    }
+  }
+]
