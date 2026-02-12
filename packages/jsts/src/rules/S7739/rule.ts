@@ -22,8 +22,6 @@ import { rules } from '../external/unicorn.js';
 import {
   generateMeta,
   getFullyQualifiedName,
-  getImportDeclarations,
-  getRequireCalls,
   interceptReport,
   isIdentifier,
 } from '../helpers/index.js';
@@ -39,38 +37,11 @@ const noThenable = rules['no-thenable'];
 const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 
 /**
- * Checks if any of the specified libraries are imported via ES imports or CommonJS require.
- * Follows the pattern from Chai.isImported in helpers/chai.ts.
+ * Checks if a node is inside a call expression from one of the exception libraries.
+ * Uses FQN resolution on ancestor CallExpressions to detect yup/joi calls.
  */
-function isLibraryImported(context: Rule.RuleContext, libraries: string[]): boolean {
-  return (
-    getRequireCalls(context).some(
-      r => r.arguments[0].type === 'Literal' && libraries.includes(r.arguments[0].value as string),
-    ) || getImportDeclarations(context).some(i => libraries.includes(i.source.value as string))
-  );
-}
-
-/**
- * Walks up the callee chain of a CallExpression to find the root CallExpression.
- * For `yup.string().when()`, the chain is:
- *   CallExpression(.when) -> MemberExpression -> CallExpression(.string()) -> MemberExpression -> Identifier(yup)
- * This returns the root CallExpression (yup.string()) whose FQN can be resolved.
- */
-function getCallChainRoot(call: CallExpression): CallExpression {
-  let current: CallExpression = call;
-  while (
-    current.callee.type === 'MemberExpression' &&
-    current.callee.object.type === 'CallExpression'
-  ) {
-    current = current.callee.object;
-  }
-  return current;
-}
-
-/**
- * Checks if any ancestor CallExpression has a FQN that starts with one of the exception libraries.
- */
-function hasDirectFqnMatch(context: Rule.RuleContext, ancestors: Node[]): boolean {
+function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
   for (const ancestor of ancestors) {
     if (ancestor.type !== 'CallExpression') {
       continue;
@@ -81,40 +52,6 @@ function hasDirectFqnMatch(context: Rule.RuleContext, ancestors: Node[]): boolea
     }
   }
   return false;
-}
-
-/**
- * Checks if any ancestor CallExpression's callee chain root has a FQN matching an exception library.
- */
-function hasChainOriginFqnMatch(context: Rule.RuleContext, ancestors: Node[]): boolean {
-  for (const ancestor of ancestors) {
-    if (ancestor.type !== 'CallExpression') {
-      continue;
-    }
-    const root = getCallChainRoot(ancestor as CallExpression);
-    if (root === ancestor) {
-      continue;
-    }
-    const rootFqn = getFullyQualifiedName(context, root);
-    if (rootFqn && EXCEPTION_LIBRARIES.some(lib => rootFqn.startsWith(lib))) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Checks if a node is inside a call expression from one of the exception libraries.
- * Tier 1: Direct FQN check on ancestor CallExpressions.
- * Tier 2: If a validation library is imported, walk up the callee chain from
- * ancestor CallExpressions to find a root whose FQN resolves to the library.
- */
-function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
-  const ancestors = context.sourceCode.getAncestors(node);
-  return (
-    hasDirectFqnMatch(context, ancestors) ||
-    (isLibraryImported(context, EXCEPTION_LIBRARIES) && hasChainOriginFqnMatch(context, ancestors))
-  );
 }
 
 /**

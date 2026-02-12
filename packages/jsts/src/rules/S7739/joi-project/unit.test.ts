@@ -34,7 +34,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Chained joi calls - string().when() with {is, then} config
+        // Chained joi calls - string().when() with {is, then} config
         code: `
           import Joi from 'joi';
           const schema = Joi.string().when('type', {
@@ -45,7 +45,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Joi alternatives().conditional() with switch cases containing {is, then}
+        // Joi alternatives().conditional() with switch cases containing {is, then}
         code: `
           import Joi from 'joi';
           const schema = Joi.alternatives().conditional('action', {
@@ -59,7 +59,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Joi with CommonJS require
+        // Joi with CommonJS require
         code: `
           const Joi = require('joi');
           const schema = Joi.string().when('field', {

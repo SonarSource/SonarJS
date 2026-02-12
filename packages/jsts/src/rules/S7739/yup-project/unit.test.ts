@@ -34,9 +34,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Chained yup calls - string().when() with {is, then} config
-        // The FQN for .when() is null because it's called on the return value of string(),
-        // but the root of the chain resolves to yup
+        // Chained yup calls - string().when() with {is, then} config
         code: `
           import * as yup from 'yup';
           const schema = yup.string().when('hasName', {
@@ -47,7 +45,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Chained yup calls inside object shape definition
+        // Chained yup calls inside object shape definition
         // This is the most common real-world pattern from the Jira ticket
         code: `
           import * as yup from 'yup';
@@ -63,7 +61,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Multiple chained .when() calls with {is, then} in same shape
+        // Multiple chained .when() calls with {is, then} in same shape
         code: `
           import * as yup from 'yup';
           const schema = yup.object().shape({
@@ -80,7 +78,7 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.ts'),
       },
       {
-        // Tier 2: Yup .when() with array of dependencies
+        // Yup .when() with array of dependencies
         code: `
           import * as yup from 'yup';
           const schema = yup.object().shape({
