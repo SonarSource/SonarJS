@@ -128,6 +128,19 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5d: Assignment expression to Promise
+        {
+          code: `
+          let Promise;
+          Promise = function(executor) {
+            this.state = 'pending';
+            this.then = function(onFulfilled) {
+              this.onFulfilled = onFulfilled;
+            };
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5c: Arrow function assigned to Deferred
         {
           code: `
@@ -284,6 +297,26 @@ describe('S7739', () => {
             'then': 1,
             'do': 1
           };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Property with computed key - 'then' is still flagged
+        {
+          code: `
+          const obj = {
+            [1 + 1]: 'computed',
+            then: function() { return this; },
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Arrow function assignment NOT delegating to .then()
+        {
+          code: `
+          const result = {};
+          result.then = (args) => someOtherCall(args);
         `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
