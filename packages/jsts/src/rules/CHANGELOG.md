@@ -1,3 +1,18 @@
+## 2026-02-11, Version 3.0.7
+
+* [[JS-1232](https://sonarsource.atlassian.net/browse/JS-1232)] - Add AWS TLS PFS policies to the valid ones
+* [[JS-1227](https://sonarsource.atlassian.net/browse/JS-1227)] - perf: Optimize S125 commented-out code detection
+* [[JS-1214](https://sonarsource.atlassian.net/browse/JS-1214)] - feat (S5247): Add support for Swig
+* [[JS-1209](https://sonarsource.atlassian.net/browse/JS-1209)] - feat(S6437): Add support for express-session
+* [[JS-1208](https://sonarsource.atlassian.net/browse/JS-1208)] - feat(S6418): Add support for MemberExpression
+* [[JS-1206](https://sonarsource.atlassian.net/browse/JS-1206)] - feat (S6437): Add ldapjs
+* [[JS-1198](https://sonarsource.atlassian.net/browse/JS-1198)] - Fix S2234 performance issue with complex destructuring patterns
+* [[JS-1197](https://sonarsource.atlassian.net/browse/JS-1197)] - feat: add branded types for Unix path handling
+* [[JS-1194](https://sonarsource.atlassian.net/browse/JS-1194)] - feat(S2077): Add use getFullyQualifiedname & add sqlite3
+* [[JS-1170](https://sonarsource.atlassian.net/browse/JS-1170)] - Test: trigger ruling failure
+* [[JS-1143](https://sonarsource.atlassian.net/browse/JS-1143)] - feat(S6437): Add support for object-based signatures
+* [[JS-946](https://sonarsource.atlassian.net/browse/JS-946)] - Implement direct TypeScript program caching
+
 ## 2026-01-27, Version 3.0.6
 
 * [[JS-1143](https://sonarsource.atlassian.net/browse/JS-1143)] - feat(S6437): Add support for object-based signatures
