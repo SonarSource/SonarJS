@@ -37,20 +37,20 @@ const noThenable = rules['no-thenable'];
 const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 
 /**
- * Checks if a node is inside a call expression from one of the exception libraries.
- * Uses FQN resolution on ancestor CallExpressions to detect yup/joi calls.
+ * Checks if a node is inside a call expression from one of the exception libraries
  */
 function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
+
   for (const ancestor of ancestors) {
-    if (ancestor.type !== 'CallExpression') {
-      continue;
-    }
-    const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
-    if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
-      return true;
+    if (ancestor.type === 'CallExpression') {
+      const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
+      if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
+        return true;
+      }
     }
   }
+
   return false;
 }
 
