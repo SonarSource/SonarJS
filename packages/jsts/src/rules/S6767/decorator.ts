@@ -18,8 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+
+type AstNode = estree.Node | TSESTree.Node;
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -57,14 +60,12 @@ function isPropsReference(node: estree.Node): boolean {
   );
 }
 
-function hasFunctionWithPropsParam(node: any): boolean {
-  if (
-    node &&
-    (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') &&
-    node.params?.length > 0
-  ) {
-    const firstParam = node.params[0];
-    return firstParam.type === 'Identifier' && firstParam.name === 'props';
+function hasFunctionWithPropsParam(node: AstNode): boolean {
+  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
+    if (node.params.length > 0) {
+      const firstParam = node.params[0];
+      return firstParam.type === 'Identifier' && firstParam.name === 'props';
+    }
   }
   return false;
 }
@@ -74,10 +75,11 @@ function isExportedPropsDeclaration(decl: estree.Declaration | null | undefined)
     return false;
   }
   const declType = decl.type as string;
-  return (
-    (declType === 'TSInterfaceDeclaration' || declType === 'TSTypeAliasDeclaration') &&
-    (decl as any).id?.name?.endsWith('Props')
-  );
+  if (declType !== 'TSInterfaceDeclaration' && declType !== 'TSTypeAliasDeclaration') {
+    return false;
+  }
+  const id = (decl as unknown as { id?: { name?: string } }).id;
+  return id?.name?.endsWith('Props') ?? false;
 }
 
 function hasExportedPropsSpecifier(specifiers: estree.ExportSpecifier[]): boolean {
@@ -106,53 +108,80 @@ function hasExportedPropsType(ast: estree.Program): boolean {
   return false;
 }
 
-function isPropsPassedAsArgument(node: any): boolean {
-  if (node.type !== 'CallExpression' || node.callee.type === 'Super') {
+function isPropsPassedAsArgument(node: AstNode): boolean {
+  if (node.type !== 'CallExpression') {
     return false;
   }
-  return node.arguments.some((arg: estree.Node) => isPropsReference(arg));
+  const call = node as estree.CallExpression;
+  if (call.callee.type === 'Super') {
+    return false;
+  }
+  return call.arguments.some(arg => isPropsReference(arg as estree.Node));
 }
 
-function isPropsSpread(node: any): boolean {
+function isPropsSpread(node: AstNode): boolean {
+  if (node.type === 'SpreadElement') {
+    return isPropsReference(node.argument);
+  }
+  if (node.type === 'JSXSpreadAttribute') {
+    return isPropsReference(node.argument as unknown as estree.Node);
+  }
+  return false;
+}
+
+function isBracketNotationOnProps(node: AstNode): boolean {
+  if (node.type !== 'MemberExpression') {
+    return false;
+  }
+  return node.computed && isPropsReference(node.object);
+}
+
+function isForwardRefCall(node: AstNode): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node as estree.CallExpression;
   return (
-    (node.type === 'SpreadElement' || node.type === 'JSXSpreadAttribute') &&
-    isPropsReference(node.argument)
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    call.callee.property.name === 'forwardRef'
   );
 }
 
-function isBracketNotationOnProps(node: any): boolean {
-  return node.type === 'MemberExpression' && node.computed && isPropsReference(node.object);
-}
-
-function isForwardRefCall(node: any): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property.type === 'Identifier' &&
-    node.callee.property.name === 'forwardRef'
-  );
-}
-
-function isHocExport(node: any): boolean {
-  return node.type === 'ExportDefaultDeclaration' && node.declaration?.type === 'CallExpression';
-}
-
-function isPropsInJsxExpression(node: any): boolean {
-  return node.type === 'JSXExpressionContainer' && isPropsReference(node.expression);
-}
-
-function isPropsAsPropertyValue(node: any): boolean {
-  return node.type === 'Property' && !node.computed && node.value && isPropsReference(node.value);
-}
-
-function isDecoratorWithPropsCallback(node: any): boolean {
-  if (node.type !== 'Decorator' || node.expression?.type !== 'CallExpression') {
+function isHocExport(node: AstNode): boolean {
+  if (node.type !== 'ExportDefaultDeclaration') {
     return false;
   }
-  return node.expression.arguments.some((arg: any) => hasFunctionWithPropsParam(arg));
+  return node.declaration.type === 'CallExpression';
 }
 
-function isIndirectPropsNode(node: any): boolean {
+function isPropsInJsxExpression(node: AstNode): boolean {
+  if (node.type !== 'JSXExpressionContainer') {
+    return false;
+  }
+  const jsx = node as TSESTree.JSXExpressionContainer;
+  return isPropsReference(jsx.expression as unknown as estree.Node);
+}
+
+function isPropsAsPropertyValue(node: AstNode): boolean {
+  if (node.type !== 'Property') {
+    return false;
+  }
+  const prop = node as estree.Property;
+  return !prop.computed && isPropsReference(prop.value as estree.Node);
+}
+
+function isDecoratorWithPropsCallback(node: AstNode): boolean {
+  if (node.type !== 'Decorator') {
+    return false;
+  }
+  if (node.expression.type !== 'CallExpression') {
+    return false;
+  }
+  return node.expression.arguments.some(arg => hasFunctionWithPropsParam(arg));
+}
+
+function isIndirectPropsNode(node: AstNode): boolean {
   return (
     isPropsPassedAsArgument(node) ||
     isPropsSpread(node) ||
@@ -165,23 +194,22 @@ function isIndirectPropsNode(node: any): boolean {
   );
 }
 
-function isAstNode(value: any): boolean {
-  return value != null && typeof value === 'object' && typeof value.type === 'string';
+function isAstNode(value: unknown): value is AstNode {
+  return (
+    value != null && typeof value === 'object' && 'type' in value && typeof value.type === 'string'
+  );
 }
 
-function collectChildNodes(node: any): any[] {
-  const children: any[] = [];
-  for (const key of Object.keys(node)) {
+function collectChildNodes(node: AstNode): AstNode[] {
+  const children: AstNode[] = [];
+  const record = node as unknown as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
     if (key === 'parent') {
       continue;
     }
-    const child = node[key];
+    const child = record[key];
     if (Array.isArray(child)) {
-      for (const item of child) {
-        if (isAstNode(item)) {
-          children.push(item);
-        }
-      }
+      children.push(...child.filter(isAstNode));
     } else if (isAstNode(child)) {
       children.push(child);
     }
@@ -201,15 +229,13 @@ function collectChildNodes(node: any): any[] {
  * - Decorator with props parameter (@track((props) => {...}))
  */
 function hasIndirectPattern(ast: estree.Program): boolean {
-  const stack: any[] = [ast];
+  const stack: AstNode[] = [ast];
   while (stack.length > 0) {
-    const node = stack.pop();
+    const node = stack.pop()!;
     if (isIndirectPropsNode(node)) {
       return true;
     }
-    for (const child of collectChildNodes(node)) {
-      stack.push(child);
-    }
+    stack.push(...collectChildNodes(node));
   }
   return false;
 }
