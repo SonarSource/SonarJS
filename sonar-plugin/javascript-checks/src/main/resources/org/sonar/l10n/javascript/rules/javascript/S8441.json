@@ -18,6 +18,10 @@
     },
     "attribute": "TRUSTWORTHY"
   },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
   "securityStandards": {
     "CWE": [
       668,
