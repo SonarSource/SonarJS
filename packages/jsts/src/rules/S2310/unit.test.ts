@@ -422,6 +422,20 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // Splice result captured in variable declaration followed by counter adjustment
+        {
+          code: `
+      function removeAndTrack(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) {
+            const removed = items.splice(i, 1);
+            console.log('removed:', removed);
+            i = i - 1; // Compliant: compensating for splice index shift
+          }
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
