@@ -3,28 +3,13 @@
 32
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
-114,
 116
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VRow.ts": [
-114,
 116
 ],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 155
-],
-"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
-61
-],
-"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
-55,
-57
-],
-"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
-95
-],
-"vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
-17
 ],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
@@ -37,29 +22,13 @@
 "vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts": [
 39
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/color.spec.ts": [
-25,
-65
-],
-"vuetify:packages/vuetify/src/composables/router.tsx": [
-53
-],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
-237,
-310
-],
-"vuetify:packages/vuetify/src/composables/transition.ts": [
-27,
-27
+237
 ],
 "vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
 19,
 23,
 38,
 42
-],
-"vuetify:packages/vuetify/src/util/helpers.ts": [
-121,
-123
 ]
 }

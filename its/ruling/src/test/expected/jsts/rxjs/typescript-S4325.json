@@ -45,12 +45,5 @@
 ],
 "rxjs:src/operator/timeout.ts": [
 22
-],
-"rxjs:src/util/isPromise.ts": [
-2,
-2
-],
-"rxjs:src/util/isScheduler.ts": [
-3
 ]
 }

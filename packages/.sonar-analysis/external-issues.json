@@ -1,0 +1,38 @@
+[
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S4325/decorator.ts",
+    "line": 61,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 61,
+      "endLine": 61,
+      "startOffset": 6,
+      "endOffset": 8
+    }
+  },
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S4325/decorator.ts",
+    "line": 67,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 67,
+      "endLine": 67,
+      "startOffset": 6,
+      "endOffset": 8
+    }
+  },
+  {
+    "rule": "typescript:S1066",
+    "component": "org.sonarsource.javascript:javascript:packages/jsts/src/rules/S4325/decorator.ts",
+    "line": 235,
+    "message": "Merge this if statement with the nested one.",
+    "textRange": {
+      "startLine": 235,
+      "endLine": 235,
+      "startOffset": 4,
+      "endOffset": 6
+    }
+  }
+]

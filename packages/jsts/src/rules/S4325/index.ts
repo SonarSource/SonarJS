@@ -15,4 +15,5 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/typescript-eslint/index.js';
-export const rule = rules['no-unnecessary-type-assertion'];
+import { decorate } from './decorator.js';
+export const rule = decorate(rules['no-unnecessary-type-assertion']);
