@@ -99,7 +99,7 @@ export const rule: Rule.RuleModule = {
         const flattenedArgs = flattenArgs(context, callExpr.arguments);
         for (const middlewareNode of flattenedArgs) {
           if (isMiddleware(context, middlewareNode, SESSION_MIDDLEWARES)) {
-            lastSessionMiddleware = middlewareNode;
+            lastSessionMiddleware = callExpr;
             continue;
           }
 
@@ -107,7 +107,7 @@ export const rule: Rule.RuleModule = {
             report(
               context,
               {
-                node: middlewareNode,
+                node: callExpr,
                 messageId: 'moveStaticBeforeSession',
                 message: messages.moveStaticBeforeSession,
               },
