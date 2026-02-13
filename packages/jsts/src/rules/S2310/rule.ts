@@ -157,20 +157,7 @@ function blockContainsSpliceWithCounter(
  */
 function containsSpliceWithCounter(node: estree.Node, counterName: string): boolean {
   if (node.type === 'ExpressionStatement') {
-    if (
-      node.expression.type === 'CallExpression' &&
-      isSpliceCallWithCounter(node.expression, counterName)
-    ) {
-      return true;
-    }
-    // Handle splice in assignment: e.g., removed = arr.splice(i, 1)
-    if (
-      node.expression.type === 'AssignmentExpression' &&
-      node.expression.right.type === 'CallExpression' &&
-      isSpliceCallWithCounter(node.expression.right, counterName)
-    ) {
-      return true;
-    }
+    return expressionContainsSplice(node.expression, counterName);
   }
   if (
     node.type === 'VariableDeclaration' &&
@@ -189,6 +176,22 @@ function containsSpliceWithCounter(node: estree.Node, counterName: string): bool
     }
   }
   return false;
+}
+
+/**
+ * Checks whether an expression is or contains a splice() call whose first argument
+ * matches the given counter variable name. Handles both direct splice calls
+ * and splice calls on the right side of assignments (e.g., removed = arr.splice(i, 1)).
+ */
+function expressionContainsSplice(expr: estree.Expression, counterName: string): boolean {
+  if (expr.type === 'CallExpression') {
+    return isSpliceCallWithCounter(expr, counterName);
+  }
+  return (
+    expr.type === 'AssignmentExpression' &&
+    expr.right.type === 'CallExpression' &&
+    isSpliceCallWithCounter(expr.right, counterName)
+  );
 }
 
 /**
