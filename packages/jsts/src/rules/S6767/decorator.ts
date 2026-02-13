@@ -61,11 +61,12 @@ function isPropsReference(node: estree.Node): boolean {
 }
 
 function hasFunctionWithPropsParam(node: AstNode): boolean {
-  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
-    if (node.params.length > 0) {
-      const firstParam = node.params[0];
-      return firstParam.type === 'Identifier' && firstParam.name === 'props';
-    }
+  if (
+    (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') &&
+    node.params.length > 0
+  ) {
+    const firstParam = node.params[0];
+    return firstParam.type === 'Identifier' && firstParam.name === 'props';
   }
   return false;
 }
@@ -230,8 +231,8 @@ function collectChildNodes(node: AstNode): AstNode[] {
  */
 function hasIndirectPattern(ast: estree.Program): boolean {
   const stack: AstNode[] = [ast];
-  while (stack.length > 0) {
-    const node = stack.pop()!;
+  let node: AstNode | undefined;
+  while ((node = stack.pop()) !== undefined) {
     if (isIndirectPropsNode(node)) {
       return true;
     }
