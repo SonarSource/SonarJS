@@ -44,35 +44,149 @@ function hasIndirectPropsUsage(ast: estree.Program): boolean {
   return hasExportedPropsType(ast) || hasIndirectPattern(ast);
 }
 
+function isPropsReference(node: estree.Node): boolean {
+  if (node.type === 'Identifier' && node.name === 'props') {
+    return true;
+  }
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    node.object.type === 'ThisExpression' &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'props'
+  );
+}
+
+function hasFunctionWithPropsParam(node: any): boolean {
+  if (
+    node &&
+    (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') &&
+    node.params?.length > 0
+  ) {
+    const firstParam = node.params[0];
+    return firstParam.type === 'Identifier' && firstParam.name === 'props';
+  }
+  return false;
+}
+
+function isExportedPropsDeclaration(decl: estree.Declaration | null | undefined): boolean {
+  if (!decl) {
+    return false;
+  }
+  const declType = decl.type as string;
+  return (
+    (declType === 'TSInterfaceDeclaration' || declType === 'TSTypeAliasDeclaration') &&
+    (decl as any).id?.name?.endsWith('Props')
+  );
+}
+
+function hasExportedPropsSpecifier(specifiers: estree.ExportSpecifier[]): boolean {
+  return specifiers.some(spec => {
+    const name = spec.exported.type === 'Identifier' ? spec.exported.name : undefined;
+    return name?.endsWith('Props');
+  });
+}
+
 /**
  * Checks if any props-related interface or type alias is exported.
  * Exported props types indicate a public API where props may be consumed externally.
  */
 function hasExportedPropsType(ast: estree.Program): boolean {
   for (const stmt of ast.body) {
-    if (stmt.type !== 'ExportNamedDeclaration') continue;
-
-    // export interface FooProps { ... } or export type FooProps = { ... }
-    const decl = stmt.declaration;
-    if (decl) {
-      const declType = decl.type as string;
-      if (
-        (declType === 'TSInterfaceDeclaration' || declType === 'TSTypeAliasDeclaration') &&
-        (decl as any).id?.name?.endsWith('Props')
-      ) {
-        return true;
-      }
+    if (stmt.type !== 'ExportNamedDeclaration') {
+      continue;
     }
-
-    // export { FooProps }
-    for (const spec of stmt.specifiers) {
-      const name = spec.exported.type === 'Identifier' ? spec.exported.name : undefined;
-      if (name?.endsWith('Props')) {
-        return true;
-      }
+    if (isExportedPropsDeclaration(stmt.declaration)) {
+      return true;
+    }
+    if (hasExportedPropsSpecifier(stmt.specifiers)) {
+      return true;
     }
   }
   return false;
+}
+
+function isPropsPassedAsArgument(node: any): boolean {
+  if (node.type !== 'CallExpression' || node.callee.type === 'Super') {
+    return false;
+  }
+  return node.arguments.some((arg: estree.Node) => isPropsReference(arg));
+}
+
+function isPropsSpread(node: any): boolean {
+  return (
+    (node.type === 'SpreadElement' || node.type === 'JSXSpreadAttribute') &&
+    isPropsReference(node.argument)
+  );
+}
+
+function isBracketNotationOnProps(node: any): boolean {
+  return node.type === 'MemberExpression' && node.computed && isPropsReference(node.object);
+}
+
+function isForwardRefCall(node: any): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.property.name === 'forwardRef'
+  );
+}
+
+function isHocExport(node: any): boolean {
+  return node.type === 'ExportDefaultDeclaration' && node.declaration?.type === 'CallExpression';
+}
+
+function isPropsInJsxExpression(node: any): boolean {
+  return node.type === 'JSXExpressionContainer' && isPropsReference(node.expression);
+}
+
+function isPropsAsPropertyValue(node: any): boolean {
+  return node.type === 'Property' && !node.computed && node.value && isPropsReference(node.value);
+}
+
+function isDecoratorWithPropsCallback(node: any): boolean {
+  if (node.type !== 'Decorator' || node.expression?.type !== 'CallExpression') {
+    return false;
+  }
+  return node.expression.arguments.some((arg: any) => hasFunctionWithPropsParam(arg));
+}
+
+function isIndirectPropsNode(node: any): boolean {
+  return (
+    isPropsPassedAsArgument(node) ||
+    isPropsSpread(node) ||
+    isBracketNotationOnProps(node) ||
+    isForwardRefCall(node) ||
+    isHocExport(node) ||
+    isPropsInJsxExpression(node) ||
+    isPropsAsPropertyValue(node) ||
+    isDecoratorWithPropsCallback(node)
+  );
+}
+
+function isAstNode(value: any): boolean {
+  return value != null && typeof value === 'object' && typeof value.type === 'string';
+}
+
+function collectChildNodes(node: any): any[] {
+  const children: any[] = [];
+  for (const key of Object.keys(node)) {
+    if (key === 'parent') {
+      continue;
+    }
+    const child = node[key];
+    if (Array.isArray(child)) {
+      for (const item of child) {
+        if (isAstNode(item)) {
+          children.push(item);
+        }
+      }
+    } else if (isAstNode(child)) {
+      children.push(child);
+    }
+  }
+  return children;
 }
 
 /**
@@ -87,131 +201,15 @@ function hasExportedPropsType(ast: estree.Program): boolean {
  * - Decorator with props parameter (@track((props) => {...}))
  */
 function hasIndirectPattern(ast: estree.Program): boolean {
-  let found = false;
-
-  function isPropsReference(node: estree.Node): boolean {
-    // props
-    if (node.type === 'Identifier' && node.name === 'props') {
+  const stack: any[] = [ast];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (isIndirectPropsNode(node)) {
       return true;
     }
-    // this.props
-    if (
-      node.type === 'MemberExpression' &&
-      !node.computed &&
-      node.object.type === 'ThisExpression' &&
-      node.property.type === 'Identifier' &&
-      node.property.name === 'props'
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  function hasFunctionWithPropsParam(node: any): boolean {
-    if (
-      node &&
-      (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') &&
-      node.params?.length > 0
-    ) {
-      const firstParam = node.params[0];
-      if (firstParam.type === 'Identifier' && firstParam.name === 'props') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function visit(node: any): void {
-    if (found || node == null || typeof node !== 'object') {
-      return;
-    }
-
-    // Props passed as function argument: fn(props), fn(this.props)
-    // Excludes super(props) which is standard class component boilerplate
-    if (node.type === 'CallExpression' && node.callee.type !== 'Super') {
-      for (const arg of node.arguments) {
-        if (isPropsReference(arg)) {
-          found = true;
-          return;
-        }
-      }
-    }
-
-    // Spread: {...props} or {...this.props}
-    if (node.type === 'SpreadElement' && isPropsReference(node.argument)) {
-      found = true;
-      return;
-    }
-    if (node.type === 'JSXSpreadAttribute' && isPropsReference(node.argument)) {
-      found = true;
-      return;
-    }
-
-    // Bracket notation: props[x] or this.props[x]
-    if (node.type === 'MemberExpression' && node.computed && isPropsReference(node.object)) {
-      found = true;
-      return;
-    }
-
-    // React.forwardRef call
-    if (
-      node.type === 'CallExpression' &&
-      node.callee.type === 'MemberExpression' &&
-      node.callee.property.type === 'Identifier' &&
-      node.callee.property.name === 'forwardRef'
-    ) {
-      found = true;
-      return;
-    }
-
-    // HOC export: export default someCall(Component)
-    if (node.type === 'ExportDefaultDeclaration' && node.declaration?.type === 'CallExpression') {
-      found = true;
-      return;
-    }
-
-    // Props passed as JSX attribute value: <Comp value={props} />
-    if (node.type === 'JSXExpressionContainer' && isPropsReference(node.expression)) {
-      found = true;
-      return;
-    }
-
-    // Props assigned as object property value: { key: props } or { key: this.props }
-    // Handles patterns like { propSnapshot: props }, { passProps: props }
-    if (node.type === 'Property' && !node.computed && node.value && isPropsReference(node.value)) {
-      found = true;
-      return;
-    }
-
-    // Decorator with props parameter: @track((props) => {...})
-    // Decorators call functions with callbacks that receive props as a parameter
-    if (node.type === 'Decorator' && node.expression?.type === 'CallExpression') {
-      for (const arg of node.expression.arguments) {
-        if (hasFunctionWithPropsParam(arg)) {
-          found = true;
-          return;
-        }
-      }
-    }
-
-    // Recurse into child nodes
-    for (const key of Object.keys(node)) {
-      if (key === 'parent') continue;
-      const child = node[key];
-      if (Array.isArray(child)) {
-        for (const item of child) {
-          if (item && typeof item === 'object' && typeof item.type === 'string') {
-            visit(item);
-            if (found) return;
-          }
-        }
-      } else if (child && typeof child === 'object' && typeof child.type === 'string') {
-        visit(child);
-        if (found) return;
-      }
+    for (const child of collectChildNodes(node)) {
+      stack.push(child);
     }
   }
-
-  visit(ast);
-  return found;
+  return false;
 }
