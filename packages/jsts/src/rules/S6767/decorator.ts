@@ -77,12 +77,14 @@ function hasExportedPropsType(ast: estree.Program): boolean {
 
 /**
  * Walks the AST to detect indirect prop usage patterns:
- * - Props passed as function argument, including super(props)
+ * - Props passed as function argument (excludes super(props))
  * - Props spread ({...props}, {...this.props})
  * - Bracket notation access (props[key], this.props[key])
  * - React.forwardRef wrapper
  * - HOC export (export default hoc(Comp))
  * - Props as JSX attribute value (<Provider value={props} />)
+ * - Props assigned as object property value ({key: props}, {key: this.props})
+ * - Decorator with props parameter (@track((props) => {...}))
  */
 function hasIndirectPattern(ast: estree.Program): boolean {
   let found = false;
@@ -105,13 +107,28 @@ function hasIndirectPattern(ast: estree.Program): boolean {
     return false;
   }
 
+  function hasFunctionWithPropsParam(node: any): boolean {
+    if (
+      node &&
+      (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') &&
+      node.params?.length > 0
+    ) {
+      const firstParam = node.params[0];
+      if (firstParam.type === 'Identifier' && firstParam.name === 'props') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function visit(node: any): void {
     if (found || node == null || typeof node !== 'object') {
       return;
     }
 
-    // Props passed as function argument, including super(props): fn(props), fn(this.props)
-    if (node.type === 'CallExpression') {
+    // Props passed as function argument: fn(props), fn(this.props)
+    // Excludes super(props) which is standard class component boilerplate
+    if (node.type === 'CallExpression' && node.callee.type !== 'Super') {
       for (const arg of node.arguments) {
         if (isPropsReference(arg)) {
           found = true;
@@ -157,6 +174,24 @@ function hasIndirectPattern(ast: estree.Program): boolean {
     if (node.type === 'JSXExpressionContainer' && isPropsReference(node.expression)) {
       found = true;
       return;
+    }
+
+    // Props assigned as object property value: { key: props } or { key: this.props }
+    // Handles patterns like { propSnapshot: props }, { passProps: props }
+    if (node.type === 'Property' && !node.computed && node.value && isPropsReference(node.value)) {
+      found = true;
+      return;
+    }
+
+    // Decorator with props parameter: @track((props) => {...})
+    // Decorators call functions with callbacks that receive props as a parameter
+    if (node.type === 'Decorator' && node.expression?.type === 'CallExpression') {
+      for (const arg of node.expression.arguments) {
+        if (hasFunctionWithPropsParam(arg)) {
+          found = true;
+          return;
+        }
+      }
     }
 
     // Recurse into child nodes

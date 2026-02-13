@@ -46,7 +46,7 @@ describe('S6767', () => {
           `,
         },
         {
-          // Props passed to super() in constructor
+          // Props passed to helper function in class with super(props)
           code: `
             import * as React from 'react';
 
@@ -55,13 +55,18 @@ describe('S6767', () => {
               children: React.ReactNode;
             }
 
+            function applyTheme(props: ThemeProps) {
+              return { background: props.theme };
+            }
+
             export default class ThemeProvider extends React.Component<ThemeProps> {
               constructor(props: ThemeProps) {
                 super(props);
               }
 
               render() {
-                return <div>{this.props.children}</div>;
+                const style = applyTheme(this.props);
+                return <div style={style}>{this.props.children}</div>;
               }
             }
           `,
@@ -195,6 +200,69 @@ describe('S6767', () => {
             export default Wrapper;
           `,
         },
+        {
+          // Props stored as object property value
+          code: `
+            import * as React from 'react';
+
+            interface ViewProps {
+              title: string;
+              color: string;
+            }
+
+            export const View: React.FC<ViewProps> = (props) => {
+              const route = { passProps: props };
+              return <div>{route.passProps.title}</div>;
+            };
+          `,
+        },
+        {
+          // Props stored in state snapshot
+          code: `
+            import * as React from 'react';
+
+            interface PanelProps {
+              label: string;
+              size: number;
+            }
+
+            interface PanelState {
+              snapshot: PanelProps;
+            }
+
+            export class Panel extends React.Component<PanelProps, PanelState> {
+              constructor(props: PanelProps) {
+                super(props);
+                this.state = { snapshot: props };
+              }
+              render() {
+                return <div>{this.state.snapshot.label}</div>;
+              }
+            }
+          `,
+        },
+        {
+          // Decorator callback with props parameter
+          code: `
+            import * as React from 'react';
+
+            declare function track(fn: (props: any) => any): MethodDecorator;
+
+            interface CardProps {
+              id: string;
+              name: string;
+            }
+
+            class Card extends React.Component<CardProps> {
+              @track((props) => ({ itemId: props.id }))
+              handleClick() {}
+
+              render() {
+                return <div onClick={() => this.handleClick()}>{this.props.name}</div>;
+              }
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -210,6 +278,28 @@ describe('S6767', () => {
             class Greeting extends React.Component<GreetingProps> {
               render() {
                 return <h1>Hello {this.props.name}</h1>;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // super(props) does not suppress unused prop detection
+          code: `
+            import * as React from 'react';
+
+            interface NotifProps {
+              message: string;
+              commitSha: string;
+            }
+
+            export class Notification extends React.Component<NotifProps> {
+              constructor(props: NotifProps) {
+                super(props);
+              }
+
+              render() {
+                return <div>{this.props.message}</div>;
               }
             }
           `,
