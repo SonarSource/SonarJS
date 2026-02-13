@@ -1111,7 +1111,9 @@ jobs:
       - css_ruling
       - ruling
       - js_ts_ruling
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+    if: >-
+      !failure() && !cancelled() &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     steps:
       - *checkout
