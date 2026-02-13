@@ -40,7 +40,7 @@ class CssMetricsTest {
   @Test
   void test() {
     assertThat(getMeasureAsDouble(PROJECT_KEY, "lines")).isEqualTo(89);
-    assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(52);
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(58);
     assertThat(getMeasure(PROJECT_KEY, "ncloc_language_distribution").getValue()).isEqualTo(
       "css=27;php=1;web=24"
     );
