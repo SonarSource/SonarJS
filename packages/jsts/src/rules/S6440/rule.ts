@@ -44,7 +44,7 @@ function isTypedAsFunctionalComponent(funcNode: TSESTree.Node): boolean {
   if (parent?.type !== 'VariableDeclarator') {
     return false;
   }
-  const id = parent.id as TSESTree.BindingName;
+  const id = parent.id;
   if (id.type !== 'Identifier' || !id.typeAnnotation) {
     return false;
   }
