@@ -83,6 +83,18 @@ const _Card: FC<CardProps> = ({ title, content }) => {
 export const Card = React.memo(_Card);
           `,
         },
+        {
+          // React.FC without type parameters
+          code: `
+import React, { useRef, useState, useEffect } from 'react';
+const _PageWrapper: React.FC = ({ children }) => {
+  const ref = useRef(null);
+  const [height, setHeight] = useState(undefined);
+  useEffect(() => { console.log(height); }, [height]);
+  return <div ref={ref}>{children}</div>;
+};
+          `,
+        },
       ],
       invalid: [],
     });
