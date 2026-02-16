@@ -19,7 +19,6 @@ import babelPresetReact from '@babel/preset-react';
 import babelPresetFlow from '@babel/preset-flow';
 import babelPresetEnv from '@babel/preset-env';
 import babelPluginDecorators from '@babel/plugin-proposal-decorators';
-import moduleDeclarationsPlugin from './plugins/module-declarations.js';
 
 /**
  * Builds ESLint parser options
@@ -83,7 +82,7 @@ function babelParserOptions(options: Linter.ParserOptions) {
   const babelOptions = {
     targets: 'defaults',
     presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
-    plugins: [moduleDeclarationsPlugin, [babelPluginDecorators, { version: '2022-03' }]],
+    plugins: [[babelPluginDecorators, { version: '2022-03' }]],
     babelrc: false,
     configFile: false,
     parserOpts: {
