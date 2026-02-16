@@ -42,7 +42,7 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class StandaloneParser implements AutoCloseable {
 
-  private static final int DEFAULT_TIMEOUT_SECONDS = 10 * 60;
+  private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
 
   private final BridgeServerImpl bridge;
 
