@@ -36,25 +36,38 @@ import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class StandaloneParser implements AutoCloseable {
 
-  private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+  private static final int DEFAULT_TIMEOUT_SECONDS = 10 * 60;
 
   private final BridgeServerImpl bridge;
 
   public StandaloneParser() {
-    this(Http.getJdkHttpClient());
+    this(Http.getJdkHttpClient(), -1);
+  }
+
+  public StandaloneParser(int maxOldSpaceSize) {
+    this(Http.getJdkHttpClient(), maxOldSpaceSize);
   }
 
   public StandaloneParser(Http http) {
+    this(http, -1);
+  }
+
+  private StandaloneParser(Http http, int maxOldSpaceSize) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
+    NodeCommandBuilder nodeCommandBuilder = new NodeCommandBuilderImpl(processWrapper);
+    if (maxOldSpaceSize > 0) {
+      nodeCommandBuilder = nodeCommandBuilder.maxOldSpaceSize(maxOldSpaceSize);
+    }
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     var temporaryFolder = new StandaloneTemporaryFolder();
     bridge = new BridgeServerImpl(
-      new NodeCommandBuilderImpl(processWrapper),
+      nodeCommandBuilder,
       DEFAULT_TIMEOUT_SECONDS,
       new BundleImpl(),
       new RulesBundles(),
