@@ -47,39 +47,40 @@ public class StandaloneParser implements AutoCloseable {
   private final BridgeServerImpl bridge;
 
   public StandaloneParser() {
-    this(Http.getJdkHttpClient(), -1);
-  }
-
-  public StandaloneParser(int maxOldSpaceSize) {
-    this(Http.getJdkHttpClient(), maxOldSpaceSize);
+    this(builder());
   }
 
   public StandaloneParser(Http http) {
-    this(http, -1);
+    this(builder().http(http));
   }
 
-  private StandaloneParser(Http http, int maxOldSpaceSize) {
+  private StandaloneParser(Builder builder) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     NodeCommandBuilder nodeCommandBuilder = new NodeCommandBuilderImpl(processWrapper);
-    if (maxOldSpaceSize > 0) {
-      nodeCommandBuilder = nodeCommandBuilder.maxOldSpaceSize(maxOldSpaceSize);
+
+    if (builder.maxOldSpaceSize > 0) {
+      nodeCommandBuilder = nodeCommandBuilder.maxOldSpaceSize(builder.maxOldSpaceSize);
     }
-    EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
+
+    if (builder.nodeJsArgs != null && builder.nodeJsArgs.length > 0) {
+      nodeCommandBuilder = nodeCommandBuilder.nodeJsArgs(builder.nodeJsArgs);
+    }
+
     var temporaryFolder = new StandaloneTemporaryFolder();
     bridge = new BridgeServerImpl(
       nodeCommandBuilder,
-      DEFAULT_TIMEOUT_SECONDS,
+      builder.timeout,
       new BundleImpl(),
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
-      new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
-      http
+      new EmbeddedNode(processWrapper, new Environment(builder.configuration)),
+      builder.http
     );
     try {
       bridge.startServerLazily(
         new BridgeServerConfig(
-          emptyConfiguration,
+          builder.configuration,
           temporaryFolder.newDir().getAbsolutePath(),
           SonarProduct.SONARLINT
         )
@@ -93,6 +94,49 @@ public class StandaloneParser implements AutoCloseable {
       );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
+    }
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private int timeout = DEFAULT_TIMEOUT_SECONDS;
+    private int maxOldSpaceSize = -1;
+    private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
+    private String[] nodeJsArgs;
+    private Http http = Http.getJdkHttpClient();
+
+    private Builder() {}
+
+    public Builder timeout(int timeout) {
+      this.timeout = timeout;
+      return this;
+    }
+
+    public Builder maxOldSpaceSize(int maxOldSpaceSize) {
+      this.maxOldSpaceSize = maxOldSpaceSize;
+      return this;
+    }
+
+    public Builder configuration(org.sonar.api.config.Configuration configuration) {
+      this.configuration = configuration;
+      return this;
+    }
+
+    public Builder nodeJsArgs(String... nodeJsArgs) {
+      this.nodeJsArgs = nodeJsArgs;
+      return this;
+    }
+
+    public Builder http(Http http) {
+      this.http = http;
+      return this;
+    }
+
+    public StandaloneParser build() {
+      return new StandaloneParser(this);
     }
   }
 
