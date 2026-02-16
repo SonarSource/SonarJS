@@ -16,6 +16,7 @@
  */
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { NOT_A_COMPONENT_MESSAGE } from './rule.js';
 import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
@@ -152,7 +153,7 @@ const _notAComponent = () => {
           `,
           errors: [
             {
-              message: /is neither a React function component/,
+              message: new RegExp(NOT_A_COMPONENT_MESSAGE),
             },
           ],
         },
