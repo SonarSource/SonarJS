@@ -104,6 +104,37 @@ export default function customSyntaxPlugin() {
 - The returned AST must be a valid Babel AST. `@babel/eslint-parser` will pass it through `convert.convertFile()` for ESTree conversion.
 - The `parserOpts` include the `"estree"` parser plugin (added by `@babel/eslint-parser`), so delegating to `parse(code, parserOpts)` produces ESTree-compatible output.
 
+**Error handling gotcha:**
+
+When `parserOverride` calls `parse(code, opts)` and it throws, the error propagates through `@babel/core`'s `parser/index.js` catch block, which **enhances** the error by prepending the filename and appending a code frame:
+
+```js
+// @babel/core/lib/parser/index.js — catch block
+err.message = `${filename}: ${err.message}\n\n` + codeFrame;
+```
+
+In the **normal** `@babel/eslint-parser` flow (without `parserOverride`), parsing errors bypass `@babel/core` entirely — `@babel/eslint-parser` calls `@babel/parser` directly from its own `parse.cjs`. So errors are just `"message (line:col)"`.
+
+With `parserOverride`, errors become `"filepath: message (line:col)\n\n<highlighted code frame>"`, which breaks any code that matches on exact error messages.
+
+**Workaround:** Wrap calls to `parse()` to catch errors and rethrow without the `loc` property (which is what triggers the enhancement):
+
+```js
+function safeParse(code, opts, parse) {
+  try {
+    return parse(code, opts);
+  } catch (err) {
+    // Rethrow without .loc to prevent @babel/core from adding code frame/filename.
+    // Set lineNumber directly for @babel/eslint-parser's error handling.
+    const cleanErr = new Error(err.message);
+    if (err.loc) {
+      cleanErr.lineNumber = err.loc.line;
+    }
+    throw cleanErr;
+  }
+}
+```
+
 ### Option D: Fork `@babel/parser`
 
 Fork the parser, add the new grammar, and use it via `parserOverride`. Maximum control but high maintenance cost.
@@ -120,9 +151,19 @@ buildParserOptions(input, usingBabel=true)
       → maybeParseSync(code, normalizedOptions)
 ```
 
-Inside `maybeParseSync`:
+Inside `maybeParseSync`, there are two different flows:
 
-1. **First attempt**: Adds `extractParserOptionsPlugin` (which has its own `parserOverride`) alongside user plugins. If the user also has a `parserOverride` plugin → "More than one plugin" error.
+**Normal flow (no user `parserOverride`):**
+
+1. Adds `extractParserOptionsPlugin` (which has its own `parserOverride` that returns `parserOpts`).
+2. `babel.parseSync()` calls the extract plugin's `parserOverride`, which returns `parserOpts` (not an AST).
+3. `maybeParseSync` gets `{ parserOptions: parserOpts, ast: null }`.
+4. Back in `parse.cjs`, calls `@babel/parser.parse(code, parserOptions)` **directly** — bypassing `@babel/core` entirely.
+5. Errors from this direct call only go through `convertError()` (which just maps `loc` → `lineNumber`). **No code frame or filename is added.**
+
+**`parserOverride` flow (user plugin provides `parserOverride`):**
+
+1. **First attempt**: Adds `extractParserOptionsPlugin` alongside user plugins. Two `parserOverride` hooks → "More than one plugin" error.
 
 2. **Catches the error**, retries **without** the extract plugin:
 
@@ -131,11 +172,13 @@ Inside `maybeParseSync`:
    ast = babel.parseSync(code, options);
    ```
 
-3. `babel.parseSync` calls `@babel/core`'s parser pipeline, which invokes:
-
-   ```js
-   parserOverride(code, parserOpts, babelParser.parse);
-   ```
+3. `babel.parseSync` calls `@babel/core`'s pipeline:
+   - `normalizeOptions()` in `@babel/core/lib/transformation/normalize-opts.js` builds `parserOpts`, setting `sourceFileName: filename` (the full file path comes from `@babel/eslint-parser`'s `normalizeParserOptions` which sets `filename: options.filePath`).
+   - `@babel/core/lib/parser/index.js` invokes:
+     ```js
+     parserOverride(code, parserOpts, babelParser.parse);
+     ```
+   - Any error thrown here is caught and enhanced with filename + code frame (see gotcha above).
 
 4. The returned AST goes through `convert.convertFile(ast, code, ...)` for ESTree conversion.
 
@@ -157,4 +200,4 @@ Inside `maybeParseSync`:
 - SonarJS uses `@babel/eslint-parser` for **JavaScript** files only. TypeScript files use `@typescript-eslint/parser` (which delegates to the TypeScript compiler directly — no Babel involvement, no lag).
 - Babel config is in `packages/jsts/src/parsers/options.ts`, function `babelParserOptions()`.
 - Plugins go in the `babelOptions.plugins` array alongside the decorators plugin.
-- Custom plugin files live in `packages/jsts/src/parsers/plugins/`.
+- Custom plugin files should live in `packages/jsts/src/parsers/plugins/`.
