@@ -17,152 +17,97 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
+import parser from '@typescript-eslint/parser';
+
+const filename = path.join(import.meta.dirname, 'fixtures/placeholder.ts');
 
 describe('S4325', () => {
   it('S4325', () => {
-    const ruleTester = new RuleTester();
+    const ruleTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
     ruleTester.run('Redundant casts and non-null assertions should be avoided', rule, {
       valid: [
         {
           // Generic return type narrowed by type assertion
+          filename,
           code: `
-interface ViewRef {
-  destroy(): void;
-}
-
+interface ViewRef { destroy(): void; }
 interface EmbeddedViewRef<C> extends ViewRef {
   rootNodes: HTMLElement[];
   context: C;
 }
-
 class ViewContainerRef {
   private views: ViewRef[] = [];
-
   get<T extends ViewRef>(index: number): T | null {
     return (this.views[index] as T) ?? null;
   }
 }
-
-function measureRange(viewContainerRef: ViewContainerRef, start: number, end: number) {
-  for (let i = 0; i < end - start; i++) {
-    const view = viewContainerRef.get(i + start) as EmbeddedViewRef<unknown> | null;
-    if (view && view.rootNodes.length) {
-      return view.rootNodes[0];
-    }
-  }
+function measureRange(vcr: ViewContainerRef) {
+  const view = vcr.get(0) as EmbeddedViewRef<unknown> | null;
+  return view?.rootNodes[0];
 }
           `,
         },
         {
-          // Generic validate() method return narrowed to union type alias
+          // Generic validate() return narrowed to union type alias
+          filename,
           code: `
-interface StandardResult<Output> {
-  value?: Output;
-  issues?: { message: string }[];
-}
-
 interface StandardSchema {
   validate<T>(value: unknown): T;
 }
-
-type ValidationResult<TSchema> =
-  | StandardResult<TSchema>
-  | Promise<StandardResult<TSchema>>;
-
-function createValidator<TSchema>(
-  schema: StandardSchema,
-  getValue: () => unknown,
-) {
-  return schema.validate(getValue()) as ValidationResult<TSchema>;
+type Result<T> = { value?: T } | Promise<{ value?: T }>;
+function createValidator<S>(schema: StandardSchema, getValue: () => unknown) {
+  return schema.validate(getValue()) as Result<S>;
 }
           `,
         },
         {
-          // Non-null assertion on property declared as nullable
+          // Non-null assertion on nullable class property
+          filename,
           code: `
-interface Api {
-  user(): Promise<{ name: string }>;
-  hasWriteAccess(): Promise<boolean>;
-}
-
-class CmsClient {
+interface Api { user(): Promise<{ name: string }>; }
+class Client {
   api: Api | null = null;
-
-  async authenticate(token: string) {
-    if (token) {
-      this.api = this.createApi(token);
-    }
-  }
-
   async getUser() {
-    const user = await this.api!.user();
-    const isCollab = await this.api!.hasWriteAccess();
-    return { user, isCollab };
-  }
-
-  logout() {
-    this.api = null;
-  }
-
-  private createApi(_token: string): Api {
-    return {
-      user: async () => ({ name: 'test' }),
-      hasWriteAccess: async () => true,
-    };
+    return await this.api!.user();
   }
 }
           `,
         },
         {
-          // Generic cache lookup return type narrowed
+          // Generic cache lookup narrowed to specific type
+          filename,
           code: `
-interface QueryData {
-  fetchedAt: number;
-}
-
-interface UserProfile extends QueryData {
-  name: string;
-  email: string;
-}
-
-interface PaginatedList<T> extends QueryData {
-  items: T[];
-  total: number;
-  page: number;
-}
-
 class QueryClient {
   private cache = new Map<string, unknown>();
-
   getQueryData<T>(key: string): T | undefined {
     return this.cache.get(key) as T | undefined;
   }
 }
-
-function displayUserComments(client: QueryClient) {
-  const user = client.getQueryData('user') as UserProfile | undefined;
-  const comments = client.getQueryData('comments') as PaginatedList<string> | undefined;
-
-  if (user && comments) {
-    console.log(user.name + ' has ' + comments.total + ' comments');
-  }
+function getUser(client: QueryClient) {
+  return client.getQueryData('user') as { name: string } | undefined;
 }
           `,
         },
         {
-          // Cast to any on a typed expression
+          // Cast to any
+          filename,
           code: `
-class Widget {
-  name: string = 'widget';
-}
-function render(component: Widget, target: HTMLElement) {
-  const props = (component as any).internalProps;
-  return props;
+class Widget { name: string = 'widget'; }
+function render(component: Widget) {
+  return (component as any).internalProps;
 }
           `,
         },
         {
           // Cast to unknown
+          filename,
           code: `
 function serialize(value: string): unknown {
   return value as unknown;
@@ -171,6 +116,7 @@ function serialize(value: string): unknown {
         },
         {
           // Non-null assertion on optional parameter
+          filename,
           code: `
 function greet(name?: string) {
   console.log('Hello, ' + name!);
@@ -178,7 +124,8 @@ function greet(name?: string) {
           `,
         },
         {
-          // Generic method with different type parameter inference
+          // Generic method with type parameter inference
+          filename,
           code: `
 class Container {
   private data = new Map<string, unknown>();
@@ -186,7 +133,6 @@ class Container {
     return this.data.get(key) as T;
   }
 }
-
 function getConfig(container: Container) {
   const port = container.get('port') as number;
   const host = container.get('host') as string;
@@ -197,7 +143,8 @@ function getConfig(container: Container) {
       ],
       invalid: [
         {
-          // Truly unnecessary: variable is already narrowed by typeof
+          // Truly unnecessary: typeof already narrowed to string
+          filename,
           code: `
 function getName(x?: string | number) {
   if (typeof x === 'string') {
@@ -206,14 +153,30 @@ function getName(x?: string | number) {
   return 'default';
 }
           `,
+          output: `
+function getName(x?: string | number) {
+  if (typeof x === 'string') {
+    return (x);
+  }
+  return 'default';
+}
+          `,
           errors: 1,
         },
         {
           // Truly unnecessary: non-null assertion inside truthy check
+          filename,
           code: `
 function getName(x?: string | { name: string }) {
   if (x) {
     console.log("Getting name for " + x!);
+  }
+}
+          `,
+          output: `
+function getName(x?: string | { name: string }) {
+  if (x) {
+    console.log("Getting name for " + x);
   }
 }
           `,
