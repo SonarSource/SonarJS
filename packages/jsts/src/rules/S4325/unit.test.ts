@@ -124,6 +124,15 @@ function greet(name?: string) {
           `,
         },
         {
+          // DOM querySelector narrowed to specific element type
+          filename,
+          code: `
+function getInput(container: HTMLElement) {
+  return container.querySelector('#search') as HTMLInputElement;
+}
+          `,
+        },
+        {
           // Generic method with type parameter inference
           filename,
           code: `
@@ -137,6 +146,18 @@ function getConfig(container: Container) {
   const port = container.get('port') as number;
   const host = container.get('host') as string;
   return { port, host };
+}
+          `,
+        },
+        {
+          // Angle-bracket syntax narrowing querySelector return
+          filename,
+          code: `
+class Component {
+  private eGui: HTMLElement = document.createElement('div');
+  queryForInput(selector: string): HTMLInputElement {
+    return <HTMLInputElement> this.eGui.querySelector(selector);
+  }
 }
           `,
         },
@@ -178,6 +199,21 @@ function getName(x?: string | { name: string }) {
   if (x) {
     console.log("Getting name for " + x);
   }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Truly unnecessary: any-to-any cast
+          filename,
+          code: `
+function isScheduler(value: any) {
+  return typeof (value as any).schedule === 'function';
+}
+          `,
+          output: `
+function isScheduler(value: any) {
+  return typeof (value).schedule === 'function';
 }
           `,
           errors: 1,

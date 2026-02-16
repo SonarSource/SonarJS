@@ -82,17 +82,19 @@ function shouldSuppressTypeAssertion(
   services: RequiredParserServices,
 ): boolean {
   const checker = services.program.getTypeChecker();
+  const expression = node.expression;
 
   // Get the assertion target type from the type annotation
   const assertionTargetType = getTypeFromTreeNode(node as unknown as Rule.Node, services);
 
-  // Suppress if casting to `any` or `unknown` - these always change type behavior
+  // Suppress if casting to `any` or `unknown`, unless the source is already `any`/`unknown`
+  // (in which case the cast is truly unnecessary)
   if (assertionTargetType.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) {
-    return true;
+    const expressionType = getTypeFromTreeNode(expression as unknown as Rule.Node, services);
+    return !(expressionType.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown));
   }
 
   // Check if the inner expression is a call/method call
-  const expression = node.expression;
   if (expression.type === 'CallExpression') {
     return isDeclaredReturnTypeDifferent(expression, assertionTargetType, checker, services);
   }
