@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
+import type estree from 'estree';
 import eslintPlugin from 'eslint-plugin-react-hooks';
 const rulesOfHooks = (eslintPlugin as any).rules['rules-of-hooks'];
 import {
@@ -88,7 +89,7 @@ export const rule: Rule.RuleModule = {
         ) {
           const hookNode = descriptor.node as unknown as TSESTree.Node;
           const enclosingFunction = findFirstMatchingAncestor(hookNode, node =>
-            isFunctionNode(node as any),
+            isFunctionNode(node as estree.Node),
           );
           if (enclosingFunction && isTypedAsFunctionalComponent(enclosingFunction)) {
             return;
