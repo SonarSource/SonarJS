@@ -15,9 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import stylelint from 'stylelint';
-import { debug } from '../../../../shared/src/helpers/logging.js';
+import { debug, warn } from '../../../../shared/src/helpers/logging.js';
 import { Issue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+
+/**
+ * Checks if a position value (line or column) is valid.
+ * Stylelint may return null/NaN for certain edge cases (e.g., empty SASS blocks in Vue files).
+ */
+function isValidPosition(value: number | undefined): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 1;
+}
 
 /**
  * Transforms Stylelint linting results into SonarQube issues
@@ -43,10 +51,20 @@ export function transform(
       continue;
     }
     for (const warning of result.warnings) {
+      const line = isValidPosition(warning.line) ? warning.line : 1;
+      const column = isValidPosition(warning.column) ? warning.column : 1;
+
+      if (!isValidPosition(warning.line) || !isValidPosition(warning.column)) {
+        warn(
+          `Invalid position for rule ${warning.rule} in ${filePath}: ` +
+            `line=${warning.line}, column=${warning.column}. Defaulting to line=${line}, column=${column}.`,
+        );
+      }
+
       issues.push({
         ruleId: warning.rule,
-        line: warning.line,
-        column: warning.column,
+        line,
+        column,
         message: warning.text,
       });
     }
