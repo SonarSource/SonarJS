@@ -107,12 +107,19 @@ function displayUserComments(client: QueryClient) {
   }
 }
 
+// --- Compliant: assertion to `any` always changes type behavior ---
+
+function processChunk(chunk: any) {
+  let mutator = (chunk as any); // Compliant
+}
+
 // --- Noncompliant: truly unnecessary assertion in narrowed context ---
 
 function getName(x?: string | { name: string }) {
   if (x) {
     if (typeof x === 'string') {
-      return (x as string); // Noncompliant {{This assertion is unnecessary since it does not change the type of the expression.}}
+      return (x as string); // Noncompliant [[qf1!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf1 {{      return (x);}}
     }
   }
   return 'default';
@@ -122,7 +129,8 @@ function getName(x?: string | { name: string }) {
 
 function processValue(x?: number) {
   if (x !== undefined) {
-    return x!; // Noncompliant {{This assertion is unnecessary since it does not change the type of the expression.}}
+    return x!; // Noncompliant [[qf2!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf2 {{    return x;}}
   }
   return 0;
 }
