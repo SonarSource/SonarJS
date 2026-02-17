@@ -152,6 +152,46 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
 }
 
 /**
+ * Checks if any declaration has an explicit nullable type annotation.
+ */
+function isDeclaredNullable(symbol: ts.Symbol, checker: ts.TypeChecker, tsNode: ts.Node): boolean {
+  const declarations = symbol.getDeclarations();
+  if (!declarations || declarations.length === 0) {
+    return false;
+  }
+
+  // Check each declaration for an explicit nullable type annotation
+  for (const decl of declarations) {
+    if (
+      (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
+      decl.type &&
+      typeNodeContainsNullOrUndefined(decl.type)
+    ) {
+      return true;
+    }
+  }
+
+  // Fallback: check the resolved type (works when strictNullChecks is enabled)
+  const resolvedType = checker.getTypeAtLocation(tsNode);
+  if (resolvedType.isUnion()) {
+    return resolvedType.types.some(t => isNullOrUndefinedType(t));
+  }
+
+  return false;
+}
+
+/**
+ * Checks if flow narrowing has eliminated null/undefined at this location.
+ */
+function hasFlowNarrowedOutNullability(checker: ts.TypeChecker, tsNode: ts.Node): boolean {
+  const flowType = checker.getTypeAtLocation(tsNode);
+  const hasNullOrUndefined = flowType.isUnion()
+    ? flowType.types.some(t => isNullOrUndefinedType(t))
+    : isNullOrUndefinedType(flowType);
+  return !hasNullOrUndefined;
+}
+
+/**
  * Suppresses false positives for non-null assertions where the expression's
  * declared type explicitly includes null or undefined in its type annotation.
  *
@@ -172,34 +212,7 @@ function shouldSuppressNonNullAssertion(
     return false;
   }
 
-  const declarations = symbol.getDeclarations();
-  if (!declarations || declarations.length === 0) {
-    return false;
-  }
-
-  // Check each declaration for an explicit nullable type annotation
-  let declaredNullable = false;
-  for (const decl of declarations) {
-    if (
-      (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
-      decl.type
-    ) {
-      if (typeNodeContainsNullOrUndefined(decl.type)) {
-        declaredNullable = true;
-        break;
-      }
-    }
-  }
-
-  if (!declaredNullable) {
-    // Fallback: check the resolved type (works when strictNullChecks is enabled)
-    const resolvedType = checker.getTypeAtLocation(tsNode);
-    if (resolvedType.isUnion()) {
-      declaredNullable = resolvedType.types.some(t => isNullOrUndefinedType(t));
-    }
-  }
-
-  if (!declaredNullable) {
+  if (!isDeclaredNullable(symbol, checker, tsNode)) {
     return false;
   }
 
@@ -210,11 +223,7 @@ function shouldSuppressNonNullAssertion(
   // compiler ignoring null/undefined, so we always suppress (prefer no FP).
   const compilerOptions = services.program.getCompilerOptions();
   if (compilerOptions.strict || compilerOptions.strictNullChecks) {
-    const flowType = checker.getTypeAtLocation(tsNode);
-    const hasNullOrUndefined = flowType.isUnion()
-      ? flowType.types.some(t => isNullOrUndefinedType(t))
-      : isNullOrUndefinedType(flowType);
-    if (!hasNullOrUndefined) {
+    if (hasFlowNarrowedOutNullability(checker, tsNode)) {
       // Flow narrowing has removed null/undefined — the assertion is unnecessary
       return false;
     }
