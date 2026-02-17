@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S4325', () => {
   it('S4325', () => {
-    const ruleTester = new TypeScriptRuleTester();
+    const ruleTester = new RuleTester();
 
     ruleTester.run('Type assertions should not be redundant', rule, {
       valid: [
