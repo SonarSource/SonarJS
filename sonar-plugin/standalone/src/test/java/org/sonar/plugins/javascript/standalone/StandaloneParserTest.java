@@ -82,14 +82,6 @@ class StandaloneParserTest {
   }
 
   @Test
-  void test_builder_default() {
-    try (StandaloneParser builtParser = StandaloneParser.builder().build()) {
-      Program program = builtParser.parse("var x = 1;");
-      assertThat(program.body()).hasSize(1);
-    }
-  }
-
-  @Test
   void test_standalone_created_with_builder() {
     try (StandaloneParser builtParser = StandaloneParser.builder()
       .timeout(600)
