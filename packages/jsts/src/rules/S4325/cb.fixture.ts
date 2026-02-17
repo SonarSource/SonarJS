@@ -107,10 +107,40 @@ function displayUserComments(client: QueryClient) {
   }
 }
 
-// --- Compliant: assertion to `any` always changes type behavior ---
+// --- Noncompliant: assertion to `any` on an already-`any` expression is unnecessary ---
 
 function processChunk(chunk: any) {
-  let mutator = (chunk as any); // Compliant
+  let mutator = (chunk as any); // Noncompliant [[qf3!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf3 {{  let mutator = (chunk);}}
+}
+
+// --- Compliant: generic function with no explicit return type annotation ---
+
+function createItem<T>(factory: { create(): T }): T {
+  return factory.create();
+}
+
+interface SpecificItem {
+  id: number;
+}
+
+function useItem(factory: { create(): unknown }) {
+  const item = createItem(factory) as SpecificItem; // Compliant
+}
+
+// --- Compliant: non-null assertion on variable declared as | undefined (no strictNullChecks) ---
+
+function processResult<T>(callback: () => T | undefined) {
+  let result: T | undefined;
+  result = callback();
+  return result!; // Compliant
+}
+
+// --- Noncompliant: assertion to `any` using angle-bracket syntax ---
+
+function processData(data: any) {
+  const val = <any>data; // Noncompliant [[qf4!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf4 {{  const val = data;}}
 }
 
 // --- Noncompliant: truly unnecessary assertion in narrowed context ---
@@ -133,4 +163,112 @@ function processValue(x?: number) {
 // edit@qf2 {{    return x;}}
   }
   return 0;
+}
+
+// --- Noncompliant: generic with type param inferrable from arguments ---
+
+function filterItems<T>(array: T[], predicate: (item: T) => boolean): T[] {
+  return array.filter(predicate);
+}
+
+function getFilteredColumns(columns: string[]) {
+  const filtered = filterItems(columns, c => c.length > 0) as string[]; // Noncompliant [[qf5!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf5 {{  const filtered = filterItems(columns, c => c.length > 0);}}
+}
+
+// --- Noncompliant: generic with no explicit return type but concrete inferred return ---
+
+function toStringValue<T>(value: T) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  return String(value);
+}
+
+function formatValue(input: number) {
+  const s = toStringValue(input) as string; // Noncompliant [[qf6!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf6 {{  const s = toStringValue(input);}}
+}
+
+// --- Noncompliant: generic return with LHS type annotation makes assertion redundant ---
+
+class DataStore {
+  getData<T>(key: string): T | undefined {
+    return undefined;
+  }
+}
+
+function fetchUserData(store: DataStore) {
+  const user: UserProfile | undefined = store.getData('user') as UserProfile | undefined; // Noncompliant [[qf7!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf7 {{  const user: UserProfile | undefined = store.getData('user');}}
+}
+
+// --- Noncompliant: generic return in function with explicit return type ---
+
+function lookupUser(store: DataStore): UserProfile | undefined {
+  return store.getData('user') as UserProfile | undefined; // Noncompliant [[qf8!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf8 {{  return store.getData('user');}}
+}
+
+// --- Noncompliant: generic return used as function argument ---
+
+function processUser(user: UserProfile | undefined) {
+  return user;
+}
+
+function processStoredUser(store: DataStore) {
+  return processUser(store.getData('user') as UserProfile | undefined); // Noncompliant [[qf9!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf9 {{  return processUser(store.getData('user'));}}
+}
+
+// --- Noncompliant: generic return assigned to typed property ---
+
+class UserService {
+  user: UserProfile | undefined;
+
+  loadUser(store: DataStore) {
+    this.user = store.getData('user') as UserProfile | undefined; // Noncompliant [[qf10!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf10 {{    this.user = store.getData('user');}}
+  }
+}
+
+// --- Noncompliant: generic clone with type param in parameter ---
+
+function cloneNode<T extends ViewRef>(node: T): T {
+  return { ...node };
+}
+
+function processView(view: EmbeddedViewRef<string>) {
+  const copy = cloneNode(view) as EmbeddedViewRef<string>; // Noncompliant [[qf11!]] {{This assertion is unnecessary since it does not change the type of the expression.}}
+// edit@qf11 {{  const copy = cloneNode(view);}}
+}
+
+// --- Compliant: generic return with no contextual type (assertion is sole type source) ---
+
+function createWidget<T>(config: string): T {
+  return {} as T;
+}
+
+function useWidget() {
+  const widget = createWidget('button') as HTMLButtonElement; // Compliant
+}
+
+// --- Compliant: angle-bracket syntax narrowing generic querySelector return ---
+
+function setupGhost(ghost: HTMLElement) {
+  const eIcon = <HTMLElement>ghost.querySelector('.ghost-icon'); // Compliant
+  const eLabel = <HTMLElement>ghost.querySelector('.ghost-label'); // Compliant
+  if (eIcon && eLabel) {
+    eLabel.innerHTML = 'dragging';
+  }
+}
+
+// --- Compliant: generic return in return statement without function return type ---
+
+function newComponent<A extends ViewRef>(config: string): A {
+  return {} as A;
+}
+
+function createEmptyComponent() {
+  return <EmbeddedViewRef<unknown>>newComponent('empty'); // Compliant
 }
