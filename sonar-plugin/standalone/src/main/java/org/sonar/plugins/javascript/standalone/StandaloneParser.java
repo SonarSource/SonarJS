@@ -67,6 +67,7 @@ public class StandaloneParser implements AutoCloseable {
     }
 
     var temporaryFolder = new StandaloneTemporaryFolder();
+    Http httpClient = builder.http != null ? builder.http : Http.getJdkHttpClient();
     bridge = new BridgeServerImpl(
       nodeCommandBuilder,
       builder.timeout,
@@ -75,7 +76,7 @@ public class StandaloneParser implements AutoCloseable {
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
       new EmbeddedNode(processWrapper, new Environment(builder.configuration)),
-      builder.http
+      httpClient
     );
     try {
       bridge.startServerLazily(
@@ -106,7 +107,7 @@ public class StandaloneParser implements AutoCloseable {
     private int maxOldSpaceSize = -1;
     private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
     private String[] nodeJsArgs;
-    private Http http = Http.getJdkHttpClient();
+    private Http http;
 
     private Builder() {}
 
