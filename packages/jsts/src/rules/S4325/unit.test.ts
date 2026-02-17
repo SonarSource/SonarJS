@@ -82,20 +82,36 @@ describe('S4325', () => {
     });
   });
 
-  it('should not flag assertions to any or unknown', () => {
+  it('should not flag assertions narrowing generic DOM queries', () => {
     const ruleTester = new RuleTester();
     ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
+          // querySelector is generic — assertion narrows Element to HTMLElement
           code: `
-            const value: string = 'hello';
-            const result = (value as any).nonExistentMethod();
+            class Component {
+              private eGui: HTMLElement = document.createElement('div');
+              getElement(selector: string) {
+                return this.eGui.querySelector(selector) as HTMLElement;
+              }
+            }
           `,
         },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not flag assertions on calls returning any', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
         {
+          // Function declared to return `any` — assertion narrows to a specific type
           code: `
-            const value: string = 'hello';
-            const result = value as unknown;
+            declare function loadNativeComponent(name: string): any;
+            interface View { style: object; }
+            const NativeView = loadNativeComponent("NativeView") as typeof View;
           `,
         },
       ],
@@ -138,6 +154,44 @@ describe('S4325', () => {
     });
   });
 
+  it('should not flag non-null assertions on nullable variables in closures', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // Variable declared as T | undefined, assigned in outer scope, used with ! in callback
+          code: `
+            function withClient<T>(fn: (c: string) => T): () => Promise<T> {
+              return async (): Promise<T> => {
+                let result: T | undefined;
+                try { result = fn("client"); } finally { /* cleanup */ }
+                return result!;
+              };
+            }
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not flag assertions narrowing any-typed expressions to specific types', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // Expression typed as any (e.g. unresolved module), assertion narrows to specific type
+          code: `
+            declare function resolveDynamicComponent(name: string): any;
+            type RouterLink = { to: string };
+            const result = resolveDynamicComponent('RouterLink') as RouterLink | string;
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should still flag genuinely unnecessary type assertions', () => {
     const ruleTester = new RuleTester();
     ruleTester.run(RULE_NAME, rule, {
@@ -173,6 +227,32 @@ describe('S4325', () => {
           `,
           errors: 1,
         },
+        {
+          // Casting `any` to `any` is genuinely unnecessary
+          code: `
+            function handle(chunk: any) {
+              let data = chunk as any;
+            }
+          `,
+          output: `
+            function handle(chunk: any) {
+              let data = chunk;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Casting call returning any to any — genuinely unnecessary
+          code: `
+            declare function getGlobal(): any;
+            const g = getGlobal() as any;
+          `,
+          output: `
+            declare function getGlobal(): any;
+            const g = getGlobal();
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -195,6 +275,62 @@ describe('S4325', () => {
             function getName(x?: string) {
               if (x) {
                 return x;
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag non-null assertions after early-return narrowing guards', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          // Early return: if (!x) return → x is narrowed after
+          code: `
+            function process(x?: string) {
+              if (!x) return;
+              console.log(x!);
+            }
+          `,
+          output: `
+            function process(x?: string) {
+              if (!x) return;
+              console.log(x);
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag non-null assertions in else branches after null checks', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          // Else branch after null check: if (x == null) → else x is non-null
+          code: `
+            function convert(str: string | null | undefined) {
+              if (str == null) {
+                return undefined;
+              } else {
+                return str!.toUpperCase();
+              }
+            }
+          `,
+          output: `
+            function convert(str: string | null | undefined) {
+              if (str == null) {
+                return undefined;
+              } else {
+                return str.toUpperCase();
               }
             }
           `,
