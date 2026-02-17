@@ -33,7 +33,7 @@
     "count-rules": "tsx tools/count-rules.ts",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers && cpy --flat packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/health.js packages/grpc/src/proto/health.d.ts lib/grpc/src/proto",
     "_:bridge:clear": "rimraf --glob lib/*",
-    "eslint-plugin:build": "npm ci && npm install --no-save builtin-modules@3.3.0 && npm run eslint-plugin:compile && cd lib && npm pack",
+    "eslint-plugin:build": "npm ci && npm run eslint-plugin:compile && cd lib && npm pack",
     "eslint-plugin:compile": "npm run generate-meta && npm run _:bridge:clear && npm run eslint-plugin:check && npm run eslint-plugin:emit && npm run eslint-plugin:types && npm run eslint-plugin:package-json && npm run eslint-plugin:copy-assets && npm run eslint-docs",
     "eslint-plugin:check": "tsc -p tsconfig-plugin.json --noEmit",
     "eslint-plugin:emit": "tsc -p tsconfig-plugin.json --noCheck --module commonjs --moduleResolution node --outDir lib/cjs",
