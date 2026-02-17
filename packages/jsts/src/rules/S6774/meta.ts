@@ -16,4 +16,4 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'prop-types';
-export const externalPlugin = 'react';
+export const externalRules = [{ externalPlugin: 'react', externalRule: 'prop-types' }];

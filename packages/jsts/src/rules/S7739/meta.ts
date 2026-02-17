@@ -17,4 +17,4 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7739/javascript
 export const implementation = 'decorated';
 export const eslintId = 'no-thenable';
-export const externalPlugin = 'unicorn';
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'no-thenable' }];

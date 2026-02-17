@@ -16,4 +16,4 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'prefer-tag-over-role';
-export const externalPlugin = 'jsx-a11y';
+export const externalRules = [{ externalPlugin: 'jsx-a11y', externalRule: 'prefer-tag-over-role' }];

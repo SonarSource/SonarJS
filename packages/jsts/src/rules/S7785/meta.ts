@@ -17,4 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7785/javascript
 export const implementation = 'decorated';
 export const eslintId = 'prefer-top-level-await';
-export const externalPlugin = 'unicorn';
+
+export const externalRules = [
+  { externalPlugin: 'unicorn', externalRule: 'prefer-top-level-await' },
+];
