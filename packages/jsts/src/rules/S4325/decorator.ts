@@ -311,54 +311,100 @@ function isInsideNarrowingGuard(node: TSESTree.TSNonNullExpression): boolean {
 
   let current: TSESTree.Node | undefined = node.parent;
   while (current) {
-    // Check if we're in the consequent of an IfStatement whose test narrows the expression
-    if (current.type === 'IfStatement' && isInConsequent(node, current)) {
-      if (testNarrowsExpression(current.test, exprText)) {
-        return true;
-      }
+    if (checkIfStatementNarrowing(node, current, exprText)) {
+      return true;
     }
 
-    // Check if we're in the alternate (else/else-if) branch of an IfStatement
-    // whose test checks the expression for null/undefined.
-    // Example: if (str == null) return; else { ... str! ... } → str! is unnecessary
-    if (current.type === 'IfStatement' && current.alternate) {
-      if (isDescendantOf(node, current.alternate)) {
-        if (testNarrowsNullish(current.test, exprText)) {
-          return true;
-        }
-      }
+    if (checkLogicalExpressionNarrowing(node, current, exprText)) {
+      return true;
     }
 
-    // Check if we're on the right side of a logical AND (x && x!)
-    if (
-      current.type === 'LogicalExpression' &&
-      current.operator === '&&' &&
-      isDescendantOf(node, current.right)
-    ) {
-      if (testNarrowsExpression(current.left, exprText)) {
-        return true;
-      }
+    if (checkConditionalExpressionNarrowing(node, current, exprText)) {
+      return true;
     }
 
-    // Check if we're in the consequent of a conditional expression (x ? x! : y)
-    if (current.type === 'ConditionalExpression' && isDescendantOf(node, current.consequent)) {
-      if (testNarrowsExpression(current.test, exprText)) {
-        return true;
-      }
-    }
-
-    // Check for early-return narrowing: if a preceding sibling in the same block
-    // is `if (!x) return/throw`, the variable is narrowed for subsequent statements.
-    if (isBlockLike(current)) {
-      if (hasEarlyReturnNarrowingGuard(node, current, exprText)) {
-        return true;
-      }
+    if (checkEarlyReturnNarrowing(node, current, exprText)) {
+      return true;
     }
 
     current = current.parent;
   }
 
   return false;
+}
+
+/**
+ * Checks if the node is narrowed by an if statement (either in consequent or alternate).
+ */
+function checkIfStatementNarrowing(
+  node: TSESTree.TSNonNullExpression,
+  current: TSESTree.Node,
+  exprText: string,
+): boolean {
+  if (current.type !== 'IfStatement') {
+    return false;
+  }
+
+  // Check if we're in the consequent and test narrows the expression
+  if (isInConsequent(node, current) && testNarrowsExpression(current.test, exprText)) {
+    return true;
+  }
+
+  // Check if we're in the alternate branch after a null check
+  if (current.alternate && isDescendantOf(node, current.alternate)) {
+    return testNarrowsNullish(current.test, exprText);
+  }
+
+  return false;
+}
+
+/**
+ * Checks if the node is narrowed by a logical AND expression (x && x!).
+ */
+function checkLogicalExpressionNarrowing(
+  node: TSESTree.TSNonNullExpression,
+  current: TSESTree.Node,
+  exprText: string,
+): boolean {
+  if (current.type !== 'LogicalExpression') {
+    return false;
+  }
+
+  return (
+    current.operator === '&&' &&
+    isDescendantOf(node, current.right) &&
+    testNarrowsExpression(current.left, exprText)
+  );
+}
+
+/**
+ * Checks if the node is narrowed by a conditional expression (x ? x! : y).
+ */
+function checkConditionalExpressionNarrowing(
+  node: TSESTree.TSNonNullExpression,
+  current: TSESTree.Node,
+  exprText: string,
+): boolean {
+  if (current.type !== 'ConditionalExpression') {
+    return false;
+  }
+
+  return isDescendantOf(node, current.consequent) && testNarrowsExpression(current.test, exprText);
+}
+
+/**
+ * Checks if the node is narrowed by an early-return guard in a block.
+ */
+function checkEarlyReturnNarrowing(
+  node: TSESTree.TSNonNullExpression,
+  current: TSESTree.Node,
+  exprText: string,
+): boolean {
+  if (!isBlockLike(current)) {
+    return false;
+  }
+
+  return hasEarlyReturnNarrowingGuard(node, current, exprText);
 }
 
 /**
@@ -454,35 +500,53 @@ function hasEarlyReturnNarrowingGuard(
   block: TSESTree.Node,
   exprText: string,
 ): boolean {
-  const body =
-    block.type === 'BlockStatement'
-      ? block.body
-      : block.type === 'Program'
-        ? block.body
-        : block.type === 'SwitchCase'
-          ? block.consequent
-          : [];
+  const body = getBlockBody(block);
 
   for (const stmt of body) {
-    // Only check statements that come before the node
-    if (stmt.range && node.range && stmt.range[0] >= node.range[0]) {
+    if (isStatementAfterNode(stmt, node)) {
       break;
     }
 
-    if (stmt.type === 'IfStatement' && isEarlyExit(stmt.consequent)) {
-      // Check if the test narrows our expression:
-      // Pattern: if (!x) return  →  test is UnaryExpression(!, x)
-      if (isNegatedNarrowingTest(stmt.test, exprText)) {
-        return true;
-      }
-      // Pattern: if (x == null) return  →  test checks for null
-      if (testNarrowsNullish(stmt.test, exprText)) {
-        return true;
-      }
+    if (isEarlyReturnGuardStatement(stmt, exprText)) {
+      return true;
     }
   }
 
   return false;
+}
+
+/**
+ * Gets the body of a block-like node.
+ */
+function getBlockBody(block: TSESTree.Node): TSESTree.Statement[] {
+  if (block.type === 'BlockStatement' || block.type === 'Program') {
+    return block.body;
+  }
+  if (block.type === 'SwitchCase') {
+    return block.consequent;
+  }
+  return [];
+}
+
+/**
+ * Checks if a statement comes after the given node in source order.
+ */
+function isStatementAfterNode(
+  stmt: TSESTree.Statement,
+  node: TSESTree.TSNonNullExpression,
+): boolean {
+  return !!(stmt.range && node.range && stmt.range[0] >= node.range[0]);
+}
+
+/**
+ * Checks if a statement is an early-return guard that narrows the expression.
+ */
+function isEarlyReturnGuardStatement(stmt: TSESTree.Statement, exprText: string): boolean {
+  if (stmt.type !== 'IfStatement' || !isEarlyExit(stmt.consequent)) {
+    return false;
+  }
+
+  return isNegatedNarrowingTest(stmt.test, exprText) || testNarrowsNullish(stmt.test, exprText);
 }
 
 /**
@@ -499,7 +563,7 @@ function isEarlyExit(stmt: TSESTree.Statement): boolean {
   }
   // A block with a single early-exit statement
   if (stmt.type === 'BlockStatement' && stmt.body.length > 0) {
-    const lastStmt = stmt.body[stmt.body.length - 1];
+    const lastStmt = stmt.body.at(-1)!;
     return isEarlyExit(lastStmt);
   }
   return false;
