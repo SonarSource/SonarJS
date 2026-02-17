@@ -35,8 +35,7 @@
 238,
 243,
 248,
-291,
-299
+291
 ],
 "ag-grid:src/ts/components/agGridWebComponent.ts": [
 36
@@ -50,8 +49,7 @@
 55
 ],
 "ag-grid:src/ts/dragAndDrop/dragAndDropService.ts": [
-356,
-360
+356
 ],
 "ag-grid:src/ts/entities/column.ts": [
 227,
@@ -88,9 +86,6 @@
 59,
 61,
 71
-],
-"ag-grid:src/ts/headerRendering/deprecated/renderedHeaderCell.ts": [
-74
 ],
 "ag-grid:src/ts/headerRendering/headerRowComp.ts": [
 179
