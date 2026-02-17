@@ -90,11 +90,16 @@ function shouldSuppressTypeAssertion(
   // Get the assertion's target type from the type annotation
   const assertionTargetType = getTypeFromTreeNode(node as unknown as estree.Node, services);
 
-  // Suppress if the assertion target is `any` or `unknown` — these always change type behavior
+  // Suppress if the assertion target is `any` or `unknown` — these always change type behavior,
+  // UNLESS the expression's type is already `any` or `unknown` (making the assertion redundant).
   if (
     assertionTargetType.flags === ts.TypeFlags.Any ||
     assertionTargetType.flags === ts.TypeFlags.Unknown
   ) {
+    const expressionType = getTypeFromTreeNode(expression, services);
+    if (expressionType.flags === assertionTargetType.flags) {
+      return false;
+    }
     return true;
   }
 
@@ -173,24 +178,49 @@ function shouldSuppressNonNullAssertion(
   }
 
   // Check each declaration for an explicit nullable type annotation
+  let declaredNullable = false;
   for (const decl of declarations) {
     if (
       (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
       decl.type
     ) {
       if (typeNodeContainsNullOrUndefined(decl.type)) {
-        return true;
+        declaredNullable = true;
+        break;
       }
     }
   }
 
-  // Fallback: check the resolved type (works when strictNullChecks is enabled)
-  const resolvedType = checker.getTypeAtLocation(tsNode);
-  if (resolvedType.isUnion()) {
-    return resolvedType.types.some(t => isNullOrUndefinedType(t));
+  if (!declaredNullable) {
+    // Fallback: check the resolved type (works when strictNullChecks is enabled)
+    const resolvedType = checker.getTypeAtLocation(tsNode);
+    if (resolvedType.isUnion()) {
+      declaredNullable = resolvedType.types.some(t => isNullOrUndefinedType(t));
+    }
   }
 
-  return false;
+  if (!declaredNullable) {
+    return false;
+  }
+
+  // The declared type is nullable. When strictNullChecks is enabled, check whether
+  // flow narrowing has already eliminated null/undefined at this location. If so,
+  // the non-null assertion is truly unnecessary and should not be suppressed.
+  // When strictNullChecks is off, we can't distinguish flow narrowing from the
+  // compiler ignoring null/undefined, so we always suppress (prefer no FP).
+  const compilerOptions = services.program.getCompilerOptions();
+  if (compilerOptions.strict || compilerOptions.strictNullChecks) {
+    const flowType = checker.getTypeAtLocation(tsNode);
+    const hasNullOrUndefined = flowType.isUnion()
+      ? flowType.types.some(t => isNullOrUndefinedType(t))
+      : isNullOrUndefinedType(flowType);
+    if (!hasNullOrUndefined) {
+      // Flow narrowing has removed null/undefined — the assertion is unnecessary
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**

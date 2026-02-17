@@ -165,7 +165,7 @@ function displayUserComments(client: QueryClient) {
         },
         {
           code: `
-// Assertion to any type
+// Assertion to any type from non-any source
 function processData(data: unknown) {
   const obj = data as any;
   return obj.property;
@@ -174,9 +174,38 @@ function processData(data: unknown) {
         },
         {
           code: `
-// Assertion to unknown type
+// Assertion to unknown type from non-unknown source
 function wrapValue(value: string) {
   return value as unknown;
+}
+          `,
+        },
+        {
+          code: `
+// Generic querySelector return type narrowed to specific element
+function getElement(root: HTMLElement) {
+  const input = root.querySelector('input') as HTMLInputElement;
+  const header = root.querySelector('#header') as HTMLElement;
+  return { input, header };
+}
+          `,
+        },
+        {
+          code: `
+// Assertion to any on typed source (props spreading pattern)
+interface CustomProps { width: number; height: number; }
+function render(props: CustomProps) {
+  return { ...(props as any) };
+}
+          `,
+        },
+        {
+          code: `
+// Generic lodash-like filter return type
+declare function filter<T>(collection: T[], predicate: (item: T) => boolean): T[];
+interface Column { name: string; getSort(): string | null; }
+function getSortedColumns(columns: Column[]) {
+  return filter(columns, (c: Column) => !!c.getSort()) as Column[];
 }
           `,
         },
@@ -270,6 +299,42 @@ function test(x: string | number) {
     const s = x;
     console.log(s);
   }
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+// any-to-any assertion is genuinely redundant
+function isPromise(value: any): boolean {
+  return value && typeof (value as any).then === 'function';
+}
+          `,
+          output: `
+// any-to-any assertion is genuinely redundant
+function isPromise(value: any): boolean {
+  return value && typeof (value).then === 'function';
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+// Non-null assertion after truthiness narrowing is redundant
+function test(x?: string) {
+  if (x) {
+    return x!.length;
+  }
+  return 0;
+}
+          `,
+          output: `
+// Non-null assertion after truthiness narrowing is redundant
+function test(x?: string) {
+  if (x) {
+    return x.length;
+  }
+  return 0;
 }
           `,
           errors: 1,
