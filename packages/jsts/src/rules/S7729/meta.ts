@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7729/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-array-method-this-argument';
 export const externalPlugin = 'unicorn';
 export const quickFixMessage = 'Remove usage of argument "this" in array method';
