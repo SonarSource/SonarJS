@@ -82,6 +82,27 @@ class StandaloneParserTest {
   }
 
   @Test
+  void test_builder_default() {
+    try (StandaloneParser builtParser = StandaloneParser.builder().build()) {
+      Program program = builtParser.parse("var x = 1;");
+      assertThat(program.body()).hasSize(1);
+    }
+  }
+
+  @Test
+  void test_standalone_created_with_builder() {
+    try (StandaloneParser builtParser = StandaloneParser.builder()
+      .timeout(600)
+      .nodeJsArgs("--max-old-space-size=2048")
+      .maxOldSpaceSize(2048)
+      .configuration(new StandaloneParser.EmptyConfiguration())
+      .build()) {
+      Program program = builtParser.parse("var x = 1;");
+      assertThat(program.body()).hasSize(1);
+    }
+  }
+
+  @Test
   void should_parse_ts_empty_body_function_expression() {
     ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock actual = parseClassAndReturnNode(
       "class Foo { bar() }"
