@@ -16,10 +16,6 @@
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 61
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
-55,
-57
-],
 "vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
 95
 ],
