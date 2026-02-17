@@ -101,6 +101,11 @@ const ejsRequireCompile = ejsRequire.compile(getUserInput()); // Noncompliant {{
 const ejsStaticCompile = ejs.compile('<h1>Hello <%= name %></h1>'); // Compliant - static string
 const ejsStaticRender = ejs.render('<h1>Hello</h1>'); // Compliant - static string
 
+// Test case 19: pug.compile result called
+const compiledFn = pug.compile(template); // Noncompliant {{Make sure this dynamically formatted template is safe here.}}
+//                 ^^^^^^^^^^^
+compiledFn(user); // This call should not raise, even though the FQN matches.
+
 // Helper functions for testing
 function getUserInput(): string {
   return 'user-controlled-template';

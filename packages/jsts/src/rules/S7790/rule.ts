@@ -18,7 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getUniqueWriteReference,
+  getVariableFromScope,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const templatingFqns: Set<string> = new Set([
@@ -41,7 +46,12 @@ export const rule: Rule.RuleModule = {
         const callExpression = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, callExpression);
 
-        if (fqn && templatingFqns.has(fqn) && isQuestionable(callExpression)) {
+        if (
+          fqn &&
+          templatingFqns.has(fqn) &&
+          !isCallingFunctionResult(context, callExpression) &&
+          isQuestionable(callExpression)
+        ) {
           context.report({
             messageId: 'reviewDynamicTemplate',
             node: callExpression.callee,
@@ -51,6 +61,27 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Returns true when the callee is a variable holding the result of a prior call,
+ * e.g. `const fn = pug.compile(tpl); fn(data);` — fn(data) is not a direct
+ * templating call, so we should not flag it again.
+ */
+function isCallingFunctionResult(
+  context: Rule.RuleContext,
+  callExpression: estree.CallExpression,
+): boolean {
+  const callee = callExpression.callee;
+  if (callee.type !== 'Identifier') {
+    return false;
+  }
+  const variable = getVariableFromScope(context.sourceCode.getScope(callee), callee.name);
+  if (!variable || variable.defs.some(def => def.type === 'ImportBinding')) {
+    return false;
+  }
+  const writeRef = getUniqueWriteReference(variable);
+  return writeRef?.type === 'CallExpression';
+}
 
 function isQuestionable(node: estree.CallExpression, index = 0): boolean {
   const args = node.arguments;
