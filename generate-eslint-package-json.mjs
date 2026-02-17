@@ -28,6 +28,7 @@ const eslintPluginDependencies = [
   'minimatch',
   'scslre',
   'semver',
+  'ts-api-utils',
   'typescript',
 ];
 
