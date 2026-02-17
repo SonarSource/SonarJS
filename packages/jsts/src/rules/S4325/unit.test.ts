@@ -152,6 +152,13 @@ describe('S4325', () => {
               }
             }
           `,
+          output: `
+            function process(x: string | number) {
+              if (typeof x === 'string') {
+                return (x).toUpperCase();
+              }
+            }
+          `,
           errors: 1,
         },
         {
@@ -159,6 +166,10 @@ describe('S4325', () => {
           code: `
             const x: string = 'hello';
             const y = x as string;
+          `,
+          output: `
+            const x: string = 'hello';
+            const y = x;
           `,
           errors: 1,
         },
@@ -177,6 +188,13 @@ describe('S4325', () => {
             function getName(x?: string) {
               if (x) {
                 return x!;
+              }
+            }
+          `,
+          output: `
+            function getName(x?: string) {
+              if (x) {
+                return x;
               }
             }
           `,
