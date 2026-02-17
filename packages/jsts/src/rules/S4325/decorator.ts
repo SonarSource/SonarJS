@@ -59,16 +59,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const node = reportDescriptor.node as TSESTree.Node;
 
-      if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-        if (shouldSuppressTypeAssertion(node, services)) {
-          return;
-        }
+      if (
+        (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') &&
+        shouldSuppressTypeAssertion(node, services)
+      ) {
+        return;
       }
 
-      if (node.type === 'TSNonNullExpression') {
-        if (shouldSuppressNonNullAssertion(node, services)) {
-          return;
-        }
+      if (node.type === 'TSNonNullExpression' && shouldSuppressNonNullAssertion(node, services)) {
+        return;
       }
 
       context.report(reportDescriptor);
@@ -222,11 +221,12 @@ function shouldSuppressNonNullAssertion(
   // When strictNullChecks is off, we can't distinguish flow narrowing from the
   // compiler ignoring null/undefined, so we always suppress (prefer no FP).
   const compilerOptions = services.program.getCompilerOptions();
-  if (compilerOptions.strict || compilerOptions.strictNullChecks) {
-    if (hasFlowNarrowedOutNullability(checker, tsNode)) {
-      // Flow narrowing has removed null/undefined — the assertion is unnecessary
-      return false;
-    }
+  if (
+    (compilerOptions.strict || compilerOptions.strictNullChecks) &&
+    hasFlowNarrowedOutNullability(checker, tsNode)
+  ) {
+    // Flow narrowing has removed null/undefined — the assertion is unnecessary
+    return false;
   }
 
   return true;
