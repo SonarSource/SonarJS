@@ -1,0 +1,34 @@
+{
+  "title": "Static Assets should not serve session cookies",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-8441",
+  "sqKey": "S8441",
+  "scope": "All",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "securityStandards": {
+    "CWE": [
+      668,
+      16
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
