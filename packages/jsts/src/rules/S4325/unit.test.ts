@@ -218,7 +218,21 @@ function getName(x?: string | { name: string }) {
   return "NoName";
 }
           `,
-          errors: 3,
+          output: `
+function getName(x?: string | { name: string }) {
+  if (x) {
+    console.log("Getting name for " + x);
+
+    if (typeof x === "string") {
+      return (x);
+    } else {
+      return (x as { name: string }).name;
+    }
+  }
+  return "NoName";
+}
+          `,
+          errors: 2,
         },
         {
           code: `
@@ -229,6 +243,14 @@ function getString(): string {
 
 const result = getString() as string;
           `,
+          output: `
+// Non-generic function call - assertion is redundant
+function getString(): string {
+  return "test";
+}
+
+const result = getString();
+          `,
           errors: 1,
         },
         {
@@ -237,6 +259,15 @@ const result = getString() as string;
 function test(x: string | number) {
   if (typeof x === "string") {
     const s = x as string;
+    console.log(s);
+  }
+}
+          `,
+          output: `
+// Already narrowed by typeof
+function test(x: string | number) {
+  if (typeof x === "string") {
+    const s = x;
     console.log(s);
   }
 }
