@@ -28,4 +28,5 @@ describe('Rule S6544', () => {
     path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'),
   );
   test(meta, rule, path.join(import.meta.dirname, 'fixtures', 'voidReturnProperty'));
+  test(meta, rule, path.join(import.meta.dirname, 'fixtures', 'lazyInitialization'));
 });
