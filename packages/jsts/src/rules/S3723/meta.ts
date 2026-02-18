@@ -16,6 +16,8 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'enforce-trailing-comma';
-export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'comma-dangle' }];
+export const externalRules = [
+  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'comma-dangle' },
+];
 export * from './config.js';
 export const quickFixMessage = 'Add trailing comma';

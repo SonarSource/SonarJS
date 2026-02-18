@@ -51,6 +51,10 @@ describe('Plugin public API', () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
     const ruleIds = (await readdir(ruleFolder)).filter(name => /^S\d+/.test(name));
     const usedExternalEslintIds: string[] = [];
+    // S1537 (comma-dangle, disallows trailing commas) and S3723 (enforce-trailing-comma,
+    // enforces trailing commas) both wrap @stylistic/eslint-plugin:comma-dangle but with
+    // opposite configurations, so the same external rule is intentionally used twice.
+    const allowedDuplicateExternalRules = new Set(['@stylistic/eslint-plugin:comma-dangle']);
 
     for (const ruleId of ruleIds) {
       const metadata = (await import(
@@ -76,14 +80,18 @@ describe('Plugin public API', () => {
       } else if (metadata.implementation === 'external') {
         expect(externalPlugins).toContain(metadata.externalPlugin);
         const externalKey = `${metadata.externalPlugin}:${metadata.eslintId}`;
-        expect(usedExternalEslintIds).not.toContain(externalKey);
+        if (!allowedDuplicateExternalRules.has(externalKey)) {
+          expect(usedExternalEslintIds).not.toContain(externalKey);
+        }
         expect(await allExternalRules[metadata.externalPlugin!](metadata.eslintId)).toBeDefined();
         usedExternalEslintIds.push(externalKey);
       } else if (metadata.implementation === 'decorated') {
         expect(metadata.externalRules!.length).toBeGreaterThan(0);
         for (const externalRule of metadata.externalRules!) {
           const externalKey = `${externalRule.externalPlugin}:${externalRule.externalRule}`;
-          expect(usedExternalEslintIds).not.toContain(externalKey);
+          if (!allowedDuplicateExternalRules.has(externalKey)) {
+            expect(usedExternalEslintIds).not.toContain(externalKey);
+          }
           usedExternalEslintIds.push(externalKey);
           expect(externalPlugins).toContain(externalRule.externalPlugin);
           expect(
