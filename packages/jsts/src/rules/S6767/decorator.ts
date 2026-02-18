@@ -54,24 +54,29 @@ function hasIndirectPropsUsage(ast: Program): boolean {
 }
 
 function hasPattern(node: Node, predicate: (node: Node) => boolean): boolean {
-  if (predicate(node)) {
-    return true;
-  }
+  return predicate(node) || hasPatternInChildren(node, predicate);
+}
+
+function hasPatternInChildren(node: Node, predicate: (node: Node) => boolean): boolean {
   for (const key of Object.keys(node)) {
     if (key === 'parent') {
       continue;
     }
     const child = (node as unknown as Record<string, unknown>)[key];
-    if (isNode(child)) {
-      if (hasPattern(child, predicate)) {
-        return true;
-      }
-    } else if (Array.isArray(child)) {
-      for (const element of child) {
-        if (isNode(element) && hasPattern(element, predicate)) {
-          return true;
-        }
-      }
+    if (isNode(child) && hasPattern(child, predicate)) {
+      return true;
+    }
+    if (Array.isArray(child) && hasPatternInArray(child, predicate)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasPatternInArray(elements: unknown[], predicate: (node: Node) => boolean): boolean {
+  for (const element of elements) {
+    if (isNode(element) && hasPattern(element, predicate)) {
+      return true;
     }
   }
   return false;
@@ -183,7 +188,7 @@ function isPropsAsJSXAttributeValue(node: Node): boolean {
     return false;
   }
   const attr = node as unknown as { name: { name?: string }; value: Node | null };
-  if (attr.value && attr.value.type === ('JSXExpressionContainer' as string)) {
+  if (attr.value?.type === ('JSXExpressionContainer' as string)) {
     const container = attr.value as unknown as { expression: Node };
     return isPropsReference(container.expression);
   }
@@ -205,7 +210,7 @@ function isDecoratorWithPropsCallback(node: Node): boolean {
   }
   const decorator = node as unknown as { expression: Node };
   const expr = decorator.expression;
-  if (!expr || expr.type !== 'CallExpression') {
+  if (expr?.type !== 'CallExpression') {
     return false;
   }
   const call = expr as unknown as { arguments: Node[] };
@@ -279,32 +284,7 @@ function getFunctionBody(node: Node): Node | null {
 
 /** Checks if a subtree contains a nested function (without own `props` param) that accesses `props.X` */
 function hasNestedFunctionAccessingPropsClosure(node: Node): boolean {
-  for (const key of Object.keys(node)) {
-    if (key === 'parent') {
-      continue;
-    }
-    const child = (node as unknown as Record<string, unknown>)[key];
-    if (isNode(child)) {
-      if (isNestedFunctionWithPropsClosure(child)) {
-        return true;
-      }
-      if (hasNestedFunctionAccessingPropsClosure(child)) {
-        return true;
-      }
-    } else if (Array.isArray(child)) {
-      for (const element of child) {
-        if (isNode(element)) {
-          if (isNestedFunctionWithPropsClosure(element)) {
-            return true;
-          }
-          if (hasNestedFunctionAccessingPropsClosure(element)) {
-            return true;
-          }
-        }
-      }
-    }
-  }
-  return false;
+  return hasPatternInChildren(node, isNestedFunctionWithPropsClosure);
 }
 
 function isNestedFunctionWithPropsClosure(node: Node): boolean {
