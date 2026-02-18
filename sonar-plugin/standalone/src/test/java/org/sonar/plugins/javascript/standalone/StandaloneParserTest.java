@@ -85,7 +85,7 @@ class StandaloneParserTest {
   void test_standalone_created_with_builder() {
     try (StandaloneParser builtParser = StandaloneParser.builder()
       .timeout(600)
-      .nodeJsArgs("--max-old-space-size=2048")
+      .nodeJsArgs("--no-warnings")
       .maxOldSpaceSize(2048)
       .configuration(new StandaloneParser.EmptyConfiguration())
       .build()) {
