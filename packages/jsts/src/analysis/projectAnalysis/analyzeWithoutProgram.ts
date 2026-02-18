@@ -23,7 +23,6 @@ import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
-import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 
 /**
  * Analyzes files without type-checking.
@@ -35,7 +34,6 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
  * @param baseDir the base directory for the project
  * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
- * @param cssRules optional CSS rule configuration for stylelint analysis
  */
 export async function analyzeWithoutProgram(
   filenames: Set<NormalizedAbsolutePath>,
@@ -45,7 +43,6 @@ export async function analyzeWithoutProgram(
   baseDir: NormalizedAbsolutePath,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  cssRules?: CssRuleConfig[],
 ) {
   const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   for (const filename of filenames) {
@@ -69,7 +66,6 @@ export async function analyzeWithoutProgram(
       undefined,
       progressReport,
       incrementalResultsChannel,
-      cssRules,
     );
   }
 }

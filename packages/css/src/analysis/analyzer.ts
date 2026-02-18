@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import stylelint from 'stylelint';
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
@@ -33,6 +34,10 @@ import {
  *
  * The input must be fully sanitized (all fields required) before calling this function.
  *
+ * When `input.rules` is provided (bridge per-request path), a fresh Stylelint
+ * config is created from them. When absent (analyzeProject path), the linter's
+ * pre-initialized config is used instead (see `LinterWrapper.initialize()`).
+ *
  * @param input the sanitized CSS analysis input to analyze
  * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @returns a promise of the CSS analysis output
@@ -45,13 +50,17 @@ export async function analyzeCSS(
   if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [] };
   }
-  const config = createStylelintConfig(rules);
+
+  // If rules are provided explicitly (bridge path), create a fresh config.
+  // Otherwise, use the linter's pre-initialized config (analyzeProject path).
+  const config = rules ? createStylelintConfig(rules) : undefined;
+
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
-  const options = {
+  const options: stylelint.LinterOptions = {
     code: sanitizedCode,
     codeFilename: filePath,
-    config,
+    ...(config && { config }),
   };
   return linter.lint(filePath, options).catch(err => {
     error(`Linter failed to parse file ${filePath}: ${err}`);

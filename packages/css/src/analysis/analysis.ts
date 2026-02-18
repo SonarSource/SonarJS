@@ -24,10 +24,13 @@ import { Issue } from '../linter/issues/index.js';
  * A CSS analysis input only needs an input file and a set
  * of rule configurations to analyze a stylesheet.
  *
- * @param rules the rules from the active quality profile
+ * When `rules` is provided (bridge per-request path), a fresh config is created.
+ * When `rules` is absent (analyzeProject path), the linter must be pre-initialized.
+ *
+ * @param rules the rules from the active quality profile (optional when linter is pre-initialized)
  */
 export interface CssAnalysisInput extends AnalysisInput {
-  rules: RuleConfig[];
+  rules?: RuleConfig[];
 }
 
 /**

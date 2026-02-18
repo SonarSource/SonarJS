@@ -23,6 +23,7 @@ import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
+import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import {
   type Configuration,
   getJsTsConfigFields,
@@ -62,7 +63,6 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
-  const cssRules = input.cssRules ?? [];
 
   // All files go into pendingFiles — analyzeFile decides per-file whether to
   // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
@@ -86,6 +86,12 @@ export async function analyzeProject(
     baseDir,
     rulesWorkdir,
   });
+
+  // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
+  // Always called to reset state between analysis runs: when cssRules is empty,
+  // the linter is reset to uninitialized so CSS analysis is correctly skipped.
+  cssLinter.initialize(input.cssRules ?? []);
+
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
     if (sonarlint) {
@@ -98,7 +104,6 @@ export async function analyzeProject(
         canAccessFileSystem,
         jsTsConfigFields,
         incrementalResultsChannel,
-        cssRules,
       );
     } else {
       await analyzeWithProgram(
@@ -110,7 +115,6 @@ export async function analyzeProject(
         canAccessFileSystem,
         jsTsConfigFields,
         incrementalResultsChannel,
-        cssRules,
       );
     }
     if (pendingFiles.size) {
@@ -125,7 +129,6 @@ export async function analyzeProject(
         baseDir,
         jsTsConfigFields,
         incrementalResultsChannel,
-        cssRules,
       );
     }
   }

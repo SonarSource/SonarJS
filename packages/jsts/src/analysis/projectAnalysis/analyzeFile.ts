@@ -35,7 +35,7 @@ import { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 import { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 import { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
-import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
+import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -45,6 +45,9 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
  * Pure CSS files are dispatched to stylelint and skip the JS/TS pipeline entirely.
  * Vue and web files (.vue, .html, .htm, .xhtml) get both JS/TS and CSS analysis.
  *
+ * CSS analysis uses the pre-initialized CSS linter singleton (see LinterWrapper.initialize()),
+ * which is set up in analyzeProject before any files are analyzed.
+ *
  * @param fileName - The normalized absolute path of the file to analyze
  * @param file - The stored file data (filePath, fileContent, fileType, fileStatus)
  * @param configFields - Configuration fields for analysis behavior (from caller's config source)
@@ -53,7 +56,6 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
  * @param pendingFiles - Set of files not yet analyzed (for progress tracking)
  * @param progressReport - Progress reporter for logging
  * @param incrementalResultsChannel - Optional callback for incremental result streaming
- * @param cssRules - Optional CSS rule configuration for stylelint analysis
  */
 export async function analyzeFile(
   fileName: NormalizedAbsolutePath,
@@ -64,7 +66,6 @@ export async function analyzeFile(
   pendingFiles: Set<NormalizedAbsolutePath> | undefined,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  cssRules?: CssRuleConfig[],
 ) {
   progressReport.nextFile(fileName);
 
@@ -73,14 +74,13 @@ export async function analyzeFile(
 
   // Pure CSS file — dispatch to stylelint, skip the JS/TS pipeline entirely
   if (isCssFile(fileName, shouldIgnoreParams.cssSuffixes)) {
-    if (cssRules && cssRules.length > 0) {
+    if (cssLinter.isInitialized()) {
       let result: CssFileResult | { error: string };
       try {
         const cssOutput = await analyzeCSS(
           {
             filePath: file.filePath,
             fileContent: file.fileContent,
-            rules: cssRules,
             sonarlint: configFields.sonarlint,
           },
           shouldIgnoreParams,
@@ -116,8 +116,7 @@ export async function analyzeFile(
   // Mirrors CssRuleSensor.getInputFiles() in Java (vueFilePredicate + webFilePredicate).
   const CSS_ALSO_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
   if (
-    cssRules &&
-    cssRules.length > 0 &&
+    cssLinter.isInitialized() &&
     !('error' in result) &&
     CSS_ALSO_EXTENSIONS.some(ext => fileName.endsWith(ext))
   ) {
@@ -126,7 +125,6 @@ export async function analyzeFile(
         {
           filePath: file.filePath,
           fileContent: file.fileContent,
-          rules: cssRules,
           sonarlint: configFields.sonarlint,
         },
         shouldIgnoreParams,

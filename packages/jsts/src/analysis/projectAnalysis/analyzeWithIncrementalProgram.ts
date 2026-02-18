@@ -34,7 +34,6 @@ import {
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
-import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
@@ -50,7 +49,6 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
  * @param canAccessFileSystem whether the analyzer can access the file system
  * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
- * @param cssRules optional CSS rule configuration for stylelint analysis
  */
 export async function analyzeWithIncrementalProgram(
   files: JsTsFiles,
@@ -61,7 +59,6 @@ export async function analyzeWithIncrementalProgram(
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  cssRules?: CssRuleConfig[],
 ) {
   const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const rootNames = Array.from(pendingFiles).filter(file =>
@@ -97,7 +94,6 @@ export async function analyzeWithIncrementalProgram(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
-      cssRules,
     );
 
     if (!pendingFiles.size) {
