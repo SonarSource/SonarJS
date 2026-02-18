@@ -33,6 +33,63 @@ describe('S7739', () => {
         `,
         filename: join(dirname, 'filename.ts'),
       },
+      {
+        // Chained yup calls - string().when() with {is, then} config
+        code: `
+          import * as yup from 'yup';
+          const schema = yup.string().when('hasName', {
+            is: true,
+            then: (schema) => schema.required(),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
+      {
+        // Chained yup calls inside object shape definition
+        // This is the most common real-world pattern from the Jira ticket
+        code: `
+          import * as yup from 'yup';
+          const formSchema = yup.object().shape({
+            age: yup.number().required(),
+            parentalConsent: yup.bool().when('age', {
+              is: (age) => age < 18,
+              then: (schema) => schema.required(),
+              otherwise: (schema) => schema.optional(),
+            }),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
+      {
+        // Multiple chained .when() calls with {is, then} in same shape
+        code: `
+          import * as yup from 'yup';
+          const schema = yup.object().shape({
+            a1: yup.string().when('a2', {
+              is: undefined,
+              then: (schema) => schema.required(),
+            }),
+            a2: yup.string().when('a1', {
+              is: undefined,
+              then: (schema) => schema.required(),
+            }),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
+      {
+        // Yup .when() with array of dependencies
+        code: `
+          import * as yup from 'yup';
+          const schema = yup.object().shape({
+            value: yup.number().when(['unknownDep', 'knownDep'], {
+              is: true,
+              then: (s) => s.required(),
+            }),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
     ],
     invalid: [
       {

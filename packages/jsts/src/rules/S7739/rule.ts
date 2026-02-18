@@ -25,6 +25,7 @@ import {
   interceptReport,
   isIdentifier,
 } from '../helpers/index.js';
+import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 import * as meta from './generated-meta.js';
 
 const noThenable = rules['no-thenable'];
@@ -37,9 +38,17 @@ const noThenable = rules['no-thenable'];
 const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 
 /**
- * Checks if a node is inside a call expression from one of the exception libraries
+ * Checks if a node is inside a call expression from one of the exception libraries.
+ * Uses two detection strategies:
+ * 1. FQN check on ancestor CallExpressions (handles direct calls like yup.object({then: ...}))
+ * 2. Conditional validation config pattern ({is, then}) when a validation library is a dependency
  */
 function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
+  const dependencies = getDependenciesSanitizePaths(context);
+  if (!EXCEPTION_LIBRARIES.some(lib => dependencies.has(lib))) {
+    return false;
+  }
+
   const ancestors = context.sourceCode.getAncestors(node);
 
   for (const ancestor of ancestors) {
@@ -51,7 +60,7 @@ function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): bo
     }
   }
 
-  return false;
+  return isConditionalValidationConfig(node);
 }
 
 /**
@@ -302,6 +311,22 @@ function hasSiblingThenableMethods(node: Node): boolean {
   }
   const propertyNames = collectPropertyNames(objectExpr);
   return hasCompleteThenable(propertyNames);
+}
+
+/**
+ * Checks if 'then' is inside an object that also has an 'is' property,
+ * indicating a conditional validation config pattern (e.g., {is: ..., then: ...}).
+ * This pattern is used by validation libraries like Yup and Joi in their
+ * .when() and .conditional() methods.
+ */
+function isConditionalValidationConfig(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+  const propertyNames = collectPropertyNames(objectExpr);
+  return propertyNames.has('then') && propertyNames.has('is');
 }
 
 /**
