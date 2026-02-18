@@ -14,8 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
-export const eslintId = 'comma-dangle';
-export const externalPlugin = '@stylistic/eslint-plugin';
-export * from './config.js';
-export const quickFixMessage = 'Remove this trailing comma';
+// https://sonarsource.github.io/rspec/#/rspec/S1537/javascript
+
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  {
+    default: 'never',
+  },
+] as const satisfies ESLintConfiguration;
