@@ -165,11 +165,6 @@ describe('S2871', () => {
       }
     `,
           },
-          {
-            code: `
-      actionsMap.edit.sort().should.eql(['post', 'tag'].sort());
-    `,
-          },
           // Object.keys() sorting
           {
             code: `

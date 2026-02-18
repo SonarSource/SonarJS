@@ -22,6 +22,7 @@ import type estree from 'estree';
 import {
   copyingSortLike,
   generateMeta,
+  getParent,
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
@@ -75,12 +76,118 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+          // Suppress when sort() is used in patterns where default sorting is intentional
+          if (isFromKnownStringSource(object)) {
+            return;
+          }
+
+          // Suppress for string arrays in order-independent comparisons
+          if (isStringArray(type, services) && isOrderIndependentComparison(call)) {
+            return;
+          }
+
           const suggest = getSuggestions(call, type);
           const messageId = getMessageId(type);
           context.report({ node, suggest, messageId });
         }
       },
     };
+
+    function isOrderIndependentComparison(call: estree.CallExpression): boolean {
+      // Walk up the AST to find a BinaryExpression ancestor
+      let currentNode: estree.Node = call;
+      let parent = getParent(context, currentNode);
+
+      while (parent) {
+        if (parent.type === 'BinaryExpression') {
+          const operator = parent.operator;
+          if (['===', '==', '!==', '!='].includes(operator)) {
+            // Check if both sides contain sort() calls
+            const leftHasSort = containsSortCall(parent.left);
+            const rightHasSort = containsSortCall(parent.right);
+
+            if (leftHasSort && rightHasSort) {
+              return true;
+            }
+          }
+          // If we hit a comparison but it doesn't match the pattern, stop
+          return false;
+        }
+
+        // Stop at certain node types that indicate we're not in a comparison chain
+        if (
+          parent.type === 'ExpressionStatement' ||
+          parent.type === 'VariableDeclarator' ||
+          parent.type === 'AssignmentExpression' ||
+          parent.type === 'ReturnStatement' ||
+          parent.type === 'IfStatement'
+        ) {
+          return false;
+        }
+
+        currentNode = parent;
+        parent = getParent(context, currentNode);
+      }
+
+      return false;
+    }
+
+    function containsSortCall(node: estree.Node): boolean {
+      // Recursively check if the node or any of its descendants is a sort() call
+      if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+        const property = node.callee.property;
+        if (property.type === 'Identifier') {
+          const name = property.name;
+          if ([...sortLike, ...copyingSortLike].includes(name)) {
+            return true;
+          }
+        }
+        // Check the object of the call (e.g., in arr.sort().toString(), check arr.sort())
+        return containsSortCall(node.callee.object);
+      }
+
+      if (node.type === 'MemberExpression') {
+        return containsSortCall(node.object);
+      }
+
+      return false;
+    }
+
+    function isFromKnownStringSource(object: estree.Node): boolean {
+      if (object.type === 'CallExpression') {
+        const callee = object.callee;
+
+        if (
+          callee.type === 'MemberExpression' &&
+          callee.object.type === 'Identifier' &&
+          callee.object.name === 'Array' &&
+          callee.property.type === 'Identifier' &&
+          callee.property.name === 'from' &&
+          object.arguments.length > 0
+        ) {
+          const firstArg = object.arguments[0];
+          if (firstArg.type === 'CallExpression' && firstArg.callee.type === 'MemberExpression') {
+            const methodName =
+              firstArg.callee.property.type === 'Identifier' ? firstArg.callee.property.name : null;
+            if (methodName && ['keys', 'values', 'entries'].includes(methodName)) {
+              return true;
+            }
+          }
+        }
+
+        if (
+          callee.type === 'MemberExpression' &&
+          callee.object.type === 'Identifier' &&
+          callee.object.name === 'Object' &&
+          callee.property.type === 'Identifier' &&
+          callee.property.name === 'keys'
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       const suggestions: Rule.SuggestionReportDescriptor[] = [];
