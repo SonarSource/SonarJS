@@ -16,5 +16,5 @@
  */
 export const implementation = 'external';
 export const eslintId = 'max-len';
-export const externalPlugin = 'eslint';
+export const externalPlugin = '@stylistic/eslint-plugin';
 export * from './config.js';

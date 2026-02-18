@@ -14,10 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'brace-style';
-export const externalRules = [
-  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'brace-style' },
-];
-export * from './config.js';
-export const quickFixMessage = 'Follow curly brace style';
+// @ts-check
+
+import plugin from 'eslint-plugin-sonarjs';
+import tseslint from 'typescript-eslint';
+import parser from '@typescript-eslint/parser';
+
+console.log(`Loaded ${Object.keys(plugin.configs.recommended.rules ?? {}).length} rules`);
+
+export default tseslint.config(plugin.configs.recommended, {
+  files: ['**/*.ts'],
+  languageOptions: {
+    parser,
+  },
+});

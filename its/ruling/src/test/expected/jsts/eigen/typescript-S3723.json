@@ -475,6 +475,9 @@
 "eigen:src/app/Components/ArtworkGrids/LotProgressBar.tests.tsx": [
 14
 ],
+"eigen:src/app/Components/ArtworkRail/ArtworkRail.tsx": [
+17
+],
 "eigen:src/app/Components/AuctionResult/AuctionResultMidEstimate.tests.tsx": [
 9,
 17,
@@ -1925,6 +1928,7 @@
 34
 ],
 "eigen:src/app/Scenes/MyAccount/Components/MyAccountFieldEditScreen.tsx": [
+27,
 80
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tests.tsx": [
@@ -2817,6 +2821,7 @@
 60
 ],
 "eigen:src/app/Scenes/SellWithArtsy/utils/TrackingEvent.ts": [
+14,
 58
 ],
 "eigen:src/app/Scenes/Show/Components/ShowArtworks.tsx": [
@@ -3198,6 +3203,9 @@
 82
 ],
 "eigen:src/app/utils/AboveTheFoldQueryRenderer.tsx": [
+9,
+22,
+53,
 79
 ],
 "eigen:src/app/utils/AdminMenu.tsx": [
@@ -3288,6 +3296,7 @@
 69
 ],
 "eigen:src/app/utils/hideBackButtonOnScroll.tsx": [
+13,
 68
 ],
 "eigen:src/app/utils/isCloseToBottom.ts": [

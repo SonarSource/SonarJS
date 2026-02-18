@@ -14,10 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'brace-style';
-export const externalRules = [
-  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'brace-style' },
+const plugin = require('eslint-plugin-sonarjs');
+
+console.log(`Loaded ${Object.keys(plugin.configs.recommended.rules).length} rules`);
+
+module.exports = [
+  {
+    files: ['./*.js'],
+    languageOptions: { sourceType: 'commonjs' },
+  },
+  plugin.configs.recommended,
+  {
+    rules: {
+      'sonarjs/no-implicit-dependencies': 'error',
+    },
+  },
 ];
-export * from './config.js';
-export const quickFixMessage = 'Follow curly brace style';
