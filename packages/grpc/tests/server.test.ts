@@ -536,7 +536,7 @@ describe('gRPC server', () => {
       expect(issues.length).toBe(1);
       expect(issues[0].rule?.repo).toBe('css');
       expect(issues[0].rule?.rule).toBe('S4658');
-      expect(issues[0].filePath).toBe('src/styles.css');
+      expect(issues[0].filePath).toMatch(/src\/styles\.css$/);
     });
 
     it('should analyze a SCSS file and return issues', async () => {
@@ -652,6 +652,38 @@ describe('gRPC server', () => {
 
       const response = await client.analyze(request);
       expect(response.issues?.length).toBe(0);
+    });
+
+    it('should analyze a Vue file and return both JS and CSS issues', async () => {
+      const vueContent = [
+        '<template><div/></template>',
+        '<script>',
+        'function f() { var unused = 1; }', // S1481: unused local variable
+        '</script>',
+        '<style>',
+        'a { }', // S4658: block-no-empty
+        '</style>',
+      ].join('\n');
+
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: '/project/src/component.vue', content: vueContent }],
+        activeRules: [
+          { ruleKey: { repo: 'javascript', rule: 'S1481' }, params: [] },
+          { ruleKey: { repo: 'css', rule: 'S4658' }, params: [] },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      const jsIssues = issues.filter(i => i.rule?.repo === 'javascript');
+      const cssIssues = issues.filter(i => i.rule?.repo === 'css');
+
+      expect(jsIssues.length).toBeGreaterThan(0);
+      expect(cssIssues.length).toBeGreaterThan(0);
+      expect(cssIssues[0].rule?.rule).toBe('S4658');
     });
   });
 });

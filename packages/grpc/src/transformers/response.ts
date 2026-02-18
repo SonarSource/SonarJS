@@ -173,6 +173,8 @@ export function transformProjectOutputToResponse(
       continue;
     }
 
+    // Handle CSS issues — present on pure CSS files (CssFileResult) and also
+    // injected into Vue/HTML results alongside JS issues after stylelint analysis.
     if ('cssIssues' in fileResult) {
       for (const issue of (fileResult as CssFileResult).cssIssues) {
         // Reverse-map stylelint key back to SonarQube key (e.g. 'font-family-no-duplicate-names' -> 'S4648')
@@ -190,7 +192,7 @@ export function transformProjectOutputToResponse(
           flows: [],
         });
       }
-      continue;
+      // No `continue` here — Vue/HTML files may also have JS issues below
     }
 
     if ('issues' in fileResult) {

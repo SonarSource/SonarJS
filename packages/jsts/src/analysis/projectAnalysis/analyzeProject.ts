@@ -72,15 +72,23 @@ export async function analyzeProject(
     [];
   const pendingFiles = new Set<NormalizedAbsolutePath>();
 
+  // Mirrors CssRuleSensor.getInputFiles() in Java which has three predicates:
+  //   1. CSS language files (.css, .less, .scss, .sass) — stylelint only
+  //   2. Vue files (.vue) — both ESLint (script) and stylelint (style)
+  //   3. Web files (.html, .htm, .xhtml) — both embedded ESLint and stylelint
+  const CSS_ALSO_FILES_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
+
   for (const filePath of Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]) {
     if (isCssFile(filePath, configuration.cssSuffixes)) {
+      // Pure CSS file — stylelint only, does not go through ESLint
       cssFiles.push([filePath, filesToAnalyze[filePath]]);
-      // .vue files also go through JS/TS analysis for their script blocks
-      if (filePath.endsWith('.vue')) {
-        pendingFiles.add(filePath);
-      }
     } else {
+      // All other files go through ESLint (JS/TS, Vue, HTML, etc.)
       pendingFiles.add(filePath);
+      // Vue and web files also get stylelint analysis for their <style> blocks
+      if (CSS_ALSO_FILES_EXTENSIONS.some(ext => filePath.endsWith(ext))) {
+        cssFiles.push([filePath, filesToAnalyze[filePath]]);
+      }
     }
   }
 
@@ -90,32 +98,6 @@ export async function analyzeProject(
       warnings: [],
     },
   };
-
-  // Analyze CSS files with stylelint
-  const cssRules = input.cssRules ?? [];
-  if (cssFiles.length > 0 && cssRules.length > 0) {
-    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-    for (const [filePath, file] of cssFiles) {
-      try {
-        const cssOutput = await analyzeCSS(
-          {
-            filePath,
-            fileContent: file.fileContent,
-            rules: cssRules,
-            sonarlint: configuration.sonarlint,
-          },
-          shouldIgnoreParams,
-        );
-        // Store with ruleId as stylelint key -- the gRPC response transformer
-        // will reverse-map it back to the SQ key using reverseCssRuleKeyMap
-        results.files[filePath] = {
-          cssIssues: cssOutput.issues.map(issue => ({ ...issue })),
-        } as CssFileResult;
-      } catch (err) {
-        results.files[filePath] = { error: String(err) };
-      }
-    }
-  }
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
@@ -169,6 +151,41 @@ export async function analyzeProject(
     }
   }
   progressReport.stop();
+
+  // Analyze CSS/Vue/HTML files with stylelint — runs AFTER JS/TS so that for
+  // Vue and HTML files the CSS issues can be merged into the existing JS result.
+  const cssRules = input.cssRules ?? [];
+  if (cssFiles.length > 0 && cssRules.length > 0) {
+    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+    for (const [filePath, file] of cssFiles) {
+      try {
+        const cssOutput = await analyzeCSS(
+          {
+            filePath,
+            fileContent: file.fileContent,
+            rules: cssRules,
+            sonarlint: configuration.sonarlint,
+          },
+          shouldIgnoreParams,
+        );
+        const cssIssues = cssOutput.issues.map(issue => ({ ...issue }));
+        const existingResult = results.files[filePath];
+        if (existingResult && !('cssIssues' in existingResult) && !('error' in existingResult)) {
+          // Vue/HTML file already has a JS/TS result — inject cssIssues alongside it.
+          // The response transformer checks both 'issues' and 'cssIssues' independently.
+          (existingResult as Record<string, unknown>).cssIssues = cssIssues;
+        } else if (!existingResult) {
+          // Pure CSS file — store as CssFileResult
+          results.files[filePath] = { cssIssues } as CssFileResult;
+        }
+      } catch (err) {
+        if (!results.files[filePath]) {
+          results.files[filePath] = { error: String(err) };
+        }
+      }
+    }
+  }
+
   if (analysisStatus.cancelled) {
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });
