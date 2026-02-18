@@ -654,6 +654,39 @@ describe('gRPC server', () => {
       expect(response.issues?.length).toBe(0);
     });
 
+    it('should analyze an HTML file and return both JS and CSS issues', async () => {
+      const htmlContent = [
+        '<html><body>',
+        '<script>',
+        'function f() { var unused = 1; }', // S1481: unused local variable
+        '</script>',
+        '<style>',
+        'a { }', // S4658: block-no-empty
+        '</style>',
+        '</body></html>',
+      ].join('\n');
+
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: '/project/src/page.html', content: htmlContent }],
+        activeRules: [
+          { ruleKey: { repo: 'javascript', rule: 'S1481' }, params: [] },
+          { ruleKey: { repo: 'css', rule: 'S4658' }, params: [] },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      const jsIssues = issues.filter(i => i.rule?.repo === 'javascript');
+      const cssIssues = issues.filter(i => i.rule?.repo === 'css');
+
+      expect(jsIssues.length).toBeGreaterThan(0);
+      expect(cssIssues.length).toBeGreaterThan(0);
+      expect(cssIssues[0].rule?.rule).toBe('S4658');
+    });
+
     it('should analyze a Vue file and return both JS and CSS issues', async () => {
       const vueContent = [
         '<template><div/></template>',
