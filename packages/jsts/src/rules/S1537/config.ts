@@ -14,10 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'brace-style';
-export const externalRules = [
-  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'brace-style' },
-];
-export * from './config.js';
-export const quickFixMessage = 'Follow curly brace style';
+// https://sonarsource.github.io/rspec/#/rspec/S1537/javascript
+
+import { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  {
+    default: 'never',
+  },
+] as const satisfies ESLintConfiguration;

@@ -2,6 +2,9 @@
 "Joust:ts/Launcher.tsx": [
 434
 ],
+"Joust:ts/components/DebugApplication.tsx": [
+12
+],
 "Joust:ts/components/EventLog.tsx": [
 26,
 70,

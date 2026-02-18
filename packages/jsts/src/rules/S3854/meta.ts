@@ -14,5 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
+export const implementation = 'decorated';
 export const eslintId = 'super-invocation';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'constructor-super' },
+  { externalPlugin: 'eslint', externalRule: 'no-this-before-super' },
+];

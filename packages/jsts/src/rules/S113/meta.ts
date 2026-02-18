@@ -16,6 +16,6 @@
  */
 export const implementation = 'external';
 export const eslintId = 'eol-last';
-export const externalPlugin = 'eslint';
+export const externalPlugin = '@stylistic/eslint-plugin';
 export * from './config.js';
 export const quickFixMessage = 'Add a new line at the end of the file';
