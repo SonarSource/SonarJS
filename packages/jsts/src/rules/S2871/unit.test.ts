@@ -148,6 +148,65 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
+          // Order-independent comparison - both sides sorted
+          {
+            code: `
+      function arraysEqualIgnoreOrder(arr1: string[], arr2: string[]) {
+        return arr1.sort().toString() === arr2.sort().toString();
+      }
+    `,
+          },
+          {
+            code: `
+      const fileNames = ['a.js', 'b.js'];
+      const canonicalNames = ['a.js', 'b.js'];
+      if (fileNames.sort() !== canonicalNames.sort()) {
+        console.log('different');
+      }
+    `,
+          },
+          {
+            code: `
+      actionsMap.edit.sort().should.eql(['post', 'tag'].sort());
+    `,
+          },
+          // Object.keys() sorting
+          {
+            code: `
+      const data = {
+        keys: Object.keys(obj).sort()
+      };
+    `,
+          },
+          {
+            code: `
+      const sortedKeys = Object.keys(registry).sort().filter(id => id !== topLevelId);
+    `,
+          },
+          // Map.keys() and Map.entries() sorting
+          {
+            code: `
+      const sortedKeys = Array.from(map.keys()).sort();
+    `,
+          },
+          {
+            code: `
+      for (const [fileName, sourcePath] of Array.from(rootFiles.entries()).sort()) {
+        console.log(fileName);
+      }
+    `,
+          },
+          // Set iteration sorting
+          {
+            code: `
+      const sortedValues = Array.from(mySet.values()).sort();
+    `,
+          },
+          {
+            code: `
+      const sortedSetKeys = Array.from(mySet.keys()).sort();
+    `,
+          },
         ],
         invalid: [
           {
@@ -510,6 +569,53 @@ describe('S2871', () => {
           },
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
+          },
+          // Order-independent comparison - both sides sorted
+          {
+            code: `
+      function arraysEqualIgnoreOrder(arr1: string[], arr2: string[]) {
+        return arr1.toSorted().toString() === arr2.toSorted().toString();
+      }
+    `,
+          },
+          {
+            code: `
+      const fileNames = ['a.js', 'b.js'];
+      const canonicalNames = ['a.js', 'b.js'];
+      if (fileNames.toSorted().join() == canonicalNames.toSorted().join()) {
+        console.log('same');
+      }
+    `,
+          },
+          // Object.keys() sorting
+          {
+            code: `
+      const data = {
+        keys: Object.keys(obj).toSorted()
+      };
+    `,
+          },
+          {
+            code: `
+      const sortedKeys = Object.keys(registry).toSorted();
+    `,
+          },
+          // Map.keys() and Map.entries() sorting
+          {
+            code: `
+      const sortedKeys = Array.from(map.keys()).toSorted();
+    `,
+          },
+          {
+            code: `
+      const sortedEntries = Array.from(rootFiles.entries()).toSorted();
+    `,
+          },
+          // Set iteration sorting
+          {
+            code: `
+      const sortedValues = Array.from(mySet.values()).toSorted();
+    `,
           },
         ],
         invalid: [
