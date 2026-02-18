@@ -305,6 +305,34 @@ describe('S6767', () => {
           `,
           errors: 1,
         },
+        {
+          // PropTypes.checkPropTypes() does not suppress unused prop detection
+          code: `
+            import * as React from 'react';
+            import PropTypes from 'prop-types';
+
+            interface ListProps {
+              items: string[];
+              onChangeObject: () => void;
+            }
+
+            class ListControl extends React.Component<ListProps> {
+              static propTypes = {
+                items: PropTypes.array.isRequired,
+                onChangeObject: PropTypes.func,
+              };
+
+              componentDidMount() {
+                PropTypes.checkPropTypes(ListControl.propTypes, this.props, 'prop', 'ListControl');
+              }
+
+              render() {
+                return <ul>{this.props.items.map(i => <li key={i}>{i}</li>)}</ul>;
+              }
+            }
+          `,
+          errors: 1,
+        },
       ],
     });
   });

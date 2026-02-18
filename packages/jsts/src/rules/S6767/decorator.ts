@@ -109,12 +109,26 @@ function hasExportedPropsType(ast: estree.Program): boolean {
   return false;
 }
 
+function isPropTypesCheckCall(callee: estree.Expression | estree.Super): boolean {
+  return (
+    callee.type === 'MemberExpression' &&
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'PropTypes' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'checkPropTypes'
+  );
+}
+
 function isPropsPassedAsArgument(node: AstNode): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
   const call = node as estree.CallExpression;
   if (call.callee.type === 'Super') {
+    return false;
+  }
+  // Exclude PropTypes.checkPropTypes() - validation only, not consumption
+  if (isPropTypesCheckCall(call.callee)) {
     return false;
   }
   return call.arguments.some(arg => isPropsReference(arg as estree.Node));
@@ -220,7 +234,7 @@ function collectChildNodes(node: AstNode): AstNode[] {
 
 /**
  * Walks the AST to detect indirect prop usage patterns:
- * - Props passed as function argument (excludes super(props))
+ * - Props passed as function argument (excludes super(props) and PropTypes.checkPropTypes())
  * - Props spread ({...props}, {...this.props})
  * - Bracket notation access (props[key], this.props[key])
  * - React.forwardRef wrapper
