@@ -36,10 +36,14 @@ export class ProgressReport {
 
   start() {
     this.intervalId = setInterval(() => {
-      info(
-        `${this.counter}/${this.total} ${this.pluralizeFile(this.counter)} analyzed, current file: ${this.currentFilename}`,
-      );
+      this.logProgress();
     }, ProgressReport.INTERVAL);
+  }
+
+  logProgress() {
+    info(
+      `${this.counter}/${this.total} ${this.pluralizeFile(this.counter)} analyzed, current file: ${this.currentFilename}`,
+    );
   }
 
   nextFile(currentFilename: string) {

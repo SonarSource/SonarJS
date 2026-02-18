@@ -37,6 +37,7 @@ import { getProgramCacheManager } from '../../program/cache/programCache.js';
 import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
 import { createStandardProgram } from '../../program/factory.js';
 import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
+import { dirname, relative } from 'node:path';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -124,6 +125,14 @@ export async function analyzeWithProgram(
   }
 }
 
+interface DirNode {
+  files: NormalizedAbsolutePath[];
+  children: Map<string, DirNode>;
+  pendingCount: number;
+}
+
+const PROGRAM_SIZE_THRESHOLD = 100;
+
 async function analyzeFilesFromEntryPoint(
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
@@ -146,30 +155,116 @@ async function analyzeFilesFromEntryPoint(
     `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
   );
 
-  const programOptions = foundProgramOptions.length
+  const baseProgramOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
     : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
-  programOptions.rootNames = rootNames;
-  programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  const host = new IncrementalCompilerHost(baseProgramOptions.options, baseDir);
 
-  const tsProgram = createStandardProgram(programOptions);
+  // Build directory trie relative to baseDir with pending counts
+  const root: DirNode = { files: [], children: new Map(), pendingCount: 0 };
+  for (const file of rootNames) {
+    const relDir = relative(baseDir, dirname(file));
+    const parts = relDir ? relDir.split('/') : [];
+    let node = root;
+    node.pendingCount++;
+    for (const part of parts) {
+      if (!node.children.has(part)) {
+        node.children.set(part, { files: [], children: new Map(), pendingCount: 0 });
+      }
+      node = node.children.get(part) as DirNode;
+      node.pendingCount++;
+    }
+    node.files.push(file);
+  }
 
-  for (const fileName of rootNames) {
-    if (isAnalysisCancelled()) {
+  function decrementAncestors(file: NormalizedAbsolutePath) {
+    const relDir = relative(baseDir, dirname(file));
+    const parts = relDir ? relDir.split('/') : [];
+    let node = root;
+    node.pendingCount--;
+    for (const part of parts) {
+      node = node.children.get(part) as DirNode;
+      node.pendingCount--;
+    }
+  }
+
+  function collectFiles(node: DirNode): NormalizedAbsolutePath[] {
+    const result = [...node.files];
+    for (const child of node.children.values()) {
+      result.push(...collectFiles(child));
+    }
+    return result;
+  }
+
+  async function createProgramAndAnalyze(groupFiles: NormalizedAbsolutePath[]) {
+    const stillPending = groupFiles.filter(f => pendingFiles.has(f));
+    if (stillPending.length === 0) {
       return;
     }
 
-    await analyzeFile(
-      fileName,
-      files[fileName],
-      jsTsConfigFields,
-      tsProgram,
-      results,
-      pendingFiles,
-      progressReport,
-      incrementalResultsChannel,
+    baseProgramOptions.rootNames = stillPending;
+    baseProgramOptions.host = host;
+    const tsProgram = createStandardProgram(baseProgramOptions);
+
+    // Include bonus files the program pulled in that are still pending
+    const bonusFiles = tsProgram
+      .getSourceFiles()
+      .map(sf => sf.fileName as NormalizedAbsolutePath)
+      .filter(f => pendingFiles.has(f) && files[f] && !stillPending.includes(f));
+
+    const toAnalyze = [...stillPending, ...bonusFiles];
+
+    info(
+      `Creating program for ${stillPending.length} file(s) (${bonusFiles.length} bonus file(s) from program)`,
     );
+
+    for (const fileName of toAnalyze) {
+      if (isAnalysisCancelled()) {
+        return;
+      }
+
+      await analyzeFile(
+        fileName,
+        files[fileName],
+        jsTsConfigFields,
+        tsProgram,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+      );
+      decrementAncestors(fileName);
+    }
+
+    progressReport.logProgress();
   }
+
+  async function visit(node: DirNode) {
+    if (node.pendingCount === 0) {
+      return;
+    }
+
+    if (node.pendingCount < PROGRAM_SIZE_THRESHOLD) {
+      // Small enough subtree — single program for everything
+      await createProgramAndAnalyze(collectFiles(node));
+      return;
+    }
+
+    // Process direct files at this level
+    if (node.files.length > 0) {
+      await createProgramAndAnalyze(node.files);
+    }
+
+    // Recurse into children
+    for (const child of node.children.values()) {
+      if (isAnalysisCancelled()) {
+        return;
+      }
+      await visit(child);
+    }
+  }
+
+  await visit(root);
 }
 
 async function analyzeFilesFromTsConfig(
