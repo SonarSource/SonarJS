@@ -16,6 +16,8 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'brace-style';
-export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'brace-style' }];
+export const externalRules = [
+  { externalPlugin: '@stylistic/eslint-plugin', externalRule: 'brace-style' },
+];
 export * from './config.js';
 export const quickFixMessage = 'Follow curly brace style';
