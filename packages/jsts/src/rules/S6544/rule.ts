@@ -83,40 +83,73 @@ function statementAssignsTo(
  */
 const flaggedNodeStarts = new Map();
 
+/**
+ * Handles reporting for descriptors with a 'node' property.
+ * Checks for lazy initialization pattern and deduplicates reports.
+ */
+function handleNodeDescriptor(
+  context: Rule.RuleContext,
+  descriptor: Parameters<Parameters<typeof interceptReport>[1]>[1],
+): void {
+  if (!('node' in descriptor)) {
+    return;
+  }
+  const node = descriptor.node as TSESTree.Node;
+  if ('messageId' in descriptor && descriptor.messageId === 'conditional') {
+    if (isLazyInitialization(node, context)) {
+      return;
+    }
+  }
+  const start = node.range[0];
+  if (!flaggedNodeStarts.get(start)) {
+    flaggedNodeStarts.set(start, true);
+    if (FUNCTION_NODES.includes(node.type)) {
+      const loc = getMainFunctionTokenLocation(
+        node as TSESTree.FunctionLike,
+        node.parent,
+        context as unknown as RuleContext,
+      );
+      context.report({ ...descriptor, loc });
+    } else {
+      context.report(descriptor);
+    }
+  }
+}
+
+/**
+ * Handles reporting for descriptors with a 'loc' property.
+ * Deduplicates reports based on location.
+ */
+function handleLocDescriptor(
+  context: Rule.RuleContext,
+  descriptor: Parameters<Parameters<typeof interceptReport>[1]>[1],
+): void {
+  if (!('loc' in descriptor)) {
+    return;
+  }
+  const loc = descriptor.loc;
+  let start: number;
+  if (typeof loc === 'object' && 'line' in loc) {
+    start = context.sourceCode.getIndexFromLoc(loc);
+  } else if (typeof loc === 'object' && 'start' in loc) {
+    start = context.sourceCode.getIndexFromLoc(loc.start);
+  } else {
+    start = 0;
+  }
+  if (!flaggedNodeStarts.get(start)) {
+    flaggedNodeStarts.set(start, true);
+    context.report(descriptor);
+  }
+}
+
 const noMisusedPromisesRule = tsEslintRules['no-misused-promises'];
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
-      const node = descriptor.node as TSESTree.Node;
-      if ('messageId' in descriptor && descriptor.messageId === 'conditional') {
-        if (isLazyInitialization(node, context)) {
-          return;
-        }
-      }
-      const start = node.range[0];
-      if (!flaggedNodeStarts.get(start)) {
-        flaggedNodeStarts.set(start, true);
-        if (FUNCTION_NODES.includes(node.type)) {
-          const loc = getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            node.parent,
-            context as unknown as RuleContext,
-          );
-          context.report({ ...descriptor, loc });
-        } else {
-          context.report(descriptor);
-        }
-      }
-    } else if ('loc' in descriptor) {
-      const start =
-        'line' in descriptor.loc
-          ? context.sourceCode.getIndexFromLoc(descriptor.loc)
-          : descriptor.loc.start;
-      if (!flaggedNodeStarts.get(start)) {
-        flaggedNodeStarts.set(start, true);
-        context.report(descriptor);
-      }
+      handleNodeDescriptor(context, descriptor);
+    } else {
+      handleLocDescriptor(context, descriptor);
     }
   },
 );
