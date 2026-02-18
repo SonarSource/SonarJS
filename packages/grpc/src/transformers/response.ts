@@ -19,6 +19,8 @@ import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import type { CssFileResult } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
 
 /**
@@ -168,6 +170,26 @@ export function transformProjectOutputToResponse(
           filePath,
         }),
       );
+      continue;
+    }
+
+    if ('cssIssues' in fileResult) {
+      for (const issue of (fileResult as CssFileResult).cssIssues) {
+        // Reverse-map stylelint key back to SonarQube key (e.g. 'font-family-no-duplicate-names' -> 'S4648')
+        const sqKey = reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId;
+        issues.push({
+          filePath,
+          message: issue.message,
+          rule: { repo: 'css', rule: sqKey },
+          textRange: {
+            startLine: issue.line,
+            startLineOffset: issue.column,
+            endLine: issue.line, // stylelint doesn't provide endLine
+            endLineOffset: issue.column,
+          },
+          flows: [],
+        });
+      }
       continue;
     }
 

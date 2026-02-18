@@ -17,6 +17,7 @@
 import {
   type ProjectAnalysisInput,
   type ProjectAnalysisOutput,
+  type CssFileResult,
   createFileResults,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
@@ -26,6 +27,8 @@ import { Linter } from '../../linter/linter.js';
 import {
   type Configuration,
   getJsTsConfigFields,
+  isCssFile,
+  getShouldIgnoreParams,
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -33,6 +36,7 @@ import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -62,13 +66,56 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
-  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
+
+  // Separate CSS files -- they need stylelint, not ESLint
+  const cssFiles: Array<[NormalizedAbsolutePath, (typeof filesToAnalyze)[NormalizedAbsolutePath]]> =
+    [];
+  const pendingFiles = new Set<NormalizedAbsolutePath>();
+
+  for (const filePath of Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]) {
+    if (isCssFile(filePath, configuration.cssSuffixes)) {
+      cssFiles.push([filePath, filesToAnalyze[filePath]]);
+      // .vue files also go through JS/TS analysis for their script blocks
+      if (filePath.endsWith('.vue')) {
+        pendingFiles.add(filePath);
+      }
+    } else {
+      pendingFiles.add(filePath);
+    }
+  }
+
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
     meta: {
       warnings: [],
     },
   };
+
+  // Analyze CSS files with stylelint
+  const cssRules = input.cssRules ?? [];
+  if (cssFiles.length > 0 && cssRules.length > 0) {
+    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+    for (const [filePath, file] of cssFiles) {
+      try {
+        const cssOutput = await analyzeCSS(
+          {
+            filePath,
+            fileContent: file.fileContent,
+            rules: cssRules,
+            sonarlint: configuration.sonarlint,
+          },
+          shouldIgnoreParams,
+        );
+        // Store with ruleId as stylelint key -- the gRPC response transformer
+        // will reverse-map it back to the SQ key using reverseCssRuleKeyMap
+        results.files[filePath] = {
+          cssIssues: cssOutput.issues.map(issue => ({ ...issue })),
+        } as CssFileResult;
+      } catch (err) {
+        results.files[filePath] = { error: String(err) };
+      }
+    }
+  }
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);

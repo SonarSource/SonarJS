@@ -30,7 +30,13 @@ import {
   JAVA_TEMPLATES_FOLDER,
   listRulesDir,
   sonarKeySorter,
+  writePrettyFile,
 } from './helpers.js';
+import {
+  cssRulesMeta,
+  type CssRuleMeta,
+  type StylelintIgnoreParam,
+} from '../packages/css/src/rules/metadata.js';
 
 const JAVA_CHECKS_FOLDER = join(
   'sonar-plugin',
@@ -278,5 +284,282 @@ await inflateTemplateToFile(
       .map(rule => `${rule}.class`)
       .join(','),
     ___HEADER___: header,
+  },
+);
+
+// ===== CSS rule class generation =====
+
+const CSS_JAVA_CHECKS_FOLDER = join(
+  'sonar-plugin',
+  'css',
+  'src',
+  'main',
+  'java',
+  'org',
+  'sonar',
+  'css',
+  'rules',
+);
+const CSS_JAVA_FOLDER = join('sonar-plugin', 'css', 'src', 'main', 'java', 'org', 'sonar', 'css');
+const CSS_JAVA_TEST_FOLDER = join(
+  'sonar-plugin',
+  'css',
+  'src',
+  'test',
+  'java',
+  'org',
+  'sonar',
+  'css',
+  'rules',
+);
+
+function escapeJavaString(s: string): string {
+  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
+  const { ignoreParams, booleanParam } = rule;
+
+  if (!ignoreParams?.length && !booleanParam) {
+    return '';
+  }
+
+  const lines: string[] = [];
+
+  if (ignoreParams?.length) {
+    imports.add('import static org.sonar.css.rules.RuleUtils.splitAndTrim;');
+    imports.add('import java.util.Arrays;');
+    imports.add('import java.util.List;');
+    imports.add('import org.sonar.check.RuleProperty;');
+
+    for (const param of ignoreParams) {
+      const hasDefault = param.default.trim() !== '';
+      const constName = `DEFAULT_${param.javaField.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+      if (hasDefault) {
+        lines.push(
+          `private static final String ${constName} = "${escapeJavaString(param.default)}";`,
+        );
+        lines.push('');
+      }
+      lines.push(`@RuleProperty(`);
+      lines.push(`  key = "${param.sqKey}",`);
+      lines.push(`  description = "${escapeJavaString(param.description)}",`);
+      lines.push(`  defaultValue = ${hasDefault ? '"" + ' + constName : '""'}`);
+      lines.push(`)`);
+      lines.push(`String ${param.javaField} = ${hasDefault ? constName : '""'};`);
+      lines.push('');
+    }
+
+    lines.push('@Override');
+    lines.push('public List<Object> stylelintOptions() {');
+    const args = ignoreParams.map(p => `splitAndTrim(${p.javaField})`).join(', ');
+    lines.push(`  return Arrays.asList(true, new StylelintIgnoreOption(${args}));`);
+    lines.push('}');
+    lines.push('');
+
+    lines.push('private static class StylelintIgnoreOption {');
+    lines.push('');
+    for (const param of ignoreParams) {
+      lines.push(`  // Used by GSON serialization`);
+      lines.push(`  private final List<String> ${param.stylelintOptionKey};`);
+    }
+    lines.push('');
+    const ctorArgs = ignoreParams.map(p => `List<String> ${p.stylelintOptionKey}`).join(', ');
+    lines.push(`  StylelintIgnoreOption(${ctorArgs}) {`);
+    for (const param of ignoreParams) {
+      lines.push(`    this.${param.stylelintOptionKey} = ${param.stylelintOptionKey};`);
+    }
+    lines.push('  }');
+    lines.push('}');
+    lines.push('');
+  }
+
+  if (booleanParam) {
+    imports.add('import java.util.Arrays;');
+    imports.add('import java.util.Collections;');
+    imports.add('import java.util.List;');
+    imports.add('import org.sonar.check.RuleProperty;');
+
+    const { sqKey, javaField, description, default: defaultVal, onTrue } = booleanParam;
+    const constName = `DEFAULT_${javaField.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    lines.push(`private static final boolean ${constName} = ${defaultVal};`);
+    lines.push('');
+    lines.push(`@RuleProperty(`);
+    lines.push(`  key = "${sqKey}",`);
+    lines.push(`  description = "${escapeJavaString(description)}",`);
+    lines.push(`  defaultValue = "" + ${constName}`);
+    lines.push(`)`);
+    lines.push(`boolean ${javaField} = ${constName};`);
+    lines.push('');
+    lines.push('@Override');
+    lines.push('public List<Object> stylelintOptions() {');
+    lines.push(`  return ${javaField}`);
+    lines.push(`    ? Arrays.asList(true, new StylelintIgnoreOption())`);
+    lines.push(`    : Collections.emptyList();`);
+    lines.push('}');
+    lines.push('');
+
+    lines.push('private static class StylelintIgnoreOption {');
+    for (const opt of onTrue) {
+      const valuesStr = opt.values.map(v => `"${escapeJavaString(v)}"`).join(', ');
+      lines.push(
+        `  private final List<String> ${opt.stylelintOptionKey} = Collections.singletonList(${valuesStr});`,
+      );
+    }
+    lines.push('}');
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+async function generateCssJavaCheckClass(rule: CssRuleMeta): Promise<void> {
+  const imports = new Set<string>();
+  const body = generateCssBody(rule, imports);
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-check.template'),
+    join(CSS_JAVA_CHECKS_FOLDER, `${rule.sqKey}.java`),
+    {
+      ___HEADER___: header,
+      ___IMPORTS___: [...imports].sort().join('\n'),
+      ___RULE_KEY___: rule.sqKey,
+      ___CLASS_NAME___: rule.sqKey,
+      ___STYLELINT_KEY___: rule.stylelintKey,
+      ___BODY___: body,
+    },
+  );
+}
+
+function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
+  perRuleTests: string;
+  rulesWithOptionsClasses: string;
+  propertiesCount: number;
+} {
+  const rulesWithOptions = rules.filter(r => r.ignoreParams?.length || r.booleanParam);
+  const sortedRulesWithOptions = rulesWithOptions.toSorted((a, b) =>
+    sonarKeySorter(a.sqKey, b.sqKey),
+  );
+
+  const rulesWithOptionsClasses = sortedRulesWithOptions
+    .map(r => `${r.sqKey}.class`)
+    .join(',\n      ');
+
+  let propertiesCount = 0;
+  for (const rule of rules) {
+    propertiesCount += rule.ignoreParams?.length ?? 0;
+    if (rule.booleanParam) propertiesCount += 1;
+  }
+
+  const testMethods: string[] = [];
+
+  for (const rule of sortedRulesWithOptions) {
+    const methodPrefix = rule.sqKey.toLowerCase(); // e.g. 's4662'
+
+    if (rule.ignoreParams?.length) {
+      const params = rule.ignoreParams;
+
+      // Default test
+      const defaultOptionObj: Record<string, string[]> = {};
+      for (const p of params) {
+        defaultOptionObj[p.stylelintOptionKey] =
+          p.default.trim() === '' ? [] : p.default.split(',').map(v => v.trim());
+      }
+      const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
+
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${methodPrefix}_default() {`);
+      testMethods.push(
+        `    String optionsAsJson = GSON.toJson(new ${rule.sqKey}().stylelintOptions());`,
+      );
+      testMethods.push(`    assertThat(optionsAsJson).isEqualTo("${defaultJson}");`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+
+      // Custom test
+      const customOptionObj: Record<string, string[]> = {};
+      for (const p of params) {
+        customOptionObj[p.stylelintOptionKey] = ['testValue1', 'testValue2'];
+      }
+      const customJson = JSON.stringify([true, customOptionObj]).replace(/"/g, '\\"');
+
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${methodPrefix}_custom() {`);
+      testMethods.push(`    ${rule.sqKey} instance = new ${rule.sqKey}();`);
+      for (const p of params) {
+        testMethods.push(`    instance.${p.javaField} = "testValue1, testValue2";`);
+      }
+      testMethods.push(`    String optionsAsJson = GSON.toJson(instance.stylelintOptions());`);
+      testMethods.push(`    assertThat(optionsAsJson).isEqualTo("${customJson}");`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+    }
+
+    if (rule.booleanParam) {
+      const bp = rule.booleanParam;
+
+      // When true (default)
+      const trueOptionObj: Record<string, string[]> = {};
+      for (const opt of bp.onTrue) {
+        trueOptionObj[opt.stylelintOptionKey] = opt.values;
+      }
+      const trueJson = JSON.stringify([true, trueOptionObj]).replace(/"/g, '\\"');
+
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${methodPrefix}_default() {`);
+      testMethods.push(
+        `    String optionsAsJson = GSON.toJson(new ${rule.sqKey}().stylelintOptions());`,
+      );
+      testMethods.push(`    assertThat(optionsAsJson).isEqualTo("${trueJson}");`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+
+      // When false
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${methodPrefix}_disabled() {`);
+      testMethods.push(`    ${rule.sqKey} instance = new ${rule.sqKey}();`);
+      testMethods.push(`    instance.${bp.javaField} = false;`);
+      testMethods.push(`    assertThat(instance.stylelintOptions()).isEmpty();`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+    }
+  }
+
+  return { perRuleTests: testMethods.join('\n'), rulesWithOptionsClasses, propertiesCount };
+}
+
+for (const cssRule of cssRulesMeta) {
+  await generateCssJavaCheckClass(cssRule);
+}
+
+// Generate CssRules.java
+const sortedCssRules = cssRulesMeta.toSorted((a, b) => sonarKeySorter(a.sqKey, b.sqKey));
+
+const cssRuleImports = sortedCssRules.map(r => `import org.sonar.css.rules.${r.sqKey};`).join('\n');
+
+const cssRuleClasses = sortedCssRules.map(r => `${r.sqKey}.class`).join(',\n        ');
+
+await inflateTemplateToFile(
+  join(JAVA_TEMPLATES_FOLDER, 'css-rules.template'),
+  join(CSS_JAVA_FOLDER, 'CssRules.java'),
+  {
+    ___HEADER___: header,
+    ___IMPORTS___: cssRuleImports,
+    ___RULE_CLASSES___: cssRuleClasses,
+  },
+);
+
+// Generate CssRuleTest.java
+const { perRuleTests, rulesWithOptionsClasses, propertiesCount } =
+  generateCssRuleTestBody(cssRulesMeta);
+
+await inflateTemplateToFile(
+  join(JAVA_TEMPLATES_FOLDER, 'css-rule-test.template'),
+  join(CSS_JAVA_TEST_FOLDER, 'CssRuleTest.java'),
+  {
+    ___HEADER___: header,
+    ___RULES_WITH_OPTIONS_CLASSES___: rulesWithOptionsClasses,
+    ___RULES_PROPERTIES_COUNT___: String(propertiesCount),
+    ___PER_RULE_TESTS___: perRuleTests,
   },
 );

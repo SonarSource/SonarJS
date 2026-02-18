@@ -23,6 +23,8 @@ import { isString } from '../../../shared/src/helpers/sanitize.js';
 import type { ESLintConfiguration } from '../../../jsts/src/rules/helpers/configs.js';
 import type { FieldDef } from './types.js';
 import { ruleMetaMap } from './rule-metadata.js';
+import { cssRuleKeyMap } from '../../../css/src/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
 
 /**
  * Parse a string parameter value into the appropriate type based on the field's default value.
@@ -343,10 +345,14 @@ function transformActiveRule(activeRule: analyzer.IActiveRule): RuleConfig[] {
   const repo = isString(activeRule.ruleKey?.repo) ? activeRule.ruleKey.repo : '';
   const ruleKey = isString(activeRule.ruleKey?.rule) ? activeRule.ruleKey.rule : '';
 
+  if (repo === 'css') {
+    // CSS rules are handled separately via transformCssActiveRules()
+    return [];
+  }
   if (repo !== 'javascript' && repo !== 'typescript') {
     console.warn(
       `Ignoring rule ${ruleKey} with unsupported repository '${repo}'. ` +
-        `SonarJS analyzer only supports 'javascript' and 'typescript' repositories.`,
+        `SonarJS analyzer only supports 'javascript', 'typescript', and 'css' repositories.`,
     );
     return [];
   }
@@ -389,6 +395,45 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): RuleConfig[]
 }
 
 /**
+ * Transform a single CSS active rule from gRPC format to CssRuleConfig.
+ *
+ * CSS rules arrive with repo='css' and a SonarQube key (e.g. 'S4648').
+ * This maps them to the corresponding stylelint key and builds the
+ * configurations array from any provided params.
+ *
+ * @param sqKey - The SonarQube rule key (e.g. 'S4648')
+ * @returns Array with one CssRuleConfig, or empty if the rule is unknown
+ */
+function transformCssActiveRule(sqKey: string): CssRuleConfig[] {
+  const stylelintKey = cssRuleKeyMap.get(sqKey);
+  if (!stylelintKey) {
+    console.warn(`Ignoring unknown CSS rule ${sqKey}. Not found in cssRuleKeyMap.`);
+    return [];
+  }
+  // TODO: Build stylelint configurations from gRPC params (requires param-to-stylelint mapping).
+  // For now, use empty configurations -- stylelint uses rule defaults.
+  return [{ key: stylelintKey, configurations: [] }];
+}
+
+/**
+ * Transform all CSS active rules from gRPC format to CssRuleConfig array.
+ *
+ * Filters active rules to those with repo='css', then maps each through
+ * `transformCssActiveRule` to produce the stylelint-compatible configuration.
+ *
+ * @param activeRules - Array of active rules from the gRPC request
+ * @returns Flat array of CssRuleConfig entries for all CSS rules
+ */
+function transformCssActiveRules(activeRules: analyzer.IActiveRule[]): CssRuleConfig[] {
+  return activeRules
+    .filter(rule => isString(rule.ruleKey?.repo) && rule.ruleKey.repo === 'css')
+    .flatMap(rule => {
+      const sqKey = isString(rule.ruleKey?.rule) ? rule.ruleKey.rule : '';
+      return transformCssActiveRule(sqKey);
+    });
+}
+
+/**
  * Transform a gRPC AnalyzeRequest into the ProjectAnalysisInput format.
  *
  * This is the main entry point for request transformation in the gRPC workflow.
@@ -423,6 +468,7 @@ export function transformRequestToProjectInput(
 
   return {
     rules: transformActiveRules(activeRules),
+    cssRules: transformCssActiveRules(activeRules),
     bundles: [],
     rulesWorkdir: undefined,
   };

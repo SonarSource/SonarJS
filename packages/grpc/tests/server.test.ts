@@ -509,4 +509,149 @@ describe('gRPC server', () => {
     const responseAllman = await client.analyze(requestAllman);
     expect(responseAllman.issues?.length).toBe(0);
   });
+
+  describe('CSS analysis', () => {
+    it('should analyze a CSS file and return issues', async () => {
+      // S4658 = block-no-empty — triggers on empty blocks
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+      expect(issues[0].rule?.rule).toBe('S4658');
+      expect(issues[0].filePath).toBe('src/styles.css');
+    });
+
+    it('should analyze a SCSS file and return issues', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.scss',
+            content: '.foo { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+    });
+
+    it('should return no issues for valid CSS', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/valid.css',
+            content: 'a { color: red; }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+
+    it('should ignore CSS rules for JS files', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/app.js',
+            content: 'const x = 1;',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+
+    it('should handle mixed JS and CSS files in one request', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/app.js',
+            content: 'const x = 1;',
+          },
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+    });
+
+    it('should not produce CSS issues when no CSS rules are active', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+  });
 });

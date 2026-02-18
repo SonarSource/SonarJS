@@ -16,6 +16,7 @@
  */
 import type { FileStatus, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from '../analysis.js';
 import type { RuleConfig } from '../../linter/config/rule-config.js';
+import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
@@ -43,10 +44,15 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
+export type CssFileResult = {
+  cssIssues: Array<{ ruleId: string; line: number; column: number; message: string }>;
+};
+
 export type FileResult =
   | JsTsAnalysisOutput
   | JsTsAnalysisOutputWithAst
   | EmbeddedAnalysisOutput
+  | CssFileResult
   | ParsingError
   | { error: string };
 
@@ -110,6 +116,7 @@ export function entriesOfFileResults(files: FileResults): [NormalizedAbsolutePat
  */
 export type ProjectAnalysisInput = {
   rules: RuleConfig[];
+  cssRules?: CssRuleConfig[];
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
 };
