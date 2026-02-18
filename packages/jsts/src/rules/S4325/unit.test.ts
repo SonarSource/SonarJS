@@ -17,6 +17,8 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
+import parser from '@typescript-eslint/parser';
 
 const ruleTester = new RuleTester();
 
@@ -87,6 +89,30 @@ describe('S4325', () => {
               return registry.get(name) as T;
             }
             const logger = getService('logger') as { log(msg: string): void };
+          `,
+        },
+        {
+          // Generic querySelector narrowing to HTMLElement
+          code: `
+            class Component {
+              private eGui: HTMLElement = document.createElement('div');
+              queryForHtmlElement(cssSelector: string): HTMLElement {
+                return this.eGui.querySelector(cssSelector) as HTMLElement;
+              }
+              queryForHtmlInputElement(cssSelector: string): HTMLInputElement {
+                return this.eGui.querySelector(cssSelector) as HTMLInputElement;
+              }
+            }
+          `,
+        },
+        {
+          // Generic function with type parameter in declaration
+          code: `
+            function parseTokenNode<T extends object>(): T {
+              return {} as T;
+            }
+            type EndOfFileToken = { kind: 'eof' };
+            const token = parseTokenNode() as EndOfFileToken;
           `,
         },
       ],
@@ -193,6 +219,42 @@ describe('S4325', () => {
               let mutator = chunk;
             }
           `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag non-null assertions after null guard with strictNullChecks', () => {
+    const strictNullTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: `./tsconfig.json`,
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    strictNullTester.run('S4325 non-null after guard with strictNullChecks', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Non-null assertion after null guard is unnecessary with strictNullChecks
+          code: `
+            function convert(str: string | number | null | undefined) {
+              if (str == null || str === '') {
+                return undefined;
+              }
+              return isNaN(+str!);
+            }
+          `,
+          output: `
+            function convert(str: string | number | null | undefined) {
+              if (str == null || str === '') {
+                return undefined;
+              }
+              return isNaN(+str);
+            }
+          `,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
       ],
