@@ -95,10 +95,12 @@ function handleNodeDescriptor(
     return;
   }
   const node = descriptor.node as TSESTree.Node;
-  if ('messageId' in descriptor && descriptor.messageId === 'conditional') {
-    if (isLazyInitialization(node, context)) {
-      return;
-    }
+  if (
+    'messageId' in descriptor &&
+    descriptor.messageId === 'conditional' &&
+    isLazyInitialization(node, context)
+  ) {
+    return;
   }
   const start = node.range[0];
   if (!flaggedNodeStarts.get(start)) {
