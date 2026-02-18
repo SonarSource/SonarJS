@@ -75,14 +75,16 @@ describe('Plugin public API', () => {
         expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(metadata.eslintId);
       } else if (metadata.implementation === 'external') {
         expect(externalPlugins).toContain(metadata.externalPlugin);
-        expect(usedExternalEslintIds).not.toContain(metadata.eslintId);
+        const externalKey = `${metadata.externalPlugin}:${metadata.eslintId}`;
+        expect(usedExternalEslintIds).not.toContain(externalKey);
         expect(await allExternalRules[metadata.externalPlugin!](metadata.eslintId)).toBeDefined();
-        usedExternalEslintIds.push(metadata.eslintId);
+        usedExternalEslintIds.push(externalKey);
       } else if (metadata.implementation === 'decorated') {
         expect(metadata.externalRules!.length).toBeGreaterThan(0);
         for (const externalRule of metadata.externalRules!) {
-          expect(usedExternalEslintIds).not.toContain(externalRule.externalRule);
-          usedExternalEslintIds.push(externalRule.externalRule);
+          const externalKey = `${externalRule.externalPlugin}:${externalRule.externalRule}`;
+          expect(usedExternalEslintIds).not.toContain(externalKey);
+          usedExternalEslintIds.push(externalKey);
           expect(externalPlugins).toContain(externalRule.externalPlugin);
           expect(
             await allExternalRules[externalRule.externalPlugin](externalRule.externalRule),
