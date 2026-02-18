@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-const ruleTester = new DefaultParserRuleTester();
+const ruleTester = new NoTypeCheckingRuleTester();
 
 describe('S6767', () => {
   it('should suppress when props are used indirectly', () => {

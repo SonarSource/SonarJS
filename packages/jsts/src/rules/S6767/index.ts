@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/react.js';
-export const rule = rules['no-unused-prop-types'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['no-unused-prop-types']);
