@@ -75,7 +75,7 @@ export async function analyzeFile(
   // Pure CSS file — dispatch to stylelint, skip the JS/TS pipeline entirely
   if (isCssFile(fileName, shouldIgnoreParams.cssSuffixes)) {
     if (cssLinter.isInitialized()) {
-      let result: CssFileResult | { error: string };
+      let result: FileResult;
       try {
         const cssOutput = await analyzeCSS(
           {
@@ -85,11 +85,11 @@ export async function analyzeFile(
           },
           shouldIgnoreParams,
         );
-        result = { cssIssues: cssOutput.issues.map(issue => ({ ...issue })) };
+        result = { cssIssues: cssOutput.issues.map(issue => ({ ...issue })) } as CssFileResult;
       } catch (e) {
         result = handleError(serializeError(e));
       }
-      handleFileResult(result as FileResult, fileName, results, incrementalResultsChannel);
+      handleFileResult(result, fileName, results, incrementalResultsChannel);
     }
     if (pendingFiles) pendingFiles.delete(fileName);
     return;
