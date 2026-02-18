@@ -121,6 +121,23 @@ class JavaScriptPluginTest {
     assertThat(propertyDefinition.subCategory()).isEqualTo("General");
   }
 
+  @Test
+  void createTSProgramForOrphanFilesPropertyIsCorrectlyExposed() {
+    var propertyDefinition = properties()
+      .stream()
+      .filter(item -> {
+        return Objects.equals(item.key(), "sonar.javascript.createTSProgramForOrphanFiles");
+      })
+      .findFirst()
+      .get();
+
+    assertThat(propertyDefinition.name()).isEqualTo("Create TypeScript program for orphan files");
+    assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
+    assertThat(propertyDefinition.defaultValue()).isEqualTo("true");
+    assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
+    assertThat(propertyDefinition.subCategory()).isEqualTo("TypeScript");
+  }
+
   private List<PropertyDefinition> properties() {
     var extensions = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
