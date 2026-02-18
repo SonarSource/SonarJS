@@ -157,6 +157,10 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
  * Without strictNullChecks, TypeScript resolves `Api | null` to just `Api`,
  * making the upstream rule's nullability checks fail. We check the syntax of the
  * type annotation directly to determine if the developer declared the type as nullable.
+ *
+ * With strictNullChecks enabled, TypeScript's flow analysis correctly tracks
+ * null/undefined, so the upstream rule's analysis is reliable. We only check
+ * the resolved type in that case, which respects flow narrowing.
  */
 function shouldSuppressNonNullAssertion(
   node: TSESTree.TSNonNullExpression,
@@ -165,8 +169,23 @@ function shouldSuppressNonNullAssertion(
   const expression = node.expression as estree.Node;
   const checker = services.program.getTypeChecker();
   const tsNode = services.esTreeNodeToTSNodeMap.get(expression as TSESTree.Node);
+  const compilerOptions = services.program.getCompilerOptions();
 
-  // Get the symbol for the expression to find its declaration
+  // When strictNullChecks is enabled, TypeScript's flow analysis correctly tracks
+  // null/undefined. The upstream rule's analysis is reliable, so we only suppress
+  // if the resolved type (which respects flow narrowing) still contains null/undefined.
+  if (compilerOptions.strictNullChecks || compilerOptions.strict) {
+    const resolvedType = checker.getTypeAtLocation(tsNode);
+    if (resolvedType.isUnion()) {
+      return resolvedType.types.some(
+        t => !!(t.flags & (ts.TypeFlags.Null | ts.TypeFlags.Undefined)),
+      );
+    }
+    return false;
+  }
+
+  // Without strictNullChecks, the type checker erases null/undefined from types.
+  // Check the declaration's type annotation syntax directly.
   const symbol = checker.getSymbolAtLocation(tsNode);
   if (!symbol) {
     return false;
@@ -177,7 +196,6 @@ function shouldSuppressNonNullAssertion(
     return false;
   }
 
-  // Check each declaration for an explicit nullable type annotation
   for (const decl of declarations) {
     if (
       (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
@@ -187,12 +205,6 @@ function shouldSuppressNonNullAssertion(
         return true;
       }
     }
-  }
-
-  // Also check the resolved type (works when strictNullChecks is enabled)
-  const resolvedType = checker.getTypeAtLocation(tsNode);
-  if (resolvedType.isUnion()) {
-    return resolvedType.types.some(t => !!(t.flags & (ts.TypeFlags.Null | ts.TypeFlags.Undefined)));
   }
 
   return false;
