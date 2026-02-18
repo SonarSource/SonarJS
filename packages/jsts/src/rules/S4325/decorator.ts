@@ -58,16 +58,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const node = reportDescriptor.node as TSESTree.Node;
 
-      if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-        if (shouldSuppressTypeAssertion(node, services)) {
-          return;
-        }
+      if (
+        (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') &&
+        shouldSuppressTypeAssertion(node, services)
+      ) {
+        return;
       }
 
-      if (node.type === 'TSNonNullExpression') {
-        if (shouldSuppressNonNullAssertion(node, services)) {
-          return;
-        }
+      if (node.type === 'TSNonNullExpression' && shouldSuppressNonNullAssertion(node, services)) {
+        return;
       }
 
       context.report(reportDescriptor);
@@ -199,11 +198,10 @@ function shouldSuppressNonNullAssertion(
   for (const decl of declarations) {
     if (
       (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
-      decl.type
+      decl.type &&
+      typeNodeContainsNullOrUndefined(decl.type)
     ) {
-      if (typeNodeContainsNullOrUndefined(decl.type)) {
-        return true;
-      }
+      return true;
     }
   }
 
