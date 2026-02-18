@@ -20,6 +20,8 @@ import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { getESLintCoreRule } from '../external/core.js';
 import {
+  areEquivalent,
+  findFirstMatchingLocalAncestor,
   FUNCTION_NODES,
   generateMeta,
   getMainFunctionTokenLocation,
@@ -37,6 +39,46 @@ import * as meta from './generated-meta.js';
  */
 
 /**
+ * Checks if the reported node is part of a lazy initialization pattern,
+ * e.g. `if (!cachedPromise) { cachedPromise = fetch(...); }`.
+ * The upstream rule flags Promise-typed variables in conditionals, but when
+ * the same variable is assigned inside the if-body, the check is testing
+ * whether the Promise has been created yet, not evaluating its resolved value.
+ */
+function isLazyInitialization(node: TSESTree.Node, context: Rule.RuleContext): boolean {
+  if (node.type !== 'Identifier' && node.type !== 'MemberExpression') {
+    return false;
+  }
+  const ifStatement = findFirstMatchingLocalAncestor(node, n => n.type === 'IfStatement') as
+    | TSESTree.IfStatement
+    | undefined;
+  if (!ifStatement) {
+    return false;
+  }
+  return blockContainsAssignmentTo(ifStatement.consequent, node, context);
+}
+
+function blockContainsAssignmentTo(
+  block: TSESTree.Statement,
+  variable: TSESTree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const statements = block.type === 'BlockStatement' ? block.body : [block];
+  return statements.some(stmt => statementAssignsTo(stmt, variable, context));
+}
+
+function statementAssignsTo(
+  stmt: TSESTree.Statement,
+  variable: TSESTree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  if (stmt.type === 'ExpressionStatement' && stmt.expression.type === 'AssignmentExpression') {
+    return areEquivalent(stmt.expression.left, variable, context.sourceCode);
+  }
+  return false;
+}
+
+/**
  * start offsets of nodes that raised issues in typescript-eslint's no-misused-promises
  */
 const flaggedNodeStarts = new Map();
@@ -47,6 +89,11 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   (context, descriptor) => {
     if ('node' in descriptor) {
       const node = descriptor.node as TSESTree.Node;
+      if ('messageId' in descriptor && descriptor.messageId === 'conditional') {
+        if (isLazyInitialization(node, context)) {
+          return;
+        }
+      }
       const start = node.range[0];
       if (!flaggedNodeStarts.get(start)) {
         flaggedNodeStarts.set(start, true);
