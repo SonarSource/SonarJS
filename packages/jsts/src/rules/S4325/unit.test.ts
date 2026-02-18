@@ -158,6 +158,13 @@ describe('S4325', () => {
               }
             }
           `,
+          output: `
+            function getName(x?: string | number) {
+              if (typeof x === 'string') {
+                return x;
+              }
+            }
+          `,
           errors: 1,
         },
         {
@@ -165,6 +172,25 @@ describe('S4325', () => {
           code: `
             function greet(name: string) {
               console.log(name!);
+            }
+          `,
+          output: `
+            function greet(name: string) {
+              console.log(name);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Casting any to any is truly redundant
+          code: `
+            function process(chunk: any) {
+              let mutator = chunk as any;
+            }
+          `,
+          output: `
+            function process(chunk: any) {
+              let mutator = chunk;
             }
           `,
           errors: 1,
