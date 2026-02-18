@@ -17,10 +17,55 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6441/javascript
 
 import type { Rule } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
+import type estree from 'estree';
 import eslintPlugin from 'eslint-plugin-react-hooks';
 const rulesOfHooks = (eslintPlugin as any).rules['rules-of-hooks'];
-import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import {
+  detectReactRule,
+  findFirstMatchingAncestor,
+  generateMeta,
+  interceptReport,
+  isFunctionNode,
+  mergeRules,
+} from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+
+const FC_TYPES = new Set(['FC', 'FunctionComponent']);
+
+export const NOT_A_COMPONENT_MESSAGE =
+  'that is neither a React function component nor a custom React Hook function';
+
+/**
+ * Checks whether the given function node is assigned to a variable
+ * typed as FC, React.FC, FunctionComponent, or React.FunctionComponent.
+ */
+function isTypedAsFunctionalComponent(funcNode: TSESTree.Node): boolean {
+  const parent = funcNode.parent;
+  if (parent?.type !== 'VariableDeclarator') {
+    return false;
+  }
+  const id = parent.id;
+  if (id.type !== 'Identifier' || !id.typeAnnotation) {
+    return false;
+  }
+  const annotation = id.typeAnnotation.typeAnnotation;
+  if (annotation.type !== 'TSTypeReference') {
+    return false;
+  }
+  const { typeName } = annotation;
+  if (typeName.type === 'Identifier') {
+    return FC_TYPES.has(typeName.name);
+  }
+  if (
+    typeName.type === 'TSQualifiedName' &&
+    typeName.left.type === 'Identifier' &&
+    typeName.left.name === 'React'
+  ) {
+    return FC_TYPES.has(typeName.right.name);
+  }
+  return false;
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { ...rulesOfHooks.meta }),
@@ -33,9 +78,24 @@ export const rule: Rule.RuleModule = {
     const rulesOfHooksListener: Rule.RuleModule = interceptReport(
       rulesOfHooks,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        if (isReact) {
-          context.report(descriptor);
+        if (!isReact) {
+          return;
         }
+        if (
+          'message' in descriptor &&
+          typeof descriptor.message === 'string' &&
+          descriptor.message.includes(NOT_A_COMPONENT_MESSAGE) &&
+          'node' in descriptor
+        ) {
+          const hookNode = descriptor.node as unknown as TSESTree.Node;
+          const enclosingFunction = findFirstMatchingAncestor(hookNode, node =>
+            isFunctionNode(node as estree.Node),
+          );
+          if (enclosingFunction && isTypedAsFunctionalComponent(enclosingFunction)) {
+            return;
+          }
+        }
+        context.report(descriptor);
       },
     );
 
