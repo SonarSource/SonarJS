@@ -50,7 +50,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * likely false positives.
  */
 function hasIndirectPropsUsage(ast: Program): boolean {
-  return hasPattern(ast, isIndirectPropsUsageNode);
+  return hasPattern(ast, isIndirectPropsUsageNode) || hasPropsClosureInNestedFunction(ast);
 }
 
 function hasPattern(node: Node, predicate: (node: Node) => boolean): boolean {
@@ -85,18 +85,22 @@ function isIndirectPropsUsageNode(node: Node): boolean {
   return (
     isPropsPassedToFunction(node) ||
     isPropsSpread(node) ||
-    isSuperPropsCall(node) ||
     isPropsBracketAccess(node) ||
     isExportedPropsInterface(node) ||
     isHocExport(node) ||
     isForwardRefWrapper(node) ||
-    isPropsPassedToContextProvider(node)
+    isPropsAsJSXAttributeValue(node) ||
+    isPropsAsObjectPropertyValue(node) ||
+    isDecoratorWithPropsCallback(node)
   );
 }
 
-/** props or this.props passed as argument to any function call */
+/** props or this.props passed as argument to any function call (excluding super()) */
 function isPropsPassedToFunction(node: Node): boolean {
   if (node.type !== 'CallExpression') {
+    return false;
+  }
+  if (node.callee.type === 'Super') {
     return false;
   }
   return node.arguments.some(isPropsReference);
@@ -123,32 +127,23 @@ function isPropsSpread(node: Node): boolean {
   return false;
 }
 
-/** super(props) in constructor */
-function isSuperPropsCall(node: Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'Super' &&
-    node.arguments.length > 0 &&
-    isPropsReference(node.arguments[0])
-  );
-}
-
 /** props[key] or this.props[key] */
 function isPropsBracketAccess(node: Node): boolean {
   return node.type === 'MemberExpression' && node.computed && isPropsReference(node.object);
 }
 
-/** export interface/type for props */
+/** export interface/type whose name contains "Props" (public API for props) */
 function isExportedPropsInterface(node: Node): boolean {
   if (node.type !== 'ExportNamedDeclaration' || !node.declaration) {
     return false;
   }
   const decl = node.declaration;
-  if (decl.type === ('TSInterfaceDeclaration' as string)) {
-    return true;
-  }
-  if (decl.type === ('TSTypeAliasDeclaration' as string)) {
-    return true;
+  if (
+    decl.type === ('TSInterfaceDeclaration' as string) ||
+    decl.type === ('TSTypeAliasDeclaration' as string)
+  ) {
+    const name = (decl as unknown as { id: { name: string } }).id?.name ?? '';
+    return /props/i.test(name);
   }
   return false;
 }
@@ -182,20 +177,49 @@ function isForwardRefWrapper(node: Node): boolean {
   return false;
 }
 
-/** Props object passed to context provider value={props} */
-function isPropsPassedToContextProvider(node: Node): boolean {
+/** Props object passed as JSX attribute value, e.g. <Comp data={props} /> */
+function isPropsAsJSXAttributeValue(node: Node): boolean {
   if (node.type !== 'JSXAttribute') {
     return false;
   }
   const attr = node as unknown as { name: { name?: string }; value: Node | null };
-  if (attr.name?.name !== 'value') {
-    return false;
-  }
   if (attr.value && attr.value.type === ('JSXExpressionContainer' as string)) {
     const container = attr.value as unknown as { expression: Node };
     return isPropsReference(container.expression);
   }
   return false;
+}
+
+/** Props object used as value in an object property, e.g. { passProps: props } */
+function isPropsAsObjectPropertyValue(node: Node): boolean {
+  if (node.type !== 'Property') {
+    return false;
+  }
+  return isPropsReference(node.value);
+}
+
+/** Decorator with a callback that receives props, e.g. @track((props) => ...) */
+function isDecoratorWithPropsCallback(node: Node): boolean {
+  if (node.type !== ('Decorator' as string)) {
+    return false;
+  }
+  const decorator = node as unknown as { expression: Node };
+  const expr = decorator.expression;
+  if (!expr || expr.type !== 'CallExpression') {
+    return false;
+  }
+  const call = expr as unknown as { arguments: Node[] };
+  return call.arguments.some(arg => {
+    if (arg.type === 'ArrowFunctionExpression' || arg.type === 'FunctionExpression') {
+      const fn = arg as unknown as { params: Node[] };
+      return (
+        fn.params.length > 0 &&
+        fn.params[0].type === 'Identifier' &&
+        (fn.params[0] as unknown as { name: string }).name === 'props'
+      );
+    }
+    return false;
+  });
 }
 
 /** Matches `props` identifier or `this.props` member expression */
@@ -213,4 +237,101 @@ function isPropsReference(node: Node): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * Detects when a function component's `props` parameter is accessed via `props.X`
+ * inside a nested function that does NOT have its own `props` parameter.
+ * The upstream rule misses prop usage through closures like:
+ *   const Comp = (props) => { const Inner = () => <div>{props.title}</div>; }
+ */
+function hasPropsClosureInNestedFunction(ast: Program): boolean {
+  return hasPattern(ast, node => {
+    if (!isFunctionWithPropsParam(node)) {
+      return false;
+    }
+    const body = getFunctionBody(node);
+    if (!body) {
+      return false;
+    }
+    return hasNestedFunctionAccessingPropsClosure(body);
+  });
+}
+
+function isFunctionWithPropsParam(node: Node): boolean {
+  if (
+    node.type === 'ArrowFunctionExpression' ||
+    node.type === 'FunctionExpression' ||
+    node.type === 'FunctionDeclaration'
+  ) {
+    const fn = node as unknown as { params: Node[] };
+    return fn.params.some(
+      p => p.type === 'Identifier' && (p as unknown as { name: string }).name === 'props',
+    );
+  }
+  return false;
+}
+
+function getFunctionBody(node: Node): Node | null {
+  const fn = node as unknown as { body: Node };
+  return fn.body ?? null;
+}
+
+/** Checks if a subtree contains a nested function (without own `props` param) that accesses `props.X` */
+function hasNestedFunctionAccessingPropsClosure(node: Node): boolean {
+  for (const key of Object.keys(node)) {
+    if (key === 'parent') {
+      continue;
+    }
+    const child = (node as unknown as Record<string, unknown>)[key];
+    if (isNode(child)) {
+      if (isNestedFunctionWithPropsClosure(child)) {
+        return true;
+      }
+      if (hasNestedFunctionAccessingPropsClosure(child)) {
+        return true;
+      }
+    } else if (Array.isArray(child)) {
+      for (const element of child) {
+        if (isNode(element)) {
+          if (isNestedFunctionWithPropsClosure(element)) {
+            return true;
+          }
+          if (hasNestedFunctionAccessingPropsClosure(element)) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function isNestedFunctionWithPropsClosure(node: Node): boolean {
+  if (
+    node.type !== 'ArrowFunctionExpression' &&
+    node.type !== 'FunctionExpression' &&
+    node.type !== 'FunctionDeclaration'
+  ) {
+    return false;
+  }
+  const fn = node as unknown as { params: Node[] };
+  const hasOwnPropsParam = fn.params.some(
+    p => p.type === 'Identifier' && (p as unknown as { name: string }).name === 'props',
+  );
+  if (hasOwnPropsParam) {
+    return false;
+  }
+  const body = getFunctionBody(node);
+  if (!body) {
+    return false;
+  }
+  return hasPattern(
+    body,
+    n =>
+      n.type === 'MemberExpression' &&
+      !n.computed &&
+      n.object.type === 'Identifier' &&
+      (n.object as unknown as { name: string }).name === 'props',
+  );
 }
