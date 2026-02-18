@@ -17,7 +17,6 @@
 import {
   type ProjectAnalysisInput,
   type ProjectAnalysisOutput,
-  type CssFileResult,
   createFileResults,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
@@ -27,8 +26,6 @@ import { Linter } from '../../linter/linter.js';
 import {
   type Configuration,
   getJsTsConfigFields,
-  isCssFile,
-  getShouldIgnoreParams,
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -36,7 +33,6 @@ import { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -66,31 +62,11 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
+  const cssRules = input.cssRules ?? [];
 
-  // Separate CSS files -- they need stylelint, not ESLint
-  const cssFiles: Array<[NormalizedAbsolutePath, (typeof filesToAnalyze)[NormalizedAbsolutePath]]> =
-    [];
-  const pendingFiles = new Set<NormalizedAbsolutePath>();
-
-  // Mirrors CssRuleSensor.getInputFiles() in Java which has three predicates:
-  //   1. CSS language files (.css, .less, .scss, .sass) — stylelint only
-  //   2. Vue files (.vue) — both ESLint (script) and stylelint (style)
-  //   3. Web files (.html, .htm, .xhtml) — both embedded ESLint and stylelint
-  const CSS_ALSO_FILES_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
-
-  for (const filePath of Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]) {
-    if (isCssFile(filePath, configuration.cssSuffixes)) {
-      // Pure CSS file — stylelint only, does not go through ESLint
-      cssFiles.push([filePath, filesToAnalyze[filePath]]);
-    } else {
-      // All other files go through ESLint (JS/TS, Vue, HTML, etc.)
-      pendingFiles.add(filePath);
-      // Vue and web files also get stylelint analysis for their <style> blocks
-      if (CSS_ALSO_FILES_EXTENSIONS.some(ext => filePath.endsWith(ext))) {
-        cssFiles.push([filePath, filesToAnalyze[filePath]]);
-      }
-    }
-  }
+  // All files go into pendingFiles — analyzeFile decides per-file whether to
+  // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
+  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
 
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
@@ -122,6 +98,7 @@ export async function analyzeProject(
         canAccessFileSystem,
         jsTsConfigFields,
         incrementalResultsChannel,
+        cssRules,
       );
     } else {
       await analyzeWithProgram(
@@ -133,6 +110,7 @@ export async function analyzeProject(
         canAccessFileSystem,
         jsTsConfigFields,
         incrementalResultsChannel,
+        cssRules,
       );
     }
     if (pendingFiles.size) {
@@ -147,44 +125,11 @@ export async function analyzeProject(
         baseDir,
         jsTsConfigFields,
         incrementalResultsChannel,
+        cssRules,
       );
     }
   }
   progressReport.stop();
-
-  // Analyze CSS/Vue/HTML files with stylelint — runs AFTER JS/TS so that for
-  // Vue and HTML files the CSS issues can be merged into the existing JS result.
-  const cssRules = input.cssRules ?? [];
-  if (cssFiles.length > 0 && cssRules.length > 0) {
-    const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-    for (const [filePath, file] of cssFiles) {
-      try {
-        const cssOutput = await analyzeCSS(
-          {
-            filePath,
-            fileContent: file.fileContent,
-            rules: cssRules,
-            sonarlint: configuration.sonarlint,
-          },
-          shouldIgnoreParams,
-        );
-        const cssIssues = cssOutput.issues.map(issue => ({ ...issue }));
-        const existingResult = results.files[filePath];
-        if (existingResult && !('cssIssues' in existingResult) && !('error' in existingResult)) {
-          // Vue/HTML file already has a JS/TS result — inject cssIssues alongside it.
-          // The response transformer checks both 'issues' and 'cssIssues' independently.
-          (existingResult as Record<string, unknown>).cssIssues = cssIssues;
-        } else if (!existingResult) {
-          // Pure CSS file — store as CssFileResult
-          results.files[filePath] = { cssIssues } as CssFileResult;
-        }
-      } catch (err) {
-        if (!results.files[filePath]) {
-          results.files[filePath] = { error: String(err) };
-        }
-      }
-    }
-  }
 
   if (analysisStatus.cancelled) {
     error('Analysis has been cancelled');

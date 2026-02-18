@@ -25,6 +25,7 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
 import {
   createProgramOptions,
@@ -51,6 +52,7 @@ import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
  * @param canAccessFileSystem whether the analyzer can access the file system
  * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
+ * @param cssRules optional CSS rule configuration for stylelint analysis
  */
 export async function analyzeWithProgram(
   files: JsTsFiles,
@@ -61,6 +63,7 @@ export async function analyzeWithProgram(
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  cssRules?: CssRuleConfig[],
 ) {
   const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
@@ -94,6 +97,7 @@ export async function analyzeWithProgram(
       canAccessFileSystem,
       jsTsConfigFields,
       incrementalResultsChannel,
+      cssRules,
     );
   }
 
@@ -107,6 +111,7 @@ export async function analyzeWithProgram(
       baseDir,
       jsTsConfigFields,
       incrementalResultsChannel,
+      cssRules,
     );
   } else if (pendingFiles.size) {
     info(
@@ -139,6 +144,7 @@ async function analyzeFilesFromEntryPoint(
   baseDir: NormalizedAbsolutePath,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  cssRules?: CssRuleConfig[],
 ) {
   const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const rootNames: NormalizedAbsolutePath[] = Array.from(pendingFiles).filter(file =>
@@ -174,6 +180,7 @@ async function analyzeFilesFromEntryPoint(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
+      cssRules,
     );
   }
 }
@@ -190,6 +197,7 @@ async function analyzeFilesFromTsConfig(
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  cssRules?: CssRuleConfig[],
 ) {
   processedTSConfigs.add(tsconfig);
   info(`Creating TypeScript(${ts.version}) program with configuration file ${tsconfig}`);
@@ -252,6 +260,7 @@ async function analyzeFilesFromTsConfig(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
+      cssRules,
     );
   }
 }
