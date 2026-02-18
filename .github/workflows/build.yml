@@ -274,6 +274,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - eslint-version: 10
+            node-version: '18.18.0'
+            node-label: 'min supported'
           - eslint-version: 9
             node-version: '18.18.0'
             node-label: 'min supported'

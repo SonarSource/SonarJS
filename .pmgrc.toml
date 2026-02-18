@@ -1,0 +1,29 @@
+[data]
+name = "eslint-plugin-sonarjs"
+description = "SonarJS rules for ESLint"
+version = "0.0.0-SNAPSHOT"
+main = "./cjs/plugin.js"
+types = "./types/plugin.d.ts"
+author = "SonarSource"
+license = "LGPL-3.0-only"
+keywords = ["sonarjs", "eslint", "eslintplugin"]
+homepage = "https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md"
+
+[data.repository]
+type = "git"
+url = "git+https://github.com/SonarSource/SonarJS.git"
+
+[data.bugs]
+url = "https://community.sonarsource.com/"
+
+[data.peerDependencies]
+eslint = "^8.0.0 || ^9.0.0 || ^10.0.0"
+
+# Version overrides: pmg auto-detects which deps are used, but these two need
+# non-default versions. `builtin-modules` is pinned to 3.3.0 (last CJS-compatible
+# release) because the plugin is compiled to CommonJS; the root package.json has
+# 5.0.0 (ESM-only) for the bridge. `typescript` is loosened to >=5 so consumers
+# aren't forced onto the exact version used to build.
+[data.dependencies]
+typescript = ">=5"
+builtin-modules = "3.3.0"

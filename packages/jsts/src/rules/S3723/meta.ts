@@ -14,7 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
+export const implementation = 'decorated';
 export const eslintId = 'enforce-trailing-comma';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'comma-dangle' }];
 export * from './config.js';
 export const quickFixMessage = 'Add trailing comma';
