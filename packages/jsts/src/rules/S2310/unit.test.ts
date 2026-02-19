@@ -436,67 +436,6 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
-        // Splice inside if-consequent block (BlockStatement branch) with counter assignment
-        // covers containsSpliceWithCounter IfStatement path (lines 171-172) and
-        // containsSpliceInBranch BlockStatement path (lines 201-202)
-        {
-          code: `
-      function removeIfMatching(items, predicate) {
-        for (let i = 0; i < items.length; i++) {
-          if (predicate(items[i])) {
-            items.splice(i, 1);
-          }
-          i = i - 1; // Compliant: compensating for splice in if-consequent block
-        }
-        return items;
-      }
-      `,
-        },
-        // Splice inside if-alternate block (BlockStatement branch) with counter assignment
-        // covers containsSpliceWithCounter IfStatement alternate path (lines 174-175) and
-        // containsSpliceInBranch BlockStatement path (lines 201-202)
-        {
-          code: `
-      function keepOrRemove(items, predicate) {
-        for (let i = 0; i < items.length; i++) {
-          if (!predicate(items[i])) {
-            console.log('keeping', items[i]);
-          } else {
-            items.splice(i, 1);
-          }
-          i = i - 1; // Compliant: compensating for splice in if-alternate block
-        }
-        return items;
-      }
-      `,
-        },
-        // Splice inside if-consequent without braces (single-statement branch)
-        // covers containsSpliceInBranch non-BlockStatement path (line 204)
-        {
-          code: `
-      function removeSingleStatement(items, predicate) {
-        for (let i = 0; i < items.length; i++) {
-          if (predicate(items[i])) items.splice(i, 1);
-          i = i - 1; // Compliant: compensating for brace-less if splice
-        }
-        return items;
-      }
-      `,
-        },
-        // Splice inside if-alternate without braces (single-statement branch)
-        // covers containsSpliceInBranch non-BlockStatement path (line 204) for alternate
-        {
-          code: `
-      function keepOrRemoveSingleStatement(items, predicate) {
-        for (let i = 0; i < items.length; i++) {
-          if (!predicate(items[i])) console.log('keeping');
-          else items.splice(i, 1);
-          i = i - 1; // Compliant: compensating for brace-less else splice
-        }
-        return items;
-      }
-      `,
-        },
       ],
       invalid: [],
     });
@@ -673,6 +612,65 @@ describe('S2310 - invalid patterns', () => {
       }
       `,
           errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
+        },
+        // Unconditional decrement with splice inside if-branch is a bug (infinite loop risk)
+        {
+          code: `
+      function removeIfMatching(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) {
+            items.splice(i, 1);
+          }
+          i = i - 1; // Noncompliant: runs unconditionally, not just when splice happened
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 7 }],
+        },
+        // Unconditional decrement with splice inside else-branch is a bug
+        {
+          code: `
+      function keepOrRemove(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (!predicate(items[i])) {
+            console.log('keeping', items[i]);
+          } else {
+            items.splice(i, 1);
+          }
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 9 }],
+        },
+        // Unconditional decrement with splice inside brace-less if is a bug
+        {
+          code: `
+      function removeSingleStatement(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) items.splice(i, 1);
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 5 }],
+        },
+        // Unconditional decrement with splice inside brace-less else is a bug
+        {
+          code: `
+      function keepOrRemoveSingleStatement(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (!predicate(items[i])) console.log('keeping');
+          else items.splice(i, 1);
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 6 }],
         },
       ],
     });
