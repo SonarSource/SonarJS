@@ -257,6 +257,62 @@ describe('S4325', () => {
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
+        {
+          // Non-null assertion on a call returning a non-nullable non-union type with strictNullChecks
+          // Exercises shouldSuppressNonNullAssertion when resolvedType is not a union
+          code: `
+            function getId(): number { return 42; }
+            const id = getId()!;
+          `,
+          output: `
+            function getId(): number { return 42; }
+            const id = getId();
+          `,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag non-generic function call assertions', () => {
+    ruleTester.run('S4325 non-generic call assertion', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Non-generic function call with assertion to the same return type should still be flagged
+          // Exercises isCalleeGeneric returning false for a non-generic function
+          code: `
+            function parse(): string { return ''; }
+            const result = parse() as string;
+          `,
+          output: `
+            function parse(): string { return ''; }
+            const result = parse();
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag non-null assertion on call expression result without type checking', () => {
+    ruleTester.run('S4325 non-null on call without strictNullChecks', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Non-null assertion on a call expression where the symbol cannot be resolved
+          // Exercises shouldSuppressNonNullAssertion returning false when no symbol at location
+          code: `
+            function getUser(): string { return ''; }
+            getUser()!;
+          `,
+          output: `
+            function getUser(): string { return ''; }
+            getUser();
+          `,
+          errors: 1,
+        },
       ],
     });
   });
