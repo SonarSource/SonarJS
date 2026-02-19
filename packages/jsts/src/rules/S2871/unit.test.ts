@@ -202,6 +202,28 @@ describe('S2871', () => {
       const sortedSetKeys = Array.from(mySet.keys()).sort();
     `,
           },
+          // Object.keys() with chaining after sort
+          {
+            code: `
+      const langList = Object.keys(codes).sort().reverse();
+    `,
+          },
+          // Object.keys() on function call result
+          {
+            code: `
+      function getConfig(): Record<string, boolean> { return {}; }
+      const keys = Object.keys(getConfig()).sort();
+    `,
+          },
+          // Array.from with Map keys in for-of loop
+          {
+            code: `
+      const map = new Map<string, string>();
+      for (const key of Array.from(map.keys()).sort()) {
+        console.log(key);
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -610,6 +632,28 @@ describe('S2871', () => {
           {
             code: `
       const sortedValues = Array.from(mySet.values()).toSorted();
+    `,
+          },
+          // Object.keys() with chaining after toSorted
+          {
+            code: `
+      const langList = Object.keys(codes).toSorted().reverse();
+    `,
+          },
+          // Object.keys() on function call result
+          {
+            code: `
+      function getConfig(): Record<string, boolean> { return {}; }
+      const keys = Object.keys(getConfig()).toSorted();
+    `,
+          },
+          // Array.from with Map keys in for-of loop
+          {
+            code: `
+      const map = new Map<string, string>();
+      for (const key of Array.from(map.keys()).toSorted()) {
+        console.log(key);
+      }
     `,
           },
         ],
