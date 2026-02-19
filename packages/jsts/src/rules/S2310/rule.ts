@@ -153,7 +153,8 @@ function blockContainsSpliceWithCounter(
 
 /**
  * Checks whether a statement contains a splice() call whose first argument
- * references the given counter variable name. Looks inside if-statement branches.
+ * references the given counter variable name. Only checks direct statements
+ * in the block — not ones nested inside conditional branches.
  */
 function containsSpliceWithCounter(node: estree.Node, counterName: string): boolean {
   if (node.type === 'ExpressionStatement') {
@@ -166,14 +167,6 @@ function containsSpliceWithCounter(node: estree.Node, counterName: string): bool
     )
   ) {
     return true;
-  }
-  if (node.type === 'IfStatement') {
-    if (node.consequent && containsSpliceInBranch(node.consequent, counterName)) {
-      return true;
-    }
-    if (node.alternate && containsSpliceInBranch(node.alternate, counterName)) {
-      return true;
-    }
   }
   return false;
 }
@@ -192,16 +185,6 @@ function expressionContainsSplice(expr: estree.Expression, counterName: string):
     expr.right.type === 'CallExpression' &&
     isSpliceCallWithCounter(expr.right, counterName)
   );
-}
-
-/**
- * Checks a branch (block or single statement) for splice calls.
- */
-function containsSpliceInBranch(node: estree.Node, counterName: string): boolean {
-  if (node.type === 'BlockStatement') {
-    return node.body.some(stmt => containsSpliceWithCounter(stmt, counterName));
-  }
-  return containsSpliceWithCounter(node, counterName);
 }
 
 /**
