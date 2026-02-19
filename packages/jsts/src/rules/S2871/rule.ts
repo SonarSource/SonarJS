@@ -47,6 +47,62 @@ const compareBigIntFunctionPlaceholder = [
 ];
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
+const sortMethodNames = new Set([...sortLike, ...copyingSortLike]);
+
+function containsSortCall(node: estree.Node): boolean {
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+    const property = node.callee.property;
+    if (property.type === 'Identifier' && sortMethodNames.has(property.name)) {
+      return true;
+    }
+    return containsSortCall(node.callee.object);
+  }
+  if (node.type === 'MemberExpression') {
+    return containsSortCall(node.object);
+  }
+  return false;
+}
+
+function isArrayFromIterator(object: estree.CallExpression): boolean {
+  const callee = object.callee;
+  if (
+    callee.type !== 'MemberExpression' ||
+    callee.object.type !== 'Identifier' ||
+    callee.object.name !== 'Array' ||
+    callee.property.type !== 'Identifier' ||
+    callee.property.name !== 'from' ||
+    object.arguments.length === 0
+  ) {
+    return false;
+  }
+  const firstArg = object.arguments[0];
+  if (firstArg.type !== 'CallExpression' || firstArg.callee.type !== 'MemberExpression') {
+    return false;
+  }
+  const methodProp = firstArg.callee.property;
+  return (
+    methodProp.type === 'Identifier' && ['keys', 'values', 'entries'].includes(methodProp.name)
+  );
+}
+
+function isObjectKeys(object: estree.CallExpression): boolean {
+  const callee = object.callee;
+  return (
+    callee.type === 'MemberExpression' &&
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'Object' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'keys'
+  );
+}
+
+function isFromKnownStringSource(object: estree.Node): boolean {
+  if (object.type !== 'CallExpression') {
+    return false;
+  }
+  return isArrayFromIterator(object) || isObjectKeys(object);
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -75,7 +131,7 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
         const type = getTypeFromTreeNode(object, services);
 
-        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+        if (sortMethodNames.has(text) && isArrayLikeType(type, services)) {
           // Suppress when sort() is used in patterns where default sorting is intentional
           if (isFromKnownStringSource(object)) {
             return;
@@ -127,63 +183,6 @@ export const rule: Rule.RuleModule = {
 
         currentNode = parent;
         parent = getParent(context, currentNode);
-      }
-
-      return false;
-    }
-
-    function containsSortCall(node: estree.Node): boolean {
-      // Recursively check if the node or any of its descendants is a sort() call
-      if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
-        const property = node.callee.property;
-        if (property.type === 'Identifier') {
-          const name = property.name;
-          if ([...sortLike, ...copyingSortLike].includes(name)) {
-            return true;
-          }
-        }
-        // Check the object of the call (e.g., in arr.sort().toString(), check arr.sort())
-        return containsSortCall(node.callee.object);
-      }
-
-      if (node.type === 'MemberExpression') {
-        return containsSortCall(node.object);
-      }
-
-      return false;
-    }
-
-    function isFromKnownStringSource(object: estree.Node): boolean {
-      if (object.type === 'CallExpression') {
-        const callee = object.callee;
-
-        if (
-          callee.type === 'MemberExpression' &&
-          callee.object.type === 'Identifier' &&
-          callee.object.name === 'Array' &&
-          callee.property.type === 'Identifier' &&
-          callee.property.name === 'from' &&
-          object.arguments.length > 0
-        ) {
-          const firstArg = object.arguments[0];
-          if (firstArg.type === 'CallExpression' && firstArg.callee.type === 'MemberExpression') {
-            const methodName =
-              firstArg.callee.property.type === 'Identifier' ? firstArg.callee.property.name : null;
-            if (methodName && ['keys', 'values', 'entries'].includes(methodName)) {
-              return true;
-            }
-          }
-        }
-
-        if (
-          callee.type === 'MemberExpression' &&
-          callee.object.type === 'Identifier' &&
-          callee.object.name === 'Object' &&
-          callee.property.type === 'Identifier' &&
-          callee.property.name === 'keys'
-        ) {
-          return true;
-        }
       }
 
       return false;
