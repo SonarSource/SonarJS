@@ -16,7 +16,7 @@
  */
 import { Linter, SourceCode } from 'eslint';
 import { decodeSecondaryLocations } from './decode.js';
-import { Issue } from './issue.js';
+import { JsTsIssue } from './issue.js';
 import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
@@ -37,7 +37,7 @@ import { SonarMeta, type NormalizedAbsolutePath } from '../../rules/helpers/inde
  * @param cognitiveComplexity the cognitive complexity of the code
  */
 export type LintingResult = {
-  issues: Issue[];
+  issues: JsTsIssue[];
   highlightedSymbols: SymbolHighlight[];
   cognitiveComplexity?: number;
 };
@@ -74,7 +74,7 @@ export function transformMessages(
     filePath: NormalizedAbsolutePath;
   },
 ): LintingResult {
-  const issues: Issue[] = [];
+  const issues: JsTsIssue[] = [];
 
   for (const message of messages) {
     let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
@@ -102,7 +102,7 @@ export function transformMessages(
  * @param issue the issue to normalize
  * @returns the normalized issue
  */
-function normalizeLocation(issue: Issue): Issue {
+function normalizeLocation(issue: JsTsIssue): JsTsIssue {
   if (issue.column) {
     issue.column -= 1;
   }

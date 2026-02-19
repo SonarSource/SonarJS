@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { analyzer } from '../../proto/language_analyzer.js';
+import { debug } from '../../../../shared/src/helpers/logging.js';
 import { isString } from '../../../../shared/src/helpers/sanitize.js';
 import type { ESLintConfiguration } from '../../../../jsts/src/rules/helpers/configs.js';
 import type { RuleConfig } from '../../../../jsts/src/linter/config/rule-config.js';
@@ -251,7 +252,7 @@ export function buildRuleConfigurations(
 ): RuleConfig[] | null {
   const ruleMeta = ruleMetaMap.get(ruleKey);
   if (!ruleMeta) {
-    console.log(`[DEBUG] buildRuleConfigurations: Unknown rule ${ruleKey}`);
+    debug(`buildRuleConfigurations: Unknown rule ${ruleKey}`);
     return null;
   }
 

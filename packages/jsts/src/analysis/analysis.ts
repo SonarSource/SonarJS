@@ -21,7 +21,8 @@ import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
 import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { Metrics } from '../linter/visitors/metrics/metrics.js';
 import { CpdToken } from '../linter/visitors/cpd.js';
-import { Issue } from '../linter/issues/issue.js';
+import { JsTsIssue } from '../linter/issues/issue.js';
+import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
 import type { Program } from 'typescript';
 
 /**
@@ -92,13 +93,10 @@ export const JSTS_ANALYSIS_DEFAULTS = {
 /**
  * A JavaScript / TypeScript analysis output
  */
-export interface JsTsAnalysisOutput extends AnalysisOutput<Issue> {
+export interface JsTsAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue> {
   highlights?: SyntaxHighlight[];
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
-}
-
-export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
-  ast: string; // Base64 encoded Protobuf binary representation
+  ast?: string; // Base64 encoded Protobuf binary representation
 }

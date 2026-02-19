@@ -29,6 +29,7 @@ type LitsFormattedResult = {
   [ruleId: string]: {
     js: FileIssues;
     ts: FileIssues;
+    css: FileIssues;
   };
 };
 
@@ -50,9 +51,12 @@ export async function writeResults(
   } catch {}
   await fs.mkdir(actualPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
-  for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults)) {
-    await writeIssues(actualPath, ruleId, jsIssues);
-    await writeIssues(actualPath, ruleId, tsIssues, false);
+  for (const [ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }] of Object.entries(
+    litsResults,
+  )) {
+    await writeIssues(actualPath, ruleId, jsIssues, 'js');
+    await writeIssues(actualPath, ruleId, tsIssues, 'ts');
+    await writeIssues(actualPath, ruleId, cssIssues, 'css');
   }
 }
 
@@ -60,14 +64,14 @@ export async function writeResults(
  * Transform ProjectAnalysisOutput to LITS format
  */
 function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
-  const result: LitsFormattedResult = { S2260: { js: {}, ts: {} } }; // We already add parsing error rule
+  const result: LitsFormattedResult = { S2260: { js: {}, ts: {}, css: {} } }; // We already add parsing error rule
   for (const [filename, analysisOutput] of entriesOfFileResults(results.files)) {
     const relativePath = filename.substring(projectPath.length + 1);
     const projectWithFilename = `${project}:${relativePath}`;
     if ('issues' in analysisOutput) {
       for (const issue of analysisOutput.issues) {
         const { ruleId, language, line } = issue;
-        result[ruleId] = result[ruleId] ?? { js: {}, ts: {} };
+        result[ruleId] = result[ruleId] ?? { js: {}, ts: {}, css: {} };
         result[ruleId][language][projectWithFilename] =
           result[ruleId][language][projectWithFilename] ?? [];
         result[ruleId][language][projectWithFilename].push(line);
@@ -82,14 +86,25 @@ function transformResults(projectPath: string, project: string, results: Project
 /**
  * Write the issues LITS style, if there are any
  */
-async function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJs = true) {
+const languagePrefix: Record<string, string> = {
+  js: 'javascript',
+  ts: 'typescript',
+  css: 'css',
+};
+
+async function writeIssues(
+  projectDir: string,
+  ruleId: string,
+  issues: FileIssues,
+  language: 'js' | 'ts' | 'css' = 'js',
+) {
   // we don't write empty files
   if (Object.keys(issues).length === 0) {
     return;
   }
   const issueFilename = path.join(
     projectDir,
-    `${isJs ? 'javascript' : 'typescript'}-${handleS124(ruleId, isJs)}.json`,
+    `${languagePrefix[language]}-${handleS124(ruleId, language)}.json`,
   );
   await fs.writeFile(
     issueFilename,
@@ -99,13 +114,15 @@ async function writeIssues(projectDir: string, ruleId: string, issues: FileIssue
   );
 }
 
-function handleS124(ruleId: string, isJs = true) {
+function handleS124(ruleId: string, language: 'js' | 'ts' | 'css' = 'js') {
   if (ruleId !== 'S124') {
     return ruleId;
   }
-  if (isJs) {
+  if (language === 'js') {
     return 'CommentRegexTest';
-  } else {
+  } else if (language === 'ts') {
     return 'CommentRegexTestTS';
+  } else {
+    return ruleId;
   }
 }

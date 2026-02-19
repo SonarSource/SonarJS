@@ -20,6 +20,7 @@ import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
 import { analyzeJSTS } from '../analyzer.js';
 import {
+  isCssAlsoFile,
   isCssFile,
   isHtmlFile,
   isYamlFile,
@@ -27,7 +28,7 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
 import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { CssFileResult, FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
+import { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import ts from 'typescript';
@@ -36,6 +37,7 @@ import { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 import { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
+import { error } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -72,29 +74,6 @@ export async function analyzeFile(
   // Extract shouldIgnoreParams separately as it's not part of JsTsAnalysisInput
   const { shouldIgnoreParams, ...jsTsConfigFields } = configFields;
 
-  // Pure CSS file — dispatch to stylelint, skip the JS/TS pipeline entirely
-  if (isCssFile(fileName, shouldIgnoreParams.cssSuffixes)) {
-    if (cssLinter.isInitialized()) {
-      let result: FileResult;
-      try {
-        const cssOutput = await analyzeCSS(
-          {
-            filePath: file.filePath,
-            fileContent: file.fileContent,
-            sonarlint: configFields.sonarlint,
-          },
-          shouldIgnoreParams,
-        );
-        result = { cssIssues: cssOutput.issues.map(issue => ({ ...issue })) } as CssFileResult;
-      } catch (e) {
-        result = handleError(serializeError(e));
-      }
-      handleFileResult(result, fileName, results, incrementalResultsChannel);
-    }
-    if (pendingFiles) pendingFiles.delete(fileName);
-    return;
-  }
-
   // Build complete analysis input from stored file and provided configuration
   // jsTsConfigFields provides config-based values (analysisMode, skipAst, etc.)
   // Per-file fields (filePath, fileContent, fileType, fileStatus) come from the stored file
@@ -109,17 +88,12 @@ export async function analyzeFile(
     program,
   };
 
-  // Run JS/TS analysis (with error handling)
+  // Run analysis through the unified dispatcher (with error handling)
   const result = await analyzeInput(input, shouldIgnoreParams);
 
   // For Vue and web files: also run stylelint CSS analysis on <style> blocks.
   // Mirrors CssRuleSensor.getInputFiles() in Java (vueFilePredicate + webFilePredicate).
-  const CSS_ALSO_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
-  if (
-    cssLinter.isInitialized() &&
-    !('error' in result) &&
-    CSS_ALSO_EXTENSIONS.some(ext => fileName.endsWith(ext))
-  ) {
+  if (cssLinter.isInitialized() && !('error' in result) && isCssAlsoFile(fileName)) {
     try {
       const cssOutput = await analyzeCSS(
         {
@@ -129,11 +103,11 @@ export async function analyzeFile(
         },
         shouldIgnoreParams,
       );
-      (result as Record<string, unknown>).cssIssues = cssOutput.issues.map(issue => ({
-        ...issue,
-      }));
-    } catch {
-      // CSS analysis failure does not fail the file — JS/TS result is still reported
+      if ('issues' in result) {
+        result.issues.push(...cssOutput.issues);
+      }
+    } catch (e) {
+      error(`CSS analysis failed for ${fileName}: ${e}`);
     }
   }
 
@@ -160,7 +134,7 @@ function inferLanguageForProjectAnalysis(
 }
 
 /**
- * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
+ * Safely analyze a file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
  * @param shouldIgnoreParams parameters for file filtering
  */
@@ -175,12 +149,25 @@ async function analyzeInput(
   }
 }
 
-function getAnalyzerForFile(
+async function getAnalyzerForFile(
   input: JsTsAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<FileResult> {
   const filename = input.filePath;
-  if (isHtmlFile(filename)) {
+  if (isCssFile(filename, shouldIgnoreParams.cssSuffixes)) {
+    if (!cssLinter.isInitialized()) {
+      // No CSS rules active — skip the file entirely
+      return { issues: [] };
+    }
+    return analyzeCSS(
+      {
+        filePath: input.filePath,
+        fileContent: input.fileContent,
+        sonarlint: input.sonarlint,
+      },
+      shouldIgnoreParams,
+    );
+  } else if (isHtmlFile(filename)) {
     const embeddedInput: EmbeddedAnalysisInput = {
       filePath: input.filePath,
       fileContent: input.fileContent,

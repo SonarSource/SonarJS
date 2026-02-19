@@ -18,7 +18,7 @@ import { decodeSecondaryLocations } from '../../../src/linter/issues/decode.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { SonarMeta } from '../../../src/rules/helpers/index.js';
-import { Issue } from '../../../src/linter/issues/issue.js';
+import { JsTsIssue } from '../../../src/linter/issues/issue.js';
 
 describe('decodeSecondaryLocations', () => {
   it('should decode sonar-runtime-like issues', () => {
@@ -28,7 +28,7 @@ describe('decodeSecondaryLocations', () => {
       message: JSON.stringify({
         foo: 42,
       }),
-    } as Issue;
+    } as JsTsIssue;
     const decoded = decodeSecondaryLocations(rule, encoded) as any;
     expect(decoded).toEqual({
       ruleId: 'fake',
@@ -42,14 +42,14 @@ describe('decodeSecondaryLocations', () => {
     const malformed = {
       ruleId: 'fake',
       message: '{...',
-    } as Issue;
+    } as JsTsIssue;
     expect(() => decodeSecondaryLocations(rule, malformed)).toThrow(
       /^Failed to parse encoded issue message for rule fake/,
     );
   });
 
   it('should return undecoded issues from a rule that does not activate sonar-runtime', () => {
-    const issue = { ruleId: 'fake', line: 42 } as Issue;
+    const issue = { ruleId: 'fake', line: 42 } as JsTsIssue;
     expect(decodeSecondaryLocations(undefined, issue)).toEqual(issue);
   });
 });

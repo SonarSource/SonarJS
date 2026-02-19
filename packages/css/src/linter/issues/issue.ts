@@ -30,4 +30,6 @@ import { BaseIssue } from '../../../../shared/src/types/analysis.js';
  * @param column the issue column
  * @param message the issue message
  */
-export interface Issue extends BaseIssue {}
+export interface CssIssue extends BaseIssue {
+  language: 'css';
+}

@@ -24,6 +24,7 @@ import {
   dirnamePath,
 } from '../../src/rules/helpers/index.js';
 import { analyzeJSTS } from '../../src/analysis/analyzer.js';
+import type { JsTsIssue } from '../../src/linter/issues/issue.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { Linter } from '../../src/linter/linter.js';
@@ -567,9 +568,8 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(fixtures, 'secondary.js');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
 
-    const {
-      issues: [{ secondaryLocations }],
-    } = await analyzeJSTS(await jsTsInput({ filePath }), defaultShouldIgnoreParams);
+    const result = await analyzeJSTS(await jsTsInput({ filePath }), defaultShouldIgnoreParams);
+    const { secondaryLocations } = result.issues[0] as JsTsIssue;
     expect(secondaryLocations).toEqual([
       {
         line: 3,
@@ -594,9 +594,8 @@ describe('await analyzeJSTS', () => {
     const filePath = path.join(fixtures, 'quickfix.js');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
 
-    const {
-      issues: [{ quickFixes }],
-    } = await analyzeJSTS(await jsTsInput({ filePath }), defaultShouldIgnoreParams);
+    const result = await analyzeJSTS(await jsTsInput({ filePath }), defaultShouldIgnoreParams);
+    const { quickFixes } = result.issues[0] as JsTsIssue;
     expect(quickFixes).toEqual([
       {
         message: 'Rename "b" to "_b"',
@@ -1016,9 +1015,8 @@ describe('await analyzeJSTS', () => {
       await jsTsInput({ filePath }),
       defaultShouldIgnoreParams,
     );
-    if ('ast' in analysisResult) {
-      const { ast } = analysisResult;
-      const protoMessage = deserializeProtobuf(ast);
+    if (analysisResult.ast) {
+      const protoMessage = deserializeProtobuf(analysisResult.ast);
       expect(protoMessage.program).toBeDefined();
       expect(protoMessage.program.body).toHaveLength(1);
       expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');

@@ -14,7 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Issue } from '../../linter/issues/issue.js';
+import { JsTsIssue } from '../../linter/issues/issue.js';
+import type { CssIssue } from '../../../../css/src/linter/issues/issue.js';
 import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
 
 export { type EmbeddedAnalysisInput } from '../../../../shared/src/types/analysis.js';
@@ -29,7 +30,7 @@ export { type EmbeddedAnalysisInput } from '../../../../shared/src/types/analysi
  *
  * @param issues the found issues
  */
-export interface EmbeddedAnalysisOutput extends AnalysisOutput<Issue> {
+export interface EmbeddedAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue> {
   metrics: {
     ncloc: number[];
   };

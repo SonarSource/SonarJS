@@ -18,7 +18,7 @@ import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rule
 import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { Issue } from '../../../src/linter/issues/issue.js';
+import { JsTsIssue } from '../../../src/linter/issues/issue.js';
 import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
@@ -27,7 +27,7 @@ import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {
-    const issues: Issue[] = [
+    const issues: JsTsIssue[] = [
       {
         ruleId: symbolHighlightingRule.ruleId,
         line: 1,
@@ -53,7 +53,7 @@ describe('extract', () => {
   });
 
   it('should extract cognitive complexity', () => {
-    const issues: Issue[] = [
+    const issues: JsTsIssue[] = [
       {
         ruleId: cognitiveComplexityRule.ruleId,
         line: 1,
@@ -69,7 +69,7 @@ describe('extract', () => {
   });
 
   it('should return undefined on NaN cognitive complexity', () => {
-    const issues: Issue[] = [
+    const issues: JsTsIssue[] = [
       {
         ruleId: cognitiveComplexityRule.ruleId,
         line: 1,
@@ -89,7 +89,7 @@ describe('extract', () => {
   });
 
   it('should preserve non-extracted issues', () => {
-    const issues: Issue[] = [
+    const issues: JsTsIssue[] = [
       {
         ruleId: symbolHighlightingRule.ruleId,
         line: 1,

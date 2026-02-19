@@ -20,8 +20,8 @@ import {
   entriesOfFileResults,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
-import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
-import type { Issue as CssIssue } from '../../../css/src/linter/issues/issue.js';
+import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
+import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
@@ -50,7 +50,7 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  * @param issue - Internal Issue object from the linter
  * @returns gRPC IIssue object ready for protobuf serialization
  */
-function transformIssue(issue: Issue): analyzer.IIssue {
+function transformIssue(issue: JsTsIssue): analyzer.IIssue {
   const textRange: analyzer.ITextRange = {
     startLine: issue.line,
     startLineOffset: issue.column,
@@ -200,18 +200,13 @@ export function transformProjectOutputToResponse(
       continue;
     }
 
-    // Handle CSS issues — present on pure CSS files (CssFileResult) and also
-    // injected into Vue/HTML results alongside JS issues after stylelint analysis.
-    if ('cssIssues' in fileResult) {
-      for (const issue of fileResult.cssIssues) {
-        issues.push(transformCssIssue(issue, filePath));
-      }
-      // No `continue` here — Vue/HTML files may also have JS issues below
-    }
-
     if ('issues' in fileResult) {
       for (const issue of fileResult.issues) {
-        issues.push(transformIssue(issue));
+        if (issue.language === 'css') {
+          issues.push(transformCssIssue(issue, filePath));
+        } else {
+          issues.push(transformIssue(issue));
+        }
       }
     }
   }

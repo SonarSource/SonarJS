@@ -16,7 +16,7 @@
  */
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from './analysis.js';
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
@@ -53,7 +53,7 @@ import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 export async function analyzeJSTS(
   input: JsTsAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
+): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
 

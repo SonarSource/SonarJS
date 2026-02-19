@@ -16,7 +16,7 @@
  */
 import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
-import { Issue } from './issue.js';
+import { JsTsIssue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
 import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
@@ -56,7 +56,7 @@ export function convertMessage(
   message: Linter.LintMessage,
   filePath: NormalizedAbsolutePath,
   language: JsTsLanguage,
-): Issue | null {
+): JsTsIssue | null {
   /**
    * The property `ruleId` equals `null` on parsing errors and not applied directives.
    * The first should not happen because we lint ready SourceCode instances and not file contents.

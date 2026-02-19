@@ -14,10 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { FileStatus, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from '../analysis.js';
+import type { FileStatus, JsTsAnalysisOutput } from '../analysis.js';
 import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
+import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
@@ -44,15 +45,10 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
-export type CssFileResult = {
-  cssIssues: Array<{ ruleId: string; line: number; column: number; message: string }>;
-};
-
 export type FileResult =
   | JsTsAnalysisOutput
-  | JsTsAnalysisOutputWithAst
   | EmbeddedAnalysisOutput
-  | CssFileResult
+  | CssAnalysisOutput
   | ParsingError
   | { error: string };
 

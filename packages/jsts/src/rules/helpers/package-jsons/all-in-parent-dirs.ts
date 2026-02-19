@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Filesystem } from '../find-up/find-minimatch.js';
+import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type { PackageJson } from 'type-fest';
 import {
   type NormalizedAbsolutePath,
@@ -47,7 +48,7 @@ export const getManifests = (
     try {
       return JSON.parse(stripBOM(content.toString()));
     } catch (error) {
-      console.debug(`Error parsing package.json ${file.path}: ${error}`);
+      debug(`Error parsing package.json ${file.path}: ${error}`);
 
       return {};
     }

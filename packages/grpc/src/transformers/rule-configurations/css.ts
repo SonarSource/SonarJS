@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { analyzer } from '../../proto/language_analyzer.js';
+import { warn } from '../../../../shared/src/helpers/logging.js';
 import { isString } from '../../../../shared/src/helpers/sanitize.js';
 import { cssRulesMeta, type CssRuleMeta } from '../../../../css/src/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
@@ -41,7 +42,7 @@ export function buildRuleConfigurations(
 ): CssRuleConfig | null {
   const meta = cssRuleMetaMap.get(ruleKey);
   if (!meta) {
-    console.warn(`Ignoring unknown CSS rule ${ruleKey}. Not found in cssRuleMetaMap.`);
+    warn(`Ignoring unknown CSS rule ${ruleKey}. Not found in cssRuleMetaMap.`);
     return null;
   }
 

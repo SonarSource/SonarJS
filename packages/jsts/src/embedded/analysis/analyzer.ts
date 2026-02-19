@@ -16,7 +16,7 @@
  */
 import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
-import { Issue } from '../../linter/issues/issue.js';
+import { JsTsIssue } from '../../linter/issues/issue.js';
 import { Linter } from '../../linter/linter.js';
 import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
@@ -61,7 +61,7 @@ export async function analyzeEmbedded(
   }
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
-  const aggregatedIssues: Issue[] = [];
+  const aggregatedIssues: JsTsIssue[] = [];
   let ncloc: number[] = [];
   for (const extendedParseResult of extendedParseResults) {
     const { issues, ncloc: singleNcLoc } = analyzeSnippet(extendedParseResult);
@@ -92,7 +92,7 @@ function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
  * to include the whole file in its properties outside its AST.
  * So rules that operate on SourceCode.text get flagged.
  */
-function removeNonJsIssues(sourceCode: SourceCode, issues: Issue[]) {
+function removeNonJsIssues(sourceCode: SourceCode, issues: JsTsIssue[]) {
   const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
   return issues.filter(issue => {
     const issueStart = { line: issue.line, column: issue.column };

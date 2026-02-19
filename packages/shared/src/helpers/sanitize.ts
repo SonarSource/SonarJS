@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { warn } from './logging.js';
 import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
@@ -487,7 +488,7 @@ export async function sanitizeRawInputFiles(
     // Validate the raw file structure - must be an object with filePath string
     if (!isObject(rawFile) || !isString(rawFile.filePath)) {
       // Skip invalid entries - they're missing required filePath
-      console.warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
+      warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
       continue;
     }
     const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);

@@ -16,7 +16,7 @@
  */
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { RuleConfig } from '../linter/config.js';
-import { Issue } from '../linter/issues/index.js';
+import { CssIssue } from '../linter/issues/index.js';
 
 /**
  * A CSS analysis input
@@ -43,4 +43,4 @@ export interface CssAnalysisInput extends AnalysisInput {
  *
  * @param issues
  */
-export interface CssAnalysisOutput extends AnalysisOutput<Issue> {}
+export interface CssAnalysisOutput extends AnalysisOutput<CssIssue> {}

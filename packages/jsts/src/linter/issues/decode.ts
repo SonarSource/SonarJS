@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Issue } from './issue.js';
+import { JsTsIssue } from './issue.js';
 import type { EncodedMessage, SonarMeta } from '../../rules/helpers/index.js';
 
 /**
@@ -26,7 +26,10 @@ import type { EncodedMessage, SonarMeta } from '../../rules/helpers/index.js';
  * @throws a runtime error in case of an invalid encoding
  * @returns the decoded issue (or the original one)
  */
-export function decodeSecondaryLocations(sonarMeta: SonarMeta | undefined, issue: Issue): Issue {
+export function decodeSecondaryLocations(
+  sonarMeta: SonarMeta | undefined,
+  issue: JsTsIssue,
+): JsTsIssue {
   if (sonarMeta?.hasSecondaries) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);

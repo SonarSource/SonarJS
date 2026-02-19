@@ -36,7 +36,7 @@ import { BaseIssue } from '../../../../shared/src/types/analysis.js';
  * @param secondaryLocations the issue secondary locations
  * @param quickFixes the issue quick fixes
  */
-export interface Issue extends BaseIssue {
+export interface JsTsIssue extends BaseIssue {
   language: JsTsLanguage;
   endLine?: number;
   endColumn?: number;
