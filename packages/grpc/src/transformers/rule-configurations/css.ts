@@ -28,7 +28,7 @@ const cssRuleMetaMap = new Map<string, CssRuleMeta>(cssRulesMeta.map(r => [r.sqK
  *
  * Looks up the rule in cssRuleMetaMap, then builds stylelint configurations
  * mirroring the Java-generated `stylelintOptions()` logic:
- * - For `ignoreParams`: builds `[true, { stylelintOptionKey: splitValues, ... }]`
+ * - For `listParam`: builds `[true, { stylelintOptionKey: splitValues, ... }]`
  * - For `booleanParam`: when true, builds `[true, { optKey: values }]`; when false, `[]`
  * - No params: returns `[]` (stylelint will use `true` as the rule value)
  *
@@ -53,9 +53,9 @@ export function buildRuleConfigurations(
 }
 
 function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): unknown[] {
-  const { ignoreParams, booleanParam } = meta;
+  const { listParam, booleanParam } = meta;
 
-  if (!ignoreParams?.length && !booleanParam) {
+  if (!listParam?.length && !booleanParam) {
     return [];
   }
 
@@ -66,9 +66,9 @@ function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): 
     }
   }
 
-  if (ignoreParams?.length) {
+  if (listParam?.length) {
     const secondaryOptions: Record<string, string[]> = {};
-    for (const ignoreDef of ignoreParams) {
+    for (const ignoreDef of listParam) {
       const value = paramsLookup.get(ignoreDef.sqKey) ?? ignoreDef.default;
       if (value.trim() !== '') {
         secondaryOptions[ignoreDef.stylelintOptionKey] = value.split(',').map(v => v.trim());
@@ -79,7 +79,7 @@ function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): 
 
   if (booleanParam) {
     const value = paramsLookup.get(booleanParam.sqKey);
-    const isEnabled = value !== undefined ? value === 'true' : booleanParam.default;
+    const isEnabled = value === 'true' ? true : value === 'false' ? false : booleanParam.default;
     if (isEnabled) {
       const secondaryOptions: Record<string, string[]> = {};
       for (const opt of booleanParam.onTrue) {

@@ -16,11 +16,11 @@
  */
 
 /**
- * A configurable string-list ignore parameter.
+ * A configurable string-list parameter.
  * Generates a @RuleProperty String field and contributes to
  * [true, { stylelintOptionKey: splitAndTrim(javaField) }]
  */
-export type StylelintIgnoreParam = {
+export type StylelintListParam = {
   sqKey: string;
   javaField: string;
   description: string;
@@ -44,7 +44,7 @@ export type StylelintBooleanParam = {
 export type CssRuleMeta = {
   sqKey: string;
   stylelintKey: string;
-  ignoreParams?: StylelintIgnoreParam[];
+  listParam?: StylelintListParam[];
   booleanParam?: StylelintBooleanParam;
 };
 
@@ -72,7 +72,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4649',
     stylelintKey: 'font-family-no-missing-generic-family-keyword',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignoreFontFamilies',
         javaField: 'ignoreFontFamilies',
@@ -98,7 +98,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4653',
     stylelintKey: 'unit-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignoreFunctions',
         javaField: 'ignoreFunctions',
@@ -112,7 +112,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4654',
     stylelintKey: 'property-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignoreTypes',
         javaField: 'ignoreProperties',
@@ -162,7 +162,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4659',
     stylelintKey: 'selector-pseudo-class-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignorePseudoClasses',
         javaField: 'ignoredPseudoClasses',
@@ -176,7 +176,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4660',
     stylelintKey: 'selector-pseudo-element-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignorePseudoElements',
         javaField: 'ignorePseudoElements',
@@ -194,7 +194,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4662',
     stylelintKey: 'at-rule-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignoreAtRules',
         javaField: 'ignoredAtRules',
@@ -228,7 +228,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S4670',
     stylelintKey: 'selector-type-no-unknown',
-    ignoreParams: [
+    listParam: [
       {
         sqKey: 'ignoreTypes',
         javaField: 'ignoreTypes',
