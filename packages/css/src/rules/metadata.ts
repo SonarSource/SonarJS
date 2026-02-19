@@ -265,8 +265,5 @@ export const cssRulesMeta: CssRuleMeta[] = [
   },
 ];
 
-/** Forward map: SonarQube rule key -> Stylelint rule key */
-export const cssRuleKeyMap = new Map(cssRulesMeta.map(r => [r.sqKey, r.stylelintKey]));
-
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
 export const reverseCssRuleKeyMap = new Map(cssRulesMeta.map(r => [r.stylelintKey, r.sqKey]));

@@ -42,6 +42,7 @@ describe('analyzeCSS', () => {
       issues: [
         {
           ruleId: 'block-no-empty',
+          language: 'css',
           line: 1,
           column: 3,
           message: 'Unexpected empty block (block-no-empty)',
@@ -100,6 +101,7 @@ describe('analyzeCSS', () => {
       issues: [
         {
           ruleId: 'CssSyntaxError',
+          language: 'css',
           line: 2,
           column: 3,
           message: 'Unclosed block (CssSyntaxError)',
@@ -149,6 +151,7 @@ ${character}${character}${character}.foo {`,
               issues: [
                 {
                   ruleId: 'CssSyntaxError',
+                  language: 'css',
                   line: expectation[0],
                   column: expectation[1],
                   message: 'Unclosed block (CssSyntaxError)',
