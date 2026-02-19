@@ -73,6 +73,7 @@ export type Configuration = {
   testInclusions: Minimatch[] /* sonar.test.inclusions - WILDCARD to narrow down sonar.tests */;
   testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
   detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
+  createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -206,6 +207,9 @@ export function createConfiguration(raw: unknown): Configuration {
     testInclusions: normalizeGlobs(raw.testInclusions, baseDir),
     testExclusions: normalizeGlobs(raw.testExclusions, baseDir),
     detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : true,
+    createTSProgramForOrphanFiles: isBoolean(raw.createTSProgramForOrphanFiles)
+      ? raw.createTSProgramForOrphanFiles
+      : true,
   };
 }
 
@@ -348,6 +352,7 @@ export type JsTsConfigFields = {
   skipAst: boolean;
   sonarlint: boolean;
   shouldIgnoreParams: ShouldIgnoreFileParams;
+  createTSProgramForOrphanFiles: boolean;
 };
 
 /**
@@ -365,5 +370,6 @@ export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFie
     skipAst: configuration.skipAst,
     sonarlint: configuration.sonarlint,
     shouldIgnoreParams: getShouldIgnoreParams(configuration),
+    createTSProgramForOrphanFiles: configuration.createTSProgramForOrphanFiles,
   };
 }

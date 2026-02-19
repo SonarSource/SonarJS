@@ -135,6 +135,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
   public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
   public static final String NO_FS = "sonar.javascript.canAccessFileSystem";
+  public static final String CREATE_TS_PROGRAM_FOR_ORPHAN_FILES =
+    "sonar.javascript.createTSProgramForOrphanFiles";
 
   @Override
   public void define(Context context) {
@@ -252,6 +254,18 @@ public class JavaScriptPlugin implements Plugin {
         )
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .type(PropertyType.BOOLEAN)
+        .build(),
+      PropertyDefinition.builder(CREATE_TS_PROGRAM_FOR_ORPHAN_FILES)
+        .defaultValue("true")
+        .name("Create TypeScript program for orphan files")
+        .description(
+          "Controls whether a TypeScript program should be created for files not included in any tsconfig.json. " +
+            "When disabled, orphan files are analyzed without type information, which is faster but may reduce analysis accuracy."
+        )
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .subCategory(TS_SUB_CATEGORY)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
         .build()

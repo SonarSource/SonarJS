@@ -230,6 +230,13 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return config.getBoolean(JavaScriptPlugin.NO_FS).orElse(true);
   }
 
+  public boolean shouldCreateTSProgramForOrphanFiles() {
+    return context
+      .config()
+      .getBoolean(JavaScriptPlugin.CREATE_TS_PROGRAM_FOR_ORPHAN_FILES)
+      .orElse(true);
+  }
+
   public List<String> getSources() {
     return stream(this.context.config().getStringArray("sonar.sources"))
       .filter(x -> !x.isBlank())
