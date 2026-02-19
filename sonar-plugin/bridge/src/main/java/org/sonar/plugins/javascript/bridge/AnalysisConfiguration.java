@@ -49,6 +49,8 @@ public interface AnalysisConfiguration {
 
   boolean canAccessFileSystem();
 
+  boolean shouldCreateTSProgramForOrphanFiles();
+
   List<String> getSources();
 
   List<String> getInclusions();

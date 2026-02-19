@@ -96,6 +96,7 @@
 ],
 "searchkit:packages/searchkit-cli/src/index.ts": [
 11,
+26,
 48,
 60,
 70,
@@ -216,6 +217,7 @@
 117
 ],
 "searchkit:packages/searchkit-client/src/searchkit.tsx": [
+65,
 77,
 86,
 87,

@@ -33,7 +33,7 @@ export const fields = [
     },
     {
       field: 'allowTemplateLiterals',
-      default: true,
+      default: 'always',
     },
   ],
 ] as const satisfies ESLintConfiguration;

@@ -33,6 +33,42 @@ describe('S7739', () => {
         `,
         filename: join(dirname, 'filename.ts'),
       },
+      {
+        // Chained joi calls - string().when() with {is, then} config
+        code: `
+          import Joi from 'joi';
+          const schema = Joi.string().when('type', {
+            is: 'email',
+            then: Joi.string().email().required(),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
+      {
+        // Joi alternatives().conditional() with switch cases containing {is, then}
+        code: `
+          import Joi from 'joi';
+          const schema = Joi.alternatives().conditional('action', {
+            switch: [
+              { is: 'info', then: Joi.string() },
+              { is: 'create', then: Joi.object().required() },
+            ],
+            otherwise: Joi.forbidden(),
+          });
+        `,
+        filename: join(dirname, 'filename.ts'),
+      },
+      {
+        // Joi with CommonJS require
+        code: `
+          const Joi = require('joi');
+          const schema = Joi.string().when('field', {
+            is: 'value',
+            then: Joi.string().required(),
+          });
+        `,
+        filename: join(dirname, 'filename.js'),
+      },
     ],
     invalid: [
       {

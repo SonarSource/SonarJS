@@ -14,5 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { getESLintCoreRule } from '../external/core.js';
-export const rule = getESLintCoreRule('eol-last');
+import stylistic from '@stylistic/eslint-plugin';
+export const rule = stylistic.rules['eol-last'];

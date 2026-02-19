@@ -78,8 +78,9 @@ jobs:
       - name: Extract Jira key from PR title
         id: extract-jira-key
         if: steps.check-rules.outputs.should_label == 'true'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          PR_TITLE="${{ github.event.pull_request.title }}"
           # Extract Jira key (e.g., JS-1234) from the beginning of the title
           JIRA_KEY=$(echo "$PR_TITLE" | grep -oE '^[A-Z]+-[0-9]+' || echo "")
           if [ -z "$JIRA_KEY" ]; then

@@ -13,7 +13,8 @@
     "**/fixtures/**",
     "packages/jsts/src/rules/**",
     "its/eslint8-plugin-sonarjs/**",
-    "its/eslint9-plugin-sonarjs/**"
+    "its/eslint9-plugin-sonarjs/**",
+    "its/eslint10-plugin-sonarjs/**"
   ],
   "packageRules": [
     {

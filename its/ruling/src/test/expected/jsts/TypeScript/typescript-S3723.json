@@ -30,19 +30,22 @@
 165
 ],
 "TypeScript:src/compiler/binder.ts": [
+9,
 766,
 773,
 807,
 821,
 830,
 839,
-1175
+1175,
+1655
 ],
 "TypeScript:src/compiler/checker.ts": [
 410,
 419,
 426,
 448,
+466,
 1779,
 1823,
 1836,
@@ -56,6 +59,7 @@
 7853,
 7859,
 10012,
+17799,
 23060
 ],
 "TypeScript:src/compiler/commandLineParser.ts": [
@@ -127,6 +131,8 @@
 1641
 ],
 "TypeScript:src/compiler/core.ts": [
+23,
+204,
 1278,
 1290,
 1307,
@@ -210,6 +216,7 @@
 3049,
 3283,
 3285,
+3662,
 4032,
 4034,
 4076,
@@ -218,12 +225,16 @@
 4092
 ],
 "TypeScript:src/compiler/moduleNameResolver.ts": [
+38,
 53,
 157
 ],
 "TypeScript:src/compiler/parser.ts": [
 5904,
-7448
+5956,
+5962,
+7448,
+7510
 ],
 "TypeScript:src/compiler/program.ts": [
 156,
@@ -246,6 +257,7 @@
 ],
 "TypeScript:src/compiler/sys.ts": [
 135,
+285,
 327,
 333,
 372,
@@ -253,6 +265,7 @@
 477
 ],
 "TypeScript:src/compiler/transformer.ts": [
+31,
 135,
 164,
 318
@@ -272,6 +285,8 @@
 527
 ],
 "TypeScript:src/compiler/transformers/es2015.ts": [
+59,
+65,
 526,
 566,
 567,
@@ -474,6 +489,7 @@
 94
 ],
 "TypeScript:src/compiler/transformers/es2017.ts": [
+10,
 17,
 105,
 107,
@@ -503,6 +519,7 @@
 502
 ],
 "TypeScript:src/compiler/transformers/esnext.ts": [
+9,
 16,
 114,
 116,
@@ -592,6 +609,9 @@
 971
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
+138,
+155,
+163,
 235,
 462,
 464,
@@ -922,6 +942,7 @@
 1736
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
+18,
 593,
 726,
 727,
@@ -1019,17 +1040,40 @@
 "TypeScript:src/compiler/tsc.ts": [
 17
 ],
+"TypeScript:src/compiler/types.ts": [
+427,
+502,
+2178,
+2600,
+2675,
+2681,
+2686,
+2916,
+3045,
+3095,
+3350,
+3396,
+3525,
+3547,
+3816,
+4029
+],
 "TypeScript:src/compiler/utilities.ts": [
 71,
 518,
+1678,
 1914,
 1927,
 1930,
 1936,
+2141,
 2350,
 2436,
 2559,
 2813
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+8
 ],
 "TypeScript:src/harness/fourslash.ts": [
 103,
@@ -1043,12 +1087,16 @@
 2326,
 2442,
 3027,
+3051,
 3077,
 3093,
 3179,
 3304,
 3430,
 4097
+],
+"TypeScript:src/harness/fourslashRunner.ts": [
+9
 ],
 "TypeScript:src/harness/harness.ts": [
 220,
@@ -1166,6 +1214,7 @@
 1057
 ],
 "TypeScript:src/server/project.ts": [
+13,
 639,
 828,
 922,
@@ -1173,6 +1222,7 @@
 1088
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
+28,
 464,
 494,
 515,
@@ -1242,11 +1292,13 @@
 ],
 "TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 19,
+42,
 315,
 360,
 408
 ],
 "TypeScript:src/server/utilities.ts": [
+9,
 58,
 162
 ],
@@ -1313,6 +1365,7 @@
 "TypeScript:src/services/codefixes/importFixes.ts": [
 8,
 10,
+22,
 291,
 357,
 398,
@@ -1352,12 +1405,16 @@
 1317
 ],
 "TypeScript:src/services/formatting/formatting.ts": [
+20,
 94,
 110,
 119,
 131,
 468,
 565
+],
+"TypeScript:src/services/formatting/formattingRequestKind.ts": [
+10
 ],
 "TypeScript:src/services/formatting/formattingScanner.ts": [
 61,
@@ -1367,10 +1424,23 @@
 251,
 270
 ],
+"TypeScript:src/services/formatting/ruleAction.ts": [
+9
+],
+"TypeScript:src/services/formatting/ruleFlag.ts": [
+8
+],
 "TypeScript:src/services/formatting/rules.ts": [
 538,
 557,
 568
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+83
+],
+"TypeScript:src/services/formatting/smartIndenter.ts": [
+8,
+237
 ],
 "TypeScript:src/services/goToDefinition.ts": [
 247,
@@ -1405,6 +1475,7 @@
 432
 ],
 "TypeScript:src/services/patternMatcher.ts": [
+8,
 107,
 126,
 475,
@@ -1471,6 +1542,7 @@
 1140
 ],
 "TypeScript:src/services/signatureHelp.ts": [
+10,
 131,
 157,
 207,
@@ -1481,6 +1553,7 @@
 492
 ],
 "TypeScript:src/services/textChanges.ts": [
+33,
 267,
 349,
 350,
@@ -1494,7 +1567,11 @@
 "TypeScript:src/services/transpile.ts": [
 97
 ],
+"TypeScript:src/services/types.ts": [
+638
+],
 "TypeScript:src/services/utilities.ts": [
+12,
 592,
 1179,
 1244,

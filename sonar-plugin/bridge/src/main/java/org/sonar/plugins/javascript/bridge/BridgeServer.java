@@ -193,6 +193,7 @@ public interface BridgeServer extends Startable {
     List<String> testExclusions;
     boolean detectBundles;
     boolean canAccessFileSystem;
+    boolean createTSProgramForOrphanFiles;
 
     /*
     We do not set sources, inclusions, exclusions, tests, testInclusions nor testExclusions as Sonar Engine
@@ -227,6 +228,8 @@ public interface BridgeServer extends Startable {
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
       this.detectBundles = analysisConfiguration.shouldDetectBundles();
       this.canAccessFileSystem = analysisConfiguration.canAccessFileSystem();
+      this.createTSProgramForOrphanFiles =
+        analysisConfiguration.shouldCreateTSProgramForOrphanFiles();
     }
 
     public boolean skipAst() {

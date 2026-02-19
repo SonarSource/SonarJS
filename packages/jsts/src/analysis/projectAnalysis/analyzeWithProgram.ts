@@ -97,16 +97,22 @@ export async function analyzeWithProgram(
     );
   }
 
-  await analyzeFilesFromEntryPoint(
-    files,
-    results,
-    pendingFiles,
-    foundProgramOptions,
-    progressReport,
-    baseDir,
-    jsTsConfigFields,
-    incrementalResultsChannel,
-  );
+  if (jsTsConfigFields.createTSProgramForOrphanFiles) {
+    await analyzeFilesFromEntryPoint(
+      files,
+      results,
+      pendingFiles,
+      foundProgramOptions,
+      progressReport,
+      baseDir,
+      jsTsConfigFields,
+      incrementalResultsChannel,
+    );
+  } else if (pendingFiles.size) {
+    info(
+      `Skipping TypeScript program creation for ${pendingFiles.size} orphan file(s) (sonar.javascript.createTSProgramForOrphanFiles=false)`,
+    );
+  }
 
   if (foundProgramOptions.some(options => options.missingTsConfig)) {
     results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);

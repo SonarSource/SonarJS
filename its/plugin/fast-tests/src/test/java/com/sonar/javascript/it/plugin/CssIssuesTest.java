@@ -112,6 +112,7 @@ class CssIssuesTest {
         tuple("css:S4667", "src/empty1.css"),
         tuple("css:S4667", "src/empty2.less"),
         tuple("css:S4667", "src/empty3.scss"),
+        tuple("css:S4667", "src/emptySass.vue"),
         tuple("css:S1128", "src/file1.css"),
         tuple("css:S1116", "src/file1.css"),
         tuple("css:S4664", "src/file1.css"),

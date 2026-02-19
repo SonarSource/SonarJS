@@ -16,15 +16,18 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
-import { getESLintCoreRule } from '../external/core.js';
+import stylistic from '@stylistic/eslint-plugin';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 /**
- * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the
- * same ESLint implementation, but the plugin doesn't allow rule key duplicates.
+ * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both wrap
+ * @stylistic/eslint-plugin's comma-dangle but with opposite defaults:
+ * S1537 disallows trailing commas, S3723 enforces them.
  */
+const commaDangle = stylistic.rules['comma-dangle'];
+
 export const rule = {
-  ...getESLintCoreRule('comma-dangle'),
-  meta: generateMeta(meta, getESLintCoreRule('comma-dangle').meta),
+  ...commaDangle,
+  meta: generateMeta(meta, commaDangle.meta),
 };

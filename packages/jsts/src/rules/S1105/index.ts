@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { getESLintCoreRule } from '../external/core.js';
+import stylistic from '@stylistic/eslint-plugin';
 import { decorate } from './decorator.js';
 
-export const rule = decorate(getESLintCoreRule('brace-style'));
+export const rule = decorate(stylistic.rules['brace-style']);

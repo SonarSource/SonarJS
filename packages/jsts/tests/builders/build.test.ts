@@ -199,7 +199,7 @@ describe('buildSourceCode', () => {
         body: [stmt],
         templateBody,
       },
-    } = sourceCode as AST.ESLintExtendedProgram;
+    } = sourceCode as unknown as AST.ESLintExtendedProgram;
     expect(stmt.type).toEqual('ImportDeclaration');
     expect(templateBody).toBeDefined();
   });
@@ -213,7 +213,7 @@ describe('buildSourceCode', () => {
         body: [stmt],
         templateBody,
       },
-    } = sourceCode as AST.ESLintExtendedProgram;
+    } = sourceCode as unknown as AST.ESLintExtendedProgram;
     expect(stmt.type).toEqual('ExpressionStatement');
     expect(templateBody).toBeDefined();
   });

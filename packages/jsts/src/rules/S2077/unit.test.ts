@@ -257,7 +257,13 @@ describe('S2077', () => {
   it('S2077 with type information', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Formatting SQL queries is security-sensitive [TS]', rule, {
-      valid: [],
+      valid: [
+        // No infinite loop when local variable shadows imported name
+        {
+          code: `import { geolocation as geo } from "@vercel/functions";
+      const geo = geo(request);`,
+        },
+      ],
       invalid: [
         // mysql: ESM namespace import with concatenation
         {

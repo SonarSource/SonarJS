@@ -16,6 +16,7 @@
  */
 import ts from 'typescript';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import { isTsAncestor } from './ancestor.js';
 import { removeNodePrefixIfExists } from './module.js';
 
 export function getFullyQualifiedNameTS(
@@ -104,8 +105,14 @@ export function getFullyQualifiedNameTS(
       case ts.SyntaxKind.Identifier: {
         const identifierSymbol = services.program.getTypeChecker().getSymbolAtLocation(node);
         const declaration = identifierSymbol?.declarations?.at(0);
-        // Handle: no symbol info, compiler module, or self-referential declaration (e.g., `module` in CommonJS)
-        if (isCompilerModule(identifierSymbol) || !declaration || declaration === node) {
+        // Handle: no symbol info, compiler module, self-referential declaration (e.g., `module` in CommonJS),
+        // or declaration that contains the root node (e.g., `const geo = geo(request)` where import is shadowed)
+        if (
+          isCompilerModule(identifierSymbol) ||
+          !declaration ||
+          declaration === node ||
+          isTsAncestor(declaration, rootNode)
+        ) {
           result.push((node as ts.Identifier).text);
           return returnResult();
         } else {

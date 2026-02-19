@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S125/javascript
 
-import { AST, Rule, SourceCode } from 'eslint';
+import type { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, last } from '../helpers/index.js';
@@ -117,7 +117,12 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isExpressionExclusion(statement: estree.Node, value: string, program: AST.Program) {
+function isExpressionExclusion(
+  statement: estree.Node,
+  value: string,
+  program: AST.Program,
+  context: Rule.RuleContext,
+) {
   if (statement.type === 'ExpressionStatement') {
     const expression = statement.expression;
     if (
@@ -128,20 +133,30 @@ function isExpressionExclusion(statement: estree.Node, value: string, program: A
     ) {
       return true;
     }
-    // Only construct SourceCode when we need getLastToken
-    const code = new SourceCode(value, program);
+    // Only construct SourceCode when we need getLastToken.
+    // Access the constructor from context to avoid a static runtime import of 'eslint'.
+    const SourceCodeClass = context.sourceCode.constructor as new (
+      code: string,
+      ast: AST.Program,
+    ) => SourceCode;
+    const code = new SourceCodeClass(value, program);
     return !code.getLastToken(statement, token => token.value === ';');
   }
   return false;
 }
 
-function isExclusion(parsedBody: Array<estree.Node>, value: string, program: AST.Program) {
+function isExclusion(
+  parsedBody: Array<estree.Node>,
+  value: string,
+  program: AST.Program,
+  context: Rule.RuleContext,
+) {
   if (parsedBody.length === 1) {
     const singleStatement = parsedBody[0];
     return (
       EXCLUDED_STATEMENTS.has(singleStatement.type) ||
       isReturnThrowExclusion(singleStatement) ||
-      isExpressionExclusion(singleStatement, value, program)
+      isExpressionExclusion(singleStatement, value, program, context)
     );
   }
   return false;
@@ -165,7 +180,7 @@ function containsCode(value: string, context: Rule.RuleContext) {
     const result =
       'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
     const program = result as AST.Program;
-    return program.body.length > 0 && !isExclusion(program.body, value, program);
+    return program.body.length > 0 && !isExclusion(program.body, value, program, context);
   } catch {
     return false;
   }

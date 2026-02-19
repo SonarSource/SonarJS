@@ -17,4 +17,5 @@
 export const implementation = 'external';
 export const eslintId = 'comma-dangle';
 export const externalPlugin = '@stylistic/eslint-plugin';
+export * from './config.js';
 export const quickFixMessage = 'Remove this trailing comma';

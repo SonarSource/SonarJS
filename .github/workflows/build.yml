@@ -274,6 +274,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - eslint-version: 10
+            node-version: '20.19.0'
+            node-label: 'min supported'
           - eslint-version: 9
             node-version: '18.18.0'
             node-label: 'min supported'
@@ -1111,7 +1114,9 @@ jobs:
       - css_ruling
       - ruling
       - js_ts_ruling
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+    if: >-
+      !failure() && !cancelled() &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     steps:
       - *checkout

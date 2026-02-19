@@ -1,3 +1,10 @@
+## 2026-02-18, Version 4.0.0
+
+* [[JS-1335](https://sonarsource.atlassian.net/browse/JS-1335)] - Add ESLint v10 support; remove code-eval, enforce-trailing-comma, super-invocation from eslint-plugin-sonarjs
+* [[JS-1333](https://sonarsource.atlassian.net/browse/JS-1333)] - fix(S7790): Prevent references to target FQNs from raising
+* [[JS-1238](https://sonarsource.atlassian.net/browse/JS-1238)] - Create JS rule
+* [[JS-1121](https://sonarsource.atlassian.net/browse/JS-1121)] - Fix FP on S2310: Intentional loop counter skip-ahead in parsing code
+
 ## 2026-02-11, Version 3.0.7
 
 * [[JS-1232](https://sonarsource.atlassian.net/browse/JS-1232)] - Add AWS TLS PFS policies to the valid ones

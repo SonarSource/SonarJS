@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7770/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'prefer-native-coercion-functions';
-export const externalPlugin = 'unicorn';
+export const externalRules = [
+  { externalPlugin: 'unicorn', externalRule: 'prefer-native-coercion-functions' },
+];
+
 export const quickFixMessage = 'Replace with built-in type conversions';

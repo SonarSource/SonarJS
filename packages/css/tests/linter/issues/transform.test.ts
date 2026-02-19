@@ -76,4 +76,37 @@ describe('transform', () => {
       `DEBUG For file [${filePath}] received issues with [${source}] as a source. They will not be reported.`,
     );
   });
+
+  it('should default to line 1 and column 1 for invalid positions', ({ mock }) => {
+    console.log = mock.fn(console.log);
+
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'no-empty-source',
+            text: 'Unexpected empty source',
+            line: NaN,
+            column: undefined,
+          },
+        ],
+      },
+    ] as unknown as stylelint.LintResult[];
+
+    const issues = transform(results, filePath);
+
+    expect(issues).toEqual([
+      {
+        ruleId: 'no-empty-source',
+        message: 'Unexpected empty source',
+        line: 1,
+        column: 1,
+      },
+    ]);
+    expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toMatch(
+      /^WARN Invalid position for rule no-empty-source/,
+    );
+  });
 });

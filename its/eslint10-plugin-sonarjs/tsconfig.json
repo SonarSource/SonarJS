@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "es6",
+    "allowJs": true,
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "files": ["tseslint.config.mjs"]
+}

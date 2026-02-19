@@ -17,6 +17,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import type { Node } from 'estree';
+import ts from 'typescript';
 import { functionLike } from './ast.js';
 
 export function findFirstMatchingLocalAncestor(
@@ -98,4 +99,15 @@ export function childrenOf(node: Node, visitorKeys: SourceCode.VisitorKeys): Nod
     }
   }
   return children.filter(Boolean);
+}
+
+export function isTsAncestor(candidate: ts.Node, node: ts.Node): boolean {
+  let current: ts.Node | undefined = node.parent;
+  while (current) {
+    if (current === candidate) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
 }

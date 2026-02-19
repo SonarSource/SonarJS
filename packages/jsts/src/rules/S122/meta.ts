@@ -16,4 +16,4 @@
  */
 export const implementation = 'external';
 export const eslintId = 'max-statements-per-line';
-export const externalPlugin = 'eslint';
+export const externalPlugin = '@stylistic/eslint-plugin';
