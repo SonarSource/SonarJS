@@ -44,6 +44,7 @@ describe('transform', () => {
       {
         ruleId: 'some-rule',
         message: 'some-text',
+        language: 'css',
         line: 42,
         column: 4242,
       },
@@ -101,6 +102,7 @@ describe('transform', () => {
       {
         ruleId: 'no-empty-source',
         message: 'Unexpected empty source',
+        language: 'css',
         line: 1,
         column: 1,
       },
