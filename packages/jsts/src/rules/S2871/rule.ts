@@ -157,17 +157,10 @@ export const rule: Rule.RuleModule = {
       while (parent) {
         if (parent.type === 'BinaryExpression') {
           const operator = parent.operator;
-          if (['===', '==', '!==', '!='].includes(operator)) {
-            // Check if both sides contain sort() calls
-            const leftHasSort = containsSortCall(parent.left);
-            const rightHasSort = containsSortCall(parent.right);
-
-            if (leftHasSort && rightHasSort) {
-              return true;
-            }
-          }
-          // If we hit a comparison but it doesn't match the pattern, stop
-          return false;
+          const isComparisonOperator = ['===', '==', '!==', '!='].includes(operator);
+          const bothSidesSorted =
+            isComparisonOperator && containsSortCall(parent.left) && containsSortCall(parent.right);
+          return bothSidesSorted;
         }
 
         // Stop at certain node types that indicate we're not in a comparison chain
