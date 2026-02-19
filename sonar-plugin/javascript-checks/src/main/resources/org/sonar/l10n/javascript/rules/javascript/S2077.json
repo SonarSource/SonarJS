@@ -16,7 +16,8 @@
   "tags": [
     "cwe",
     "bad-practice",
-    "sql"
+    "sql",
+    "type-dependent"
   ],
   "extra": {
     "replacementRules": [],

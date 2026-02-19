@@ -9,7 +9,8 @@
   "tags": [
     "performance",
     "es2022",
-    "readability"
+    "readability",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7755",

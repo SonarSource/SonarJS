@@ -8,7 +8,8 @@
   },
   "tags": [
     "performance",
-    "readability"
+    "readability",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7728",

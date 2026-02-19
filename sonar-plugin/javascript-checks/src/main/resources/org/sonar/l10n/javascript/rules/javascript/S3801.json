@@ -14,7 +14,8 @@
   },
   "tags": [
     "api-design",
-    "confusing"
+    "confusing",
+    "type-dependent"
   ],
   "extra": {
     "replacementRules": [],

@@ -1,12 +1,14 @@
 # Rule Configuration Patterns
 
-This document describes the different configuration patterns used by ESLint rules in SonarJS and how they are handled by the gRPC transformer in `transformers.ts`.
+This document describes the different configuration patterns used by JS/TS and CSS rules in SonarJS and how they are handled by the gRPC transformers in `transformers/rule-configurations/`.
 
 ## Overview
 
-ESLint rules can have configurable parameters. In SonarJS, these are defined in each rule's `config.ts` file using the `ESLintConfiguration` type. The gRPC transformer (`buildConfigurations` function) converts SonarQube parameter values into ESLint configuration arrays.
+Rules can have configurable parameters. JS/TS rules define theirs in each rule's `config.ts` using the `ESLintConfiguration` type. CSS rules define theirs in `packages/css/src/rules/metadata.ts` using `ignoreParams` and `booleanParam` metadata.
 
-## Configuration Patterns
+The gRPC transformers in `rule-configurations/jsts.ts` and `rule-configurations/css.ts` convert SonarQube parameter string values into the configuration arrays expected by ESLint and stylelint respectively.
+
+## JS/TS Configuration Patterns
 
 ### Type A: Single Object Config `[[{field,...}]]`
 
@@ -135,11 +137,130 @@ export const fields = [
 2. **Primitive with displayName:** SQ key is `displayName`
 3. **Primitive without displayName:** Falls back to using the first param value (only at index 0)
 
-## Value Parsing
+## JS/TS Value Parsing
 
-The `parseParamValue` function converts string param values to the appropriate type:
+The `parseParamValue` function in `rule-configurations/jsts.ts` converts string param values to the appropriate type:
 
 - **Numbers:** If default is a number, parse as float
 - **Booleans:** If default is boolean, compare with 'true'
 - **Arrays:** If default is an array, split by comma
 - **Strings:** Otherwise, keep as string
+
+---
+
+## CSS Configuration Patterns
+
+CSS rules use stylelint, which expects rule configurations in the format `[primaryOption, secondaryOptions]` where the primary option is `true` (to enable the rule) and secondary options is an object with rule-specific settings.
+
+CSS rule parameters are defined declaratively in `packages/css/src/rules/metadata.ts` using two patterns. The gRPC transformer in `rule-configurations/css.ts` reads these definitions and builds the stylelint configuration arrays.
+
+### Ignore Params (string-list)
+
+The most common CSS parameter pattern. One or more comma-separated string lists that map to stylelint secondary option keys.
+
+**Metadata structure:**
+
+```typescript
+ignoreParams: [{
+  sqKey: string;              // SonarQube parameter key (used in gRPC requests)
+  javaField: string;          // Java field name (used in generated Java classes)
+  description: string;        // Parameter description
+  default: string;            // Default comma-separated values
+  stylelintOptionKey: string; // Key in stylelint's secondary options object
+}]
+```
+
+**Stylelint output:** `[true, { stylelintOptionKey: ['value1', 'value2', ...] }]`
+
+**Example (S4662 — at-rule-no-unknown):**
+
+```typescript
+{
+  sqKey: 'S4662',
+  stylelintKey: 'at-rule-no-unknown',
+  ignoreParams: [{
+    sqKey: 'ignoreAtRules',
+    javaField: 'ignoredAtRules',
+    description: 'Comma-separated list of "at-rules" to consider as valid.',
+    default: 'value,at-root,content,...,/^@.*/',
+    stylelintOptionKey: 'ignoreAtRules',
+  }],
+}
+```
+
+**SQ Param:** `ignoreAtRules=tailwind,apply`
+**Stylelint config:** `[true, { ignoreAtRules: ['tailwind', 'apply'] }]`
+
+Some rules have multiple ignore params (e.g., S4654 has `ignoreProperties` and `ignoreSelectors`), which are merged into a single secondary options object.
+
+**Rules using this pattern:** S4649, S4653, S4654, S4659, S4660, S4662, S4670 (7 rules)
+
+---
+
+### Boolean Param (conditional options)
+
+A boolean parameter that conditionally enables a fixed set of stylelint options.
+
+**Metadata structure:**
+
+```typescript
+booleanParam: {
+  sqKey: string;              // SonarQube parameter key
+  javaField: string;          // Java field name
+  description: string;        // Parameter description
+  default: boolean;           // Default value
+  onTrue: [{                  // Options to set when the boolean is true
+    stylelintOptionKey: string;
+    values: string[];
+  }]
+}
+```
+
+**Stylelint output (when true):** `[true, { stylelintOptionKey: ['value1', ...] }]`
+**Stylelint output (when false):** `[]` (rule enabled with defaults only)
+
+**Example (S4656 — declaration-block-no-duplicate-properties):**
+
+```typescript
+{
+  sqKey: 'S4656',
+  stylelintKey: 'declaration-block-no-duplicate-properties',
+  booleanParam: {
+    sqKey: 'ignoreFallbacks',
+    javaField: 'ignoreFallbacks',
+    description: 'Ignore consecutive duplicated properties with different values.',
+    default: true,
+    onTrue: [{
+      stylelintOptionKey: 'ignore',
+      values: ['consecutive-duplicates-with-different-values'],
+    }],
+  },
+}
+```
+
+**SQ Param:** `ignoreFallbacks=true`
+**Stylelint config:** `[true, { ignore: ['consecutive-duplicates-with-different-values'] }]`
+
+**Rules using this pattern:** S4656 (1 rule)
+
+---
+
+### No Params
+
+Rules without `ignoreParams` or `booleanParam` have no configurable parameters. They are enabled with `true` as the sole configuration.
+
+**Stylelint output:** `true`
+
+**Rules using this pattern:** S125, S1116, S1128, S4647, S4648, S4650, S4651, S4652, S4655, S4657, S4658, S4661, S4663, S4664, S4666, S4667, S4668, S5362, S7923, S7924, S7925 (21 rules)
+
+---
+
+## CSS Summary Table
+
+| Pattern       | Count | Description                  | Stylelint Output                 |
+| ------------- | ----- | ---------------------------- | -------------------------------- |
+| No params     | 21    | Rule enabled with defaults   | `true`                           |
+| Ignore params | 7     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
+| Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
+
+**Total: 29 CSS rules (8 with configurable parameters)**

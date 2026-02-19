@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import stylelint from 'stylelint';
+import type { LinterOptions } from 'stylelint';
 import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
@@ -57,7 +57,7 @@ export async function analyzeCSS(
 
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
-  const options: stylelint.LinterOptions = {
+  const options: LinterOptions = {
     code: sanitizedCode,
     codeFilename: filePath,
     ...(config && { config }),

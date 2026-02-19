@@ -19,9 +19,9 @@ import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import type { CssFileResult } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { Issue } from '../../../jsts/src/linter/issues/issue.js';
+import type { Issue as CssIssue } from '../../../css/src/linter/issues/issue.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
@@ -91,6 +91,33 @@ function transformIssue(issue: Issue): analyzer.IIssue {
     rule: ruleKey,
     textRange,
     flows,
+  };
+}
+
+/**
+ * Transform a single CSS Issue from the internal format to the gRPC IIssue format.
+ *
+ * CSS issues only have start line/column (stylelint doesn't provide end positions),
+ * so endLine/endLineOffset mirror the start values. The stylelint rule key is
+ * reverse-mapped to the SonarQube key via `reverseCssRuleKeyMap`.
+ *
+ * @param issue - Internal CSS Issue object from the stylelint linter
+ * @param filePath - The file path the issue belongs to
+ * @returns gRPC IIssue object ready for protobuf serialization
+ */
+function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
+  const sqKey = reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId;
+  return {
+    filePath,
+    message: issue.message,
+    rule: { repo: 'css', rule: sqKey },
+    textRange: {
+      startLine: issue.line,
+      startLineOffset: issue.column,
+      endLine: issue.line,
+      endLineOffset: issue.column,
+    },
+    flows: [],
   };
 }
 
@@ -176,21 +203,8 @@ export function transformProjectOutputToResponse(
     // Handle CSS issues — present on pure CSS files (CssFileResult) and also
     // injected into Vue/HTML results alongside JS issues after stylelint analysis.
     if ('cssIssues' in fileResult) {
-      for (const issue of (fileResult as CssFileResult).cssIssues) {
-        // Reverse-map stylelint key back to SonarQube key (e.g. 'font-family-no-duplicate-names' -> 'S4648')
-        const sqKey = reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId;
-        issues.push({
-          filePath,
-          message: issue.message,
-          rule: { repo: 'css', rule: sqKey },
-          textRange: {
-            startLine: issue.line,
-            startLineOffset: issue.column,
-            endLine: issue.line, // stylelint doesn't provide endLine
-            endLineOffset: issue.column,
-          },
-          flows: [],
-        });
+      for (const issue of fileResult.cssIssues) {
+        issues.push(transformCssIssue(issue, filePath));
       }
       // No `continue` here — Vue/HTML files may also have JS issues below
     }
