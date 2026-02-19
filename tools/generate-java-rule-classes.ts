@@ -35,7 +35,7 @@ import {
 import {
   cssRulesMeta,
   type CssRuleMeta,
-  type StylelintIgnoreParam,
+  type StylelintListParam,
 } from '../packages/css/src/rules/metadata.js';
 
 const JAVA_CHECKS_FOLDER = join(
@@ -318,21 +318,21 @@ function escapeJavaString(s: string): string {
 }
 
 function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
-  const { ignoreParams, booleanParam } = rule;
+  const { listParam, booleanParam } = rule;
 
-  if (!ignoreParams?.length && !booleanParam) {
+  if (!listParam?.length && !booleanParam) {
     return '';
   }
 
   const lines: string[] = [];
 
-  if (ignoreParams?.length) {
+  if (listParam?.length) {
     imports.add('import static org.sonar.css.rules.RuleUtils.splitAndTrim;');
     imports.add('import java.util.Arrays;');
     imports.add('import java.util.List;');
     imports.add('import org.sonar.check.RuleProperty;');
 
-    for (const param of ignoreParams) {
+    for (const param of listParam) {
       const hasDefault = param.default.trim() !== '';
       const constName = `DEFAULT_${param.javaField.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
       if (hasDefault) {
@@ -352,21 +352,21 @@ function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
 
     lines.push('@Override');
     lines.push('public List<Object> stylelintOptions() {');
-    const args = ignoreParams.map(p => `splitAndTrim(${p.javaField})`).join(', ');
+    const args = listParam.map(p => `splitAndTrim(${p.javaField})`).join(', ');
     lines.push(`  return Arrays.asList(true, new StylelintIgnoreOption(${args}));`);
     lines.push('}');
     lines.push('');
 
     lines.push('private static class StylelintIgnoreOption {');
     lines.push('');
-    for (const param of ignoreParams) {
+    for (const param of listParam) {
       lines.push(`  // Used by GSON serialization`);
       lines.push(`  private final List<String> ${param.stylelintOptionKey};`);
     }
     lines.push('');
-    const ctorArgs = ignoreParams.map(p => `List<String> ${p.stylelintOptionKey}`).join(', ');
+    const ctorArgs = listParam.map(p => `List<String> ${p.stylelintOptionKey}`).join(', ');
     lines.push(`  StylelintIgnoreOption(${ctorArgs}) {`);
-    for (const param of ignoreParams) {
+    for (const param of listParam) {
       lines.push(`    this.${param.stylelintOptionKey} = ${param.stylelintOptionKey};`);
     }
     lines.push('  }');
@@ -436,7 +436,7 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   rulesWithOptionsClasses: string;
   propertiesCount: number;
 } {
-  const rulesWithOptions = rules.filter(r => r.ignoreParams?.length || r.booleanParam);
+  const rulesWithOptions = rules.filter(r => r.listParam?.length || r.booleanParam);
   const sortedRulesWithOptions = rulesWithOptions.toSorted((a, b) =>
     sonarKeySorter(a.sqKey, b.sqKey),
   );
@@ -447,7 +447,7 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
 
   let propertiesCount = 0;
   for (const rule of rules) {
-    propertiesCount += rule.ignoreParams?.length ?? 0;
+    propertiesCount += rule.listParam?.length ?? 0;
     if (rule.booleanParam) propertiesCount += 1;
   }
 
@@ -456,8 +456,8 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   for (const rule of sortedRulesWithOptions) {
     const methodPrefix = rule.sqKey.toLowerCase(); // e.g. 's4662'
 
-    if (rule.ignoreParams?.length) {
-      const params = rule.ignoreParams;
+    if (rule.listParam?.length) {
+      const params = rule.listParam;
 
       // Default test
       const defaultOptionObj: Record<string, string[]> = {};
