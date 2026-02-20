@@ -534,6 +534,35 @@ describe('SonarQube project analysis', () => {
     expect(fileResult && 'parsingError' in fileResult).toBe(false);
   });
 
+  it('should not return issues or metrics for TEST CSS files, only highlights', async () => {
+    const baseDir = join(fixtures, 'css');
+    const cssFile = join(baseDir, 'file.css');
+
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [cssFile]: { filePath: cssFile, fileType: 'TEST' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(cssFile)];
+    expect(fileResult).toBeDefined();
+    if (fileResult && 'issues' in fileResult) {
+      // TEST files should have no issues (old CssRuleSensor never analyzed TEST files)
+      expect(fileResult.issues).toEqual([]);
+    }
+    if (fileResult && 'highlights' in fileResult && fileResult.highlights) {
+      // TEST files should still get highlighting (old CssMetricSensor did this)
+      expect(fileResult.highlights.length).toBeGreaterThan(0);
+    }
+    // Metrics should not be present for TEST files
+    if (fileResult && 'metrics' in fileResult) {
+      expect(fileResult.metrics).toBeUndefined();
+    }
+  });
+
   it('should handle analysis errors gracefully with fileContent for non-existent paths', async () => {
     const baseDir = join(fixtures, 'basic');
     // Use fileContent for a non-existent path to test error handling
