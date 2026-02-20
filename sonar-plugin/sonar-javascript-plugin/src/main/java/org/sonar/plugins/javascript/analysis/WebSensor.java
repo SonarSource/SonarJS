@@ -116,10 +116,17 @@ public class WebSensor extends AbstractBridgeSensor {
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
 
-    // HTML files
+    // HTML files (for JS-in-HTML analysis, requires "web" language from sonar-html plugin)
     var htmlPredicate = p.and(
       p.hasLanguage("web"),
       p.or(p.hasExtension("htm"), p.hasExtension("html"))
+    );
+
+    // Web files for CSS-in-HTML analysis (extension-only, no language requirement)
+    // Mirrors CssRuleSensor's webFilePredicate — these may not have "web" language
+    var webFilePredicate = p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
     );
 
     // YAML files (with SAM template check)
@@ -127,12 +134,16 @@ public class WebSensor extends AbstractBridgeSensor {
       JavaScriptFilePredicate.isSamTemplate(input, LOG)
     );
 
-    // CSS files
-    var cssPredicate = p.and(p.hasType(InputFile.Type.MAIN), p.hasLanguages(CssLanguage.KEY));
+    // CSS files — include all types (MAIN and TEST). Old CssMetricSensor processed
+    // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
+    // side skips linting for TEST files, so only highlighting is computed for them.
+    var cssPredicate = p.hasLanguages(CssLanguage.KEY);
 
     return StreamSupport.stream(
       fileSystem
-        .inputFiles(p.or(jsTsPredicate, htmlPredicate, yamlPredicate, cssPredicate))
+        .inputFiles(
+          p.or(jsTsPredicate, htmlPredicate, webFilePredicate, yamlPredicate, cssPredicate)
+        )
         .spliterator(),
       false
     ).toList();

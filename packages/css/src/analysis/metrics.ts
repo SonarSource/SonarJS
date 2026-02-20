@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Root } from 'postcss';
+import type { Root, Document } from 'postcss';
 import type { CssMetrics } from './analysis.js';
 
 const NOSONAR_PATTERN = /NOSONAR/;
@@ -38,7 +38,7 @@ function addLineRange(target: Set<number>, startLine: number, endLine: number): 
  * @param root the PostCSS AST root
  * @returns computed CSS metrics
  */
-export function computeMetrics(root: Root): CssMetrics {
+export function computeMetrics(root: Root | Document): CssMetrics {
   const codeLines = new Set<number>();
   const commentCandidates = new Set<number>();
   const nosonarLines: number[] = [];
@@ -61,17 +61,11 @@ export function computeMetrics(root: Root): CssMetrics {
     }
   });
 
-  // Comment-only lines are those not also covered by code
-  const commentLines: number[] = [];
-  for (const line of commentCandidates) {
-    if (!codeLines.has(line)) {
-      commentLines.push(line);
-    }
-  }
-
+  // Match the old CssMetricSensor behavior: a line with both code and comment
+  // tokens is counted in BOTH ncloc and commentLines independently.
   return {
     ncloc: Array.from(codeLines).sort((a, b) => a - b),
-    commentLines: commentLines.sort((a, b) => a - b),
+    commentLines: Array.from(commentCandidates).sort((a, b) => a - b),
     nosonarLines: nosonarLines.sort((a, b) => a - b),
     executableLines: [],
     functions: 0,

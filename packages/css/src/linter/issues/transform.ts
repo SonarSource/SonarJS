@@ -65,10 +65,19 @@ export function transform(
         ruleId: warning.rule,
         line,
         column,
-        message: warning.text,
+        message: normalizeMessage(warning.text),
         language: 'css',
       });
     }
   }
   return issues;
+}
+
+/**
+ * Strips the trailing `(rulekey)` suffix from Stylelint messages.
+ * Stylelint formats messages as "Description text (rule-name)".
+ * SonarQube only needs the description.
+ */
+function normalizeMessage(message: string): string {
+  return message.replace(/\s*\([a-zA-Z\-/@]+\)\s*$/, '').trim();
 }

@@ -163,6 +163,7 @@ async function getAnalyzerForFile(
       {
         filePath: input.filePath,
         fileContent: input.fileContent,
+        fileType: input.fileType,
         sonarlint: input.sonarlint,
       },
       shouldIgnoreParams,

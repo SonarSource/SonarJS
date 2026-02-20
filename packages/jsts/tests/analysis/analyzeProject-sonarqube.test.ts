@@ -515,6 +515,25 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should analyze sass files without errors', async () => {
+    const baseDir = join(fixtures, 'css');
+    const sassFile = join(baseDir, 'flexbox.sass');
+
+    const cssRules: CssRuleConfig[] = [{ key: 'block-no-empty', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [sassFile]: { filePath: sassFile, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(sassFile)];
+    expect(fileResult).toBeDefined();
+    // Should not be a parsing error
+    expect(fileResult && 'parsingError' in fileResult).toBe(false);
+  });
+
   it('should handle analysis errors gracefully with fileContent for non-existent paths', async () => {
     const baseDir = join(fixtures, 'basic');
     // Use fileContent for a non-existent path to test error handling

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Root } from 'postcss';
+import type { Root, Document } from 'postcss';
 import valueParser from 'postcss-value-parser';
 import type { CssLocation, CssSyntaxHighlight } from './analysis.js';
 
@@ -64,7 +64,7 @@ function resolveValuePosition(
  * @param source the original source text (needed for value offset resolution)
  * @returns array of syntax highlight tokens
  */
-export function computeHighlighting(root: Root, source: string): CssSyntaxHighlight[] {
+export function computeHighlighting(root: Root | Document, source: string): CssSyntaxHighlight[] {
   const highlights: CssSyntaxHighlight[] = [];
 
   root.walk(node => {

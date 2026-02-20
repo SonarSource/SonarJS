@@ -31,6 +31,7 @@ import type { CssIssue } from '../linter/issues/index.js';
  */
 export interface CssAnalysisInput extends AnalysisInput {
   rules?: RuleConfig[];
+  fileType?: string;
 }
 
 /**

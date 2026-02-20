@@ -142,6 +142,10 @@ public class AnalysisProcessor {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
+    } else if ("css".equals(file.language())) {
+      // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
+      // and should not abort the analysis in failFast mode.
+      LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
       if (context.failFast()) {
@@ -251,13 +255,18 @@ public class AnalysisProcessor {
       return;
     }
 
-    saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
-    saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
-    saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
+    // CSS files only have NCLOC and COMMENT_LINES — the old CssMetricSensor
+    // never saved FUNCTIONS, STATEMENTS, CLASSES, COMPLEXITY, or COGNITIVE_COMPLEXITY.
+    if (!"css".equals(file.language())) {
+      saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
+      saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
+      saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
+      saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
+      saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
+    }
+
     saveMetric(context, file, CoreMetrics.NCLOC, metrics.ncloc().size());
     saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
-    saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
-    saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
 
     noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
 
@@ -266,8 +275,10 @@ public class AnalysisProcessor {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
 
-    for (int line : metrics.executableLines()) {
-      fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
+    if (!"css".equals(file.language())) {
+      for (int line : metrics.executableLines()) {
+        fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
+      }
     }
 
     fileLinesContext.save();
@@ -344,6 +355,8 @@ public class AnalysisProcessor {
     var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
+    } else if ("CssSyntaxError".equals(issue.ruleId())) {
+      LOG.warn("Failed to parse file {}, line {}, {}", file.uri(), issue.line(), issue.message());
     }
   }
 
