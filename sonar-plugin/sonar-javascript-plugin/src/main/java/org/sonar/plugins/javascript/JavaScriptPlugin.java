@@ -24,17 +24,14 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssProfileDefinition;
+import org.sonar.css.CssRules;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
-import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
-import org.sonar.plugins.javascript.analysis.CssRuleSensor;
-import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -158,8 +155,6 @@ public class JavaScriptPlugin implements Plugin {
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       AnalysisProcessor.class,
-      YamlSensor.class,
-      HtmlSensor.class,
       EmbeddedNode.class,
       Environment.class
     );
@@ -275,7 +270,7 @@ public class JavaScriptPlugin implements Plugin {
       CssLanguage.class,
       CssProfileDefinition.class,
       CssRulesDefinition.class,
-      CssRuleSensor.class
+      CssRules.class
     );
 
     context.addExtension(
@@ -320,7 +315,7 @@ public class JavaScriptPlugin implements Plugin {
           .build()
       );
 
-      context.addExtensions(CssMetricSensor.class, StylelintReportSensor.class);
+      context.addExtension(StylelintReportSensor.class);
 
       context.addExtension(
         PropertyDefinition.builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)

@@ -416,6 +416,7 @@ export function sanitizeInitLinterInput(raw: unknown): SanitizedInitLinterInput 
  */
 interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
+  cssRules: CssRuleConfig[];
   baseDir: NormalizedAbsolutePath;
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
@@ -453,6 +454,7 @@ export async function sanitizeProjectAnalysisInput(
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
+    cssRules: isCssRuleConfigArray(raw.cssRules) ? (raw.cssRules as CssRuleConfig[]) : [],
     baseDir: configuration.baseDir,
     bundles: sanitizePaths(raw.bundles, configuration.baseDir),
     rulesWorkdir: isString(raw.rulesWorkdir)

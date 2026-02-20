@@ -15,11 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { LinterOptions } from 'stylelint';
+import postcss, { type Root } from 'postcss';
+import postcssScss from 'postcss-scss';
+import postcssSass from 'postcss-sass';
+import postcssLess from 'postcss-less';
 import type { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
+import { computeMetrics } from './metrics.js';
+import { computeHighlighting } from './highlighting.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { error } from '../../../shared/src/helpers/logging.js';
+import { error, warn } from '../../../shared/src/helpers/logging.js';
 import {
   shouldIgnoreFile,
   type ShouldIgnoreFileParams,
@@ -62,8 +68,43 @@ export async function analyzeCSS(
     codeFilename: filePath,
     ...(config && { config }),
   };
-  return linter.lint(filePath, options).catch(err => {
+
+  const { issues } = await linter.lint(filePath, options).catch(err => {
     error(`Linter failed to parse file ${filePath}: ${err}`);
     throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
   });
+
+  // Skip metrics and highlighting in SonarLint mode
+  if (input.sonarlint) {
+    return { issues };
+  }
+
+  try {
+    const root = parseWithPostCSS(sanitizedCode, filePath);
+    return {
+      issues,
+      highlights: computeHighlighting(root, sanitizedCode),
+      metrics: computeMetrics(root),
+    };
+  } catch (err) {
+    warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
+    return { issues };
+  }
+}
+
+/**
+ * Parses CSS source code using PostCSS with the appropriate syntax
+ * plugin based on the file extension.
+ */
+function parseWithPostCSS(code: string, filePath: string): Root {
+  const ext = filePath.split('.').pop()?.toLowerCase();
+  const syntax =
+    ext === 'scss'
+      ? postcssScss
+      : ext === 'sass'
+        ? postcssSass
+        : ext === 'less'
+          ? postcssLess
+          : undefined;
+  return postcss().process(code, { from: filePath, ...(syntax && { syntax }) }).root;
 }

@@ -43,6 +43,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
@@ -64,16 +65,19 @@ public class AnalysisProcessor {
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
+  private final CssRules cssRules;
   private InputFile file;
   private JsTsChecks checks;
   HashSet<String> uniqueParsingErrors;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
-    FileLinesContextFactory fileLinesContextFactory
+    FileLinesContextFactory fileLinesContextFactory,
+    CssRules cssRules
   ) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
+    this.cssRules = cssRules;
     this.uniqueParsingErrors = new HashSet<>();
   }
 
@@ -95,9 +99,7 @@ public class AnalysisProcessor {
 
     issues = response.issues();
 
-    if (
-      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
-    ) {
+    if ("yaml".equals(file.language()) || "web".equals(file.language())) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
@@ -119,9 +121,7 @@ public class AnalysisProcessor {
   void processCacheAnalysis(JsTsContext<?> context, InputFile file, CacheAnalysis cacheAnalysis) {
     this.file = file;
 
-    if (
-      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
-    ) {
+    if ("yaml".equals(file.language()) || "web".equals(file.language())) {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
@@ -346,6 +346,9 @@ public class AnalysisProcessor {
   }
 
   private RuleKey findRuleKey(Issue issue) {
+    if ("css".equals(issue.language())) {
+      return cssRules != null ? cssRules.getActiveSonarKey(issue.ruleId()) : null;
+    }
     return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
   }
 
@@ -363,9 +366,9 @@ public class AnalysisProcessor {
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
-      ((SonarLintRuntime) context
-          .getSensorContext()
-          .runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+      (
+        (SonarLintRuntime) context.getSensorContext().runtime()
+      ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
     );
   }
 

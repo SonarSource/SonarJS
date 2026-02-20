@@ -80,6 +80,7 @@ export async function handleRequest(
         const output = await analyzeProject(
           {
             rules: sanitizedInput.rules,
+            cssRules: sanitizedInput.cssRules,
             bundles: sanitizedInput.bundles,
             rulesWorkdir: sanitizedInput.rulesWorkdir,
           },

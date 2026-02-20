@@ -29,11 +29,12 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -64,6 +65,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
   private final AnalysisWarningsWrapper analysisWarnings;
+  private final CssRules cssRules;
   FSListener fsListener;
 
   public JsTsSensor(
@@ -71,9 +73,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
-    AnalysisConsumers consumers
+    AnalysisConsumers consumers,
+    CssRules cssRules
   ) {
-    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, null);
+    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, cssRules, null);
   }
 
   public JsTsSensor(
@@ -82,6 +85,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
+    CssRules cssRules,
     @Nullable FSListener fsListener
   ) {
     super(bridgeServer, "JS/TS");
@@ -90,21 +94,46 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.analysisProcessor = analysisProcessor;
     this.fsListener = fsListener;
     this.analysisWarnings = analysisWarnings;
+    this.cssRules = cssRules;
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .name("JavaScript/TypeScript analysis");
+      .onlyOnLanguages(
+        JavaScriptLanguage.KEY,
+        TypeScriptLanguage.KEY,
+        CssLanguage.KEY,
+        "yaml",
+        "web"
+      )
+      .name("JavaScript/TypeScript/CSS analysis");
   }
 
   @Override
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.getSensorContext().fileSystem();
-    FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
+    var p = fileSystem.predicates();
+    var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
+
+    // HTML files
+    var htmlPredicate = p.and(
+      p.hasLanguage("web"),
+      p.or(p.hasExtension("htm"), p.hasExtension("html"))
+    );
+
+    // YAML files (with SAM template check)
+    var yamlPredicate = p.and(JavaScriptFilePredicate.getYamlPredicate(fileSystem), input ->
+      JavaScriptFilePredicate.isSamTemplate(input, LOG)
+    );
+
+    // CSS files
+    var cssPredicate = p.and(p.hasType(InputFile.Type.MAIN), p.hasLanguages(CssLanguage.KEY));
+
     return StreamSupport.stream(
-      fileSystem.inputFiles(allFilesPredicate).spliterator(),
+      fileSystem
+        .inputFiles(p.or(jsTsPredicate, htmlPredicate, yamlPredicate, cssPredicate))
+        .spliterator(),
       false
     ).toList();
   }
@@ -182,11 +211,13 @@ public class JsTsSensor extends AbstractBridgeSensor {
         configuration.setFsEvents(fsListener.listFSEvents());
       }
       configuration.setSkipAst(context.skipAst(consumers));
-      return new BridgeServer.ProjectAnalysisRequest(
+      var request = new BridgeServer.ProjectAnalysisRequest(
         files,
         checks.enabledEslintRules(),
         configuration
       );
+      request.setCssRules(cssRules.getStylelintRules());
+      return request;
     }
 
     public CompletableFuture<Void> getFuture() {

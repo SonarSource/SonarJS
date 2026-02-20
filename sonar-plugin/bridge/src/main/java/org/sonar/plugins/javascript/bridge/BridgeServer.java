@@ -140,6 +140,7 @@ public interface BridgeServer extends Startable {
     public ProjectAnalysisConfiguration configuration;
     private List<String> bundles;
     private String rulesWorkdir;
+    private List<StylelintRule> cssRules;
 
     public ProjectAnalysisRequest(
       Map<String, JsTsFile> files,
@@ -165,6 +166,14 @@ public interface BridgeServer extends Startable {
 
     public void setRulesWorkdir(String rulesWorkdir) {
       this.rulesWorkdir = rulesWorkdir;
+    }
+
+    public List<StylelintRule> getCssRules() {
+      return cssRules;
+    }
+
+    public void setCssRules(List<StylelintRule> cssRules) {
+      this.cssRules = cssRules;
     }
   }
 
