@@ -116,14 +116,16 @@ public class WebSensor extends AbstractBridgeSensor {
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
 
-    // HTML files (for JS-in-HTML analysis, requires "web" language from sonar-html plugin)
+    // HTML files for JS-in-HTML analysis — requires "web" language (from sonar-html).
+    // Extension filter limits to extensions we support (sonar-html also covers .cshtml, .erb, etc.).
     var htmlPredicate = p.and(
       p.hasLanguage("web"),
-      p.or(p.hasExtension("htm"), p.hasExtension("html"))
+      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
     );
 
-    // Web files for CSS-in-HTML analysis (extension-only, no language requirement)
-    // Mirrors CssRuleSensor's webFilePredicate — these may not have "web" language
+    // HTML files for CSS-in-HTML analysis — extension-only, no language requirement.
+    // Matches old CssRuleSensor's webFilePredicate. These files may not have "web"
+    // language when sonar-html is not installed.
     var webFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
       p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
