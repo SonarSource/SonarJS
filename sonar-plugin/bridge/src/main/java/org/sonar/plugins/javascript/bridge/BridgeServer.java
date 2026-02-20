@@ -236,6 +236,10 @@ public interface BridgeServer extends Startable {
       return skipAst;
     }
 
+    public boolean createTSProgramForOrphanFiles() {
+      return createTSProgramForOrphanFiles;
+    }
+
     public void setSkipAst(boolean skipAst) {
       this.skipAst = skipAst;
     }
