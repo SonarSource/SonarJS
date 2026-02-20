@@ -317,14 +317,16 @@ public class AnalysisProcessor {
       }
     }
 
-    issue
-      .secondaryLocations()
-      .forEach(secondary -> {
-        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-        if (newIssueLocation != null) {
-          newIssue.addLocation(newIssueLocation);
-        }
-      });
+    if (issue.secondaryLocations() != null) {
+      issue
+        .secondaryLocations()
+        .forEach(secondary -> {
+          NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+          if (newIssueLocation != null) {
+            newIssue.addLocation(newIssueLocation);
+          }
+        });
+    }
 
     if (issue.cost() != null) {
       newIssue.gap(issue.cost());
