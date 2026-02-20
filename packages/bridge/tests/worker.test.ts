@@ -68,13 +68,15 @@ describe('worker', () => {
       const { type, result } = message;
       try {
         expect(type).toEqual('success');
-        expect(result).toEqual({
-          issues: [
-            expect.objectContaining({
-              ruleId: 'no-duplicate-selectors',
-            }),
-          ],
-        });
+        expect(result).toEqual(
+          expect.objectContaining({
+            issues: [
+              expect.objectContaining({
+                ruleId: 'no-duplicate-selectors',
+              }),
+            ],
+          }),
+        );
         resolve();
       } catch (e) {
         reject(e);

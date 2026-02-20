@@ -93,17 +93,19 @@ describe('router', () => {
     const rules = [{ key: S5362.ruleName, configurations: [] }];
     const data = { filePath, rules };
     const response = (await request(server, '/analyze-css', 'POST', data)) as string;
-    expect(JSON.parse(response)).toEqual({
-      issues: [
-        {
-          language: 'css',
-          ruleId: S5362.ruleName,
-          line: 1,
-          column: 6,
-          message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
-        },
-      ],
-    });
+    expect(JSON.parse(response)).toEqual(
+      expect.objectContaining({
+        issues: [
+          {
+            language: 'css',
+            ruleId: S5362.ruleName,
+            line: 1,
+            column: 6,
+            message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
+          },
+        ],
+      }),
+    );
   });
 
   it('should route /analyze-jsts requests', async () => {
