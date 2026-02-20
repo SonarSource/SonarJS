@@ -15,16 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 
-const require = createRequire(import.meta.url);
-const pbjs = require('protobufjs-cli/pbjs');
-const pbts = require('protobufjs-cli/pbts');
-
 const ROOT = path.resolve(import.meta.dirname, '..');
-
-const LICENSE_HEADER = fs.readFileSync(path.join(ROOT, 'tools/header.ts'), 'utf-8');
 
 const PROTO_FILES = [
   {
@@ -44,64 +37,95 @@ const PROTO_FILES = [
   },
 ];
 
-function runPbjs(proto: string, output: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    pbjs.main(['-t', 'static-module', '-w', 'es6', '-o', output, proto], (err: Error | null) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+function copyToLib(filePath: string) {
+  const libPath = path.join(ROOT, 'lib', filePath.replace('packages/', ''));
+  fs.mkdirSync(path.dirname(libPath), { recursive: true });
+  fs.copyFileSync(path.join(ROOT, filePath), libPath);
 }
 
-function runPbts(jsFile: string, output: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    pbts.main(['-o', output, jsFile], (err: Error | null) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-}
-
-/**
- * The built-in es6 wrapper generates `import * as $protobuf from "protobufjs/minimal"`
- * which breaks at runtime because protobufjs/minimal is a CJS module — `import * as`
- * creates a namespace object where `.roots` is undefined. We fix this to use a default
- * import which correctly gets the CJS module.exports object.
- */
-function fixCjsImport(filePath: string) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const fixed = content.replace(
-    'import * as $protobuf from "protobufjs/minimal"',
-    'import $protobuf from "protobufjs/minimal.js"',
-  );
-  fs.writeFileSync(filePath, fixed);
-}
-
-function prependLicenseHeader(filePath: string) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  if (!content.startsWith('/*')) {
-    fs.writeFileSync(filePath, LICENSE_HEADER + content);
-  } else {
-    // pbjs prepends an eslint-disable comment; insert license after it
-    const firstNewline = content.indexOf('\n');
-    const eslintLine = content.slice(0, firstNewline + 1);
-    const rest = content.slice(firstNewline + 1);
-    fs.writeFileSync(filePath, eslintLine + LICENSE_HEADER + rest);
+if (process.argv.includes('--copy')) {
+  for (const { js, dts } of PROTO_FILES) {
+    copyToLib(js);
+    if (!js.startsWith('packages/jsts')) {
+      copyToLib(dts);
+    }
   }
+  console.log('Proto files copied to lib/.');
+} else {
+  const pbjs = (await import('protobufjs-cli/pbjs.js')).default;
+  const pbts = (await import('protobufjs-cli/pbts.js')).default;
+
+  const LICENSE_HEADER = fs.readFileSync(path.join(ROOT, 'tools/header.ts'), 'utf-8');
+
+  function runPbjs(proto: string, output: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pbjs.main(['-t', 'static-module', '-w', 'es6', '-o', output, proto], (err: Error | null) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+  function runPbts(jsFile: string, output: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pbts.main(['-o', output, jsFile], (err: Error | null) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+  /**
+   * Post-process the generated JS to fix two protobufjs issues:
+   *
+   * 1. CJS interop: The built-in es6 wrapper generates `import * as $protobuf from "protobufjs/minimal"`
+   *    which breaks at runtime because protobufjs/minimal is a CJS module — `import * as` creates a
+   *    namespace object where `.roots` is undefined. We fix this to use a default import which
+   *    correctly gets the CJS module.exports object.
+   *
+   * 2. Shared roots: All generated files share `$protobuf.roots["default"]`, a global singleton that
+   *    causes namespace collisions when multiple proto files are loaded in the same process
+   *    (see https://github.com/protobufjs/protobuf.js/issues/1477). We replace it with a local object.
+   */
+  function fixGeneratedJs(filePath: string) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const fixed = content
+      .replace(
+        'import * as $protobuf from "protobufjs/minimal"',
+        'import $protobuf from "protobufjs/minimal.js"',
+      )
+      .replace(
+        'const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});',
+        'const $root = {};',
+      );
+    fs.writeFileSync(filePath, fixed);
+  }
+
+  function prependLicenseHeader(filePath: string) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    if (!content.startsWith('/*')) {
+      fs.writeFileSync(filePath, LICENSE_HEADER + content);
+    } else {
+      // pbjs prepends an eslint-disable comment; insert license after it
+      const firstNewline = content.indexOf('\n');
+      const eslintLine = content.slice(0, firstNewline + 1);
+      const rest = content.slice(firstNewline + 1);
+      fs.writeFileSync(filePath, eslintLine + LICENSE_HEADER + rest);
+    }
+  }
+
+  for (const { proto, js, dts } of PROTO_FILES) {
+    const protoPath = path.join(ROOT, proto);
+    const jsPath = path.join(ROOT, js);
+    const dtsPath = path.join(ROOT, dts);
+
+    console.log(`Generating ${js} from ${proto}`);
+    await runPbjs(protoPath, jsPath);
+    fixGeneratedJs(jsPath);
+    prependLicenseHeader(jsPath);
+
+    console.log(`Generating ${dts} from ${js}`);
+    await runPbts(jsPath, dtsPath);
+  }
+  console.log('Proto generation complete.');
 }
-
-for (const { proto, js, dts } of PROTO_FILES) {
-  const protoPath = path.join(ROOT, proto);
-  const jsPath = path.join(ROOT, js);
-  const dtsPath = path.join(ROOT, dts);
-
-  console.log(`Generating ${js} from ${proto}`);
-  await runPbjs(protoPath, jsPath);
-  fixCjsImport(jsPath);
-  prependLicenseHeader(jsPath);
-
-  console.log(`Generating ${dts} from ${js}`);
-  await runPbts(jsPath, dtsPath);
-}
-
-console.log('Proto generation complete.');
