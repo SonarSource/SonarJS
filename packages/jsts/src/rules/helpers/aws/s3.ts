@@ -17,12 +17,12 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type IssueLocation,
   getFullyQualifiedName,
   getNodeParent,
   getValueOfExpression,
   isIdentifier,
   isProperty,
-  IssueLocation,
   toSecondaryLocation,
 } from '../index.js';
 import { normalizeFQN } from './cdk.js';

@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { AST } from '@eslint-community/regexpp';
-import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
+import { type IssueLocation, generateMeta, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { getRegexpLocation } from '../helpers/regex/location.js';

@@ -16,17 +16,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1515/javascript
 
-import { AST, Rule, Scope } from 'eslint';
+import type { AST, Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type LoopLike,
+  type RuleContext,
   findFirstMatchingAncestor,
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
-  LoopLike,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

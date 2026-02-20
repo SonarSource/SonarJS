@@ -273,7 +273,7 @@ export function isCssFile(
   return cssSuffixes.includes(extname(filePath).toLowerCase());
 }
 
-export function isCssAlsoFile(filePath: NormalizedAbsolutePath): boolean {
+export function isAlsoCssFile(filePath: NormalizedAbsolutePath): boolean {
   return CSS_ALSO_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 

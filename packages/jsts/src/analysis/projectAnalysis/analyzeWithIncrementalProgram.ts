@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
-import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { analyzeFile } from './analyzeFile.js';

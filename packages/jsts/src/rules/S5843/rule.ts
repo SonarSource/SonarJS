@@ -18,9 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { visitRegExpAST } from '@eslint-community/regexpp';
-import type { AST } from '@eslint-community/regexpp';
+import { visitRegExpAST, type AST } from '@eslint-community/regexpp';
 import {
+  type IssueLocation,
+  type LocationHolder,
   generateMeta,
   getUniqueWriteUsage,
   isBinaryPlus,
@@ -29,13 +30,11 @@ import {
   isRequiredParserServices,
   isStaticTemplateLiteral,
   isStringLiteral,
-  IssueLocation,
-  LocationHolder,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { isRegExpConstructor, isStringRegexMethodCall } from '../helpers/regex/ast.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';
 import { getRegexpRange } from '../helpers/regex/range.js';

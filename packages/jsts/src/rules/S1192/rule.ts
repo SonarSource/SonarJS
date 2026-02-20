@@ -21,7 +21,7 @@ import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 
 // Number of times a literal must be duplicated to trigger an issue
 const MIN_LENGTH = 10;

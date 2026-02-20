@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { AST } from 'vue-eslint-parser';
+import type { AST } from 'vue-eslint-parser';
 
 type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;
 

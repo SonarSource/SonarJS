@@ -20,7 +20,7 @@ import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import type { Worker } from 'node:worker_threads';
 import {
   registerGarbageCollectionObserver,

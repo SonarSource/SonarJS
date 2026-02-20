@@ -20,10 +20,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
-  RuleContext,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

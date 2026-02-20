@@ -89,8 +89,11 @@ export class LinterWrapper {
    * @returns the found issues
    */
   async lint(filePath: NormalizedAbsolutePath, options: stylelint.LinterOptions) {
-    const finalOptions =
-      this.config && !options.config ? { ...options, config: this.config } : options;
+    let finalOptions = options;
+
+    if (this.config && !options.config) {
+      finalOptions = { ...options, config: this.config };
+    }
     return stylelint
       .lint(finalOptions)
       .then(result => ({ issues: transform(result.results, filePath) }));

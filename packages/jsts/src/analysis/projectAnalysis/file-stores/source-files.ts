@@ -22,7 +22,7 @@ import {
   getShouldIgnoreParams,
   getFilterPathParams,
 } from '../../../../../shared/src/helpers/configuration.js';
-import { FileStore } from './store-type.js';
+import type { FileStore } from './store-type.js';
 import { accept } from '../../../../../shared/src/helpers/filter/filter.js';
 import {
   readFile,

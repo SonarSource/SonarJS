@@ -16,7 +16,7 @@
  */
 import { parentPort, workerData } from 'node:worker_threads';
 import { handleRequest } from './handle-request.js';
-import { BridgeRequest, WsIncrementalResult } from './request.js';
+import type { BridgeRequest, WsIncrementalResult } from './request.js';
 
 /**
  * Code executed by the worker thread

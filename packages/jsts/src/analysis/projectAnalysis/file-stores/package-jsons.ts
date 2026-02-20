@@ -16,7 +16,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { warn, debug } from '../../../../../shared/src/helpers/logging.js';
-import { FileStore } from './store-type.js';
+import type { FileStore } from './store-type.js';
 import {
   type File,
   type NormalizedAbsolutePath,

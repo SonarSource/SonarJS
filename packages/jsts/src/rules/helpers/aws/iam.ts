@@ -17,8 +17,8 @@
 import type { CallExpression, NewExpression, Node } from 'estree';
 import type { Rule } from 'eslint';
 import { AwsCdkTemplate, normalizeFQN } from './cdk.js';
-import { getResultOfExpression, Result } from '../result.js';
-import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.js';
+import { type Result, getResultOfExpression } from '../result.js';
+import { type StringLiteral, flattenArgs, isStringLiteral } from '../ast.js';
 import { getFullyQualifiedName } from '../module.js';
 import type { RulesMeta } from '@eslint/core';
 

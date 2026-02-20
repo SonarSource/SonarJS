@@ -14,14 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, SourceCode } from 'eslint';
+import type { Linter, SourceCode } from 'eslint';
 import { decodeSecondaryLocations } from './decode.js';
-import { JsTsIssue } from './issue.js';
+import type { JsTsIssue } from './issue.js';
 import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
-import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import { SonarMeta, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
+import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import { type SonarMeta, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
  * The result of linting a source code

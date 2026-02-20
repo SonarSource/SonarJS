@@ -17,17 +17,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S930
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import {
+  type IssueLocation,
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   isArrowFunctionExpression,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
-  IssueLocation,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type estree from 'estree';

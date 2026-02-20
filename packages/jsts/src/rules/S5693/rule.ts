@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5693/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
@@ -27,7 +27,7 @@ import {
   getProperty,
   getValueOfExpression,
 } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';

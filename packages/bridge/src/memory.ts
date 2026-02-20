@@ -17,7 +17,7 @@
 import v8 from 'node:v8';
 import os from 'node:os';
 import { readFile } from 'node:fs/promises';
-import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'node:perf_hooks';
+import { type NodeGCPerformanceDetail, constants, PerformanceObserver } from 'node:perf_hooks';
 import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
 
 const MB = 1024 * 1024;

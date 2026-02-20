@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileType } from '../../../../shared/src/helpers/files.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import { AnalysisMode } from '../../analysis/analysis.js';
+import type { FileType } from '../../../../shared/src/helpers/files.js';
+import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { AnalysisMode } from '../../analysis/analysis.js';
 
 /**
  * An input rule configuration for linting

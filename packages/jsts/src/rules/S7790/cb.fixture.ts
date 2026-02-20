@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
-import pug from 'pug';
-import { compile } from 'pug';
+import pug, { compile } from 'pug';
 import * as pugModule from 'pug';
 import ejs from 'ejs';
 const ejsRequire = require('ejs');

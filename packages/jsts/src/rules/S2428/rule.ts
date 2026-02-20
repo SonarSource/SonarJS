@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2428
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import {
   areEquivalent,
   generateMeta,

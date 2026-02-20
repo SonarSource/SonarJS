@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Minimatch } from 'minimatch';
-import { FileType, type NormalizedAbsolutePath } from '../files.js';
+import type { Minimatch } from 'minimatch';
+import { type FileType, type NormalizedAbsolutePath } from '../files.js';
 import { debug } from '../logging.js';
 
 /**

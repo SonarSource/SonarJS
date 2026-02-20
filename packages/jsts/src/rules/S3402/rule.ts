@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import tsTypes from 'typescript';
 import {
+  type RequiredParserServices,
   generateMeta,
   getTypeFromTreeNode,
   isRequiredParserServices,
   isStringLiteral,
   report,
-  RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

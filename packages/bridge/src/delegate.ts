@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import express from 'express';
+import type express from 'express';
 import { handleRequest } from './handle-request.js';
 import { info, debug, error } from '../../shared/src/helpers/logging.js';
 import type { Worker } from 'node:worker_threads';

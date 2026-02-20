@@ -14,11 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { AST } from 'vue-eslint-parser';
-import { convertLocation, extractTokensAndComments, Location } from './metrics/helpers/index.js';
+import type { AST } from 'vue-eslint-parser';
+import {
+  type Location,
+  convertLocation,
+  extractTokensAndComments,
+} from './metrics/helpers/index.js';
 
 /**
  * A symbol highlight

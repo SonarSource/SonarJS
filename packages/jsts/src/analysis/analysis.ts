@@ -14,14 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileType, type NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
-import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
-import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
-import { Metrics } from '../linter/visitors/metrics/metrics.js';
-import { CpdToken } from '../linter/visitors/cpd.js';
-import { JsTsIssue } from '../linter/issues/issue.js';
+import type { FileType, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
+import type { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import type { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
+import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
+import type { Metrics } from '../linter/visitors/metrics/metrics.js';
+import type { CpdToken } from '../linter/visitors/cpd.js';
+import type { JsTsIssue } from '../linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
 import type { Program } from 'typescript';
 

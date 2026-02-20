@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { CustomRule } from './custom-rule.js';
+import type { CustomRule } from './custom-rule.js';
 import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting.js';
 
 /**

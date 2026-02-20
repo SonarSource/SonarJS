@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
-import ts from 'typescript';
+import type ts from 'typescript';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

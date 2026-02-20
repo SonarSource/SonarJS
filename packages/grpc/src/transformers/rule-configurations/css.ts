@@ -52,6 +52,16 @@ export function buildRuleConfigurations(
   };
 }
 
+function sanitizeBooleanString(value: string | undefined, defaultValue: boolean) {
+  if (value === 'true') {
+    return true;
+  }
+  if (value === 'false') {
+    return false;
+  }
+  return defaultValue;
+}
+
 function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): unknown[] {
   const { listParam, booleanParam } = meta;
 
@@ -79,7 +89,7 @@ function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): 
 
   if (booleanParam) {
     const value = paramsLookup.get(booleanParam.sqKey);
-    const isEnabled = value === 'true' ? true : value === 'false' ? false : booleanParam.default;
+    const isEnabled = sanitizeBooleanString(value, booleanParam.default);
     if (isEnabled) {
       const secondaryOptions: Record<string, string[]> = {};
       for (const opt of booleanParam.onTrue) {

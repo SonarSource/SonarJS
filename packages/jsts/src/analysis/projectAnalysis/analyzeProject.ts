@@ -30,7 +30,7 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
@@ -133,7 +133,6 @@ export async function analyzeProject(
     }
   }
   progressReport.stop();
-
   if (analysisStatus.cancelled) {
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });

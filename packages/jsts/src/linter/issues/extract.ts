@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsIssue } from './issue.js';
+import type { JsTsIssue } from './issue.js';
 import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
 import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.js';
-import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
+import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 
 /**
  * Extracts the symbol highlighting

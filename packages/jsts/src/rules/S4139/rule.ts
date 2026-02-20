@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import ts from 'typescript';
+import type ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,

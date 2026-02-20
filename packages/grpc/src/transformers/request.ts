@@ -90,18 +90,21 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): {
     const repo = isString(activeRule.ruleKey?.repo) ? activeRule.ruleKey.repo : '';
     const ruleKey = isString(activeRule.ruleKey?.rule) ? activeRule.ruleKey.rule : '';
 
-    if (repo === 'css') {
-      const cssRuleConfig = buildCssRuleConfigurations(ruleKey, activeRule.params || []);
-      if (cssRuleConfig) {
-        cssRules.push(cssRuleConfig);
+    switch (repo) {
+      case 'css': {
+        const cssRuleConfig = buildCssRuleConfigurations(ruleKey, activeRule.params || []);
+        if (cssRuleConfig) {
+          cssRules.push(cssRuleConfig);
+        }
+        break;
       }
-      continue;
-    }
-
-    if (['javascript', 'typescript'].includes(repo)) {
-      const jstsRuleConfigs = buildJstsRuleConfigurations(ruleKey, activeRule.params || []);
-      if (jstsRuleConfigs) {
-        rules.push(...jstsRuleConfigs);
+      case 'javascript':
+      case 'typescript': {
+        const jstsRuleConfigs = buildJstsRuleConfigurations(ruleKey, activeRule.params || []);
+        if (jstsRuleConfigs) {
+          rules.push(...jstsRuleConfigs);
+        }
+        break;
       }
     }
   }
@@ -139,7 +142,6 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): {
 export function transformRequestToProjectInput(
   request: analyzer.IAnalyzeRequest,
 ): ProjectAnalysisInput {
-  // Handle empty/undefined arrays from proto3
   const { rules, cssRules } = transformActiveRules(request.activeRules || []);
 
   return {

@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import { RuleConfig } from '../linter/config.js';
-import { CssIssue } from '../linter/issues/index.js';
+import type { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import type { RuleConfig } from '../linter/config.js';
+import type { CssIssue } from '../linter/issues/index.js';
 
 /**
  * A CSS analysis input
@@ -24,8 +24,8 @@ import { CssIssue } from '../linter/issues/index.js';
  * A CSS analysis input only needs an input file and a set
  * of rule configurations to analyze a stylesheet.
  *
- * When `rules` is provided (bridge per-request path), a fresh config is created.
- * When `rules` is absent (analyzeProject path), the linter must be pre-initialized.
+ * When `rules` are provided (bridge per-request path), a fresh config is created.
+ * When `rules` are absent (analyzeProject path), the linter must be pre-initialized.
  *
  * @param rules the rules from the active quality profile (optional when linter is pre-initialized)
  */

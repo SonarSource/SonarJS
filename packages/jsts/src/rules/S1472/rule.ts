@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1472/javascript
 
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type { Position, CallExpression, Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';

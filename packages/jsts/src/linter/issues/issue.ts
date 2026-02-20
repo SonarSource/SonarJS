@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { QuickFix } from '../quickfixes/quickfix.js';
-import { Location } from './location.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { QuickFix } from '../quickfixes/quickfix.js';
+import type { Location } from './location.js';
+import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
-import { BaseIssue } from '../../../../shared/src/types/analysis.js';
+import type { BaseIssue } from '../../../../shared/src/types/analysis.js';
 
 /**
  * A SonarQube-compatible source code issue

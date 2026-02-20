@@ -16,12 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3973/javascript
 
-import { AST, Rule, SourceCode } from 'eslint';
+import type { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import {
+  type LoopLike,
   generateMeta,
   getParent,
-  LoopLike,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';

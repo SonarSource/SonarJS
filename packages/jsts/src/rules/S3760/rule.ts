@@ -20,11 +20,11 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import {
+  type IssueLocation,
   generateMeta,
   getTypeFromTreeNode,
   isRequiredParserServices,
   isStringType,
-  IssueLocation,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';

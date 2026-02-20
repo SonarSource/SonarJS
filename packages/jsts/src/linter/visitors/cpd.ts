@@ -16,9 +16,9 @@
  */
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { SourceCode, AST } from 'eslint';
+import type { SourceCode, AST } from 'eslint';
 import { visit } from './visitor.js';
-import { Location } from './metrics/helpers/location.js';
+import type { Location } from './metrics/helpers/location.js';
 
 /**
  * A copy-paste detector token (cpd)

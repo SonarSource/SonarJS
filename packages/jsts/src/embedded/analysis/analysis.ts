@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { JsTsIssue } from '../../linter/issues/issue.js';
+import type { JsTsIssue } from '../../linter/issues/issue.js';
 import type { CssIssue } from '../../../../css/src/linter/issues/issue.js';
-import { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
+import type { AnalysisOutput } from '../../../../shared/src/types/analysis.js';
 
 export { type EmbeddedAnalysisInput } from '../../../../shared/src/types/analysis.js';
 

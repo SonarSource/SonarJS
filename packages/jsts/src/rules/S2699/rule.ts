@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
-import { Rule, SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import {
   Chai,
@@ -35,7 +35,7 @@ import {
 } from '../helpers/index.js';
 import { Supertest } from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
-import { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
 /**

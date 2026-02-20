@@ -19,7 +19,7 @@ import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
-import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';

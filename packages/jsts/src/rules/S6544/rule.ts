@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { getESLintCoreRule } from '../external/core.js';
 import {
+  type RuleContext,
   FUNCTION_NODES,
   generateMeta,
   getMainFunctionTokenLocation,
   interceptReport,
   mergeRules,
-  RuleContext,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';

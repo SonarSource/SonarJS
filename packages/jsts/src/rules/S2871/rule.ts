@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
 import type { Rule } from 'eslint';
-import ts from 'typescript';
+import type ts from 'typescript';
 import type estree from 'estree';
 import {
   copyingSortLike,

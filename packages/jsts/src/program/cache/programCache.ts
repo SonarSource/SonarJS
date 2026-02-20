@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import ts from 'typescript';
+import type ts from 'typescript';
 import path from 'node:path/posix';
-import { IncrementalCompilerHost } from '../compilerHost.js';
+import type { IncrementalCompilerHost } from '../compilerHost.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
-import { ProgramOptions } from '../tsconfig/options.js';
+import type { ProgramOptions } from '../tsconfig/options.js';
 
 interface CacheEntry {
   keyObj: object; // Unique object for WeakMap key

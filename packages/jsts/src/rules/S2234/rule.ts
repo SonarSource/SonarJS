@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  FunctionNodeType,
+  type FunctionNodeType,
   generateMeta,
   getSignatureFromCallee,
   getTypeAsString,

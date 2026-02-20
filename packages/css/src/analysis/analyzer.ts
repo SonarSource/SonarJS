@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { LinterOptions } from 'stylelint';
-import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
+import type { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
 import { createStylelintConfig } from '../linter/config.js';
 import { APIError } from '../../../shared/src/errors/error.js';

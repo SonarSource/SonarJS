@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { ParsingContext } from '../parser/parse-yaml.js';
+import type { ParsingContext } from '../parser/parse-yaml.js';
 
 export const lambdaParsingContext: ParsingContext = {
   predicate: isInlineAwsLambda,

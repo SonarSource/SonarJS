@@ -21,9 +21,9 @@ import type estree from 'estree';
 import builtins from 'builtin-modules';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import { Minimatch } from 'minimatch';
+import type { Minimatch } from 'minimatch';
 import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 
 const messages = {

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1440/javascript
 
-import { ESLintConfiguration } from '../helpers/configs.js';
+import type { ESLintConfiguration } from '../helpers/configs.js';
 
 export const fields = [
   {

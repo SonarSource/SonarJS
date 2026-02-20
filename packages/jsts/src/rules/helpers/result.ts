@@ -16,13 +16,13 @@
  */
 import type { Node } from 'estree';
 import {
+  type StringLiteral,
   getProperty,
   getUniqueWriteUsageOrNode,
   isArrayExpression,
   isBooleanLiteral,
   isStringLiteral,
   isUndefined,
-  StringLiteral,
 } from './ast.js';
 import type { Rule } from 'eslint';
 

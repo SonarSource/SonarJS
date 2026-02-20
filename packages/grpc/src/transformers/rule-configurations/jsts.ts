@@ -34,7 +34,7 @@ import * as metas from '../../../../jsts/src/rules/metas.js';
  */
 type RuleMeta = {
   sonarKey: string;
-  scope: 'Main' | 'Tests';
+  scope: 'All' | 'Main' | 'Tests';
   languages: ('js' | 'ts')[];
   fields?: ESLintConfiguration;
 };
@@ -65,8 +65,7 @@ type FieldDef = {
  * @see docs/DEV.md "Rule Options Architecture" section for how rules are structured
  */
 const ruleMetaMap: Map<string, RuleMeta> = new Map();
-for (const [, ruleMeta] of Object.entries(metas)) {
-  const meta = ruleMeta as RuleMeta;
+for (const meta of Object.values(metas)) {
   if (meta.sonarKey) {
     ruleMetaMap.set(meta.sonarKey, meta);
   }

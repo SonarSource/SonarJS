@@ -19,7 +19,7 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { computeGrid, TableCell } from '../helpers/table.js';
+import { type TableCell, computeGrid } from '../helpers/table.js';
 import { generateMeta, getElementType } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

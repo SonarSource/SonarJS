@@ -19,20 +19,20 @@
 import type { Rule } from 'eslint';
 import type { NewExpression, Node } from 'estree';
 import {
+  type StringLiteral,
   generateMeta,
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
   report,
-  StringLiteral,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { getResultOfExpression, Result } from '../helpers/result.js';
+import { type Result, getResultOfExpression } from '../helpers/result.js';
 import {
+  type PolicyCheckerOptions,
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
-  PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 import * as meta from './generated-meta.js';

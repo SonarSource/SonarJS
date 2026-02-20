@@ -19,7 +19,7 @@
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import type { Rule } from 'eslint';
 import type { NewExpression, Node } from 'estree';
-import { getResultOfExpression, Result } from '../helpers/result.js';
+import { type Result, getResultOfExpression } from '../helpers/result.js';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

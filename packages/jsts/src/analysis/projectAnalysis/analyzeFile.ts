@@ -15,26 +15,26 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { handleError } from '../../../../bridge/src/errors/index.js';
-import { JsTsAnalysisInput } from '../analysis.js';
+import type { JsTsAnalysisInput } from '../analysis.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
 import { analyzeJSTS } from '../analyzer.js';
 import {
-  isCssAlsoFile,
+  isAlsoCssFile,
   isCssFile,
   isHtmlFile,
   isYamlFile,
   type JsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
-import { serializeError, WsIncrementalResult } from '../../../../bridge/src/request.js';
-import { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
-import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
+import { type WsIncrementalResult, serializeError } from '../../../../bridge/src/request.js';
+import type { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
+import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
-import ts from 'typescript';
-import { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
-import { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
-import { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
+import type ts from 'typescript';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
+import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
@@ -93,7 +93,7 @@ export async function analyzeFile(
 
   // For Vue and web files: also run stylelint CSS analysis on <style> blocks.
   // Mirrors CssRuleSensor.getInputFiles() in Java (vueFilePredicate + webFilePredicate).
-  if (cssLinter.isInitialized() && !('error' in result) && isCssAlsoFile(fileName)) {
+  if (cssLinter.isInitialized() && !('error' in result) && isAlsoCssFile(fileName)) {
     try {
       const cssOutput = await analyzeCSS(
         {

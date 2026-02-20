@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
-import * as regexpp from '@eslint-community/regexpp';
+import type * as regexpp from '@eslint-community/regexpp';
 import { isRegexLiteral, isStringLiteral } from '../index.js';
 import { getRegexpRange } from './range.js';
 

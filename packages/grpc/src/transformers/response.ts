@@ -22,6 +22,7 @@ import {
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
+import { type NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
@@ -30,7 +31,7 @@ import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
 const PARSING_ERROR_RULE_KEY = 'S2260';
 
 /**
- * Transform a single Issue from the internal format to the gRPC IIssue format.
+ * Transform a single Issue from the internal format to the gRPC Issue format.
  *
  * Converts the ESLint-style issue representation into the protobuf format expected
  * by gRPC clients. This includes:
@@ -48,7 +49,7 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  * They are grouped into a single flow in the gRPC format with type FLOW_TYPE_DATA.
  *
  * @param issue - Internal Issue object from the linter
- * @returns gRPC IIssue object ready for protobuf serialization
+ * @returns gRPC Issue object ready for protobuf serialization
  */
 function transformIssue(issue: JsTsIssue): analyzer.IIssue {
   const textRange: analyzer.ITextRange = {
@@ -95,17 +96,21 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
 }
 
 /**
- * Transform a single CSS Issue from the internal format to the gRPC IIssue format.
+ * Transform a single CSS issue from the internal format to the gRPC Issue format.
  *
- * CSS issues only have start line/column (stylelint doesn't provide end positions),
- * so endLine/endLineOffset mirror the start values. The stylelint rule key is
+ * At the moment we only handle start line/column for CSS issues,
+ * so endLine/endLineOffset mirror the start values.
+ *
+ * TODO: https://sonarsource.atlassian.net/browse/JS-1348
+ *
+ * The stylelint rule key is
  * reverse-mapped to the SonarQube key via `reverseCssRuleKeyMap`.
  *
- * @param issue - Internal CSS Issue object from the stylelint linter
+ * @param issue - Internal CSS issue from the stylelint linter
  * @param filePath - The file path the issue belongs to
- * @returns gRPC IIssue object ready for protobuf serialization
+ * @returns gRPC Issue object ready for protobuf serialization
  */
-function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
+function transformCssIssue(issue: CssIssue, filePath: NormalizedAbsolutePath): analyzer.IIssue {
   const sqKey = reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId;
   return {
     filePath,
@@ -202,10 +207,14 @@ export function transformProjectOutputToResponse(
 
     if ('issues' in fileResult) {
       for (const issue of fileResult.issues) {
-        if (issue.language === 'css') {
-          issues.push(transformCssIssue(issue, filePath));
-        } else {
-          issues.push(transformIssue(issue));
+        switch (issue.language) {
+          case 'css':
+            issues.push(transformCssIssue(issue, filePath));
+            break;
+          case 'js':
+          case 'ts':
+            issues.push(transformIssue(issue));
+            break;
         }
       }
     }

@@ -20,6 +20,8 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RequiredParserServices,
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   isArray,
@@ -28,8 +30,6 @@ import {
   isMemberExpression,
   isRequiredParserServices,
   isTypedArray,
-  RequiredParserServices,
-  RuleContext,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

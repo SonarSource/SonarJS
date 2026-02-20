@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
-import { Rule, Linter as ESLintLinter } from 'eslint';
+import { type Rule, Linter as ESLintLinter } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
-import { CustomRule } from './custom-rules/custom-rule.js';
-import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
-import { FileType } from '../../../shared/src/helpers/files.js';
-import { LintingResult, transformMessages } from './issues/transform.js';
+import type { CustomRule } from './custom-rules/custom-rule.js';
+import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
+import type { FileType } from '../../../shared/src/helpers/files.js';
+import { type LintingResult, transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
 import {
@@ -31,8 +31,8 @@ import {
 } from '../rules/helpers/index.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
-import { ParseResult } from '../parsers/parse.js';
-import { AnalysisMode, FileStatus } from '../analysis/analysis.js';
+import type { ParseResult } from '../parsers/parse.js';
+import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';

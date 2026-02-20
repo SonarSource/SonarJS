@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as express from 'express';
-import { Worker } from 'node:worker_threads';
+import type { Worker } from 'node:worker_threads';
 import { createDelegator, createWsDelegator } from './delegate.js';
-import { WorkerData } from '../../shared/src/helpers/worker.js';
+import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import { StatusCodes } from 'http-status-codes';
-import { WebSocketServer } from 'ws';
+import type { WebSocketServer } from 'ws';
 
 export type WorkerMessageListeners = {
   permanent: ((message: any) => void)[];

@@ -18,11 +18,11 @@
 
 import type estree from 'estree';
 import {
+  type IssueLocation,
   areEquivalent,
   generateMeta,
   isIdentifier,
   isLiteral,
-  IssueLocation,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';

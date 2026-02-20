@@ -19,9 +19,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import ts from 'typescript';
-import { type UnionType } from 'typescript';
+import ts, { type UnionType } from 'typescript';
 import {
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
@@ -32,7 +32,6 @@ import {
   isStringType,
   last,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

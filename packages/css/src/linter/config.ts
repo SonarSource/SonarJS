@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import stylelint from 'stylelint';
+import type stylelint from 'stylelint';
 import postcssHtml from 'postcss-html';
 import postcssSass from 'postcss-sass';
 import postcssScss from 'postcss-scss';

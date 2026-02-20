@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type { Node } from 'estree';
-import ts from 'typescript';
+import type ts from 'typescript';
 import { functionLike } from './ast.js';
 
 export function findFirstMatchingLocalAncestor(

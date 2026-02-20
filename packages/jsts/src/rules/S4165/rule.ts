@@ -20,13 +20,13 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type Values,
   generateMeta,
   getVariableFromIdentifier,
   last,
   ReachingDefinitions,
   reachingDefinitions,
   resolveAssignedValues,
-  Values,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

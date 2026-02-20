@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, SourceCode } from 'eslint';
+import type { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
-import { JsTsIssue } from './issue.js';
+import type { JsTsIssue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 function getESLintKeys(sonarKey: string) {

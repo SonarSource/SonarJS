@@ -16,7 +16,7 @@
  */
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { EncodedMessage, IssueLocation } from '../helpers/index.js';
+import type { EncodedMessage, IssueLocation } from '../helpers/index.js';
 import { describe, it } from 'node:test';
 
 describe('S1541', () => {

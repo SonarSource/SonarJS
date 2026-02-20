@@ -17,13 +17,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type IssueLocation,
   isIdentifier,
   getValueOfExpression,
   getFullyQualifiedName,
   getProperty,
   report,
   toSecondaryLocation,
-  IssueLocation,
 } from './index.js';
 
 export class CookieFlagCheck {

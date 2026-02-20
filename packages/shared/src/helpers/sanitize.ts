@@ -16,10 +16,10 @@
  */
 import { warn } from './logging.js';
 import {
+  type FileType,
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
   readFile,
-  FileType,
   dirnamePath,
 } from './files.js';
 import {
@@ -29,6 +29,7 @@ import {
   type JsTsLanguage,
   type Configuration,
   getFilterPathParams,
+  getShouldIgnoreParams,
 } from './configuration.js';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
 import { initFileStores } from '../../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
@@ -48,7 +49,6 @@ import {
   createJsTsFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { shouldIgnoreFile, type ShouldIgnoreFileParams } from './filter/filter.js';
-import { getShouldIgnoreParams } from './configuration.js';
 
 // Type guards for runtime validation of JSON-deserialized values
 // These ensure values from untrusted sources (JSON, protobuf) match expected types

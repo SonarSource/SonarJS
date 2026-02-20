@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type AwsCdkConsumer,
+  type FullyQualifiedName,
   AwsCdkCheckArguments,
-  AwsCdkConsumer,
   AwsCdkTemplate,
-  FullyQualifiedName,
   getLiteralValue,
   normalizeFQN,
 } from '../helpers/aws/cdk.js';

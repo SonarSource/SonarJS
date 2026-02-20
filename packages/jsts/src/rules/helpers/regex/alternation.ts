@@ -14,7 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { CapturingGroup, Group, LookaroundAssertion, Pattern } from '@eslint-community/regexpp/ast';
+import type {
+  CapturingGroup,
+  Group,
+  LookaroundAssertion,
+  Pattern,
+} from '@eslint-community/regexpp/ast';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.

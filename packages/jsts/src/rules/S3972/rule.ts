@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3972
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

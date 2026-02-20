@@ -15,6 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import pkg from '@angular-eslint/eslint-plugin';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
 export const rule = rules['no-input-rename'];

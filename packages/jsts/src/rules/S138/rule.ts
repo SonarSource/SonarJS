@@ -23,14 +23,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   getNodeParent,
   getParent,
   last,
-  RuleContext,
 } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 interface FunctionKnowledge {

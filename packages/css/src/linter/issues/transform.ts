@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import stylelint from 'stylelint';
+import type stylelint from 'stylelint';
 import { debug, warn } from '../../../../shared/src/helpers/logging.js';
-import { CssIssue } from './issue.js';
+import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 /**

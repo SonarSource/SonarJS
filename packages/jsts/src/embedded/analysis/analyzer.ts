@@ -16,11 +16,11 @@
  */
 import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
-import { JsTsIssue } from '../../linter/issues/issue.js';
+import type { JsTsIssue } from '../../linter/issues/issue.js';
 import { Linter } from '../../linter/linter.js';
 import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
-import { build, ExtendedParseResult, LanguageParser } from '../builder/build.js';
+import { type ExtendedParseResult, type LanguageParser, build } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import {
   shouldIgnoreFile,

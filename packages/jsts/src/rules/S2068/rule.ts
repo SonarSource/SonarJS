@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isStringLiteral } from '../helpers/index.js';
 import path from 'node:path';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
@@ -62,7 +62,12 @@ export const rule: Rule.RuleModule = {
       },
       PropertyDefinition: (node: estree.Node) => {
         const property = node as TSESTree.PropertyDefinition;
-        checkAssignment(context, lowerCaseVariableNames, property.key as estree.Node, property.value as estree.Node);
+        checkAssignment(
+          context,
+          lowerCaseVariableNames,
+          property.key as estree.Node,
+          property.value as estree.Node,
+        );
       },
     };
   },
