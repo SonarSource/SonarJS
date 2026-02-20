@@ -174,11 +174,6 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
             from: ['./node_modules/typescript/lib/*.d.ts'],
             to: ['./bin/'],
           },
-          // We copy the protofile as it needs to be accessible for the bundle
-          {
-            from: ['./packages/jsts/src/parsers/estree.proto'],
-            to: ['./bin/'],
-          },
           ...additionalAssets,
         ],
       }),

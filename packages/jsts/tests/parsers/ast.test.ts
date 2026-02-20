@@ -30,7 +30,7 @@ import { buildParserOptions } from '../../src/parsers/options.js';
 import {
   deserializeProtobuf,
   lowerCaseFirstLetter,
-  NODE_TYPE_ENUM,
+  NodeType,
   parseInProtobuf,
   serializeInProtobuf,
   visitNode,
@@ -107,19 +107,17 @@ describe('ast', () => {
     assert.ok(serializedAST);
     // we are only interested in checking that the serialized AST only contains nodes relevant at runtime
     expect(serializedAST.type).toEqual(0); // Program
-    expect(serializedAST.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['VariableDeclarationType'],
-    ); // VariableDeclaration
+    expect(serializedAST.program.body[0].type).toEqual(NodeType.VariableDeclarationType); // VariableDeclaration
     expect(serializedAST.program.body[0].variableDeclaration.declarations[0].type).toEqual(
-      NODE_TYPE_ENUM.values['VariableDeclaratorType'],
+      NodeType.VariableDeclaratorType,
     ); // VariableDeclarator
     expect(
       serializedAST.program.body[0].variableDeclaration.declarations[0].variableDeclarator.id.type,
-    ).toEqual(NODE_TYPE_ENUM.values['IdentifierType']); // Identifier
+    ).toEqual(NodeType.IdentifierType); // Identifier
     expect(
       serializedAST.program.body[0].variableDeclaration.declarations[0].variableDeclarator.init
         .type,
-    ).toEqual(NODE_TYPE_ENUM.values['LiteralType']); // Literal
+    ).toEqual(NodeType.LiteralType); // Literal
   });
 
   test('should support TSSatisfiesExpression nodes', async () => {
@@ -127,9 +125,9 @@ describe('ast', () => {
     const ast = await parseSourceCode(code, parsersMap.typescript);
     const serializedAST = visitNode(ast as TSESTree.Program);
     assert.ok(serializedAST);
-    const literalNode = serializedAST.program.body[0].expressionStatement.expression.literal;
-    expect(literalNode.type).toEqual(NODE_TYPE_ENUM.values['Literal']);
-    expect(literalNode.valueNumber).toEqual(42);
+    const expressionNode = serializedAST.program.body[0].expressionStatement.expression;
+    expect(expressionNode.type).toEqual(NodeType.LiteralType);
+    expect(expressionNode.literal.valueNumber).toEqual(42);
   });
 
   test('should support TSNonNullExpression nodes', async () => {
@@ -139,7 +137,7 @@ describe('ast', () => {
 
     assert.ok(serializedAST);
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
-    expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(identifier.type).toEqual(NodeType.IdentifierType);
     expect(identifier.identifier.name).toEqual('foo');
   });
 
@@ -150,7 +148,7 @@ describe('ast', () => {
 
     assert.ok(serializedAST);
     const identifier = serializedAST.program.body[0].expressionStatement.expression;
-    expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(identifier.type).toEqual(NodeType.IdentifierType);
     expect(identifier.identifier.name).toEqual('foo');
   });
 
@@ -165,13 +163,11 @@ describe('ast', () => {
     const classDeclaration = protoMessage.program.body[0].classDeclaration;
     const constructorMethod = classDeclaration.body.classBody.body[0].methodDefinition;
     const constructorFunction = constructorMethod.value.functionExpression;
-    expect(constructorFunction.params[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSParameterPropertyType'],
-    );
+    expect(constructorFunction.params[0].type).toEqual(NodeType.TSParameterPropertyType);
     const parameterProperty = constructorFunction.params[0].tSParameterProperty;
     expect(parameterProperty.accessibility).toEqual('public');
     expect(parameterProperty.readonly).toEqual(false);
-    expect(parameterProperty.parameter.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(parameterProperty.parameter.type).toEqual(NodeType.IdentifierType);
     expect(parameterProperty.parameter.identifier.name).toEqual('foo');
   });
 
@@ -182,7 +178,7 @@ describe('ast', () => {
 
     assert.ok(serializedAST);
     const expression = serializedAST.program.body[0].tSExportAssignment.expression;
-    expect(expression.type).toEqual(NODE_TYPE_ENUM.values['CallExpressionType']);
+    expect(expression.type).toEqual(NodeType.CallExpressionType);
     expect(expression.callExpression.callee.identifier.name).toEqual('foo');
   });
 
@@ -192,19 +188,17 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSImportEqualsDeclarationType);
 
     const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
     expect(tSImportEqualsDeclaration.importKind).toEqual('value');
 
     let id = tSImportEqualsDeclaration.id;
-    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.type).toEqual(NodeType.IdentifierType);
     expect(id.identifier.name).toEqual('a');
 
     let moduleReference = tSImportEqualsDeclaration.moduleReference;
-    expect(moduleReference.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(moduleReference.type).toEqual(NodeType.IdentifierType);
     expect(moduleReference.identifier.name).toEqual('foo');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -220,24 +214,20 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSImportEqualsDeclarationType);
 
     const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
     expect(tSImportEqualsDeclaration.importKind).toEqual('value');
 
     let id = tSImportEqualsDeclaration.id;
-    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.type).toEqual(NodeType.IdentifierType);
     expect(id.identifier.name).toEqual('a');
-    expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
-      NODE_TYPE_ENUM.values['TSQualifiedNameType'],
-    );
+    expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(NodeType.TSQualifiedNameType);
 
     let tSQualifiedName = tSImportEqualsDeclaration.moduleReference.tSQualifiedName;
-    expect(tSQualifiedName.right.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSQualifiedName.right.type).toEqual(NodeType.IdentifierType);
     expect(tSQualifiedName.right.identifier.name).toEqual('c');
-    expect(tSQualifiedName.left.type).toEqual(NODE_TYPE_ENUM.values['TSQualifiedNameType']);
+    expect(tSQualifiedName.left.type).toEqual(NodeType.TSQualifiedNameType);
     expect(tSQualifiedName.left.tSQualifiedName.left.identifier.name).toEqual('a');
     expect(tSQualifiedName.left.tSQualifiedName.right.identifier.name).toEqual('b');
 
@@ -254,18 +244,16 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSImportEqualsDeclarationType);
 
     const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
     expect(tSImportEqualsDeclaration.importKind).toEqual('value');
 
     let id = tSImportEqualsDeclaration.id;
-    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.type).toEqual(NodeType.IdentifierType);
     expect(id.identifier.name).toEqual('a');
     expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
-      NODE_TYPE_ENUM.values['TSExternalModuleReferenceType'],
+      NodeType.TSExternalModuleReferenceType,
     );
 
     const tSExternalModuleReference =
@@ -285,18 +273,16 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSImportEqualsDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSImportEqualsDeclarationType);
 
     const tSImportEqualsDeclaration = protoMessage.program.body[0].tSImportEqualsDeclaration;
     expect(tSImportEqualsDeclaration.importKind).toEqual('type');
 
     let id = tSImportEqualsDeclaration.id;
-    expect(id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(id.type).toEqual(NodeType.IdentifierType);
     expect(id.identifier.name).toEqual('a');
     expect(tSImportEqualsDeclaration.moduleReference.type).toEqual(
-      NODE_TYPE_ENUM.values['TSExternalModuleReferenceType'],
+      NodeType.TSExternalModuleReferenceType,
     );
 
     const tSExternalModuleReference =
@@ -316,16 +302,14 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSModuleDeclarationType);
     const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
     expect(tSModuleDeclaration.kind).toEqual('namespace');
-    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSModuleDeclaration.id.type).toEqual(NodeType.IdentifierType);
     expect(tSModuleDeclaration.id.identifier.name).toEqual('Foo');
-    expect(tSModuleDeclaration.body.type).toEqual(NODE_TYPE_ENUM.values['TSModuleBlockType']);
+    expect(tSModuleDeclaration.body.type).toEqual(NodeType.TSModuleBlockType);
     expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['VariableDeclarationType'],
+      NodeType.VariableDeclarationType,
     );
     checkAstIsProperlySerializedAndDeserialized(
       ast as TSESTree.Program,
@@ -340,16 +324,14 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSModuleDeclarationType);
     const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
     expect(tSModuleDeclaration.kind).toEqual('global');
-    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(tSModuleDeclaration.id.type).toEqual(NodeType.IdentifierType);
     expect(tSModuleDeclaration.id.identifier.name).toEqual('global');
-    expect(tSModuleDeclaration.body.type).toEqual(NODE_TYPE_ENUM.values['TSModuleBlockType']);
+    expect(tSModuleDeclaration.body.type).toEqual(NodeType.TSModuleBlockType);
     expect(tSModuleDeclaration.body.tSModuleBlock.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['VariableDeclarationType'],
+      NodeType.VariableDeclarationType,
     );
     checkAstIsProperlySerializedAndDeserialized(
       ast as TSESTree.Program,
@@ -364,12 +346,10 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['TSModuleDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.TSModuleDeclarationType);
     const tSModuleDeclaration = protoMessage.program.body[0].tSModuleDeclaration;
     expect(tSModuleDeclaration.kind).toEqual('module');
-    expect(tSModuleDeclaration.id.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
+    expect(tSModuleDeclaration.id.type).toEqual(NodeType.LiteralType);
     expect(tSModuleDeclaration.id.literal.valueString).toEqual('Foo');
     expect(tSModuleDeclaration.body).toEqual(undefined);
     checkAstIsProperlySerializedAndDeserialized(
@@ -388,7 +368,7 @@ describe('ast', () => {
       const ast = await parseSourceCode(code, parsersMap.typescript);
       const protoMessage = visitNode(ast as TSESTree.Program);
       assert.ok(protoMessage);
-      expect(protoMessage.program.body[0].type).toEqual(NODE_TYPE_ENUM.values[`${nodeType}Type`]);
+      expect(protoMessage.program.body[0].type).toEqual(NodeType[`${nodeType}Type`]);
       const tSModuleDeclaration = protoMessage.program.body[0][lowerCaseFirstLetter(nodeType)];
       expect(tSModuleDeclaration).toEqual({});
       checkAstIsProperlySerializedAndDeserialized(
@@ -404,14 +384,10 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['ClassDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.ClassDeclarationType);
     const methodDefinition =
       protoMessage.program.body[0].classDeclaration.body.classBody.body[0].methodDefinition.value;
-    expect(methodDefinition.type).toEqual(
-      NODE_TYPE_ENUM.values['TSEmptyBodyFunctionExpressionType'],
-    );
+    expect(methodDefinition.type).toEqual(NodeType.TSEmptyBodyFunctionExpressionType);
     expect(methodDefinition.tSEmptyBodyFunctionExpression).toEqual({});
     checkAstIsProperlySerializedAndDeserialized(
       ast as TSESTree.Program,
@@ -426,11 +402,9 @@ describe('ast', () => {
     const protoMessage = visitNode(ast as TSESTree.Program);
 
     assert.ok(protoMessage);
-    expect(protoMessage.program.body[0].type).toEqual(
-      NODE_TYPE_ENUM.values['ClassDeclarationType'],
-    );
+    expect(protoMessage.program.body[0].type).toEqual(NodeType.ClassDeclarationType);
     let body = protoMessage.program.body[0].classDeclaration.body.classBody.body;
-    expect(body[0].type).toEqual(NODE_TYPE_ENUM.values['TSAbstractMethodDefinitionType']);
+    expect(body[0].type).toEqual(NodeType.TSAbstractMethodDefinitionType);
     expect(body[0].tSAbstractMethodDefinition).toEqual({});
     checkAstIsProperlySerializedAndDeserialized(
       ast as TSESTree.Program,
@@ -447,15 +421,15 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     const openingElementNode = jsxElement.openingElement;
     const closingElementNode = jsxElement.closingElement;
     const textNode = jsxElement.children[0];
-    expect(openingElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXOpeningElementType']);
-    expect(closingElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXClosingElementType']);
-    expect(textNode.type).toEqual(NODE_TYPE_ENUM.values['JSXTextType']);
+    expect(openingElementNode.type).toEqual(NodeType.JSXOpeningElementType);
+    expect(closingElementNode.type).toEqual(NodeType.JSXClosingElementType);
+    expect(textNode.type).toEqual(NodeType.JSXTextType);
 
     const openingElement = openingElementNode.jSXOpeningElement;
     const closingElement = closingElementNode.jSXClosingElement;
@@ -485,13 +459,13 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxFragmentNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxFragmentNode.type).toEqual(NODE_TYPE_ENUM.values['JSXFragmentType']);
+    expect(jsxFragmentNode.type).toEqual(NodeType.JSXFragmentType);
 
     const jsxFragment = jsxFragmentNode.jSXFragment;
     const openingFragmentNode = jsxFragment.openingFragment;
     const closingFragmentNode = jsxFragment.closingFragment;
-    expect(openingFragmentNode.type).toEqual(NODE_TYPE_ENUM.values['JSXOpeningFragmentType']);
-    expect(closingFragmentNode.type).toEqual(NODE_TYPE_ENUM.values['JSXClosingFragmentType']);
+    expect(openingFragmentNode.type).toEqual(NodeType.JSXOpeningFragmentType);
+    expect(closingFragmentNode.type).toEqual(NodeType.JSXClosingFragmentType);
     expect(openingFragmentNode.jSXOpeningFragment).toEqual({});
     expect(closingFragmentNode.jSXClosingFragment).toEqual({});
 
@@ -499,8 +473,8 @@ describe('ast', () => {
 
     const h1ElementNode = jsxFragment.children[0];
     const h2ElementNode = jsxFragment.children[1];
-    expect(h1ElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
-    expect(h2ElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(h1ElementNode.type).toEqual(NodeType.JSXElementType);
+    expect(h2ElementNode.type).toEqual(NodeType.JSXElementType);
 
     const h1Element = h1ElementNode.jSXElement;
     const h2Element = h2ElementNode.jSXElement;
@@ -522,24 +496,22 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     const openingElementNode = jsxElement.openingElement;
-    expect(openingElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXOpeningElementType']);
+    expect(openingElementNode.type).toEqual(NodeType.JSXOpeningElementType);
 
     const openingElement = openingElementNode.jSXOpeningElement;
     expect(openingElement.name.jSXIdentifier.name).toEqual('Component');
     expect(openingElement.selfClosing).toEqual(true);
     expect(openingElement.typeArguments).toBeDefined();
-    expect(openingElement.typeArguments.type).toEqual(
-      NODE_TYPE_ENUM.values['TSTypeParameterInstantiationType'],
-    );
+    expect(openingElement.typeArguments.type).toEqual(NodeType.TSTypeParameterInstantiationType);
     expect(openingElement.typeArguments.tSTypeParameterInstantiation).toEqual({});
     expect(openingElement.attributes.length).toEqual(1);
 
     const attributeNode = openingElement.attributes[0];
-    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
+    expect(attributeNode.type).toEqual(NodeType.JSXAttributeType);
     expect(attributeNode.jSXAttribute.name.jSXIdentifier.name).toEqual('prop');
     expect(attributeNode.jSXAttribute.value.literal.valueString).toEqual('value');
 
@@ -558,17 +530,17 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
     expect(openingElement.attributes.length).toEqual(1);
 
     const attributeNode = openingElement.attributes[0];
-    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
+    expect(attributeNode.type).toEqual(NodeType.JSXAttributeType);
 
     const attribute = attributeNode.jSXAttribute;
     expect(attribute.name.jSXIdentifier.name).toEqual('id');
-    expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
+    expect(attribute.value.type).toEqual(NodeType.LiteralType);
     expect(attribute.value.literal.valueString).toEqual('test');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -590,7 +562,7 @@ describe('ast', () => {
     expect(openingElement.attributes.length).toEqual(1);
 
     const attributeNode = openingElement.attributes[0];
-    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXAttributeType']);
+    expect(attributeNode.type).toEqual(NodeType.JSXAttributeType);
 
     const attribute = attributeNode.jSXAttribute;
     expect(attribute.name.jSXIdentifier.name).toEqual('disabled');
@@ -617,10 +589,10 @@ describe('ast', () => {
     const attributeNode = openingElement.attributes[0];
     const attribute = attributeNode.jSXAttribute;
     expect(attribute.name.jSXIdentifier.name).toEqual('prop');
-    expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    expect(attribute.value.type).toEqual(NodeType.JSXExpressionContainerType);
 
     const expressionContainer = attribute.value.jSXExpressionContainer;
-    expect(expressionContainer.expression.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(expressionContainer.expression.type).toEqual(NodeType.JSXElementType);
     expect(
       expressionContainer.expression.jSXElement.openingElement.jSXOpeningElement.name.jSXIdentifier
         .name,
@@ -646,12 +618,12 @@ describe('ast', () => {
 
     const attributeNode = openingElement.attributes[0];
     const attribute = attributeNode.jSXAttribute;
-    expect(attribute.name.type).toEqual(NODE_TYPE_ENUM.values['JSXNamespacedNameType']);
+    expect(attribute.name.type).toEqual(NodeType.JSXNamespacedNameType);
 
     const namespacedName = attribute.name.jSXNamespacedName;
     expect(namespacedName.namespace.jSXIdentifier.name).toEqual('xmlns');
     expect(namespacedName.name.jSXIdentifier.name).toEqual('xlink');
-    expect(attribute.value.type).toEqual(NODE_TYPE_ENUM.values['LiteralType']);
+    expect(attribute.value.type).toEqual(NodeType.LiteralType);
     expect(attribute.value.literal.valueString).toEqual('http://www.w3.org/1999/xlink');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -669,15 +641,15 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const nameNode = jsxElementNode.jSXElement.openingElement.jSXOpeningElement.name;
-    expect(nameNode.type).toEqual(NODE_TYPE_ENUM.values['JSXMemberExpressionType']);
+    expect(nameNode.type).toEqual(NodeType.JSXMemberExpressionType);
 
     const memberExpression = nameNode.jSXMemberExpression;
-    expect(memberExpression.object.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
+    expect(memberExpression.object.type).toEqual(NodeType.JSXIdentifierType);
     expect(memberExpression.object.jSXIdentifier.name).toEqual('Foo');
-    expect(memberExpression.property.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
+    expect(memberExpression.property.type).toEqual(NodeType.JSXIdentifierType);
     expect(memberExpression.property.jSXIdentifier.name).toEqual('Bar');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -696,7 +668,7 @@ describe('ast', () => {
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
     const nameNode = jsxElementNode.jSXElement.openingElement.jSXOpeningElement.name;
-    expect(nameNode.type).toEqual(NODE_TYPE_ENUM.values['JSXMemberExpressionType']);
+    expect(nameNode.type).toEqual(NodeType.JSXMemberExpressionType);
 
     // Traverse: Foo.Bar.Baz.Qux
     // Should be: ((Foo.Bar).Baz).Qux
@@ -728,15 +700,15 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const nameNode = jsxElementNode.jSXElement.openingElement.jSXOpeningElement.name;
-    expect(nameNode.type).toEqual(NODE_TYPE_ENUM.values['JSXNamespacedNameType']);
+    expect(nameNode.type).toEqual(NodeType.JSXNamespacedNameType);
 
     const namespacedName = nameNode.jSXNamespacedName;
-    expect(namespacedName.namespace.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
+    expect(namespacedName.namespace.type).toEqual(NodeType.JSXIdentifierType);
     expect(namespacedName.namespace.jSXIdentifier.name).toEqual('foo');
-    expect(namespacedName.name.type).toEqual(NODE_TYPE_ENUM.values['JSXIdentifierType']);
+    expect(namespacedName.name.type).toEqual(NodeType.JSXIdentifierType);
     expect(namespacedName.name.jSXIdentifier.name).toEqual('bar');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -754,16 +726,16 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const openingElement = jsxElementNode.jSXElement.openingElement.jSXOpeningElement;
     expect(openingElement.attributes.length).toEqual(1);
 
     const attributeNode = openingElement.attributes[0];
-    expect(attributeNode.type).toEqual(NODE_TYPE_ENUM.values['JSXSpreadAttributeType']);
+    expect(attributeNode.type).toEqual(NodeType.JSXSpreadAttributeType);
 
     const spreadAttribute = attributeNode.jSXSpreadAttribute;
-    expect(spreadAttribute.argument.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(spreadAttribute.argument.type).toEqual(NodeType.IdentifierType);
     expect(spreadAttribute.argument.identifier.name).toEqual('props');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -781,16 +753,16 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.children.length).toEqual(1);
 
     const childNode = jsxElement.children[0];
-    expect(childNode.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    expect(childNode.type).toEqual(NodeType.JSXExpressionContainerType);
 
     const expressionContainer = childNode.jSXExpressionContainer;
-    expect(expressionContainer.expression.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(expressionContainer.expression.type).toEqual(NodeType.IdentifierType);
     expect(expressionContainer.expression.identifier.name).toEqual('value');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -808,16 +780,16 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.children.length).toEqual(1);
 
     const childNode = jsxElement.children[0];
-    expect(childNode.type).toEqual(NODE_TYPE_ENUM.values['JSXSpreadChildType']);
+    expect(childNode.type).toEqual(NodeType.JSXSpreadChildType);
 
     const spreadChild = childNode.jSXSpreadChild;
-    expect(spreadChild.expression.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(spreadChild.expression.type).toEqual(NodeType.IdentifierType);
     expect(spreadChild.expression.identifier.name).toEqual('children');
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -835,18 +807,16 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.children.length).toEqual(1);
 
     const childNode = jsxElement.children[0];
-    expect(childNode.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    expect(childNode.type).toEqual(NodeType.JSXExpressionContainerType);
 
     const expressionContainer = childNode.jSXExpressionContainer;
-    expect(expressionContainer.expression.type).toEqual(
-      NODE_TYPE_ENUM.values['JSXEmptyExpressionType'],
-    );
+    expect(expressionContainer.expression.type).toEqual(NodeType.JSXEmptyExpressionType);
     expect(expressionContainer.expression.jSXEmptyExpression).toEqual({});
 
     checkAstIsProperlySerializedAndDeserialized(
@@ -864,31 +834,31 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.children.length).toEqual(4);
 
     const textNode = jsxElement.children[0];
-    expect(textNode.type).toEqual(NODE_TYPE_ENUM.values['JSXTextType']);
+    expect(textNode.type).toEqual(NodeType.JSXTextType);
 
     const text = textNode.jSXText;
     expect(text.value).toEqual('Hello ');
 
     const exprContainerNode = jsxElement.children[1];
-    expect(exprContainerNode.type).toEqual(NODE_TYPE_ENUM.values['JSXExpressionContainerType']);
+    expect(exprContainerNode.type).toEqual(NodeType.JSXExpressionContainerType);
 
     const expressionContainer = exprContainerNode.jSXExpressionContainer;
     expect(expressionContainer.expression.identifier.name).toEqual('world');
 
     const childElementNode = jsxElement.children[2];
-    expect(childElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(childElementNode.type).toEqual(NodeType.JSXElementType);
 
     const childElement = childElementNode.jSXElement;
     expect(childElement.openingElement.jSXOpeningElement.name.jSXIdentifier.name).toEqual('Child');
 
     const spreadChildNode = jsxElement.children[3];
-    expect(spreadChildNode.type).toEqual(NODE_TYPE_ENUM.values['JSXSpreadChildType']);
+    expect(spreadChildNode.type).toEqual(NodeType.JSXSpreadChildType);
 
     const spreadChild = spreadChildNode.jSXSpreadChild;
     expect(spreadChild.expression.identifier.name).toEqual('items');
@@ -908,7 +878,7 @@ describe('ast', () => {
     assert.ok(protoMessage);
 
     const jsxElementNode = protoMessage.program.body[0].expressionStatement.expression;
-    expect(jsxElementNode.type).toEqual(NODE_TYPE_ENUM.values['JSXElementType']);
+    expect(jsxElementNode.type).toEqual(NodeType.JSXElementType);
 
     const jsxElement = jsxElementNode.jSXElement;
     expect(jsxElement.closingElement).toBeUndefined();

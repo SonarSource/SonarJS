@@ -14,19 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import protobuf from 'protobufjs';
 import base64 from '@protobufjs/base64';
 import type { TSESTree } from '@typescript-eslint/utils';
 
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { debug } from '../../../shared/src/helpers/logging.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import { estree } from './estree.js';
 
-const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
-const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
-const NODE_TYPE = PROTO_ROOT.lookupType('Node');
-export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
+const NODE_TYPE = estree.Node;
+const NodeType = estree.NodeType;
+export { NodeType };
 const unsupportedNodeTypes = new Map<string, number>();
 
 export function serializeInProtobuf(
@@ -52,8 +49,7 @@ export function serializeInProtobuf(
  */
 export function parseInProtobuf(ast: TSESTree.Program) {
   const protobufShapedAST = visitNode(ast);
-  const protobufType = PROTO_ROOT.lookupType('Node');
-  return protobufType.create(protobufShapedAST);
+  return NODE_TYPE.create(protobufShapedAST);
 }
 
 /**
@@ -397,13 +393,11 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
   // Visiting UnknownNodeTypes can cause the failure of the ESTreeFactory. For this reason where possible (for example in the arrays) we try to remove them.
   for (const key in shape) {
     if (Array.isArray(shape[key])) {
-      shape[key] = shape[key].filter(
-        node => node?.type !== NODE_TYPE_ENUM.values['UnknownNodeType'],
-      );
+      shape[key] = shape[key].filter(node => node?.type !== NodeType.UnknownNodeType);
     }
   }
   return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
+    type: NodeType[(node.type + 'Type') as keyof typeof NodeType] ?? NodeType.UnknownNodeType,
     loc: node.loc,
     [lowerCaseFirstLetter(node.type)]: shape,
   };
