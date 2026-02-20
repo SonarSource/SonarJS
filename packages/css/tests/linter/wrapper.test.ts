@@ -45,7 +45,7 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 1,
         column: 3,
-        message: 'Unexpected empty block (block-no-empty)',
+        message: 'Unexpected empty block',
       },
     ]);
   });
@@ -64,7 +64,7 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 1,
         column: 6,
-        message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
+        message: `Fix this malformed 'calc' expression.`,
       },
     ]);
   });
@@ -90,8 +90,7 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 2,
         column: 18,
-        message:
-          'Unexpected missing generic font family (font-family-no-missing-generic-family-keyword)',
+        message: 'Unexpected missing generic font family',
       },
     ]);
   });
