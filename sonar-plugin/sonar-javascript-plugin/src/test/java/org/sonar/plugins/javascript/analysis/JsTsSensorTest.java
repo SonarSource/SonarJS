@@ -198,8 +198,8 @@ class JsTsSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("JavaScript/TypeScript analysis");
-    assertThat(descriptor.languages()).containsOnly("js", "ts");
+    assertThat(descriptor.name()).isEqualTo("JavaScript/TypeScript/CSS analysis");
+    assertThat(descriptor.languages()).containsOnly("js", "ts", "css", "yaml", "web");
   }
 
   @Test
