@@ -54,3 +54,32 @@ async function checkPending(): Promise<void> {
 if (Promise.resolve(42)) { // Noncompliant {{Expected non-Promise value in a boolean conditional.}}
   console.log('yolo');
 }
+
+// Lazy init with chained promise (e.g., fetch().then())
+let _version: Promise<string>;
+function getVersion(): Promise<string> {
+  if (!_version) { // Compliant - lazy initialization with chained assignment
+    _version = Promise.resolve('url')
+      .then(r => r + '/path');
+  }
+  return _version;
+}
+
+// Function call returning Promise in conditional - should still raise
+function isReady(): Promise<boolean> {
+  return Promise.resolve(true);
+}
+async function checkReady(): Promise<void> {
+  if (!isReady()) { // Noncompliant {{Expected non-Promise value in a boolean conditional.}}
+    return;
+  }
+}
+
+// Promise checked without assignment - guard clause is not lazy init
+let guardPromise: Promise<void>;
+function guardCheck(): void {
+  guardPromise = Promise.resolve();
+  if (guardPromise) { // Noncompliant {{Expected non-Promise value in a boolean conditional.}}
+    return;
+  }
+}
