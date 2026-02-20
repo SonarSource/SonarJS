@@ -454,7 +454,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS --debug
 
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
