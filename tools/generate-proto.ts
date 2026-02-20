@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -22,7 +23,8 @@ const pbjs = require('protobufjs-cli/pbjs');
 const pbts = require('protobufjs-cli/pbts');
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const ES6_WRAPPER = path.join(ROOT, 'packages/grpc/src/proto/es6-wrapper.js');
+
+const LICENSE_HEADER = fs.readFileSync(path.join(ROOT, 'tools/header.ts'), 'utf-8');
 
 const PROTO_FILES = [
   {
@@ -44,13 +46,10 @@ const PROTO_FILES = [
 
 function runPbjs(proto: string, output: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    pbjs.main(
-      ['-t', 'static-module', '-w', ES6_WRAPPER, '--es6', '-o', output, proto],
-      (err: Error | null) => {
-        if (err) reject(err);
-        else resolve();
-      },
-    );
+    pbjs.main(['-t', 'static-module', '-w', 'es6', '-o', output, proto], (err: Error | null) => {
+      if (err) reject(err);
+      else resolve();
+    });
   });
 }
 
@@ -63,6 +62,34 @@ function runPbts(jsFile: string, output: string): Promise<void> {
   });
 }
 
+/**
+ * The built-in es6 wrapper generates `import * as $protobuf from "protobufjs/minimal"`
+ * which breaks at runtime because protobufjs/minimal is a CJS module — `import * as`
+ * creates a namespace object where `.roots` is undefined. We fix this to use a default
+ * import which correctly gets the CJS module.exports object.
+ */
+function fixCjsImport(filePath: string) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const fixed = content.replace(
+    'import * as $protobuf from "protobufjs/minimal"',
+    'import $protobuf from "protobufjs/minimal.js"',
+  );
+  fs.writeFileSync(filePath, fixed);
+}
+
+function prependLicenseHeader(filePath: string) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  if (!content.startsWith('/*')) {
+    fs.writeFileSync(filePath, LICENSE_HEADER + content);
+  } else {
+    // pbjs prepends an eslint-disable comment; insert license after it
+    const firstNewline = content.indexOf('\n');
+    const eslintLine = content.slice(0, firstNewline + 1);
+    const rest = content.slice(firstNewline + 1);
+    fs.writeFileSync(filePath, eslintLine + LICENSE_HEADER + rest);
+  }
+}
+
 for (const { proto, js, dts } of PROTO_FILES) {
   const protoPath = path.join(ROOT, proto);
   const jsPath = path.join(ROOT, js);
@@ -70,6 +97,8 @@ for (const { proto, js, dts } of PROTO_FILES) {
 
   console.log(`Generating ${js} from ${proto}`);
   await runPbjs(protoPath, jsPath);
+  fixCjsImport(jsPath);
+  prependLicenseHeader(jsPath);
 
   console.log(`Generating ${dts} from ${js}`);
   await runPbts(jsPath, dtsPath);
