@@ -52,6 +52,18 @@ function conformsTo(object, props) {
             code: `var result = Object(a, b);`,
           },
           {
+            // Object(this) in polyfill pattern
+            code: `let O = Object(this);`,
+          },
+          {
+            // Object(value) with 'in' operator for safe property checking
+            code: `var length = 'length' in Object(obj) && obj.length;`,
+          },
+          {
+            // Object(value) in for...in for safe iteration
+            code: `for (var key in Object(object)) {}`,
+          },
+          {
             code: `var obj = new Object();`,
           },
           {
@@ -74,6 +86,11 @@ function conformsTo(object, props) {
           {
             code: `throw Error("something went wrong");`,
             output: `throw new Error("something went wrong");`,
+            errors: 1,
+          },
+          {
+            code: `var re = RegExp("^test");`,
+            output: `var re = new RegExp("^test");`,
             errors: 1,
           },
         ],
