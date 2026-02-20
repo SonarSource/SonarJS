@@ -81,6 +81,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.JsTsSensor.AnalyzeProjectHandler;
@@ -169,7 +170,11 @@ class JsTsSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
+    analysisProcessor = new AnalysisProcessor(
+      new DefaultNoSonarFilter(),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
   }
 
   private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
@@ -1338,6 +1343,7 @@ class JsTsSensorTest {
       analysisProcessor,
       analysisWarnings,
       consumers,
+      mock(CssRules.class),
       fsListener
     );
   }
