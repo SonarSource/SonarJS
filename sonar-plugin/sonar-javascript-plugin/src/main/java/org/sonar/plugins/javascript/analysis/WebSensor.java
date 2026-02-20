@@ -194,25 +194,23 @@ public class WebSensor extends AbstractBridgeSensor {
       var files = new HashMap<String, BridgeServer.JsTsFile>();
       try {
         for (InputFile inputFile : inputFiles) {
-          CacheStrategy cacheStrategy = null;
-          cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired()) {
-            files.put(
-              inputFile.absolutePath(),
-              new BridgeServer.JsTsFile(
-                inputFile.absolutePath(),
-                inputFile.type().toString(),
-                inputFile.status(),
-                context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
-              )
-            );
-            fileToInputFile.put(inputFile.absolutePath(), inputFile);
-            fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+          if (isJsTsFile(inputFile)) {
+            CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+            if (cacheStrategy.isAnalysisRequired()) {
+              addFileToAnalyze(files, inputFile);
+              fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+            } else {
+              LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
+              var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+              analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+              acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+            }
           } else {
-            LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
-            var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-            analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
-            acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+            // CSS, HTML, YAML files: always analyze, no caching.
+            // These were handled by separate sensors before and had no cache
+            // (CssRuleSensor, CssMetricSensor) or independent cache (HtmlSensor, YamlSensor).
+            // Skipping cache avoids cache write failures crashing the unified analysis.
+            addFileToAnalyze(files, inputFile);
           }
         }
       } catch (IOException e) {
@@ -249,7 +247,6 @@ public class WebSensor extends AbstractBridgeSensor {
           GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
         );
         var file = fileToInputFile.get(filePath);
-        var cacheStrategy = fileToCacheStrategy.get(filePath);
         var issues = analysisProcessor.processResponse(context, checks, file, response);
         var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
           externalIssues.get(filePath),
@@ -259,13 +256,17 @@ public class WebSensor extends AbstractBridgeSensor {
           ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
         }
         externalIssues.remove(filePath);
-        try {
-          cacheStrategy.writeAnalysisToCache(
-            CacheAnalysis.fromResponse(response.cpdTokens(), response.ast()),
-            file
-          );
-        } catch (IOException e) {
-          handle.completeExceptionally(new IllegalStateException(e));
+        // Only cache JS/TS file results — non-JS/TS files (CSS, HTML, YAML) skip caching
+        var cacheStrategy = fileToCacheStrategy.get(filePath);
+        if (cacheStrategy != null) {
+          try {
+            cacheStrategy.writeAnalysisToCache(
+              CacheAnalysis.fromResponse(response.cpdTokens(), response.ast()),
+              file
+            );
+          } catch (IOException e) {
+            handle.completeExceptionally(new IllegalStateException(e));
+          }
         }
         acceptAstResponse(response.ast(), file);
       } else if ("meta".equals(messageType)) {
@@ -291,6 +292,25 @@ public class WebSensor extends AbstractBridgeSensor {
     @Override
     public void onError(Exception ex) {
       handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
+    }
+
+    private void addFileToAnalyze(Map<String, BridgeServer.JsTsFile> files, InputFile inputFile)
+      throws IOException {
+      files.put(
+        inputFile.absolutePath(),
+        new BridgeServer.JsTsFile(
+          inputFile.absolutePath(),
+          inputFile.type().toString(),
+          inputFile.status(),
+          context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
+        )
+      );
+      fileToInputFile.put(inputFile.absolutePath(), inputFile);
+    }
+
+    private static boolean isJsTsFile(InputFile inputFile) {
+      var lang = inputFile.language();
+      return JavaScriptLanguage.KEY.equals(lang) || TypeScriptLanguage.KEY.equals(lang);
     }
 
     private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {
