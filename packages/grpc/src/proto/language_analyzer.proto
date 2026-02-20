@@ -44,6 +44,25 @@ enum FileScope {
 message AnalyzeResponse {
   repeated Issue issues = 1;
   repeated AnalysisProblem analysis_problems = 2;
+  repeated FileMeasures measures = 3;
+}
+
+// Represents measures for a file
+message FileMeasures {
+  string file_path = 1;
+  repeated Measure measures = 2;
+}
+
+// Represents a single measure
+message Measure {
+  string metric_key = 1;
+  oneof value {
+    int32 int_value = 2;
+    int64 long_value = 3;
+    double double_value = 4;
+    bool bool_value = 5;
+    string string_value = 6;
+  }
 }
 
 // Represents a problem encountered during analysis

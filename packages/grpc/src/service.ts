@@ -47,6 +47,7 @@ export async function analyzeFileHandler(
     const configuration = createConfiguration({
       baseDir: ROOT_PATH,
       canAccessFileSystem: false,
+      reportNclocForTestFiles: true,
     });
 
     // Transform, sanitize source files, and initialize file stores

@@ -162,6 +162,7 @@ export function transformProjectOutputToResponse(
 ): analyzer.IAnalyzeResponse {
   const issues: analyzer.IIssue[] = [];
   const analysisProblems: analyzer.IAnalysisProblem[] = [];
+  const measures: analyzer.IFileMeasures[] = [];
 
   for (const warning of output.meta.warnings) {
     analysisProblems.push({
@@ -217,11 +218,19 @@ export function transformProjectOutputToResponse(
             break;
         }
       }
+      const ncloc = 'metrics' in fileResult ? fileResult.metrics?.ncloc : undefined;
+      if (ncloc !== undefined) {
+        measures.push({
+          filePath,
+          measures: [{ metricKey: 'ncloc', intValue: ncloc.length }],
+        });
+      }
     }
   }
 
   return {
     issues,
     analysisProblems,
+    measures,
   };
 }

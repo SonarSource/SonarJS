@@ -916,6 +916,22 @@ describe('await analyzeJSTS', () => {
     });
   });
 
+  it('should compute ncloc on test files when reportNclocForTestFiles is true', async () => {
+    const rules: RuleConfig[] = [];
+    const filePath = path.join(fixtures, 'metrics.js');
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+
+    const { metrics } = await analyzeJSTS(
+      await jsTsInput({ filePath, fileType: 'TEST', reportNclocForTestFiles: true }),
+      defaultShouldIgnoreParams,
+    );
+
+    expect(metrics).toEqual({
+      ncloc: [1, 3, 4, 5, 6],
+      nosonarLines: [4],
+    });
+  });
+
   it('should compute metrics in SonarLint context', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(fixtures, 'metrics.js');

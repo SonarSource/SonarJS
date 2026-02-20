@@ -301,6 +301,7 @@ export async function sanitizeJsTsAnalysisInput(raw: unknown): Promise<Sanitized
       clearDependenciesCache: isBoolean(rawObj.clearDependenciesCache)
         ? rawObj.clearDependenciesCache
         : defaults.clearDependenciesCache,
+      reportNclocForTestFiles: defaults.reportNclocForTestFiles,
     },
     configuration,
   };
