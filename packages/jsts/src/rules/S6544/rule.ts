@@ -21,6 +21,8 @@ import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { getESLintCoreRule } from '../external/core.js';
 import {
   type RuleContext,
+  areEquivalent,
+  findFirstMatchingLocalAncestor,
   FUNCTION_NODES,
   generateMeta,
   getMainFunctionTokenLocation,
@@ -41,12 +43,71 @@ import * as meta from './generated-meta.js';
  */
 const flaggedNodeStarts = new Map();
 
+/**
+ * Checks if a node is an Identifier or MemberExpression (valid targets for lazy init checks).
+ */
+function isVariableNode(node: TSESTree.Node): boolean {
+  return node.type === 'Identifier' || node.type === 'MemberExpression';
+}
+
+/**
+ * Checks if the consequent block of an IfStatement contains an assignment
+ * to the same variable as the one checked in the condition.
+ */
+function hasAssignmentInBody(
+  ifStatement: TSESTree.IfStatement,
+  variable: TSESTree.Node,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  const consequent = ifStatement.consequent;
+  const statements = consequent.type === 'BlockStatement' ? consequent.body : [consequent];
+
+  for (const stmt of statements) {
+    if (
+      stmt.type === 'ExpressionStatement' &&
+      stmt.expression.type === 'AssignmentExpression' &&
+      areEquivalent(stmt.expression.left as TSESTree.Node, variable, sourceCode)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Detects the lazy initialization pattern: a Promise-typed variable is checked
+ * in a conditional and assigned within the if-body.
+ * Example: if (!cached) { cached = fetch(...); }
+ */
+function isLazyInitPattern(
+  node: TSESTree.Node,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  if (!isVariableNode(node)) {
+    return false;
+  }
+  const ifStatement = findFirstMatchingLocalAncestor(node, n => n.type === 'IfStatement') as
+    | TSESTree.IfStatement
+    | undefined;
+  if (!ifStatement) {
+    return false;
+  }
+  return hasAssignmentInBody(ifStatement, node, sourceCode);
+}
+
 const noMisusedPromisesRule = tsEslintRules['no-misused-promises'];
 const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
       const node = descriptor.node as TSESTree.Node;
+      if (
+        'messageId' in descriptor &&
+        descriptor.messageId === 'conditional' &&
+        isLazyInitPattern(node, context.sourceCode)
+      ) {
+        return;
+      }
       const start = node.range[0];
       if (!flaggedNodeStarts.get(start)) {
         flaggedNodeStarts.set(start, true);
