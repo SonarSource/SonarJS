@@ -1,10 +1,5 @@
 {
 "console:src/actions/gettingStarted.tsx": [
 128
-],
-"console:src/utils/polyfils.ts": [
-26,
-43,
-139
 ]
 }
