@@ -1,0 +1,33 @@
+---
+name: sonar-release
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: Version
+        required: true
+      releaseId:
+        type: string
+        description: Release ID
+        required: true
+      dryRun:
+        type: boolean
+        description: Flag to enable the dry-run execution
+        default: false
+        required: false
+
+jobs:
+  release:
+    permissions:
+      id-token: write
+      contents: write
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v6
+    with:
+      publishToBinaries: true
+      mavenCentralSync: true
+      slackChannel: ask-squad-web
+      version: ${{ inputs.version }}
+      releaseId: ${{ inputs.releaseId }}
+      dryRun: ${{ inputs.dryRun == true }}
