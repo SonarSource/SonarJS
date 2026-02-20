@@ -118,11 +118,31 @@ describe('computeHighlighting', () => {
     });
   });
 
-  describe('KEYWORD (SCSS $ variables)', () => {
+  describe('KEYWORD (SCSS $ variables and ID selectors)', () => {
     it('SCSS variable declaration', () => {
       const h = highlightsOf('$font-stack: Helvetica;', postcssScss);
       const kw = findHighlight(h, 'KEYWORD');
       expect(kw).toBeDefined();
+    });
+
+    it('ID selector #header', () => {
+      const h = highlightsOf('#header { color: red; }');
+      const kw = findHighlight(h, 'KEYWORD');
+      expect(kw).toBeDefined();
+    });
+  });
+
+  describe('CONSTANT (hex colors in selectors)', () => {
+    it('hex color #ddd in selector context is CONSTANT', () => {
+      const h = highlightsOf('#ddd { }');
+      const c = findHighlight(h, 'CONSTANT');
+      expect(c).toBeDefined();
+    });
+
+    it('#header is KEYWORD not CONSTANT', () => {
+      const h = highlightsOf('#header { }');
+      expect(findHighlight(h, 'KEYWORD')).toBeDefined();
+      expect(findHighlight(h, 'CONSTANT')).toBeUndefined();
     });
   });
 

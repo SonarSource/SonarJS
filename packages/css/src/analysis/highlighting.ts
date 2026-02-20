@@ -16,6 +16,7 @@
  */
 import type { Root, Document } from 'postcss';
 import valueParser from 'postcss-value-parser';
+import selectorParser from 'postcss-selector-parser';
 import type { CssLocation, CssSyntaxHighlight } from './analysis.js';
 
 /**
@@ -102,6 +103,35 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
           },
           textType: 'ANNOTATION',
         });
+        break;
+      }
+
+      case 'rule': {
+        // Parse selectors for ID selectors (#header → KEYWORD) and
+        // hex colors (#fff → CONSTANT), matching old CssMetricSensor behavior.
+        const selectorOffset = start.offset;
+        if (selectorOffset != null) {
+          try {
+            const selectorAst = selectorParser().astSync(node.selector);
+            selectorAst.walk(selectorNode => {
+              if (selectorNode.type === 'id') {
+                // #identifier → KEYWORD (or CONSTANT if hex color pattern)
+                const idText = selectorNode.value;
+                const hashOffset = selectorOffset + selectorNode.sourceIndex;
+                const hashLength = idText.length + 1; // # + name
+                const startPos = resolveValuePosition(source, 0, hashOffset);
+                const endPos = resolveValuePosition(source, 0, hashOffset + hashLength);
+                const isHexColor = /^[0-9a-fA-F]+$/.test(idText);
+                highlights.push({
+                  location: locationFromPositions(startPos, endPos),
+                  textType: isHexColor ? 'CONSTANT' : 'KEYWORD',
+                });
+              }
+            });
+          } catch {
+            // Selector parsing may fail on preprocessor syntax — skip gracefully
+          }
+        }
         break;
       }
 
