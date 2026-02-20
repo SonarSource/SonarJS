@@ -348,6 +348,37 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // Other compound assignment operators are also valid skip-ahead patterns
+        {
+          code: `
+      function processBitmask(flags) {
+        for (let i = 0; i < flags.length; i++) {
+          if (flags[i] === 'set') {
+            i |= 1; // Compliant: bitwise OR compound assignment
+          }
+        }
+      }
+      `,
+        },
+        {
+          code: `
+      function processDoubling(items) {
+        for (let i = 1; i < items.length; i++) {
+          if (items[i] === 'double') {
+            i *= 2; // Compliant: multiply compound assignment skip-ahead
+          }
+        }
+      }
+      `,
+        },
+        // For loop with no update clause - rule does not check loops without update
+        {
+          code: `
+      for (let i = 0; i < 10; ) {
+        i = getNext(); // Compliant: no update clause, rule only checks loops with update
+      }
+      `,
+        },
       ],
       invalid: [],
     });
@@ -524,6 +555,42 @@ describe('S2310 - invalid patterns', () => {
       }
       `,
           errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
+        },
+        // Simple assignment to reset counter to a fixed value (early-exit pattern)
+        {
+          code: `
+      const names = ['Jack', 'Jim', '', 'John'];
+      for (let i = 0; i < names.length; i++) {
+        if (!names[i]) {
+          i = names.length; // Noncompliant: should use break instead
+        } else {
+          console.log(names[i]);
+        }
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 5 }],
+        },
+        // Multiple counters with sequence expression in update clause - each flagged separately
+        {
+          code: `
+      for (let i = 0, j = 0; i < 10; i++, j++) {
+        i = 5; // Noncompliant
+        j = 5; // Noncompliant
+      }
+      `,
+          errors: [
+            { message: 'Remove this assignment of "i".', line: 3 },
+            { message: 'Remove this assignment of "j".', line: 4 },
+          ],
+        },
+        // Assignment expression as update clause - counter tracked correctly
+        {
+          code: `
+      for (var i = 0; i < 10; i = i + 1) {
+        i = 0; // Noncompliant: simple assignment resets counter
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 3 }],
         },
       ],
     });
