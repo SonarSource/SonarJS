@@ -21,7 +21,7 @@
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
     "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
-    "grpc:generate-proto": "pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/language_analyzer.js packages/grpc/src/proto/language_analyzer.proto && pbts -o packages/grpc/src/proto/language_analyzer.d.ts packages/grpc/src/proto/language_analyzer.js && pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/grpc/src/proto/health.js packages/grpc/src/proto/health.proto && pbts -o packages/grpc/src/proto/health.d.ts packages/grpc/src/proto/health.js && pbjs -t static-module -w packages/grpc/src/proto/es6-wrapper.js --es6 -o packages/jsts/src/parsers/estree.js packages/jsts/src/parsers/estree.proto && pbts -o packages/jsts/src/parsers/estree.d.ts packages/jsts/src/parsers/estree.js",
+    "grpc:generate-proto": "tsx tools/generate-proto.ts",
     "grpc:bundle": "node esbuild-grpc.mjs",
     "grpc:build": "npm run bridge:build:fast && npm run grpc:bundle",
     "plugin:build": "mvn install",
