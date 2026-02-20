@@ -14,14 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
-import { analyzeHTML } from '../../html/src/index.js';
 import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
 import {
   analyzeProject,
   cancelAnalysis,
 } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import { Linter } from '../../jsts/src/linter/linter.js';
 import {
@@ -32,9 +29,7 @@ import {
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
 import {
-  sanitizeAnalysisInput,
   sanitizeJsTsAnalysisInput,
-  sanitizeCssAnalysisInput,
   sanitizeInitLinterInput,
   sanitizeProjectAnalysisInput,
 } from '../../shared/src/helpers/sanitize.js';
@@ -55,21 +50,6 @@ export async function handleRequest(
       case 'on-analyze-jsts': {
         const { input, configuration } = await sanitizeJsTsAnalysisInput(request.data);
         const output = await analyzeJSTS(input, getShouldIgnoreParams(configuration));
-        return { type: 'success', result: output };
-      }
-      case 'on-analyze-css': {
-        const { input, configuration } = await sanitizeCssAnalysisInput(request.data);
-        const output = await analyzeCSS(input, getShouldIgnoreParams(configuration));
-        return { type: 'success', result: output };
-      }
-      case 'on-analyze-yaml': {
-        const { input, configuration } = await sanitizeAnalysisInput(request.data);
-        const output = await analyzeYAML(input, getShouldIgnoreParams(configuration));
-        return { type: 'success', result: output };
-      }
-      case 'on-analyze-html': {
-        const { input, configuration } = await sanitizeAnalysisInput(request.data);
-        const output = await analyzeHTML(input, getShouldIgnoreParams(configuration));
         return { type: 'success', result: output };
       }
       case 'on-analyze-project': {

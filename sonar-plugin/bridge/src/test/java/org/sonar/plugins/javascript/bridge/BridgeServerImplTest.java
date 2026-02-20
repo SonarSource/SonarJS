@@ -62,7 +62,6 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.api.AnalysisMode;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
@@ -229,18 +228,6 @@ class BridgeServerImplTest {
     assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
   }
 
-  @Test
-  void should_get_answer_from_server_for_yaml_request() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    var request = createRequest(inputFile);
-    assertThat(bridgeServer.analyzeYaml(request).issues()).hasSize(1);
-  }
-
   private static DefaultInputFile createInputFile() {
     return TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
@@ -267,22 +254,6 @@ class BridgeServerImplTest {
       false,
       true
     );
-  }
-
-  @Test
-  void should_get_answer_from_server_for_css_request() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
-      .setContents("a { }")
-      .build();
-    CssAnalysisRequest request = new CssAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      Collections.emptyList()
-    );
-    assertThat(bridgeServer.analyzeCss(request).issues()).hasSize(1);
   }
 
   @Test
@@ -494,7 +465,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer("timeout.js");
     bridgeServer.startServer(serverConfig);
 
-    assertThatThrownBy(() -> bridgeServer.analyzeYaml(createRequest()))
+    assertThatThrownBy(() -> bridgeServer.analyzeJsTs(createRequest()))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"

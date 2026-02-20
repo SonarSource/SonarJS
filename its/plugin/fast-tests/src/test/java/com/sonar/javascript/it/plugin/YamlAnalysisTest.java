@@ -26,12 +26,11 @@ import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 class YamlAnalysisTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
-    List.of(YamlSensor.LANGUAGE),
+    List.of("yaml"),
     List.of(
       SonarScannerIntegrationHelper.getJavascriptPlugin(),
       SonarScannerIntegrationHelper.getYamlPlugin()

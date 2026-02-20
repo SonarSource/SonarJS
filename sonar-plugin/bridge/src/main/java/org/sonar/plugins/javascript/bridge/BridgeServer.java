@@ -48,12 +48,6 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
-
   void clean() throws InterruptedException;
 
   String getCommandInfo();
@@ -261,21 +255,6 @@ public interface BridgeServer extends Startable {
   record ProjectAnalysisMetaResponse(List<String> warnings) {
     public ProjectAnalysisMetaResponse() {
       this(List.of());
-    }
-  }
-
-  record CssAnalysisRequest(
-    String filePath,
-    @Nullable String fileContent,
-    List<StylelintRule> rules,
-    @Nullable ProjectAnalysisConfiguration configuration
-  ) {
-    public CssAnalysisRequest(
-      String filePath,
-      @Nullable String fileContent,
-      List<StylelintRule> rules
-    ) {
-      this(filePath, fileContent, rules, null);
     }
   }
 
