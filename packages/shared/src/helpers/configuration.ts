@@ -74,6 +74,7 @@ export type Configuration = {
   testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
   detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
+  reportNclocForTestFiles: boolean /* In gRPC/A3S context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -210,6 +211,9 @@ export function createConfiguration(raw: unknown): Configuration {
     createTSProgramForOrphanFiles: isBoolean(raw.createTSProgramForOrphanFiles)
       ? raw.createTSProgramForOrphanFiles
       : true,
+    reportNclocForTestFiles: isBoolean(raw.reportNclocForTestFiles)
+      ? raw.reportNclocForTestFiles
+      : false,
   };
 }
 
@@ -358,6 +362,7 @@ export type JsTsConfigFields = {
   sonarlint: boolean;
   shouldIgnoreParams: ShouldIgnoreFileParams;
   createTSProgramForOrphanFiles: boolean;
+  reportNclocForTestFiles: boolean;
 };
 
 /**
@@ -376,5 +381,6 @@ export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFie
     sonarlint: configuration.sonarlint,
     shouldIgnoreParams: getShouldIgnoreParams(configuration),
     createTSProgramForOrphanFiles: configuration.createTSProgramForOrphanFiles,
+    reportNclocForTestFiles: configuration.reportNclocForTestFiles,
   };
 }

@@ -37,6 +37,7 @@ type TestJsTsInput = {
   skipAst?: boolean;
   clearDependenciesCache?: boolean;
   sonarlint?: boolean;
+  reportNclocForTestFiles?: boolean;
 };
 
 /**
@@ -67,6 +68,9 @@ export async function jsTsInput(input: TestJsTsInput): Promise<JsTsAnalysisInput
       clearDependenciesCache: input.clearDependenciesCache,
     }),
     ...(input.sonarlint !== undefined && { sonarlint: input.sonarlint }),
+    ...(input.reportNclocForTestFiles !== undefined && {
+      reportNclocForTestFiles: input.reportNclocForTestFiles,
+    }),
   };
 }
 

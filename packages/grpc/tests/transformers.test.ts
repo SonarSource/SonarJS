@@ -17,6 +17,7 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { transformRequestToProjectInput } from '../src/transformers/index.js';
+import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
 import type { analyzer } from '../src/proto/language_analyzer.js';
@@ -482,5 +483,87 @@ describe('JS/TS rule configurations', () => {
       const result = buildJstsRuleConfigurations('S3776', [{ key: null, value: '20' }])!;
       expect(result[0].configurations).toEqual([]);
     });
+  });
+});
+
+describe('transformProjectOutputToResponse', () => {
+  function makeOutput(files: Record<string, unknown>) {
+    return { files, meta: { warnings: [] } } as unknown as Parameters<
+      typeof transformProjectOutputToResponse
+    >[0];
+  }
+
+  it('should include ncloc measure for a MAIN file with code lines', () => {
+    const output = makeOutput({
+      '/project/src/main.js': { issues: [], metrics: { nosonarLines: [], ncloc: [1, 2, 5] } },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([
+      { filePath: '/project/src/main.js', measures: [{ metricKey: 'ncloc', intValue: 3 }] },
+    ]);
+  });
+
+  it('should include ncloc measure for a TEST file with code lines', () => {
+    const output = makeOutput({
+      '/project/tests/foo.test.js': {
+        issues: [],
+        metrics: { nosonarLines: [], ncloc: [1, 3] },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([
+      {
+        filePath: '/project/tests/foo.test.js',
+        measures: [{ metricKey: 'ncloc', intValue: 2 }],
+      },
+    ]);
+  });
+
+  it('should emit a measure with intValue 0 for an empty file', () => {
+    const output = makeOutput({
+      '/project/src/empty.js': { issues: [], metrics: { nosonarLines: [], ncloc: [] } },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([
+      { filePath: '/project/src/empty.js', measures: [{ metricKey: 'ncloc', intValue: 0 }] },
+    ]);
+  });
+
+  it('should not include a measures entry for a file with a parsing error', () => {
+    const output = makeOutput({
+      '/project/src/broken.js': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 5 },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([]);
+  });
+
+  it('should not include a measures entry for a file with an analysis error', () => {
+    const output = makeOutput({
+      '/project/src/failed.js': { error: 'TypeScript compilation failed' },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([]);
+  });
+
+  it('should not include a measures entry when metrics has no ncloc', () => {
+    const output = makeOutput({
+      '/project/src/no-ncloc.js': { issues: [], metrics: { nosonarLines: [] } },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.measures).toEqual([]);
   });
 });

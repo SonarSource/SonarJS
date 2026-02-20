@@ -24,6 +24,7 @@ import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
+import { findNcloc } from '../linter/visitors/metrics/ncloc.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
 import {
@@ -153,7 +154,9 @@ function computeExtendedMetrics(
     return {
       highlightedSymbols,
       highlights: getSyntaxHighlighting(sourceCode).highlights,
-      metrics: findNoSonarLines(sourceCode),
+      metrics: input.reportNclocForTestFiles
+        ? { ...findNoSonarLines(sourceCode), ncloc: findNcloc(sourceCode) }
+        : findNoSonarLines(sourceCode),
     };
   }
 }

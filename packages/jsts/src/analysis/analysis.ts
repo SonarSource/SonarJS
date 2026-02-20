@@ -61,6 +61,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   program?: Program;
   skipAst: boolean;
   clearDependenciesCache: boolean;
+  reportNclocForTestFiles: boolean;
 }
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
@@ -87,6 +88,7 @@ export const JSTS_ANALYSIS_DEFAULTS = {
   sonarlint: false,
   skipAst: true,
   clearDependenciesCache: false,
+  reportNclocForTestFiles: false,
   fileType: 'MAIN' as FileType,
 } as const;
 
