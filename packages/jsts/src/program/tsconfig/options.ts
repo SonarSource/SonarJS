@@ -16,7 +16,7 @@
  */
 
 import ts from 'typescript';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, warn } from '../../../../shared/src/helpers/logging.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -174,9 +174,7 @@ export function createProgramOptions(
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
-        console.log(
-          `WARN Could not find tsconfig.json: ${file}; falling back to an empty configuration.`,
-        );
+        warn(`Could not find tsconfig.json: ${file}; falling back to an empty configuration.`);
         const emptyConfig = '{}';
         tsconfigContentCache.set(file, { contents: emptyConfig, missing: true });
         return emptyConfig;

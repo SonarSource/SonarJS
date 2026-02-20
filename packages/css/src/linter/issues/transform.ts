@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import stylelint from 'stylelint';
+import type stylelint from 'stylelint';
 import { debug, warn } from '../../../../shared/src/helpers/logging.js';
-import { Issue } from './issue.js';
+import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
 /**
@@ -36,8 +36,8 @@ function isValidPosition(value: number | undefined): value is number {
 export function transform(
   results: stylelint.LintResult[],
   filePath: NormalizedAbsolutePath,
-): Issue[] {
-  const issues: Issue[] = [];
+): CssIssue[] {
+  const issues: CssIssue[] = [];
   /**
    * There should be only one element in 'results' as we are analyzing
    * only one file at a time.
@@ -66,6 +66,7 @@ export function transform(
         line,
         column,
         message: warning.text,
+        language: 'css',
       });
     }
   }

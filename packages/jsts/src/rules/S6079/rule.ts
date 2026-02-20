@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6079/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import {
   generateMeta,
   getVariableFromIdentifier,

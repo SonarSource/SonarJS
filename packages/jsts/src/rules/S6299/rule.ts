@@ -18,7 +18,7 @@
 
 import type estree from 'estree';
 import type { Rule } from 'eslint';
-import { AST } from 'vue-eslint-parser';
+import type { AST } from 'vue-eslint-parser';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

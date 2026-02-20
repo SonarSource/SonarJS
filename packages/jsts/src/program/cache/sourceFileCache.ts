@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../../shared/src/helpers/logging.js';
-import ts from 'typescript';
+import type ts from 'typescript';
 
 /**
  * Global cache for source file contents

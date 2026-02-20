@@ -17,6 +17,8 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { transformRequestToProjectInput } from '../src/transformers/index.js';
+import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
+import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
 import type { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {
@@ -241,6 +243,244 @@ describe('transformRequestToProjectInput', () => {
 
       const config = s109Rules[0].configurations[0] as Record<string, unknown>;
       expect(config.ignore).toEqual([0, 1, 2, 42]);
+    });
+  });
+});
+
+describe('CSS rule configurations', () => {
+  it('should return null for unknown CSS rule', () => {
+    expect(buildCssRuleConfigurations('UNKNOWN_RULE', [])).toBeNull();
+  });
+
+  it('should return empty configurations for a rule with no params', () => {
+    // S4658 (block-no-empty) has no listParam or booleanParam
+    const result = buildCssRuleConfigurations('S4658', []);
+    expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
+  });
+
+  describe('listParam', () => {
+    it('should use default values when no params are sent', () => {
+      // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
+      const result = buildCssRuleConfigurations('S4659', []);
+      expect(result!.configurations).toEqual([
+        true,
+        { ignorePseudoClasses: ['local', 'global', 'export', 'import', 'deep'] },
+      ]);
+    });
+
+    it('should use explicit param value overriding the default', () => {
+      const result = buildCssRuleConfigurations('S4659', [
+        { key: 'ignorePseudoClasses', value: 'local,custom' },
+      ]);
+      expect(result!.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
+    });
+
+    it('should trim whitespace from comma-separated values', () => {
+      const result = buildCssRuleConfigurations('S4659', [
+        { key: 'ignorePseudoClasses', value: ' local , custom ' },
+      ]);
+      expect(result!.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
+    });
+
+    it('should return empty configurations when param value is empty string', () => {
+      // Explicit '' overrides the default and produces no secondary options
+      const result = buildCssRuleConfigurations('S4659', [
+        { key: 'ignorePseudoClasses', value: '' },
+      ]);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should treat null param value as empty string, not the default', () => {
+      // null → stored as '' via isString guard → not in secondary options → []
+      const result = buildCssRuleConfigurations('S4659', [
+        { key: 'ignorePseudoClasses', value: null },
+      ]);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should skip params with a falsy key, falling back to defaults', () => {
+      const result = buildCssRuleConfigurations('S4659', [{ key: null, value: 'local' }]);
+      expect(result!.configurations).toEqual([
+        true,
+        { ignorePseudoClasses: ['local', 'global', 'export', 'import', 'deep'] },
+      ]);
+    });
+
+    it('should merge multiple listParams using defaults when no params sent', () => {
+      // S4654 (property-no-unknown) has two listParams: ignoreTypes and ignoreSelectors
+      const result = buildCssRuleConfigurations('S4654', []);
+      expect(result!.configurations).toEqual([
+        true,
+        {
+          ignoreProperties: ['composes', '/^mso-/'],
+          ignoreSelectors: ['/^:export.*/', '/^:import.*/'],
+        },
+      ]);
+    });
+
+    it('should partially override multiple listParams, keeping defaults for unset ones', () => {
+      const result = buildCssRuleConfigurations('S4654', [{ key: 'ignoreTypes', value: 'myProp' }]);
+      expect(result!.configurations).toEqual([
+        true,
+        {
+          ignoreProperties: ['myProp'],
+          ignoreSelectors: ['/^:export.*/', '/^:import.*/'],
+        },
+      ]);
+    });
+
+    it('should return empty configurations when all listParam values are empty', () => {
+      const result = buildCssRuleConfigurations('S4654', [
+        { key: 'ignoreTypes', value: '' },
+        { key: 'ignoreSelectors', value: '' },
+      ]);
+      expect(result!.configurations).toEqual([]);
+    });
+  });
+
+  describe('booleanParam', () => {
+    // S4656 (declaration-block-no-duplicate-properties): ignoreFallbacks, default true
+    const onTrue = [true, { ignore: ['consecutive-duplicates-with-different-values'] }];
+
+    it('should use the default (true) when no params are sent', () => {
+      const result = buildCssRuleConfigurations('S4656', []);
+      expect(result!.configurations).toEqual(onTrue);
+    });
+
+    it('should enable with explicit true value', () => {
+      const result = buildCssRuleConfigurations('S4656', [
+        { key: 'ignoreFallbacks', value: 'true' },
+      ]);
+      expect(result!.configurations).toEqual(onTrue);
+    });
+
+    it('should disable with explicit false value', () => {
+      const result = buildCssRuleConfigurations('S4656', [
+        { key: 'ignoreFallbacks', value: 'false' },
+      ]);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should fall back to the default for unrecognized values', () => {
+      const result = buildCssRuleConfigurations('S4656', [
+        { key: 'ignoreFallbacks', value: 'yes' },
+      ]);
+      expect(result!.configurations).toEqual(onTrue);
+    });
+
+    it('should fall back to the default for null value', () => {
+      // null → '' via isString guard → neither 'true' nor 'false' → uses default
+      const result = buildCssRuleConfigurations('S4656', [{ key: 'ignoreFallbacks', value: null }]);
+      expect(result!.configurations).toEqual(onTrue);
+    });
+  });
+});
+
+describe('JS/TS rule configurations', () => {
+  it('should return null for unknown rule', () => {
+    expect(buildJstsRuleConfigurations('UNKNOWN_RULE', [])).toBeNull();
+  });
+
+  describe('Type C: single primitive with displayName (S3776 — cognitive complexity)', () => {
+    // S3776: fields = [{ default: 15, displayName: 'threshold' }]
+
+    it('should parse a numeric primitive param', () => {
+      const result = buildJstsRuleConfigurations('S3776', [{ key: 'threshold', value: '20' }])!;
+      expect(result[0].configurations).toEqual([20]);
+    });
+
+    it('should return empty configurations when the param is not sent', () => {
+      const result = buildJstsRuleConfigurations('S3776', [])!;
+      expect(result[0].configurations).toEqual([]);
+    });
+
+    it('should fall back to the field default when the value is not a valid number', () => {
+      const result = buildJstsRuleConfigurations('S3776', [
+        { key: 'threshold', value: 'notanumber' },
+      ])!;
+      expect(result[0].configurations).toEqual([15]);
+    });
+  });
+
+  describe('Type B: single primitive without displayName (S1440 — eqeqeq)', () => {
+    // S1440: fields = [{ default: 'smart' }] — no SQ key, uses first param value
+
+    it('should use the first param value regardless of key', () => {
+      const result = buildJstsRuleConfigurations('S1440', [{ key: 'anything', value: 'always' }])!;
+      expect(result[0].configurations).toEqual(['always']);
+    });
+
+    it('should return empty configurations when no params are sent', () => {
+      const result = buildJstsRuleConfigurations('S1440', [])!;
+      expect(result[0].configurations).toEqual([]);
+    });
+  });
+
+  describe('Type D: mixed primitive + object (S1105 — brace-style)', () => {
+    // S1105: fields = [{ default: '1tbs', displayName: 'braceStyle' }, [{ field: 'allowSingleLine', default: true }]]
+
+    it('should build both primitive and object configs when both are sent', () => {
+      const result = buildJstsRuleConfigurations('S1105', [
+        { key: 'braceStyle', value: 'allman' },
+        { key: 'allowSingleLine', value: 'false' },
+      ])!;
+      expect(result[0].configurations).toEqual(['allman', { allowSingleLine: false }]);
+    });
+
+    it('should build only the primitive config when only the primitive param is sent', () => {
+      const result = buildJstsRuleConfigurations('S1105', [
+        { key: 'braceStyle', value: 'allman' },
+      ])!;
+      expect(result[0].configurations).toEqual(['allman']);
+    });
+
+    it('should build only the object config when only the object param is sent', () => {
+      const result = buildJstsRuleConfigurations('S1105', [
+        { key: 'allowSingleLine', value: 'false' },
+      ])!;
+      expect(result[0].configurations).toEqual([{ allowSingleLine: false }]);
+    });
+
+    it('should return empty configurations when no params are sent', () => {
+      const result = buildJstsRuleConfigurations('S1105', [])!;
+      expect(result[0].configurations).toEqual([]);
+    });
+  });
+
+  describe('parseParamValue type coercion', () => {
+    it('should parse boolean string true', () => {
+      // S1105's allowSingleLine field has default: true
+      const result = buildJstsRuleConfigurations('S1105', [
+        { key: 'allowSingleLine', value: 'true' },
+      ])!;
+      expect((result[0].configurations[0] as Record<string, unknown>).allowSingleLine).toBe(true);
+    });
+
+    it('should parse boolean string false', () => {
+      const result = buildJstsRuleConfigurations('S1105', [
+        { key: 'allowSingleLine', value: 'false' },
+      ])!;
+      expect((result[0].configurations[0] as Record<string, unknown>).allowSingleLine).toBe(false);
+    });
+
+    it('should filter NaN values from a number array param', () => {
+      // S109: ignore field has default [0, 1, -1, 24, 60]
+      const result = buildJstsRuleConfigurations('S109', [{ key: 'ignore', value: '1,bad,3' }])!;
+      const config = result[0].configurations[0] as Record<string, unknown>;
+      expect(config.ignore).toEqual([1, 3]);
+    });
+
+    it('should store a null param value as empty string', () => {
+      // null value → isString guard → '' → parseParamValue('', string default) → ''
+      const result = buildJstsRuleConfigurations('S100', [{ key: 'format', value: null }])!;
+      const config = result[0].configurations[0] as Record<string, unknown>;
+      expect(config.format).toBe('');
+    });
+
+    it('should skip params with a falsy key', () => {
+      // null key → if (param.key) guard → not added to paramsLookup
+      const result = buildJstsRuleConfigurations('S3776', [{ key: null, value: '20' }])!;
+      expect(result[0].configurations).toEqual([]);
     });
   });
 });

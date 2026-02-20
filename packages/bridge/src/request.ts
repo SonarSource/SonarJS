@@ -20,7 +20,7 @@ import type {
   ProjectAnalysisMeta,
   ProjectAnalysisOutput,
 } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import { APIError, ErrorCode, ErrorData } from '../../shared/src/errors/error.js';
+import { type ErrorData, APIError, ErrorCode } from '../../shared/src/errors/error.js';
 
 export type RequestResult =
   | {

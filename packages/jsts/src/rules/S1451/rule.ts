@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 let cached: {

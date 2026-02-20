@@ -26,6 +26,25 @@ const timestamp = new Date().getTime(); // Noncompliant
 <pre data-diff-id="1" data-diff-type="compliant">
 const timestamp = Date.now();
 </pre>
+<h2>Exceptions</h2>
+<p>No issue will be raised when <code>new Date().getTime()</code> or <code>+(new Date())</code> is used inside a polyfill pattern that checks for
+<code>Date.now</code> availability. These patterns are common in legacy code to provide compatibility with older environments that don’t support
+<code>Date.now()</code>.</p>
+<p>The following polyfill patterns are recognized:</p>
+<pre>
+// Logical OR polyfill
+const now = Date.now || function() { return new Date().getTime(); };
+
+// Ternary polyfill
+const timestamp = Date.now ? Date.now() : +(new Date());
+
+// If statement polyfill
+if (!Date.now) {
+  Date.now = function() {
+    return new Date().getTime();
+  };
+}
+</pre>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://github.com/sindresorhus/eslint-plugin-unicorn#readme">eslint-plugin-unicorn</a> - Rule <a

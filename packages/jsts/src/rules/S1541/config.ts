@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
-import { ESLintConfiguration } from '../helpers/configs.js';
+import type { ESLintConfiguration } from '../helpers/configs.js';
 
 // Rule S1541 is special, to update it check `npm run generate-meta` for this implementation
 export const fields = [

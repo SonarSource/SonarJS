@@ -24,7 +24,7 @@ import {
   isIdentifier,
   isMemberExpression,
 } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const GEOLOCATION = 'geolocation';

@@ -17,7 +17,7 @@
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
-import { IssueLocation } from '../helpers/index.js';
+import type { IssueLocation } from '../helpers/index.js';
 
 describe('S2598', () => {
   it('S2598', () => {

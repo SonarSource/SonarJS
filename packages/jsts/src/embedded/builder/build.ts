@@ -16,15 +16,14 @@
  */
 import { patchParsingError, patchSourceCode } from './patch.js';
 import path from 'node:path/posix';
-import { EmbeddedJS } from '../analysis/embedded-js.js';
-import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
+import type { EmbeddedJS } from '../analysis/embedded-js.js';
+import type { EmbeddedAnalysisInput } from '../analysis/analysis.js';
 import { build as buildJsTs } from '../../builders/build.js';
-import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../analysis/analysis.js';
-import { ParseResult } from '../../parsers/parse.js';
+import { type JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../analysis/analysis.js';
+import type { ParseResult } from '../../parsers/parse.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 import { acceptSnippet } from '../../../../shared/src/helpers/filter/filter.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
-
 
 export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: NormalizedAbsolutePath;

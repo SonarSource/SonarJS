@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RequiredParserServices,
   generateMeta,
   isRequiredParserServices,
   last,
-  RequiredParserServices,
 } from '../helpers/index.js';
 import type estree from 'estree';
 import ts from 'typescript';

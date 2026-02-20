@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import ts from 'typescript';
+import type ts from 'typescript';
 import { basename, join } from 'node:path/posix';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import {

@@ -19,11 +19,11 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type IssueLocation,
   generateMeta,
   getFullyQualifiedName,
   getPropertyWithValue,
   getValueOfExpression,
-  IssueLocation,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';

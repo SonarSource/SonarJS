@@ -15,7 +15,8 @@
   "tags": [
     "tests",
     "chai",
-    "mocha"
+    "mocha",
+    "type-dependent"
   ],
   "extra": {
     "replacementRules": [],

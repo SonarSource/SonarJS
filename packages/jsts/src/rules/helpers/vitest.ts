@@ -22,7 +22,7 @@ import {
   getImportDeclarations,
   getRequireCalls,
 } from './index.js';
-import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
 export namespace Vitest {

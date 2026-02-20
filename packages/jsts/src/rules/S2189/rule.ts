@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2189/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import type estree from 'estree';
 import {

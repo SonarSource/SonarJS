@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4030
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import {
   collectionConstructor,
   findFirstMatchingAncestor,

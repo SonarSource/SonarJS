@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule } from 'eslint';
+import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import * as ruleMetas from '../rules/metas.js';

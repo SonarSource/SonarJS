@@ -17,13 +17,13 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2589
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import {
+  type RuleContext,
   generateMeta,
   isIdentifier,
   isIfStatement,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type estree from 'estree';

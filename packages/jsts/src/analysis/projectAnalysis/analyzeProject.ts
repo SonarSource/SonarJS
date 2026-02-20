@@ -23,13 +23,14 @@ import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from '../../linter/linter.js';
+import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import {
   type Configuration,
   getJsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
-import { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
@@ -62,7 +63,11 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
+
+  // All files go into pendingFiles — analyzeFile decides per-file whether to
+  // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
   const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
+
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
     meta: {
@@ -81,6 +86,12 @@ export async function analyzeProject(
     baseDir,
     rulesWorkdir,
   });
+
+  // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
+  // Always called to reset state between analysis runs: when cssRules is empty,
+  // the linter is reset to uninitialized so CSS analysis is correctly skipped.
+  cssLinter.initialize(input.cssRules ?? []);
+
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
     if (sonarlint) {

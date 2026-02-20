@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, Rule, SourceCode } from 'eslint';
+import type { Linter, Rule, SourceCode } from 'eslint';
 import { getQuickFixMessage } from './messages.js';
-import { QuickFix, QuickFixEdit } from './quickfix.js';
+import type { QuickFix, QuickFixEdit } from './quickfix.js';
 import * as ruleMetas from '../../rules/metas.js';
 
 /**

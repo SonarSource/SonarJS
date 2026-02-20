@@ -18,18 +18,18 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RuleContext,
   areEquivalent,
   generateMeta,
   getMainFunctionTokenLocation,
   last,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MIN_LINES = 3;
 

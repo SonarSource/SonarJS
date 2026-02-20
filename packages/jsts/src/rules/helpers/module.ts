@@ -17,7 +17,7 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getUniqueWriteReference, getVariableFromScope, isIdentifier, Node } from './ast.js';
+import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.

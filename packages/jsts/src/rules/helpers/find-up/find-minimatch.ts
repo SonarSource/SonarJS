@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Minimatch } from 'minimatch';
+import type { Minimatch } from 'minimatch';
 import { basename } from 'node:path/posix';
 import { type File, type NormalizedAbsolutePath, joinPaths } from '../files.js';
 import fs from 'node:fs';

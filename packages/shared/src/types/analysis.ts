@@ -36,7 +36,8 @@ export interface AnalysisInput {
  * Base issue interface with common fields for all issue types.
  *
  * This provides the minimal structure that all analysis issues must have.
- * Specific analyzers (JS/TS, CSS, etc.) extend this with additional fields.
+ * Specific analyzers (JS/TS, CSS, etc.) extend this with additional fields
+ * and add a narrowed `language` discriminant.
  *
  * @param ruleId the rule key that reported the issue
  * @param line the issue starting line (1-based)

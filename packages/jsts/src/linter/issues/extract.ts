@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Issue } from './issue.js';
+import type { JsTsIssue } from './issue.js';
 import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
 import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.js';
-import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
+import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 
 /**
  * Extracts the symbol highlighting
@@ -31,7 +31,7 @@ import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
  * @param issues the issues to process
  * @returns the symbol highlighting
  */
-export function extractHighlightedSymbols(issues: Issue[]) {
+export function extractHighlightedSymbols(issues: JsTsIssue[]) {
   const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRule.ruleId);
   if (issue) {
     return JSON.parse(issue.message) as SymbolHighlight[];
@@ -50,7 +50,7 @@ export function extractHighlightedSymbols(issues: Issue[]) {
  * @param issues the issues to process
  * @returns the cognitive complexity
  */
-export function extractCognitiveComplexity(issues: Issue[]) {
+export function extractCognitiveComplexity(issues: JsTsIssue[]) {
   const issue = findAndRemoveFirstIssue(issues, cognitiveComplexityRule.ruleId);
   if (issue && !Number.isNaN(Number(issue.message))) {
     return Number(issue.message);
@@ -67,7 +67,7 @@ export function extractCognitiveComplexity(issues: Issue[]) {
  * @param ruleId the rule id that is looked for
  * @returns the found issue, if any
  */
-function findAndRemoveFirstIssue(issues: Issue[], ruleId: string) {
+function findAndRemoveFirstIssue(issues: JsTsIssue[], ruleId: string) {
   for (const issue of issues) {
     if (issue.ruleId === ruleId) {
       const index = issues.indexOf(issue);

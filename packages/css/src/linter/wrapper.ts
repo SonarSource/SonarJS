@@ -16,12 +16,55 @@
  */
 import stylelint from 'stylelint';
 import { transform } from './issues/index.js';
+import { createStylelintConfig, type RuleConfig } from './config.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 /**
  * A wrapper of Stylelint linter
  */
 export class LinterWrapper {
+  /**
+   * The stored Stylelint configuration from the active quality profile.
+   * Set by `initialize()` and consumed by `lint()` when no per-call config is provided.
+   */
+  private config: stylelint.Config | undefined;
+
+  /**
+   * Whether the linter was initialized with at least one rule.
+   * When false, CSS analysis is skipped in the analyzeProject path.
+   */
+  private hasRules = false;
+
+  /**
+   * Initializes the linter with a set of rules from the active quality profile.
+   * After calling this, lint() can be called without providing a config.
+   * Mirrors the Linter.initialize() pattern used for JS/TS analysis.
+   *
+   * When called with an empty rules array, the linter is reset to an
+   * uninitialized state (isInitialized() returns false), so CSS analysis
+   * is correctly skipped when no CSS rules are active.
+   *
+   * @param rules the CSS rules from the active quality profile
+   */
+  initialize(rules: RuleConfig[]): void {
+    if (rules.length > 0) {
+      this.config = createStylelintConfig(rules);
+      this.hasRules = true;
+    } else {
+      this.config = undefined;
+      this.hasRules = false;
+    }
+  }
+
+  /**
+   * Whether the linter has been pre-initialized with a stored configuration
+   * that contains at least one rule. Returns false if never initialized or
+   * initialized with an empty rule set.
+   */
+  isInitialized(): boolean {
+    return this.hasRules;
+  }
+
   /**
    * Lints a stylesheet
    *
@@ -37,13 +80,22 @@ export class LinterWrapper {
    * computation does not make sense when analyzing such file contents. Issues
    * only are returned after linting.
    *
+   * When no config is provided in the options, the stored config from
+   * `initialize()` is used. This supports the analyzeProject path where
+   * the linter is pre-initialized once, avoiding per-file config threading.
+   *
    * @param filePath the path of the stylesheet
    * @param options the linting options
    * @returns the found issues
    */
   async lint(filePath: NormalizedAbsolutePath, options: stylelint.LinterOptions) {
+    let finalOptions = options;
+
+    if (this.config && !options.config) {
+      finalOptions = { ...options, config: this.config };
+    }
     return stylelint
-      .lint(options)
+      .lint(finalOptions)
       .then(result => ({ issues: transform(result.results, filePath) }));
   }
 }

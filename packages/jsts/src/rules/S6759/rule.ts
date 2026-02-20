@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import type { Function, Node, ReturnStatement } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RequiredParserServices,
   generateMeta,
   getTypeFromTreeNode,
   getUniqueWriteUsageOrNode,
   isRequiredParserServices,
   last,
-  RequiredParserServices,
 } from '../helpers/index.js';
 import { isPropertyReadonlyInType } from 'ts-api-utils';
 import ts from 'typescript';

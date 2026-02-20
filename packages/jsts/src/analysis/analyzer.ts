@@ -15,14 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug, info } from '../../../shared/src/helpers/logging.js';
-import { SourceCode } from 'eslint';
-import { JsTsAnalysisInput, JsTsAnalysisOutput, JsTsAnalysisOutputWithAst } from './analysis.js';
+import type { SourceCode } from 'eslint';
+import type { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
-import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
+import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
@@ -53,7 +53,7 @@ import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
 export async function analyzeJSTS(
   input: JsTsAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<JsTsAnalysisOutput | JsTsAnalysisOutputWithAst> {
+): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
 

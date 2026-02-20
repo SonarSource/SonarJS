@@ -18,7 +18,7 @@ import { StylelintRuleTester } from '../../../tests/tools/tester/index.js';
 import { rule, messages, getAngle } from './rule.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import postcssValueParser from 'postcss-value-parser';
+import type postcssValueParser from 'postcss-value-parser';
 
 const ruleTester = new StylelintRuleTester(rule.ruleName);
 describe('S7923', () => {

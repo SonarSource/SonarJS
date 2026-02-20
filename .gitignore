@@ -12,6 +12,11 @@ packages/grpc/src/proto/*.js
 packages/grpc/src/proto/*.d.ts
 packages/jsts/src/parsers/estree.js
 packages/jsts/src/parsers/estree.d.ts
+
+# Auto-generated CSS Java rule classes (by npm run generate-java-rule-classes)
+sonar-plugin/css/src/main/java/org/sonar/css/rules/S*.java
+sonar-plugin/css/src/main/java/org/sonar/css/CssRules.java
+sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java
 sonarjs-1.0.0.tgz
 
 # IntelliJ IDEA

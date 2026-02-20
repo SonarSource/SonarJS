@@ -96,6 +96,7 @@ describe('router', () => {
     expect(JSON.parse(response)).toEqual({
       issues: [
         {
+          language: 'css',
           ruleId: S5362.ruleName,
           line: 1,
           column: 6,

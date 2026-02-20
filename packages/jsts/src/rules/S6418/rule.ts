@@ -24,9 +24,9 @@ import {
   isStringLiteral,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import type estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 5;

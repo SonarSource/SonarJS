@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   findFirstMatchingAncestor,

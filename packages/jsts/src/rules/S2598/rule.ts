@@ -16,16 +16,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2598/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
+  type IssueLocation,
   generateMeta,
   getFullyQualifiedName,
   getLhsVariable,
   getProperty,
   getValueOfExpression,
   getVariableFromName,
-  IssueLocation,
   report as contextReport,
   toSecondaryLocation,
 } from '../helpers/index.js';

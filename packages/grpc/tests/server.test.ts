@@ -509,4 +509,420 @@ describe('gRPC server', () => {
     const responseAllman = await client.analyze(requestAllman);
     expect(responseAllman.issues?.length).toBe(0);
   });
+
+  it('should handle Type C rule with numeric threshold (S3776 — cognitive complexity)', async () => {
+    // Three nested ifs: cognitive complexity = 1+2+3 = 6
+    const content =
+      'function f(a, b, c) { if (a) { if (b) { if (c) { return 1; } } } return 0; }\n';
+
+    // threshold=5: complexity 6 exceeds it → issue
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/cognitive.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S3776' },
+          params: [{ key: 'threshold', value: '5' }],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S3776');
+
+    // threshold=10: complexity 6 is within limit → no issue
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/cognitive.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S3776' },
+          params: [{ key: 'threshold', value: '10' }],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle Type B rule where first param value is used as config (S1440 — eqeqeq)', async () => {
+    // x == null is allowed in 'smart' mode (null checks are a known exception)
+    // but forbidden in 'always' mode
+    const content = 'function f(x) { if (x == null) { return x; } return 0; }\n';
+
+    // 'always': == is never allowed → issue
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/eqeqeq.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1440' },
+          params: [{ key: 'mode', value: 'always' }],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBeGreaterThan(0);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S1440');
+
+    // 'smart': null checks with == are explicitly allowed → no issue
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/eqeqeq.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1440' },
+          params: [{ key: 'mode', value: 'smart' }],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  describe('CSS analysis', () => {
+    it('should analyze a CSS file and return issues', async () => {
+      // S4658 = block-no-empty — triggers on empty blocks
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+      expect(issues[0].rule?.rule).toBe('S4658');
+      expect(issues[0].filePath).toMatch(/src\/styles\.css$/);
+    });
+
+    it('should analyze a SCSS file and return issues', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.scss',
+            content: '.foo { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+    });
+
+    it('should return no issues for valid CSS', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/valid.css',
+            content: 'a { color: red; }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+
+    it('should ignore CSS rules for JS files', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/app.js',
+            content: 'const x = 1;',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+
+    it('should handle mixed JS and CSS files in one request', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/app.js',
+            content: 'const x = 1;',
+          },
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+    });
+
+    it('should apply CSS rule ignoreParams (default and override)', async () => {
+      // S4659 = selector-pseudo-class-no-unknown
+      // Default ignorePseudoClasses includes 'global', so :global is allowed
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content: 'a:global { color: red; }' }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4659' }, params: [] }],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+
+      // Explicit ignorePseudoClasses that excludes 'global' should trigger
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content: 'a:global { color: red; }' }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4659' },
+            params: [{ key: 'ignorePseudoClasses', value: 'local' }],
+          },
+        ],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4659');
+    });
+
+    it('should apply CSS rule booleanParam (ignoreFallbacks)', async () => {
+      // S4656 = declaration-block-no-duplicate-properties
+      // Default ignoreFallbacks=true: consecutive fallbacks with different values are allowed
+      const content = 'a { background: url("x.png"); background: linear-gradient(red, blue); }';
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4656' }, params: [] }],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+
+      // With ignoreFallbacks=false, duplicate properties should trigger
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4656' },
+            params: [{ key: 'ignoreFallbacks', value: 'false' }],
+          },
+        ],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4656');
+    });
+
+    it('should not produce CSS issues when no CSS rules are active', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/styles.css',
+            content: 'a { }',
+          },
+        ],
+        activeRules: [],
+      };
+
+      const response = await client.analyze(request);
+      expect(response.issues?.length).toBe(0);
+    });
+
+    it('should analyze an HTML file and return both JS and CSS issues', async () => {
+      const htmlContent = [
+        '<html><body>',
+        '<script>',
+        'function f() { var unused = 1; }', // S1481: unused local variable
+        '</script>',
+        '<style>',
+        'a { }', // S4658: block-no-empty
+        '</style>',
+        '</body></html>',
+      ].join('\n');
+
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: '/project/src/page.html', content: htmlContent }],
+        activeRules: [
+          { ruleKey: { repo: 'javascript', rule: 'S1481' }, params: [] },
+          { ruleKey: { repo: 'css', rule: 'S4658' }, params: [] },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      const jsIssues = issues.filter(i => i.rule?.repo === 'javascript');
+      const cssIssues = issues.filter(i => i.rule?.repo === 'css');
+
+      expect(jsIssues.length).toBeGreaterThan(0);
+      expect(cssIssues.length).toBeGreaterThan(0);
+      expect(cssIssues[0].rule?.rule).toBe('S4658');
+    });
+
+    it('should analyze a Vue file and return both JS and CSS issues', async () => {
+      const vueContent = [
+        '<template><div/></template>',
+        '<script>',
+        'function f() { var unused = 1; }', // S1481: unused local variable
+        '</script>',
+        '<style>',
+        'a { }', // S4658: block-no-empty
+        '</style>',
+      ].join('\n');
+
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: '/project/src/component.vue', content: vueContent }],
+        activeRules: [
+          { ruleKey: { repo: 'javascript', rule: 'S1481' }, params: [] },
+          { ruleKey: { repo: 'css', rule: 'S4658' }, params: [] },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+
+      const jsIssues = issues.filter(i => i.rule?.repo === 'javascript');
+      const cssIssues = issues.filter(i => i.rule?.repo === 'css');
+
+      expect(jsIssues.length).toBeGreaterThan(0);
+      expect(cssIssues.length).toBeGreaterThan(0);
+      expect(cssIssues[0].rule?.rule).toBe('S4658');
+    });
+
+    it('should apply listParam ignoreAtRules to control unknown at-rule behaviour (S4662)', async () => {
+      // @tailwind is in the default ignoreAtRules list → no issue
+      const content = '@tailwind utilities;\na { color: red; }';
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4662' }, params: [] }],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+
+      // Override ignoreAtRules without 'tailwind' → @tailwind triggers
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4662' },
+            params: [{ key: 'ignoreAtRules', value: 'value,at-root,content' }],
+          },
+        ],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4662');
+    });
+
+    it('should apply listParam ignorePseudoElements to control unknown pseudo-element behaviour (S4660)', async () => {
+      // ::ng-deep is in the default ignorePseudoElements list → no issue
+      const content = 'a::ng-deep { color: red; }';
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4660' }, params: [] }],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+
+      // Override without 'ng-deep' → ::ng-deep triggers
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4660' },
+            params: [{ key: 'ignorePseudoElements', value: 'v-deep,deep' }],
+          },
+        ],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4660');
+    });
+  });
 });

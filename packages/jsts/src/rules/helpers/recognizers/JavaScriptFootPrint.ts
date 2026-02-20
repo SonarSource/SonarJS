@@ -14,12 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import Detector from './Detector.js';
+import type Detector from './Detector.js';
 import CamelCaseDetector from './detectors/CamelCaseDetector.js';
 import ContainsDetector from './detectors/ContainsDetector.js';
 import EndWithDetector from './detectors/EndWithDetector.js';
 import KeywordsDetector from './detectors/KeywordsDetector.js';
-import LanguageFootprint from './LanguageFootprint.js';
+import type LanguageFootprint from './LanguageFootprint.js';
 
 export class JavaScriptFootPrint implements LanguageFootprint {
   detectors: Set<Detector> = new Set();

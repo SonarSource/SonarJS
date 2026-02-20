@@ -21,6 +21,8 @@ import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RequiredParserServices,
+  type RuleContext,
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
@@ -28,8 +30,6 @@ import {
   getTypeFromTreeNode,
   isRequiredParserServices,
   report,
-  RequiredParserServices,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

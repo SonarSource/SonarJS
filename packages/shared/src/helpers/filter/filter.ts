@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Minimatch } from 'minimatch';
+import type { Minimatch } from 'minimatch';
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';

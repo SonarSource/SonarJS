@@ -20,6 +20,7 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RuleContext,
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   generateMeta,
@@ -27,7 +28,6 @@ import {
   getParent,
   isElementWrite,
   report,
-  RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

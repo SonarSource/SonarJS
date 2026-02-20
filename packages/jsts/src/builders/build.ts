@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../shared/src/helpers/logging.js';
-import { JsTsAnalysisInput } from '../analysis/analysis.js';
+import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import { buildParserOptions } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
-import { Parser, parsersMap } from '../parsers/eslint.js';
-import { Linter } from 'eslint';
+import { type Parser, parsersMap } from '../parsers/eslint.js';
+import type { Linter } from 'eslint';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript

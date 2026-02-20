@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter } from 'eslint';
+import type { Linter } from 'eslint';
 import babelPresetReact from '@babel/preset-react';
 import babelPresetFlow from '@babel/preset-flow';
 import babelPresetEnv from '@babel/preset-env';

@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S131/javascript
 
 import type estree from 'estree';
-import { Rule, SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import { rules } from '../external/typescript-eslint/index.js';
 import {
   generateMeta,

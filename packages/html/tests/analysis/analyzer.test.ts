@@ -20,6 +20,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { Linter } from '../../../jsts/src/linter/linter.js';
 import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
+import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import { parseHTML } from '../../src/parser/parse.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
@@ -87,9 +88,7 @@ describe('analyzeHTML', () => {
       defaultShouldIgnoreParams,
     );
 
-    const {
-      issues: [{ quickFixes }],
-    } = result;
+    const { quickFixes } = result.issues[0] as JsTsIssue;
     const [quickFix] = quickFixes!;
     expect(quickFix.edits).toEqual([
       {
@@ -163,13 +162,8 @@ describe('analyzeHTML', () => {
       parseHTML,
       defaultShouldIgnoreParams,
     );
-    const {
-      issues: [
-        {
-          secondaryLocations: [secondaryLocation],
-        },
-      ],
-    } = result;
+    const { secondaryLocations } = result.issues[0] as JsTsIssue;
+    const [secondaryLocation] = secondaryLocations;
     expect(secondaryLocation).toEqual({
       line: 10,
       column: 18,

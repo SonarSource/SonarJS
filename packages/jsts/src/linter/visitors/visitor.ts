@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { SourceCode } from 'eslint';
+import type { SourceCode } from 'eslint';
 import { childrenOf } from '../../rules/helpers/ancestor.js';
 
 /**

@@ -16,7 +16,7 @@
  */
 import { rule } from './rule.js';
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { IssueLocation } from '../helpers/index.js';
+import type { IssueLocation } from '../helpers/index.js';
 import { describe, it } from 'node:test';
 
 const ruleTester = new DefaultParserRuleTester({ sourceType: 'script' });

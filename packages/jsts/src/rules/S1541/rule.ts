@@ -16,21 +16,21 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type EncodedMessage,
+  type FunctionNodeType,
+  type IssueLocation,
+  type RuleContext,
   childrenOf,
-  EncodedMessage,
-  FunctionNodeType,
   generateMeta,
   getMainFunctionTokenLocation,
   getParent,
   isFunctionNode,
-  IssueLocation,
-  RuleContext,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_THRESHOLD = 10;

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { type Node } from './ast.js';
-import { AST, SourceCode } from 'eslint';
+import type { AST, SourceCode } from 'eslint';
 import type estree from 'estree';
 
 /**

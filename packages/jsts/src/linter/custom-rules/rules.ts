@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule as cognitiveComplexity } from './cognitive-complexity.js';
-import { CustomRule } from './custom-rule.js';
+import type { CustomRule } from './custom-rule.js';
 import { rule as symbolHighlighting } from './symbol-highlighting.js';
 /**
  * The set of internal custom rules

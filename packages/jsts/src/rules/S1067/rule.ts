@@ -16,11 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1067/javascript
 
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT = 3;

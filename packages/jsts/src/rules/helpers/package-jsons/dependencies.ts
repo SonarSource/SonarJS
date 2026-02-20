@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
-import { Minimatch } from 'minimatch';
+import type { Minimatch } from 'minimatch';
 import fs from 'node:fs';
 import { minVersion } from 'semver';
 import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';

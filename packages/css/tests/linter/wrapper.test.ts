@@ -42,6 +42,7 @@ describe('LinterWrapper', () => {
     expect(issues).toEqual([
       {
         ruleId: 'block-no-empty',
+        language: 'css',
         line: 1,
         column: 3,
         message: 'Unexpected empty block (block-no-empty)',
@@ -60,6 +61,7 @@ describe('LinterWrapper', () => {
     expect(issues).toEqual([
       {
         ruleId: S5362.ruleName,
+        language: 'css',
         line: 1,
         column: 6,
         message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
@@ -85,6 +87,7 @@ describe('LinterWrapper', () => {
     expect(issues).toEqual([
       {
         ruleId: 'font-family-no-missing-generic-family-keyword',
+        language: 'css',
         line: 2,
         column: 18,
         message:

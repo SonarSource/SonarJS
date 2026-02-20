@@ -25,7 +25,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

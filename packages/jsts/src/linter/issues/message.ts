@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter, SourceCode } from 'eslint';
+import type { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes/transform.js';
-import { Issue } from './issue.js';
+import type { JsTsIssue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
-import { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
+import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 function getESLintKeys(sonarKey: string) {
@@ -56,7 +56,7 @@ export function convertMessage(
   message: Linter.LintMessage,
   filePath: NormalizedAbsolutePath,
   language: JsTsLanguage,
-): Issue | null {
+): JsTsIssue | null {
   /**
    * The property `ruleId` equals `null` on parsing errors and not applied directives.
    * The first should not happen because we lint ready SourceCode instances and not file contents.

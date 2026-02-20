@@ -20,13 +20,13 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import {
+  type RequiredParserServices,
   generateMeta,
   getTypeFromTreeNode,
   isBigIntType,
   isNumberType,
   isRequiredParserServices,
   isStringType,
-  RequiredParserServices,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

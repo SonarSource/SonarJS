@@ -22,7 +22,7 @@ import {
   getFullyQualifiedNameTS,
 } from './index.js';
 import type estree from 'estree';
-import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
 export namespace Supertest {

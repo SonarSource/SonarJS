@@ -21,12 +21,12 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import {
+  type RequiredParserServices,
   generateMeta,
   getSymbolAtLocation,
   isArray,
   isRequiredParserServices,
   localAncestorsChain,
-  RequiredParserServices,
   sortLike,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';

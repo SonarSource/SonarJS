@@ -16,7 +16,7 @@
  */
 import { isRoot, type File, type NormalizedAbsolutePath, dirnamePath } from '../files.js';
 import { ComputedCache } from '../cache.js';
-import { Filesystem, MinimatchCache } from './find-minimatch.js';
+import { type Filesystem, MinimatchCache } from './find-minimatch.js';
 import fs from 'node:fs';
 import { Minimatch } from 'minimatch';
 

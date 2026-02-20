@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import Detector from './Detector.js';
+import type Detector from './Detector.js';
 
 export default interface LanguageFootprint {
   getDetectors(): Set<Detector>;

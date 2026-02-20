@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, IssueLocation, report, toSecondaryLocation } from '../helpers/index.js';
+import { type IssueLocation, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

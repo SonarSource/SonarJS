@@ -18,11 +18,11 @@
 
 import type { Rule } from 'eslint';
 import {
+  type IssueLocation,
   generateMeta,
   getBucketProperty,
   getNodeParent,
   getValueOfExpression,
-  IssueLocation,
   report,
   S3BucketTemplate,
   toSecondaryLocation,

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5860/javascript
 
-import { AST, Rule, Scope } from 'eslint';
+import type { AST, Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import type {
@@ -26,6 +26,8 @@ import type {
   RegExpLiteral,
 } from '@eslint-community/regexpp/ast';
 import {
+  type IssueLocation,
+  type RequiredParserServices,
   generateMeta,
   getLhsVariable,
   getUniqueWriteUsage,
@@ -37,9 +39,7 @@ import {
   isObjectDestructuring,
   isRequiredParserServices,
   isString,
-  IssueLocation,
   report,
-  RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';

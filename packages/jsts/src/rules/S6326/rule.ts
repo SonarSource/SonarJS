@@ -16,8 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6326/javascript
 
-import { AST, Rule } from 'eslint';
-import * as regexpp from '@eslint-community/regexpp';
+import type { AST, Rule } from 'eslint';
+import type * as regexpp from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
 import { generateMeta } from '../helpers/index.js';
-import { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { getReactVersion } from '../helpers/package-jsons/dependencies.js';
 

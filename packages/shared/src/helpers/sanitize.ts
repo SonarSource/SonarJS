@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { warn } from './logging.js';
 import {
+  type FileType,
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
   readFile,
-  FileType,
   dirnamePath,
 } from './files.js';
 import {
@@ -28,6 +29,7 @@ import {
   type JsTsLanguage,
   type Configuration,
   getFilterPathParams,
+  getShouldIgnoreParams,
 } from './configuration.js';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
 import { initFileStores } from '../../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
@@ -47,7 +49,6 @@ import {
   createJsTsFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { shouldIgnoreFile, type ShouldIgnoreFileParams } from './filter/filter.js';
-import { getShouldIgnoreParams } from './configuration.js';
 
 // Type guards for runtime validation of JSON-deserialized values
 // These ensure values from untrusted sources (JSON, protobuf) match expected types
@@ -487,7 +488,7 @@ export async function sanitizeRawInputFiles(
     // Validate the raw file structure - must be an object with filePath string
     if (!isObject(rawFile) || !isString(rawFile.filePath)) {
       // Skip invalid entries - they're missing required filePath
-      console.warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
+      warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
       continue;
     }
     const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);

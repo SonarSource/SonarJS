@@ -58,6 +58,21 @@ async function foo() {
     return result;
 }
 </pre>
+<h2>Exceptions</h2>
+<p>No issue will be raised when a void <code>return</code> statement is used as a guard clause to conditionally skip cleanup operations in a
+<code>finally</code> block, such as checking a cancellation flag.</p>
+<pre>
+async function fetchData() {
+    let cancelled = false;
+    try {
+        const response = await fetch('/api/data');
+        return response.json();
+    } finally {
+        if (cancelled) return; // Compliant by exception: guard clause pattern
+        console.log('Cleanup operations');
+    }
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

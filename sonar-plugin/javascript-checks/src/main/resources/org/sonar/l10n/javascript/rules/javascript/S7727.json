@@ -10,7 +10,8 @@
     "javascript",
     "array",
     "callback",
-    "iterator"
+    "iterator",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-7727",

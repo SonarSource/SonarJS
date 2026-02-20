@@ -18,13 +18,13 @@
 
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
-import { generateMeta, report, StringLiteral, toSecondaryLocation } from '../helpers/index.js';
-import { getResultOfExpression, Result } from '../helpers/result.js';
+import { type StringLiteral, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { type Result, getResultOfExpression } from '../helpers/result.js';
 import {
+  type PolicyCheckerOptions,
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
-  PolicyCheckerOptions,
 } from '../helpers/aws/iam.js';
 import * as meta from './generated-meta.js';
 

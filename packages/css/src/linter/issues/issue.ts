@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { BaseIssue } from '../../../../shared/src/types/analysis.js';
+import type { BaseIssue } from '../../../../shared/src/types/analysis.js';
 
 /**
  * A SonarQube-compatible stylesheet issue
@@ -30,4 +30,6 @@ import { BaseIssue } from '../../../../shared/src/types/analysis.js';
  * @param column the issue column
  * @param message the issue message
  */
-export interface Issue extends BaseIssue {}
+export interface CssIssue extends BaseIssue {
+  language: 'css';
+}

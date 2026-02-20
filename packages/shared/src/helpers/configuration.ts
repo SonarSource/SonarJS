@@ -215,6 +215,7 @@ export function createConfiguration(raw: unknown): Configuration {
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
 const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+const CSS_ALSO_EXTENSIONS = new Set(['.vue', '.html', '.htm', '.xhtml']);
 
 /**
  * File suffix configuration for determining file types.
@@ -270,6 +271,10 @@ export function isCssFile(
   cssSuffixes: string[] = DEFAULT_CSS_EXTENSIONS,
 ): boolean {
   return cssSuffixes.includes(extname(filePath).toLowerCase());
+}
+
+export function isAlsoCssFile(filePath: NormalizedAbsolutePath): boolean {
+  return CSS_ALSO_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
 export function isAnalyzableFile(

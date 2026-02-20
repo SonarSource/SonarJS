@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type RequiredParserServices,
   generateMeta,
   isArray,
   isRequiredParserServices,
-  RequiredParserServices,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

@@ -14,10 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { AST, SourceCode } from 'eslint';
+import type { AST } from 'eslint';
+import { SourceCode } from 'eslint';
 import type { Comment, Node } from 'estree';
-import { APIError } from '../../../../shared/src/errors/error.js';
-import { EmbeddedJS } from '../analysis/embedded-js.js';
+import type { APIError } from '../../../../shared/src/errors/error.js';
+import type { EmbeddedJS } from '../analysis/embedded-js.js';
 import { visit } from '../../linter/visitors/visitor.js';
 
 /**

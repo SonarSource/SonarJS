@@ -29,7 +29,7 @@ import {
 } from '../helpers/index.js';
 import type { ArrowFunctionExpression, BlockStatement, FunctionExpression, Node } from 'estree';
 import * as meta from './generated-meta.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const message =
   'Provide multiple methods instead of using "{{parameterName}}" to determine which action to take.';

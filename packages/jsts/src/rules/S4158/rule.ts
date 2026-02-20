@@ -25,7 +25,7 @@ import {
   isIdentifier,
   isReferenceTo,
 } from '../helpers/index.js';
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

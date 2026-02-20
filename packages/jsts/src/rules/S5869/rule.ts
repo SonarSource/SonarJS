@@ -16,9 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5869/javascript
 
-import { AST, Rule } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type { AST as RegexppAST } from '@eslint-community/regexpp';
-import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
+import { type IssueLocation, generateMeta, toSecondaryLocation } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { SimplifiedRegexCharacterClass } from '../helpers/regex/simplified-regex-character-class.js';

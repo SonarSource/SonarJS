@@ -19,13 +19,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  type IssueLocation,
   generateMeta,
   getFullyQualifiedName,
   getProperty,
   getValueOfExpression,
   report,
   toSecondaryLocation,
-  IssueLocation,
 } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 

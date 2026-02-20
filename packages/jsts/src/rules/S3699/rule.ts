@@ -18,10 +18,10 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  type RuleContext,
   generateMeta,
   isArrowFunctionExpression,
   isFunctionExpression,
-  RuleContext,
 } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
