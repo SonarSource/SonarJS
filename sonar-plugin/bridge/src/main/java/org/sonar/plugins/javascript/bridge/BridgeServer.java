@@ -383,6 +383,15 @@ public interface BridgeServer extends Startable {
     int complexity,
     int cognitiveComplexity
   ) {
+    // Compact constructor: Gson bypasses the default constructor and sets fields
+    // via reflection, so nullable list fields must be defaulted here.
+    public Metrics {
+      ncloc = ncloc != null ? ncloc : List.of();
+      commentLines = commentLines != null ? commentLines : List.of();
+      nosonarLines = nosonarLines != null ? nosonarLines : List.of();
+      executableLines = executableLines != null ? executableLines : List.of();
+    }
+
     public Metrics() {
       this(List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0, 0);
     }
