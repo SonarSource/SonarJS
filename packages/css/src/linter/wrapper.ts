@@ -21,7 +21,7 @@ import { createStylelintConfig, type RuleConfig } from './config.js';
 import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
-export interface LintResult {
+interface LintResult {
   issues: CssIssue[];
   root?: Root | Document;
 }
