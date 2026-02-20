@@ -492,6 +492,29 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_send_createTSProgramForOrphanFiles_true_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .createTSProgramForOrphanFiles()
+    ).isTrue();
+  }
+
+  @Test
+  void should_send_createTSProgramForOrphanFiles_false_when_disabled() {
+    context.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.CREATE_TS_PROGRAM_FOR_ORPHAN_FILES, "false")
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .createTSProgramForOrphanFiles()
+    ).isFalse();
+  }
+
+  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

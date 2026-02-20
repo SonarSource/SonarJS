@@ -513,6 +513,13 @@ describe('SonarQube project analysis', () => {
     // The file should still be analyzed (without type info, via analyzeWithoutProgram)
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
 
+    // Should log that files are analyzed without type information
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes('not part of any tsconfig.json'),
+      ),
+    ).toBe(true);
+
     // Should NOT log "using default options" since we skip the entry point program creation
     expect(
       consoleLogMock.calls.some(call =>
