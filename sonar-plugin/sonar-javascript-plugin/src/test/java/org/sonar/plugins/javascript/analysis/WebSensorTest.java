@@ -84,7 +84,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.analysis.JsTsSensor.AnalyzeProjectHandler;
+import org.sonar.plugins.javascript.analysis.WebSensor.AnalyzeProjectHandler;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
@@ -104,7 +104,7 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 
-class JsTsSensorTest {
+class WebSensorTest {
 
   public static final String PLUGIN_VERSION = "1.0";
 
@@ -1218,7 +1218,7 @@ class JsTsSensorTest {
   }
 
   private AnalyzeProjectHandler executeSensorAndCaptureHandler(
-    JsTsSensor sensor,
+    WebSensor sensor,
     SensorContextTester ctx
   ) {
     ArgumentCaptor<AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
@@ -1240,7 +1240,7 @@ class JsTsSensorTest {
   }
 
   private void executeSensorMockingResponse(
-    JsTsSensor sensor,
+    WebSensor sensor,
     BridgeServer.ProjectAnalysisOutputDTO expectedResponse
   ) {
     executeSensorMockingEvents(sensor, () -> {
@@ -1254,7 +1254,7 @@ class JsTsSensorTest {
     executeSensorMockingEvents(createSensor(), events);
   }
 
-  private void executeSensorMockingEvents(JsTsSensor sensor, Runnable events) {
+  private void executeSensorMockingEvents(WebSensor sensor, Runnable events) {
     doAnswer(invocation -> {
       WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
@@ -1308,11 +1308,11 @@ class JsTsSensorTest {
     return new TestJsAnalysisConsumer(enabled);
   }
 
-  private JsTsSensor createSensorWithConsumer() {
+  private WebSensor createSensorWithConsumer() {
     return createSensorWithConsumer(createConsumer());
   }
 
-  private JsTsSensor createSensorWithConsumer(JsAnalysisConsumer consumer) {
+  private WebSensor createSensorWithConsumer(JsAnalysisConsumer consumer) {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(List.of(consumer)),
@@ -1320,11 +1320,11 @@ class JsTsSensorTest {
     );
   }
 
-  private JsTsSensor createSensor() {
+  private WebSensor createSensor() {
     return createSensor(checks("S3923", "S2260", "S1451"), new AnalysisConsumers(), null);
   }
 
-  private JsTsSensor createSonarLintSensor() {
+  private WebSensor createSonarLintSensor() {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
@@ -1332,12 +1332,12 @@ class JsTsSensorTest {
     );
   }
 
-  private JsTsSensor createSensor(
+  private WebSensor createSensor(
     JsTsChecks checks,
     AnalysisConsumers consumers,
     @Nullable FSListener fsListener
   ) {
-    return new JsTsSensor(
+    return new WebSensor(
       checks,
       bridgeServerMock,
       analysisProcessor,

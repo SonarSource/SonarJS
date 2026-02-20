@@ -56,9 +56,9 @@ import org.sonar.plugins.javascript.external.ExternalIssueRepository;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
-public class JsTsSensor extends AbstractBridgeSensor {
+public class WebSensor extends AbstractBridgeSensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
   private static final Gson GSON = new Gson();
 
   private final JsTsChecks checks;
@@ -68,7 +68,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final CssRules cssRules;
   FSListener fsListener;
 
-  public JsTsSensor(
+  public WebSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
@@ -79,7 +79,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, cssRules, null);
   }
 
-  public JsTsSensor(
+  public WebSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
