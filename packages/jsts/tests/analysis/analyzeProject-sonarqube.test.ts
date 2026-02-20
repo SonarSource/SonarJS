@@ -30,6 +30,7 @@ import {
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import ts from 'typescript';
 import type { RuleConfig } from '../../src/linter/config/rule-config.js';
+import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
 import { getProgramCacheManager } from '../../src/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { sanitizeProjectAnalysisInput } from '../../../shared/src/helpers/sanitize.js';
@@ -412,29 +413,36 @@ describe('SonarQube project analysis', () => {
     expect('issues' in excludedResult! && excludedResult!.issues[0].ruleId).toBe('S1116');
   });
 
-  it('should route HTML files to HTML analyzer', async () => {
+  it('should route HTML files to HTML analyzer and include CSS issues from style blocks', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const htmlFile = join(baseDir, 'file.html');
 
     const htmlRules: RuleConfig[] = [
       {
-        key: 'S1440', // == comparison
+        key: 'S1440',
         configurations: [],
         fileTypeTargets: ['MAIN'],
         language: 'js',
         analysisModes: ['DEFAULT'],
       },
     ];
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
 
     const configuration = await initForTest(
       { baseDir },
       { [htmlFile]: { filePath: htmlFile, fileType: 'MAIN' } },
     );
 
-    const result = await analyzeProject({ rules: htmlRules, bundles: [] }, configuration);
+    const result = await analyzeProject({ rules: htmlRules, cssRules, bundles: [] }, configuration);
 
-    // HTML file should be analyzed
-    expect(result.files[normalizeToAbsolutePath(htmlFile)]).toBeDefined();
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      // CSS issues from <style> block should be merged into the result
+      const ruleIds = fileResult.issues.map(i => i.ruleId);
+      expect(ruleIds).toContain('no-extra-semicolons');
+    }
   });
 
   it('should route YAML files to YAML analyzer', async () => {
@@ -460,6 +468,51 @@ describe('SonarQube project analysis', () => {
 
     // YAML file should be analyzed
     expect(result.files[normalizeToAbsolutePath(yamlFile)]).toBeDefined();
+  });
+
+  it('should route CSS files to CSS analyzer and return issues', async () => {
+    const baseDir = join(fixtures, 'css');
+    const cssFile = join(baseDir, 'file.css');
+
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [cssFile]: { filePath: cssFile, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(cssFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues.length).toBeGreaterThan(0);
+      expect(fileResult.issues[0].ruleId).toBe('no-extra-semicolons');
+    }
+  });
+
+  it('should return CSS metrics and highlights for non-sonarlint mode', async () => {
+    const baseDir = join(fixtures, 'css');
+    const cssFile = join(baseDir, 'file.css');
+
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [cssFile]: { filePath: cssFile, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(cssFile)];
+    expect(fileResult).toBeDefined();
+    if (fileResult && 'metrics' in fileResult && fileResult.metrics) {
+      expect(fileResult.metrics.ncloc!.length).toBeGreaterThan(0);
+    }
+    if (fileResult && 'highlights' in fileResult && fileResult.highlights) {
+      expect(fileResult.highlights.length).toBeGreaterThan(0);
+    }
   });
 
   it('should handle analysis errors gracefully with fileContent for non-existent paths', async () => {

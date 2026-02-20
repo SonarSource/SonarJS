@@ -30,6 +30,7 @@ import {
   shouldIgnoreFile,
   type ShouldIgnoreFileParams,
 } from '../../../shared/src/helpers/filter/filter.js';
+import { isAlsoCssFile } from '../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -74,8 +75,9 @@ export async function analyzeCSS(
     throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
   });
 
-  // Skip metrics and highlighting in SonarLint mode
-  if (input.sonarlint) {
+  // Skip metrics and highlighting in SonarLint mode and for non-pure-CSS files
+  // (HTML/Vue files are handled by their own analyzers for metrics)
+  if (input.sonarlint || isAlsoCssFile(filePath)) {
     return { issues };
   }
 
