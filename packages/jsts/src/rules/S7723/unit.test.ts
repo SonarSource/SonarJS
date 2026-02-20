@@ -62,15 +62,18 @@ function conformsTo(object, props) {
           {
             // Object() without arguments is still non-compliant
             code: `var obj = Object();`,
+            output: `var obj = new Object();`,
             errors: 1,
           },
           {
             // Other constructors without new remain non-compliant
             code: `var arr = Array(10);`,
+            output: `var arr = new Array(10);`,
             errors: 1,
           },
           {
             code: `throw Error("something went wrong");`,
+            output: `throw new Error("something went wrong");`,
             errors: 1,
           },
         ],
