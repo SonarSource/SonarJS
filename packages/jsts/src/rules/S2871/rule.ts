@@ -22,6 +22,7 @@ import type estree from 'estree';
 import {
   copyingSortLike,
   generateMeta,
+  getParent,
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
@@ -45,6 +46,62 @@ const compareBigIntFunctionPlaceholder = [
   '}',
 ];
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
+
+const sortMethodNames = new Set([...sortLike, ...copyingSortLike]);
+
+function containsSortCall(node: estree.Node): boolean {
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+    const property = node.callee.property;
+    if (property.type === 'Identifier' && sortMethodNames.has(property.name)) {
+      return true;
+    }
+    return containsSortCall(node.callee.object);
+  }
+  if (node.type === 'MemberExpression') {
+    return containsSortCall(node.object);
+  }
+  return false;
+}
+
+function isArrayFromIterator(object: estree.CallExpression): boolean {
+  const callee = object.callee;
+  if (
+    callee.type !== 'MemberExpression' ||
+    callee.object.type !== 'Identifier' ||
+    callee.object.name !== 'Array' ||
+    callee.property.type !== 'Identifier' ||
+    callee.property.name !== 'from' ||
+    object.arguments.length === 0
+  ) {
+    return false;
+  }
+  const firstArg = object.arguments[0];
+  if (firstArg.type !== 'CallExpression' || firstArg.callee.type !== 'MemberExpression') {
+    return false;
+  }
+  const methodProp = firstArg.callee.property;
+  return (
+    methodProp.type === 'Identifier' && ['keys', 'values', 'entries'].includes(methodProp.name)
+  );
+}
+
+function isObjectKeys(object: estree.CallExpression): boolean {
+  const callee = object.callee;
+  return (
+    callee.type === 'MemberExpression' &&
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'Object' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'keys'
+  );
+}
+
+function isFromKnownStringSource(object: estree.Node): boolean {
+  if (object.type !== 'CallExpression') {
+    return false;
+  }
+  return isArrayFromIterator(object) || isObjectKeys(object);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -74,13 +131,55 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
         const type = getTypeFromTreeNode(object, services);
 
-        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+        if (sortMethodNames.has(text) && isArrayLikeType(type, services)) {
+          // Suppress when sort() is used in patterns where default sorting is intentional
+          if (isFromKnownStringSource(object)) {
+            return;
+          }
+
+          // Suppress for string arrays in order-independent comparisons
+          if (isStringArray(type, services) && isOrderIndependentComparison(call)) {
+            return;
+          }
+
           const suggest = getSuggestions(call, type);
           const messageId = getMessageId(type);
           context.report({ node, suggest, messageId });
         }
       },
     };
+
+    function isOrderIndependentComparison(call: estree.CallExpression): boolean {
+      // Walk up the AST to find a BinaryExpression ancestor
+      let currentNode: estree.Node = call;
+      let parent = getParent(context, currentNode);
+
+      while (parent) {
+        if (parent.type === 'BinaryExpression') {
+          const operator = parent.operator;
+          const isComparisonOperator = ['===', '==', '!==', '!='].includes(operator);
+          const bothSidesSorted =
+            isComparisonOperator && containsSortCall(parent.left) && containsSortCall(parent.right);
+          return bothSidesSorted;
+        }
+
+        // Stop at certain node types that indicate we're not in a comparison chain
+        if (
+          parent.type === 'ExpressionStatement' ||
+          parent.type === 'VariableDeclarator' ||
+          parent.type === 'AssignmentExpression' ||
+          parent.type === 'ReturnStatement' ||
+          parent.type === 'IfStatement'
+        ) {
+          return false;
+        }
+
+        currentNode = parent;
+        parent = getParent(context, currentNode);
+      }
+
+      return false;
+    }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       const suggestions: Rule.SuggestionReportDescriptor[] = [];
