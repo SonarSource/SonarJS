@@ -23,6 +23,7 @@ import {
   isAlsoCssFile,
   isCssFile,
   isHtmlFile,
+  isJsTsFile,
   isYamlFile,
   type JsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
@@ -182,7 +183,11 @@ async function getAnalyzerForFile(
       sonarlint: input.sonarlint,
     };
     return analyzeYAML(embeddedInput, shouldIgnoreParams);
-  } else {
+  } else if (isJsTsFile(filename, shouldIgnoreParams)) {
     return analyzeJSTS(input, shouldIgnoreParams);
+  } else {
+    // Files that don't match any analyzer (e.g. .xhtml from webFilePredicate)
+    // return empty issues. CSS analysis may still run via isAlsoCssFile check.
+    return { issues: [] };
   }
 }
