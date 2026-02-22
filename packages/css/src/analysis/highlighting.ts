@@ -100,6 +100,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
   const highlights: CssSyntaxHighlight[] = [];
   const lineStarts = buildLineStarts(source);
   const sourceLength = source.length;
+  const parseSelector = selectorParser();
 
   root.walk(node => {
     const start = node.source?.start;
@@ -142,10 +143,13 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
       case 'rule': {
         // Parse selectors for ID selectors (#header → KEYWORD) and
         // hex colors (#fff → CONSTANT), matching old CssMetricSensor behavior.
+        if (!node.selector.includes('#')) {
+          break;
+        }
         const selectorOffset = start.offset;
         if (selectorOffset != null) {
           try {
-            const selectorAst = selectorParser().astSync(node.selector);
+            const selectorAst = parseSelector.astSync(node.selector);
             selectorAst.walk(selectorNode => {
               if (selectorNode.type === 'id') {
                 // #identifier → KEYWORD (or CONSTANT if hex color pattern)
@@ -188,7 +192,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
         });
 
         // Parse the value to extract strings and numbers
-        if (node.value) {
+        if (node.value && /["'\d]/.test(node.value)) {
           // Compute the absolute offset where the value starts in the source.
           // The declaration looks like "prop: value" (possibly with spaces around the colon).
           // We find the colon after the property, then skip whitespace to get to value start.
