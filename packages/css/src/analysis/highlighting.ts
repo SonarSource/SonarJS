@@ -25,30 +25,61 @@ import type { CssLocation, CssSyntaxHighlight } from './analysis.js';
  *
  * PostCSS gives us the declaration node's start position and the
  * raw value string. `postcss-value-parser` gives offsets within that
- * value. We walk from the declaration value start to translate the
- * value-relative offset into absolute line/column.
+ * value. We translate the value-relative offset into an absolute
+ * (line, column) using a precomputed line-start index.
  *
- * @param source the full source text
+ * @param lineStarts absolute offsets for the start of each line (1-based line numbers)
+ * @param sourceLength total source length, used to clamp offsets
  * @param valueStartOffset the absolute offset of the value string start
  * @param relativeOffset offset within the value string
  * @returns 1-based line and 0-based column
  */
 function resolveValuePosition(
-  source: string,
+  lineStarts: number[],
+  sourceLength: number,
   valueStartOffset: number,
   relativeOffset: number,
 ): { line: number; col: number } {
-  const absOffset = valueStartOffset + relativeOffset;
-  let line = 1;
-  let lastNewline = -1;
-  for (let i = 0; i < absOffset && i < source.length; i++) {
-    if (source[i] === '\n') {
-      line++;
-      lastNewline = i;
+  const absOffset = Math.max(0, Math.min(sourceLength, valueStartOffset + relativeOffset));
+  let low = 0;
+  let high = lineStarts.length - 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const lineStart = lineStarts[mid];
+    const nextLineStart = mid + 1 < lineStarts.length ? lineStarts[mid + 1] : sourceLength + 1;
+
+    if (absOffset < lineStart) {
+      high = mid - 1;
+    } else if (absOffset >= nextLineStart) {
+      low = mid + 1;
+    } else {
+      return { line: mid + 1, col: absOffset - lineStart };
     }
   }
-  const col = absOffset - lastNewline - 1;
-  return { line, col };
+
+  const lastLineStart = lineStarts[lineStarts.length - 1] ?? 0;
+  return { line: lineStarts.length || 1, col: absOffset - lastLineStart };
+}
+
+/**
+ * Builds line start offsets for fast offset -> (line, column) resolution.
+ * Handles LF, CRLF, and CR line endings.
+ */
+function buildLineStarts(source: string): number[] {
+  const lineStarts: number[] = [0];
+  for (let i = 0; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === '\r') {
+      if (source[i + 1] === '\n') {
+        i++;
+      }
+      lineStarts.push(i + 1);
+    } else if (ch === '\n') {
+      lineStarts.push(i + 1);
+    }
+  }
+  return lineStarts;
 }
 
 /**
@@ -67,6 +98,8 @@ function resolveValuePosition(
  */
 export function computeHighlighting(root: Root | Document, source: string): CssSyntaxHighlight[] {
   const highlights: CssSyntaxHighlight[] = [];
+  const lineStarts = buildLineStarts(source);
+  const sourceLength = source.length;
 
   root.walk(node => {
     const start = node.source?.start;
@@ -119,8 +152,13 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
                 const idText = selectorNode.value;
                 const hashOffset = selectorOffset + selectorNode.sourceIndex;
                 const hashLength = idText.length + 1; // # + name
-                const startPos = resolveValuePosition(source, 0, hashOffset);
-                const endPos = resolveValuePosition(source, 0, hashOffset + hashLength);
+                const startPos = resolveValuePosition(lineStarts, sourceLength, 0, hashOffset);
+                const endPos = resolveValuePosition(
+                  lineStarts,
+                  sourceLength,
+                  0,
+                  hashOffset + hashLength,
+                );
                 const isHexColor = /^[0-9a-fA-F]+$/.test(idText);
                 highlights.push({
                   location: locationFromPositions(startPos, endPos),
@@ -166,7 +204,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
               ) {
                 valueStart++;
               }
-              highlightValueTokens(highlights, source, valueStart, node.value);
+              highlightValueTokens(highlights, lineStarts, sourceLength, valueStart, node.value);
             }
           }
         }
@@ -183,7 +221,8 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
  */
 function highlightValueTokens(
   highlights: CssSyntaxHighlight[],
-  source: string,
+  lineStarts: number[],
+  sourceLength: number,
   valueStartOffset: number,
   value: string,
 ): void {
@@ -191,11 +230,17 @@ function highlightValueTokens(
   parsed.walk(valueNode => {
     if (valueNode.type === 'string') {
       // Include the quotes in the highlight
-      const startPos = resolveValuePosition(source, valueStartOffset, valueNode.sourceIndex);
+      const startPos = resolveValuePosition(
+        lineStarts,
+        sourceLength,
+        valueStartOffset,
+        valueNode.sourceIndex,
+      );
       const quoteChar = valueNode.quote || '"';
       const rawLength = quoteChar.length + valueNode.value.length + quoteChar.length;
       const endPos = resolveValuePosition(
-        source,
+        lineStarts,
+        sourceLength,
         valueStartOffset,
         valueNode.sourceIndex + rawLength,
       );
@@ -204,9 +249,15 @@ function highlightValueTokens(
         textType: 'STRING',
       });
     } else if (valueNode.type === 'word' && isNumericToken(valueNode.value)) {
-      const startPos = resolveValuePosition(source, valueStartOffset, valueNode.sourceIndex);
+      const startPos = resolveValuePosition(
+        lineStarts,
+        sourceLength,
+        valueStartOffset,
+        valueNode.sourceIndex,
+      );
       const endPos = resolveValuePosition(
-        source,
+        lineStarts,
+        sourceLength,
         valueStartOffset,
         valueNode.sourceIndex + valueNode.value.length,
       );

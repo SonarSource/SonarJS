@@ -201,4 +201,20 @@ a {
       expect(findAllHighlights(h, 'STRING').length).toBeGreaterThan(0);
     });
   });
+
+  describe('line endings', () => {
+    it('CRLF line endings resolve value positions', () => {
+      const css = 'a {\r\n  width: 10px;\r\n}';
+      const h = highlightsOf(css);
+      const c = findHighlight(h, 'CONSTANT', 2);
+      expect(c).toBeDefined();
+    });
+
+    it('CR line endings resolve value positions', () => {
+      const css = 'a {\r  width: 10px;\r}';
+      const h = highlightsOf(css);
+      const c = findHighlight(h, 'CONSTANT', 2);
+      expect(c).toBeDefined();
+    });
+  });
 });

@@ -94,7 +94,7 @@ export async function analyzeProject(
 
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (sonarlint) {
+    if (sonarlint && rules.length) {
       await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
@@ -105,7 +105,7 @@ export async function analyzeProject(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
-    } else {
+    } else if (rules.length) {
       await analyzeWithProgram(
         filesToAnalyze,
         results,
