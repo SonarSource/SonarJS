@@ -158,6 +158,15 @@ describe('computeHighlighting', () => {
       const str = findHighlight(h, 'STRING');
       expect(str).toBeDefined();
     });
+
+    it('escaped quote in string value', () => {
+      const css = 'a{content:"a\\\"b";}';
+      const h = highlightsOf(css);
+      const str = findHighlight(h, 'STRING');
+      expect(str).toBeDefined();
+      const length = str!.location.endCol - str!.location.startCol;
+      expect(length).toBe(6); // " a \ " b "
+    });
   });
 
   describe('CONSTANT (numeric values)', () => {
@@ -181,6 +190,14 @@ describe('computeHighlighting', () => {
 
     it('zero with unit', () => {
       const h = highlightsOf('a { margin: 0px; }');
+      const c = findHighlight(h, 'CONSTANT');
+      expect(c).toBeDefined();
+    });
+  });
+
+  describe('CONSTANT (hex colors in values)', () => {
+    it('hex color value is CONSTANT', () => {
+      const h = highlightsOf('a { color: #ddd; }');
       const c = findHighlight(h, 'CONSTANT');
       expect(c).toBeDefined();
     });

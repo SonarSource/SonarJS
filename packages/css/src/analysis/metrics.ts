@@ -28,6 +28,10 @@ function addLineRange(target: Set<number>, startLine: number, endLine: number): 
   }
 }
 
+function addLine(target: Set<number>, line: number): void {
+  target.add(line);
+}
+
 /**
  * Computes metrics from a PostCSS AST root node.
  *
@@ -56,8 +60,17 @@ export function computeMetrics(root: Root | Document): CssMetrics {
         nosonarLines.push(start.line);
       }
     } else {
-      // Rule, AtRule, Declaration nodes contribute to code lines
-      addLineRange(codeLines, start.line, end.line);
+      switch (node.type) {
+        case 'decl':
+        case 'atrule':
+          addLineRange(codeLines, start.line, end.line);
+          break;
+        case 'rule':
+          // Count selector line and closing line, but avoid spanning the full block.
+          addLine(codeLines, start.line);
+          addLine(codeLines, end.line);
+          break;
+      }
     }
   });
 

@@ -156,16 +156,14 @@ async function getAnalyzerForFile(
 ): Promise<FileResult> {
   const filename = input.filePath;
   if (isCssFile(filename, shouldIgnoreParams.cssSuffixes)) {
-    if (!cssLinter.isInitialized()) {
-      // No CSS rules active — skip the file entirely
-      return { issues: [] };
-    }
+    const rules = cssLinter.isInitialized() ? undefined : [];
     return analyzeCSS(
       {
         filePath: input.filePath,
         fileContent: input.fileContent,
         fileType: input.fileType,
         sonarlint: input.sonarlint,
+        rules,
       },
       shouldIgnoreParams,
     );
@@ -176,7 +174,7 @@ async function getAnalyzerForFile(
       sonarlint: input.sonarlint,
     };
     return analyzeHTML(embeddedInput, shouldIgnoreParams);
-  } else if (isYamlFile(filename)) {
+  } else if (isYamlFile(filename, input.fileContent)) {
     const embeddedInput: EmbeddedAnalysisInput = {
       filePath: input.filePath,
       fileContent: input.fileContent,

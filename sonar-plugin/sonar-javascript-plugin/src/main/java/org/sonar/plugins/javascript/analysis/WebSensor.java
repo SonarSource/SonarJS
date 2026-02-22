@@ -16,6 +16,8 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.css.CssLanguage;
@@ -42,30 +45,38 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
+import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
-public class WebSensor extends AbstractBridgeSensor {
+public class WebSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
   private static final Gson GSON = new Gson();
+  private static final String LANG = "JS/TS";
 
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
   private final AnalysisProcessor analysisProcessor;
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CssRules cssRules;
+  private final BridgeServer bridgeServer;
+  private BridgeServer.ProjectAnalysisConfiguration configuration;
+  private JsTsContext<?> context;
   FSListener fsListener;
 
   public WebSensor(
@@ -88,13 +99,13 @@ public class WebSensor extends AbstractBridgeSensor {
     CssRules cssRules,
     @Nullable FSListener fsListener
   ) {
-    super(bridgeServer, "JS/TS");
     this.checks = checks;
     this.consumers = consumers;
     this.analysisProcessor = analysisProcessor;
     this.fsListener = fsListener;
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
+    this.bridgeServer = bridgeServer;
   }
 
   @Override
@@ -104,14 +115,70 @@ public class WebSensor extends AbstractBridgeSensor {
         JavaScriptLanguage.KEY,
         TypeScriptLanguage.KEY,
         CssLanguage.KEY,
-        "yaml",
-        "web"
+        JavaScriptFilePredicate.YAML_LANGUAGE,
+        JavaScriptFilePredicate.WEB_LANGUAGE
       )
       .name("JavaScript/TypeScript/CSS analysis");
   }
 
   @Override
-  protected List<InputFile> getInputFiles() {
+  public void execute(SensorContext sensorContext) {
+    CacheStrategies.reset();
+    this.context = new JsTsContext<>(sensorContext);
+
+    try {
+      List<InputFile> inputFiles = getInputFiles();
+      if (inputFiles.isEmpty()) {
+        LOG.info("No input files found for analysis");
+        return;
+      }
+      if (context.getSensorContext().isCancelled()) {
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
+        );
+      }
+      var msg =
+        context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
+          ? "Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
+          : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
+      LOG.debug(msg);
+      configuration = new BridgeServer.ProjectAnalysisConfiguration(
+        sensorContext.fileSystem().baseDir().getAbsolutePath(),
+        context
+      );
+      bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
+      analyzeFiles(inputFiles);
+    } catch (CancellationException e) {
+      // do not propagate the exception
+      LOG.info(e.toString());
+    } catch (ServerAlreadyFailedException e) {
+      LOG.debug(
+        "Skipping the start of the bridge server " +
+          "as it failed to start during the first analysis or it's not answering anymore"
+      );
+      LOG.debug("No rules will be executed");
+    } catch (NodeCommandException e) {
+      logErrorOrWarn(e.getMessage(), e);
+      throw new IllegalStateException(
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
+          LANG +
+          " files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via '" +
+          NODE_EXECUTABLE_PROPERTY +
+          "' property. Alternatively, you can exclude " +
+          LANG +
+          " files from your analysis using the 'sonar.exclusions' configuration property. " +
+          "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
+        e
+      );
+    } catch (Exception e) {
+      LOG.error("Failure during analysis", e);
+      throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
+    } finally {
+      CacheStrategies.logReport();
+    }
+  }
+
+  private List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.getSensorContext().fileSystem();
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
@@ -119,7 +186,7 @@ public class WebSensor extends AbstractBridgeSensor {
     // HTML files for JS-in-HTML analysis — requires "web" language (from sonar-html).
     // Extension filter limits to extensions we support (sonar-html also covers .cshtml, .erb, etc.).
     var htmlPredicate = p.and(
-      p.hasLanguage("web"),
+      p.hasLanguage(JavaScriptFilePredicate.WEB_LANGUAGE),
       p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
     );
 
@@ -131,10 +198,8 @@ public class WebSensor extends AbstractBridgeSensor {
       p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
     );
 
-    // YAML files (with SAM template check)
-    var yamlPredicate = p.and(JavaScriptFilePredicate.getYamlPredicate(fileSystem), input ->
-      JavaScriptFilePredicate.isSamTemplate(input, LOG)
-    );
+    // YAML files (Helm-safe and SAM template checks)
+    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(fileSystem);
 
     // CSS files — include all types (MAIN and TEST). Old CssMetricSensor processed
     // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
@@ -151,8 +216,7 @@ public class WebSensor extends AbstractBridgeSensor {
     ).toList();
   }
 
-  @Override
-  protected void analyzeFiles(List<InputFile> inputFiles) {
+  private void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(context);
     try {
@@ -328,5 +392,9 @@ public class WebSensor extends AbstractBridgeSensor {
         }
       }
     }
+  }
+
+  protected void logErrorOrWarn(String msg, Throwable e) {
+    LOG.error(msg, e);
   }
 }

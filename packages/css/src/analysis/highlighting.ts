@@ -20,6 +20,16 @@ import selectorParser from 'postcss-selector-parser';
 import type { CssLocation, CssSyntaxHighlight } from './analysis.js';
 
 /**
+ * Highlighting parity notes:
+ * - Old Java CssMetricSensor used a regex-based lexer over the full source and
+ *   highlighted all tokens, regardless of selector/value context.
+ * - In particular, any HASH_IDENTIFIER token matching a hex color pattern
+ *   (e.g. #fff, #e535ab) was highlighted as CONSTANT, even when used as an ID selector.
+ * - We keep that behavior for compatibility by highlighting hex colors in both
+ *   selectors and declaration values.
+ */
+
+/**
  * Resolves the absolute offset and (line, column) for a position
  * within a declaration value string.
  *
@@ -163,7 +173,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
                   0,
                   hashOffset + hashLength,
                 );
-                const isHexColor = /^[0-9a-fA-F]+$/.test(idText);
+                const isHexColor = isHexColorToken(`#${idText}`);
                 highlights.push({
                   location: locationFromPositions(startPos, endPos),
                   textType: isHexColor ? 'CONSTANT' : 'KEYWORD',
@@ -192,7 +202,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
         });
 
         // Parse the value to extract strings and numbers
-        if (node.value && /["'\d]/.test(node.value)) {
+        if (node.value && /["'#\d]/.test(node.value)) {
           // Compute the absolute offset where the value starts in the source.
           // The declaration looks like "prop: value" (possibly with spaces around the colon).
           // We find the colon after the property, then skip whitespace to get to value start.
@@ -240,8 +250,13 @@ function highlightValueTokens(
         valueStartOffset,
         valueNode.sourceIndex,
       );
-      const quoteChar = valueNode.quote || '"';
-      const rawLength = quoteChar.length + valueNode.value.length + quoteChar.length;
+      // Prefer sourceEndIndex to preserve escaped characters in the raw string length.
+      // postcss-value-parser sets `valueNode.quote` to the actual quote character (', ").
+      // Fallback counts opening + closing quote (2 chars) plus the unescaped value length.
+      const rawLength =
+        typeof valueNode.sourceEndIndex === 'number'
+          ? valueNode.sourceEndIndex - valueNode.sourceIndex
+          : (valueNode.quote || '"').length * 2 + valueNode.value.length;
       const endPos = resolveValuePosition(
         lineStarts,
         sourceLength,
@@ -259,11 +274,37 @@ function highlightValueTokens(
         valueStartOffset,
         valueNode.sourceIndex,
       );
+      // Prefer sourceEndIndex to preserve escaped characters in the raw token length.
+      const rawLength =
+        typeof valueNode.sourceEndIndex === 'number'
+          ? valueNode.sourceEndIndex - valueNode.sourceIndex
+          : valueNode.value.length;
       const endPos = resolveValuePosition(
         lineStarts,
         sourceLength,
         valueStartOffset,
-        valueNode.sourceIndex + valueNode.value.length,
+        valueNode.sourceIndex + rawLength,
+      );
+      highlights.push({
+        location: locationFromPositions(startPos, endPos),
+        textType: 'CONSTANT',
+      });
+    } else if (valueNode.type === 'word' && isHexColorToken(valueNode.value)) {
+      const startPos = resolveValuePosition(
+        lineStarts,
+        sourceLength,
+        valueStartOffset,
+        valueNode.sourceIndex,
+      );
+      const rawLength =
+        typeof valueNode.sourceEndIndex === 'number'
+          ? valueNode.sourceEndIndex - valueNode.sourceIndex
+          : valueNode.value.length;
+      const endPos = resolveValuePosition(
+        lineStarts,
+        sourceLength,
+        valueStartOffset,
+        valueNode.sourceIndex + rawLength,
       );
       highlights.push({
         location: locationFromPositions(startPos, endPos),
@@ -293,4 +334,8 @@ function locationFromPositions(
 function isNumericToken(value: string): boolean {
   // Match: optional sign, then digits with optional decimal, then optional unit
   return /^[+-]?(\d+\.?\d*|\.\d+)(%|[a-z]+)?$/i.test(value);
+}
+
+function isHexColorToken(value: string): boolean {
+  return /^#[0-9a-fA-F]+$/.test(value);
 }

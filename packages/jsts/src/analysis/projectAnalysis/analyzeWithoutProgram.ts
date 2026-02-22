@@ -16,7 +16,7 @@
  */
 import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
-import { debug, warn } from '../../../../shared/src/helpers/logging.js';
+import { warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
@@ -54,8 +54,6 @@ export async function analyzeWithoutProgram(
       warn(
         `JS/TS file analyzed without type-checking (not part of any tsconfig.json): ${relativePath}`,
       );
-    } else {
-      debug(`File not part of any tsconfig.json: ${relativePath}`);
     }
     await analyzeFile(
       filename,

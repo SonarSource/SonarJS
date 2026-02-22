@@ -124,8 +124,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
   public static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
-  public static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
-
   public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
   public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
 

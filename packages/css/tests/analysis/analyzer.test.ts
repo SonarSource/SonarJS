@@ -68,6 +68,17 @@ describe('analyzeCSS', () => {
     );
   });
 
+  it('should still parse and compute metrics/highlighting with no rules', async () => {
+    const fileContent = 'a { color: red; }';
+    const result = await analyzeCSS(
+      await input('/some/fake/path', fileContent, []),
+      defaultShouldIgnoreParams,
+    );
+
+    expect(result.metrics?.ncloc.length).toBeGreaterThan(0);
+    expect(result.highlights?.length).toBeGreaterThan(0);
+  });
+
   it('should analyze sass syntax', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.sass');
     await expect(

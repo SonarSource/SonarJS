@@ -219,6 +219,11 @@ export function createConfiguration(raw: unknown): Configuration {
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
 const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+const SAM_TRANSFORM_FIELD = 'AWS::Serverless-2016-10-31';
+const NODEJS_RUNTIME_REGEX = /^\s*Runtime:\s*['"]?nodejs\S*['"]?/;
+const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
+  ['#.*\\{\\{', "'[^']*\\{\\{[^']*'", '"[^"]*\\{\\{[^"]*"', '\\{\\{[\\w\\s]+}}'].join('|'),
+);
 const CSS_ALSO_EXTENSIONS = new Set(['.vue', '.html', '.htm', '.xhtml']);
 
 /**
@@ -258,8 +263,32 @@ export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
   return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isYamlFile(filePath: NormalizedAbsolutePath): boolean {
-  return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
+export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string): boolean {
+  if (!YAML_EXTENSIONS.has(extname(filePath).toLowerCase())) {
+    return false;
+  }
+  if (contents == null) {
+    return true;
+  }
+
+  let hasAwsTransform = false;
+  let hasNodeJsRuntime = false;
+  const lines = contents.split(/\r\n|\r|\n/);
+  for (const line of lines) {
+    if (line.includes('{{') && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.test(line)) {
+      return false;
+    }
+    if (!hasAwsTransform && line.includes(SAM_TRANSFORM_FIELD)) {
+      hasAwsTransform = true;
+    }
+    if (!hasNodeJsRuntime && NODEJS_RUNTIME_REGEX.test(line)) {
+      hasNodeJsRuntime = true;
+    }
+    if (hasAwsTransform && hasNodeJsRuntime) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function isJsTsFile(
@@ -289,7 +318,8 @@ export function isAnalyzableFile(
     isHtmlFile(filePath) ||
     isYamlFile(filePath) ||
     isJsTsFile(filePath, suffixes) ||
-    isCssFile(filePath, suffixes.cssSuffixes)
+    isCssFile(filePath, suffixes.cssSuffixes) ||
+    isAlsoCssFile(filePath)
   );
 }
 

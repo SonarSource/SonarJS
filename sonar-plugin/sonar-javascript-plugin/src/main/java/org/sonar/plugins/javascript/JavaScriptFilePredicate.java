@@ -18,12 +18,9 @@ package org.sonar.plugins.javascript;
 
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 
 public class JavaScriptFilePredicate {
 
@@ -46,21 +43,35 @@ public class JavaScriptFilePredicate {
 
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
   public static final String NODEJS_RUNTIME_REGEX = "^\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?";
+  public static final String YAML_LANGUAGE = "yaml";
+  public static final String WEB_LANGUAGE = "web";
 
   private JavaScriptFilePredicate() {}
 
   public static FilePredicate getYamlPredicate(FileSystem fs) {
     return fs
       .predicates()
-      .and(fs.predicates().hasLanguage("yaml"), inputFile -> {
+      .and(fs.predicates().hasLanguage(YAML_LANGUAGE), inputFile -> {
         try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+          Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
+          boolean hasAwsTransform = false;
+          boolean hasNodeJsRuntime = false;
           while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
               return false;
             }
+            if (!hasAwsTransform && line.contains(SAM_TRANSFORM_FIELD)) {
+              hasAwsTransform = true;
+            }
+            if (!hasNodeJsRuntime && regex.matcher(line).find()) {
+              hasNodeJsRuntime = true;
+            }
+            if (hasAwsTransform && hasNodeJsRuntime) {
+              return true;
+            }
           }
-          return true;
+          return false;
         } catch (IOException e) {
           throw new IllegalStateException(
             String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
@@ -72,30 +83,5 @@ public class JavaScriptFilePredicate {
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
     return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
-  }
-
-  public static boolean isSamTemplate(InputFile inputFile, Logger logger) {
-    boolean hasAwsTransform = false;
-    boolean hasNodeJsRuntime = false;
-    try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-      Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
-      while (scanner.hasNextLine()) {
-        String line = scanner.nextLine();
-        if (line.contains(SAM_TRANSFORM_FIELD)) {
-          hasAwsTransform = true;
-        }
-        Matcher lineMatch = regex.matcher(line);
-        if (lineMatch.find()) {
-          hasNodeJsRuntime = true;
-        }
-        if (hasAwsTransform && hasNodeJsRuntime) {
-          return true;
-        }
-      }
-    } catch (IOException e) {
-      logger.error(String.format("Unable to read file: %s.", inputFile.uri()));
-      logger.error(e.getMessage());
-    }
-    return false;
   }
 }
