@@ -285,7 +285,12 @@ export function isAnalyzableFile(
   filePath: NormalizedAbsolutePath,
   suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
 ): boolean {
-  return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath, suffixes);
+  return (
+    isHtmlFile(filePath) ||
+    isYamlFile(filePath) ||
+    isJsTsFile(filePath, suffixes) ||
+    isCssFile(filePath, suffixes.cssSuffixes)
+  );
 }
 
 function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {

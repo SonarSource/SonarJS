@@ -13,10 +13,14 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.css.rules.CssRule;
 ___IMPORTS___
 import org.sonar.plugins.javascript.bridge.StylelintRule;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
+@ScannerSide
+@SonarLintSide
 public class CssRules {
 
   private final Map<String, RuleKey> stylelintKeyToRuleKey;

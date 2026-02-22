@@ -32,6 +32,33 @@ type Bar = T &amp; U;
 
 type Baz = T &amp; U;
 </pre>
+<h2>Exceptions</h2>
+<p>No issue will be raised when <code>&amp; {}</code> is used with generic type patterns where the empty type serves a legitimate purpose for type
+normalization or non-nullability constraints.</p>
+<p>The following patterns are recognized:</p>
+<ul>
+  <li> <strong>Mapped types</strong>: <code>{ [K in keyof T]: T[K] } &amp; {}</code> - Forces TypeScript to flatten or simplify complex type
+  representations (Simplify/Prettify pattern) </li>
+  <li> <strong>Generic type references with type arguments</strong>: <code>GenericType&lt;T&gt; &amp; {}</code> - Used for type normalization in
+  complex generic type expressions </li>
+  <li> <strong>Type parameter references</strong>: <code>T &amp; {}</code> - Filters out <code>null</code> and <code>undefined</code> from type
+  parameter <code>T</code> </li>
+</ul>
+<p>These patterns are common TypeScript idioms for advanced type manipulation.</p>
+<pre>
+// Compliant by exception: Simplify/Prettify pattern forces type flattening
+type Simplify&lt;T&gt; = { [K in keyof T]: T[K] } &amp; {};
+
+// Compliant by exception: Generic type normalization
+interface SomeProps&lt;T&gt; { value: T; }
+type ExtendedProps&lt;T&gt; = SomeProps&lt;T&gt; &amp; {};
+
+// Compliant by exception: Non-nullability constraint
+type NonNullish&lt;T&gt; = T &amp; {};
+
+// Compliant by exception: Reversed order also works
+type DeepPartialSet&lt;T&gt; = {} &amp; Set&lt;DeepPartial&lt;T&gt;&gt;;
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

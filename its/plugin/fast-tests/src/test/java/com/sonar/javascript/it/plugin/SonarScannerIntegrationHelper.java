@@ -35,7 +35,6 @@ import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 public final class SonarScannerIntegrationHelper {
 
@@ -93,8 +92,8 @@ public final class SonarScannerIntegrationHelper {
         case "web":
           builder.withLanguage("web", "WEB", "sonar.html.file.suffixes", ".html");
           break;
-        case YamlSensor.LANGUAGE:
-          builder.withLanguage(YamlSensor.LANGUAGE, "YAML", ".yaml");
+        case "yaml":
+          builder.withLanguage("yaml", "YAML", ".yaml");
           break;
         default:
           throw new IllegalArgumentException("Unknown language: " + language);

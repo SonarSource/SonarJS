@@ -401,24 +401,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeCss(CssAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-css"), request.filePath());
-  }
-
-  @Override
-  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-yaml"), request.filePath());
-  }
-
-  @Override
-  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) {
-    var json = GSON.toJson(request);
-    return response(request(json, "analyze-html"), request.filePath());
-  }
-
-  @Override
   public void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler) {
     this.client.registerHandler(handler);
     var request = handler.getRequest();

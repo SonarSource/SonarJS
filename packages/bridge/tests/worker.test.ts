@@ -61,27 +61,24 @@ describe('worker', () => {
   it('should post back stringified results', async () => {
     let { promise, resolve, reject } = Promise.withResolvers<void>();
     const input = {
-      filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
-      rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
+      filePath: path.join(import.meta.dirname, 'fixtures', 'routing.js'),
     };
     worker.once('message', message => {
       const { type, result } = message;
       try {
         expect(type).toEqual('success');
-        expect(result).toEqual({
-          issues: [
-            expect.objectContaining({
-              ruleId: 'no-duplicate-selectors',
-            }),
-          ],
-        });
+        expect(result).toEqual(
+          expect.objectContaining({
+            issues: expect.any(Array),
+          }),
+        );
         resolve();
       } catch (e) {
         reject(e);
       }
     });
 
-    worker.postMessage({ type: 'on-analyze-css', data: input });
+    worker.postMessage({ type: 'on-analyze-jsts', data: input });
     await promise;
   });
 

@@ -41,22 +41,10 @@ export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancel
 export type RequestType = BridgeRequest['type'];
 
 export type BridgeRequest =
-  | CssRequest
   | JsTsRequest
-  | EmbeddedRequest
   | ProjectAnalysisRequest
   | CancellationRequest
   | InitLinterRequest;
-
-type CssRequest = {
-  type: 'on-analyze-css';
-  data: unknown;
-};
-
-type EmbeddedRequest = {
-  type: 'on-analyze-html' | 'on-analyze-yaml';
-  data: unknown;
-};
 
 type JsTsRequest = {
   type: 'on-analyze-jsts';

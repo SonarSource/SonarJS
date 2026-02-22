@@ -31,6 +31,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
@@ -51,7 +52,11 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_range() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
@@ -77,7 +82,11 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_symbol() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
@@ -119,7 +128,11 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_cpd() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
@@ -146,7 +159,11 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_issue() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")

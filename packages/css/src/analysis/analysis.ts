@@ -31,16 +31,58 @@ import type { CssIssue } from '../linter/issues/index.js';
  */
 export interface CssAnalysisInput extends AnalysisInput {
   rules?: RuleConfig[];
+  fileType?: string;
+}
+
+/**
+ * A location range within a CSS source file.
+ *
+ * Lines are 1-based, columns are 0-based (matching SonarQube conventions).
+ */
+export interface CssLocation {
+  startLine: number;
+  startCol: number;
+  endLine: number;
+  endCol: number;
+}
+
+/**
+ * A syntax highlight token within a CSS source file.
+ *
+ * @param location the source range to highlight
+ * @param textType the highlight category (e.g. COMMENT, KEYWORD, STRING)
+ */
+export interface CssSyntaxHighlight {
+  location: CssLocation;
+  textType: string;
+}
+
+/**
+ * Metrics computed from a CSS source file.
+ *
+ * CSS files have limited metric semantics compared to JS/TS, so
+ * functions, statements, classes, complexity, and cognitiveComplexity
+ * are always 0. The primary metrics are ncloc and commentLines.
+ */
+export interface CssMetrics {
+  ncloc: number[];
+  commentLines: number[];
+  nosonarLines: number[];
+  executableLines: number[];
+  functions: number;
+  statements: number;
+  classes: number;
+  complexity: number;
+  cognitiveComplexity: number;
 }
 
 /**
  * A CSS analysis output
  *
- * Computing data analysis like metrics does nit realy makes
- * sense in the context of stylesheets. Therefore, only issues
- * form the content of a CSS analysis output beside an analysis
- * error.
- *
- * @param issues
+ * Contains linting issues and, when not running in SonarLint mode,
+ * syntax highlighting tokens and file metrics.
  */
-export interface CssAnalysisOutput extends AnalysisOutput<CssIssue> {}
+export interface CssAnalysisOutput extends AnalysisOutput<CssIssue> {
+  highlights?: CssSyntaxHighlight[];
+  metrics?: CssMetrics;
+}
