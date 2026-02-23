@@ -1,9 +1,20 @@
 {
+"eigen:src/app/Components/ArtworkGrids/SaleArtworkGridItem.tsx": [
+24,
+25
+],
 "eigen:src/app/Components/AuctionResultsList.tsx": [
 109
 ],
+"eigen:src/app/Components/Buttons/BottomAlignedButtonWrapper.tsx": [
+6
+],
 "eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx": [
 94
+],
+"eigen:src/app/Components/PopoverMessage/PopoverMessage.tsx": [
+25,
+26
 ],
 "eigen:src/app/Components/RetryErrorBoundary.tsx": [
 54
@@ -41,6 +52,9 @@
 "eigen:src/app/Scenes/MyAccount/MyAccountEditName.tsx": [
 15
 ],
+"eigen:src/app/Scenes/MyBids/MyBids.tsx": [
+172
+],
 "eigen:src/app/Scenes/Partner/Components/PartnerFollowButton.tsx": [
 11
 ],
@@ -51,6 +65,9 @@
 "eigen:src/app/Scenes/Sale/Components/SaleArtworkListItem.tsx": [
 21,
 22
+],
+"eigen:src/app/Scenes/SavedSearchAlert/Components/SavedSearchAlertSwitch.tsx": [
+9
 ],
 "eigen:src/app/navigation/NavStack.tsx": [
 59,
