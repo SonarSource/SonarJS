@@ -480,6 +480,72 @@ describe('SonarLint tsconfig change detection', () => {
     expect(fileResult).toBeDefined();
   });
 
+  it('should skip TypeScript program creation for orphan files when createTSProgramForOrphanFiles is false', async () => {
+    await writeFile(filePath, 'const x: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir: tempDir, sonarlint: true, createTSProgramForOrphanFiles: false },
+      { [filePath]: { filePath, fileContent: 'const x: number = 1;' } },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // Should log the skipping message
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'Skipping TypeScript program creation for orphan file',
+        ),
+      ),
+    ).toBe(true);
+
+    // The file should still be analyzed (without type info, via analyzeWithoutProgram)
+    expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
+
+    // Should NOT log "using default options" since we skip the fallback program creation
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes('using default options'),
+      ),
+    ).toBe(false);
+  });
+
+  it('should create TypeScript program for orphan files when createTSProgramForOrphanFiles is true', async () => {
+    await writeFile(filePath, 'const x: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir: tempDir, sonarlint: true, createTSProgramForOrphanFiles: true },
+      { [filePath]: { filePath, fileContent: 'const x: number = 1;' } },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // Should log the default options message (fallback program creation runs)
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes('using default options'),
+      ),
+    ).toBe(true);
+
+    // Should NOT log the skipping message
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'Skipping TypeScript program creation for orphan file',
+        ),
+      ),
+    ).toBe(false);
+
+    // File should be analyzed
+    expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
+  });
+
   it('should handle error from tsconfig in sonarlint context', async () => {
     // Clear caches to ensure fresh state
     tsConfigStore.clearCache();

@@ -82,6 +82,7 @@ export async function analyzeWithIncrementalProgram(
         pendingFiles,
         baseDir,
         canAccessFileSystem,
+        jsTsConfigFields.createTSProgramForOrphanFiles,
       ),
     );
 
@@ -117,6 +118,7 @@ function programOptionsFromClosestTsconfig(
   pendingFiles: Set<NormalizedAbsolutePath>,
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
+  createTSProgramForOrphanFiles: boolean,
 ): ProgramOptions | undefined {
   const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
@@ -150,6 +152,13 @@ function programOptionsFromClosestTsconfig(
         `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
       );
     }
+  }
+
+  if (!createTSProgramForOrphanFiles) {
+    info(
+      `Skipping TypeScript program creation for orphan file (sonar.javascript.createTSProgramForOrphanFiles=false)`,
+    );
+    return undefined;
   }
 
   try {
