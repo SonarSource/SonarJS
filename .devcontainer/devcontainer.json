@@ -1,0 +1,37 @@
+{
+  "name": "SonarJS",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [50051],
+  "portsAttributes": {
+    "50051": {
+      "label": "SonarJS gRPC Bridge",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "mise install && git submodule update --init --recursive && npm ci",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vscjava.vscode-java-pack",
+        "editorconfig.editorconfig",
+        "github.vscode-pull-request-github"
+      ],
+      "settings": {
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "eslint.useFlatConfig": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}
