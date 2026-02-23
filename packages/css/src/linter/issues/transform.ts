@@ -79,5 +79,5 @@ export function transform(
  * SonarQube only needs the description.
  */
 function normalizeMessage(message: string): string {
-  return message.replace(/\s*\([a-zA-Z\-/@]+\)\s*$/, '').trim();
+  return message.replace(/\([a-zA-Z/@-]+\)$/, '').trim();
 }

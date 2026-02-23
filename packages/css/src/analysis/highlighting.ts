@@ -20,95 +20,119 @@ import selectorParser from 'postcss-selector-parser';
 import type { CssLocation, CssSyntaxHighlight } from './analysis.js';
 
 /**
- * Highlighting parity notes:
- * - Old Java CssMetricSensor used a regex-based lexer over the full source and
+ * Highlighting parity notes (vs old Java CssMetricSensor):
+ * - The old sensor used a regex-based lexer over the full source and
  *   highlighted all tokens, regardless of selector/value context.
  * - In particular, any HASH_IDENTIFIER token matching a hex color pattern
  *   (e.g. #fff, #e535ab) was highlighted as CONSTANT, even when used as an ID selector.
  * - We keep that behavior for compatibility by highlighting hex colors in both
  *   selectors and declaration values.
+ *
+ * Why we need sub-parsers (postcss-value-parser, postcss-selector-parser):
+ * - PostCSS gives us full source positions for top-level nodes (comments, at-rules,
+ *   declarations, rules), but declaration values and selectors are opaque strings.
+ * - To highlight individual tokens within values (strings, numbers, hex colors) and
+ *   selectors (#id), we use dedicated sub-parsers that provide offsets relative to
+ *   the value/selector string start. We then convert those relative offsets to
+ *   absolute source positions using the source map built by buildSourceMap().
  */
 
 /**
- * Resolves the absolute offset and (line, column) for a position
- * within a declaration value string.
+ * Builds two data structures for O(1) offset-to-position lookups:
  *
- * PostCSS gives us the declaration node's start position and the
- * raw value string. `postcss-value-parser` gives offsets within that
- * value. We translate the value-relative offset into an absolute
- * (line, column) using a precomputed line-start index.
+ * - lineAt: a Uint32Array of size source.length+1, where lineAt[offset] is the
+ *   1-based line number for the character at that offset. The extra entry at
+ *   source.length covers the EOF position (used for end-of-token offsets).
  *
- * @param lineStarts absolute offsets for the start of each line (1-based line numbers)
- * @param sourceLength total source length, used to clamp offsets
- * @param valueStartOffset the absolute offset of the value string start
- * @param relativeOffset offset within the value string
- * @returns 1-based line and 0-based column
+ * - lineStarts: an array where lineStarts[i] is the absolute offset of the first
+ *   character on line i+1 (0-indexed). Used to compute columns:
+ *   column = offset - lineStarts[lineAt[offset] - 1]
+ *
+ * Handles LF (\n), CRLF (\r\n), and CR (\r) line endings. For CRLF, both \r and \n
+ * are assigned to the same line (the line before the break).
+ *
+ * Example: source = "ab\ncd\n"
+ *   lineAt    = [1, 1, 1, 2, 2, 2, 2]  (indices 0-6, including EOF at index 6)
+ *   lineStarts = [0, 3]                  (line 1 starts at 0, line 2 starts at 3)
  */
-function resolveValuePosition(
-  lineStarts: number[],
-  sourceLength: number,
-  valueStartOffset: number,
-  relativeOffset: number,
-): { line: number; col: number } {
-  const absOffset = Math.max(0, Math.min(sourceLength, valueStartOffset + relativeOffset));
-  let low = 0;
-  let high = lineStarts.length - 1;
-
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2);
-    const lineStart = lineStarts[mid];
-    const nextLineStart = mid + 1 < lineStarts.length ? lineStarts[mid + 1] : sourceLength + 1;
-
-    if (absOffset < lineStart) {
-      high = mid - 1;
-    } else if (absOffset >= nextLineStart) {
-      low = mid + 1;
-    } else {
-      return { line: mid + 1, col: absOffset - lineStart };
+function buildSourceMap(source: string): { lineAt: Uint32Array; lineStarts: number[] } {
+  const lineAt = new Uint32Array(source.length + 1);
+  const lineStarts: number[] = [0];
+  let line = 1;
+  for (let i = 0; i < source.length; i++) {
+    lineAt[i] = line;
+    const ch = source[i];
+    if (ch === '\r') {
+      // For CRLF, consume the \n as part of the same line break
+      if (source[i + 1] === '\n') {
+        i++;
+        lineAt[i] = line;
+      }
+      line++;
+      lineStarts.push(i + 1);
+    } else if (ch === '\n') {
+      line++;
+      lineStarts.push(i + 1);
     }
   }
-
-  const lastLineStart = lineStarts[lineStarts.length - 1] ?? 0;
-  return { line: lineStarts.length || 1, col: absOffset - lastLineStart };
+  // EOF position maps to the last line (needed when a token ends at source.length)
+  lineAt[source.length] = line;
+  return { lineAt, lineStarts };
 }
 
 /**
- * Builds line start offsets for fast offset -> (line, column) resolution.
- * Handles LF, CRLF, and CR line endings.
+ * Converts an absolute source offset to a 1-based line and 0-based column.
+ *
+ * The offset is clamped to [0, sourceLength] to safely handle edge cases
+ * (e.g. tokens at the very end of the file).
+ *
+ * Line is looked up directly from lineAt (O(1)).
+ * Column is computed by subtracting the offset where the line starts.
  */
-function buildLineStarts(source: string): number[] {
-  const lineStarts: number[] = [0];
-  for (let i = 0; i < source.length; i++) {
-    const ch = source[i];
-    if (ch === '\r') {
-      if (source[i + 1] === '\n') {
-        i++;
-      }
-      lineStarts.push(i + 1);
-    } else if (ch === '\n') {
-      lineStarts.push(i + 1);
-    }
-  }
-  return lineStarts;
+function positionAt(
+  lineAt: Uint32Array,
+  lineStarts: number[],
+  sourceLength: number,
+  offset: number,
+): { line: number; col: number } {
+  const clamped = Math.max(0, Math.min(sourceLength, offset));
+  const line = lineAt[clamped];
+  const col = clamped - lineStarts[line - 1];
+  return { line, col };
 }
 
 /**
  * Computes syntax highlighting tokens from a PostCSS AST root node.
  *
- * Maps PostCSS node types to SonarQube highlight categories:
- * - Comment nodes -> COMMENT
- * - AtRule @name -> ANNOTATION
- * - Declaration property -> KEYWORD_LIGHT (or KEYWORD for SCSS $ variables)
- * - String literals in values -> STRING
- * - Numeric literals in values -> CONSTANT
+ * Walks all AST nodes and maps them to SonarQube highlight categories:
  *
- * @param root the PostCSS AST root
- * @param source the original source text (needed for value offset resolution)
- * @returns array of syntax highlight tokens
+ * | PostCSS node type | Highlighted portion      | SonarQube TextType |
+ * |-------------------|--------------------------|--------------------|
+ * | comment           | entire comment           | COMMENT            |
+ * | atrule            | @name (e.g. @media)      | ANNOTATION         |
+ * | rule              | #id selectors            | KEYWORD            |
+ * | rule              | #hex colors in selectors | CONSTANT           |
+ * | decl              | property name            | KEYWORD_LIGHT      |
+ * | decl              | SCSS $variable name      | KEYWORD            |
+ * | decl value        | string literals          | STRING             |
+ * | decl value        | numeric values           | CONSTANT           |
+ * | decl value        | hex colors               | CONSTANT           |
+ *
+ * For comment, atrule, and decl property names, positions come directly from
+ * PostCSS node.source.start/end (1-based lines, 1-based columns converted to 0-based).
+ *
+ * For tokens inside declaration values and selectors, we use sub-parsers
+ * (postcss-value-parser and postcss-selector-parser) which give offsets relative
+ * to the value/selector string. These relative offsets are converted to absolute
+ * source positions via the source map.
+ *
+ * @param root the PostCSS AST root (from Stylelint's parse result)
+ * @param source the original source text (needed for offset-based position resolution)
+ * @returns array of syntax highlight tokens sorted by appearance in source
  */
 export function computeHighlighting(root: Root | Document, source: string): CssSyntaxHighlight[] {
   const highlights: CssSyntaxHighlight[] = [];
-  const lineStarts = buildLineStarts(source);
+  const { lineAt, lineStarts } = buildSourceMap(source);
   const sourceLength = source.length;
   const parseSelector = selectorParser();
 
@@ -121,7 +145,7 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
 
     switch (node.type) {
       case 'comment': {
-        // Highlight the entire comment range
+        // PostCSS gives us exact start/end for comments, including delimiters
         highlights.push({
           location: {
             startLine: start.line,
@@ -135,15 +159,16 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
       }
 
       case 'atrule': {
-        // Highlight the @name portion (e.g. @media, @import)
-        // Starts at the @ symbol and spans the name length
+        // Highlight only the @name portion (e.g. "@media", "@import", "@if").
+        // node.name is the name without @, so total length = 1 (@) + name.length.
+        // At-rules always start on a single line so endLine = startLine.
         const nameLength = node.name.length;
         highlights.push({
           location: {
             startLine: start.line,
             startCol: start.column - 1,
             endLine: start.line,
-            endCol: start.column - 1 + 1 + nameLength, // @ + name
+            endCol: start.column - 1 + 1 + nameLength, // +1 for the @ symbol
           },
           textType: 'ANNOTATION',
         });
@@ -151,8 +176,9 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
       }
 
       case 'rule': {
-        // Parse selectors for ID selectors (#header → KEYWORD) and
-        // hex colors (#fff → CONSTANT), matching old CssMetricSensor behavior.
+        // Selectors are opaque strings in PostCSS (e.g. "#header, .class").
+        // We use postcss-selector-parser to find #id tokens within the selector.
+        // Quick bail-out: skip selector parsing entirely if there's no # character.
         if (!node.selector.includes('#')) {
           break;
         }
@@ -162,17 +188,20 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
             const selectorAst = parseSelector.astSync(node.selector);
             selectorAst.walk(selectorNode => {
               if (selectorNode.type === 'id') {
-                // #identifier → KEYWORD (or CONSTANT if hex color pattern)
                 const idText = selectorNode.value;
+                // sourceIndex is the offset of # within the selector string
                 const hashOffset = selectorOffset + selectorNode.sourceIndex;
-                const hashLength = idText.length + 1; // # + name
-                const startPos = resolveValuePosition(lineStarts, sourceLength, 0, hashOffset);
-                const endPos = resolveValuePosition(
+                const hashLength = idText.length + 1; // # + identifier name
+
+                const startPos = positionAt(lineAt, lineStarts, sourceLength, hashOffset);
+                const endPos = positionAt(
+                  lineAt,
                   lineStarts,
                   sourceLength,
-                  0,
                   hashOffset + hashLength,
                 );
+
+                // Hex color patterns (#fff, #e535ab) → CONSTANT; real IDs (#header) → KEYWORD
                 const isHexColor = isHexColorToken(`#${idText}`);
                 highlights.push({
                   location: locationFromPositions(startPos, endPos),
@@ -181,14 +210,16 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
               }
             });
           } catch {
-            // Selector parsing may fail on preprocessor syntax — skip gracefully
+            // Selector parsing may fail on preprocessor syntax (e.g. SCSS nesting) — skip
           }
         }
         break;
       }
 
       case 'decl': {
-        // Highlight the property name
+        // Highlight the property name (e.g. "color", "font-size", "$variable").
+        // SCSS variables ($var) get KEYWORD; regular properties get KEYWORD_LIGHT.
+        // Property names are always on a single line.
         const prop = node.prop;
         const textType = prop.startsWith('$') ? 'KEYWORD' : 'KEYWORD_LIGHT';
         highlights.push({
@@ -201,16 +232,18 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
           textType,
         });
 
-        // Parse the value to extract strings and numbers
+        // Parse the value to highlight strings, numbers, and hex colors.
+        // Quick bail-out: only parse if the value likely contains highlightable tokens.
         if (node.value && /["'#\d]/.test(node.value)) {
-          // Compute the absolute offset where the value starts in the source.
-          // The declaration looks like "prop: value" (possibly with spaces around the colon).
-          // We find the colon after the property, then skip whitespace to get to value start.
+          // PostCSS gives us node.value as a plain string (e.g. "10px solid #fff").
+          // We need its absolute offset in the source to map sub-parser offsets.
+          // A declaration looks like "prop: value" with optional spaces around ":".
+          // We find the colon after the property name and skip whitespace to get the
+          // absolute offset where the value string begins.
           const declStartOffset = start.offset;
           if (declStartOffset != null) {
             const colonIdx = source.indexOf(':', declStartOffset + prop.length);
             if (colonIdx !== -1) {
-              // Skip whitespace after colon to find value start
               let valueStart = colonIdx + 1;
               while (
                 valueStart < source.length &&
@@ -218,7 +251,14 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
               ) {
                 valueStart++;
               }
-              highlightValueTokens(highlights, lineStarts, sourceLength, valueStart, node.value);
+              highlightValueTokens(
+                highlights,
+                lineAt,
+                lineStarts,
+                sourceLength,
+                valueStart,
+                node.value,
+              );
             }
           }
         }
@@ -231,10 +271,22 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
 }
 
 /**
- * Parses a CSS declaration value and emits STRING and CONSTANT highlights.
+ * Parses a CSS declaration value string and emits STRING and CONSTANT highlights.
+ *
+ * Uses postcss-value-parser to tokenize the value. Each token has a sourceIndex
+ * (offset relative to the value string start). We add valueStartOffset to convert
+ * these to absolute source offsets, then resolve to (line, col) via the source map.
+ *
+ * @param highlights array to push highlights into
+ * @param lineAt per-character line number lookup
+ * @param lineStarts per-line start offset lookup
+ * @param sourceLength total source length for clamping
+ * @param valueStartOffset absolute offset in source where this value string begins
+ * @param value the declaration value string to parse
  */
 function highlightValueTokens(
   highlights: CssSyntaxHighlight[],
+  lineAt: Uint32Array,
   lineStarts: number[],
   sourceLength: number,
   valueStartOffset: number,
@@ -242,78 +294,31 @@ function highlightValueTokens(
 ): void {
   const parsed = valueParser(value);
   parsed.walk(valueNode => {
+    // sourceIndex/sourceEndIndex are offsets relative to the value string.
+    // Adding valueStartOffset converts them to absolute source offsets.
+    const startOffset = valueStartOffset + valueNode.sourceIndex;
+    const endOffset = valueStartOffset + valueNode.sourceEndIndex;
+
     if (valueNode.type === 'string') {
-      // Include the quotes in the highlight
-      const startPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex,
-      );
-      // Prefer sourceEndIndex to preserve escaped characters in the raw string length.
-      // postcss-value-parser sets `valueNode.quote` to the actual quote character (', ").
-      // Fallback counts opening + closing quote (2 chars) plus the unescaped value length.
-      const rawLength =
-        typeof valueNode.sourceEndIndex === 'number'
-          ? valueNode.sourceEndIndex - valueNode.sourceIndex
-          : (valueNode.quote || '"').length * 2 + valueNode.value.length;
-      const endPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex + rawLength,
-      );
+      // String tokens: the range includes surrounding quotes and escape sequences.
       highlights.push({
-        location: locationFromPositions(startPos, endPos),
+        location: locationFromOffsets(lineAt, lineStarts, sourceLength, startOffset, endOffset),
         textType: 'STRING',
       });
-    } else if (valueNode.type === 'word' && isNumericToken(valueNode.value)) {
-      const startPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex,
-      );
-      // Prefer sourceEndIndex to preserve escaped characters in the raw token length.
-      const rawLength =
-        typeof valueNode.sourceEndIndex === 'number'
-          ? valueNode.sourceEndIndex - valueNode.sourceIndex
-          : valueNode.value.length;
-      const endPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex + rawLength,
-      );
+    } else if (
+      valueNode.type === 'word' &&
+      (isNumericToken(valueNode.value) || isHexColorToken(valueNode.value))
+    ) {
+      // Numeric values (10, 3.14, 10px, 100%) and hex colors (#fff, #e535ab) → CONSTANT.
       highlights.push({
-        location: locationFromPositions(startPos, endPos),
-        textType: 'CONSTANT',
-      });
-    } else if (valueNode.type === 'word' && isHexColorToken(valueNode.value)) {
-      const startPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex,
-      );
-      const rawLength =
-        typeof valueNode.sourceEndIndex === 'number'
-          ? valueNode.sourceEndIndex - valueNode.sourceIndex
-          : valueNode.value.length;
-      const endPos = resolveValuePosition(
-        lineStarts,
-        sourceLength,
-        valueStartOffset,
-        valueNode.sourceIndex + rawLength,
-      );
-      highlights.push({
-        location: locationFromPositions(startPos, endPos),
+        location: locationFromOffsets(lineAt, lineStarts, sourceLength, startOffset, endOffset),
         textType: 'CONSTANT',
       });
     }
   });
 }
 
+/** Converts two {line, col} positions into a CssLocation. */
 function locationFromPositions(
   start: { line: number; col: number },
   end: { line: number; col: number },
@@ -326,16 +331,34 @@ function locationFromPositions(
   };
 }
 
-/**
- * Checks whether a value-parser word token represents a numeric value.
- * Matches CSS numbers like 10, 3.14, .5, 10px, 1.5em, 100%, #fff, etc.
- * Excludes hex color literals and plain identifiers.
- */
-function isNumericToken(value: string): boolean {
-  // Match: optional sign, then digits with optional decimal, then optional unit
-  return /^[+-]?(\d+\.?\d*|\.\d+)(%|[a-z]+)?$/i.test(value);
+/** Converts two absolute source offsets into a CssLocation via the source map. */
+function locationFromOffsets(
+  lineAt: Uint32Array,
+  lineStarts: number[],
+  sourceLength: number,
+  startOffset: number,
+  endOffset: number,
+): CssLocation {
+  const start = positionAt(lineAt, lineStarts, sourceLength, startOffset);
+  const end = positionAt(lineAt, lineStarts, sourceLength, endOffset);
+  return {
+    startLine: start.line,
+    startCol: start.col,
+    endLine: end.line,
+    endCol: end.col,
+  };
 }
 
+/**
+ * Checks whether a value-parser word token represents a CSS numeric value.
+ * Matches: 10, 3.14, .5, 10px, 1.5em, 100%, etc.
+ * Does NOT match hex colors (#fff) or plain identifiers (auto, bold).
+ */
+function isNumericToken(value: string): boolean {
+  return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:%|[a-z]+)?$/i.test(value);
+}
+
+/** Matches CSS hex color literals: #fff, #e535ab, #00FF00, etc. */
 function isHexColorToken(value: string): boolean {
   return /^#[0-9a-fA-F]+$/.test(value);
 }

@@ -222,7 +222,12 @@ const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
 const SAM_TRANSFORM_FIELD = 'AWS::Serverless-2016-10-31';
 const NODEJS_RUNTIME_REGEX = /^\s*Runtime:\s*['"]?nodejs\S*['"]?/;
 const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
-  ['#.*\\{\\{', "'[^']*\\{\\{[^']*'", '"[^"]*\\{\\{[^"]*"', '\\{\\{[\\w\\s]+}}'].join('|'),
+  [
+    String.raw`#.*\{\{`, // {{ inside a YAML comment
+    String.raw`'[^']*\{\{[^']*'`, // {{ inside a single-quoted string
+    String.raw`"[^"]*\{\{[^"]*"`, // {{ inside a double-quoted string
+    String.raw`\{\{[\w\s]+}}`, // actual Helm directive: {{ .Values.foo }}
+  ].join('|'),
 );
 const CSS_ALSO_EXTENSIONS = new Set(['.vue', '.html', '.htm', '.xhtml']);
 
