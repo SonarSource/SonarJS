@@ -260,22 +260,25 @@ public class WebSensor implements Sensor {
       var files = new HashMap<String, BridgeServer.JsTsFile>();
       try {
         for (InputFile inputFile : inputFiles) {
-          if (isJsTsFile(inputFile)) {
+          var language = inputFile.language();
+          var isJsTs = isJsTsFile(inputFile);
+          var isHtmlOrYaml =
+            JavaScriptFilePredicate.WEB_LANGUAGE.equals(language) ||
+            JavaScriptFilePredicate.YAML_LANGUAGE.equals(language);
+
+          if (isJsTs || isHtmlOrYaml) {
             CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
             if (cacheStrategy.isAnalysisRequired()) {
               addFileToAnalyze(files, inputFile);
               fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-            } else {
+            } else if (isJsTs) {
               LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
               var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
               analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
               acceptAstResponse(cacheAnalysis.getAst(), inputFile);
             }
           } else {
-            // CSS, HTML, YAML files: always analyze, no caching.
-            // These were handled by separate sensors before and had no cache
-            // (CssRuleSensor, CssMetricSensor) or independent cache (HtmlSensor, YamlSensor).
-            // Skipping cache avoids cache write failures crashing the unified analysis.
+            // CSS and extension-based web files: always analyze, no caching.
             addFileToAnalyze(files, inputFile);
           }
         }

@@ -267,6 +267,9 @@ export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string):
   if (!YAML_EXTENSIONS.has(extname(filePath).toLowerCase())) {
     return false;
   }
+  // When contents are provided, apply the same Helm-safe + SAM template checks
+  // as the Java predicate: reject Helm-unsafe {{ ... }} tokens, and require
+  // both the SAM transform marker and a Node.js runtime declaration.
   if (contents == null) {
     return true;
   }
@@ -284,11 +287,8 @@ export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string):
     if (!hasNodeJsRuntime && NODEJS_RUNTIME_REGEX.test(line)) {
       hasNodeJsRuntime = true;
     }
-    if (hasAwsTransform && hasNodeJsRuntime) {
-      return true;
-    }
   }
-  return false;
+  return hasAwsTransform && hasNodeJsRuntime;
 }
 
 export function isJsTsFile(

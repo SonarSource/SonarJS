@@ -48,6 +48,16 @@ public class JavaScriptFilePredicate {
 
   private JavaScriptFilePredicate() {}
 
+  /**
+   * YAML predicate with Helm-safe filtering and SAM template detection.
+   *
+   * <p>Helm templates use {@code {{ ... }}}. We treat any such token appearing outside
+   * comments or quoted strings as "unsafe" and exclude the file, because it may
+   * no longer be valid YAML after templating.</p>
+   *
+   * <p>We only accept files that also contain the SAM transform marker and a
+   * Node.js runtime declaration, matching the previous YamlSensor behavior.</p>
+   */
   public static FilePredicate getYamlPredicate(FileSystem fs) {
     return fs
       .predicates()
@@ -67,11 +77,8 @@ public class JavaScriptFilePredicate {
             if (!hasNodeJsRuntime && regex.matcher(line).find()) {
               hasNodeJsRuntime = true;
             }
-            if (hasAwsTransform && hasNodeJsRuntime) {
-              return true;
-            }
           }
-          return false;
+          return hasAwsTransform && hasNodeJsRuntime;
         } catch (IOException e) {
           throw new IllegalStateException(
             String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),

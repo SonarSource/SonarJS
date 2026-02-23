@@ -46,9 +46,19 @@ class JavaScriptFilePredicateTest {
       .concat(newLine)
       .concat("metadata:")
       .concat(" name: ");
+    var samHeader = "".concat("Transform: AWS::Serverless-2016-10-31")
+      .concat(newLine)
+      .concat("Runtime: nodejs18.x")
+      .concat(newLine);
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    fs.add(createInputFile(baseDir, "plain.yaml", baseYamlFile.concat("{{ .Values.count }}")));
+    fs.add(
+      createInputFile(
+        baseDir,
+        "plain.yaml",
+        samHeader.concat(baseYamlFile.concat("{{ .Values.count }}"))
+      )
+    );
     fs.add(
       createInputFile(baseDir, "single-quote.yaml", baseYamlFile.concat("'{{ .Values.count }}'"))
     );
@@ -63,18 +73,20 @@ class JavaScriptFilePredicateTest {
         baseYamlFile.concat("custom-label: {{MY_CUSTOM_LABEL}}")
       )
     );
+    fs.add(
+      createInputFile(
+        baseDir,
+        "sam-template.yaml",
+        samHeader.concat(baseYamlFile.concat("Description: \"{{ ok }}\""))
+      )
+    );
 
     FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs);
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     var filenames = files.stream().map(File::getName).toList();
-    assertThat(filenames).containsExactlyInAnyOrder(
-      "single-quote.yaml",
-      "double-quote.yaml",
-      "comment.yaml",
-      "code-fresh.yaml"
-    );
+    assertThat(filenames).containsExactlyInAnyOrder("sam-template.yaml");
   }
 
   @Test
