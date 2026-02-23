@@ -60,6 +60,7 @@ class AnalysisProcessorTest {
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
@@ -90,6 +91,7 @@ class AnalysisProcessorTest {
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var symbol = new HighlightedSymbol(declaration, List.of());
@@ -136,6 +138,7 @@ class AnalysisProcessorTest {
     var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
