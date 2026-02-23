@@ -15,7 +15,7 @@
     }
   },
   "remoteUser": "node",
-  "postCreateCommand": "mise install && git submodule update --init --recursive && npm ci",
+  "postCreateCommand": "mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
