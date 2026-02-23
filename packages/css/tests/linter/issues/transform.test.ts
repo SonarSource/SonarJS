@@ -51,6 +51,35 @@ describe('transform', () => {
     ]);
   });
 
+  it('should strip the trailing (rulekey) suffix from messages', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'block-no-empty',
+            text: 'Unexpected empty block (block-no-empty)',
+            line: 1,
+            column: 1,
+          },
+        ],
+      },
+    ] as stylelint.LintResult[];
+
+    const issues = transform(results, filePath);
+
+    expect(issues).toEqual([
+      {
+        ruleId: 'block-no-empty',
+        message: 'Unexpected empty block',
+        language: 'css',
+        line: 1,
+        column: 1,
+      },
+    ]);
+  });
+
   it('should not transform Stylelint results from a different file', ({ mock }) => {
     console.log = mock.fn(console.log);
 

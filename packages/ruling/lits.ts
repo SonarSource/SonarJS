@@ -70,6 +70,10 @@ function transformResults(projectPath: string, project: string, results: Project
     const projectWithFilename = `${project}:${relativePath}`;
     if ('issues' in analysisOutput) {
       for (const issue of analysisOutput.issues) {
+        if (issue.ruleId === 'CssSyntaxError') {
+          // CSS parsing errors are skipped, no parsing error rule in CSS // TODO??
+          continue;
+        }
         const { ruleId, language, line } = issue;
         result[ruleId] = result[ruleId] ?? { js: {}, ts: {}, css: {} };
         result[ruleId][language][projectWithFilename] =

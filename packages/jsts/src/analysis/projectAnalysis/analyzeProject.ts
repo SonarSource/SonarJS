@@ -27,6 +27,7 @@ import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import {
   type Configuration,
   getJsTsConfigFields,
+  isJsTsFile,
 } from '../../../../shared/src/helpers/configuration.js';
 import { info, error } from '../../../../shared/src/helpers/logging.js';
 import { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -94,7 +95,7 @@ export async function analyzeProject(
 
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (sonarlint) {
+    if (sonarlint && rules.length) {
       await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
@@ -105,7 +106,7 @@ export async function analyzeProject(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
-    } else {
+    } else if (rules.length) {
       await analyzeWithProgram(
         filesToAnalyze,
         results,
@@ -118,9 +119,14 @@ export async function analyzeProject(
       );
     }
     if (pendingFiles.size) {
-      info(
-        `Found ${pendingFiles.size} file(s) not part of any tsconfig.json: they will be analyzed without type information`,
-      );
+      const pendingJsTsCount = Array.from(pendingFiles).filter(filePath =>
+        isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
+      ).length;
+      if (pendingJsTsCount > 0) {
+        info(
+          `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
+        );
+      }
       await analyzeWithoutProgram(
         pendingFiles,
         filesToAnalyze,

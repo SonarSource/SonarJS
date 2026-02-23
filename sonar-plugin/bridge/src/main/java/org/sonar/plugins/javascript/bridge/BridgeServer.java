@@ -48,12 +48,6 @@ public interface BridgeServer extends Startable {
 
   AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException;
-
-  AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException;
-
   void clean() throws InterruptedException;
 
   String getCommandInfo();
@@ -140,6 +134,7 @@ public interface BridgeServer extends Startable {
     public ProjectAnalysisConfiguration configuration;
     private List<String> bundles;
     private String rulesWorkdir;
+    private List<StylelintRule> cssRules;
 
     public ProjectAnalysisRequest(
       Map<String, JsTsFile> files,
@@ -165,6 +160,14 @@ public interface BridgeServer extends Startable {
 
     public void setRulesWorkdir(String rulesWorkdir) {
       this.rulesWorkdir = rulesWorkdir;
+    }
+
+    public List<StylelintRule> getCssRules() {
+      return cssRules;
+    }
+
+    public void setCssRules(List<StylelintRule> cssRules) {
+      this.cssRules = cssRules;
     }
   }
 
@@ -252,21 +255,6 @@ public interface BridgeServer extends Startable {
   record ProjectAnalysisMetaResponse(List<String> warnings) {
     public ProjectAnalysisMetaResponse() {
       this(List.of());
-    }
-  }
-
-  record CssAnalysisRequest(
-    String filePath,
-    @Nullable String fileContent,
-    List<StylelintRule> rules,
-    @Nullable ProjectAnalysisConfiguration configuration
-  ) {
-    public CssAnalysisRequest(
-      String filePath,
-      @Nullable String fileContent,
-      List<StylelintRule> rules
-    ) {
-      this(filePath, fileContent, rules, null);
     }
   }
 
@@ -395,6 +383,15 @@ public interface BridgeServer extends Startable {
     int complexity,
     int cognitiveComplexity
   ) {
+    // Defensive null-guarding: if the bridge JSON has a metrics object but
+    // omits some list fields, Gson passes null to the canonical constructor.
+    public Metrics {
+      ncloc = ncloc != null ? ncloc : List.of();
+      commentLines = commentLines != null ? commentLines : List.of();
+      nosonarLines = nosonarLines != null ? nosonarLines : List.of();
+      executableLines = executableLines != null ? executableLines : List.of();
+    }
+
     public Metrics() {
       this(List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0, 0);
     }

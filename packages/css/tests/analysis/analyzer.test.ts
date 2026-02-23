@@ -38,30 +38,45 @@ describe('analyzeCSS', () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.css');
     await expect(
       analyzeCSS(await input(filePath, undefined, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual({
-      issues: [
-        {
-          ruleId: 'block-no-empty',
-          language: 'css',
-          line: 1,
-          column: 3,
-          message: 'Unexpected empty block (block-no-empty)',
-        },
-      ],
-    });
+    ).resolves.toEqual(
+      expect.objectContaining({
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 3,
+            message: 'Unexpected empty block',
+          },
+        ],
+      }),
+    );
   });
 
   it('should analyze css content', async () => {
     const fileContent = 'p {}';
     await expect(
       analyzeCSS(await input('/some/fake/path', fileContent, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual({
-      issues: [
-        expect.objectContaining({
-          ruleId: 'block-no-empty',
-        }),
-      ],
-    });
+    ).resolves.toEqual(
+      expect.objectContaining({
+        issues: [
+          expect.objectContaining({
+            ruleId: 'block-no-empty',
+          }),
+        ],
+      }),
+    );
+  });
+
+  it('should still parse and compute metrics/highlighting with no rules', async () => {
+    const fileContent = 'a { color: red; }';
+    const result = await analyzeCSS(
+      await input('/some/fake/path', fileContent, []),
+      defaultShouldIgnoreParams,
+    );
+
+    expect(result.metrics?.ncloc.length).toBeGreaterThan(0);
+    expect(result.highlights?.length).toBeGreaterThan(0);
   });
 
   it('should analyze sass syntax', async () => {
@@ -73,26 +88,30 @@ describe('analyzeCSS', () => {
         ]),
         defaultShouldIgnoreParams,
       ),
-    ).resolves.toEqual({
-      issues: [
-        expect.objectContaining({
-          ruleId: 'selector-pseudo-element-no-unknown',
-        }),
-      ],
-    });
+    ).resolves.toEqual(
+      expect.objectContaining({
+        issues: [
+          expect.objectContaining({
+            ruleId: 'selector-pseudo-element-no-unknown',
+          }),
+        ],
+      }),
+    );
   });
 
   it('should analyze less syntax', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.less');
     await expect(
       analyzeCSS(await input(filePath, undefined, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual({
-      issues: [
-        expect.objectContaining({
-          ruleId: 'block-no-empty',
-        }),
-      ],
-    });
+    ).resolves.toEqual(
+      expect.objectContaining({
+        issues: [
+          expect.objectContaining({
+            ruleId: 'block-no-empty',
+          }),
+        ],
+      }),
+    );
   });
 
   it('should return a parsing error in the form of an issue', async () => {
@@ -104,7 +123,7 @@ describe('analyzeCSS', () => {
           language: 'css',
           line: 2,
           column: 3,
-          message: 'Unclosed block (CssSyntaxError)',
+          message: 'Unclosed block',
         },
       ],
     });
@@ -154,7 +173,7 @@ ${character}${character}${character}.foo {`,
                   language: 'css',
                   line: expectation[0],
                   column: expectation[1],
-                  message: 'Unclosed block (CssSyntaxError)',
+                  message: 'Unclosed block',
                 },
               ],
             })

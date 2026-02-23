@@ -21,7 +21,6 @@ import { request } from './tools/index.js';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 
-import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
@@ -88,24 +87,6 @@ describe('router', () => {
     );
   });
 
-  it('should route /analyze-css requests', async () => {
-    const filePath = path.join(fixtures, 'file.css');
-    const rules = [{ key: S5362.ruleName, configurations: [] }];
-    const data = { filePath, rules };
-    const response = (await request(server, '/analyze-css', 'POST', data)) as string;
-    expect(JSON.parse(response)).toEqual({
-      issues: [
-        {
-          language: 'css',
-          ruleId: S5362.ruleName,
-          line: 1,
-          column: 6,
-          message: `Fix this malformed 'calc' expression. (sonar/function-calc-no-invalid)`,
-        },
-      ],
-    });
-  });
-
   it('should route /analyze-jsts requests', async () => {
     await requestInitLinter(server, [
       {
@@ -163,71 +144,6 @@ describe('router', () => {
         message: `Remove this duplicated type or replace with another one.`,
       }),
     );
-  });
-
-  it('should route /analyze-yaml requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S3923',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    const filePath = path.join(fixtures, 'file.yaml');
-    const filePathWithLambda = path.join(fixtures, 'file-SomeLambdaFunction.yaml');
-    const data = { filePath };
-    const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual({
-      ruleId: 'S3923',
-      language: 'js',
-      line: 8,
-      column: 17,
-      endLine: 8,
-      endColumn: 46,
-      message:
-        "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-      quickFixes: [],
-      secondaryLocations: [],
-      ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath: normalizeToAbsolutePath(filePathWithLambda),
-    });
-  });
-
-  it('should route /analyze-html requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S3923',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    const filePath = path.join(fixtures, 'file.html');
-    const data = { filePath };
-    const response = (await request(server, '/analyze-html', 'POST', data)) as string;
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual({
-      ruleId: 'S3923',
-      language: 'js',
-      line: 10,
-      column: 2,
-      endLine: 10,
-      endColumn: 31,
-      message:
-        "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-      quickFixes: [],
-      secondaryLocations: [],
-      ruleESLintKeys: ['no-all-duplicated-branches'],
-      filePath: normalizeToAbsolutePath(filePath),
-    });
   });
 
   it('should route /init-linter requests', async () => {

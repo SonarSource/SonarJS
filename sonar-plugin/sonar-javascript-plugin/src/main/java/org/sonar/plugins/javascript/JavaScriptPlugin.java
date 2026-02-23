@@ -24,17 +24,14 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssProfileDefinition;
+import org.sonar.css.CssRules;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
-import org.sonar.css.metrics.CssMetricSensor;
 import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
-import org.sonar.plugins.javascript.analysis.CssRuleSensor;
-import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
-import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
+import org.sonar.plugins.javascript.analysis.WebSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -127,8 +124,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
   public static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
-  public static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
-
   public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
   public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
 
@@ -151,15 +146,13 @@ public class JavaScriptPlugin implements Plugin {
       BridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
-      JsTsSensor.class,
+      WebSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,
       RulesBundles.class,
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       AnalysisProcessor.class,
-      YamlSensor.class,
-      HtmlSensor.class,
       EmbeddedNode.class,
       Environment.class
     );
@@ -275,7 +268,7 @@ public class JavaScriptPlugin implements Plugin {
       CssLanguage.class,
       CssProfileDefinition.class,
       CssRulesDefinition.class,
-      CssRuleSensor.class
+      CssRules.class
     );
 
     context.addExtension(
@@ -320,7 +313,7 @@ public class JavaScriptPlugin implements Plugin {
           .build()
       );
 
-      context.addExtensions(CssMetricSensor.class, StylelintReportSensor.class);
+      context.addExtension(StylelintReportSensor.class);
 
       context.addExtension(
         PropertyDefinition.builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)

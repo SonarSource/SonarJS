@@ -31,6 +31,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
@@ -51,10 +52,15 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_range() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
@@ -77,10 +83,15 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_symbol() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var symbol = new HighlightedSymbol(declaration, List.of());
@@ -119,10 +130,15 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_cpd() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
+      .setLanguage("js")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
@@ -146,7 +162,11 @@ class AnalysisProcessorTest {
   void should_not_fail_when_invalid_issue() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
-    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
     var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")

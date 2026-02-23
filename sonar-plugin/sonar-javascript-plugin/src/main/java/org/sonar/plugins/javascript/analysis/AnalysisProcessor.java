@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -43,6 +44,10 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssLanguage;
+import org.sonar.css.CssRules;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
@@ -64,17 +69,18 @@ public class AnalysisProcessor {
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
+  private final CssRules cssRules;
   private InputFile file;
   private JsTsChecks checks;
-  HashSet<String> uniqueParsingErrors;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
-    FileLinesContextFactory fileLinesContextFactory
+    FileLinesContextFactory fileLinesContextFactory,
+    CssRules cssRules
   ) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.uniqueParsingErrors = new HashSet<>();
+    this.cssRules = cssRules;
   }
 
   List<Issue> processResponse(
@@ -88,22 +94,13 @@ public class AnalysisProcessor {
     this.checks = checks;
     this.file = file;
     if (response.parsingError() != null) {
-      uniqueParsingErrors.add(file.absolutePath());
       processParsingError(context, response.parsingError());
       return new ArrayList<>();
     }
 
     issues = response.issues();
 
-    if (
-      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
-    ) {
-      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
-      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
-      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
-      // sonar-html plugin.
-      saveIssues(context, issues);
-    } else {
+    if (isJsTsOrCss(file.language())) {
       // it's important to have an order here:
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
       saveMetrics(context, response.metrics());
@@ -111,6 +108,12 @@ public class AnalysisProcessor {
       saveHighlights(context, response.highlights());
       saveHighlightedSymbols(context, response.highlightedSymbols());
       saveCpd(context, response.cpdTokens());
+    } else {
+      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
+      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
+      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
+      // sonar-html plugin.
+      saveIssues(context, issues);
     }
 
     return issues;
@@ -119,19 +122,7 @@ public class AnalysisProcessor {
   void processCacheAnalysis(JsTsContext<?> context, InputFile file, CacheAnalysis cacheAnalysis) {
     this.file = file;
 
-    if (
-      YamlSensor.LANGUAGE.equals(file.language()) || HtmlSensor.LANGUAGE.equals(file.language())
-    ) {
-      // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
-      // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
-      // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
-      // sonar-html plugin.
-      LOG.debug(
-        "Skipping processing of the analysis extracted from cache because the javascript plugin doesn't save analysis data of YAML files"
-      );
-    } else {
-      saveCpd(context, cacheAnalysis.getCpdTokens());
-    }
+    saveCpd(context, cacheAnalysis.getCpdTokens());
   }
 
   private void processParsingError(JsTsContext<?> context, ParsingError parsingError) {
@@ -142,6 +133,10 @@ public class AnalysisProcessor {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
+    } else if (CssLanguage.KEY.equals(file.language())) {
+      // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
+      // and should not abort the analysis in failFast mode.
+      LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
       if (context.failFast()) {
@@ -251,13 +246,18 @@ public class AnalysisProcessor {
       return;
     }
 
-    saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
-    saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
-    saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
+    // CSS files only have NCLOC and COMMENT_LINES — the old CssMetricSensor
+    // never saved FUNCTIONS, STATEMENTS, CLASSES, COMPLEXITY, or COGNITIVE_COMPLEXITY.
+    if (!CssLanguage.KEY.equals(file.language())) {
+      saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
+      saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
+      saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
+      saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
+      saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
+    }
+
     saveMetric(context, file, CoreMetrics.NCLOC, metrics.ncloc().size());
     saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
-    saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
-    saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
 
     noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
 
@@ -266,8 +266,10 @@ public class AnalysisProcessor {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
 
-    for (int line : metrics.executableLines()) {
-      fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
+    if (!CssLanguage.KEY.equals(file.language())) {
+      for (int line : metrics.executableLines()) {
+        fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
+      }
     }
 
     fileLinesContext.save();
@@ -317,14 +319,16 @@ public class AnalysisProcessor {
       }
     }
 
-    issue
-      .secondaryLocations()
-      .forEach(secondary -> {
-        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-        if (newIssueLocation != null) {
-          newIssue.addLocation(newIssueLocation);
-        }
-      });
+    if (issue.secondaryLocations() != null) {
+      issue
+        .secondaryLocations()
+        .forEach(secondary -> {
+          NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+          if (newIssueLocation != null) {
+            newIssue.addLocation(newIssueLocation);
+          }
+        });
+    }
 
     if (issue.cost() != null) {
       newIssue.gap(issue.cost());
@@ -342,10 +346,15 @@ public class AnalysisProcessor {
     var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
+    } else if ("CssSyntaxError".equals(issue.ruleId())) {
+      LOG.warn("Failed to parse file {}, line {}, {}", file.uri(), issue.line(), issue.message());
     }
   }
 
   private RuleKey findRuleKey(Issue issue) {
+    if (CssLanguage.KEY.equals(issue.language())) {
+      return cssRules != null ? cssRules.getActiveSonarKey(issue.ruleId()) : null;
+    }
     return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
   }
 
@@ -363,9 +372,17 @@ public class AnalysisProcessor {
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
-      ((SonarLintRuntime) context
-          .getSensorContext()
-          .runtime()).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+      (
+        (SonarLintRuntime) context.getSensorContext().runtime()
+      ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+    );
+  }
+
+  private static boolean isJsTsOrCss(@Nullable String language) {
+    return (
+      JavaScriptLanguage.KEY.equals(language) ||
+      TypeScriptLanguage.KEY.equals(language) ||
+      CssLanguage.KEY.equals(language)
     );
   }
 

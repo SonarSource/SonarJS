@@ -295,7 +295,7 @@ public class JsTsChecks {
   /**
    * Returns all ESLint rules to send to the Node.js bridge for execution.
    *
-   * <p>This method is called by {@code JsTsSensor} when building the analysis request.
+   * <p>This method is called by {@code WebSensor} when building the analysis request.
    * It combines two sources:</p>
    * <ol>
    *   <li><b>Rules</b> from {@link #checks} (filtered by QP, can raise issues)</li>

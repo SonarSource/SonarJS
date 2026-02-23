@@ -23,6 +23,7 @@ import {
   isAlsoCssFile,
   isCssFile,
   isHtmlFile,
+  isJsTsFile,
   isYamlFile,
   type JsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
@@ -155,15 +156,14 @@ async function getAnalyzerForFile(
 ): Promise<FileResult> {
   const filename = input.filePath;
   if (isCssFile(filename, shouldIgnoreParams.cssSuffixes)) {
-    if (!cssLinter.isInitialized()) {
-      // No CSS rules active — skip the file entirely
-      return { issues: [] };
-    }
+    const rules = cssLinter.isInitialized() ? undefined : [];
     return analyzeCSS(
       {
         filePath: input.filePath,
         fileContent: input.fileContent,
+        fileType: input.fileType,
         sonarlint: input.sonarlint,
+        rules,
       },
       shouldIgnoreParams,
     );
@@ -174,14 +174,18 @@ async function getAnalyzerForFile(
       sonarlint: input.sonarlint,
     };
     return analyzeHTML(embeddedInput, shouldIgnoreParams);
-  } else if (isYamlFile(filename)) {
+  } else if (isYamlFile(filename, input.fileContent)) {
     const embeddedInput: EmbeddedAnalysisInput = {
       filePath: input.filePath,
       fileContent: input.fileContent,
       sonarlint: input.sonarlint,
     };
     return analyzeYAML(embeddedInput, shouldIgnoreParams);
-  } else {
+  } else if (isJsTsFile(filename, shouldIgnoreParams)) {
     return analyzeJSTS(input, shouldIgnoreParams);
+  } else {
+    // Files that don't match any analyzer (e.g. .xhtml from webFilePredicate)
+    // return empty issues. CSS analysis may still run via isAlsoCssFile check.
+    return { issues: [] };
   }
 }

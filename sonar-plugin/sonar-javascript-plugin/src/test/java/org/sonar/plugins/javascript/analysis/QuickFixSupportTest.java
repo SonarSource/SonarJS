@@ -39,6 +39,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
@@ -77,7 +78,8 @@ class QuickFixSupportTest {
     checks = new JsTsChecks(new CheckFactory(activeRules));
     analysisProcessor = new AnalysisProcessor(
       mock(NoSonarFilter.class),
-      mock(FileLinesContextFactory.class)
+      mock(FileLinesContextFactory.class),
+      mock(CssRules.class)
     );
   }
 

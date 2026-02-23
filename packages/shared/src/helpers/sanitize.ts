@@ -34,14 +34,12 @@ import {
 import { filterPathAndGetFileType } from './filter/filter-path.js';
 import { initFileStores } from '../../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 
-import type { AnalysisInput } from '../types/analysis.js';
 import {
   type JsTsAnalysisInput,
   type FileStatus,
   type AnalysisMode,
   JSTS_ANALYSIS_DEFAULTS,
 } from '../../../jsts/src/analysis/analysis.js';
-import type { CssAnalysisInput } from '../../../css/src/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import {
@@ -136,40 +134,6 @@ function sanitizeSingleFileAnalysisInput(data: unknown): SanitizedSingleFileInpu
   const filePath = normalizeToAbsolutePath(data.filePath, configuration.baseDir);
 
   return { filePath, configuration };
-}
-
-/**
- * Sanitized analysis input with configuration.
- */
-interface SanitizedAnalysisInput {
-  input: AnalysisInput;
-  configuration: Configuration;
-}
-
-/**
- * Sanitizes a raw analysis input into a complete, validated input.
- * - Validates that input is an object with required fields
- * - Normalizes file path
- * - Reads file content if not provided
- * - Sets defaults for optional fields
- *
- * @param raw the raw analysis input from JSON deserialization
- * @returns a promise of the sanitized analysis input with configuration
- */
-export async function sanitizeAnalysisInput(raw: unknown): Promise<SanitizedAnalysisInput> {
-  const { filePath, configuration } = sanitizeSingleFileAnalysisInput(raw);
-  const rawObj = raw as Record<string, unknown>;
-
-  const fileContent = isString(rawObj.fileContent) ? rawObj.fileContent : await readFile(filePath);
-
-  return {
-    input: {
-      filePath,
-      fileContent,
-      sonarlint: isBoolean(rawObj.sonarlint) ? rawObj.sonarlint : JSTS_ANALYSIS_DEFAULTS.sonarlint,
-    },
-    configuration,
-  };
 }
 
 /**
@@ -348,30 +312,6 @@ function isCssRuleConfigArray(value: unknown): boolean {
 }
 
 /**
- * Sanitized CSS analysis input with configuration.
- */
-interface SanitizedCssAnalysisInput {
-  input: CssAnalysisInput;
-  configuration: Configuration;
-}
-
-/**
- * Sanitizes CSS analysis input.
- */
-export async function sanitizeCssAnalysisInput(raw: unknown): Promise<SanitizedCssAnalysisInput> {
-  const { input: baseInput, configuration } = await sanitizeAnalysisInput(raw);
-  const rawObj = raw as Record<string, unknown>;
-
-  return {
-    input: {
-      ...baseInput,
-      rules: isCssRuleConfigArray(rawObj.rules) ? (rawObj.rules as CssRuleConfig[]) : [],
-    },
-    configuration,
-  };
-}
-
-/**
  * Sanitized input for Linter.initialize()
  */
 interface SanitizedInitLinterInput {
@@ -416,6 +356,7 @@ export function sanitizeInitLinterInput(raw: unknown): SanitizedInitLinterInput 
  */
 interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
+  cssRules: CssRuleConfig[];
   baseDir: NormalizedAbsolutePath;
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
@@ -453,6 +394,7 @@ export async function sanitizeProjectAnalysisInput(
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
+    cssRules: isCssRuleConfigArray(raw.cssRules) ? (raw.cssRules as CssRuleConfig[]) : [],
     baseDir: configuration.baseDir,
     bundles: sanitizePaths(raw.bundles, configuration.baseDir),
     rulesWorkdir: isString(raw.rulesWorkdir)

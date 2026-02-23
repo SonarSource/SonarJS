@@ -15,9 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import stylelint from 'stylelint';
+import type { Root, Document } from 'postcss';
 import { transform } from './issues/index.js';
 import { createStylelintConfig, type RuleConfig } from './config.js';
+import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+
+interface LintResult {
+  issues: CssIssue[];
+  root?: Root | Document;
+}
 
 /**
  * A wrapper of Stylelint linter
@@ -66,19 +73,10 @@ export class LinterWrapper {
   }
 
   /**
-   * Lints a stylesheet
+   * Lints a stylesheet and returns both issues and the PostCSS root.
    *
-   * Linting a stylesheet implies using Stylelint linting functionality to find
-   * problems in the sheet. It does not need to be provided with an abstract
-   * syntax tree as Stylelint takes care of the parsing internally.
-   *
-   * The result of linting a stylesheet requires post-linting transformations
-   * to return SonarQube issues. These transformations essentially consist in
-   * transforming Stylelint results into SonarQube issues.
-   *
-   * Because stylesheets are far different from what a source code is, metrics
-   * computation does not make sense when analyzing such file contents. Issues
-   * only are returned after linting.
+   * The PostCSS root from Stylelint's internal parse is returned so callers
+   * can compute metrics and highlighting without parsing the file a second time.
    *
    * When no config is provided in the options, the stored config from
    * `initialize()` is used. This supports the analyzeProject path where
@@ -86,17 +84,21 @@ export class LinterWrapper {
    *
    * @param filePath the path of the stylesheet
    * @param options the linting options
-   * @returns the found issues
+   * @returns the found issues and the PostCSS AST root
    */
-  async lint(filePath: NormalizedAbsolutePath, options: stylelint.LinterOptions) {
+  async lint(
+    filePath: NormalizedAbsolutePath,
+    options: stylelint.LinterOptions,
+  ): Promise<LintResult> {
     let finalOptions = options;
 
     if (this.config && !options.config) {
       finalOptions = { ...options, config: this.config };
     }
-    return stylelint
-      .lint(finalOptions)
-      .then(result => ({ issues: transform(result.results, filePath) }));
+    return stylelint.lint(finalOptions).then(result => ({
+      issues: transform(result.results, filePath),
+      root: result.results[0]?._postcssResult?.root,
+    }));
   }
 }
 

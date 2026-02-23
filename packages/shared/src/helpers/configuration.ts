@@ -219,6 +219,16 @@ export function createConfiguration(raw: unknown): Configuration {
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
 const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+const SAM_TRANSFORM_FIELD = 'AWS::Serverless-2016-10-31';
+const NODEJS_RUNTIME_REGEX = /^\s*Runtime:\s*['"]?nodejs\S*['"]?/;
+const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
+  [
+    String.raw`#.*\{\{`, // {{ inside a YAML comment
+    String.raw`'[^']*\{\{[^']*'`, // {{ inside a single-quoted string
+    String.raw`"[^"]*\{\{[^"]*"`, // {{ inside a double-quoted string
+    String.raw`\{\{[\w\s]+}}`, // actual Helm directive: {{ .Values.foo }}
+  ].join('|'),
+);
 const CSS_ALSO_EXTENSIONS = new Set(['.vue', '.html', '.htm', '.xhtml']);
 
 /**
@@ -258,8 +268,32 @@ export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
   return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function isYamlFile(filePath: NormalizedAbsolutePath): boolean {
-  return YAML_EXTENSIONS.has(extname(filePath).toLowerCase());
+export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string): boolean {
+  if (!YAML_EXTENSIONS.has(extname(filePath).toLowerCase())) {
+    return false;
+  }
+  // When contents are provided, apply the same Helm-safe + SAM template checks
+  // as the Java predicate: reject Helm-unsafe {{ ... }} tokens, and require
+  // both the SAM transform marker and a Node.js runtime declaration.
+  if (contents == null) {
+    return true;
+  }
+
+  let hasAwsTransform = false;
+  let hasNodeJsRuntime = false;
+  const lines = contents.split(/\r\n|\r|\n/);
+  for (const line of lines) {
+    if (line.includes('{{') && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.test(line)) {
+      return false;
+    }
+    if (!hasAwsTransform && line.includes(SAM_TRANSFORM_FIELD)) {
+      hasAwsTransform = true;
+    }
+    if (!hasNodeJsRuntime && NODEJS_RUNTIME_REGEX.test(line)) {
+      hasNodeJsRuntime = true;
+    }
+  }
+  return hasAwsTransform && hasNodeJsRuntime;
 }
 
 export function isJsTsFile(
@@ -285,7 +319,13 @@ export function isAnalyzableFile(
   filePath: NormalizedAbsolutePath,
   suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
 ): boolean {
-  return isHtmlFile(filePath) || isYamlFile(filePath) || isJsTsFile(filePath, suffixes);
+  return (
+    isHtmlFile(filePath) ||
+    isYamlFile(filePath) ||
+    isJsTsFile(filePath, suffixes) ||
+    isCssFile(filePath, suffixes.cssSuffixes) ||
+    isAlsoCssFile(filePath)
+  );
 }
 
 function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
