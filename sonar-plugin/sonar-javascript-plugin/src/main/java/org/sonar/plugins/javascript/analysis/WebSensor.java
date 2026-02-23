@@ -158,7 +158,7 @@ public class WebSensor implements Sensor {
       );
       LOG.debug("No rules will be executed");
     } catch (NodeCommandException e) {
-      logErrorOrWarn(e.getMessage(), e);
+      LOG.error(e.getMessage(), e);
       throw new IllegalStateException(
         "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
           LANG +
@@ -395,9 +395,5 @@ public class WebSensor implements Sensor {
         }
       }
     }
-  }
-
-  protected void logErrorOrWarn(String msg, Throwable e) {
-    LOG.error(msg, e);
   }
 }
