@@ -44,7 +44,6 @@ public final class CheckList {
     return switch (language) {
       case JAVASCRIPT -> getJavaScriptChecks();
       case TYPESCRIPT -> getTypeScriptChecks();
-      case CSS -> List.of();
     };
   }
 

@@ -76,6 +76,9 @@ export function computeMetrics(root: Root | Document): CssMetrics {
 
   // Match the old CssMetricSensor behavior: a line with both code and comment
   // tokens is counted in BOTH ncloc and commentLines independently.
+  // Sort is needed because root.walk() is depth-first (parent before children),
+  // so line numbers are not necessarily added in order (e.g. a rule's closing
+  // brace line is added before its children's lines).
   return {
     ncloc: Array.from(codeLines).sort((a, b) => a - b),
     commentLines: Array.from(commentCandidates).sort((a, b) => a - b),

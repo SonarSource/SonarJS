@@ -383,8 +383,8 @@ public interface BridgeServer extends Startable {
     int complexity,
     int cognitiveComplexity
   ) {
-    // Compact constructor: Gson bypasses the default constructor and sets fields
-    // via reflection, so nullable list fields must be defaulted here.
+    // Defensive null-guarding: if the bridge JSON has a metrics object but
+    // omits some list fields, Gson passes null to the canonical constructor.
     public Metrics {
       ncloc = ncloc != null ? ncloc : List.of();
       commentLines = commentLines != null ? commentLines : List.of();

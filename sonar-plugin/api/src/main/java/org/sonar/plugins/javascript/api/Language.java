@@ -20,17 +20,9 @@ import java.util.Map;
 
 public enum Language {
   JAVASCRIPT("js"),
-  TYPESCRIPT("ts"),
-  CSS("css");
+  TYPESCRIPT("ts");
 
-  private static final Map<String, Language> stringMap = Map.of(
-    "js",
-    JAVASCRIPT,
-    "ts",
-    TYPESCRIPT,
-    "css",
-    CSS
-  );
+  private static final Map<String, Language> stringMap = Map.of("js", JAVASCRIPT, "ts", TYPESCRIPT);
   private final String lang;
 
   Language(String language) {
