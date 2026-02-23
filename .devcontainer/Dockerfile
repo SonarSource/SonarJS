@@ -28,13 +28,13 @@ RUN wget -qO /tmp/sonar-scanner.zip \
     && ln -s "${SONAR_SCANNER_HOME}/bin/sonar-scanner" /usr/local/bin/sonar-scanner \
     && rm /tmp/sonar-scanner.zip
 
-# Install mise as vscode user
-USER vscode
+# Install mise as node user
+USER node
 RUN curl https://mise.run | sh
 
 # mise binary on PATH; shims dir for installed tools (java, mvn)
-ENV PATH="/home/vscode/.local/bin:/home/vscode/.local/share/mise/shims:$PATH"
+ENV PATH="/home/node/.local/bin:/home/node/.local/share/mise/shims:$PATH"
 
 # Activate mise in both bash and zsh sessions (base image uses zsh by default)
-RUN echo 'eval "$(mise activate bash)"' >> /home/vscode/.bashrc \
-    && echo 'eval "$(mise activate zsh)"' >> /home/vscode/.zshrc
+RUN echo 'eval "$(mise activate bash)"' >> /home/node/.bashrc \
+    && echo 'eval "$(mise activate zsh)"' >> /home/node/.zshrc
