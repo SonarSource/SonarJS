@@ -64,22 +64,6 @@ describe('S6767', () => {
           `,
         },
         {
-          name: 'exported props interface',
-          code: `
-            import * as React from 'react';
-            export interface ButtonProps {
-              label: string;
-              variant: 'primary' | 'secondary';
-              onClick?: () => void;
-            }
-            const Button: React.FC<ButtonProps> = (props) => {
-              const { label, onClick } = props;
-              return <button onClick={onClick}>{label}</button>;
-            };
-            export default Button;
-          `,
-        },
-        {
           name: 'component exported via HOC wrapper',
           code: `
             import * as React from 'react';
@@ -196,21 +180,6 @@ describe('S6767', () => {
                 />
               );
             };
-          `,
-        },
-        {
-          name: 'exported type alias for props',
-          code: `
-            import * as React from 'react';
-            export type CardProps = {
-              title: string;
-              subtitle: string;
-              onClick?: () => void;
-            };
-            const Card: React.FC<CardProps> = ({ title }) => {
-              return <div>{title}</div>;
-            };
-            export default Card;
           `,
         },
         {
@@ -381,29 +350,6 @@ describe('S6767', () => {
             }
           `,
           errors: 1,
-        },
-        {
-          name: 'exported non-Props interface does not suppress',
-          code: `
-            import * as React from 'react';
-            export interface Tab {
-              tabLabel: string;
-            }
-            export interface ScrollableTabBarState {
-              activeTab: number;
-            }
-            interface ScrollableTabBarProps {
-              containerWidth?: number;
-              scrollValue?: any;
-              tabs: Tab[];
-            }
-            class ScrollableTabBar extends React.Component<ScrollableTabBarProps> {
-              render() {
-                return <div>{this.props.tabs.length}</div>;
-              }
-            }
-          `,
-          errors: 2,
         },
         {
           name: 'class with constructor super(props) and property accesses does not suppress',

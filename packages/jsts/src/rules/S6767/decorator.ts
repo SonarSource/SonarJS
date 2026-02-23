@@ -91,7 +91,6 @@ function isIndirectPropsUsageNode(node: Node): boolean {
     isPropsPassedToFunction(node) ||
     isPropsSpread(node) ||
     isPropsBracketAccess(node) ||
-    isExportedPropsInterface(node) ||
     isHocExport(node) ||
     isForwardRefWrapper(node) ||
     isPropsAsJSXAttributeValue(node) ||
@@ -135,22 +134,6 @@ function isPropsSpread(node: Node): boolean {
 /** props[key] or this.props[key] */
 function isPropsBracketAccess(node: Node): boolean {
   return node.type === 'MemberExpression' && node.computed && isPropsReference(node.object);
-}
-
-/** export interface/type whose name contains "Props" (public API for props) */
-function isExportedPropsInterface(node: Node): boolean {
-  if (node.type !== 'ExportNamedDeclaration' || !node.declaration) {
-    return false;
-  }
-  const decl = node.declaration;
-  if (
-    decl.type === ('TSInterfaceDeclaration' as string) ||
-    decl.type === ('TSTypeAliasDeclaration' as string)
-  ) {
-    const name = (decl as unknown as { id: { name: string } }).id?.name ?? '';
-    return /props/i.test(name);
-  }
-  return false;
 }
 
 /** export default SomeHoc(Component) */
