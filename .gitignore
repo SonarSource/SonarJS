@@ -75,3 +75,7 @@ lcov.info
 # Claude Code sensitive settings
 .claude/settings.json
 .claude/settings.local.json
+
+# Corporate CA certificates (place your cert here, it won't be committed)
+.devcontainer/certs/*.pem
+.devcontainer/certs/*.crt
