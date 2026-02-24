@@ -59,7 +59,7 @@ type rspecMeta = {
   title: string;
   quickfix: 'covered' | undefined;
   tags: string[];
-  scope: 'Main' | 'Tests' | 'All';
+  scope: 'Main' | 'Tests';
   compatibleLanguages: ('js' | 'ts')[];
   extra?: {
     requiredDependency?: string[];
@@ -127,7 +127,7 @@ export async function getRspecMeta(
   if (!rspecFileExists) {
     console.log(`RSPEC metadata not found for rule ${sonarKey}.`);
   }
-  return rspecFileExists
+  const meta: rspecMeta = rspecFileExists
     ? JSON.parse(await readFile(rspecFile, 'utf-8'))
     : {
         // Dummy data to create compilable new rule metadata
@@ -140,6 +140,12 @@ export async function getRspecMeta(
         quickfix: undefined,
         ...defaults,
       };
+  if (meta.scope !== 'Main' && meta.scope !== 'Tests') {
+    throw new Error(
+      `Invalid scope '${meta.scope}' for rule ${sonarKey}. Scope must be 'Main' or 'Tests'.`,
+    );
+  }
+  return meta;
 }
 
 /**
