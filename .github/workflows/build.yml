@@ -299,17 +299,17 @@ jobs:
           git push origin "$FIX_BRANCH"
 
           # Create PR targeting the original PR branch
-          gh pr create \
+          FIX_PR_URL=$(gh pr create \
             --title "Update ESLint plugin README.md" \
             --base "$HEAD_REF" \
             --head "$FIX_BRANCH" \
             --body "Auto-generated update for \`packages/jsts/src/rules/README.md\`.
 
-          🤖 Generated with GitHub Actions"
+          🤖 Generated with GitHub Actions")
 
-          # Comment on the original PR
+          # Comment on the original PR with link to fix PR
           gh pr comment "$PR_NUMBER" \
-            --body "⚠️ The ESLint plugin README.md is out of date. A fix PR has been created automatically. Please merge it into this branch to continue."
+            --body "⚠️ The ESLint plugin README.md is out of date. A fix PR has been created automatically: $FIX_PR_URL. Please merge it into this branch to continue."
 
           echo "::error::README.md was out of date. A fix PR has been created."
           exit 1
