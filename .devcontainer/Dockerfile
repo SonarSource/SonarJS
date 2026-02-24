@@ -12,9 +12,15 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install corporate CA certificates (place *.pem or *.crt files in .devcontainer/certs/ — they are gitignored)
-COPY .devcontainer/certs/ /usr/local/share/ca-certificates/
-RUN update-ca-certificates
+# Optionally install corporate CA certificate (mirrors vibe-bot pattern)
+# To enable: add to devcontainer.json build.options:
+#   ["--secret", "id=sonar_cert,src=/path/to/your/corp-ca.pem"]
+RUN --mount=type=secret,id=sonar_cert,required=false,target=/tmp/sonar-cert.crt \
+    if [ -s /tmp/sonar-cert.crt ]; then \
+        cp /tmp/sonar-cert.crt /usr/local/share/ca-certificates/corporate-ca.crt && \
+        chmod 644 /usr/local/share/ca-certificates/corporate-ca.crt && \
+        update-ca-certificates; \
+    fi
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
 # Install yq v4.45.1 (pinned to match vibe-bot reference environment)
