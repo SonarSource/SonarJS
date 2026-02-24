@@ -83,7 +83,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <jdk.min.version>17</jdk.min.version>
     <version.surefire.plugin>3.1.2</version.surefire.plugin>
-    <sonar.coverage.jacoco.aggregateXmlReportPaths>${maven.multiModuleProjectDirectory}/coverage/java/jacoco.xml</sonar.coverage.jacoco.aggregateXmlReportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/coverage/java/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
