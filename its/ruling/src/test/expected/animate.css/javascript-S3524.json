@@ -1,0 +1,27 @@
+{
+"animate.css:docs/modules/playground.mjs": [
+6,
+10,
+27
+],
+"animate.css:docs/modules/slowDownAnimations.mjs": [
+5
+],
+"animate.css:docsSource/compileAnimationList.js": [
+21,
+35,
+54,
+57,
+58
+],
+"animate.css:docsSource/compileMD.js": [
+40,
+47
+],
+"animate.css:docsSource/index.js": [
+22
+],
+"animate.css:postcss.config.js": [
+17
+]
+}

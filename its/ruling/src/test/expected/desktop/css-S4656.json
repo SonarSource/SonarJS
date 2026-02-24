@@ -1,0 +1,17 @@
+{
+"desktop:app/styles/ui/_side-by-side-diff.scss": [
+115
+],
+"desktop:app/styles/ui/banners/_successful.scss": [
+20
+],
+"desktop:app/styles/ui/changes/_changes-list.scss": [
+21
+],
+"desktop:app/styles/ui/changes/_changes-view.scss": [
+32
+],
+"desktop:app/styles/ui/changes/_commit-warning.scss": [
+46
+]
+}

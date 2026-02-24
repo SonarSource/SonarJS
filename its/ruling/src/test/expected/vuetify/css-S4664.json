@@ -1,0 +1,28 @@
+{
+"vuetify:packages/docs/src/App.vue": [
+155
+],
+"vuetify:packages/docs/src/components/api/Section.vue": [
+100
+],
+"vuetify:packages/docs/src/components/promoted/Carbon.vue": [
+87,
+91
+],
+"vuetify:packages/vuetify/src/components/VInput/VInput.sass": [
+74,
+75,
+79,
+82
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.sass": [
+58
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.sass": [
+67
+],
+"vuetify:packages/vuetify/src/styles/generic/_reset.scss": [
+197,
+205
+]
+}

@@ -1,0 +1,31 @@
+{
+"desktop:app/styles/_globals.scss": [
+41
+],
+"desktop:app/styles/ui/_add-repository.scss": [
+33
+],
+"desktop:app/styles/ui/_branches.scss": [
+155
+],
+"desktop:app/styles/ui/_button.scss": [
+123
+],
+"desktop:app/styles/ui/_side-by-side-diff.scss": [
+242
+],
+"desktop:app/styles/ui/_welcome.scss": [
+96,
+170,
+217
+],
+"desktop:app/styles/ui/dialogs/_thank-you.scss": [
+115
+],
+"desktop:app/styles/ui/toolbar/_button.scss": [
+78
+],
+"desktop:app/styles/ui/toolbar/_toolbar.scss": [
+46
+]
+}

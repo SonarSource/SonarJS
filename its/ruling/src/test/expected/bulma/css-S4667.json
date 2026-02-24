@@ -1,0 +1,26 @@
+{
+"bulma:sass/base/animations.sass": [
+1
+],
+"bulma:sass/base/helpers.sass": [
+1
+],
+"bulma:sass/elements/form.sass": [
+1
+],
+"bulma:sass/utilities/animations.sass": [
+1
+],
+"bulma:sass/utilities/extends.sass": [
+1
+],
+"bulma:sass/utilities/functions.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/bulma.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/only-base.sass": [
+1
+]
+}

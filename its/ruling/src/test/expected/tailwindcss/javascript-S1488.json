@@ -1,0 +1,12 @@
+{
+"tailwindcss:src/util/configurePlugins.js": [
+6
+],
+"tailwindcss:src/util/disposables.js": [
+4
+],
+"tailwindcss:src/util/resolveConfig.js": [
+239,
+250
+]
+}

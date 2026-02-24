@@ -1,0 +1,44 @@
+{
+"custom-jsts:FutureReservedWords.js": [
+11
+],
+"custom-jsts:S1534.js": [
+17
+],
+"custom-jsts:S2251.js": [
+1
+],
+"custom-jsts:S2432.js": [
+4
+],
+"custom-jsts:S2871.js": [
+1,
+1,
+1,
+1,
+1,
+1
+],
+"custom-jsts:S3500.js": [
+2
+],
+"custom-jsts:S3854.js": [
+386,
+392,
+398,
+398
+],
+"custom-jsts:S6321.js": [
+14,
+23,
+28,
+34,
+39,
+47,
+66
+],
+"custom-jsts:S6329.js": [
+21,
+119
+]
+}

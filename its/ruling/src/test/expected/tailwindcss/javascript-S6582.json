@@ -1,0 +1,18 @@
+{
+"tailwindcss:jest/customMatchers.js": [
+47
+],
+"tailwindcss:src/cli/commands/build.js": [
+101,
+102
+],
+"tailwindcss:src/lib/formatCSS.js": [
+2
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+174
+],
+"tailwindcss:src/util/processPlugins.js": [
+31
+]
+}

@@ -31,7 +31,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
-const SOURCES_DIR = join(ROOT_DIR, 'its/sources/jsts/projects');
+const SOURCES_DIR = join(ROOT_DIR, 'its/sources');
 const BASE_REF = 'origin/master';
 const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
 const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
@@ -39,7 +39,7 @@ const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 function getChangedRulingFiles() {
   try {
     // Compare against master to show all changes introduced by this branch
-    const output = execSync(`git diff ${BASE_REF} --name-only its/ruling/src/test/expected/jsts/`, {
+    const output = execSync(`git diff ${BASE_REF} --name-only its/ruling/src/test/expected/`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
@@ -63,7 +63,7 @@ function getRulingChanges(filePath) {
 
   // Extract project and rule from file path
   // e.g., its/ruling/src/test/expected/jsts/ace/javascript-S1134.json
-  const match = filePath.match(/jsts\/([^/]+)\/(\w+)-(\w+)\.json$/);
+  const match = filePath.match(/expected\/([^/]+)\/([\w.-]+)-(S\w+|CommentRegexTest\w*)\.json$/);
   if (!match) return changes;
 
   const [, project, , rule] = match;
@@ -126,7 +126,11 @@ function getRulingChanges(filePath) {
 }
 
 function getSnippet(project, filePath, lineNumber, contextLines = 2) {
-  const fullPath = join(SOURCES_DIR, project, filePath);
+  let fullPath = join(SOURCES_DIR, 'projects', project, filePath);
+  if (!existsSync(fullPath) && project.startsWith('custom-')) {
+    // Custom test fixtures live under custom/<language>/
+    fullPath = join(SOURCES_DIR, 'custom', project.slice('custom-'.length), filePath);
+  }
 
   if (!existsSync(fullPath)) {
     return null;
@@ -211,7 +215,8 @@ function generateChangesSection(changes, maxSnippets = MAX_SNIPPETS) {
       if (snippet) {
         const ext = change.filePath.split('.').pop();
         const lang =
-          { ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx' }[ext] || 'javascript';
+          { ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx', css: 'css' }[ext] ||
+          'javascript';
         md += `\`\`\`${lang}\n${snippet}\n\`\`\`\n\n`;
       } else {
         md += `_(snippet not available)_\n\n`;

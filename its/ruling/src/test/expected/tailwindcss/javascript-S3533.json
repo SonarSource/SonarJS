@@ -1,0 +1,25 @@
+{
+"tailwindcss:defaultConfig.js": [
+1,
+2
+],
+"tailwindcss:defaultTheme.js": [
+1,
+2
+],
+"tailwindcss:plugin.js": [
+1
+],
+"tailwindcss:resolveConfig.js": [
+1,
+2
+],
+"tailwindcss:scripts/compat.js": [
+1,
+2,
+3
+],
+"tailwindcss:stubs/defaultConfig.stub.js": [
+1
+]
+}

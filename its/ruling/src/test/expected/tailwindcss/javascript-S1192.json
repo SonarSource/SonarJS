@@ -1,0 +1,50 @@
+{
+"tailwindcss:__tests__/parseAnimationValue.test.js": [
+97
+],
+"tailwindcss:__tests__/plugins/boxShadow.test.js": [
+12,
+58
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+108,
+243,
+766
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+324
+],
+"tailwindcss:__tests__/resolveConfig.test.js": [
+186,
+186,
+187,
+1863,
+1865,
+1873
+],
+"tailwindcss:__tests__/withAlphaVariable.test.js": [
+16,
+17
+],
+"tailwindcss:scripts/compat.js": [
+15,
+16
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+33
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+79
+],
+"tailwindcss:src/plugins/fontVariantNumeric.js": [
+6
+],
+"tailwindcss:stubs/defaultConfig.stub.js": [
+224,
+225,
+340,
+341,
+726,
+728
+]
+}

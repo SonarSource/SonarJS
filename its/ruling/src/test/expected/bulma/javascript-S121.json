@@ -1,0 +1,23 @@
+{
+"bulma:docs/_includes/global/scripts.html": [
+30
+],
+"bulma:docs/_scripts/01-initial.js": [
+12
+],
+"bulma:docs/_scripts/02-derived.js": [
+12
+],
+"bulma:docs/_scripts/03-other.js": [
+12
+],
+"bulma:test/dart-sass/dart-sass.js": [
+9,
+29,
+44
+],
+"bulma:test/node-sass/node-sass.js": [
+9,
+34
+]
+}

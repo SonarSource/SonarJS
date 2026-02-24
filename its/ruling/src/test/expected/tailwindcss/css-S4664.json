@@ -1,0 +1,22 @@
+{
+"tailwindcss:__tests__/fixtures/tailwind-output-flagged.css": [
+448,
+485
+],
+"tailwindcss:__tests__/fixtures/tailwind-output-important.css": [
+448,
+485
+],
+"tailwindcss:__tests__/fixtures/tailwind-output-no-color-opacity.css": [
+448,
+485
+],
+"tailwindcss:__tests__/fixtures/tailwind-output.css": [
+448,
+485
+],
+"tailwindcss:src/plugins/css/preflight.css": [
+148,
+185
+]
+}

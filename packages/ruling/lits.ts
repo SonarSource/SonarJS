@@ -20,6 +20,7 @@ import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { reverseCssRuleKeyMap } from '../css/src/rules/metadata.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
@@ -74,7 +75,12 @@ function transformResults(projectPath: string, project: string, results: Project
           // CSS parsing errors are skipped, no parsing error rule in CSS // TODO??
           continue;
         }
-        const { ruleId, language, line } = issue;
+        const { language, line } = issue;
+        // CSS issues use stylelint keys (e.g. 'sonar/minimum-contrast'), map to SonarQube keys
+        const ruleId =
+          language === 'css'
+            ? (reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId)
+            : issue.ruleId;
         result[ruleId] = result[ruleId] ?? { js: {}, ts: {}, css: {} };
         result[ruleId][language][projectWithFilename] =
           result[ruleId][language][projectWithFilename] ?? [];

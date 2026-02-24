@@ -1,0 +1,21 @@
+{
+"desktop:app/styles/ui/_merge-status.scss": [
+10
+],
+"desktop:app/styles/ui/changes/_changes-list.scss": [
+47
+],
+"desktop:app/styles/ui/changes/_commit-warning.scss": [
+39
+],
+"desktop:app/styles/ui/dialogs/_conflicts.scss": [
+69,
+83
+],
+"desktop:app/styles/ui/history/_history.scss": [
+46
+],
+"desktop:app/styles/ui/rebase-status.scss": [
+10
+]
+}

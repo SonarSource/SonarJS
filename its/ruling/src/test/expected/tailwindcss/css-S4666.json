@@ -1,0 +1,42 @@
+{
+"tailwindcss:__tests__/fixtures/tailwind-output-flagged.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
+],
+"tailwindcss:__tests__/fixtures/tailwind-output-important.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
+],
+"tailwindcss:__tests__/fixtures/tailwind-output-no-color-opacity.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+17696
+],
+"tailwindcss:__tests__/fixtures/tailwind-output.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
+]
+}

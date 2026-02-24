@@ -1,0 +1,20 @@
+{
+"amplify:demo/core/context/demo.css": [
+1
+],
+"amplify:demo/core/data/demo.css": [
+1
+],
+"amplify:demo/core/nodata/demo.css": [
+1
+],
+"amplify:demo/core/priority/demo.css": [
+1
+],
+"amplify:demo/store/implicit/demo.css": [
+1
+],
+"amplify:demo/store/sessionstorage/demo.css": [
+1
+]
+}

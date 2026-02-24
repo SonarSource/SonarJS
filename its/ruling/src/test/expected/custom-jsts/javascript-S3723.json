@@ -1,0 +1,142 @@
+{
+"custom-jsts:FutureReservedWords.js": [
+8
+],
+"custom-jsts:S1534.js": [
+6
+],
+"custom-jsts:S2432.js": [
+5
+],
+"custom-jsts:S3854.js": [
+307,
+315,
+338,
+346
+],
+"custom-jsts:S4423.js": [
+4
+],
+"custom-jsts:S5247.js": [
+3
+],
+"custom-jsts:S5332.js": [
+28,
+31,
+32,
+38,
+46,
+47,
+52,
+57,
+64,
+69,
+73,
+78,
+85
+],
+"custom-jsts:S5728.js": [
+6
+],
+"custom-jsts:S5730.js": [
+7,
+8
+],
+"custom-jsts:S5732.js": [
+8,
+9
+],
+"custom-jsts:S5734.js": [
+6
+],
+"custom-jsts:S5736.js": [
+6
+],
+"custom-jsts:S5739.js": [
+7
+],
+"custom-jsts:S5742.js": [
+6
+],
+"custom-jsts:S5757.js": [
+3
+],
+"custom-jsts:S6249.js": [
+7,
+14
+],
+"custom-jsts:S6252.js": [
+6,
+11
+],
+"custom-jsts:S6265.js": [
+10,
+16,
+20,
+26
+],
+"custom-jsts:S6270.js": [
+18,
+28,
+38,
+48,
+58
+],
+"custom-jsts:S6281.js": [
+5,
+10
+],
+"custom-jsts:S6302.js": [
+17,
+26,
+35
+],
+"custom-jsts:S6304.js": [
+28,
+37
+],
+"custom-jsts:S6317.js": [
+14,
+25,
+37,
+47
+],
+"custom-jsts:S6321.js": [
+7,
+15,
+20,
+24,
+29,
+35,
+40,
+48,
+56,
+61,
+66,
+80,
+86,
+90,
+96,
+102,
+103,
+104,
+105,
+115,
+123,
+133
+],
+"custom-jsts:S6329.js": [
+22,
+34,
+46,
+120,
+156
+],
+"custom-jsts:S6333.js": [
+26,
+71
+],
+"custom-jsts:S6437.js": [
+54
+]
+}

@@ -1,0 +1,23 @@
+{
+"tailwindcss:src/index.js": [
+42
+],
+"tailwindcss:src/index.postcss7.js": [
+43
+],
+"tailwindcss:src/lib/getModuleDependencies.js": [
+32
+],
+"tailwindcss:src/plugins/gradientColorStops.js": [
+21
+],
+"tailwindcss:src/plugins/ringWidth.js": [
+10
+],
+"tailwindcss:src/util/negateValue.js": [
+6
+],
+"tailwindcss:src/util/withAlphaVariable.js": [
+40
+]
+}

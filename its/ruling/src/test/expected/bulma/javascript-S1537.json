@@ -1,0 +1,34 @@
+{
+"bulma:docs/_javascript/main.js": [
+58
+],
+"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
+15
+],
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+18
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+22
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+74,
+89,
+172
+],
+"bulma:test/dart-sass/dart-sass.js": [
+19,
+23,
+33,
+48
+],
+"bulma:test/node-sass/node-sass.js": [
+19,
+23,
+38
+],
+"bulma:test/utils.js": [
+61,
+78
+]
+}

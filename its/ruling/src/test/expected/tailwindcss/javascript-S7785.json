@@ -1,0 +1,11 @@
+{
+"tailwindcss:scripts/build.js": [
+44
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+63
+],
+"tailwindcss:src/cli.js": [
+6
+]
+}

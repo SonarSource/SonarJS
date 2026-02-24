@@ -1,0 +1,40 @@
+{
+"bulma:docs/_javascript/main.js": [
+25,
+48,
+91,
+309,
+313,
+438,
+447
+],
+"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
+21
+],
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+24
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+28
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+14,
+31,
+34,
+35,
+44,
+158
+],
+"bulma:docs/lib/bulma.js": [
+30
+],
+"bulma:docs/lib/main.js": [
+27,
+50,
+93,
+313,
+317,
+446,
+455
+]
+}

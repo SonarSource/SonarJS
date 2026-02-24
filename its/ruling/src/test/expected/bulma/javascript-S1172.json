@@ -1,0 +1,33 @@
+{
+"bulma:docs/_javascript/main.js": [
+16,
+126,
+328,
+345
+],
+"bulma:docs/_javascript/navbar.js": [
+10
+],
+"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
+7
+],
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+10
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+10
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+108,
+124
+],
+"bulma:docs/lib/main.js": [
+18,
+128,
+332,
+349
+],
+"bulma:docs/lib/navbar.js": [
+12
+]
+}

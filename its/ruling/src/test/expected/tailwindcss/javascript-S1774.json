@@ -1,0 +1,153 @@
+{
+"tailwindcss:__tests__/prefixSelector.test.js": [
+9
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+803,
+804,
+833,
+834
+],
+"tailwindcss:jest/customMatchers.js": [
+27,
+47
+],
+"tailwindcss:plugin.js": [
+3
+],
+"tailwindcss:src/cli/commands/build.js": [
+72,
+118,
+121
+],
+"tailwindcss:src/cli/commands/init.js": [
+40,
+45,
+56
+],
+"tailwindcss:src/cli/compile.js": [
+29
+],
+"tailwindcss:src/cli/main.js": [
+14,
+16
+],
+"tailwindcss:src/cli/utils.js": [
+18,
+157
+],
+"tailwindcss:src/index.js": [
+62
+],
+"tailwindcss:src/index.postcss7.js": [
+63
+],
+"tailwindcss:src/lib/applyImportantConfiguration.js": [
+4
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+14,
+21,
+34,
+35,
+120
+],
+"tailwindcss:src/lib/formatCSS.js": [
+5
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+107
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+19,
+201,
+263,
+342
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+15
+],
+"tailwindcss:src/lib/substituteTailwindAtRules.js": [
+5
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+22
+],
+"tailwindcss:src/plugins/boxShadow.js": [
+20
+],
+"tailwindcss:src/plugins/container.js": [
+52,
+108
+],
+"tailwindcss:src/plugins/divideWidth.js": [
+8
+],
+"tailwindcss:src/plugins/fontSize.js": [
+8,
+9,
+19,
+24
+],
+"tailwindcss:src/plugins/outline.js": [
+8
+],
+"tailwindcss:src/plugins/space.js": [
+8
+],
+"tailwindcss:src/plugins/transitionProperty.js": [
+15
+],
+"tailwindcss:src/util/configurePlugins.js": [
+6
+],
+"tailwindcss:src/util/createUtilityPlugin.js": [
+19
+],
+"tailwindcss:src/util/flattenColorPalette.js": [
+5,
+7
+],
+"tailwindcss:src/util/getAllConfigs.js": [
+7
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+26,
+34
+],
+"tailwindcss:src/util/prefixSelector.js": [
+6,
+6
+],
+"tailwindcss:src/util/processPlugins.js": [
+18,
+27,
+44,
+51,
+81,
+107
+],
+"tailwindcss:src/util/resolveConfig.js": [
+43,
+117,
+120,
+126
+],
+"tailwindcss:src/util/responsive.js": [
+9
+],
+"tailwindcss:src/util/toColorValue.js": [
+4
+],
+"tailwindcss:src/util/transformThemeValue.js": [
+3,
+21,
+25
+],
+"tailwindcss:src/util/withAlphaVariable.js": [
+16
+],
+"tailwindcss:src/util/wrapWithVariants.js": [
+20
+]
+}

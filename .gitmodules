@@ -1,7 +1,4 @@
 
-[submodule "its/sources/css/projects"]
-	path = its/sources/css/projects
-	url = https://github.com/SonarSource/css-test-sources.git
 [submodule "its/sources/jsts/projects"]
-	path = its/sources/jsts/projects
+	path = its/sources/projects
 	url = https://github.com/SonarSource/jsts-test-sources.git
