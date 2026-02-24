@@ -1,0 +1,22 @@
+{
+"bulma:docs/_includes/global/scripts.html": [
+42,
+43
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+90,
+173,
+189
+],
+"bulma:docs/documentation/form/file.html": [
+487
+],
+"bulma:test/dart-sass/dart-sass.js": [
+13,
+14
+],
+"bulma:test/node-sass/node-sass.js": [
+13,
+14
+]
+}

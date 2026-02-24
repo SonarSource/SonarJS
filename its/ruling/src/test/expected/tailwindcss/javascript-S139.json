@@ -1,0 +1,19 @@
+{
+"tailwindcss:scripts/compat.js": [
+57,
+58
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+234
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+8,
+9
+],
+"tailwindcss:stubs/defaultConfig.stub.js": [
+6
+],
+"tailwindcss:stubs/simpleConfig.stub.js": [
+3
+]
+}

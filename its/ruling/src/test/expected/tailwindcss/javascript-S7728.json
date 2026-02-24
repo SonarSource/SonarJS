@@ -1,0 +1,67 @@
+{
+"tailwindcss:__tests__/processPlugins.test.js": [
+654
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+654,
+708,
+758
+],
+"tailwindcss:__tests__/util/produce.js": [
+19
+],
+"tailwindcss:src/cli/utils.js": [
+32
+],
+"tailwindcss:src/index.js": [
+56
+],
+"tailwindcss:src/index.postcss7.js": [
+57
+],
+"tailwindcss:src/lib/getModuleDependencies.js": [
+25
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+88
+],
+"tailwindcss:src/lib/registerConfigAsDependency.js": [
+10
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+112,
+151,
+189,
+262,
+265,
+268
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+58
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+186
+],
+"tailwindcss:src/plugins/container.js": [
+51
+],
+"tailwindcss:src/util/disposables.js": [
+14
+],
+"tailwindcss:src/util/getAllConfigs.js": [
+14
+],
+"tailwindcss:src/util/log.js": [
+6,
+12,
+18
+],
+"tailwindcss:src/util/processPlugins.js": [
+46
+],
+"tailwindcss:src/util/resolveConfig.js": [
+134,
+143,
+156
+]
+}

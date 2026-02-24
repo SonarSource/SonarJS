@@ -245,15 +245,41 @@
     "exclusions": null
   },
   {
-    "name": "yaml",
-    "folder": "../../yaml",
+    "name": "custom-yaml",
+    "folder": "custom/yaml",
     "testDir": null,
     "exclusions": null
   },
   {
-    "name": "file-for-rules",
-    "folder": "../custom",
+    "name": "custom-jsts",
+    "folder": "custom/jsts",
     "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "animate.css",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "bulma",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "normalize.css",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "tailwindcss",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "custom-css",
+    "folder": "custom/css",
+    "testDir": null,
     "exclusions": null
   }
 ]

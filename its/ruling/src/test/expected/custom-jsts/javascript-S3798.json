@@ -1,0 +1,84 @@
+{
+"custom-jsts:DuplicateFunctionArgument.js": [
+3
+],
+"custom-jsts:FutureReservedWords.js": [
+3,
+4,
+5,
+7
+],
+"custom-jsts:S1534.js": [
+1
+],
+"custom-jsts:S2123.js": [
+1
+],
+"custom-jsts:S2432.js": [
+1
+],
+"custom-jsts:S2688.js": [
+3
+],
+"custom-jsts:S3854.js": [
+14,
+46,
+82,
+217,
+247,
+253,
+277,
+343
+],
+"custom-jsts:S4123.js": [
+1
+],
+"custom-jsts:S5247.js": [
+2,
+5,
+6
+],
+"custom-jsts:S5725.js": [
+1
+],
+"custom-jsts:S5856.js": [
+2
+],
+"custom-jsts:S6442.js": [
+3
+],
+"custom-jsts:S6757.js": [
+2
+],
+"custom-jsts:S6761.js": [
+2
+],
+"custom-jsts:S6766.js": [
+2
+],
+"custom-jsts:S6793.js": [
+2
+],
+"custom-jsts:S6807.js": [
+2
+],
+"custom-jsts:S6824.js": [
+2
+],
+"custom-jsts:S6840.js": [
+1
+],
+"custom-jsts:S6843.js": [
+1
+],
+"custom-jsts:S6846.js": [
+1
+],
+"custom-jsts:S6851.js": [
+1
+],
+"custom-jsts:boundOrAssignedEvalOrArguments.js": [
+2,
+8
+]
+}

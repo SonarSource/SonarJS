@@ -1,0 +1,58 @@
+{
+"animate.css:docs/modules/buildDocsIndex.mjs": [
+7,
+10,
+11,
+14,
+15,
+17,
+18,
+20,
+21,
+23,
+25,
+26,
+29,
+30,
+32,
+34,
+35,
+37
+],
+"animate.css:docs/modules/playground.mjs": [
+28
+],
+"animate.css:docs/modules/slowDownAnimations.mjs": [
+6,
+7,
+11,
+12,
+15,
+16,
+18
+],
+"animate.css:docs/modules/startAnimations.mjs": [
+6,
+7,
+8,
+9,
+12,
+13,
+14,
+15,
+17,
+18,
+19,
+20,
+21,
+23
+],
+"animate.css:docs/modules/toggle.mjs": [
+6,
+7,
+10,
+11,
+12,
+14
+]
+}

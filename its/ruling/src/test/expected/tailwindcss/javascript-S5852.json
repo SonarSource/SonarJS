@@ -1,0 +1,10 @@
+{
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+27,
+31
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+8,
+9
+]
+}

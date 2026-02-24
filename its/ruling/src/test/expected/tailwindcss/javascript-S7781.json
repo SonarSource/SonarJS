@@ -1,0 +1,9 @@
+{
+"tailwindcss:jest/customMatchers.js": [
+16,
+16
+],
+"tailwindcss:scripts/compat.js": [
+57
+]
+}

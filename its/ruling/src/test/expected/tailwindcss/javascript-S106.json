@@ -1,0 +1,39 @@
+{
+"tailwindcss:__tests__/cli.test.js": [
+17
+],
+"tailwindcss:scripts/build.js": [
+8,
+28,
+45
+],
+"tailwindcss:scripts/compat.js": [
+18,
+50,
+51,
+52,
+68,
+74,
+89,
+90,
+91
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+7,
+22,
+64,
+65
+],
+"tailwindcss:src/cli/utils.js": [
+54,
+79
+],
+"tailwindcss:src/util/log.js": [
+5,
+7,
+11,
+13,
+17,
+19
+]
+}

@@ -1,0 +1,59 @@
+{
+"bulma:docs/_javascript/index.js": [
+0
+],
+"bulma:docs/_javascript/klmn.js": [
+0
+],
+"bulma:docs/_javascript/main.js": [
+0
+],
+"bulma:docs/_javascript/navbar.js": [
+0
+],
+"bulma:docs/_scripts/01-initial.js": [
+0
+],
+"bulma:docs/_scripts/02-derived.js": [
+0
+],
+"bulma:docs/_scripts/03-other.js": [
+0
+],
+"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
+0
+],
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+0
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+0
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+0
+],
+"bulma:docs/lib/bulma.js": [
+0
+],
+"bulma:docs/lib/index.js": [
+0
+],
+"bulma:docs/lib/klmn.js": [
+0
+],
+"bulma:docs/lib/main.js": [
+0
+],
+"bulma:docs/lib/navbar.js": [
+0
+],
+"bulma:test/dart-sass/dart-sass.js": [
+0
+],
+"bulma:test/node-sass/node-sass.js": [
+0
+],
+"bulma:test/utils.js": [
+0
+]
+}

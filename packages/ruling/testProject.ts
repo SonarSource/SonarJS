@@ -27,14 +27,15 @@ import { expect } from 'expect';
 import * as metas from '../jsts/src/rules/metas.js';
 import { SonarMeta } from '../jsts/src/rules/helpers/index.js';
 import { symlink } from 'node:fs/promises';
+import { cssRulesMeta } from '../css/src/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
 const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, '..', 'sonarjs-ruling-sources');
-const jsTsProjectsPath = join(sourcesPath, 'jsts', 'projects');
-const expectedPathBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected', 'jsts');
-const actualPathBase = join(currentPath, 'actual', 'jsts');
+const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
+const actualBase = join(currentPath, 'actual');
 
 await symlink(join(SONARJS_ROOT, 'its', 'sources'), sourcesPath).catch(err => {
   if (err.code !== 'EEXIST') {
@@ -72,10 +73,10 @@ export async function testProject(projectName: string) {
       }));
     })
     .map(applyRulingConfig);
-  const expectedPath = join(expectedPathBase, name);
-  const actualPath = join(actualPathBase, name);
+  const expectedPath = join(expectedBase, name);
+  const actualPath = join(actualBase, name);
 
-  const baseDir = normalizeToAbsolutePath(join(jsTsProjectsPath, folder ?? name));
+  const baseDir = normalizeToAbsolutePath(join(sourcesPath, folder ?? join('projects', name)));
 
   const configuration = createConfiguration({
     baseDir,
@@ -90,6 +91,7 @@ export async function testProject(projectName: string) {
   const results = await analyzeProject(
     {
       rules,
+      cssRules: buildCssRules(),
       bundles: [],
     },
     configuration,
@@ -108,6 +110,35 @@ export function ok(diff: Result) {
       2,
     ),
   ).toEqual('[]');
+}
+
+/**
+ * Build CSS rule configs with default parameters for all CSS rules
+ */
+function buildCssRules(): CssRuleConfig[] {
+  return cssRulesMeta.map(meta => {
+    const configurations: unknown[] = [];
+
+    if (meta.listParam?.length) {
+      const secondaryOptions: Record<string, string[]> = {};
+      for (const param of meta.listParam) {
+        if (param.default.trim() !== '') {
+          secondaryOptions[param.stylelintOptionKey] = param.default.split(',').map(v => v.trim());
+        }
+      }
+      if (Object.keys(secondaryOptions).length > 0) {
+        configurations.push(true, secondaryOptions);
+      }
+    } else if (meta.booleanParam?.default) {
+      const secondaryOptions: Record<string, string[]> = {};
+      for (const opt of meta.booleanParam.onTrue) {
+        secondaryOptions[opt.stylelintOptionKey] = opt.values;
+      }
+      configurations.push(true, secondaryOptions);
+    }
+
+    return { key: meta.stylelintKey, configurations };
+  });
 }
 
 /**

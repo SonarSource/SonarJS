@@ -1,0 +1,51 @@
+{
+"bulma:css/bulma-rtl.css": [
+304
+],
+"bulma:css/bulma.css": [
+304
+],
+"bulma:docs/_sass/index.sass": [
+139,
+144,
+397,
+405
+],
+"bulma:docs/_sass/love.sass": [
+75,
+87
+],
+"bulma:docs/_sass/main.sass": [
+224,
+241,
+244,
+261
+],
+"bulma:docs/_sass/specific.sass": [
+153
+],
+"bulma:docs/css/bulma-docs.css": [
+305,
+12108,
+12114,
+13821,
+14283,
+14354,
+15992,
+16007,
+16014,
+16029,
+16034,
+16085,
+16090,
+16095,
+16175,
+16182,
+16189,
+16258,
+16265
+],
+"bulma:sass/components/card.sass": [
+100
+]
+}

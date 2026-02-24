@@ -1,0 +1,216 @@
+{
+"tailwindcss:__tests__/containerPlugin.test.js": [
+6
+],
+"tailwindcss:__tests__/fixtures/purge-example.html": [
+18
+],
+"tailwindcss:__tests__/parseObjectStyles.test.js": [
+4
+],
+"tailwindcss:__tests__/plugins/animation.test.js": [
+5
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+7,
+11
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+8,
+22,
+32,
+64
+],
+"tailwindcss:__tests__/util/produce.js": [
+3
+],
+"tailwindcss:jest/customMatchers.js": [
+4
+],
+"tailwindcss:scripts/build.js": [
+6
+],
+"tailwindcss:scripts/compat.js": [
+5,
+9
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+5
+],
+"tailwindcss:src/cli/colors.js": [
+8,
+17,
+35,
+44
+],
+"tailwindcss:src/cli/commands/build.js": [
+53,
+64
+],
+"tailwindcss:src/cli/commands/help.js": [
+16,
+34,
+58
+],
+"tailwindcss:src/cli/compile.js": [
+26
+],
+"tailwindcss:src/cli/utils.js": [
+15,
+28,
+53,
+60,
+68,
+87,
+99,
+109,
+119,
+128,
+144,
+156
+],
+"tailwindcss:src/featureFlags.js": [
+10,
+22,
+32
+],
+"tailwindcss:src/index.js": [
+15
+],
+"tailwindcss:src/index.postcss7.js": [
+16
+],
+"tailwindcss:src/lib/applyImportantConfiguration.js": [
+1
+],
+"tailwindcss:src/lib/convertLayerAtRulesToControlComments.js": [
+3
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+6,
+17,
+25,
+29,
+33
+],
+"tailwindcss:src/lib/formatCSS.js": [
+1,
+12
+],
+"tailwindcss:src/lib/getModuleDependencies.js": [
+6,
+13
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+7,
+25,
+36
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+14,
+35,
+53,
+105,
+148,
+183,
+216,
+229,
+313
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+7,
+14
+],
+"tailwindcss:src/lib/substituteTailwindAtRules.js": [
+4
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+8,
+21,
+138
+],
+"tailwindcss:src/plugins/container.js": [
+4,
+25
+],
+"tailwindcss:src/util/buildMediaQuery.js": [
+3
+],
+"tailwindcss:src/util/cloneNodes.js": [
+3
+],
+"tailwindcss:src/util/createPlugin.js": [
+1
+],
+"tailwindcss:src/util/createUtilityPlugin.js": [
+7
+],
+"tailwindcss:src/util/disposables.js": [
+1
+],
+"tailwindcss:src/util/escapeClassName.js": [
+4
+],
+"tailwindcss:src/util/generateVariantFunction.js": [
+15
+],
+"tailwindcss:src/util/getAllConfigs.js": [
+5
+],
+"tailwindcss:src/util/nameClass.js": [
+3,
+7
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+13
+],
+"tailwindcss:src/util/parseObjectStyles.js": [
+6
+],
+"tailwindcss:src/util/prefixNegativeModifiers.js": [
+3
+],
+"tailwindcss:src/util/processPlugins.js": [
+13,
+21,
+30
+],
+"tailwindcss:src/util/resolveConfig.js": [
+42,
+46,
+62,
+72,
+92,
+108,
+131,
+154,
+214,
+226,
+238,
+249,
+257
+],
+"tailwindcss:src/util/responsive.js": [
+4
+],
+"tailwindcss:src/util/toColorValue.js": [
+3
+],
+"tailwindcss:src/util/transformThemeValue.js": [
+1
+],
+"tailwindcss:src/util/useMemo.js": [
+3
+],
+"tailwindcss:src/util/usesCustomProperties.js": [
+3
+],
+"tailwindcss:src/util/withAlphaVariable.js": [
+4,
+13,
+19
+],
+"tailwindcss:src/util/wrapWithVariants.js": [
+4
+]
+}

@@ -10,7 +10,7 @@
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
-    "ruling-sync": "rsync -avh packages/ruling/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
+    "ruling-sync": "rsync -avh packages/ruling/actual/ its/ruling/src/test/expected/ --delete",
     "bridge:compile:ts5": "tsc -b packages && tsx tools/generate-proto.ts --copy",
     "bridge:compile": "tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && tsx tools/generate-proto.ts --copy",
     "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test --test-concurrency=4 --test-reporter=spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/**/tests/**/*.test.ts\"",

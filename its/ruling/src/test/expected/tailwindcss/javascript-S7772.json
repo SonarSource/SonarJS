@@ -1,0 +1,58 @@
+{
+"tailwindcss:__tests__/cli.compile.test.js": [
+1
+],
+"tailwindcss:__tests__/cli.test.js": [
+1
+],
+"tailwindcss:__tests__/customConfig.test.js": [
+1,
+2
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+1,
+2
+],
+"tailwindcss:__tests__/sanity.test.js": [
+1,
+2
+],
+"tailwindcss:jest/runInTempDirectory.js": [
+1,
+2
+],
+"tailwindcss:scripts/build.js": [
+1
+],
+"tailwindcss:scripts/compat.js": [
+1,
+2
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+1
+],
+"tailwindcss:src/cli/utils.js": [
+3
+],
+"tailwindcss:src/constants.js": [
+1
+],
+"tailwindcss:src/index.js": [
+1,
+2
+],
+"tailwindcss:src/index.postcss7.js": [
+1,
+2
+],
+"tailwindcss:src/lib/getModuleDependencies.js": [
+1,
+2
+],
+"tailwindcss:src/lib/registerConfigAsDependency.js": [
+1
+],
+"tailwindcss:src/plugins/preflight.js": [
+1
+]
+}

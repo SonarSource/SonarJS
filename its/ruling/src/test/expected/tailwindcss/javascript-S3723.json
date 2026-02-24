@@ -1,0 +1,521 @@
+{
+"tailwindcss:__tests__/cli.test.js": [
+35,
+45,
+66
+],
+"tailwindcss:__tests__/configurePlugins.test.js": [
+10
+],
+"tailwindcss:__tests__/containerPlugin.test.js": [
+57,
+84,
+115,
+142,
+179,
+227,
+278,
+314
+],
+"tailwindcss:__tests__/customConfig.test.js": [
+18,
+53,
+81,
+118,
+146,
+158,
+185,
+197,
+224,
+236,
+263,
+275,
+317,
+367,
+418,
+477,
+542
+],
+"tailwindcss:__tests__/darkMode.test.js": [
+258,
+356
+],
+"tailwindcss:__tests__/flattenColorPalette.test.js": [
+28,
+66
+],
+"tailwindcss:__tests__/parseAnimationValue.test.js": [
+126,
+154,
+204,
+224
+],
+"tailwindcss:__tests__/prefixSelector.test.js": [
+24
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+36,
+80,
+127,
+173,
+210,
+214,
+252,
+287,
+322,
+369,
+421,
+468,
+527,
+584,
+627,
+671,
+722,
+730,
+761,
+769,
+775,
+811,
+841,
+875,
+901,
+946,
+1006,
+1040,
+1073,
+1106,
+1132,
+1164,
+1198,
+1204,
+1228,
+1232,
+1256,
+1260,
+1287,
+1314,
+1338,
+1344,
+1373,
+1383,
+1411,
+1421,
+1448,
+1455,
+1479,
+1485,
+1518,
+1563,
+1588,
+1604,
+1624,
+1681,
+1700,
+1720,
+1774,
+1826,
+1845,
+1865,
+1918,
+1950,
+2022,
+2088,
+2132,
+2163,
+2194,
+2225,
+2256,
+2287,
+2318,
+2349,
+2380,
+2411,
+2442,
+2473
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+115,
+141,
+148,
+176,
+183,
+214,
+221,
+254,
+261,
+282,
+301,
+303,
+327,
+357,
+389,
+426,
+446,
+451,
+473,
+478,
+498,
+503,
+523,
+528,
+548,
+575,
+609,
+658,
+712,
+762
+],
+"tailwindcss:__tests__/sanity.test.js": [
+16,
+32,
+48,
+69,
+97,
+114,
+123,
+139
+],
+"tailwindcss:__tests__/themeFunction.test.js": [
+125,
+127,
+144,
+146,
+162,
+164,
+180,
+182,
+198,
+212,
+228,
+230
+],
+"tailwindcss:__tests__/withAlphaVariable.test.js": [
+5,
+18,
+30,
+39,
+48,
+57,
+66,
+75,
+84,
+93,
+105
+],
+"tailwindcss:scripts/compat.js": [
+66
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+66
+],
+"tailwindcss:src/cli/commands/build.js": [
+74
+],
+"tailwindcss:src/constants.js": [
+16
+],
+"tailwindcss:src/featureFlags.js": [
+28
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+45,
+52,
+61,
+91,
+120
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+40
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+29,
+68,
+97,
+102,
+134,
+165,
+196,
+205,
+247,
+265
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+70,
+73
+],
+"tailwindcss:src/lib/substituteTailwindAtRules.js": [
+12
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+66,
+82,
+98,
+106,
+118,
+189
+],
+"tailwindcss:src/plugins/accessibility.js": [
+27
+],
+"tailwindcss:src/plugins/alignContent.js": [
+24
+],
+"tailwindcss:src/plugins/alignItems.js": [
+21
+],
+"tailwindcss:src/plugins/alignSelf.js": [
+21
+],
+"tailwindcss:src/plugins/animation.js": [
+11,
+23
+],
+"tailwindcss:src/plugins/appearance.js": [
+7
+],
+"tailwindcss:src/plugins/backgroundAttachment.js": [
+9
+],
+"tailwindcss:src/plugins/backgroundClip.js": [
+10
+],
+"tailwindcss:src/plugins/backgroundColor.js": [
+26
+],
+"tailwindcss:src/plugins/backgroundImage.js": [
+14
+],
+"tailwindcss:src/plugins/backgroundPosition.js": [
+14
+],
+"tailwindcss:src/plugins/backgroundRepeat.js": [
+12
+],
+"tailwindcss:src/plugins/backgroundSize.js": [
+14
+],
+"tailwindcss:src/plugins/borderCollapse.js": [
+8
+],
+"tailwindcss:src/plugins/borderColor.js": [
+26
+],
+"tailwindcss:src/plugins/borderStyle.js": [
+21
+],
+"tailwindcss:src/plugins/boxShadow.js": [
+12,
+28
+],
+"tailwindcss:src/plugins/boxSizing.js": [
+8
+],
+"tailwindcss:src/plugins/clear.js": [
+10
+],
+"tailwindcss:src/plugins/container.js": [
+109,
+114
+],
+"tailwindcss:src/plugins/cursor.js": [
+14
+],
+"tailwindcss:src/plugins/display.js": [
+63
+],
+"tailwindcss:src/plugins/divideColor.js": [
+29
+],
+"tailwindcss:src/plugins/divideOpacity.js": [
+14
+],
+"tailwindcss:src/plugins/divideStyle.js": [
+21
+],
+"tailwindcss:src/plugins/fill.js": [
+13
+],
+"tailwindcss:src/plugins/flex.js": [
+14
+],
+"tailwindcss:src/plugins/flexDirection.js": [
+18
+],
+"tailwindcss:src/plugins/flexGrow.js": [
+15,
+17
+],
+"tailwindcss:src/plugins/flexShrink.js": [
+15,
+17
+],
+"tailwindcss:src/plugins/flexWrap.js": [
+15
+],
+"tailwindcss:src/plugins/float.js": [
+9
+],
+"tailwindcss:src/plugins/fontSize.js": [
+31
+],
+"tailwindcss:src/plugins/fontSmoothing.js": [
+14
+],
+"tailwindcss:src/plugins/fontStyle.js": [
+8
+],
+"tailwindcss:src/plugins/fontVariantNumeric.js": [
+42
+],
+"tailwindcss:src/plugins/gradientColorStops.js": [
+39
+],
+"tailwindcss:src/plugins/gridAutoFlow.js": [
+10
+],
+"tailwindcss:src/plugins/justifyContent.js": [
+24
+],
+"tailwindcss:src/plugins/justifyItems.js": [
+21
+],
+"tailwindcss:src/plugins/justifySelf.js": [
+21
+],
+"tailwindcss:src/plugins/listStylePosition.js": [
+8
+],
+"tailwindcss:src/plugins/objectFit.js": [
+11
+],
+"tailwindcss:src/plugins/outline.js": [
+17
+],
+"tailwindcss:src/plugins/overflow.js": [
+18
+],
+"tailwindcss:src/plugins/overscrollBehavior.js": [
+15
+],
+"tailwindcss:src/plugins/placeContent.js": [
+27
+],
+"tailwindcss:src/plugins/placeItems.js": [
+21
+],
+"tailwindcss:src/plugins/placeSelf.js": [
+21
+],
+"tailwindcss:src/plugins/placeholderColor.js": [
+26
+],
+"tailwindcss:src/plugins/placeholderOpacity.js": [
+14
+],
+"tailwindcss:src/plugins/pointerEvents.js": [
+8
+],
+"tailwindcss:src/plugins/position.js": [
+13
+],
+"tailwindcss:src/plugins/preflight.js": [
+8
+],
+"tailwindcss:src/plugins/resize.js": [
+10
+],
+"tailwindcss:src/plugins/ringColor.js": [
+21
+],
+"tailwindcss:src/plugins/ringOffsetColor.js": [
+17
+],
+"tailwindcss:src/plugins/ringOffsetWidth.js": [
+14
+],
+"tailwindcss:src/plugins/ringOpacity.js": [
+14
+],
+"tailwindcss:src/plugins/ringWidth.js": [
+30,
+47,
+58
+],
+"tailwindcss:src/plugins/stroke.js": [
+13
+],
+"tailwindcss:src/plugins/tableLayout.js": [
+8
+],
+"tailwindcss:src/plugins/textAlign.js": [
+10
+],
+"tailwindcss:src/plugins/textColor.js": [
+26
+],
+"tailwindcss:src/plugins/textDecoration.js": [
+9
+],
+"tailwindcss:src/plugins/textOverflow.js": [
+13
+],
+"tailwindcss:src/plugins/textTransform.js": [
+10
+],
+"tailwindcss:src/plugins/transform.js": [
+42
+],
+"tailwindcss:src/plugins/transitionProperty.js": [
+23
+],
+"tailwindcss:src/plugins/userSelect.js": [
+10
+],
+"tailwindcss:src/plugins/verticalAlign.js": [
+12
+],
+"tailwindcss:src/plugins/visibility.js": [
+8
+],
+"tailwindcss:src/plugins/whitespace.js": [
+11
+],
+"tailwindcss:src/plugins/wordBreak.js": [
+14
+],
+"tailwindcss:src/processTailwindFeatures.js": [
+46
+],
+"tailwindcss:src/util/buildMediaQuery.js": [
+26
+],
+"tailwindcss:src/util/buildSelectorVariant.js": [
+18
+],
+"tailwindcss:src/util/createUtilityPlugin.js": [
+10,
+26
+],
+"tailwindcss:src/util/flattenColorPalette.js": [
+9,
+10
+],
+"tailwindcss:src/util/generateVariantFunction.js": [
+12,
+44,
+45
+],
+"tailwindcss:src/util/processPlugins.js": [
+101,
+120
+],
+"tailwindcss:src/util/resolveConfig.js": [
+26,
+37,
+103,
+234,
+273,
+277,
+282
+]
+}

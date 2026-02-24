@@ -915,6 +915,7 @@ jobs:
           npm run generate-meta
           npm run ruling
       - name: Update ruling and notify
+        continue-on-error: true
         if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -950,7 +951,7 @@ jobs:
           # Commit and push the synced ruling files if there are differences
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
-            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
+            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
 
             # Checkout PR branch
             git fetch origin "$HEAD_REF"
@@ -961,7 +962,7 @@ jobs:
             # Pop the stashed changes
             git stash pop
 
-            git add its/ruling/src/test/expected/jsts/
+            git add its/ruling/src/test/expected/
 
             if git diff --staged --quiet; then
               echo "No ruling changes to commit"
@@ -998,6 +999,15 @@ jobs:
             } > comment.md
           fi
 
+          # Truncate comment to 50KB to stay within GitHub API limits
+          MAX_BYTES=50000
+          if [ "$(wc -c < comment.md)" -gt "$MAX_BYTES" ]; then
+            head -c "$MAX_BYTES" comment.md > comment-truncated.md
+            echo "" >> comment-truncated.md
+            echo "_(truncated — full report too large for PR comment)_" >> comment-truncated.md
+            mv comment-truncated.md comment.md
+          fi
+
           # Find existing ruling comment and update it, or create new one
           EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
             --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
@@ -1028,7 +1038,7 @@ jobs:
       - name: Run Ruling Tests
         run: |
           cd its/ruling
-          mvn test -Dtest=JsTsRulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1037,36 +1047,6 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ruling-differences
-          path: its/ruling/target/actual/jsts/
-
-  css_ruling:
-    runs-on: github-ubuntu-latest-s
-    name: CSS Ruling
-    needs: [setup, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    steps:
-      - *checkout_with_submodules
-      - *mise
-      - *maven_cache
-      - *download_sonarjs_m2
-      - *config_maven
-      - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          save: 'false'
-      - name: Run CSS Ruling
-        run: |
-          cd its/ruling
-          mvn test -DskipTests=false -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
-        env:
-          SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - name: Upload ruling differences
-        if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: ruling-differences-css
           path: its/ruling/target/actual/
 
   # IRIS tasks (nightly only)
@@ -1111,7 +1091,6 @@ jobs:
       - plugin_qa_win
       - plugin_qa_sonarlint_win
       - plugin_qa_win_fast_with_node
-      - css_ruling
       - ruling
       - js_ts_ruling
     if: >-

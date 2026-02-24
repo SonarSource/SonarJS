@@ -1,0 +1,46 @@
+{
+"tailwindcss:__tests__/cli.test.js": [
+4,
+5
+],
+"tailwindcss:__tests__/cli.utils.test.js": [
+1
+],
+"tailwindcss:src/cli.js": [
+4
+],
+"tailwindcss:src/cli/commands/build.js": [
+8,
+9,
+10
+],
+"tailwindcss:src/cli/commands/help.js": [
+4,
+5,
+6
+],
+"tailwindcss:src/cli/commands/index.js": [
+1,
+2,
+3
+],
+"tailwindcss:src/cli/commands/init.js": [
+1,
+2,
+3,
+4
+],
+"tailwindcss:src/cli/compile.js": [
+3
+],
+"tailwindcss:src/cli/main.js": [
+2
+],
+"tailwindcss:src/cli/utils.js": [
+5,
+6
+],
+"tailwindcss:src/corePlugins.js": [
+2
+]
+}

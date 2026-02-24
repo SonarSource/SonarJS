@@ -1,0 +1,65 @@
+{
+"tailwindcss:__tests__/applyAtRule.test.js": [
+7
+],
+"tailwindcss:__tests__/cli.utils.test.js": [
+42
+],
+"tailwindcss:__tests__/customConfig.test.js": [
+18,
+53,
+81,
+118,
+158,
+197,
+236,
+275,
+317,
+367,
+418,
+477,
+542
+],
+"tailwindcss:__tests__/darkMode.test.js": [
+6,
+41
+],
+"tailwindcss:__tests__/layerAtRule.test.js": [
+5
+],
+"tailwindcss:__tests__/plugins/gradientColorStops.test.js": [
+33
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+1006,
+1040,
+1073,
+1106,
+1383,
+1421,
+1624,
+1720,
+1785,
+1865,
+1950,
+2022
+],
+"tailwindcss:__tests__/responsiveAtRule.test.js": [
+6
+],
+"tailwindcss:__tests__/sanity.test.js": [
+106
+],
+"tailwindcss:__tests__/screenAtRule.test.js": [
+6
+],
+"tailwindcss:__tests__/themeFunction.test.js": [
+5
+],
+"tailwindcss:__tests__/variantsAtRule.test.js": [
+10
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+14
+]
+}

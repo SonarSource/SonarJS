@@ -1,0 +1,43 @@
+{
+"tailwindcss:__tests__/applyAtRule.test.js": [
+1380,
+1390,
+1391
+],
+"tailwindcss:__tests__/util/produce.js": [
+4,
+14,
+20,
+23
+],
+"tailwindcss:src/cli/utils.js": [
+29
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+90
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+90,
+311,
+320,
+323,
+333
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+176
+],
+"tailwindcss:src/util/disposables.js": [
+2,
+4,
+9,
+22
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+19
+],
+"tailwindcss:src/util/useMemo.js": [
+4,
+14,
+20
+]
+}

@@ -1,0 +1,38 @@
+{
+"tailwindcss:__tests__/util/produce.js": [
+9,
+26
+],
+"tailwindcss:scripts/build.js": [
+11
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+10
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+11,
+18,
+20
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+324,
+325
+],
+"tailwindcss:src/plugins/animation.js": [
+21
+],
+"tailwindcss:src/util/disposables.js": [
+10
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+20,
+21,
+22,
+23,
+24,
+25,
+26,
+27,
+28
+]
+}

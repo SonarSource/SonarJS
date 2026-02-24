@@ -1,0 +1,89 @@
+{
+"bulma:docs/_sass/book.sass": [
+123,
+138
+],
+"bulma:docs/_sass/bsa.sass": [
+57
+],
+"bulma:docs/_sass/example.sass": [
+89,
+234
+],
+"bulma:docs/_sass/expo.sass": [
+38,
+42
+],
+"bulma:docs/_sass/footer.sass": [
+68
+],
+"bulma:docs/_sass/global.sass": [
+27,
+35,
+180
+],
+"bulma:docs/_sass/header.sass": [
+40
+],
+"bulma:docs/_sass/index.sass": [
+3,
+7,
+139,
+144,
+397,
+405,
+413,
+417
+],
+"bulma:docs/_sass/love.sass": [
+28,
+34,
+40,
+44,
+48,
+75,
+87
+],
+"bulma:docs/_sass/main.sass": [
+76,
+84,
+217,
+224,
+228,
+241,
+264,
+268
+],
+"bulma:docs/_sass/native.sass": [
+97
+],
+"bulma:docs/_sass/override.sass": [
+19
+],
+"bulma:docs/_sass/specific.sass": [
+29,
+80,
+138,
+146,
+230
+],
+"bulma:docs/_sass/sponsors.sass": [
+100,
+104,
+122
+],
+"bulma:docs/_sass/twitter.sass": [
+129,
+135,
+146,
+157,
+161
+],
+"bulma:sass/components/media.sass": [
+57
+],
+"bulma:sass/components/pagination.sass": [
+119,
+131
+]
+}

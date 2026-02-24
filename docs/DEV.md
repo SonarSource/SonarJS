@@ -78,28 +78,21 @@ into the directory with the expected issues `its/ruling/src/test/resources/expec
 From the project root, run: `npm run ruling-sync`
 
 You can review the Ruling difference by running `sh tools/ruling-debug-script.sh`.
-For CSS, run `diff -rq its/ruling/src/test/expected/css `
 
-#### CSS (and old way for JS/TS)
+#### Java ruling (old way)
 
 ```sh
 cd its/ruling
-mvn verify -Dtest=JsTsRulingTest -Dmaven.test.redirectTestOutputToFile=false
-mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
+mvn verify -Dtest=RulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
-To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JsTs/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
+To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
 If everything looks good to you, you can copy the file with the actual issues located at `its/ruling/target/actual/`
-into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
+into the directory with the expected issues `its/ruling/src/test/expected/`.
 
-From `its/ruling/`:
-
-- for JS/TS `cp -R target/actual/jsts/ src/test/expected/jsts`
-- for CSS `cp -R target/actual/css/ src/test/expected/css`
-
-You can review the Ruling difference by running `diff -rq src/test/expected/jsts target/actual/jsts` from `its/ruling`.
+You can review the Ruling difference by running `diff -rq src/test/expected target/actual` from `its/ruling`.
 
 > :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
 
@@ -315,8 +308,8 @@ Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't 
 
 If your rule does not raise any issue, you should write your own code that triggers your rule in:
 
-- `its/sources/jsts/custom/S1234.js` for code
-- `its/sources/jsts/custom/tests/S1234.js` for test code
+- `its/sources/custom/jsts/S1234.js` for code
+- `its/sources/custom/jsts/tests/S1234.js` for test code
 
 You can simply copy and paste compliant and non-compliant examples from your RSPEC HTML description.
 

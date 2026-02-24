@@ -1,0 +1,144 @@
+{
+"desktop:app/static/common/markdown.css": [
+217,
+218,
+282,
+341,
+359,
+378,
+389,
+396,
+397,
+441,
+484,
+500,
+528
+],
+"desktop:app/styles/ui/_app.scss": [
+80,
+81
+],
+"desktop:app/styles/ui/_autocompletion.scss": [
+163
+],
+"desktop:app/styles/ui/_avatar-stack.scss": [
+62,
+84,
+113
+],
+"desktop:app/styles/ui/_branches.scss": [
+162,
+203
+],
+"desktop:app/styles/ui/_button.scss": [
+30,
+124,
+125
+],
+"desktop:app/styles/ui/_codemirror.scss": [
+26,
+29
+],
+"desktop:app/styles/ui/_dialog.scss": [
+247,
+341,
+475
+],
+"desktop:app/styles/ui/_diff.scss": [
+190,
+269,
+514,
+596,
+626,
+627,
+632,
+673,
+819
+],
+"desktop:app/styles/ui/_dropdown-select-button.scss": [
+36,
+48,
+75,
+117
+],
+"desktop:app/styles/ui/_no-repositories.scss": [
+89
+],
+"desktop:app/styles/ui/_preferences.scss": [
+77
+],
+"desktop:app/styles/ui/_pull-request-badge.scss": [
+9
+],
+"desktop:app/styles/ui/_repository-list.scss": [
+127
+],
+"desktop:app/styles/ui/_side-by-side-diff.scss": [
+64,
+112,
+155,
+174,
+182,
+199,
+204,
+229,
+234,
+254,
+327
+],
+"desktop:app/styles/ui/_tab-bar.scss": [
+187
+],
+"desktop:app/styles/ui/_vertical-segmented-control.scss": [
+75
+],
+"desktop:app/styles/ui/_welcome.scss": [
+96,
+135,
+140,
+160,
+165,
+170,
+217
+],
+"desktop:app/styles/ui/changes/_changes-list.scss": [
+58
+],
+"desktop:app/styles/ui/changes/_commit-message.scss": [
+119,
+135,
+171,
+207
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-list-item.scss": [
+40,
+44
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-popover.scss": [
+118
+],
+"desktop:app/styles/ui/dialogs/_thank-you.scss": [
+103
+],
+"desktop:app/styles/ui/history/_commit-list.scss": [
+86,
+87,
+144,
+154,
+163
+],
+"desktop:app/styles/ui/history/_commit-summary.scss": [
+145,
+153
+],
+"desktop:app/styles/ui/history/_history.scss": [
+114
+],
+"desktop:app/styles/ui/onboarding-tutorial/_right-panel.scss": [
+122
+],
+"desktop:app/styles/ui/toolbar/_button.scss": [
+119,
+130
+]
+}

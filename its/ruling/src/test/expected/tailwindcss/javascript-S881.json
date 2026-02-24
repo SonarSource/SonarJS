@@ -1,0 +1,14 @@
+{
+"tailwindcss:__tests__/util/produce.js": [
+40
+],
+"tailwindcss:jest/runInTempDirectory.js": [
+10
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+57
+],
+"tailwindcss:src/util/resolveConfig.js": [
+116
+]
+}
