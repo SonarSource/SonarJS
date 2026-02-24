@@ -17,7 +17,7 @@
   "remoteUser": "node",
   "initializeCommand": [
     "bash", "-c",
-    "TEMP_WSL=$(wslpath -u '${localEnv:TEMP}' 2>/dev/null || echo /tmp) && CERT_SRC=$(wslpath -u \"${NODE_EXTRA_CA_CERTS:-}\" 2>/dev/null || echo \"${NODE_EXTRA_CA_CERTS:-}\") && ([ -n \"$CERT_SRC\" ] && [ -f \"$CERT_SRC\" ] && cp \"$CERT_SRC\" \"$TEMP_WSL/devcontainer-corporate-ca.crt\" || touch \"$TEMP_WSL/devcontainer-corporate-ca.crt\")"
+    "TEMP_WSL=$(wslpath -u '${localEnv:TEMP}' 2>/dev/null || echo /tmp) && CERT_SRC=$(wslpath -u '${localEnv:NODE_EXTRA_CA_CERTS}' 2>/dev/null || echo '${localEnv:NODE_EXTRA_CA_CERTS}') && ([ -n \"$CERT_SRC\" ] && [ -f \"$CERT_SRC\" ] && cp \"$CERT_SRC\" \"$TEMP_WSL/devcontainer-corporate-ca.crt\" || touch \"$TEMP_WSL/devcontainer-corporate-ca.crt\")"
   ],
   "mounts": [
     "source=${localEnv:TEMP}/devcontainer-corporate-ca.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly"
