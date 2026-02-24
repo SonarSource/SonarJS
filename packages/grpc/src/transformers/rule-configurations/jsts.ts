@@ -120,6 +120,16 @@ function parseParamValue(value: string, defaultValue: unknown) {
   return value;
 }
 
+function getParseTarget(fieldDef: {
+  default: unknown;
+  customDefault?: unknown;
+  customForConfiguration?: (value: unknown) => unknown;
+}) {
+  return fieldDef.customForConfiguration && fieldDef.customDefault !== undefined
+    ? fieldDef.customDefault
+    : fieldDef.default;
+}
+
 /**
  * Build an object configuration from an array of field definitions.
  *
@@ -166,13 +176,7 @@ function buildObjectConfiguration(fieldDefs: FieldDef[], paramsLookup: Map<strin
     const paramValue = paramsLookup.get(sqKey);
 
     if (paramValue !== undefined) {
-      // When customForConfiguration exists, parse against customDefault type
-      // so the linter receives the raw SQ value in the right type for transformation.
-      const parseTarget =
-        fieldDef.customForConfiguration && fieldDef.customDefault !== undefined
-          ? fieldDef.customDefault
-          : fieldDef.default;
-      paramsObj[fieldDef.field] = parseParamValue(paramValue, parseTarget);
+      paramsObj[fieldDef.field] = parseParamValue(paramValue, getParseTarget(fieldDef));
     }
   }
 
@@ -238,13 +242,7 @@ function buildPrimitiveConfiguration(
   if (sqKey) {
     const paramValue = paramsLookup.get(sqKey);
     if (paramValue !== undefined) {
-      // When customForConfiguration exists, parse against customDefault type
-      // so the linter receives the raw SQ value in the right type for transformation.
-      const parseTarget =
-        element.customForConfiguration && element.customDefault !== undefined
-          ? element.customDefault
-          : element.default;
-      return parseParamValue(paramValue, parseTarget);
+      return parseParamValue(paramValue, getParseTarget(element));
     }
   } else if (params.length > 0 && index === 0) {
     // Fallback for Type B primitives without displayName.
