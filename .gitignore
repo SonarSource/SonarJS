@@ -75,3 +75,6 @@ lcov.info
 # Claude Code sensitive settings
 .claude/settings.json
 .claude/settings.local.json
+
+# Local devcontainer overrides (e.g. corporate CA certificate)
+.devcontainer/local/

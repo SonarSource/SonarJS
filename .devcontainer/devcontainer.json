@@ -15,7 +15,14 @@
     }
   },
   "remoteUser": "node",
-  "postCreateCommand": "mise trust && mise install && git submodule update --init --recursive && npm ci",
+  "initializeCommand": "mkdir -p .devcontainer/local && if [ -n \"$NODE_EXTRA_CA_CERTS\" ] && [ -f \"$NODE_EXTRA_CA_CERTS\" ]; then cp \"$NODE_EXTRA_CA_CERTS\" .devcontainer/local/corporate-ca.crt; else touch .devcontainer/local/corporate-ca.crt; fi",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/local/corporate-ca.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached"
+  ],
+  "remoteEnv": {
+    "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
+  },
+  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt /tmp/corporate-ca.crt > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
