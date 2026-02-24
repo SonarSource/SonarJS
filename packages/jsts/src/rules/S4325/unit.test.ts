@@ -17,6 +17,10 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 
 describe('S4325', () => {
   it('S4325', () => {
@@ -24,7 +28,7 @@ describe('S4325', () => {
 
     ruleTester.run('Unnecessary type assertions should be removed', rule, {
       valid: [
-        // Compliant: generic function return type (T inferred from assertion target)
+        // Compliant: generic return type narrowed by assertion
         {
           code: `
 interface ViewRef { destroy(): void; }
@@ -33,77 +37,39 @@ class ViewContainerRef {
   private views: ViewRef[] = [];
   get<T extends ViewRef>(index: number): T | null { return (this.views[index] as T) ?? null; }
 }
-function measure(viewContainerRef: ViewContainerRef) {
-  const view = viewContainerRef.get(0) as EmbeddedViewRef<unknown> | null;
+function measure(vc: ViewContainerRef) {
+  const view = vc.get(0) as EmbeddedViewRef<unknown> | null;
   return view?.rootNodes[0];
 }
           `,
         },
-        // Compliant: generic method return type with union alias
+        // Compliant: generic method return type
         {
           code: `
-interface StandardResult<Output> { value?: Output; }
-interface StandardSchema { validate<T>(value: unknown): T; }
-type Result<T> = StandardResult<T> | Promise<StandardResult<T>>;
-function createValidator<TSchema>(schema: StandardSchema, getValue: () => unknown) {
-  return schema.validate(getValue()) as Result<TSchema>;
+interface Schema { validate<T>(value: unknown): T; }
+function run<T>(schema: Schema, getValue: () => unknown) {
+  return schema.validate(getValue()) as T | Promise<T>;
 }
           `,
         },
-        // Compliant: generic store lookup (T inferred from assertion target)
-        {
-          code: `
-class QueryClient {
-  private cache = new Map<string, unknown>();
-  getQueryData<T>(key: string): T | undefined { return this.cache.get(key) as T | undefined; }
-}
-interface UserProfile { name: string; }
-function getUser(client: QueryClient) {
-  return client.getQueryData('user') as UserProfile | undefined;
-}
-          `,
-        },
-        // Compliant: non-null assertion on a property declared as `Api | null`
-        {
-          code: `
-interface Api { fetch(): Promise<string>; }
-class Client {
-  api: Api | null = null;
-  async getData() { return await this.api!.fetch(); }
-}
-          `,
-        },
-        // Compliant: non-null assertion on parameter declared as `string | undefined`
-        {
-          code: `
-function process(value: string | undefined) { return value!.toUpperCase(); }
-          `,
-        },
-        // Compliant: non-null assertion on interface property declared as nullable
-        {
-          code: `
-interface Config { timeout: number | null; }
-function getTimeout(config: Config): number { return config.timeout!; }
-          `,
-        },
-        // Compliant: assertion to `any` changes type behavior
+        // Compliant: cast to any
         {
           code: `const x: string = 'hello'; const y = x as any;`,
         },
-        // Compliant: assertion to `unknown` changes type behavior
+        // Compliant: cast to unknown
         {
           code: `const x: string = 'hello'; const y = x as unknown;`,
         },
-        // Compliant: assertion narrows a non-generic union return type
+        // Compliant: assertion narrows non-generic union return type
         {
           code: `
-function getStringOrNumber(): string | number { return 42; }
-const s = getStringOrNumber() as string;
+function getVal(): string | number { return 42; }
+const s = getVal() as string;
           `,
         },
       ],
       invalid: [
-        // Noncompliant: TypeScript already knows x is a string after typeof narrowing
+        // Noncompliant: typeof narrowing already makes x a string
         {
           code: `
 function getName(x?: string | object) {
@@ -112,8 +78,14 @@ function getName(x?: string | object) {
 }
           `,
           errors: 1,
+          output: `
+function getName(x?: string | object) {
+  if (typeof x === 'string') { return (x); }
+  return '';
+}
+          `,
         },
-        // Noncompliant: TypeScript knows x is defined inside the truthy check
+        // Noncompliant: truthy check already removes undefined
         {
           code: `
 function getName(x?: string) {
@@ -122,11 +94,75 @@ function getName(x?: string) {
 }
           `,
           errors: 1,
+          output: `
+function getName(x?: string) {
+  if (x) { return x; }
+  return '';
+}
+          `,
         },
-        // Noncompliant: assertion to the same type TypeScript already infers
+        // Noncompliant: same type as already inferred
         {
           code: `const x: string = 'hello'; const y = x as string;`,
           errors: 1,
+          output: `const x: string = 'hello'; const y = x;`,
+        },
+      ],
+    });
+  });
+
+  it('S4325 with strictNullChecks', () => {
+    const strictRuleTester = new RuleTester({
+      parserOptions: {
+        project: 'tsconfig.json',
+        tsconfigRootDir: fixtures,
+      },
+    });
+
+    strictRuleTester.run('Unnecessary type assertions should be removed (strictNullChecks)', rule, {
+      valid: [
+        // Compliant: non-null assertion on nullable property
+        {
+          code: `
+interface Api { fetch(): Promise<string>; }
+class Client {
+  api: Api | null = null;
+  async getData() { return await this.api!.fetch(); }
+}
+          `,
+          filename: path.join(fixtures, 'placeholder.tsx'),
+        },
+        // Compliant: non-null assertion on optional parameter
+        {
+          code: `function process(value: string | undefined) { return value!.toUpperCase(); }`,
+          filename: path.join(fixtures, 'placeholder.tsx'),
+        },
+        // Compliant: non-null assertion on nullable interface property
+        {
+          code: `
+interface Config { timeout: number | null; }
+function getTimeout(config: Config): number { return config.timeout!; }
+          `,
+          filename: path.join(fixtures, 'placeholder.tsx'),
+        },
+      ],
+      invalid: [
+        // Noncompliant: truthy check already removes undefined (with strictNullChecks)
+        {
+          code: `
+function getName(x?: string) {
+  if (x) { return x!; }
+  return '';
+}
+          `,
+          filename: path.join(fixtures, 'placeholder.tsx'),
+          errors: 1,
+          output: `
+function getName(x?: string) {
+  if (x) { return x; }
+  return '';
+}
+          `,
         },
       ],
     });

@@ -14,7 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-unnecessary-type-assertion';
-export const externalPlugin = 'typescript-eslint';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-unnecessary-type-assertion' },
+];
 export const quickFixMessage = 'Remove type assertion';
