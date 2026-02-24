@@ -140,8 +140,15 @@ describe('S4325', () => {
     });
   });
 
-  it('should not flag non-null assertions on declared nullable types', () => {
-    ruleTester.run('S4325 non-null assertions', rule, {
+  it('should not flag non-null assertions on declared nullable types with strictNullChecks', () => {
+    const strictNullTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: `./tsconfig.json`,
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    strictNullTester.run('S4325 non-null assertions', rule, {
       valid: [
         {
           // Property declared as T | null
@@ -156,6 +163,7 @@ describe('S4325', () => {
               }
             }
           `,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
         {
           // Variable declared as T | undefined
@@ -165,6 +173,7 @@ describe('S4325', () => {
               return config!.debug;
             }
           `,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
       ],
       invalid: [],
@@ -296,13 +305,12 @@ describe('S4325', () => {
     });
   });
 
-  it('should flag non-null assertion on call expression result without type checking', () => {
-    ruleTester.run('S4325 non-null on call without strictNullChecks', rule, {
+  it('should flag non-null assertions without strictNullChecks', () => {
+    ruleTester.run('S4325 non-null without strictNullChecks', rule, {
       valid: [],
       invalid: [
         {
-          // Non-null assertion on a call expression where the symbol cannot be resolved
-          // Exercises shouldSuppressNonNullAssertion returning false when no symbol at location
+          // Without strictNullChecks, non-null assertions are no-ops and should be flagged
           code: `
             function getUser(): string { return ''; }
             getUser()!;

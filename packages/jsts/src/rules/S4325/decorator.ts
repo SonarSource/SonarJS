@@ -151,15 +151,12 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
 
 /**
  * Suppresses false positives for non-null assertions where the expression's
- * declared type explicitly includes null or undefined in its type annotation.
+ * resolved type still contains null or undefined after TypeScript's flow analysis.
  *
- * Without strictNullChecks, TypeScript resolves `Api | null` to just `Api`,
- * making the upstream rule's nullability checks fail. We check the syntax of the
- * type annotation directly to determine if the developer declared the type as nullable.
- *
- * With strictNullChecks enabled, TypeScript's flow analysis correctly tracks
- * null/undefined, so the upstream rule's analysis is reliable. We only check
- * the resolved type in that case, which respects flow narrowing.
+ * Only applies when strictNullChecks is enabled, since TypeScript's flow analysis
+ * correctly tracks null/undefined in that mode. Without strictNullChecks, TypeScript
+ * erases null/undefined from all types, making `!` effectively a no-op — the upstream
+ * rule is correct to flag it so developers write proper null guards instead.
  */
 function shouldSuppressNonNullAssertion(
   node: TSESTree.TSNonNullExpression,
@@ -170,62 +167,13 @@ function shouldSuppressNonNullAssertion(
   const tsNode = services.esTreeNodeToTSNodeMap.get(expression as TSESTree.Node);
   const compilerOptions = services.program.getCompilerOptions();
 
-  // When strictNullChecks is enabled, TypeScript's flow analysis correctly tracks
-  // null/undefined. The upstream rule's analysis is reliable, so we only suppress
-  // if the resolved type (which respects flow narrowing) still contains null/undefined.
-  if (compilerOptions.strictNullChecks || compilerOptions.strict) {
-    const resolvedType = checker.getTypeAtLocation(tsNode);
-    if (resolvedType.isUnion()) {
-      return resolvedType.types.some(
-        t => !!(t.flags & (ts.TypeFlags.Null | ts.TypeFlags.Undefined)),
-      );
-    }
+  if (!(compilerOptions.strictNullChecks || compilerOptions.strict)) {
     return false;
   }
 
-  // Without strictNullChecks, the type checker erases null/undefined from types.
-  // Check the declaration's type annotation syntax directly.
-  const symbol = checker.getSymbolAtLocation(tsNode);
-  if (!symbol) {
-    return false;
-  }
-
-  const declarations = symbol.getDeclarations();
-  if (!declarations || declarations.length === 0) {
-    return false;
-  }
-
-  for (const decl of declarations) {
-    if (
-      (ts.isPropertyDeclaration(decl) || ts.isVariableDeclaration(decl) || ts.isParameter(decl)) &&
-      decl.type &&
-      typeNodeContainsNullOrUndefined(decl.type)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Checks whether a type node's syntax explicitly contains `null` or `undefined`.
- * This examines the AST directly rather than relying on the type checker,
- * which may erase null/undefined when strictNullChecks is not enabled.
- */
-function typeNodeContainsNullOrUndefined(typeNode: ts.TypeNode): boolean {
-  if (typeNode.kind === ts.SyntaxKind.NullKeyword) {
-    return true;
-  }
-  if (typeNode.kind === ts.SyntaxKind.UndefinedKeyword) {
-    return true;
-  }
-  // LiteralType wrapping null: `null` in a union is represented as LiteralType
-  if (ts.isLiteralTypeNode(typeNode) && typeNode.literal.kind === ts.SyntaxKind.NullKeyword) {
-    return true;
-  }
-  if (ts.isUnionTypeNode(typeNode)) {
-    return typeNode.types.some(typeNodeContainsNullOrUndefined);
+  const resolvedType = checker.getTypeAtLocation(tsNode);
+  if (resolvedType.isUnion()) {
+    return resolvedType.types.some(t => !!(t.flags & (ts.TypeFlags.Null | ts.TypeFlags.Undefined)));
   }
   return false;
 }
