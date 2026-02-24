@@ -45,6 +45,8 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 1,
         column: 3,
+        endLine: 1,
+        endColumn: 6,
         message: 'Unexpected empty block',
       },
     ]);
@@ -64,6 +66,8 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 1,
         column: 6,
+        endLine: 1,
+        endColumn: 29,
         message: `Fix this malformed 'calc' expression.`,
       },
     ]);
@@ -90,6 +94,8 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 2,
         column: 18,
+        endLine: 2,
+        endColumn: 21,
         message: 'Unexpected missing generic font family',
       },
     ]);

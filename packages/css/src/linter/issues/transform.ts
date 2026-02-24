@@ -61,13 +61,22 @@ export function transform(
         );
       }
 
-      issues.push({
+      const issue: CssIssue = {
         ruleId: warning.rule,
         line,
         column,
         message: normalizeMessage(warning.text),
         language: 'css',
-      });
+      };
+
+      if (isValidPosition(warning.endLine)) {
+        issue.endLine = warning.endLine;
+      }
+      if (isValidPosition(warning.endColumn)) {
+        issue.endColumn = warning.endColumn;
+      }
+
+      issues.push(issue);
     }
   }
   return issues;

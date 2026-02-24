@@ -98,13 +98,14 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
 /**
  * Transform a single CSS issue from the internal format to the gRPC Issue format.
  *
- * At the moment we only handle start line/column for CSS issues,
- * so endLine/endLineOffset mirror the start values.
- *
- * TODO: https://sonarsource.atlassian.net/browse/JS-1348
- *
  * The stylelint rule key is
  * reverse-mapped to the SonarQube key via `reverseCssRuleKeyMap`.
+ *
+ * **Text Range Mapping:**
+ * - `line` → `startLine`
+ * - `endLine` → `endLine` (falls back to `line` if not set)
+ * - `column` → `startOffset`
+ * - `endColumn` → `endOffset` (falls back to `column` if not set)
  *
  * @param issue - Internal CSS issue from the stylelint linter
  * @param filePath - The file path the issue belongs to
@@ -119,8 +120,8 @@ function transformCssIssue(issue: CssIssue, filePath: NormalizedAbsolutePath): a
     textRange: {
       startLine: issue.line,
       startLineOffset: issue.column,
-      endLine: issue.line,
-      endLineOffset: issue.column,
+      endLine: issue.endLine ?? issue.line,
+      endLineOffset: issue.endColumn ?? issue.column,
     },
     flows: [],
   };

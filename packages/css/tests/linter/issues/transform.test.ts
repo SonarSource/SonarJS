@@ -51,6 +51,61 @@ describe('transform', () => {
     ]);
   });
 
+  it('should pass through endLine and endColumn when provided', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'some-rule',
+            text: 'some-text',
+            line: 1,
+            column: 5,
+            endLine: 1,
+            endColumn: 10,
+          },
+        ],
+      },
+    ] as stylelint.LintResult[];
+
+    const issues = transform(results, filePath);
+
+    expect(issues).toEqual([
+      {
+        ruleId: 'some-rule',
+        message: 'some-text',
+        language: 'css',
+        line: 1,
+        column: 5,
+        endLine: 1,
+        endColumn: 10,
+      },
+    ]);
+  });
+
+  it('should omit endLine and endColumn when not provided', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'some-rule',
+            text: 'some-text',
+            line: 1,
+            column: 5,
+          },
+        ],
+      },
+    ] as stylelint.LintResult[];
+
+    const issues = transform(results, filePath);
+
+    expect(issues[0]).not.toHaveProperty('endLine');
+    expect(issues[0]).not.toHaveProperty('endColumn');
+  });
+
   it('should strip the trailing (rulekey) suffix from messages', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [
