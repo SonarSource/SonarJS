@@ -25,7 +25,6 @@ describe('S6767', () => {
     ruleTester.run('no-unused-prop-types', rule, {
       valid: [
         {
-          // Props used directly - no issue expected
           code: `
 import React from 'react';
 interface Props { name: string; }
@@ -34,7 +33,7 @@ class Hello extends React.Component<Props> {
 }`,
         },
         {
-          // FP: this.props passed to helper function
+          // Compliant: props passed to helper function
           code: `
 import * as React from 'react';
 interface BarProps { x: number; y: number; barOffset: number[]; }
@@ -47,7 +46,7 @@ export default class Bar extends React.Component<BarProps> {
 }`,
         },
         {
-          // FP: super(props) in constructor
+          // Compliant: super(props) in constructor
           code: `
 import * as React from 'react';
 interface ThemeProps { theme: string; children: React.ReactNode; }
@@ -59,7 +58,7 @@ export default class ThemeProvider extends React.Component<ThemeProps> {
 }`,
         },
         {
-          // FP: exported props interface (public API)
+          // Compliant: exported props interface
           code: `
 import * as React from 'react';
 export interface ButtonProps { label: string; variant: 'primary' | 'secondary'; onClick?: () => void; }
@@ -70,7 +69,7 @@ const Button: React.FC<ButtonProps> = (props) => {
 export default Button;`,
         },
         {
-          // FP: component exported via HOC wrapper
+          // Compliant: HOC wrapper export
           code: `
 import * as React from 'react';
 interface ButtonProps { label: string; styles: Record<string, string>; }
@@ -81,7 +80,7 @@ class Button extends React.Component<ButtonProps> {
 export default withTheme(Button);`,
         },
         {
-          // FP: props accessed via bracket notation
+          // Compliant: bracket notation access
           code: `
 import * as React from 'react';
 interface ConfigProps { prefixCls?: string; children?: React.ReactNode; input?: object; form?: object; }
@@ -98,7 +97,7 @@ export default class ConfigProvider extends React.Component<ConfigProps> {
 }`,
         },
         {
-          // FP: this.props spread into object
+          // Compliant: this.props spread
           code: `
 import * as React from 'react';
 interface WrapperProps { className: string; id: string; children: React.ReactNode; }
@@ -111,7 +110,7 @@ class Wrapper extends React.Component<WrapperProps> {
 export default Wrapper;`,
         },
         {
-          // FP: component wrapped in React.forwardRef
+          // Compliant: React.forwardRef wrapper
           code: `
 import * as React from 'react';
 interface InputProps { value: string; size: 'small' | 'medium' | 'large'; onChange: (value: string) => void; }
@@ -122,7 +121,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 export default Input;`,
         },
         {
-          // FP: entire props object passed to context provider
+          // Compliant: props passed to context provider
           code: `
 import * as React from 'react';
 interface ConfigProps { theme: string; locale: string; children: React.ReactNode; }
@@ -136,7 +135,6 @@ export default ConfigProvider;`,
       ],
       invalid: [
         {
-          // TP: prop defined but never used anywhere
           code: `
 import React from 'react';
 interface Props { name: string; }
