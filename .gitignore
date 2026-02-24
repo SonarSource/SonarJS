@@ -17,6 +17,10 @@ packages/jsts/src/parsers/estree.d.ts
 sonar-plugin/css/src/main/java/org/sonar/css/rules/S*.java
 sonar-plugin/css/src/main/java/org/sonar/css/CssRules.java
 sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java
+
+# Auto-generated RSPEC rule metadata (by rspec-maven-plugin + deploy-rule-data)
+sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/
+sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/
 sonarjs-1.0.0.tgz
 
 # IntelliJ IDEA
