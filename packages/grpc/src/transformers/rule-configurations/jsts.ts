@@ -53,6 +53,8 @@ type FieldDef = {
   field: string;
   displayName?: string;
   default: unknown;
+  customDefault?: unknown;
+  customForConfiguration?: (value: unknown) => unknown;
 };
 
 /**
@@ -118,6 +120,16 @@ function parseParamValue(value: string, defaultValue: unknown) {
   return value;
 }
 
+function getParseTarget(fieldDef: {
+  default: unknown;
+  customDefault?: unknown;
+  customForConfiguration?: (value: unknown) => unknown;
+}) {
+  return fieldDef.customForConfiguration && fieldDef.customDefault !== undefined
+    ? fieldDef.customDefault
+    : fieldDef.default;
+}
+
 /**
  * Build an object configuration from an array of field definitions.
  *
@@ -164,7 +176,7 @@ function buildObjectConfiguration(fieldDefs: FieldDef[], paramsLookup: Map<strin
     const paramValue = paramsLookup.get(sqKey);
 
     if (paramValue !== undefined) {
-      paramsObj[fieldDef.field] = parseParamValue(paramValue, fieldDef.default);
+      paramsObj[fieldDef.field] = parseParamValue(paramValue, getParseTarget(fieldDef));
     }
   }
 
@@ -215,7 +227,12 @@ function buildObjectConfiguration(fieldDefs: FieldDef[], paramsLookup: Map<strin
  * @see RULE_CONFIG_PATTERNS.md "Type B", "Type C", and "Type D" sections
  */
 function buildPrimitiveConfiguration(
-  element: { default: unknown; displayName?: string },
+  element: {
+    default: unknown;
+    displayName?: string;
+    customDefault?: unknown;
+    customForConfiguration?: (value: unknown) => unknown;
+  },
   paramsLookup: Map<string, string>,
   params: analyzer.IRuleParam[],
   index: number,
@@ -225,7 +242,7 @@ function buildPrimitiveConfiguration(
   if (sqKey) {
     const paramValue = paramsLookup.get(sqKey);
     if (paramValue !== undefined) {
-      return parseParamValue(paramValue, element.default);
+      return parseParamValue(paramValue, getParseTarget(element));
     }
   } else if (params.length > 0 && index === 0) {
     // Fallback for Type B primitives without displayName.

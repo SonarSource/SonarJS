@@ -549,6 +549,172 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
+  it('should handle rule with customForConfiguration and customDefault (S1441 — quotes)', async () => {
+    // S1441 has customDefault: true and customForConfiguration: `value ? "single" : "double"`
+    // When SQ sends singleQuotes='true', it should be transformed to 'single' for ESLint
+    const content = 'const x = "hello";\n';
+
+    // With singleQuotes='true' → should enforce single quotes → issue on double-quoted string
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/quotes.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1441' },
+          params: [{ key: 'singleQuotes', value: 'true' }],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S1441');
+
+    // With singleQuotes='false' → should enforce double quotes → no issue on double-quoted string
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/quotes.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1441' },
+          params: [{ key: 'singleQuotes', value: 'false' }],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle customDefault with number field in object config (S6418 — hard-coded secrets)', async () => {
+    // S6418 config.ts has randomnessSensibility with default: 5 (number) and customDefault: '5.0' (string for Java).
+    // The gRPC path should parse 'randomnessSensibility' as a number (from default: 5).
+    // Also tests that 'secretWords' string param is passed correctly.
+    // Needs a high-entropy string to exceed the sensibility threshold.
+    const content =
+      "const token = 'rf6acB24J//1FZLRrKpjmBUYSnUX5CHlt/iD5vVVcgVuAIOB6hzcWjDnv16V6hDLevW0Qs4hKPbP1M4YfuDI16sZna1/VGRLkAbTk6xMPs4epH6A3ZqSyyI-H92y';\n";
+
+    // With default secretWords (contains 'token') and default sensibility → should trigger
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/secrets.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S6418' },
+          params: [{ key: 'randomnessSensibility', value: '2' }],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S6418');
+
+    // With secretWords that doesn't match 'token' → should NOT trigger
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/secrets.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S6418' },
+          params: [
+            { key: 'secretWords', value: 'mysecretword' },
+            { key: 'randomnessSensibility', value: '2' },
+          ],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle customDefault with escaped regex string (S139 — trailing comments)', async () => {
+    // S139 (line-comment-position) config.ts has ignorePattern with default: '^\\s*[^\\s]+$'
+    // and customDefault: '^\\\\s*[^\\\\s]+$' (double-escaped for Java).
+    // The SQ key is 'pattern' (displayName).
+
+    // Multi-word trailing comment doesn't match default ignorePattern → should trigger
+    const content = 'const x = 1; // some trailing comment\n';
+
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/comments-trigger.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S139' },
+          params: [],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S139');
+
+    // Custom pattern override via 'pattern' (displayName for ignorePattern):
+    // '^\\s*some' matches '// some trailing comment' → should NOT trigger
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/comments-custom.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S139' },
+          params: [{ key: 'pattern', value: '^\\s*some' }],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
+  it('should handle customDefault with array of escaped regexes (S7718 — catch error name)', async () => {
+    // S7718 config.ts has ignore field with default: array of regexes and
+    // customDefault: same array with double-escaped regexes (for Java).
+    // The gRPC path should split comma-separated values into an array.
+    const content = 'try { foo(); } catch (myVar) { throw myVar; }\n';
+
+    // Default ignore patterns don't include 'myVar' → should trigger
+    const requestTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/catch.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S7718' },
+          params: [],
+        },
+      ],
+    };
+
+    const responseTrigger = await client.analyze(requestTrigger);
+    expect(responseTrigger.issues?.length).toBe(1);
+    expect(responseTrigger.issues?.[0].rule?.rule).toBe('S7718');
+
+    // Custom ignore that matches 'myVar' → should NOT trigger
+    const requestNoTrigger: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/catch.js', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S7718' },
+          params: [{ key: 'ignore', value: '^myVar$' }],
+        },
+      ],
+    };
+
+    const responseNoTrigger = await client.analyze(requestNoTrigger);
+    expect(responseNoTrigger.issues?.length).toBe(0);
+  });
+
   it('should handle Type B rule where first param value is used as config (S1440 — eqeqeq)', async () => {
     // x == null is allowed in 'smart' mode (null checks are a known exception)
     // but forbidden in 'always' mode

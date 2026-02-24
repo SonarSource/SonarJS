@@ -38,7 +38,7 @@ import { APIError } from '../../../shared/src/errors/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
-import { defaultOptions } from '../rules/helpers/configs.js';
+import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
 import { getDependencies } from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
@@ -307,7 +307,10 @@ export class Linter {
         if (ruleMeta && 'fields' in ruleMeta) {
           rules[`sonarjs/${rule.key}`] = [
             'error',
-            ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
+            ...applyTransformations(
+              ruleMeta.fields,
+              merge(defaultOptions(ruleMeta.fields), rule.configurations),
+            ),
           ];
         } else {
           rules[`sonarjs/${rule.key}`] = ['error'];

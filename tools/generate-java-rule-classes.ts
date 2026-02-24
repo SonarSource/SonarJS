@@ -222,8 +222,6 @@ function generateBody(
             const castTo = namedProperty.items.type === 'string' ? 'String' : 'Integer';
             imports.add('import java.util.Arrays;');
             value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).toArray(${castTo}[]::new)`;
-          } else if (namedProperty.customForConfiguration) {
-            value = namedProperty.customForConfiguration;
           } else {
             value = fieldName;
           }
@@ -236,10 +234,7 @@ function generateBody(
         configurations.push(`Map.of(${mapContents})`);
       }
     } else {
-      let value = generateRuleProperty(config);
-      if (isSonarSQProperty(config) && config.customForConfiguration) {
-        value = config.customForConfiguration;
-      }
+      const value = generateRuleProperty(config);
       configurations.push(value);
     }
   });

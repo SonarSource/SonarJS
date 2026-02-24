@@ -24,7 +24,7 @@ export const fields = [
     default: 'single',
     customDefault: true,
     displayName: 'singleQuotes',
-    customForConfiguration: `value ? "single" : "double"`,
+    customForConfiguration: (value: unknown) => (value ? 'single' : 'double'),
   },
   [
     {
