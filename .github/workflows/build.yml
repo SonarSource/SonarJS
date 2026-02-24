@@ -242,7 +242,10 @@ jobs:
     needs: [setup, populate_npm_cache]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
     steps:
       - *checkout
       - *mise
@@ -259,6 +262,57 @@ jobs:
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
+      - name: Check README.md freshness
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if git diff --quiet packages/jsts/src/rules/README.md; then
+            echo "README.md is up to date"
+            exit 0
+          fi
+
+          # Prevent infinite loop if last commit was auto-generated
+          LAST_COMMIT_MSG=$(git log -1 --format=%B)
+          if echo "$LAST_COMMIT_MSG" | grep -q "Generated with GitHub Actions"; then
+            echo "Last commit was auto-generated, skipping"
+            exit 0
+          fi
+
+          echo "README.md is out of date, creating fix PR..."
+
+          # Create a new branch from the PR branch
+          FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
+          git stash push -m "readme-update" -- packages/jsts/src/rules/README.md
+          git fetch origin "$HEAD_REF"
+          git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash pop
+          git add packages/jsts/src/rules/README.md
+          git commit -m "Update ESLint plugin README.md
+
+          🤖 Generated with GitHub Actions"
+          git push origin "$FIX_BRANCH"
+
+          # Create PR targeting the original PR branch
+          FIX_PR_URL=$(gh pr create \
+            --title "Update ESLint plugin README.md" \
+            --base "$HEAD_REF" \
+            --head "$FIX_BRANCH" \
+            --body "Auto-generated update for \`packages/jsts/src/rules/README.md\`.
+
+          🤖 Generated with GitHub Actions")
+
+          # Comment on the original PR with link to fix PR
+          gh pr comment "$PR_NUMBER" \
+            --body "⚠️ The ESLint plugin README.md is out of date. A fix PR has been created automatically: $FIX_PR_URL. Please merge it into this branch to continue."
+
+          echo "::error::README.md was out of date. A fix PR has been created."
+          exit 1
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
         uses: SonarSource/gh-action_cache@v1
