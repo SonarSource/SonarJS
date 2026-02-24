@@ -15,9 +15,9 @@
     }
   },
   "remoteUser": "node",
-  "initializeCommand": "if [ -n \"$NODE_EXTRA_CA_CERTS\" ] && [ -f \"$NODE_EXTRA_CA_CERTS\" ]; then cp \"$NODE_EXTRA_CA_CERTS\" /tmp/devcontainer-corporate-ca.crt; else touch /tmp/devcontainer-corporate-ca.crt; fi",
+  "initializeCommand": "CERT_PATH=$(wslpath -u \"${NODE_EXTRA_CA_CERTS:-}\" 2>/dev/null || echo \"${NODE_EXTRA_CA_CERTS:-}\") && ([ -n \"$CERT_PATH\" ] && [ -f \"$CERT_PATH\" ] && cp \"$CERT_PATH\" /tmp/devcontainer-corporate-ca.crt || touch /tmp/devcontainer-corporate-ca.crt)",
   "mounts": [
-    "source=/tmp/devcontainer-corporate-ca.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached"
+    "source=//wsl.localhost/${localEnv:WSL_DISTRO_NAME}/tmp/devcontainer-corporate-ca.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly"
   ],
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
