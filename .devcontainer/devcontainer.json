@@ -15,12 +15,17 @@
     }
   },
   "remoteUser": "node",
+  // initializeCommand runs on the host before container creation (before the repo is cloned).
+  // It stages the corporate CA cert and ~/.npmrc into a temp directory that Docker can bind-mount.
+  // ${localEnv:TEMP:/tmp}: Windows TEMP on WSL2 (Docker Desktop-accessible) or /tmp on Linux/macOS.
+  // wslpath converts the Windows path to a WSL2 Unix path; the || echo fallback is used elsewhere.
   "initializeCommand": [
     "bash", "-c",
-    "TEMP_WSL=$(wslpath -u '${localEnv:TEMP}' 2>/dev/null || echo /tmp) && CERT_SRC=$(wslpath -u '${localEnv:NODE_EXTRA_CA_CERTS}' 2>/dev/null || echo '${localEnv:NODE_EXTRA_CA_CERTS}') && ([ -n \"$CERT_SRC\" ] && [ -f \"$CERT_SRC\" ] && cp \"$CERT_SRC\" \"$TEMP_WSL/devcontainer-corporate-ca.crt\" || touch \"$TEMP_WSL/devcontainer-corporate-ca.crt\")"
+    "STAGING=$(wslpath -u '${localEnv:TEMP:/tmp}' 2>/dev/null || echo '${localEnv:TEMP:/tmp}') && (cp \"${NODE_EXTRA_CA_CERTS:-}\" \"$STAGING/dc-cert.crt\" 2>/dev/null || touch \"$STAGING/dc-cert.crt\") && (cp ~/.npmrc \"$STAGING/dc-npmrc\" 2>/dev/null || touch \"$STAGING/dc-npmrc\")"
   ],
   "mounts": [
-    "source=${localEnv:TEMP}/devcontainer-corporate-ca.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly"
+    "source=${localEnv:TEMP:/tmp}/dc-cert.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly",
+    "source=${localEnv:TEMP:/tmp}/dc-npmrc,target=/home/node/.npmrc,type=bind,consistency=cached,readonly"
   ],
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
