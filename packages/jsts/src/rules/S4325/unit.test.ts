@@ -15,10 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { decorate } from './decorator.js';
+import { RuleTester, NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
+import type { Rule } from 'eslint';
 
 const ruleTester = new RuleTester();
 
@@ -322,6 +324,132 @@ describe('S4325', () => {
           errors: 1,
         },
       ],
+    });
+  });
+
+  it('should pass through report descriptor without a node property (line 49-50)', () => {
+    // Create a mock rule that reports using a loc-only descriptor (no 'node' property).
+    // The decorator should fall through and forward the report as-is.
+    const mockInnerRule: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(context) {
+        return {
+          Identifier(node) {
+            // Report using loc only - no 'node' property in descriptor
+            context.report({
+              message: 'test message',
+              loc: { line: node.loc!.start.line, column: node.loc!.start.column },
+            });
+          },
+        };
+      },
+    };
+    const decoratedRule = decorate(mockInnerRule);
+    const tester = new RuleTester();
+    // The decorated rule should forward the loc-only report (no suppression)
+    tester.run('S4325 no-node descriptor', decoratedRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `const x = 1;`,
+          errors: [{ message: 'test message' }],
+        },
+      ],
+    });
+  });
+
+  it('should pass through report when parser services are not available (lines 55-56)', () => {
+    // Create a mock rule that always reports a TSAsExpression node.
+    // When used without type-checking parser services, the decorator should
+    // fall through and forward the report unchanged.
+    const mockInnerRule: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(context) {
+        return {
+          TSAsExpression(node) {
+            context.report({ node, message: 'mock report' });
+          },
+        };
+      },
+    };
+    const decoratedRule = decorate(mockInnerRule);
+    const noTypeTester = new NoTypeCheckingRuleTester();
+    // Without type info, isRequiredParserServices returns false → report is forwarded
+    noTypeTester.run('S4325 no parser services', decoratedRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `const x = value as string;`,
+          errors: [{ message: 'mock report' }],
+        },
+      ],
+    });
+  });
+
+  it('should suppress non-null assertion that is contextually unnecessary but type is still nullable (line 69)', () => {
+    // When a variable of type T|null is assigned to another T|null variable,
+    // the upstream rule reports the ! as contextually unnecessary.
+    // But the decorator suppresses it because the expression type is still a nullable union.
+    const strictNullTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: `./tsconfig.json`,
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    strictNullTester.run('S4325 non-null contextually unnecessary but nullable', rule, {
+      valid: [
+        {
+          // x: string | null assigned to y: string | null — upstream would flag x! as
+          // contextually unnecessary (both sides accept null), but decorator suppresses
+          // because the expression type is still a nullable union (line 69 executed).
+          code: `
+            let x: string | null = null;
+            let y: string | null = x!;
+          `,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should suppress assertion to any when expression type differs from any (line 100)', () => {
+    // Create a mock inner rule that always reports TSAsExpression nodes.
+    // When the assertion target is `any` and the expression type is not `any`,
+    // shouldSuppressTypeAssertion returns true (line 100), suppressing the report.
+    const mockInnerRule: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(context) {
+        return {
+          TSAsExpression(node) {
+            context.report({ node, message: 'mock report' });
+          },
+        };
+      },
+    };
+    const decoratedRule = decorate(mockInnerRule);
+    // The decorated rule suppresses: number as any (expression is number, target is any)
+    ruleTester.run('S4325 any cast suppressed via line 100', decoratedRule, {
+      valid: [
+        {
+          // number as any: assertionTargetType.flags === Any, expressionType.flags === Number
+          // flags differ → return true at line 100 → report suppressed
+          code: `
+            const n: number = 42;
+            const x = n as any;
+          `,
+        },
+        {
+          // string as unknown: assertionTargetType.flags === Unknown, expressionType.flags === String
+          // flags differ → return true at line 100 → report suppressed
+          code: `
+            const s: string = 'hello';
+            const x = s as unknown;
+          `,
+        },
+      ],
+      invalid: [],
     });
   });
 });
