@@ -6,18 +6,6 @@
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 104
 ],
-"vuetify:packages/vuetify/src/directives/intersect/index.ts": [
-60
-],
-"vuetify:packages/vuetify/src/directives/mutate/index.ts": [
-39
-],
-"vuetify:packages/vuetify/src/directives/resize/index.ts": [
-19
-],
-"vuetify:packages/vuetify/src/directives/scroll/index.ts": [
-29
-],
 "vuetify:packages/vuetify/src/util/color/transformSRGB.ts": [
 33
 ],
