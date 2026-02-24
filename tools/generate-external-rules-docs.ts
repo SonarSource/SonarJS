@@ -69,7 +69,8 @@ function sonarURL(key: string) {
 }
 
 function sonarCell(key: string) {
-  return `[${key}](${sonarURL(key)})`;
+  //return `[${key}](${sonarURL(key)})`;
+  return key;
 }
 
 function externalURL(plugin: string, key: string) {
