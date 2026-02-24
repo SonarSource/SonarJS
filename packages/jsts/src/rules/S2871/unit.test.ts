@@ -148,6 +148,47 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
+          // FP: sort() used for order-independent comparison
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+          },
+          // FP: Object.keys() always returns string[], default sort is fine
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `
+      function f(obj: Record<string, unknown>) {
+        return Object.keys(obj).sort();
+      }
+    `,
+          },
+          // FP: Map.keys() and Map.entries() return string keys
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(map: Map<string, string>) {
+        return Array.from(map.entries()).sort();
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -510,6 +551,33 @@ describe('S2871', () => {
           },
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
+          },
+          // FP: toSorted() used for order-independent comparison
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
+          },
+          // FP: Object.keys() always returns string[], default toSorted is fine
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
+          },
+          // FP: Map.keys() returns string keys
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).toSorted();
+      }
+    `,
           },
         ],
         invalid: [
