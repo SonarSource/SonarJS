@@ -390,8 +390,6 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 
 <!--- start external rules -->
 
-<!-- intentionally stale to test CI auto-update -->
-
 | SonarJS rule ID | Rule implemented by                                                                                                                                                                         |
 | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | S103            | [@stylistic/eslint-plugin/max-len](https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/rules/max-len/README.md)                                           |
