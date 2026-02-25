@@ -255,7 +255,7 @@ public class WebSensor implements Sensor {
       .addAllFilePaths(filePaths)
       .addAllRules(enabledRules)
       .addAllTsconfigPaths(
-        configuration.tsConfigPaths != null ? configuration.tsConfigPaths : List.of()
+        context.getTsConfigPaths() != null ? context.getTsConfigPaths() : List.of()
       )
       .build();
 
