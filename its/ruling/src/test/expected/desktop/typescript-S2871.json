@@ -1,17 +1,8 @@
 {
-"desktop:app/src/lib/read-emoji.ts": [
-120
-],
-"desktop:app/src/ui/acknowledgements/acknowledgements.tsx": [
-65
-],
 "desktop:app/src/ui/history/commit-list.tsx": [
 416
 ],
 "desktop:script/draft-release/run.ts": [
 95
-],
-"desktop:script/generate-octicons.ts": [
-58
 ]
 }
