@@ -36,16 +36,32 @@ SonarJS/
 ## Build Commands
 
 ```bash
+npm ci                          # Install dependencies
 npm run bbf                     # Fast JS/TS build (no tests)
 mvn install -DskipTests         # Complete build without Java tests
+
+# Generate code (after modifying rule metadata)
+npm run generate-meta
+npm run generate-java-rule-classes
+npm run new-rule                # Scaffold a new rule
 ```
 
-See `/build` for the full build pipeline reference.
+**Important:** Do not run full unit tests (`npm run bridge:test`) or ruling tests (`npm run ruling`) - they take too long. Run only specific tests for rules you're working on.
 
 ## Code Style
 
 - 2 spaces indentation, LF line endings, single quotes, trailing commas
 - Formatting enforced via pre-commit hooks
+
+## Shared Helpers
+
+The `packages/jsts/src/rules/helpers/` folder contains shared utility functions for rule implementations. **Before writing utility code in a rule, check if a similar helper already exists.** If you need a new utility that could benefit other rules, add it to the appropriate helper file rather than keeping it in the rule.
+
+Key helper files:
+
+- `ast.ts` - AST traversal and node type checking (`isFunctionNode`, `isIdentifier`, `hasTypePredicateReturn`, etc.)
+- `module.ts` - Module detection (`isESModule`, `getImportDeclarations`, `getFullyQualifiedName`, etc.)
+- `package-jsons/dependencies.ts` - Dependency detection (`getDependencies`, `getReactVersion`, etc.)
 
 ## Pull Requests
 
@@ -53,9 +69,8 @@ See `/build` for the full build pipeline reference.
 
 ## Important Notes
 
-- `generated-meta.ts` files are auto-generated from RSPEC — do not edit manually
+- `generated-meta.ts` files are auto-generated from RSPEC - do not edit manually
 - Java check classes in `sonar-plugin/javascript-checks/` are auto-generated
 - Rules use ESLint's visitor pattern
 - **Keep docs up to date** when changing build processes or workflows
 - See `.claude/rules.md` for rule development guidelines
-- See `.claude/skills/` for task-specific skills: `/build`, `/test-rule`, `/ruling`, `/new-rule`, `/rule-options`, `/rule-implementation`, `/helpers`, `/tests`, `/test-quality-standards`
