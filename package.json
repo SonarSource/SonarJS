@@ -133,7 +133,7 @@
     "http-status-codes": "2.3.0",
     "jsx-ast-utils-x": "0.1.0",
     "lodash.merge": "4.6.2",
-    "minimatch": "10.2.3",
+    "minimatch": "10.2.4",
     "patch-package": "8.0.1",
     "postcss": "8.5.6",
     "postcss-html": "1.8.1",
