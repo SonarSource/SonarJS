@@ -333,6 +333,8 @@
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
                 <exclude>coverage/**/*</exclude>
+                <!-- tsgolint submodule (separate project, own license) -->
+                <exclude>tsgolint/**/*</exclude>
               </excludes>
             </licenseSet>
           </licenseSets>
