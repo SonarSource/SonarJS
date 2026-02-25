@@ -15,24 +15,19 @@
     }
   },
   "remoteUser": "node",
-  // initializeCommand runs on the host before container creation (before the repo is cloned).
-  // It stages the corporate CA cert and ~/.npmrc so Docker can bind-mount them.
-  // On WSL2: /tmp is the distro's /tmp (not accessible to Docker Desktop), so wslpath converts
-  //   Windows TEMP to a /mnt/c/... path that Docker Desktop can reach.
-  // On Git Bash: /tmp is MSYS2's mapping of Windows TEMP — no conversion needed.
-  // On Linux/macOS: /tmp is directly accessible to Docker.
-  "initializeCommand": [
-    "bash", "-c",
-    "if grep -qi microsoft /proc/version 2>/dev/null; then STAGING=$(wslpath -u '${localEnv:TEMP:/tmp}' 2>/dev/null || echo /tmp); else STAGING=/tmp; fi && (cp \"${NODE_EXTRA_CA_CERTS:-}\" \"$STAGING/dc-cert.crt\" 2>/dev/null || touch \"$STAGING/dc-cert.crt\") && (cp ~/.npmrc \"$STAGING/dc-npmrc\" 2>/dev/null || touch \"$STAGING/dc-npmrc\")"
-  ],
+  // initializeCommand populates a Docker named volume (dc-sonarjs-secrets) with the corporate
+  // CA cert and ~/.npmrc from the WSL2 environment. This avoids all Windows path/8.3 shortname
+  // issues by letting Docker mount WSL2 paths directly into a temporary alpine container.
+  // Requirement: open the folder in container from a WSL2 terminal (code .) so that Docker CLI
+  // and WSL2 file paths ($NODE_EXTRA_CA_CERTS, ~/.npmrc) resolve correctly.
+  "initializeCommand": ["${localWorkspaceFolder}/.devcontainer/init-host.sh"],
   "mounts": [
-    "source=${localEnv:TEMP:/tmp}/dc-cert.crt,target=/tmp/dc-cert.crt,type=bind,consistency=cached,readonly",
-    "source=${localEnv:TEMP:/tmp}/dc-npmrc,target=/home/node/.npmrc,type=bind,consistency=cached,readonly"
+    "source=dc-sonarjs-secrets,target=/run/secrets,type=volume"
   ],
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
   },
-  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt $([ -f /tmp/dc-cert.crt ] && echo /tmp/dc-cert.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
+  "postCreateCommand": "mkdir -p /home/node/.certs && cp /run/secrets/dc-npmrc /home/node/.npmrc 2>/dev/null || true && cat /etc/ssl/certs/ca-certificates.crt $([ -f /run/secrets/dc-cert.crt ] && echo /run/secrets/dc-cert.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
