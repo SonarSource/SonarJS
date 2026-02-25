@@ -46,7 +46,7 @@ describe('transform', () => {
         message: 'some-text',
         language: 'css',
         line: 42,
-        column: 4242,
+        column: 4241,
       },
     ]);
   });
@@ -77,9 +77,9 @@ describe('transform', () => {
         message: 'some-text',
         language: 'css',
         line: 1,
-        column: 5,
+        column: 4,
         endLine: 1,
-        endColumn: 10,
+        endColumn: 9,
       },
     ]);
   });
@@ -130,7 +130,7 @@ describe('transform', () => {
         message: 'Unexpected empty block',
         language: 'css',
         line: 1,
-        column: 1,
+        column: 0,
       },
     ]);
   });
@@ -188,7 +188,7 @@ describe('transform', () => {
         message: 'Unexpected empty source',
         language: 'css',
         line: 1,
-        column: 1,
+        column: 0,
       },
     ]);
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toMatch(

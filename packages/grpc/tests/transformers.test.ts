@@ -575,9 +575,9 @@ describe('transformProjectOutputToResponse', () => {
             ruleId: 'block-no-empty',
             language: 'css',
             line: 1,
-            column: 3,
+            column: 2,
             endLine: 1,
-            endColumn: 6,
+            endColumn: 5,
             message: 'Unexpected empty block',
           },
         ],
@@ -589,9 +589,9 @@ describe('transformProjectOutputToResponse', () => {
     expect(result.issues?.length).toBe(1);
     expect(result.issues?.[0].textRange).toEqual({
       startLine: 1,
-      startLineOffset: 3,
+      startLineOffset: 2,
       endLine: 1,
-      endLineOffset: 6,
+      endLineOffset: 5,
     });
   });
 
@@ -603,7 +603,7 @@ describe('transformProjectOutputToResponse', () => {
             ruleId: 'block-no-empty',
             language: 'css',
             line: 1,
-            column: 3,
+            column: 2,
             message: 'Unexpected empty block',
           },
         ],
@@ -615,9 +615,9 @@ describe('transformProjectOutputToResponse', () => {
     expect(result.issues?.length).toBe(1);
     expect(result.issues?.[0].textRange).toEqual({
       startLine: 1,
-      startLineOffset: 3,
+      startLineOffset: 2,
       endLine: 1,
-      endLineOffset: 3,
+      endLineOffset: 2,
     });
   });
 });

@@ -52,7 +52,8 @@ export function transform(
     }
     for (const warning of result.warnings) {
       const line = isValidPosition(warning.line) ? warning.line : 1;
-      const column = isValidPosition(warning.column) ? warning.column : 1;
+      // Stylelint columns are 1-based; SonarQube expects 0-based
+      const column = isValidPosition(warning.column) ? warning.column - 1 : 0;
 
       if (!isValidPosition(warning.line) || !isValidPosition(warning.column)) {
         warn(
@@ -73,7 +74,7 @@ export function transform(
         issue.endLine = warning.endLine;
       }
       if (isValidPosition(warning.endColumn)) {
-        issue.endColumn = warning.endColumn;
+        issue.endColumn = warning.endColumn - 1;
       }
 
       issues.push(issue);
