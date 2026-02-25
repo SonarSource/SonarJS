@@ -54,7 +54,10 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
+import org.sonar.plugins.javascript.bridge.TsgolintBundle;
 import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzerGrpcServer;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzerGrpcServerImpl;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -75,8 +78,10 @@ public class WebSensor implements Sensor {
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
+  private final TsgolintBundle tsgolintBundle;
   private BridgeServer.ProjectAnalysisConfiguration configuration;
   private JsTsContext<?> context;
+  private AnalyzerGrpcServer tsgolintServer;
   FSListener fsListener;
 
   public WebSensor(
@@ -85,9 +90,19 @@ public class WebSensor implements Sensor {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
-    CssRules cssRules
+    CssRules cssRules,
+    TsgolintBundle tsgolintBundle
   ) {
-    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, cssRules, null);
+    this(
+      checks,
+      bridgeServer,
+      analysisProcessor,
+      analysisWarnings,
+      consumers,
+      cssRules,
+      tsgolintBundle,
+      null
+    );
   }
 
   public WebSensor(
@@ -97,6 +112,7 @@ public class WebSensor implements Sensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
+    TsgolintBundle tsgolintBundle,
     @Nullable FSListener fsListener
   ) {
     this.checks = checks;
@@ -106,6 +122,7 @@ public class WebSensor implements Sensor {
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
+    this.tsgolintBundle = tsgolintBundle;
   }
 
   @Override
@@ -147,6 +164,7 @@ public class WebSensor implements Sensor {
         context
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
+      startTsgolint();
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
@@ -174,8 +192,84 @@ public class WebSensor implements Sensor {
       LOG.error("Failure during analysis", e);
       throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
     } finally {
+      stopTsgolint();
       CacheStrategies.logReport();
     }
+  }
+
+  private void startTsgolint() {
+    try {
+      tsgolintBundle.deploy();
+      if (!tsgolintBundle.isAvailable()) {
+        LOG.info("tsgolint binary not available, skipping tsgolint analysis");
+        return;
+      }
+      var enabledRules = checks.enabledTsgolintRuleNames();
+      if (enabledRules.isEmpty()) {
+        LOG.debug("No tsgolint rules enabled in quality profile");
+        return;
+      }
+      tsgolintServer = new AnalyzerGrpcServerImpl(tsgolintBundle.binary());
+      tsgolintServer.start();
+    } catch (Exception e) {
+      LOG.error("Failed to start tsgolint, its rules will produce no issues", e);
+      tsgolintServer = null;
+    }
+  }
+
+  private void stopTsgolint() {
+    if (tsgolintServer != null) {
+      tsgolintServer.stop();
+      tsgolintServer = null;
+    }
+  }
+
+  private void runTsgolintAnalysis(List<InputFile> inputFiles) {
+    if (tsgolintServer == null || !tsgolintServer.isAlive()) {
+      return;
+    }
+    var enabledRules = checks.enabledTsgolintRuleNames();
+    if (enabledRules.isEmpty()) {
+      return;
+    }
+
+    // Collect TypeScript file paths for tsgolint analysis
+    var tsFiles = inputFiles
+      .stream()
+      .filter(f -> TypeScriptLanguage.KEY.equals(f.language()))
+      .toList();
+    if (tsFiles.isEmpty()) {
+      return;
+    }
+
+    LOG.info(
+      "Running tsgolint analysis on {} TypeScript files with {} rules",
+      tsFiles.size(),
+      enabledRules.size()
+    );
+
+    var filePaths = tsFiles.stream().map(InputFile::absolutePath).toList();
+
+    var request = org.sonar.plugins.javascript.bridge.grpc.AnalyzeProjectRequest.newBuilder()
+      .setBaseDir(context.getSensorContext().fileSystem().baseDir().getAbsolutePath())
+      .addAllFilePaths(filePaths)
+      .addAllRules(enabledRules)
+      .addAllTsconfigPaths(
+        configuration.tsConfigPaths != null ? configuration.tsConfigPaths : List.of()
+      )
+      .build();
+
+    var fileMap = new HashMap<String, InputFile>();
+    for (var f : tsFiles) {
+      fileMap.put(f.absolutePath(), f);
+    }
+
+    tsgolintServer.analyzeProject(request, issue -> {
+      var inputFile = fileMap.get(issue.filePath());
+      if (inputFile != null) {
+        analysisProcessor.saveIssue(context, issue);
+      }
+    });
   }
 
   private List<InputFile> getInputFiles() {
@@ -222,6 +316,8 @@ public class WebSensor implements Sensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
+      // Run tsgolint analysis after bridge analysis
+      runTsgolintAnalysis(inputFiles);
       new PluginTelemetry(context, bridgeServer).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
     } catch (CompletionException e) {
@@ -289,11 +385,12 @@ public class WebSensor implements Sensor {
         configuration.setFsEvents(fsListener.listFSEvents());
       }
       configuration.setSkipAst(context.skipAst(consumers));
-      var request = new BridgeServer.ProjectAnalysisRequest(
-        files,
-        checks.enabledEslintRules(),
-        configuration
-      );
+      // Use bridge rules only (excluding tsgolint-offloaded rules)
+      var bridgeRules =
+        tsgolintServer != null && tsgolintServer.isAlive()
+          ? checks.enabledBridgeEslintRules()
+          : checks.enabledEslintRules();
+      var request = new BridgeServer.ProjectAnalysisRequest(files, bridgeRules, configuration);
       request.setCssRules(cssRules.getStylelintRules());
       return request;
     }
