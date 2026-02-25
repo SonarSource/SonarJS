@@ -46,6 +46,8 @@ describe('analyzeCSS', () => {
             language: 'css',
             line: 1,
             column: 3,
+            endLine: 1,
+            endColumn: 5,
             message: 'Unexpected empty block',
           },
         ],
