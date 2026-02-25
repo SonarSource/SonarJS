@@ -71,3 +71,7 @@ lcov.info
 .claude/*
 !.claude/*.md
 !.claude/skills/
+
+# Claude Code sensitive settings
+.claude/settings.json
+.claude/settings.local.json
