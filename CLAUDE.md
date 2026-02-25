@@ -58,4 +58,4 @@ See `/build` for the full build pipeline reference.
 - Rules use ESLint's visitor pattern
 - **Keep docs up to date** when changing build processes or workflows
 - See `.claude/rules.md` for rule development guidelines
-- See `.claude/skills/` for task-specific skills: `/build`, `/test-rule`, `/ruling`, `/new-rule`, `/rule-options`
+- See `.claude/skills/` for task-specific skills: `/build`, `/test-rule`, `/ruling`, `/new-rule`, `/rule-options`, `/rule-implementation`, `/helpers`, `/tests`, `/test-quality-standards`
