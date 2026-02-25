@@ -17,38 +17,25 @@
 import { rule } from '../rule.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
-import { describe, it } from 'node:test';
+import { describe } from 'node:test';
 
 describe('S6747', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-
-  it('styled-jsx: jsx attribute on style tag is not flagged', () => {
-    process.chdir(dirname);
-    const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('S6747', rule, {
-      valid: [
-        {
-          // styled-jsx uses jsx prop to scope styles to a component
-          code: `<style jsx>{".foo { color: red; }"}</style>;`,
-          filename: join(dirname, 'filename.jsx'),
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  it('styled-jsx: global attribute on style tag is not flagged', () => {
-    process.chdir(dirname);
-    const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('S6747', rule, {
-      valid: [
-        {
-          // styled-jsx uses global prop to create global styles
-          code: `<style jsx global>{".foo { color: red; }"}</style>;`,
-          filename: join(dirname, 'filename.jsx'),
-        },
-      ],
-      invalid: [],
-    });
+  process.chdir(dirname);
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run('S6747 ignores jsx and global props for Styled-JSX projects', rule, {
+    valid: [
+      {
+        // styled-jsx scoped styles
+        code: `<style jsx>{".foo { color: red; }"}</style>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        // styled-jsx global styles
+        code: `<style jsx global>{".foo { color: red; }"}</style>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+    ],
+    invalid: [],
   });
 });

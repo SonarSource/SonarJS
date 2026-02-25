@@ -94,8 +94,8 @@ export const rule: Rule.RuleModule = {
 
     // Build list of props to ignore based on dependencies
     const frameworkIgnoredProps: string[] = [];
-    if (dependencies.has('next')) {
-      // Next.js styled-jsx uses jsx and global props
+    if (dependencies.has('next') || dependencies.has('styled-jsx')) {
+      // styled-jsx uses jsx and global props (used standalone or via Next.js)
       frameworkIgnoredProps.push('jsx', 'global');
     }
     if (dependencies.has('@emotion/react')) {
