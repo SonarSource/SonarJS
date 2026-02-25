@@ -26,13 +26,13 @@
     "if grep -qi microsoft /proc/version 2>/dev/null; then STAGING=$(wslpath -u '${localEnv:TEMP:/tmp}' 2>/dev/null || echo /tmp); else STAGING=/tmp; fi && (cp \"${NODE_EXTRA_CA_CERTS:-}\" \"$STAGING/dc-cert.crt\" 2>/dev/null || touch \"$STAGING/dc-cert.crt\") && (cp ~/.npmrc \"$STAGING/dc-npmrc\" 2>/dev/null || touch \"$STAGING/dc-npmrc\")"
   ],
   "mounts": [
-    "source=${localEnv:TEMP:/tmp}/dc-cert.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly",
+    "source=${localEnv:TEMP:/tmp}/dc-cert.crt,target=/tmp/dc-cert.crt,type=bind,consistency=cached,readonly",
     "source=${localEnv:TEMP:/tmp}/dc-npmrc,target=/home/node/.npmrc,type=bind,consistency=cached,readonly"
   ],
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
   },
-  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt $([ -f /tmp/corporate-ca.crt ] && echo /tmp/corporate-ca.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
+  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt $([ -f /tmp/dc-cert.crt ] && echo /tmp/dc-cert.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
