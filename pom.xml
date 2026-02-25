@@ -70,7 +70,7 @@
     <slf4j.version>2.0.17</slf4j.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
     <sonar.version>26.2.0.119303</sonar.version>
-    <sonar.api.version>13.5.0.4317</sonar.api.version>
+    <sonar.api.version>13.5.0.4319</sonar.api.version>
     <sonar-orchestrator.version>6.1.0.3962</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.13.2</gson.version>
