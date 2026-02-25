@@ -7,6 +7,13 @@ set -euo pipefail
 
 VOLUME=dc-sonarjs-secrets
 
+echo "[init-host] HOME=$HOME"
+echo "[init-host] USER=${USER:-<not set>}"
+echo "[init-host] NODE_EXTRA_CA_CERTS=${NODE_EXTRA_CA_CERTS:-<not set>}"
+echo "[init-host] npmrc path: $HOME/.npmrc"
+ls -la "$HOME/.npmrc" 2>&1 || echo "[init-host] ~/.npmrc not found"
+[[ -n "${NODE_EXTRA_CA_CERTS:-}" ]] && { ls -la "$NODE_EXTRA_CA_CERTS" 2>&1 || echo "[init-host] cert file not found"; }
+
 docker volume create "$VOLUME" > /dev/null
 
 # Build mount list and copy commands for a single-pass helper container
@@ -24,4 +31,6 @@ if [[ -f "$HOME/.npmrc" ]]; then
   NPMRC_CMD="cp /input/npmrc /secrets/dc-npmrc"
 fi
 
+echo "[init-host] Running: docker run --rm ${MOUNTS[*]} alpine sh -c \"$CERT_CMD && $NPMRC_CMD\""
 docker run --rm "${MOUNTS[@]}" alpine sh -c "$CERT_CMD && $NPMRC_CMD"
+echo "[init-host] Done."
