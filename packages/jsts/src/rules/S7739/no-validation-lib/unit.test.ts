@@ -205,7 +205,7 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // False Positive Pattern 8: JSON Schema {if, then} conditional construct
+        // JSON Schema {if, then} conditional construct
         {
           code: `
           const schema = {
@@ -219,7 +219,7 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // False Positive Pattern 9: JSON Schema {if, then, else} full conditional construct
+        // JSON Schema {if, then, else} conditional construct
         {
           code: `
           const schema = {
@@ -234,7 +234,7 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // False Positive Pattern 10: Multiple JSON Schema {if, then} conditionals in allOf
+        // Multiple JSON Schema {if, then} conditionals in allOf
         {
           code: `
           const schema = {
